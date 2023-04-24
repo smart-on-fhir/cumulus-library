@@ -1,0 +1,4 @@
+# The following valid templates are ignored until sqlfluff support SHOW statements
+# https://github.com/sqlfluff/sqlfluff/issues/4811
+show_tables.sql.jinja
+show_views.sql.jinja

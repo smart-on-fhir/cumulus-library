@@ -1,0 +1,116 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:BatchGetCrawlers",
+                "glue:GetCrawler",
+                "glue:GetCrawlerMetrics",
+                "glue:GetCrawlers",
+                "glue:ListCrawls",
+                "glue:ListCrawlers",
+                "glue:StartCrawler",
+                "glue:StopCrawler"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:GetDatabase",
+                "glue:CreateDatabase"
+            ],
+            "Resource": [
+                "arn:aws:glue:*:*:catalog",
+                "arn:aws:glue:*:*:database/---your database name---"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:CreatePartition",
+                "glue:CreateTable",
+                "glue:DeletePartition",
+                "glue:DeleteTable", 
+                "glue:GetDatabase",
+                "glue:GetDatabases",
+                "glue:GetPartition",
+                "glue:GetPartitions",
+                "glue:GetTable",
+                "glue:GetTables",
+                "glue:UpdatePartition",
+                "glue:UpdateTable"
+            ],
+            "Resource": [
+                "arn:aws:glue:*:*:catalog",
+                "arn:aws:glue:*:*:database/---Your database name---",
+                "arn:aws:glue:*:*:table/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "athena:BatchGetNamedQuery",
+                "athena:BatchGetPreparedStatement",
+                "athena:BatchGetQueryExecution",
+                "athena:CreateNamedQuery",
+                "athena:CreatePreparedStatement",
+                "athena:DeleteNamedQuery",
+                "athena:DeletePreparedStatement",
+                "athena:GetDatabase",
+                "athena:GetDataCatalog",
+                "athena:GetNamedQuery",
+                "athena:GetPreparedStatement",
+                "athena:GetQueryExecution",
+                "athena:GetQueryResults",
+                "athena:GetQueryRuntimeStatistics",
+                "athena:GetTableMetadata",
+                "athena:GetWorkGroup",
+                "athena:ListDatabases",
+                "athena:ListDataCatalogs",
+                "athena:ListEngineVersions",
+                "athena:ListNamedQueries",
+                "athena:ListPreparedStatements",
+                "athena:ListQueryExecutions",
+                "athena:ListTableMetadata",
+                "athena:ListTagsForResource",
+                "athena:ListWorkGroups",
+                "athena:StartQueryExecution",
+                "athena:StopQueryExecution",
+                "athena:UpdateNamedQuery",
+                "athena:UpdatePreparedStatement"
+            ],
+            "Resource": [
+                "arn:aws:athena:*:*:workgroup/cumulus*"
+            ]
+        },
+        {
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:PutObjectAcl",
+                "---Any S3 secretsmanager/KMS key info---"
+            ],
+            "Resource": [
+                "arn:aws:s3:::---Your bucket name---",
+                "arn:aws:s3:::---Your bucket name---/*",
+                "---Any secretsmanager/KMS ARNs---"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetBucketLocation"
+            ],
+            "Resource": [
+                "arn:aws:s3:::---Your bucket name---",
+                "arn:aws:s3:::---Your bucket name---/*"
+            ]
+        }
+    ]
+}

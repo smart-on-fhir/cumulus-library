@@ -1,0 +1,23 @@
+INSERT INTO {{ table_name }}
+(
+    {%- for col in table_cols -%}
+    {{ col }}
+    {%- if not loop.last -%}
+    , 
+    {%- endif -%}
+    {%- endfor -%}
+)
+VALUES
+{%- for row in dataset %}
+((
+    {%- for field in row -%}
+    '{{ field }}'
+    {%- if not loop.last -%}
+    , 
+    {%- endif -%}
+    {%- endfor -%}
+))
+{%- if not loop.last -%}
+, 
+{%- endif -%}
+{%- endfor %};
