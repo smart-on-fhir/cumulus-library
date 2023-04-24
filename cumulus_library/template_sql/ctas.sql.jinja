@@ -1,0 +1,27 @@
+CREATE TABLE "{{ schema_name }}"."{{ table_name }}" AS (
+    SELECT * FROM (
+        VALUES
+        {%- for row in dataset %}
+        ((
+            {%- for field in row -%}
+            cast('{{ field }}' AS varchar)
+            {%- if not loop.last -%}
+            , 
+            {%- endif -%}
+            {%- endfor -%}
+        ))
+        {%- if not loop.last -%}
+        , 
+        {%- endif -%}
+        {%- endfor %}
+    )
+    AS t -- noqa: L025
+    (
+        {%- for col in table_cols -%}
+        {{ col }}
+        {%- if not loop.last -%}
+        , 
+        {%- endif -%}
+        {%- endfor -%}
+    )
+);
