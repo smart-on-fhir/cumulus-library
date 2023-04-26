@@ -5,7 +5,7 @@ from pathlib import Path
 from rich.progress import Progress
 
 from cumulus_library.helper import query_console_output
-from cumulus_library.templates import (
+from cumulus_library.template_sql.templates import (
     get_ctas_query,
     get_insert_into_query,
 )

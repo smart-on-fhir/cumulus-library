@@ -1,0 +1,27 @@
+# If you'd like to run this template study as a proof of concept, you can load
+# the 1000 patient synthea cohort from: 
+#    https://github.com/smart-on-fhir/sample-bulk-fhir-datasets
+# into you database, and it will generate a very small count dataset
+
+# 'study_prefix' should be a string at the start of each table. We'll use this
+# to clean up queries, so it should be unique. Name your tables in the following
+# format: [study_prefix]__[table_name]. It should probably, but not necessarily,
+# be the same name as the folder the study definition is in.
+study_prefix = "template"
+
+# The following section describes all tables that should be generated directly
+# from SQL files.
+[sql_config]
+# 'file_names' defines a list of sql files to execute, in order, in this folder.
+# Recommended order: Any ancillary config (like a list of condition codes),
+# tables/view selecting subsets of data from FHIR data (if needed), tables/views 
+# creating ssummary statistics.
+file_names = ["setup.sql","lab_observations.sql","counts.sql"]
+
+
+# The following section defines parameters related to exporting study data from
+# your athena database
+[export_config]
+# The following tables will be output to disk when an export is run. In most cases,
+# only count tables should be output in this way.
+export_list = ["template__count_flu_test_month"]

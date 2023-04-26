@@ -11,6 +11,7 @@ dependencies = [
     "pyathena >= 2.23",
     "requests >= 2.28",
     "rich >= 13.2",
+    "toml >= 0.10"
 ]
 description = "SQL generation for cumulus clinical studies"
 readme = "README.md"
@@ -61,7 +62,10 @@ capitalisation_policy = "upper"
 
 [tool.sqlfluff.templater.jinja.context]
 schema_name = "test_schema"
-table_name = 'test_table'
-dataset = [['foo','foo'],['bar','bar']]
-table_cols = ['a','b']
-col_type_list = ['a string','b string']
+table_name = "test_table"
+view_or_table_name = "test_view_or_table"
+view_or_table = "TABLE"
+prefix = "Test"
+dataset = [["foo","foo"],["bar","bar"]]
+table_cols = ["a","b"]
+col_type_list = ["a string","b string"]
