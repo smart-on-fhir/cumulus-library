@@ -134,8 +134,9 @@ class StudyManifestParser:
         for query in queries:
             try:
                 cursor.execute(query[0])
-                query_console_output(verbose, query, progress, task)
+                query_console_output(verbose, query[0], progress, task)
             except Exception as e:
+                # TODO: handle errors gracefully
                 print(query[1])
                 print(e)
 
