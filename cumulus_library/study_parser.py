@@ -144,7 +144,8 @@ class StudyManifestParser:
     def export_study(self, cursor: Cursor):
         self.reset_export_dir()
         for table in track(
-            self.get_export_table_list(), description="Exporting core counts"
+            self.get_export_table_list(),
+            description=f"Exporting {self.get_study_prefix()} counts...",
         ):
             dataframe = cursor.execute(f"select * from {table}").as_pandas()
             project_path = Path(__file__).resolve().parents[1]
