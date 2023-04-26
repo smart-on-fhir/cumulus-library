@@ -14,8 +14,8 @@ study_prefix = "template"
 [sql_config]
 # 'file_names' defines a list of sql files to execute, in order, in this folder.
 # Recommended order: Any ancillary config (like a list of condition codes),
-# tables/view selecting subsets of data from FHIR data (if needed), tables/views 
-# creating ssummary statistics.
+# tables/view selecting subsets of data from FHIR data, tables/views creating 
+# summary statistics.
 file_names = ["setup.sql","lab_observations.sql","counts.sql"]
 
 
