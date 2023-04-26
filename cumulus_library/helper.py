@@ -44,11 +44,12 @@ def list_coding(code_display: dict, system=None) -> List[dict]:
         as_list.append(item)
     return as_list
 
+
 def query_console_output(
     verbose: bool, query: str, progress: progress.Progress, task: progress.Task
 ):
     """Convenience function for determining output type"""
     if verbose:
-        print('\n',query)
+        print("\n", query)
     else:
         progress.advance(task)
