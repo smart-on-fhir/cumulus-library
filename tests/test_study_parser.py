@@ -93,7 +93,7 @@ def test_clean_study(mock_output, schema, verbose, raises):
     with raises:
         mock_cursor = mock.MagicMock()
         mock_cursor.__iter__.return_value = [["test__table"]]
-        parser = StudyManifestParser("./test_data/study_valid/")
+        parser = StudyManifestParser("./tests/test_data/study_valid/")
         tables = parser.clean_study(mock_cursor, schema, verbose)
         assert tables == [["test__table", "VIEW"]]
         assert mock_output.is_called()
@@ -102,10 +102,10 @@ def test_clean_study(mock_output, schema, verbose, raises):
 @pytest.mark.parametrize(
     "path,verbose,raises",
     [
-        ("./test_data/study_valid/", True, does_not_raise()),
-        ("./test_data/study_valid/", False, does_not_raise()),
-        ("./test_data/study_valid/", None, does_not_raise()),
-        ("./test_data/study_wrong_prefix/", None, pytest.raises(SystemExit)),
+        ("./tests/test_data/study_valid/", True, does_not_raise()),
+        ("./tests/test_data/study_valid/", False, does_not_raise()),
+        ("./tests/test_data/study_valid/", None, does_not_raise()),
+        ("./tests/test_data/study_wrong_prefix/", None, pytest.raises(SystemExit)),
     ],
 )
 @mock.patch("cumulus_library.helper.query_console_output")
@@ -114,13 +114,13 @@ def test_build_study(mock_output, path, verbose, raises):
         mock_cursor = mock.MagicMock()
         parser = StudyManifestParser(path)
         queries = parser.build_study(mock_cursor, verbose)
-        assert queries == [["CREATE TABLE test__table", "test.sql"]]
+        assert queries == [["CREATE TABLE test__table (test int)", "test.sql"]]
         assert mock_output.is_called()
 
 
 def test_export_study(monkeypatch):
     mock_cursor = mock.MagicMock()
-    parser = StudyManifestParser("./test_data/study_valid/")
+    parser = StudyManifestParser("./tests/test_data/study_valid/")
     monkeypatch.setattr(pathlib, "PosixPath", mock.MagicMock())
     queries = parser.export_study(mock_cursor)
     assert queries == ["select * from test__table"]
