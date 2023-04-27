@@ -6,8 +6,6 @@ from library.schema.valueset import EncounterCode
 from library.schema.valueset import ObservationInterpretationDetection
 
 from library.schema import future
-from covid import covid_define
-from suicidality import suicidality_define
 
 
 class ColumnEnum(Enum):
@@ -105,79 +103,3 @@ class ColumnEnum(Enum):
     pcr_week = Datatypes.Date, "Week of PCR result", DurationUnits.weeks
     pcr_month = Datatypes.Date, "Month of PCR result", DurationUnits.months
     pcr_year = Datatypes.Date, "Year of PCR result", DurationUnits.years
-
-    # covid Symptoms Study
-    covid_dx = Datatypes.Boolean, "COVID diagnosis ICD10 or PCR Positive"
-    covid_icd10 = (
-        Datatypes.Boolean,
-        "COVID diagnosis ICD10 code recorded",
-        covid_define.CovidDiagnosis,
-    )
-    covid_pcr_code = Datatypes.Coding, "COVID PCR test code"
-    covid_pcr_result = Datatypes.Coding, "COVID PCR result", covid_define.CovidPCR
-    covid_pcr_result_display = Datatypes.Str, "COVID PCR result", covid_define.CovidPCR
-
-    variant_era = (
-        Datatypes.Coding,
-        "COVID Variant Era",
-    )  # TODO: covid_define.CovidVariantEra
-
-    covid_pcr_date = Datatypes.Date, "Date of COVID PCR result", DurationUnits.days
-    covid_pcr_week = Datatypes.Date, "Week of COVID PCR result", DurationUnits.weeks
-    covid_pcr_month = Datatypes.Date, "Month of COVID PCR result", DurationUnits.months
-
-    covid_symptom = Datatypes.Coding, "COVID Symptom Label", covid_define.CovidSymptom
-    symptom_code = Datatypes.Coding, "Symptom UMLS code extracted by NLP"
-    symptom_display = Datatypes.Str, "Symptom UMLS label extracted by NLP"
-    symptom_icd10_display = Vocab.ICD10, "Symptom UMLS label extracted by NLP"
-
-    # Suicidality Study
-    suicidality_diagnosis = (
-        Datatypes.Code,
-        "Suicidality ideation or attempt (see also self-harm)",
-        suicidality_define.SuicidalityDiagnosis,
-    )
-    suicidality_psych_border = (
-        Datatypes.Boolean,
-        "Psychiatric Border Form Present",
-        suicidality_define.PsychiatryBorderForm,
-    )
-    suicidality_self_harm_code = Vocab.ICD10, "intentional self-harm (ICD10 codes)"
-    suicidality_awaiting_admission = (
-        Vocab.ICD10,
-        "Awaiting admission to admit facility (ICD10 codes)",
-        suicidality_define.AwaitingFacilityAdmission,
-    )
-
-    # lyme
-    lyme_lab_month = Datatypes.Date, "Lyme month of lab result", DurationUnits.months
-    lyme_lab_display = Datatypes.Str, "Lyme lab result display"
-
-    def __init__(self, datatype: Datatypes, display=None, values=None):
-        self.display = display
-        self.datatype = datatype
-        self.values = None
-
-        if values:
-            if isinstance(values, list):
-                self.values = values
-            if isinstance(values, dict):
-                self.values = values
-            if isinstance(values, Coding):  # single item
-                self.values = [values.as_json()]
-            elif isinstance(values, EnumMeta):  # ColumnEnum
-                self.values = [c.as_json() for c in values]
-
-    def as_json(self):
-        meta = {"display": self.display, "datatype": self.datatype.name}
-        if self.values:
-            meta["values"] = self.values
-
-        if "ICD10" == self.datatype.name:
-            meta["system"] = Vocab.ICD10.url
-        elif "SNOMED" == self.datatype.name:
-            meta["system"] = Vocab.SNOMED.url
-        elif "LOINC" == self.datatype.name:
-            meta["system"] = Vocab.LOINC.url
-
-        return {self.name: meta}
