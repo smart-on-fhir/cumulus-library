@@ -170,7 +170,11 @@ class StudyBuilder:
         for filename in targets:
             self.execute_sql_template(umls.relpath(filename))
 
-    def clean_manifest_study(self, studyparser):
+    def clean_manifest_study(self, studyparser: StudyManifestParser) -> None:
+        """Removes DB artifacts associated with a manifest generated study
+
+        :param studyparser: An instance of StudyManifestParser
+        """
         studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
 
     def clean(self):
@@ -207,8 +211,12 @@ class StudyBuilder:
         for filename in targets:
             self.execute_sql_template(umls.relpath(filename))
 
-    def build_manifest_study(self, studyparser):
-        studyparser.build_study(self.cursor, self.schema_name, self.verbose)
+    def build_manifest_study(self, studyparser: StudyManifestParser) -> None:
+        """Creates DB artifacts associated with a manifest generated study
+
+        :param studyparser: An instance of StudyManifestParser
+        """
+        studyparser.build_study(self.cursor, self.verbose)
 
     def make_all(self):
         """Builds views for all studies"""
@@ -233,6 +241,10 @@ class StudyBuilder:
             self.export_table(table, "core")
 
     def export_manifest_study(self, studyparser):
+        """Exports aggregates associated with a manifest generated study
+
+        :param studyparser: An instance of StudyManifestParser
+        """
         studyparser.export_study(self.pandas_cursor)
 
     def export_all(self):
@@ -240,7 +252,11 @@ class StudyBuilder:
         self.export_core()
 
 
-def get_manifest_study_dict():
+def get_manifest_study_dict() -> List[Path]:
+    """Convenience function for getting directories in ./studies/
+
+    :returns: A list of pathlib.Path objects
+    """
     manifest_studies = {}
     library_path = Path(__file__).resolve().parents[0]
     for path in Path(f"{library_path}/studies").iterdir():
@@ -249,7 +265,7 @@ def get_manifest_study_dict():
     return manifest_studies
 
 
-def run_make(args):  # pylint: disable=too-many-branches
+def run_cli(args):  # pylint: disable=too-many-branches
     """Controls which library tasks are run based on CLI arguments"""
     builder = StudyBuilder(
         args["s3_bucket"],
@@ -395,7 +411,7 @@ def main(cli_args=None):
     if region_env := os.environ.get("CUMULUS_LIBRARY_REGION"):
         args["region"] = region_env
 
-    return run_make(args)
+    return run_cli(args)
 
 
 if __name__ == "__main__":
