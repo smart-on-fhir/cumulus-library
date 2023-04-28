@@ -17,7 +17,7 @@ WITH powerset AS (
 
 SELECT DISTINCT
     cnt_encounter AS cnt,
-    influenza_test_code,
+    influenza_lab_code,
     influenza_result_display,
     influenza_test_month
 FROM powerset

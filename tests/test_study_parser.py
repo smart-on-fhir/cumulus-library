@@ -28,12 +28,6 @@ def test_load_manifest(manifest_path, raises):
         parser = StudyManifestParser(path)
 
 
-"""
-
-
-"""
-
-
 @pytest.mark.parametrize(
     "manifest_key, raises",
     [
@@ -58,25 +52,25 @@ def test_manifest_data(manifest_key, raises):
             assert parser.get_study_prefix() == expected["study_prefix"]
             print(expected)
             if "sql_config" in expected.keys():
-                if expected["sql_config"]["file_names"] == []:
-                    assert parser.get_sql_file_list() is None
+                if expected["sql_config"]["file_names"] == None:
+                    assert parser.get_sql_file_list() == []
                 else:
                     assert (
                         parser.get_sql_file_list()
                         == expected["sql_config"]["file_names"]
                     )
             else:
-                assert parser.get_sql_file_list() is None
+                assert parser.get_sql_file_list() == []
             if "export_config" in expected.keys():
-                if expected["export_config"]["export_list"] == []:
-                    assert parser.get_export_table_list() is None
+                if expected["export_config"]["export_list"] == None:
+                    assert parser.get_export_table_list() == []
                 else:
                     assert (
                         parser.get_export_table_list()
                         == expected["export_config"]["export_list"]
                     )
             else:
-                assert parser.get_export_table_list() is None
+                assert parser.get_export_table_list() == []
 
 
 @pytest.mark.parametrize(

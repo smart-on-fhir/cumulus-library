@@ -293,7 +293,6 @@ def run_cli(args):  # pylint: disable=too-many-branches
                 studyparser = StudyManifestParser(manifest_study_dict[target])
                 builder.clean_manifest_study(studyparser)
                 builder.build_manifest_study(studyparser)
-                exit()
             elif target == "all":
                 builder.make_all()
     if args["export"]:
@@ -307,7 +306,6 @@ def run_cli(args):  # pylint: disable=too-many-branches
             elif target in manifest_study_dict.keys():
                 studyparser = StudyManifestParser(manifest_study_dict[target])
                 builder.export_manifest_study(studyparser)
-                exit()
 
     # returning the builder for ease of unit testing
     return builder

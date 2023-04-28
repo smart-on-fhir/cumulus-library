@@ -7,7 +7,7 @@
 # to clean up queries, so it should be unique. Name your tables in the following
 # format: [study_prefix]__[table_name]. It should probably, but not necessarily,
 # be the same name as the folder the study definition is in.
-study_prefix = "template"
+study_prefix = "template2"
 
 # The following section describes all tables that should be generated directly
 # from SQL files.
