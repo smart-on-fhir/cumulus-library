@@ -1,5 +1,5 @@
 import pytest
-from cumulus_library.templates import get_ctas_query, get_insert_into_query
+from cumulus_library.template_sql.templates import get_ctas_query, get_insert_into_query
 
 
 def test_ctas_query_creation():

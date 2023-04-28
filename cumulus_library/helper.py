@@ -50,6 +50,7 @@ def query_console_output(
 ):
     """Convenience function for determining output type"""
     if verbose:
+        print()
         print(query)
     else:
         progress.advance(task)

@@ -15,6 +15,7 @@ from pyathena.pandas.cursor import PandasCursor
 from rich.progress import track
 
 from cumulus_library import core, umls
+from cumulus_library.study_parser import StudyManifestParser
 
 
 class CumulusEnv:  # pylint: disable=too-few-public-methods
@@ -28,12 +29,12 @@ class CumulusEnv:  # pylint: disable=too-few-public-methods
         self.region = os.environ.get("CUMULUS_LIBRARY_REGION", "us-east-1")
         self.workgroup = os.environ.get("CUMULUS_LIBRARY_WORKGROUP", "cumulus")
         self.profile = os.environ.get("CUMULUS_LIBRARY_PROFILE")
-        self.schema = os.environ.get("CUMULUS_LIBRARY_SCHEMA")
+        self.schema_name = os.environ.get("CUMULUS_LIBRARY_SCHEMA")
 
     def get_study_builder(self):
         """Convinience method for getting athena args from environment"""
         return StudyBuilder(
-            self.bucket, self.region, self.workgroup, self.profile, self.schema
+            self.bucket, self.region, self.workgroup, self.profile, self.schema_name
         )
 
 
@@ -41,6 +42,7 @@ class StudyBuilder:
     """Class for managing Athena cursors and executing Cumulus queries"""
 
     verbose = False
+    schema_name = None
 
     def __init__(  # pylint: disable=too-many-arguments
         self, bucket: str, region: str, workgroup: str, profile: str, schema: str
@@ -60,7 +62,7 @@ class StudyBuilder:
             schema_name=schema,
             cursor_class=PandasCursor,
         ).cursor()
-        self.schema = schema
+        self.schema_name = schema
 
     ### Athena SQL execution helpers
 
@@ -100,8 +102,7 @@ class StudyBuilder:
 
     def execute_sql(self, sql_list: List[str]):
         """
-        Execute SQL commands from a list of files.
-        File may include multiple SQL statements and comments (--)
+        Execute SQL commands from a list of statements.
         :param sql_list: list of SQL commands
         :return: None (fail fast - script will die on exception)
         """
@@ -128,7 +129,7 @@ class StudyBuilder:
             print("#########################################")
             print(template_path)
         module = SourceFileLoader("template", template_path).load_module()
-        module.execute_templates(self.cursor, self.schema, self.verbose)
+        module.execute_templates(self.cursor, self.schema_name, self.verbose)
 
     def reset_export_dir(self, study):
         """
@@ -169,6 +170,13 @@ class StudyBuilder:
         for filename in targets:
             self.execute_sql_template(umls.relpath(filename))
 
+    def clean_manifest_study(self, studyparser: StudyManifestParser) -> None:
+        """Removes DB artifacts associated with a manifest generated study
+
+        :param studyparser: An instance of StudyManifestParser
+        """
+        studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
+
     def clean(self):
         """
         Drop all study tables and the schema.
@@ -185,7 +193,6 @@ class StudyBuilder:
         """
         targets = [
             "fhir_define.sql",
-            "site_define.sql",
             "patient.sql",
             "encounter.sql",
             "documentreference.sql",
@@ -203,6 +210,13 @@ class StudyBuilder:
         ]
         for filename in targets:
             self.execute_sql_template(umls.relpath(filename))
+
+    def build_manifest_study(self, studyparser: StudyManifestParser) -> None:
+        """Creates DB artifacts associated with a manifest generated study
+
+        :param studyparser: An instance of StudyManifestParser
+        """
+        studyparser.build_study(self.cursor, self.verbose)
 
     def make_all(self):
         """Builds views for all studies"""
@@ -226,12 +240,32 @@ class StudyBuilder:
         for table in track(targets, description="Exporting core counts"):
             self.export_table(table, "core")
 
+    def export_manifest_study(self, studyparser):
+        """Exports aggregates associated with a manifest generated study
+
+        :param studyparser: An instance of StudyManifestParser
+        """
+        studyparser.export_study(self.pandas_cursor)
+
     def export_all(self):
         """Exports all defined count tables to disk"""
         self.export_core()
 
 
-def run_make(args):  # pylint: disable=too-many-branches
+def get_manifest_study_dict() -> List[Path]:
+    """Convenience function for getting directories in ./studies/
+
+    :returns: A list of pathlib.Path objects
+    """
+    manifest_studies = {}
+    library_path = Path(__file__).resolve().parents[0]
+    for path in Path(f"{library_path}/studies").iterdir():
+        if path.is_dir():
+            manifest_studies[path.name] = path
+    return manifest_studies
+
+
+def run_cli(args):  # pylint: disable=too-many-branches
     """Controls which library tasks are run based on CLI arguments"""
     builder = StudyBuilder(
         args["s3_bucket"],
@@ -246,6 +280,7 @@ def run_make(args):  # pylint: disable=too-many-branches
     builder.cursor.execute("show tables")
     if not args["build"] and not args["export"]:
         print("Neither build nor export specified - exiting with no action")
+    manifest_study_dict = get_manifest_study_dict()
     if args["build"]:
         for target in args["target"]:
             if target == "core":
@@ -254,16 +289,24 @@ def run_make(args):  # pylint: disable=too-many-branches
             elif target == "umls":
                 builder.clean_umls()
                 builder.make_umls()
-            else:
+            elif target in manifest_study_dict.keys():
+                studyparser = StudyManifestParser(manifest_study_dict[target])
+                builder.clean_manifest_study(studyparser)
+                builder.build_manifest_study(studyparser)
+            elif target == "all":
                 builder.make_all()
     if args["export"]:
         for target in args["target"]:
-            if target not in ["all", "core", "covid"]:
-                print(f"{target} has no data export currently defined")
-            elif target == "core":
+            #            if target not in ["all", "core", "covid"]:
+            #                print(f"{target} has no data export currently defined")
+            if target == "core":
                 builder.export_core()
-            else:
+            elif target == "all":
                 builder.export_all()
+            elif target in manifest_study_dict.keys():
+                studyparser = StudyManifestParser(manifest_study_dict[target])
+                builder.export_manifest_study(studyparser)
+
     # returning the builder for ease of unit testing
     return builder
 
@@ -342,7 +385,7 @@ def get_parser(make_list):
 
 def main(cli_args=None):
     """Reads CLI input/environment variables and invokes library calls"""
-    make_list = ["core", "covid", "lyme", "suicidality", "umls"]
+    make_list = ["core", "umls"]
     parser = get_parser(make_list)
     args = vars(parser.parse_args(cli_args))
     if args["target"] is not None:
@@ -350,9 +393,9 @@ def main(cli_args=None):
             if target == "all":
                 args["target"] = ["all"]
                 break
-            if target not in make_list:
-                print(f"Invalid study: {target}")
-                sys.exit(1)
+            # if target not in make_list:
+            #    print(f"Invalid study: {target}")
+            #    sys.exit(1)
     else:
         args["target"] = ["all"]
     if profile_env := os.environ.get("CUMULUS_LIBRARY_PROFILE"):
@@ -366,7 +409,7 @@ def main(cli_args=None):
     if region_env := os.environ.get("CUMULUS_LIBRARY_REGION"):
         args["region"] = region_env
 
-    return run_make(args)
+    return run_cli(args)
 
 
 if __name__ == "__main__":
