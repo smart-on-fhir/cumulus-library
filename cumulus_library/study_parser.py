@@ -133,6 +133,7 @@ class StudyManifestParser:
         view_sql = get_show_views(schema_name, prefix)
         table_sql = get_show_tables(schema_name, prefix)
         view_table_list = []
+
         for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
             cursor.execute(query_and_type[0])
             for db_row_tuple in cursor:
@@ -146,6 +147,7 @@ class StudyManifestParser:
                         view_table_list.append([db_row_tuple[0], query_and_type[1]])
                 else:
                     view_table_list.append([db_row_tuple[0], query_and_type[1]])
+
         with Progress(disable=not verbose) as progress:
             task = progress.add_task(
                 f"Removing {self.get_study_prefix()} study artifacts...",
