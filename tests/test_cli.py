@@ -30,12 +30,12 @@ def test_cli_no_reads_or_writes(mock_connect, args):
 @pytest.mark.parametrize(
     "args,cursor_calls,pandas_cursor_calls",
     [
-        (["-t", "all", "-b"], 164, 0),
-        (["-t", "umls", "-b"], 120, 0),
-        (["-t", "core", "-b"], 45, 0),
-        (["-t", "all", "-e"], 1, 6),
+        (["-t", "all", "-b"], 139, 0),
+        (["-t", "vocab", "-b"], 119, 0),
+        (["-t", "core", "-b"], 21, 0),
+        (["-t", "all", "-e"], 1, 7),
         (["-t", "core", "-e"], 1, 6),
-        (["-t", "core", "-e", "-b"], 45, 6),
+        (["-t", "core", "-e", "-b"], 21, 6),
     ],
 )
 def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_calls):

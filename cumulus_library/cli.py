@@ -64,7 +64,7 @@ class StudyBuilder:
         ).cursor()
         self.schema_name = schema
 
-    def reset_export_dir(self, study):
+    def reset_export_dir(self, study:PosixPath) -> None:
         """
         Removes existing exports from a study's local data dir
         """
@@ -85,7 +85,7 @@ class StudyBuilder:
         studyparser.run_python_builder(self.cursor, self.schema_name, self.verbose)
         studyparser.build_study(self.cursor, self.verbose)
 
-    def clean_and_build_all(self, study_dict: Dict):
+    def clean_and_build_all(self, study_dict: Dict) -> None:
         """Builds views for all studies"""
         study_dict.pop("template")
         for precursor_study in ["vocab", "core"]:
@@ -109,7 +109,7 @@ class StudyBuilder:
             self.export_study(study_dict[key])
 
 
-def get_study_dict() -> Dict[str, PosixPath]:
+def get_study_dict() -> Dict[str, PosixPath] -> List:
     """Convenience function for getting directories in ./studies/
 
     :returns: A list of pathlib.PosixPath objects
@@ -122,7 +122,7 @@ def get_study_dict() -> Dict[str, PosixPath]:
     return manifest_studies
 
 
-def run_cli(args):  # pylint: disable=too-many-branches
+def run_cli(args: Dict):  # pylint: disable=too-many-branches
     """Controls which library tasks are run based on CLI arguments"""
     builder = StudyBuilder(
         args["s3_bucket"],
@@ -149,7 +149,7 @@ def run_cli(args):  # pylint: disable=too-many-branches
             builder.export_all(study_dict)
         else:
             for target in args["target"]:
-                builder.exportstudy(study_dict[target])
+                builder.export_study(study_dict[target])
 
     # returning the builder for ease of unit testing
     return builder
