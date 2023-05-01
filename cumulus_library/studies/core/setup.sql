@@ -1,6 +1,14 @@
 -- Emergency Department Notes
 --
-CREATE OR REPLACE VIEW core__ed_note AS SELECT * FROM
+CREATE OR REPLACE VIEW core__ed_note AS
+SELECT
+    t.from_system,
+    t.from_code,
+    t.analyte,
+    t.system,
+    t.code,
+    t.display
+FROM
     (
         VALUES
         (
@@ -51,4 +59,5 @@ CREATE OR REPLACE VIEW core__ed_note AS SELECT * FROM
             '51846-4',
             'Emergency department Consult note'
         )
-    );
+    )
+    AS t (from_system, from_code, analyte, system, code, display);

@@ -22,4 +22,4 @@ SELECT DISTINCT
     influenza_test_month
 FROM powerset
 WHERE cnt_subject >= 10
-ORDER BY influenza_test_month ASC, influenza_result_display ASC;
+ORDER BY cnt_encounter DESC, influenza_test_month ASC, influenza_result_display ASC;

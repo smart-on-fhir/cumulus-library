@@ -3,7 +3,7 @@ SELECT
     code,
     display,
     code_display,
-    system
+    code_system
 FROM (
     SELECT
         code,

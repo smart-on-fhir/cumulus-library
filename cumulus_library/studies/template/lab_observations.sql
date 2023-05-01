@@ -9,7 +9,7 @@ SELECT DISTINCT
     o.subject_ref,
     o.encounter_ref,
     o.observation_ref
-FROM core_observation_lab AS o,
+FROM core__observation_lab AS o,
     template__influenza_codes AS tfc
 WHERE
     (o.lab_date BETWEEN date('2016-06-01') AND current_date)
