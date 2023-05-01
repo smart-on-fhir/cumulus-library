@@ -17,4 +17,4 @@ class BaseRunner(ABC):
         :param schema: A schema name
         :param verbose: toggle for verbose output mode
         """
-        raise Exception("Not implemented")
+        raise NotImplementedError

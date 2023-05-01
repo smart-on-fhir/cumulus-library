@@ -60,11 +60,10 @@ class StudyManifestParser:
         :raises StudyManifestParsingError: the manifest.toml is malformed or missing.
         """
         try:
-            with open(f"{study_path}/manifest.toml") as file:
+            with open(f"{study_path}/manifest.toml", encoding="UTF-8") as file:
                 config = toml.load(file)
-                if (
-                    not config.get("study_prefix")
-                    or type(config["study_prefix"]) != str
+                if not config.get("study_prefix") or not isinstance(
+                    config["study_prefix"], str
                 ):
                     raise StudyManifestParsingError(
                         f"Invalid prefix in manifest at {study_path}"
@@ -72,7 +71,7 @@ class StudyManifestParser:
                 self._study_config = config
             self._study_path = study_path
         except FileNotFoundError:
-            raise StudyManifestParsingError(
+            raise StudyManifestParsingError(  # pylint: disable=raise-missing-from
                 f"Missing or invalid manifest found at {study_path}"
             )
 
@@ -157,8 +156,10 @@ class StudyManifestParser:
                         view_table_list.append([db_row_tuple[0], query_and_type[1]])
                 else:
                     view_table_list.append([db_row_tuple[0], query_and_type[1]])
-        if view_table_list == []:
+        if not view_table_list:
             return view_table_list
+
+        # We want to only show a progress bar if we are :not: printing SQL lines
         with Progress(disable=verbose) as progress:
             task = progress.add_task(
                 f"Removing {self.get_study_prefix()} study artifacts...",
@@ -202,7 +203,9 @@ class StudyManifestParser:
         """
         for file in self.get_python_file_list():
             # Grab the baserunner class from the manifest-defined module
-            runner_module = SourceFileLoader(
+            # TODO: if we need to support python 3.12, cutover to exec_modules
+            # (warning: it sounds like this is non-trivial)
+            runner_module = SourceFileLoader(  # pylint: disable=deprecated-method, no-value-for-parameter
                 "BaseRunner", f"{self._study_path}/{file}"
             ).load_module()
 
@@ -210,7 +213,7 @@ class StudyManifestParser:
             # Since BaseRunner itself is a valid subclass of BaseRunner, we'll
             # detect and skip it. If we don't find exactly one subclass, we'll punt.
             runner_subclasses = []
-            for name, cls_obj in inspect.getmembers(runner_module, inspect.isclass):
+            for _, cls_obj in inspect.getmembers(runner_module, inspect.isclass):
                 if issubclass(cls_obj, BaseRunner) and cls_obj != BaseRunner:
                     runner_subclasses.append(cls_obj)
             if len(runner_subclasses) != 1:
@@ -239,20 +242,22 @@ class StudyManifestParser:
         for file in self.get_sql_file_list():
             for query in parse_sql(load_text(f"{self._study_path}/{file}")):
                 queries.append([query, file])
-        if len(queries) > 0:
-            with Progress(disable=verbose) as progress:
-                task = progress.add_task(
-                    f"Creating {self.get_study_prefix()} study in db...",
-                    total=len(queries),
-                    visible=not verbose,
-                )
-                self._execute_build_queries(
-                    cursor,
-                    verbose,
-                    queries,
-                    progress,
-                    task,
-                )
+        if len(queries) == 0:
+            return []
+        # We want to only show a progress bar if we are :not: printing SQL lines
+        with Progress(disable=verbose) as progress:
+            task = progress.add_task(
+                f"Creating {self.get_study_prefix()} study in db...",
+                total=len(queries),
+                visible=not verbose,
+            )
+            self._execute_build_queries(
+                cursor,
+                verbose,
+                queries,
+                progress,
+                task,
+            )
         return queries
 
     def _query_error(self, query_and_filename: List, exit_message: str) -> None:
@@ -291,7 +296,7 @@ class StudyManifestParser:
             try:
                 cursor.execute(query[0])
                 query_console_output(verbose, query[0], progress, task)
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 self._query_error(
                     query,
                     "You can debug issues with this query using `sqlfluff lint`, "

@@ -5,14 +5,12 @@ import argparse
 import os
 import sys
 
-from importlib.machinery import SourceFileLoader
 from pathlib import Path, PosixPath
-from typing import List, Dict
+from typing import Dict
 
 import pyathena
 
 from pyathena.pandas.cursor import PandasCursor
-from rich.progress import track
 
 from cumulus_library.study_parser import StudyManifestParser
 
@@ -97,7 +95,7 @@ class StudyBuilder:
         for precursor_study in ["vocab", "core"]:
             self.clean_and_build_study(study_dict[precursor_study])
             study_dict.pop(precursor_study)
-        for key in study_dict.keys():
+        for key in study_dict:
             self.clean_and_build_study(study_dict[key])
 
     ### Data exporters
@@ -152,7 +150,7 @@ def run_cli(args: Dict):  # pylint: disable=too-many-branches
             builder.clean_and_build_all(study_dict)
         else:
             for target in args["target"]:
-                if target in study_dict.keys():
+                if target in study_dict:
                     builder.clean_and_build_study(study_dict[target])
 
     if args["export"]:
