@@ -51,8 +51,4 @@ CREATE OR REPLACE VIEW core__ed_note AS SELECT * FROM
             '51846-4',
             'Emergency department Consult note'
         )
-    --    , ('BCH', 'NOTE:318198113', 'ED Social Work',                 'http://loinc.org','28653-4', 'Social work Note')
-    --    , ('BCH', 'NOTE:318198110', 'ED Social Work Brief Screening', 'http://loinc.org','28653-4', 'Social work Note')
-    --    , ('BCH', 'NOTE:318198107', 'ED Social Work Assessment',      'http://loinc.org','28653-4', 'Social work Note')
-    --    , ('BCH', 'NOTE:189094619', 'Sexual Assault Nurse Exam (SANE) Report', 'http://loinc.org',  '57053-1', 'Nurse Emergency department Note')
     );
