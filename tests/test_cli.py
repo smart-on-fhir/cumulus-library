@@ -34,7 +34,7 @@ def test_cli_no_reads_or_writes(mock_connect, args):
         (["-t", "all", "-b", "-d", "test"], 139, 0),
         (["-t", "vocab", "-b", "-d", "test"], 119, 0),
         (["-t", "core", "-b", "-d", "test"], 21, 0),
-        (["-t", "all", "-e", "-d", "test"], 1, 6),
+        (["-t", "all", "-e", "-d", "test"], 1, 7),
         (["-t", "core", "-e", "-d", "test"], 1, 6),
         (["-t", "core", "-e", "-b", "-d", "test"], 21, 6),
     ],
