@@ -14,7 +14,6 @@ import pyathena
 from pyathena.pandas.cursor import PandasCursor
 from rich.progress import track
 
-# from cumulus_library import core, umls
 from cumulus_library.study_parser import StudyManifestParser
 
 
@@ -86,7 +85,14 @@ class StudyBuilder:
         studyparser.build_study(self.cursor, self.verbose)
 
     def clean_and_build_all(self, study_dict: Dict) -> None:
-        """Builds views for all studies"""
+        """Builds views for all studies.
+
+        NOTE: By design, this method will always exclude the `template` study dir,
+        since 99% of the time you don't need a live copy in the database.
+
+        :param study_dict: A dict of PosixPaths
+        """
+        study_dict = dict(study_dict)
         study_dict.pop("template")
         for precursor_study in ["vocab", "core"]:
             self.clean_and_build_study(study_dict[precursor_study])
@@ -133,19 +139,24 @@ def run_cli(args: Dict):  # pylint: disable=too-many-branches
     )
     if args["verbose"]:
         builder.verbose = True
+
     # here we invoke the cursor once to confirm valid connections
     builder.cursor.execute("show tables")
+
     if not args["build"] and not args["export"]:
-        print("Neither build nor export specified - exiting with no action")
+        sys.exit("Neither build nor export specified - exiting with no action")
     study_dict = get_study_dict()
+
     if args["build"]:
-        if "all" in args["target"] or args["target"] == None:
+        if "all" in args["target"]:
             builder.clean_and_build_all(study_dict)
-        for target in args["target"]:
-            if target in study_dict.keys():
-                builder.clean_and_build_study(study_dict[target])
+        else:
+            for target in args["target"]:
+                if target in study_dict.keys():
+                    builder.clean_and_build_study(study_dict[target])
+
     if args["export"]:
-        if "all" in args["target"] or args["target"] == None:
+        if "all" in args["target"]:
             builder.export_all(study_dict)
         else:
             for target in args["target"]:
@@ -174,7 +185,10 @@ def get_parser():
         "-t",
         "--target",
         action="append",
-        help=("Specify one or more studies to create views for. "),
+        help=(
+            "Specify one or more studies to create views form. Default is to "
+            "build all studies."
+        ),
     )
     parser.add_argument(
         "-b",

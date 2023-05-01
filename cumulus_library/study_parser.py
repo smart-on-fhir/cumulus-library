@@ -60,7 +60,6 @@ class StudyManifestParser:
         :raises StudyManifestParsingError: the manifest.toml is malformed or missing.
         """
         try:
-            print(study_path)
             with open(f"{study_path}/manifest.toml") as file:
                 config = toml.load(file)
                 if (
@@ -158,16 +157,15 @@ class StudyManifestParser:
                         view_table_list.append([db_row_tuple[0], query_and_type[1]])
                 else:
                     view_table_list.append([db_row_tuple[0], query_and_type[1]])
-        if len(view_table_list) > 0:
-            with Progress(disable=verbose) as progress:
-                task = progress.add_task(
-                    f"Removing {self.get_study_prefix()} study artifacts...",
-                    total=len(view_table_list),
-                    visible=not verbose,
-                )
-                self._execute_drop_queries(
-                    cursor, verbose, view_table_list, progress, task
-                )
+        if view_table_list == []:
+            return view_table_list
+        with Progress(disable=verbose) as progress:
+            task = progress.add_task(
+                f"Removing {self.get_study_prefix()} study artifacts...",
+                total=len(view_table_list),
+                visible=not verbose,
+            )
+            self._execute_drop_queries(cursor, verbose, view_table_list, progress, task)
         return view_table_list
 
     def _execute_drop_queries(
@@ -224,7 +222,7 @@ class StudyManifestParser:
             # We'll get the subclass, run the executor code, and then remove it
             # so it doesn't interfere with the next python module to execute, since
             # the subclass would otherwise hang around.
-            runner = runner_module.BaseRunner.__subclasses__()[0]
+            runner = runner_subclasses[0]
             runner.run_executor(runner, cursor, schema, verbose)
             del sys.modules[runner_module.__name__]
             del runner_module
