@@ -100,6 +100,12 @@ def test_clean_study(mock_output, schema, verbose, raises):
         ("./tests/test_data/study_valid/", False, does_not_raise()),
         ("./tests/test_data/study_valid/", None, does_not_raise()),
         ("./tests/test_data/study_wrong_prefix/", None, pytest.raises(SystemExit)),
+        ("./tests/test_data/study_python_valid/", True, does_not_raise()),
+        (
+            "./tests/test_data/study_python_no_subclass/",
+            True,
+            pytest.raises(StudyManifestParsingError),
+        ),
     ],
 )
 @mock.patch("cumulus_library.helper.query_console_output")
@@ -107,9 +113,11 @@ def test_build_study(mock_output, path, verbose, raises):
     with raises:
         mock_cursor = mock.MagicMock()
         parser = StudyManifestParser(path)
+        queries = parser.run_python_builder(mock_cursor, verbose)
         queries = parser.build_study(mock_cursor, verbose)
-        assert queries == [["CREATE TABLE test__table (test int)", "test.sql"]]
-        assert mock_output.is_called()
+        if "python" not in path:
+            assert queries == [["CREATE TABLE test__table (test int)", "test.sql"]]
+            assert mock_output.is_called()
 
 
 def test_export_study(monkeypatch):

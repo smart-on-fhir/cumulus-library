@@ -1,6 +1,8 @@
 """ Contains classes for loading study data based on manifest.toml files """
+import inspect
 import sys
 
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from typing import List, Optional
 
@@ -8,6 +10,7 @@ import toml
 
 from rich.progress import Progress, TaskID, track
 
+from cumulus_library.base_runner import BaseRunner
 from cumulus_library.helper import query_console_output, load_text, parse_sql
 from cumulus_library.template_sql.templates import (
     get_show_tables,
@@ -57,6 +60,7 @@ class StudyManifestParser:
         :raises StudyManifestParsingError: the manifest.toml is malformed or missing.
         """
         try:
+            print(study_path)
             with open(f"{study_path}/manifest.toml") as file:
                 config = toml.load(file)
                 if (
@@ -86,6 +90,14 @@ class StudyManifestParser:
         :returns: An array of sql files from the manifest, or None if not found.
         """
         sql_config = self._study_config.get("sql_config", {})
+        return sql_config.get("file_names", [])
+
+    def get_python_file_list(self) -> Optional[StrList]:
+        """Reads the contents of the python_config array from the manifest
+
+        :returns: An array of sql files from the manifest, or None if not found.
+        """
+        sql_config = self._study_config.get("python_config", {})
         return sql_config.get("file_names", [])
 
     def get_export_table_list(self) -> Optional[StrList]:
@@ -133,7 +145,6 @@ class StudyManifestParser:
         view_sql = get_show_views(schema_name, prefix)
         table_sql = get_show_tables(schema_name, prefix)
         view_table_list = []
-
         for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
             cursor.execute(query_and_type[0])
             for db_row_tuple in cursor:
@@ -147,14 +158,16 @@ class StudyManifestParser:
                         view_table_list.append([db_row_tuple[0], query_and_type[1]])
                 else:
                     view_table_list.append([db_row_tuple[0], query_and_type[1]])
-
-        with Progress(disable=not verbose) as progress:
-            task = progress.add_task(
-                f"Removing {self.get_study_prefix()} study artifacts...",
-                total=len(view_table_list),
-                visible=not verbose,
-            )
-            self._execute_drop_queries(cursor, verbose, view_table_list, progress, task)
+        if len(view_table_list) > 0:
+            with Progress(disable=verbose) as progress:
+                task = progress.add_task(
+                    f"Removing {self.get_study_prefix()} study artifacts...",
+                    total=len(view_table_list),
+                    visible=not verbose,
+                )
+                self._execute_drop_queries(
+                    cursor, verbose, view_table_list, progress, task
+                )
         return view_table_list
 
     def _execute_drop_queries(
@@ -180,21 +193,56 @@ class StudyManifestParser:
             cursor.execute(drop_view_table)
             query_console_output(verbose, drop_view_table, progress, task)
 
+    def run_python_builder(
+        self, cursor: object, schema: str, verbose: bool = False
+    ) -> None:
+        """Loads arbitrary modules from a manifest and executes code via BaseRunners
+
+        :param cursor: A PEP-249 compatible cursor object
+        :param schema: The name of the schema to write tables to
+        :param verbose: toggle from progress bar to query output
+        """
+        for file in self.get_python_file_list():
+            # Grab the baserunner class from the manifest-defined module
+            runner_module = SourceFileLoader(
+                "BaseRunner", f"{self._study_path}/{file}"
+            ).load_module()
+
+            # We're going to find all subclasses of BaseRunner in this file.
+            # Since BaseRunner itself is a valid subclass of BaseRunner, we'll
+            # detect and skip it. If we don't find exactly one subclass, we'll punt.
+            runner_subclasses = []
+            for name, cls_obj in inspect.getmembers(runner_module, inspect.isclass):
+                if issubclass(cls_obj, BaseRunner) and cls_obj != BaseRunner:
+                    runner_subclasses.append(cls_obj)
+            if len(runner_subclasses) != 1:
+                raise StudyManifestParsingError(
+                    f"Error loading {self._study_path}/{file}\n"
+                    "Custom runners must extend the BaseRunner class exactly once per module."
+                )
+
+            # We'll get the subclass, run the executor code, and then remove it
+            # so it doesn't interfere with the next python module to execute, since
+            # the subclass would otherwise hang around.
+            runner = runner_module.BaseRunner.__subclasses__()[0]
+            runner.run_executor(runner, cursor, schema, verbose)
+            del sys.modules[runner_module.__name__]
+            del runner_module
+
     def build_study(self, cursor: object, verbose: bool = False) -> List:
         """Creates tables in the schema by iterating through the sql_config.file_names
 
         :param cursor: A PEP-249 compatible cursor object
-        :verbose: toggle from progress bar to query output, optional
+        :param schema: The name of the schema to write tables to
+        :param verbose: toggle from progress bar to query output, optional
         :returns: loaded queries (for unit testing only)
         """
         queries = []
         for file in self.get_sql_file_list():
             for query in parse_sql(load_text(f"{self._study_path}/{file}")):
                 queries.append([query, file])
-        if verbose:
-            self._execute_build_queries(cursor, verbose, queries, None, None)
-        else:
-            with Progress(disable=not verbose) as progress:
+        if len(queries) > 0:
+            with Progress(disable=verbose) as progress:
                 task = progress.add_task(
                     f"Creating {self.get_study_prefix()} study in db...",
                     total=len(queries),
@@ -236,7 +284,7 @@ class StudyManifestParser:
         :param task: a TaskID for a given progress bar
         """
         for query in queries:
-            if f"{self.get_study_prefix()}__" not in query[0]:
+            if f"{self.get_study_prefix()}__" not in query[0].split("\n")[0]:
                 self._query_error(
                     query,
                     "This query does not contain the study prefix. All tables should "
@@ -245,11 +293,12 @@ class StudyManifestParser:
             try:
                 cursor.execute(query[0])
                 query_console_output(verbose, query[0], progress, task)
-            except StudyManifestParsingError as e:
+            except Exception as e:
                 self._query_error(
                     query,
                     "You can debug issues with this query using `sqlfluff lint`, "
-                    "or by executing the query directly against the database.",
+                    "or by executing the query directly against the database.\n"
+                    f"Error: {e}",
                 )
 
     # Database exporting functions

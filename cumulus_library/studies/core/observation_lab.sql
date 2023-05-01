@@ -14,9 +14,8 @@
 --a result value or a reason why the data is absent*
 --if the result value is a numeric quantity, a standard UCUM unit
 
-DROP TABLE IF EXISTS core_observation_lab;
 
-CREATE TABLE core_observation_lab AS
+CREATE TABLE core__observation_lab AS
 WITH temp_observation_lab AS (
     SELECT
         category_row.code AS category,
@@ -55,7 +54,7 @@ WHERE tol.effectivedatetime BETWEEN date('2016-06-01') AND current_date;
 -- ###########################################################################
 -- COUNT Patients, Encounters, Lab Results
 -- ###########################################################################
-CREATE OR REPLACE VIEW count_core_observation_lab_month AS
+CREATE OR REPLACE VIEW core__count_observation_lab_month AS
 WITH powerset AS (
     SELECT
         count(DISTINCT o.subject_ref) AS cnt_subject,
@@ -65,7 +64,7 @@ WITH powerset AS (
         o.lab_code,
         o.lab_result,
         e.enc_class
-    FROM core_observation_lab AS o, core_encounter AS e
+    FROM core__observation_lab AS o, core__encounter AS e
     WHERE o.encounter_ref = e.encounter_ref
     GROUP BY cube(o.lab_month, o.lab_code, o.lab_result, e.enc_class)
 )

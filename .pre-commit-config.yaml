@@ -15,6 +15,3 @@ repos:
     rev: 2.0.2
     hooks:
       - id: sqlfluff-lint
-        entry: sqlfluff lint --processes 0
-        language: python
-        types: [sql,jinja]

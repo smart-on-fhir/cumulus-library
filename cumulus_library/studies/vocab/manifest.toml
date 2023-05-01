@@ -1,0 +1,11 @@
+study_prefix = "vocab"
+
+[python_config]
+file_names = [
+    "vocab_icd_builder.py",
+]
+
+[sql_config]
+file_names = [
+    "icd_legend.sql",
+]
