@@ -1,3 +1,4 @@
+# pylint: disable=W,C,R
 from enum import Enum, EnumMeta
 from library.schema.typesystem import Datatypes, Coding, Vocab
 from library.schema.valueset import Gender, Race, Ethnicity

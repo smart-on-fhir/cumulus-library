@@ -1,4 +1,4 @@
-import unittest
+# pylint: disable=W,C,R
 from library.schema.valueset import DurationUnits
 from library.schema.columns import ColumnEnum as Column
 from library.errors import LibraryError

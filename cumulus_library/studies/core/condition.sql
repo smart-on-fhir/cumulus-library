@@ -14,9 +14,8 @@
 --    abatement date (in other words, date of resolution or remission)
 --    a date when recorded
 
-DROP TABLE IF EXISTS core_condition;
 
-CREATE TABLE core_condition AS
+CREATE TABLE core__condition AS
 WITH temp_condition AS (
     SELECT
         c.category,
@@ -33,47 +32,47 @@ WITH temp_condition AS (
 
 SELECT
     t_category_coding.category_row AS category,
-    c.code AS cond_code,
-    c.subject_ref,
-    c.encounter_ref,
-    c.condition_id,
-    c.condition_ref,
-    c.recordeddate,
-    date_trunc('week', date(c.recordeddate)) AS recorded_week,
-    date_trunc('month', date(c.recordeddate)) AS recorded_month,
-    date_trunc('year', date(c.recordeddate)) AS recorded_year
-FROM temp_condition AS c,
+    tc.code AS cond_code,
+    tc.subject_ref,
+    tc.encounter_ref,
+    tc.condition_id,
+    tc.condition_ref,
+    tc.recordeddate,
+    date_trunc('week', date(tc.recordeddate)) AS recorded_week,
+    date_trunc('month', date(tc.recordeddate)) AS recorded_month,
+    date_trunc('year', date(tc.recordeddate)) AS recorded_year
+FROM temp_condition AS tc,
     unnest(category) AS t_category (category_coding), --noqa
     unnest(category_coding.coding) AS t_category_coding (category_row), --noqa
     unnest(code.coding) AS t_coding (code_row) --noqa
-WHERE c.recordeddate BETWEEN date('2016-01-01') AND current_date;
+WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
 
-CREATE OR REPLACE VIEW join_core_condition_icd AS
+CREATE OR REPLACE VIEW core__join_condition_icd AS
 SELECT
-    c.subject_ref,
-    c.encounter_ref,
-    c.recorded_month AS cond_month,
-    e.enc_class.code AS enc_class_code,
-    icd.code AS cond_code,
-    icd.code_display AS cond_code_display
-FROM core_condition AS c, core_encounter AS e, icd_legend AS icd
+    cc.subject_ref,
+    cc.encounter_ref,
+    cc.recorded_month AS cond_month,
+    ce.enc_class.code AS enc_class_code,
+    vil.code AS cond_code,
+    vil.code_display AS cond_code_display
+FROM core__condition AS cc, core__encounter AS ce, vocab__icd_legend AS vil
 WHERE
-    c.encounter_ref = e.encounter_ref
-    AND c.cond_code.coding[1].code = icd.code; --noqa
+    cc.encounter_ref = ce.encounter_ref
+    AND cc.cond_code.coding[1].code = vil.code; --noqa
 
-CREATE OR REPLACE VIEW count_core_condition_icd10_month AS
+CREATE OR REPLACE VIEW core__count_condition_icd10_month AS
 WITH powerset AS (
     SELECT
-        count(DISTINCT c.subject_ref) AS cnt_subject,
-        count(DISTINCT c.encounter_ref) AS cnt_encounter,
-        icd.code_display,
-        c.recorded_month,
-        e.enc_class
-    FROM core_condition AS c, core_encounter AS e, icd_legend AS icd
+        count(DISTINCT cc.subject_ref) AS cnt_subject,
+        count(DISTINCT cc.encounter_ref) AS cnt_encounter,
+        vil.code_display,
+        cc.recorded_month,
+        ce.enc_class
+    FROM core__condition AS cc, core__encounter AS ce, vocab__icd_legend AS vil
     WHERE
-        c.encounter_ref = e.encounter_ref
-        AND c.cond_code.coding[1].code = icd.code --noqa
-    GROUP BY cube(icd.code_display, c.recorded_month, e.enc_class)
+        cc.encounter_ref = ce.encounter_ref
+        AND cc.cond_code.coding[1].code = vil.code --noqa
+    GROUP BY cube(vil.code_display, cc.recorded_month, ce.enc_class)
 )
 
 SELECT

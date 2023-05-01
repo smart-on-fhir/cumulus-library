@@ -1,3 +1,4 @@
+# pylint: disable=W,C,R
 from enum import Enum
 
 from fhirclient.models.fhirdate import FHIRDate

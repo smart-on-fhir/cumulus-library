@@ -2,10 +2,7 @@
 -- Encounter
 -- https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-encounter.html
 
-DROP TABLE IF EXISTS core_encounter;
-DROP TABLE IF EXISTS core_encounter_patient;
-
-CREATE TABLE core_encounter AS
+CREATE TABLE core__encounter AS
 WITH temp_encounter AS (
     SELECT DISTINCT
         e.period,
@@ -34,53 +31,53 @@ SELECT DISTINCT
     e.subject_ref,
     e.encounter_ref,
     e.encounter_id
-FROM temp_encounter AS e, core_patient AS p
+FROM temp_encounter AS e, core__patient AS p
 WHERE
     e.subject_ref = p.subject_ref
     AND start_date BETWEEN date('2016-06-01') AND current_date;
 
-CREATE OR REPLACE VIEW join_encounter_patient AS
+CREATE OR REPLACE VIEW core__join_encounter_patient AS
 SELECT
-    e.enc_class,
-    e.enc_type,
-    e.age_at_visit,
-    e.start_date,
-    e.end_date,
-    e.start_week,
-    e.start_month,
-    e.start_year,
-    e.subject_ref,
-    e.encounter_ref,
-    e.encounter_id,
-    enc_class.code AS enc_class_code,
-    p.gender,
-    p.race,
-    p.postalcode3
-FROM core_encounter AS e, core_patient AS p
-WHERE e.subject_ref = p.subject_ref;
+    ce.enc_class,
+    ce.enc_type,
+    ce.age_at_visit,
+    ce.start_date,
+    ce.end_date,
+    ce.start_week,
+    ce.start_month,
+    ce.start_year,
+    ce.subject_ref,
+    ce.encounter_ref,
+    ce.encounter_id,
+    ce.enc_class.code AS enc_class_code,
+    cp.gender,
+    cp.race,
+    cp.postalcode3
+FROM core__encounter AS ce, core__patient AS cp
+WHERE ce.subject_ref = cp.subject_ref;
 
 
-CREATE OR REPLACE VIEW count_core_encounter_month AS
+CREATE OR REPLACE VIEW core__count_encounter_month AS
 WITH powerset AS (
     SELECT
-        count(DISTINCT e.subject_ref) AS cnt_subject,
-        count(DISTINCT e.encounter_id) AS cnt_encounter,
-        e.enc_class.code AS enc_class_code,
-        e.start_month,
-        e.age_at_visit,
-        p.gender,
-        p.race,
-        p.postalcode3
-    FROM core_encounter AS e, core_patient AS p
-    WHERE e.subject_ref = p.subject_ref
+        count(DISTINCT ce.subject_ref) AS cnt_subject,
+        count(DISTINCT ce.encounter_id) AS cnt_encounter,
+        ce.enc_class.code AS enc_class_code,
+        ce.start_month,
+        ce.age_at_visit,
+        cp.gender,
+        cp.race,
+        cp.postalcode3
+    FROM core__encounter AS ce, core__patient AS cp
+    WHERE ce.subject_ref = cp.subject_ref
     GROUP BY
         cube(
-            e.enc_class,
-            e.start_month,
-            e.age_at_visit,
-            p.gender,
-            p.race,
-            p.postalcode3
+            ce.enc_class,
+            ce.start_month,
+            ce.age_at_visit,
+            cp.gender,
+            cp.race,
+            cp.postalcode3
         )
 )
 
@@ -97,16 +94,16 @@ WHERE powerset.cnt_subject >= 10
 ORDER BY
     powerset.start_month ASC, powerset.enc_class_code ASC, powerset.age_at_visit ASC;
 
-CREATE OR REPLACE VIEW count_core_encounter_day AS
+CREATE OR REPLACE VIEW core__count_encounter_day AS
 WITH powerset AS (
     SELECT
-        count(DISTINCT e.subject_ref) AS cnt_subject,
-        count(DISTINCT e.encounter_id) AS cnt_encounter,
-        enc_class.code AS enc_class_code,
-        e.start_date
-    FROM core_encounter AS e, core_patient AS p
-    WHERE e.subject_ref = p.subject_ref
-    GROUP BY cube(e.enc_class, e.start_date)
+        count(DISTINCT ce.subject_ref) AS cnt_subject,
+        count(DISTINCT ce.encounter_id) AS cnt_encounter,
+        ce.enc_class.code AS enc_class_code,
+        ce.start_date
+    FROM core__encounter AS ce, core__patient AS cp
+    WHERE ce.subject_ref = cp.subject_ref
+    GROUP BY cube(ce.enc_class, ce.start_date)
 )
 
 SELECT DISTINCT

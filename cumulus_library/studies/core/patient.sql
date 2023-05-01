@@ -2,9 +2,8 @@
 -- FHIR Patient
 -- http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
 
-DROP TABLE IF EXISTS core_patient;
 
-CREATE TABLE core_patient AS
+CREATE TABLE core__patient AS
 WITH temp_patient AS (
     SELECT DISTINCT
         gender,
@@ -40,15 +39,15 @@ WHERE
     AND tp.gender IS NOT NULL;
 
 -- count demographics
-CREATE OR REPLACE VIEW count_core_patient AS
+CREATE OR REPLACE VIEW core__count_patient AS
 WITH powerset AS (
     SELECT
-        count(DISTINCT core_patient.subject_ref) AS cnt_subject,
-        core_patient.gender,
-        core_patient.age,
-        race.display AS race_display
-    FROM core_patient
-    GROUP BY cube(core_patient.gender, core_patient.age, core_patient.race)
+        count(DISTINCT cp.subject_ref) AS cnt_subject,
+        cp.gender,
+        cp.age,
+        cp.race.display AS race_display
+    FROM core__patient AS cp
+    GROUP BY cube(cp.gender, cp.age, cp.race)
 )
 
 SELECT

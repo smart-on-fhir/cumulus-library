@@ -1,3 +1,4 @@
+""" Collection of small commonly used utility functions """
 import os
 import json
 from typing import List
@@ -9,20 +10,20 @@ def filepath(filename: str) -> str:
 
 
 def load_text(path: str) -> str:
-    with open(path, "r") as fp:
+    with open(path, "r", encoding="UTF-8") as fp:
         return fp.read()
 
 
 def load_json(path: str) -> dict:
-    with open(path, "r") as fp:
+    with open(path, "r", encoding="UTF-8") as fp:
         return json.load(fp)
 
 
 def parse_sql(sql_text: str) -> List[str]:
-    commands = list()
+    commands = []
 
     for statement in sql_text.split(";"):
-        parsed = list()
+        parsed = []
         for line in statement.splitlines():
             if not line.strip().startswith("--"):
                 parsed.append(line)
@@ -35,7 +36,7 @@ def filter_strip(commands) -> List[str]:
 
 
 def list_coding(code_display: dict, system=None) -> List[dict]:
-    as_list = list()
+    as_list = []
     for code, display in code_display.items():
         if system:
             item = {"code": code, "display": display, "system": system}
@@ -46,11 +47,11 @@ def list_coding(code_display: dict, system=None) -> List[dict]:
 
 
 def query_console_output(
-    verbose: bool, query: str, progress: progress.Progress, task: progress.Task
+    verbose: bool, query: str, progress_bar: progress.Progress, task: progress.Task
 ):
     """Convenience function for determining output type"""
     if verbose:
         print()
         print(query)
     else:
-        progress.advance(task)
+        progress_bar.advance(task)

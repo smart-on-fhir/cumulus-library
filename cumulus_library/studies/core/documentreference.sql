@@ -18,9 +18,7 @@
 --    the patient encounter that is being referenced
 --    clinically relevant date
 
-DROP TABLE IF EXISTS core_documentreference;
-
-CREATE TABLE core_documentreference AS
+CREATE TABLE core__documentreference AS
 WITH temp_documentreference AS (
     SELECT DISTINCT
         dr.type,
@@ -59,7 +57,7 @@ FROM temp_documentreference AS tdr,
 WHERE author_date BETWEEN date('2016-06-01') AND current_date;
 
 -- count *group by* DocumentReference.type
-CREATE OR REPLACE VIEW count_core_documentreference_month AS
+CREATE OR REPLACE VIEW core__count_documentreference_month AS
 WITH powerset AS (
     SELECT
         count(DISTINCT d.subject_ref) AS cnt_subject,
@@ -68,7 +66,7 @@ WITH powerset AS (
         d.doc_type_display,
         d.author_month,
         e.enc_class.code AS enc_class_code
-    FROM core_documentreference AS d, core_encounter AS e
+    FROM core__documentreference AS d, core__encounter AS e
     WHERE d.encounter_ref = e.encounter_ref
     GROUP BY cube(d.doc_type_display, d.author_month, e.enc_class)
 )

@@ -1,0 +1,23 @@
+study_prefix = "core"
+
+[sql_config]
+file_names = [
+    "setup.sql",
+    "fhir_define.sql",
+    "patient.sql",
+    "encounter.sql",
+    "documentreference.sql",
+    "condition.sql",
+    "observation_lab.sql",
+    "study_period.sql",
+]
+
+[export_config]
+export_list = [
+    "core__count_patient",
+    "core__count_encounter_month",
+    "core__count_documentreference_month",
+    "core__count_observation_lab_month",
+    "core__count_core_condition_icd10_month",
+    "core__meta_date",
+]

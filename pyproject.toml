@@ -34,6 +34,7 @@ build-backend = "flit_core.buildapi"
 
 dev = [
     "black",
+    "pylint",
     # There are some bugfix actions occuring in sqlfluff that are currently
     # breaking autoformatting for CTAS queries - pinning until this shakes out
     "sqlfluff == 2.0.2"

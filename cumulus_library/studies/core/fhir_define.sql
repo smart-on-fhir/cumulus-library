@@ -1,7 +1,7 @@
 -- ############################################################
 -- FHIR Terminology
 
-CREATE OR REPLACE VIEW fhir_vocab AS SELECT * FROM
+CREATE OR REPLACE VIEW core__fhir_vocab AS SELECT * FROM
     (
         VALUES
         ('ICD10', 'http://hl7.org/fhir/sid/icd-10-cm'),
@@ -43,7 +43,7 @@ CREATE OR REPLACE VIEW fhir_vocab AS SELECT * FROM
 -- ############################################################
 -- FHIR StructureDefinition
 
-CREATE OR REPLACE VIEW fhir_define AS
+CREATE OR REPLACE VIEW core__fhir_define AS
 SELECT * FROM
     (
         VALUES
