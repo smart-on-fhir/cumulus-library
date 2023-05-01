@@ -64,7 +64,7 @@ class StudyBuilder:
         ).cursor()
         self.schema_name = schema
 
-    def reset_export_dir(self, study:PosixPath) -> None:
+    def reset_export_dir(self, study: PosixPath) -> None:
         """
         Removes existing exports from a study's local data dir
         """
@@ -109,7 +109,7 @@ class StudyBuilder:
             self.export_study(study_dict[key])
 
 
-def get_study_dict() -> Dict[str, PosixPath] -> List:
+def get_study_dict() -> Dict[str, PosixPath]:
     """Convenience function for getting directories in ./studies/
 
     :returns: A list of pathlib.PosixPath objects
