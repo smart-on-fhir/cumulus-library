@@ -1,6 +1,7 @@
+<!-- intended audience: clinical researchers, IRB reviewers, reference tone-->
 # Core study details
 
-Cumulus calculates the **patient count** for every patient group using the [SQL CUBE function](https://prestodb.io/docs/current/sql/select.html#group-by-clause).  
+The core study calculates the **patient count** for every patient group using the [SQL CUBE function](https://prestodb.io/docs/current/sql/select.html#group-by-clause).  
 *THRESHOLDS* are applied to ensure *no patient group has < 10 patients*.
  
 Patient count can be the 
@@ -31,11 +32,9 @@ Examples:
 - [Naive Bayes Classifier](https://en.wikipedia.org/wiki/Naive_Bayes_classifier) very fast probabilistic classifier
 - others
 
+## Core study exportable counts tables
 
-
------------------------------------------------------------------------- 
-
-## count_core_condition_icd10_month
+### count_core_condition_icd10_month
 | Variable  |   Description |
 | --------  |   --------    |
 | cnt   |   Count   |
@@ -44,7 +43,7 @@ Examples:
 | enc_class_code    |   Encounter Code (Healthcare Setting) |
 
 
-## count_core_documentreference_month
+### count_core_documentreference_month
 | Variable  |   Description |
 | --------  |   --------    |
 | cnt   |   Count   |
@@ -53,7 +52,7 @@ Examples:
 | doc_type_display  |   Type of Document (display)  |
 
 
-## count_core_encounter_day
+### count_core_encounter_day
 | Variable  |   Description |
 | --------  |   --------    |
 | cnt   |   Count   |
@@ -61,7 +60,7 @@ Examples:
 | start_date    |   Day patient encounter started   |
 
 
-## count_core_encounter_month
+### count_core_encounter_month
 | Variable  |   Description |
 | --------  |   --------    |
 | cnt   |   Count   |
@@ -73,7 +72,7 @@ Examples:
 | postalcode3   |   Patient 3 digit zip |
 
 
-## count_core_observation_lab_month
+### count_core_observation_lab_month
 | Variable  |   Description |
 | --------  |   --------    |
 | cnt   |   Count   |
@@ -83,7 +82,7 @@ Examples:
 | enc_class_code    |   Encounter Code (Healthcare Setting) |
 
 
-## count_core_patient
+### count_core_patient
 | Variable  |   Description |
 | --------  |   --------    |
 | cnt   |   Count   |
