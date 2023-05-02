@@ -80,25 +80,25 @@ run inside your study's directory:
   expected style
 
 In order to both make your queries parsable to other humans, and to have sqlfluff
-be maximally helpful, we have a requirement and some suggestions for query
+be maximally helpful, we have a few requirements and some suggestions for query
 styling.
 
-**Required**
-
+**Hard Requirement**
   - All your tables **must** start with a string like `my_study__`. Cumulus Library
   will notify you if you try to create a table that doesn't match this pattern.
 
-**Recommended**
-
-  - You may want to select a SQL style guide as a reference.
-  [Gitlab's data team](https://about.gitlab.com/handbook/business-technology/data-team/platform/sql-style-guide/)
-  has an example of this, though their are other choices.
-  - Count tables should use the CUBE function to create powersets of data. See the
+**Requirements for accepting PRs**
+ - Count tables should use the CUBE function to create powersets of data. See the
   [CUBE section of groupby](https://prestodb.io/docs/current/sql/select.html#group-by-clause)
   for more information about this groupby type. The core and template projects
   provide an example of its usage.
   - For PHI reverse identification protection, exclude rows from count tables if
   they have a small number of members, i.e. less than 10.
+
+**Recommended**
+  - You may want to select a SQL style guide as a reference.
+  [Gitlab's data team](https://about.gitlab.com/handbook/business-technology/data-team/platform/sql-style-guide/)
+  has an example of this, though their are other choices.
   - Don't implicitly reference columns tables. Either use the full table name,
   or give the table an alias, and use that any time you are referencing a column.
   - Don't use the * wildcard in your final tables. Explictly list the columns
