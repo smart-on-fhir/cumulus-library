@@ -1,8 +1,10 @@
-import pytest
+"""Tests for the study parser."""
 
-from contextlib import nullcontext as does_not_raise
 import pathlib
+from contextlib import nullcontext as does_not_raise
 from unittest import mock
+
+import pytest
 
 from cumulus_library.study_parser import StudyManifestParser, StudyManifestParsingError
 from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
@@ -13,6 +15,7 @@ from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
     [
         ("test_data/study_valid", does_not_raise()),
         (None, does_not_raise()),
+        ("test_data/study_dunder_prefix", pytest.raises(StudyManifestParsingError)),
         ("test_data/study_missing_prefix", pytest.raises(StudyManifestParsingError)),
         ("test_data/study_wrong_type", pytest.raises(StudyManifestParsingError)),
         ("", pytest.raises(StudyManifestParsingError)),
@@ -25,7 +28,7 @@ def test_load_manifest(manifest_path, raises):
             path = f"{pathlib.Path(__file__).resolve().parents[0]}/{manifest_path}"
         else:
             path = None
-        parser = StudyManifestParser(path)
+        StudyManifestParser(path)
 
 
 @pytest.mark.parametrize(
@@ -42,35 +45,23 @@ def test_load_manifest(manifest_path, raises):
 def test_manifest_data(manifest_key, raises):
     with mock.patch(
         "builtins.open", mock.mock_open(read_data=get_mock_toml(manifest_key))
-    ) as mock_file:
+    ):
         with raises:
             if manifest_key == "invalid_none":
                 parser = StudyManifestParser()
             else:
                 parser = StudyManifestParser("./path")
+
             expected = mock_manifests[manifest_key]
             assert parser.get_study_prefix() == expected["study_prefix"]
-            print(expected)
-            if "sql_config" in expected.keys():
-                if expected["sql_config"]["file_names"] == None:
-                    assert parser.get_sql_file_list() == []
-                else:
-                    assert (
-                        parser.get_sql_file_list()
-                        == expected["sql_config"]["file_names"]
-                    )
-            else:
-                assert parser.get_sql_file_list() == []
-            if "export_config" in expected.keys():
-                if expected["export_config"]["export_list"] == None:
-                    assert parser.get_export_table_list() == []
-                else:
-                    assert (
-                        parser.get_export_table_list()
-                        == expected["export_config"]["export_list"]
-                    )
-            else:
-                assert parser.get_export_table_list() == []
+
+            sql_config = expected.get("sql_config", {})
+            file_names = sql_config.get("file_names") or []
+            assert parser.get_sql_file_list() == file_names
+
+            export_config = expected.get("export_config", {})
+            export_list = export_config.get("export_list") or []
+            assert parser.get_export_table_list() == export_list
 
 
 @pytest.mark.parametrize(
@@ -113,7 +104,7 @@ def test_build_study(mock_output, path, verbose, raises):
     with raises:
         mock_cursor = mock.MagicMock()
         parser = StudyManifestParser(path)
-        queries = parser.run_python_builder(mock_cursor, verbose)
+        parser.run_python_builder(mock_cursor, verbose)
         queries = parser.build_study(mock_cursor, verbose)
         if "python" not in path:
             assert queries == [["CREATE TABLE test__table (test int)", "test.sql"]]

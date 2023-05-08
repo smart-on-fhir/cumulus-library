@@ -62,17 +62,21 @@ class StudyManifestParser:
         try:
             with open(f"{study_path}/manifest.toml", encoding="UTF-8") as file:
                 config = toml.load(file)
-                if not config.get("study_prefix") or not isinstance(
-                    config["study_prefix"], str
-                ):
-                    raise StudyManifestParsingError(
-                        f"Invalid prefix in manifest at {study_path}"
-                    )
+                self.validate_study_manifest(config, study_path)
                 self._study_config = config
             self._study_path = study_path
         except FileNotFoundError:
             raise StudyManifestParsingError(  # pylint: disable=raise-missing-from
                 f"Missing or invalid manifest found at {study_path}"
+            )
+
+    @staticmethod
+    def validate_study_manifest(config: dict, study_path: Path) -> None:
+        """Confirm that the study manifest is valid."""
+        prefix = config.get("study_prefix")
+        if not prefix or not isinstance(prefix, str) or "__" in prefix:
+            raise StudyManifestParsingError(
+                f"Invalid prefix in manifest at {study_path}"
             )
 
     def get_study_prefix(self) -> Optional[str]:

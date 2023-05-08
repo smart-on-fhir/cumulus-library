@@ -1,0 +1,2 @@
+# We do not allow a double-underscore (dunder) in study names
+study_prefix = "test__dunder"
