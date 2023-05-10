@@ -1,0 +1,7 @@
+study_prefix = "test"
+
+[sql_config]
+file_names = ["test.sql"]
+
+[export_config]
+export_list = ["test__table__name"]

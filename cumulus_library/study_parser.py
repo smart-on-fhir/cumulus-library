@@ -20,6 +20,8 @@ from cumulus_library.template_sql.templates import (
 
 StrList = List[str]
 
+RESERVED_TABLE_KEYWORDS = ["etl", "nlp", "lib"]
+
 
 class StudyManifestParsingError(Exception):
     """Basic error for StudyManifestParser"""
@@ -159,6 +161,15 @@ class StudyManifestParser:
         if not view_table_list:
             return view_table_list
 
+        # We'll do a pass to see if any of these tables were created outside of a
+        # study builder, and remove them from the list.
+        for view_table in view_table_list:
+            if any(
+                f"{self.get_study_prefix()}__{word}_" in view_table[0]
+                for word in RESERVED_TABLE_KEYWORDS
+            ):
+                view_table_list.remove(view_table)
+
         # We want to only show a progress bar if we are :not: printing SQL lines
         with Progress(disable=verbose) as progress:
             task = progress.add_task(
@@ -287,6 +298,34 @@ class StudyManifestParser:
         :param task: a TaskID for a given progress bar
         """
         for query in queries:
+            create_line = query[0].split("\n")[0]
+            if f"{self.get_study_prefix()}__" not in create_line:
+                self._query_error(
+                    query,
+                    "This query does not contain the study prefix. All tables should "
+                    f"start with a string like `{self.get_study_prefix()}__`, and it "
+                    "should be in the first line of the query.",
+                )
+            if any(
+                f"{self.get_study_prefix()}__{word}_" in create_line
+                for word in RESERVED_TABLE_KEYWORDS
+            ):
+                self._query_error(
+                    query,
+                    "This query contains a table name which contains a reserved word "
+                    "immediately after the study prefix. Please rename this table so "
+                    "that is does not begin with one of these special words "
+                    "immediately after the double undescore.\n"
+                    f"Reserved words: {str(RESERVED_TABLE_KEYWORDS)}",
+                )
+            if create_line.count("__") > 1:
+                self._query_error(
+                    query,
+                    "This query contains a table name with more than one '__' in it. "
+                    "Double underscores are reserved for special use cases. Please "
+                    "rename this table so the only double undercore is after the "
+                    f"study prefix, e.g. `{self.get_study_prefix()}__`",
+                )
             if f"{self.get_study_prefix()}__" not in query[0].split("\n")[0]:
                 self._query_error(
                     query,
