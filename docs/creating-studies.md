@@ -83,17 +83,25 @@ In order to both make your queries parsable to other humans, and to have sqlfluf
 be maximally helpful, we have a few requirements and some suggestions for query
 styling.
 
-**Hard Requirement**
-  - All your tables **must** start with a string like `my_study__`. Cumulus Library
-  will notify you if you try to create a table that doesn't match this pattern.
+**Hard Requirements**
+  For all of these, Cumulus Library will notify you if you write a query that breaks
+  one of these rules.
+  - All your tables **must** start with a string like `my_study__`. 
+  - Relatedly, **`__` is a reserved character string**. Your table names should have
+  exactly one of these. We :might: add other use cases for these in the future,
+  but as of this writing we don't plan to. C
+  - We have **three reserved post-study prefrix substrings: `etl_`,  `nlp_`, and 
+  `lib_`** so that we don't drop tables created by other processes. These are fine
+  to use elsewhere; `my_study__nlp_counts` would cause an error, but 
+  `my_study__counts_nlp` would be fine.
 
 **Requirements for accepting PRs**
- - Count tables MUST use the CUBE function to create powersets of data. See the
+ - **Count tables must use the CUBE function** to create powersets of data. See the
   [CUBE section of groupby](https://prestodb.io/docs/current/sql/select.html#group-by-clause)
   for more information about this groupby type. The core and template projects
   provide an example of its usage.
-  - For PHI reverse identification protection, exclude rows from count tables if
-  they have a small number of members, i.e. less than 10.
+  - For PHI reverse identification protection, **exclude rows from count tables if
+  they have a small number of members**, i.e. less than 10.
 
 **Recommended**
   - You may want to select a SQL style guide as a reference.
