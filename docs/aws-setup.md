@@ -1,7 +1,11 @@
-<!-- Target audience: 
-    - clinical researcher, low AWS familiarity
-    - engineer w/ some AWS experience
-reference tone -->
+---
+title: AWS Setup
+parent: Library
+nav_order: 2
+# audience: clinical researcher, low AWS familiarity or engineer w/ some AWS experience
+# type: reference
+---
+
 # AWS setup
 
 Cumulus library executes queries against an 

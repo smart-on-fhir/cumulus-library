@@ -1,8 +1,11 @@
-<!-- Target audience: 
-    IT security,
-    Clinical researcher
-low to medium familiarity with project
--->
+---
+title: Data Sharing
+parent: Library
+nav_order: 5
+# audience: IT security or clinical researcher with low to medium familiarity with project
+# type: explanation
+---
+
 # Sharing data with third parties
 
 While it is not required if you are using this framework internally to help you manage
@@ -25,14 +28,14 @@ tool of choice.
 
 As part of the Cumulus framework, we have a 
 [middleware application](https://github.com/smart-on-fhir/cumulus-aggregator/) 
-configured to recieve and combine datasets from multiple organizations, which can
+configured to receive and combine datasets from multiple organizations, which can
 then be loaded into the [dashboard](https://github.com/smart-on-fhir/cumulus-app) 
 for SME analysis. As of this writing these are not open source, but are intended
 to be in the near term.
 
 If you are participating in a study using these tools, we provide an
-[upload utility](../data_export/bulk_upload.py) which can handshake with the
-aggregator and upload data to an AWS S3 bucket.
+[upload utility](https://github.com/smart-on-fhir/cumulus-library-core/blob/main/data_export/bulk_upload.py)
+which can handshake with the aggregator and upload data to an AWS S3 bucket.
 
 We recommend configuring the following environment variables for using this script:
 
