@@ -165,7 +165,7 @@ class StudyManifestParser:
         # study builder, and remove them from the list.
         for view_table in view_table_list:
             if any(
-                f"{self.get_study_prefix()}__{word}_" in view_table[0]
+                view_table[0].startswith(f"{self.get_study_prefix()}__{word}_")
                 for word in RESERVED_TABLE_KEYWORDS
             ):
                 view_table_list.remove(view_table)
@@ -299,7 +299,7 @@ class StudyManifestParser:
         """
         for query in queries:
             create_line = query[0].split("\n")[0]
-            if f"{self.get_study_prefix()}__" not in create_line:
+            if f" {self.get_study_prefix()}__" not in create_line:
                 self._query_error(
                     query,
                     "This query does not contain the study prefix. All tables should "
@@ -307,7 +307,7 @@ class StudyManifestParser:
                     "should be in the first line of the query.",
                 )
             if any(
-                f"{self.get_study_prefix()}__{word}_" in create_line
+                f" {self.get_study_prefix()}__{word}_" in create_line
                 for word in RESERVED_TABLE_KEYWORDS
             ):
                 self._query_error(
