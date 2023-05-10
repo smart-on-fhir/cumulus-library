@@ -1,10 +1,16 @@
-<!-- Target audience: clinical researcher or engineer familiar with project, working locally, helpful direct tone -->
+---
+title: First Time Setup
+parent: Library
+nav_order: 1
+# audience: clinical researcher or engineer familiar with project, working locally
+# type: howto
+---
 
 # First Time Setup
 
 ## Installation
 
-As a prerequesite, you'll need a copy of python 3.9 or later installed on
+As a prerequisite, you'll need a copy of python 3.9 or later installed on
 your system, and you'll need access to an account with access to AWS cloud services.
 
 If you are using the library just to execute existing studies, you can install
@@ -84,3 +90,7 @@ cnt,influenza_lab_code,influenza_result_display,influenza_test_month
 70,"{code=92141-1, display=Influenza virus B RNA [Presence] in Respiratory specimen by NAA with probe detection, system=http://loinc.org}",,
 69,"{code=92141-1, display=Influenza virus B RNA [Presence] in Respiratory specimen by NAA with probe detection, system=http://loinc.org}",NEGATIVE (QUALIFIER VALUE),
 ```
+
+## Next steps
+
+Now that you are all set up, you can learn how to [create studies](./creating-studies.md) of your own!

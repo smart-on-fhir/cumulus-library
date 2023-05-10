@@ -1,4 +1,11 @@
-<!-- intended audience: clinical researchers, IRB reviewers, reference tone-->
+---
+title: Core Study Details
+parent: Library
+nav_order: 4
+# audience: clinical researchers, IRB reviewers
+# type: reference
+---
+
 # Core study details
 
 The core study calculates the **patient count** for every patient group using the [SQL CUBE function](https://prestodb.io/docs/current/sql/select.html#group-by-clause).  

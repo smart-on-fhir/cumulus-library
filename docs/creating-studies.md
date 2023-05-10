@@ -1,4 +1,11 @@
-<!-- Target audience: clinical researcher familiar with project, helpful direct tone -->
+---
+title: Creating Library Studies
+parent: Library
+nav_order: 3
+# audience: clinical researcher or engineer familiar with project
+# type: tutorial
+---
+
 # Creating Library Studies
 
 The following guide talks about how to use the Cumulus Library to create new
@@ -6,12 +13,12 @@ aggregations in support of ongoing projects.
 
 ## Forking this repo
 
-We're recommending the Github fork methodology to allow you to stay up to date
+We're recommending the GitHub fork methodology to allow you to stay up to date
 with Cumulus while working on configuring your own projects. 
 
-In the upper right of the Github webpage, you'll see a button labeled `fork`.
+In the upper right of the GitHub webpage, you'll see a button labeled `fork`.
 Click on it, and it will bring you to a page allowing you to configure how your
-copy associated with your github account will work - for most use cases, the
+copy associated with your GitHub account will work - for most use cases, the
 defaults are fine. Click `Create fork` and you'll have your own private copy.
 Use that copy for cloning the code to your personal machine.
 
@@ -98,7 +105,7 @@ styling.
 **Requirements for accepting PRs**
  - **Count tables must use the CUBE function** to create powersets of data. See the
   [CUBE section of groupby](https://prestodb.io/docs/current/sql/select.html#group-by-clause)
-  for more information about this groupby type. The core and template projects
+  for more information about this `groupby` type. The core and template projects
   provide an example of its usage.
   - For PHI reverse identification protection, **exclude rows from count tables if
   they have a small number of members**, i.e. less than 10.
@@ -106,10 +113,10 @@ styling.
 **Recommended**
   - You may want to select a SQL style guide as a reference.
   [Gitlab's data team](https://about.gitlab.com/handbook/business-technology/data-team/platform/sql-style-guide/)
-  has an example of this, though their are other choices.
+  has an example of this, though there are other choices.
   - Don't implicitly reference columns tables. Either use the full table name,
   or give the table an alias, and use that any time you are referencing a column.
-  - Don't use the * wildcard in your final tables. Explictly list the columns
+  - Don't use the * wildcard in your final tables. Explicitly list the columns
   with table name/alias - sqlfluff has a hard time inferring what's going on otherwise.
   - We are currently asking for all caps for sql keywords like SELECT and 4 space
   nesting for queries. `sqlfluff fix` will apply this for you, but it may be easier

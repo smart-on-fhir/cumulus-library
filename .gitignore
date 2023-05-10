@@ -1,5 +1,6 @@
 # project specific
 data_export/
+/.idea/
 .python-version
 .DS_Store
 cumulus_library_columns.json
