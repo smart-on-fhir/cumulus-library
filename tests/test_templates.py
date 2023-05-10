@@ -1,4 +1,4 @@
-import pytest
+""" tests for jinja sql templates """
 from cumulus_library.template_sql.templates import get_ctas_query, get_insert_into_query
 
 
