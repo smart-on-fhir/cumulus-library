@@ -1,4 +1,5 @@
 """ tests for the cli interface to studies """
+from contextlib import nullcontext as does_not_raise
 from unittest import mock
 
 import pytest
@@ -30,10 +31,25 @@ def test_cli_no_reads_or_writes(mock_connect, args):  # pylint: disable=unused-a
 @pytest.mark.parametrize(
     "args,cursor_calls,pandas_cursor_calls",
     [
-        (["-t", "vocab", "-b", "-d", "test"], 119, 0),
-        (["-t", "core", "-b", "-d", "test"], 21, 0),
-        (["-t", "core", "-e", "-d", "test"], 1, 6),
-        (["-t", "core", "-e", "-b", "-d", "test"], 21, 6),
+        (["-t", "vocab", "-b", "--database", "test"], 119, 0),
+        (["-t", "core", "-b", "--database", "test"], 21, 0),
+        (["-t", "core", "-e", "--database", "test"], 1, 6),
+        (["-t", "core", "-e", "-b", "--database", "test"], 21, 6),
+        (["-t", "test", "-b", "-p", "tests/test_data/", "--database", "test"], 1, 0),
+        (
+            [
+                "-t",
+                "test",
+                "-b",
+                "-p",
+                "tests/test_data/study_valid/",
+                "--database",
+                "test",
+            ],
+            1,
+            0,
+        ),
+        (["-t", "core", "-b", "-p", "tests/test_data/", "--database", "test"], 21, 0),
     ],
 )
 def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_calls):
@@ -41,3 +57,21 @@ def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_ca
     builder = cli.main(cli_args=args)
     assert builder.cursor.execute.call_count == cursor_calls
     assert builder.pandas_cursor.execute.call_count == pandas_cursor_calls
+
+
+@mock.patch("pathlib.PosixPath.mkdir")
+@mock.patch("pathlib.PosixPath.write_bytes")
+@pytest.mark.parametrize(
+    "args,raises",
+    [
+        (["-c"], does_not_raise()),
+        (["-c", "-p"], pytest.raises(SystemExit)),
+        (["-c", "-p", "/tmp/foo"], does_not_raise()),
+        (["-c", "-p", "./test_data"], does_not_raise()),
+        (["-c", "-p", "./test_data/fakedir"], does_not_raise()),
+    ],
+)
+def test_cli_creates_studies(mock_mkdir, mock_write, args, raises):
+    with raises:
+        builder = cli.main(cli_args=args)
+        assert mock_write.called
