@@ -80,13 +80,12 @@ Most users have a workflow that looks like this:
   - Build your study with the CLI to make sure your queries load correctly.
 
 We use [sqlfluff](https://github.com/sqlfluff/sqlfluff) to help maintain a consistent
-style across many different SQL query authors. You don't have to if you are working
-on development, but if you're going to submit your study when completed back to
-the Cumulus project, it may be worth mimicing our linting strategy. You can copy our 
-[sqlfluff configuration rules](https://github.com/smart-on-fhir/cumulus-library-core/blob/main/pyproject.toml)
-into your study directory to configure the right behavior.
+style across many different SQL query authors. We recommend using sqlfluff as you
+are developing your queries to ensure your sql is matching the style of other
+authors. We copy over our sqlfluff rules when you use `cumulus-library` to create
+a study, so no additional configuration should be needed.
 
-There are two commands you may want to run inside your study's directory:
+There are two commands you will want to run inside your study's directory:
   - `sqlfluff lint` will show you any variations from the expected styling rules
   - `sqlfluff fix` will try to make your autocorrect your queries to match the
   expected style
@@ -97,7 +96,7 @@ styling.
 
 **Hard Requirements**
   For all of these, Cumulus Library will notify you if you write a query that breaks
-  one of these rules.
+  one of these rules when you build your study.
   - All your tables **must** start with a string like `my_study__`. 
   - Relatedly, **`__` is a reserved character string**. Your table names should have
   exactly one of these. We :might: add other use cases for these in the future,
