@@ -26,8 +26,8 @@ services. See the [AWS setup guide](./aws-setup.md) for more information on this
 
 ## Command line usage
 
-Installing adds a `cumulus-library` command for interacting with
-athena. There are three primary modes most users will be interested in:
+Installing adds a `cumulus-library` command for interacting with athena.
+There are three primary modes most users will be interested in:
 
 - `--create` will create a manifest file for you so you can start working on
 authoring queires (more information on this in 
