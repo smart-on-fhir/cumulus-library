@@ -134,15 +134,15 @@ def create_template(path: str) -> None:
     manifest_path.write_bytes(template_path.read_bytes())
 
 
-def get_study_dict(alt_paths: List) -> Optional[Dict[str, PosixPath]]:
+def get_study_dict(alt_dir_paths: List) -> Optional[Dict[str, PosixPath]]:
     """Convenience function for getting directories in ./studies/
 
     :returns: A list of pathlib.PosixPath objects
     """
     manifest_studies = {}
     paths = [Path(Path(__file__).resolve().parents[0], "studies")]
-    if alt_paths is not None:
-        paths = paths + alt_paths
+    if alt_dir_paths is not None:
+        paths = paths + alt_dir_paths
     for parent_path in paths:
         for child_path in parent_path.iterdir():
             if child_path.is_dir():
@@ -246,7 +246,7 @@ following order of preference is used to select credentials:
         "--study_dir",
         action="append",
         help=(
-            "Add one or more directories to look for study definitions in. "
+            "Optionally add one or more directories to look for study definitions in. "
             "Default is in project directory and CUMULUS_LIBRARY_PATH, if present, "
             "followed by any supplied paths. Target, and all its subdirectories, "
             "are checked for manifests. Overriding studies with the same namespace "
