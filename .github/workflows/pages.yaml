@@ -20,5 +20,5 @@ jobs:
               owner: 'smart-on-fhir',
               repo: 'cumulus',
               ref: 'main',
-              workflow_id: 'pages',
+              workflow_id: 'pages.yaml',
             })
