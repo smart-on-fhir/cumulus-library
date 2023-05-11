@@ -152,13 +152,13 @@ def get_study_dict(alt_paths: List) -> Optional[Dict[str, PosixPath]]:
     return manifest_studies
 
 
-def run_cli(args: Dict):  # pylint: disable=too-many-branches
+def run_cli(args: Dict):
     """Controls which library tasks are run based on CLI arguments"""
     if not args["build"] and not args["export"] and not args["create"]:
         sys.exit(
             (
                 "Expecting at least one of build, export or create as arguments. "
-                "See `cumulus_library --help` for more information"
+                "See `cumulus-library --help` for more information"
             )
         )
 

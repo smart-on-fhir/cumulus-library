@@ -34,7 +34,7 @@ relevant to your study (we'll use `my_study` forthis document). The folder name 
 the same thing you will use as a target with `cumulus_library` to run your study's
 queries.
 
-Once you've made a new study, the `manifest.toml` fiile is the place you let cumulus
+Once you've made a new study, the `manifest.toml` file is the place you let cumulus
 library know how you want your study to be run against the remote database. The
 template manifest has comments describing all the possible configuration parameters
 you can supply, but for most studies you'll have something that looks like this:
