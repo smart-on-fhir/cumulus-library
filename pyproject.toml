@@ -13,6 +13,9 @@ dependencies = [
     "pyathena >= 2.23",
     "requests >= 2.28",
     "rich >= 13.2",
+    # There are some bugfix actions occuring in sqlfluff that are currently
+    # breaking autoformatting for CTAS queries - pinning until this shakes out
+    "sqlfluff == 2.0.2",
     "toml >= 0.10"
 ]
 description = "SQL generation for cumulus clinical studies"
@@ -37,38 +40,8 @@ build-backend = "flit_core.buildapi"
 dev = [
     "black",
     "pylint",
-    # There are some bugfix actions occuring in sqlfluff that are currently
-    # breaking autoformatting for CTAS queries - pinning until this shakes out
-    "sqlfluff == 2.0.2"
 ]
 
 test = [
     "pytest",
 ]
-
-[tool.sqlfluff.core]
-templater = "jinja"
-dialect = "athena"
-sql_file_exts = ".sql,.sql.jinja"
-# this rule overfires on athena nested arrays
-exclude_rules="references.from,structure.column_order"
-max_line_length = 88
-
-[tool.sqlfluff.indentation]
-template_blocks_indent = false
-
-[tool.sqlfluff.rules.layout.long_lines]
-ignore_comment_lines = true
-
-[tool.sqlfluff.rules.capitalisation.keywords]
-capitalisation_policy = "upper"
-
-[tool.sqlfluff.templater.jinja.context]
-schema_name = "test_schema"
-table_name = "test_table"
-view_or_table_name = "test_view_or_table"
-view_or_table = "TABLE"
-prefix = "Test"
-dataset = [["foo","foo"],["bar","bar"]]
-table_cols = ["a","b"]
-col_type_list = ["a string","b string"]

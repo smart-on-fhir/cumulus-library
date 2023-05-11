@@ -127,11 +127,16 @@ def create_template(path: str) -> None:
     manifest_path = Path(abs_path, "manifest.toml")
     if manifest_path.exists():
         sys.exit(f"A manifest.toml already exists at {abs_path}, skipping creation")
-    template_path = Path(
-        Path(__file__).resolve().parents[0], "studies/template/manifest.toml"
-    )
     abs_path.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_bytes(template_path.read_bytes())
+
+    copy_lists = [
+        ["studies/template/manifest.toml", "manifest.toml"],
+        ["../.sqlfluff", ".sqlfluff"],
+    ]
+    for source, dest in copy_lists:
+        source_path = Path(Path(__file__).resolve().parents[0], source)
+        dest_path = Path(abs_path, dest)
+        dest_path.write_bytes(source_path.read_bytes())
 
 
 def get_study_dict(alt_dir_paths: List) -> Optional[Dict[str, PosixPath]]:

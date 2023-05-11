@@ -1,0 +1,26 @@
+[sqlfluff]
+templater = jinja
+dialect = athena
+sql_file_exts = .sql,.sql.jinja
+# this rule overfires on athena nested arrays
+exclude_rules=references.from,structure.column_order
+max_line_length = 88
+
+[sqlfluff:indentation]
+template_blocks_indent = false
+
+[sqlfluff:rules:layout.long_lines]
+ignore_comment_lines = true
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+[sqlfluff:templater:jinja:context]
+schema_name = test_schema
+table_name = test_table
+view_or_table_name = test_view_or_table
+view_or_table = TABLE
+prefix = Test
+dataset = [["foo","foo"],["bar","bar"]]
+table_cols = ["a","b"]
+col_type_list = ["a string","b string"]
