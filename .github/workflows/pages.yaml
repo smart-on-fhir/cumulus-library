@@ -19,6 +19,6 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: 'smart-on-fhir',
               repo: 'cumulus',
-              ref: 'main'
+              ref: 'main',
               workflow_id: 'pages',
             })
