@@ -11,33 +11,30 @@ nav_order: 3
 The following guide talks about how to use the Cumulus Library to create new
 aggregations in support of ongoing projects.
 
-## Forking this repo
+## Setup
 
-We're recommending the GitHub fork methodology to allow you to stay up to date
-with Cumulus while working on configuring your own projects. 
+If you are going to be creating new studies, we strongly recommend adding an
+environment variable, `CUMULUS_LIBRARY_PATH`, pointing to the folder in which 
+you'll be working on study development. `cumulus-library` will look in each 
+subdirectory of that folder for manifest files, so you can run several studies
+at once. 
 
-In the upper right of the GitHub webpage, you'll see a button labeled `fork`.
-Click on it, and it will bring you to a page allowing you to configure how your
-copy associated with your GitHub account will work - for most use cases, the
-defaults are fine. Click `Create fork` and you'll have your own private copy.
-Use that copy for cloning the code to your personal machine.
-
-If there are new commits to the primary Cumulus Library repo, you'll see a note
-about this just under the green `Code` button - you can click `sync fork` to get
-any changes and apply them to your copy, after which you can pull them down to
-machines your team is using to develop.
+If you're not doing this, you can always add the `--study_dir path/to/dir` argument
+to any build/export call to tell it where to look for your work.
 
 ## Creating a new study
 
-Studies are automatically detected by Cumulus Library when they are placed in the
-`/cumulus-library/studies` directory, assuming they have a manifest file. The
-easiest way to make a new study is to copy the template study to a new directory,
-which you can do via the command line or via your system's file system GUI, and
-rename the folder to something relevant to your study (we'll use `my_study` for
-this document. The folder name is the same thing you will supply to the
-`cumulus-library` command as a target when you want to bulk update data.
+The easiest way to get started with a new study is to use `cumulus-library` to
+create a manifest for you. You can do this with by running:
+```bash
+cumulus-library -c -p ./path/to/your/study/dir
+```
+We'll create that folder if it doesn't already exist. We recommend you use a name
+relevant to your study (we'll use `my_study` forthis document). The folder name is
+the same thing you will use as a target with `cumulus_library` to run your study's
+queries.
 
-Once you've made a new study, the `manifest.toml` is the place you let cumulus
+Once you've made a new study, the `manifest.toml` file is the place you let cumulus
 library know how you want your study to be run against the remote database. The
 template manifest has comments describing all the possible configuration parameters
 you can supply, but for most studies you'll have something that looks like this:
@@ -71,6 +68,9 @@ Talking about what these three sections do:
   counts to reduce exposure of limited datasets, and so we recommend only exporting
   count tables.
 
+We recommend creating a git repo per study, to help version your study data, which
+you can do in the same directory as the manifest file.
+
 ### Writing SQL queries
 
 Most users have a workflow that looks like this:
@@ -80,8 +80,13 @@ Most users have a workflow that looks like this:
   - Build your study with the CLI to make sure your queries load correctly.
 
 We use [sqlfluff](https://github.com/sqlfluff/sqlfluff) to help maintain a consistent
-style across many different SQL query authors. There are two commands you may want to
-run inside your study's directory:
+style across many different SQL query authors. You don't have to if you are working
+on development, but if you're going to submit your study when completed back to
+the Cumulus project, it may be worth mimicing our linting strategy. You can copy our 
+[sqlfluff configuration rules](https://github.com/smart-on-fhir/cumulus-library-core/blob/main/pyproject.toml)
+into your study directory to configure the right behavior.
+
+There are two commands you may want to run inside your study's directory:
   - `sqlfluff lint` will show you any variations from the expected styling rules
   - `sqlfluff fix` will try to make your autocorrect your queries to match the
   expected style
@@ -130,7 +135,9 @@ styling.
 
 ## Sharing studies
 
-If you want to share your study as part of a publication, you can open a PR - one
-of the optional targets will be the main `cumulus-library-core` repo, and the
-maintainers will be notified of it. If you write a paper using the Cumulus library,
-please cite us.
+If you want to share your study as part of a publication, you'll need to open a PR - 
+after cloning this repository, make a branch, and add your study config to the
+`cumulus_library/studies/` directory, and then just open a PR. 
+
+If you write a paper using the Cumulus library, please 
+[cite the project](https://smarthealthit.org/cumulus-a-universal-sidecar-for-a-smart-learning-healthcare-system/)

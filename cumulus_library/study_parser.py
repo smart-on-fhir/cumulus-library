@@ -163,7 +163,7 @@ class StudyManifestParser:
 
         # We'll do a pass to see if any of these tables were created outside of a
         # study builder, and remove them from the list.
-        for view_table in view_table_list:
+        for view_table in view_table_list.copy():
             if any(
                 view_table[0].startswith(f"{self.get_study_prefix()}__{word}_")
                 for word in RESERVED_TABLE_KEYWORDS

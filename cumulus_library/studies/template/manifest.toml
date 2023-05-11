@@ -1,8 +1,3 @@
-# If you'd like to run this template study as a proof of concept, you can load
-# the 1000 patient synthea cohort from: 
-#    https://github.com/smart-on-fhir/sample-bulk-fhir-datasets
-# into you database, and it will generate a very small count dataset
-
 # 'study_prefix' should be a string at the start of each table. We'll use this
 # to clean up queries, so it should be unique. Name your tables in the following
 # format: [study_prefix]__[table_name]. It should probably, but not necessarily,

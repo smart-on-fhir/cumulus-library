@@ -6,7 +6,7 @@ import os
 import sys
 
 from pathlib import Path, PosixPath
-from typing import Dict
+from typing import Dict, List, Optional
 
 import pyathena
 
@@ -113,73 +113,126 @@ class StudyBuilder:
             self.export_study(study_dict[key])
 
 
-def get_study_dict() -> Dict[str, PosixPath]:
+def get_abs_posix_path(path: str) -> PosixPath:
+    """Conveince method for hanlding abs vs rel paths"""
+    if path[0] == "/":
+        return Path(path)
+    else:
+        return Path(Path.cwd(), path)
+
+
+def create_template(path: str) -> None:
+    """Creates a manifest in target dir if one doesn't exist"""
+    abs_path = get_abs_posix_path(path)
+    manifest_path = Path(abs_path, "manifest.toml")
+    if manifest_path.exists():
+        sys.exit(f"A manifest.toml already exists at {abs_path}, skipping creation")
+    template_path = Path(
+        Path(__file__).resolve().parents[0], "studies/template/manifest.toml"
+    )
+    abs_path.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_bytes(template_path.read_bytes())
+
+
+def get_study_dict(alt_dir_paths: List) -> Optional[Dict[str, PosixPath]]:
     """Convenience function for getting directories in ./studies/
 
     :returns: A list of pathlib.PosixPath objects
     """
     manifest_studies = {}
-    library_path = Path(__file__).resolve().parents[0]
-    for path in Path(f"{library_path}/studies").iterdir():
-        if path.is_dir():
-            manifest_studies[path.name] = path
+    paths = [Path(Path(__file__).resolve().parents[0], "studies")]
+    if alt_dir_paths is not None:
+        paths = paths + alt_dir_paths
+    for parent_path in paths:
+        for child_path in parent_path.iterdir():
+            if child_path.is_dir():
+                manifest_studies[child_path.name] = child_path
+            elif child_path.name == "manifest.toml":
+                manifest_studies[parent_path.name] = parent_path
     return manifest_studies
 
 
-def run_cli(args: Dict):  # pylint: disable=too-many-branches
+def run_cli(args: Dict):
     """Controls which library tasks are run based on CLI arguments"""
-    builder = StudyBuilder(
-        args["s3_bucket"],
-        args["region"],
-        args["workgroup"],
-        args["profile"],
-        args["database"],
-    )
-    if args["verbose"]:
-        builder.verbose = True
+    if not args["build"] and not args["export"] and not args["create"]:
+        sys.exit(
+            (
+                "Expecting at least one of build, export or create as arguments. "
+                "See `cumulus-library --help` for more information"
+            )
+        )
 
-    # here we invoke the cursor once to confirm valid connections
-    builder.cursor.execute("show tables")
+    if args["create"]:
+        create_template(args["path"])
 
-    if not args["build"] and not args["export"]:
-        sys.exit("Neither build nor export specified - exiting with no action")
-    study_dict = get_study_dict()
+    if args["build"] or args["export"]:
+        builder = StudyBuilder(
+            args["s3_bucket"],
+            args["region"],
+            args["workgroup"],
+            args["profile"],
+            args["database"],
+        )
+        if args["verbose"]:
+            builder.verbose = True
 
-    if args["build"]:
-        if "all" in args["target"]:
-            builder.clean_and_build_all(study_dict)
-        else:
-            for target in args["target"]:
-                if target in study_dict:
-                    builder.clean_and_build_study(study_dict[target])
+        study_dict = get_study_dict(args["study_dir"])
+        # here we invoke the cursor once to confirm valid connections
+        builder.cursor.execute("show tables")
 
-    if args["export"]:
-        if "all" in args["target"]:
-            builder.export_all(study_dict)
-        else:
-            for target in args["target"]:
-                builder.export_study(study_dict[target])
+        if args["build"]:
+            if "all" in args["target"]:
+                builder.clean_and_build_all(study_dict)
+            else:
+                for target in args["target"]:
+                    if target in study_dict:
+                        builder.clean_and_build_study(study_dict[target])
 
-    # returning the builder for ease of unit testing
-    return builder
+        if args["export"]:
+            if "all" in args["target"]:
+                builder.export_all(study_dict)
+            else:
+                for target in args["target"]:
+                    builder.export_study(study_dict[target])
+
+        # returning the builder for ease of unit testing
+        return builder
 
 
 def get_parser():
     """Provides parser for handling CLI arguments"""
     parser = argparse.ArgumentParser(
-        description="""Generates study views from post-Cumulus ETL data.
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="""Generates study tables and views from post-Cumulus ETL data.
 
-        By default, make will remove, and recreate, all table views, assuming
-        you have set the required  credentials, which are used in the following
-        order of preference:
-        - explict command line arguments
-        - cumulus environment variables (CUMULUS_LIBRARY_PROFILE,
-        CUMULUS_LIBRARY_SCHEMA, CUMULUS_LIBRARY_S3, CUMULUS_LIBRARY_REGION)
-        - Normal boto profile order (AWS env vars, ~/.aws/credentials, ~/.aws/config)
-        connecting to AWS. Passing values via the command line will override the
-        environment variables """
+cumulus_library will attempt to create a connection to AWS athena. The
+following order of preference is used to select credentials:
+  - explict command line arguments
+  - cumulus environment variables (CUMULUS_LIBRARY_PROFILE, 
+    CUMULUS_LIBRARY_SCHEMA, CUMULUS_LIBRARY_S3, CUMULUS_LIBRARY_REGION)
+  - Normal boto profile order (AWS env vars, ~/.aws/credentials, ~/.aws/config)""",
     )
-    parser.add_argument(
+
+    studygen = parser.add_argument_group("Creating study templates")
+    studygen.add_argument(
+        "-c",
+        "--create",
+        action="store_true",
+        default=False,
+        help=("Create a study instance from a template"),
+    )
+    studygen.add_argument(
+        "-p",
+        "--path",
+        default="./",
+        help=(
+            "The the directory the study will be created in. Default is "
+            "the current directory."
+        ),
+    )
+
+    db = parser.add_argument_group("SQL database modifications")
+    db.add_argument(
         "-t",
         "--target",
         action="append",
@@ -188,21 +241,33 @@ def get_parser():
             "build all studies."
         ),
     )
-    parser.add_argument(
+    db.add_argument(
+        "-s",
+        "--study_dir",
+        action="append",
+        help=(
+            "Optionally add one or more directories to look for study definitions in. "
+            "Default is in project directory and CUMULUS_LIBRARY_PATH, if present, "
+            "followed by any supplied paths. Target, and all its subdirectories, "
+            "are checked for manifests. Overriding studies with the same namespace "
+            "supercede eariler ones."
+        ),
+    )
+    db.add_argument(
         "-b",
         "--build",
         default=False,
         action="store_true",
-        help=("Recreates Athena views from sql definitions"),
+        help=("Removes and recreates Athena tables & views for the specified studies"),
     )
-    parser.add_argument(
+    db.add_argument(
         "-e",
         "--export",
         default=False,
         action="store_true",
-        help=("Generates files on disk from Athena views"),
+        help=("Generates files on disk from Athena views for the specified studies"),
     )
-    parser.add_argument(
+    db.add_argument(
         "-v",
         "--verbose",
         default=False,
@@ -211,23 +276,20 @@ def get_parser():
     )
 
     aws = parser.add_argument_group("AWS config")
-    aws.add_argument("-p", "--profile", help="AWS profile", default="default")
-    aws.add_argument("-d", "--database", help="Cumulus ETL Athena DB/schema")
+    aws.add_argument("--profile", help="AWS profile", default="default")
+    aws.add_argument("--database", help="Cumulus ETL Athena DB/schema")
     aws.add_argument(
-        "-w",
         "--workgroup",
         default="cumulus",
         help="Cumulus Athena workgroup (default: cumulus)",
     )
     aws.add_argument(
-        "-s",
         "--s3_bucket",
         help=(
             "S3 location to store athena metadata. " "(will contain some query outputs)"
         ),
     )
     aws.add_argument(
-        "-r",
         "--region",
         help="AWS region data of Athena instance (default: us-east-1)",
         default="us-east-1",
@@ -240,6 +302,7 @@ def main(cli_args=None):
     """Reads CLI input/environment variables and invokes library calls"""
     parser = get_parser()
     args = vars(parser.parse_args(cli_args))
+
     if args["target"] is not None:
         for target in args["target"]:
             if target == "all":
@@ -247,6 +310,13 @@ def main(cli_args=None):
                 break
     else:
         args["target"] = ["all"]
+
+    if args["study_dir"] is not None:
+        posix_paths = []
+        for path in args["study_dir"]:
+            posix_paths.append(get_abs_posix_path(path))
+        args["study_dir"] = posix_paths
+
     if profile_env := os.environ.get("CUMULUS_LIBRARY_PROFILE"):
         args["profile"] = profile_env
     if database_env := os.environ.get("CUMULUS_LIBRARY_SCHEMA"):
@@ -257,6 +327,8 @@ def main(cli_args=None):
         args["s3_bucket"] = bucket_env
     if region_env := os.environ.get("CUMULUS_LIBRARY_REGION"):
         args["region"] = region_env
+    if path_dir := os.environ.get("CUMULUS_LIBRARY_PATH"):
+        args["path"] = [path_dir] + args["path"]
 
     return run_cli(args)
 
