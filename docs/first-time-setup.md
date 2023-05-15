@@ -13,13 +13,7 @@ nav_order: 1
 As a prerequisite, you'll need a copy of python 3.9 or later installed on
 your system, and you'll need access to an account with access to AWS cloud services.
 
-If you are using the library just to execute existing studies, you can install
-the Cumulus library CLI with `pip install -e .`.
-
-If you are going to be designing queries, you should instead install cumulus with
-the dev dependencies, with `pip install -e .[dev]`. After you've done this, you
-should install the pre-commit hooks with `pre-commit install`, so that your queries
-will have linting automatically run.
+You can install directly from pypi by running `pip install cumulus-library`.
 
 You will also need to make sure your machine is configured correctly to talk to AWS
 services. See the [AWS setup guide](./aws-setup.md) for more information on this.
