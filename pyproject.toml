@@ -1,5 +1,5 @@
 [project]
-name = "cumulus-library-core"
+name = "cumulus-library"
 version = "0.1.0"
 # In order to support 3.12, we wil need to refactor out load_module, which is
 # targeted for deprecation in that version.
@@ -48,6 +48,3 @@ cumulus-library = "cumulus_library.cli:main"
 [build-system]
 requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
-
-[tool.flit.module]
-name = "cumulus_library"
