@@ -13,7 +13,7 @@ nav_order: 1
 As a prerequisite, you'll need a copy of python 3.9 or later installed on
 your system, and you'll need access to an account with access to AWS cloud services.
 
-You can install directly from pypi by running `pip install cumulus-library-core`.
+You can install directly from pypi by running `pip install cumulus-library`.
 
 You will also need to make sure your machine is configured correctly to talk to AWS
 services. See the [AWS setup guide](./aws-setup.md) for more information on this.
