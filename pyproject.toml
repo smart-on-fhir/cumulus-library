@@ -1,6 +1,6 @@
 [project]
 name = "cumulus-library"
-version = "0.1.0"
+version = "0.1.2"
 # In order to support 3.12, we wil need to refactor out load_module, which is
 # targeted for deprecation in that version.
 requires-python = ">= 3.9, <3.12"
@@ -21,7 +21,6 @@ dependencies = [
 description = "Clinical study SQL generation for data derived from bulk FHIR"
 readme = "README.md"
 license = { text="Apache License 2.0" }
-home-page = "https://smarthealthit.org/cumulus-a-universal-sidecar-for-a-smart-learning-healthcare-system/"
 keywords = ["FHIR", "SQL", "Health Informatics"]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -39,8 +38,10 @@ test = [
 ]
 
 [project.urls]
+Home = "https://smarthealthit.org/cumulus-a-universal-sidecar-for-a-smart-learning-healthcare-system/"
 Documentation = "https://docs.smarthealthit.org/cumulus/"
 Source = "https://github.com/smart-on-fhir/cumulus-library-core"
+
 
 [project.scripts]
 cumulus-library = "cumulus_library.cli:main"
@@ -48,3 +49,6 @@ cumulus-library = "cumulus_library.cli:main"
 [build-system]
 requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
+
+[tool.flit.sdist]
+include = [".sqlfluff"]
