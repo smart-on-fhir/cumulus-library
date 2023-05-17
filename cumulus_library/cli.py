@@ -131,7 +131,7 @@ def create_template(path: str) -> None:
 
     copy_lists = [
         ["studies/template/manifest.toml", "manifest.toml"],
-        ["../.sqlfluff", ".sqlfluff"],
+        [".sqlfluff", ".sqlfluff"],
     ]
     for source, dest in copy_lists:
         source_path = Path(Path(__file__).resolve().parents[0], source)
