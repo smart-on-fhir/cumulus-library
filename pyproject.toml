@@ -44,7 +44,7 @@ Source = "https://github.com/smart-on-fhir/cumulus-library-core"
 
 
 [project.scripts]
-cumulus-library = "cumulus_library.cli:main"
+cumulus-library = "cumulus_library.cli:main_cli"
 
 [build-system]
 requires = ["flit_core >=3.4,<4"]

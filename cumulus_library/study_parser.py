@@ -140,7 +140,7 @@ class StudyManifestParser:
         additional ways to get a list of table prefixes
         """
         if not schema_name:
-            raise ValueError("No schema name provided")
+            raise ValueError("No database provided")
         prefix = self.get_study_prefix()
         view_sql = get_show_views(schema_name, prefix)
         table_sql = get_show_tables(schema_name, prefix)

@@ -59,8 +59,8 @@ cumulus-library --build --target vocab --target core
 ```
 This usually takes around five minutes, but once it's done, you won't need build
 `vocab` again unless there's a coding system addition, and you'll only need to build
-`core` again if data changes (and only if you're using the synthetic dataset). You
-should see some progress bars like this while the tables are being created:
+`core` again if data changes.
+You should see some progress bars like this while the tables are being created:
 ```
 Uploading vocab__icd data... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸ 100% 0:00:00
 Creating vocab study in db... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00

@@ -15,6 +15,9 @@ from pyathena.pandas.cursor import PandasCursor
 from cumulus_library.study_parser import StudyManifestParser
 
 
+# ** Don't delete! **
+# This class isn't used in the rest of the code,
+# but it is used manually as a quick & dirty alternative to the CLI.
 class CumulusEnv:  # pylint: disable=too-few-public-methods
     """
     Wrapper for Cumulus Environment vars.
@@ -22,17 +25,14 @@ class CumulusEnv:  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self):
-        self.bucket = os.environ.get("CUMULUS_LIBRARY_S3")
         self.region = os.environ.get("CUMULUS_LIBRARY_REGION", "us-east-1")
         self.workgroup = os.environ.get("CUMULUS_LIBRARY_WORKGROUP", "cumulus")
         self.profile = os.environ.get("CUMULUS_LIBRARY_PROFILE")
-        self.schema_name = os.environ.get("CUMULUS_LIBRARY_SCHEMA")
+        self.schema_name = os.environ.get("CUMULUS_LIBRARY_DATABASE")
 
     def get_study_builder(self):
-        """Convinience method for getting athena args from environment"""
-        return StudyBuilder(
-            self.bucket, self.region, self.workgroup, self.profile, self.schema_name
-        )
+        """Convenience method for getting athena args from environment"""
+        return StudyBuilder(self.region, self.workgroup, self.profile, self.schema_name)
 
 
 class StudyBuilder:
@@ -42,17 +42,15 @@ class StudyBuilder:
     schema_name = None
 
     def __init__(  # pylint: disable=too-many-arguments
-        self, bucket: str, region: str, workgroup: str, profile: str, schema: str
+        self, region: str, workgroup: str, profile: str, schema: str
     ):
         self.cursor = pyathena.connect(
-            s3_staging_dir=bucket,
             region_name=region,
             work_group=workgroup,
             profile_name=profile,
             schema_name=schema,
         ).cursor()
         self.pandas_cursor = pyathena.connect(
-            s3_staging_dir=bucket,
             region_name=region,
             work_group=workgroup,
             profile_name=profile,
@@ -172,11 +170,10 @@ def run_cli(args: Dict):
 
     if args["build"] or args["export"]:
         builder = StudyBuilder(
-            args["s3_bucket"],
             args["region"],
             args["workgroup"],
             args["profile"],
-            args["database"],
+            args["schema_name"],
         )
         if args["verbose"]:
             builder.verbose = True
@@ -214,7 +211,7 @@ cumulus_library will attempt to create a connection to AWS athena. The
 following order of preference is used to select credentials:
   - explict command line arguments
   - cumulus environment variables (CUMULUS_LIBRARY_PROFILE, 
-    CUMULUS_LIBRARY_SCHEMA, CUMULUS_LIBRARY_S3, CUMULUS_LIBRARY_REGION)
+    CUMULUS_LIBRARY_DATABASE, CUMULUS_LIBRARY_REGION)
   - Normal boto profile order (AWS env vars, ~/.aws/credentials, ~/.aws/config)""",
     )
 
@@ -248,14 +245,14 @@ following order of preference is used to select credentials:
     )
     db.add_argument(
         "-s",
-        "--study_dir",
+        "--study-dir",
         action="append",
         help=(
             "Optionally add one or more directories to look for study definitions in. "
             "Default is in project directory and CUMULUS_LIBRARY_PATH, if present, "
             "followed by any supplied paths. Target, and all its subdirectories, "
             "are checked for manifests. Overriding studies with the same namespace "
-            "supercede eariler ones."
+            "supersede earlier ones."
         ),
     )
     db.add_argument(
@@ -282,17 +279,16 @@ following order of preference is used to select credentials:
 
     aws = parser.add_argument_group("AWS config")
     aws.add_argument("--profile", help="AWS profile", default="default")
-    aws.add_argument("--database", help="Cumulus ETL Athena DB/schema")
+    aws.add_argument(
+        "--database",
+        # internally, we use PyAthena's terminology for this but the UX term is "database"
+        dest="schema_name",
+        help="Cumulus Athena database name",
+    )
     aws.add_argument(
         "--workgroup",
         default="cumulus",
         help="Cumulus Athena workgroup (default: cumulus)",
-    )
-    aws.add_argument(
-        "--s3_bucket",
-        help=(
-            "S3 location to store athena metadata. " "(will contain some query outputs)"
-        ),
     )
     aws.add_argument(
         "--region",
@@ -324,18 +320,20 @@ def main(cli_args=None):
 
     if profile_env := os.environ.get("CUMULUS_LIBRARY_PROFILE"):
         args["profile"] = profile_env
-    if database_env := os.environ.get("CUMULUS_LIBRARY_SCHEMA"):
-        args["database"] = database_env
+    if database_env := os.environ.get("CUMULUS_LIBRARY_DATABASE"):
+        args["schema_name"] = database_env
     if workgroup_env := os.environ.get("CUMULUS_LIBRARY_WORKGROUP"):
         args["workgroup"] = workgroup_env
-    if bucket_env := os.environ.get("CUMULUS_LIBRARY_S3"):
-        args["s3_bucket"] = bucket_env
     if region_env := os.environ.get("CUMULUS_LIBRARY_REGION"):
         args["region"] = region_env
     if path_dir := os.environ.get("CUMULUS_LIBRARY_PATH"):
         args["path"] = [path_dir] + args["path"]
 
     return run_cli(args)
+
+
+def main_cli():  # called by the generated wrapper scripts
+    main()
 
 
 if __name__ == "__main__":
