@@ -45,12 +45,9 @@ variables containing your credential information. The relevant ones are:
 unless your organization is using advanced credential management.)
 - `CUMULUS_LIBRARY_REGION` : The AWS region your bucket is in (e.g., us-east-1)
 
-In both cases, there are several additional parameters you will need to configure
-to specify where your database information lives. Unless you are using multiple
-library instances, you will want to specify these values  
-- `CUMULUS_LIBRARY_SCHEMA` : The name of the schema Athena will use ('cumulus_library_sample_db' if using the sample DB)
-- `CUMULUS_LIBRARY_S3` : The URL of your S3 bucket 
-  ('s3://cumulus_library_sample_db-(AWS account ID)-(AWS region)' if using sample db)
-- `CUMULUS_LIBRARY_PROFILE` : the Athena profile to execute queries in ('cumulus_library_sample_db' if using the sample DB)
+There are several additional parameters you will need to configure
+to specify where your database information lives:
+- `CUMULUS_LIBRARY_DATABASE` : The name of the database Athena will use (`cumulus_library_sample_db` if using the sample DB)
+- `CUMULUS_LIBRARY_WORKGROUP` : the Athena workgroup to execute queries in (`cumulus_library_sample_db` if using the sample DB)
 
 Configuring environment variables on your system is out of scope of this document, but several guides are available elsewhere. [This guide](https://www.twilio.com/blog/2017/01/how-to-set-environment-variables.html), for example, covers Mac, Windows, and Linux. And, as a plus, it has a picture of an adorable puppy at the top of it.
