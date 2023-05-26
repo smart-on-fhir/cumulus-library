@@ -21,6 +21,7 @@ dependencies = [
 description = "Clinical study SQL generation for data derived from bulk FHIR"
 readme = "README.md"
 license = { text="Apache License 2.0" }
+homepage = "https://smarthealthit.org/cumulus-a-universal-sidecar-for-a-smart-learning-healthcare-system/"
 keywords = ["FHIR", "SQL", "Health Informatics"]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",

@@ -1,0 +1,5 @@
+{
+    "__desc__" : 
+        "this dict maps pip installable studies to expected paths inside site-packages",
+    "covid_symptom" : "cumulus_library_covid/covid_symptom"
+}

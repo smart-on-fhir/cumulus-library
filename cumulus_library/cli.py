@@ -2,8 +2,10 @@
 """Utility for building/retrieving data views in AWS Athena"""
 
 import argparse
+import json
 import os
 import sys
+import sysconfig
 
 from pathlib import Path, PosixPath
 from typing import Dict, List, Optional
@@ -138,12 +140,26 @@ def create_template(path: str) -> None:
 
 
 def get_study_dict(alt_dir_paths: List) -> Optional[Dict[str, PosixPath]]:
-    """Convenience function for getting directories in ./studies/
+    """Gets valid study targets from ./studies/, and any pip installed studies
 
     :returns: A list of pathlib.PosixPath objects
     """
     manifest_studies = {}
-    paths = [Path(Path(__file__).resolve().parents[0], "studies")]
+    cli_path = Path(__file__).resolve().parents[0]
+
+    # first, we'll get any installed public studies
+    with open(Path(cli_path, "./module_allowlist.json"), "r") as study_allowlist_json:
+        study_allowlist = json.load(study_allowlist_json)
+    study_allowlist.pop("__desc__")
+    site_packages_dir = sysconfig.get_path("purelib")
+    for study, subdir in study_allowlist.items():
+        study_path = Path(site_packages_dir, subdir)
+        if study_path.exists():
+            manifest_studies[study] = study_path
+
+    # then we'll get all studies inside the project directory, followed by
+    # any user supplied paths last. These take precedence.
+    paths = [Path(cli_path, "studies")]
     if alt_dir_paths is not None:
         paths = paths + alt_dir_paths
     for parent_path in paths:
@@ -168,7 +184,7 @@ def run_cli(args: Dict):
     if args["create"]:
         create_template(args["path"])
 
-    if args["build"] or args["export"]:
+    elif args["build"] or args["export"]:
         builder = StudyBuilder(
             args["region"],
             args["workgroup"],
@@ -179,6 +195,15 @@ def run_cli(args: Dict):
             builder.verbose = True
 
         study_dict = get_study_dict(args["study_dir"])
+        if args["target"]:
+            for target in args["target"]:
+                if target not in study_dict:
+                    sys.exit(
+                        f"{target} was not found in available studies: "
+                        f"{list(study_dict.keys())}.\n\n"
+                        "If you are trying to run a custom study, make sure "
+                        "you include `-s path/to/study/dir` as an arugment."
+                    )
         # here we invoke the cursor once to confirm valid connections
         builder.cursor.execute("show tables")
 
@@ -187,8 +212,7 @@ def run_cli(args: Dict):
                 builder.clean_and_build_all(study_dict)
             else:
                 for target in args["target"]:
-                    if target in study_dict:
-                        builder.clean_and_build_study(study_dict[target])
+                    builder.clean_and_build_study(study_dict[target])
 
         if args["export"]:
             if "all" in args["target"]:
