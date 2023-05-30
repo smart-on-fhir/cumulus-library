@@ -60,9 +60,7 @@ def test_extension_denormalize_creation():
             ext_parent.ext.url = 'fhir_extension'
             AND ext_child.ext.url = 'omb'
             AND ext_child.ext.valuecoding.display != ''
-
-
-    ),
+    ), --noqa: LT07
 
     system_text AS (
         SELECT DISTINCT
@@ -79,9 +77,7 @@ def test_extension_denormalize_creation():
             ext_parent.ext.url = 'fhir_extension'
             AND ext_child.ext.url = 'text'
             AND ext_child.ext.valuecoding.display != ''
-
-
-    ),
+    ), --noqa: LT07
 
     union_table AS (
         SELECT
@@ -133,4 +129,5 @@ def test_extension_denormalize_creation():
         ["omb", "text"],
     )
     query = get_extension_denormalize_query(config)
+    print(query)
     assert query == expected
