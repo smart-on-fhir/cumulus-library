@@ -1,4 +1,5 @@
 # project specific
+/scratch/
 data_export/
 /.idea/
 .python-version

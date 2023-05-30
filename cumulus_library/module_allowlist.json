@@ -1,0 +1,7 @@
+{
+    "desc" : 
+        "this dict maps pip installable studies to expected paths inside site-packages",
+    "allowlist" : {
+        "covid_symptom" : "cumulus_library_covid/covid_symptom"        
+    }
+}
