@@ -19,7 +19,6 @@ class PatientExtensionRunner(BaseRunner):
         :param schema: the schema/db name, matching the cursor
         :param verbose: if true, outputs raw query, else displays progress bar
         """
-        #    config = ExtensionConfig("source_table","source_id","target_table","prefix","fhir_extension",["omb", "text"])
         extension_types = [
             {
                 "name": "race",
