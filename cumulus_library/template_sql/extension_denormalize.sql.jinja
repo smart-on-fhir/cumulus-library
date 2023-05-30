@@ -1,0 +1,62 @@
+CREATE TABLE {{ target_table }} AS (
+    WITH
+    {%- for system in code_systems %}
+
+    system_{{ system }} AS (
+        SELECT DISTINCT
+            s.id,
+            '{{ loop.index0 }}' AS priority,
+            '{{ system }}' AS system, -- noqa: RF04
+            ext_child.ext.valuecoding.code AS {{ target_col_prefix }}_code,
+            ext_child.ext.valuecoding.display AS {{ target_col_prefix }}_display
+        FROM
+            {{ source_table }} AS s,
+            UNNEST(extension),
+            UNNEST(ext_parent.ext.extension)
+        WHERE
+            ext_parent.ext.url = '{{ fhir_extension }}'
+            AND ext_child.ext.url = '{{ system }}'
+            AND ext_child.ext.valuecoding.display != ''
+
+
+    ),
+    {%- endfor %}
+
+    union_table AS (
+        {%- for system in code_systems %}
+        SELECT
+            id,
+            priority,
+            system,
+            {{ target_col_prefix }}_code,
+            {{ target_col_prefix }}_display
+        FROM system_{{ system }}
+        {%- if not loop.last %}
+        UNION 
+        {%- endif -%}
+        {%- endfor %}
+        ORDER BY id, priority
+    )
+
+    SELECT
+        id,
+        system,
+        {{ target_col_prefix }}_code,
+        {{ target_col_prefix }}_display
+    FROM (
+        SELECT
+            id,
+            system,
+            ARRAY_AGG({{ target_col_prefix }}_code) AS {{ target_col_prefix }}_code,
+            ARRAY_AGG(
+                {{ target_col_prefix }}_display
+            ) AS {{ target_col_prefix }}_display,
+            ROW_NUMBER()
+            OVER (
+                PARTITION BY id, system
+            ) AS available_priority
+        FROM union_table
+        GROUP BY id, system
+    )
+    WHERE available_priority = 1
+);
