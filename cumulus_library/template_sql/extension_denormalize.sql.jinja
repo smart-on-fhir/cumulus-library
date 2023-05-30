@@ -17,9 +17,7 @@ CREATE TABLE {{ target_table }} AS (
             ext_parent.ext.url = '{{ fhir_extension }}'
             AND ext_child.ext.url = '{{ system }}'
             AND ext_child.ext.valuecoding.display != ''
-
-
-    ),
+    ), --noqa: LT07
     {%- endfor %}
 
     union_table AS (
