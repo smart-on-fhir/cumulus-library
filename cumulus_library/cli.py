@@ -149,8 +149,8 @@ def get_study_dict(alt_dir_paths: List) -> Optional[Dict[str, PosixPath]]:
 
     # first, we'll get any installed public studies
     with open(Path(cli_path, "./module_allowlist.json"), "r") as study_allowlist_json:
-        study_allowlist = json.load(study_allowlist_json)
-    study_allowlist.pop("__desc__")
+        study_allowlist = json.load(study_allowlist_json)["allowlist"]
+        print(study_allowlist)
     site_packages_dir = sysconfig.get_path("purelib")
     for study, subdir in study_allowlist.items():
         study_path = Path(site_packages_dir, subdir)

@@ -60,7 +60,9 @@ def test_cli_path_mapping(
         mock_path.return_value = f"{Path(__file__).resolve().parents[0]}" "/test_data/"
         mock_load_json.return_value = {
             "__desc__": "",
-            "study_python_valid": "study_python_valid",
+            "allowlist": {
+                "study_python_valid": "study_python_valid",
+            },
         }
         sysconfig.get_path("purelib")
         builder = cli.main(cli_args=args)
