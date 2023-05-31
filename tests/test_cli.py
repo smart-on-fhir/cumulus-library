@@ -74,9 +74,9 @@ def test_cli_path_mapping(
     "args,cursor_calls,pandas_cursor_calls",
     [
         (["-t", "vocab", "-b", "--database", "test"], 119, 0),
-        (["-t", "core", "-b", "--database", "test"], 24, 0),
-        (["-t", "core", "-e", "--database", "test"], 1, 6),
-        (["-t", "core", "-e", "-b", "--database", "test"], 24, 6),
+        (["-t", "core", "-b", "--database", "test"], 25, 0),
+        (["-t", "core", "-e", "--database", "test"], 1, 7),
+        (["-t", "core", "-e", "-b", "--database", "test"], 25, 7),
         (
             ["-t", "study_valid", "-b", "-s", "tests/test_data/", "--database", "test"],
             4,
@@ -95,7 +95,7 @@ def test_cli_path_mapping(
             4,
             0,
         ),
-        (["-t", "core", "-b", "-s", "tests/test_data/", "--database", "test"], 24, 0),
+        (["-t", "core", "-b", "-s", "tests/test_data/", "--database", "test"], 25, 0),
     ],
 )
 def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_calls):
