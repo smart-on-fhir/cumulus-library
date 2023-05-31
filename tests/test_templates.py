@@ -54,8 +54,8 @@ def test_extension_denormalize_creation():
             ext_child.ext.valuecoding.display AS prefix_display
         FROM
             source_table AS s,
-            UNNEST(extension),
-            UNNEST(ext_parent.ext.extension)
+            UNNEST(extension) AS ext_parent (ext), --noqa: AL05
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext) --noqa: AL05
         WHERE
             ext_parent.ext.url = 'fhir_extension'
             AND ext_child.ext.url = 'omb'
@@ -71,8 +71,8 @@ def test_extension_denormalize_creation():
             ext_child.ext.valuecoding.display AS prefix_display
         FROM
             source_table AS s,
-            UNNEST(extension),
-            UNNEST(ext_parent.ext.extension)
+            UNNEST(extension) AS ext_parent (ext), --noqa: AL05
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext) --noqa: AL05
         WHERE
             ext_parent.ext.url = 'fhir_extension'
             AND ext_child.ext.url = 'text'
@@ -129,5 +129,4 @@ def test_extension_denormalize_creation():
         ["omb", "text"],
     )
     query = get_extension_denormalize_query(config)
-    print(query)
     assert query == expected
