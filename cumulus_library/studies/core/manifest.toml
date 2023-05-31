@@ -1,5 +1,10 @@
 study_prefix = "core"
 
+[python_config]
+file_names = [
+    "patient_extensions.py",
+]
+
 [sql_config]
 file_names = [
     "setup.sql",

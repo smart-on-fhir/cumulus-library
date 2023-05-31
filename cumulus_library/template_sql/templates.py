@@ -93,3 +93,56 @@ def get_insert_into_query(
         return Template(insert_into.read()).render(
             table_name=table_name, table_cols=table_cols, dataset=dataset
         )
+
+
+class ExtensionConfig(object):
+    """convenience class for holding parameters for generating extension tables.
+
+    :param source_table: the table to extract extensions from
+    :param source_id: the id column to treat as a foreign key
+    :param target_table: the name of the table to create
+    :param target_col_prefix: the string to prepend code/display column names with
+    :param fhir_extension: the URL of the FHIR resource to select
+    :param code_systems: a list of codes, in preference order, to use to select data
+    """
+
+    def __init__(
+        self,
+        source_table: str,
+        source_id: str,
+        target_table: str,
+        target_col_prefix: str,
+        fhir_extension: str,
+        code_systems: List[str],
+    ):
+        self.source_table = source_table
+        self.source_id = source_id
+        self.target_table = target_table
+        self.target_col_prefix = target_col_prefix
+        self.fhir_extension = fhir_extension
+        self.code_systems = code_systems
+
+
+def get_extension_denormalize_query(config: ExtensionConfig) -> str:
+    """extracts target extension from a table into a denormalized table
+
+    This function is targeted at a complex extension element that is at the root
+    of a FHIR resource - as an example, see the 5 codes at the root node of
+    http://hl7.org/fhir/us/core/STU6/StructureDefinition-us-core-patient.html.
+    The template will create a new table with the extension data, in arrays,
+    mapped 1-1 to the table id. You can specify multiple coding systems
+    in the ExtensionConfig passed to this function. For each patient, we'll
+    take the data from the first coding system we find for each patient.
+
+    :param config: An instance of ExtensionConfig.
+    """
+    path = Path(__file__).parent
+    with open(f"{path}/extension_denormalize.sql.jinja") as extension_denormalize:
+        return Template(extension_denormalize.read()).render(
+            source_table=config.source_table,
+            source_id=config.source_id,
+            target_table=config.target_table,
+            target_col_prefix=config.target_col_prefix,
+            fhir_extension=config.fhir_extension,
+            code_systems=config.code_systems,
+        )
