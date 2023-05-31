@@ -11,8 +11,8 @@ CREATE TABLE {{ target_table }} AS (
             ext_child.ext.valuecoding.display AS {{ target_col_prefix }}_display
         FROM
             {{ source_table }} AS s,
-            UNNEST(extension),
-            UNNEST(ext_parent.ext.extension)
+            UNNEST(extension) AS ext_parent (ext), --noqa: AL05
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext) --noqa: AL05
         WHERE
             ext_parent.ext.url = '{{ fhir_extension }}'
             AND ext_child.ext.url = '{{ system }}'
