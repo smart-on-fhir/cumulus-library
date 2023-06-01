@@ -24,6 +24,7 @@ export_list = [
     "core__count_encounter_month",
     "core__count_documentreference_month",
     "core__count_observation_lab_month",
-    "core__count_core_condition_icd10_month",
+    "core__count_condition_icd10_month",
+    "core__count_medicationrequest_month",
     "core__meta_date",
 ]
