@@ -1,3 +1,11 @@
+---
+title: Cumulus studies
+parent: Library
+nav_order: 6
+# audience: Clinical researchers interested in publications
+# type: reference
+---
+
 # Cumulus studies
 
 ## Smart managed studies
