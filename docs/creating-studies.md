@@ -27,7 +27,7 @@ to any build/export call to tell it where to look for your work.
 The easiest way to get started with a new study is to use `cumulus-library` to
 create a manifest for you. You can do this with by running:
 ```bash
-cumulus-library -c -p ./path/to/your/study/dir
+cumulus-library create --create-dir ./path/to/your/study/dir
 ```
 We'll create that folder if it doesn't already exist. We recommend you use a name
 relevant to your study (we'll use `my_study` forthis document). The folder name is

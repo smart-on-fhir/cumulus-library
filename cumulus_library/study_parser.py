@@ -3,7 +3,7 @@ import inspect
 import sys
 
 from importlib.machinery import SourceFileLoader
-from pathlib import Path
+from pathlib import Path, PosixPath
 from typing import List, Optional
 
 import toml
@@ -11,7 +11,12 @@ import toml
 from rich.progress import Progress, TaskID, track
 
 from cumulus_library.base_runner import BaseRunner
-from cumulus_library.helper import query_console_output, load_text, parse_sql
+from cumulus_library.helper import (
+    query_console_output,
+    load_text,
+    parse_sql,
+    get_progress_bar,
+)
 from cumulus_library.template_sql.templates import (
     get_show_tables,
     get_show_views,
@@ -127,7 +132,11 @@ class StudyManifestParser:
 
     # SQL related functions
     def clean_study(
-        self, cursor: object, schema_name: str, verbose: bool = False
+        self,
+        cursor: object,
+        schema_name: str,
+        verbose: bool = False,
+        prefix: str = None,
     ) -> List:
         """Removes tables beginning with the study prefix from the database schema
 
@@ -141,7 +150,8 @@ class StudyManifestParser:
         """
         if not schema_name:
             raise ValueError("No database provided")
-        prefix = self.get_study_prefix()
+        if not prefix:
+            prefix = self.get_study_prefix()
         view_sql = get_show_views(schema_name, prefix)
         table_sql = get_show_tables(schema_name, prefix)
         view_table_list = []
@@ -171,7 +181,7 @@ class StudyManifestParser:
                 view_table_list.remove(view_table)
 
         # We want to only show a progress bar if we are :not: printing SQL lines
-        with Progress(disable=verbose) as progress:
+        with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 f"Removing {self.get_study_prefix()} study artifacts...",
                 total=len(view_table_list),
@@ -256,7 +266,7 @@ class StudyManifestParser:
         if len(queries) == 0:
             return []
         # We want to only show a progress bar if we are :not: printing SQL lines
-        with Progress(disable=verbose) as progress:
+        with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 f"Creating {self.get_study_prefix()} study in db...",
                 total=len(queries),
@@ -345,7 +355,7 @@ class StudyManifestParser:
 
     # Database exporting functions
 
-    def export_study(self, cursor: object) -> List:
+    def export_study(self, cursor: object, export_path: PosixPath = None) -> List:
         """Exports csvs/parquet extracts of tables listed in export_list
 
         :param cursor: A PEP-249 compatible cursor object
@@ -362,8 +372,13 @@ class StudyManifestParser:
         ):
             query = f"select * from {table}"
             dataframe = cursor.execute(query).as_pandas()
-            project_path = Path(__file__).resolve().parents[1]
-            path = Path(f"{str(project_path)}/data_export/{self.get_study_prefix()}/")
+            if export_path is None:
+                project_path = Path(__file__).resolve().parents[1]
+                path = Path(
+                    f"{str(project_path)}/data_export/{self.get_study_prefix()}/"
+                )
+            else:
+                path = Path(f"{str(export_path)}/{self.get_study_prefix()}/")
             path.mkdir(parents=True, exist_ok=True)
             dataframe.to_csv(f"{path}/{table}.csv", index=False)
             dataframe.to_parquet(f"{path}/{table}.parquet", index=False)

@@ -7,13 +7,16 @@ from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest import mock
 
+import requests
+import requests_mock
+
 from cumulus_library import cli
 
 
 @mock.patch("pyathena.connect")
 def test_cli_invalid_study(mock_connect):  # pylint: disable=unused-argument
     with pytest.raises(SystemExit):
-        cli.main(cli_args=["-t", "foo"])
+        cli.main(cli_args=["build", "-t", "foo"])
 
 
 @mock.patch("pyathena.connect")
@@ -27,7 +30,6 @@ def test_cli_invalid_study(mock_connect):  # pylint: disable=unused-argument
 def test_cli_no_reads_or_writes(mock_connect, args):  # pylint: disable=unused-argument
     with pytest.raises(SystemExit):
         builder = cli.main(cli_args=args)
-        builder.cursor.execute.assert_called_once()
 
 
 @mock.patch("pyathena.connect")
@@ -36,12 +38,12 @@ def test_cli_no_reads_or_writes(mock_connect, args):  # pylint: disable=unused-a
 @pytest.mark.parametrize(
     "args,raises",
     [
-        (["-b", "-t", "core", "--database", "test"], does_not_raise()),
-        (["-b", "-t", "study_python_valid", "--database", "test"], does_not_raise()),
-        (["-b", "-t", "wrong", "--database", "test"], pytest.raises(SystemExit)),
+        (["build", "-t", "core", "--database", "test"], does_not_raise()),
+        (["build", "-t", "study_python_valid", "--database", "test"], does_not_raise()),
+        (["build", "-t", "wrong", "--database", "test"], pytest.raises(SystemExit)),
         (
             [
-                "-b",
+                "build",
                 "-t",
                 "study_valid",
                 "-s",
@@ -73,20 +75,27 @@ def test_cli_path_mapping(
 @pytest.mark.parametrize(
     "args,cursor_calls,pandas_cursor_calls",
     [
-        (["-t", "vocab", "-b", "--database", "test"], 119, 0),
-        (["-t", "core", "-b", "--database", "test"], 27, 0),
-        (["-t", "core", "-e", "--database", "test"], 1, 7),
-        (["-t", "core", "-e", "-b", "--database", "test"], 27, 7),
+        (["build", "-t", "vocab", "--database", "test"], 119, 0),
+        (["build", "-t", "core", "--database", "test"], 27, 0),
+        (["export", "-t", "core", "--database", "test"], 1, 7),
         (
-            ["-t", "study_valid", "-b", "-s", "tests/test_data/", "--database", "test"],
+            [
+                "build",
+                "-t",
+                "study_valid",
+                "-s",
+                "tests/test_data/",
+                "--database",
+                "test",
+            ],
             4,
             0,
         ),
         (
             [
+                "build",
                 "-t",
                 "study_valid",
-                "-b",
                 "-s",
                 "tests/test_data/study_valid/",
                 "--database",
@@ -95,7 +104,25 @@ def test_cli_path_mapping(
             4,
             0,
         ),
-        (["-t", "core", "-b", "-s", "tests/test_data/", "--database", "test"], 27, 0),
+
+        (
+            ["build", "-t", "core", "-s", "tests/test_data/", "--database", "test"],
+            27,
+            0,
+        ),
+        (
+            [
+                "export",
+                "-t",
+                "core",
+                "--database",
+                "test",
+                "--export-dir",
+                "cumulus_library/data_export",
+            ],
+            1,
+            7,
+        ),
     ],
 )
 def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_calls):
@@ -110,14 +137,61 @@ def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_ca
 @pytest.mark.parametrize(
     "args,raises",
     [
-        (["-c"], does_not_raise()),
-        (["-c", "-p"], pytest.raises(SystemExit)),
-        (["-c", "-p", "/tmp/foo"], does_not_raise()),
-        (["-c", "-p", "./test_data"], does_not_raise()),
-        (["-c", "-p", "./test_data/fakedir"], does_not_raise()),
+        (["create"], does_not_raise()),
+        (["create", "-c"], pytest.raises(SystemExit)),
+        (["create", "-c", "/tmp/foo"], does_not_raise()),
+        (["create", "-c", "./test_data"], does_not_raise()),
+        (["create", "-c", "./test_data/fakedir"], does_not_raise()),
     ],
 )
 def test_cli_creates_studies(mock_mkdir, mock_write, args, raises):
     with raises:
         builder = cli.main(cli_args=args)
         assert mock_write.called
+
+
+@mock.patch("pathlib.Path.glob")
+@pytest.mark.parametrize(
+    "args,status,login_error,raises",
+    [
+        (["upload"], 204, False, does_not_raise()),
+        (["upload", "--user", "user", "--id", "id"], 204, False, does_not_raise()),
+        (
+            ["upload", "--user", "user", "--id", "id"],
+            500,
+            False,
+            pytest.raises(requests.exceptions.RequestException),
+        ),
+        (
+            ["upload", "--user", "baduser", "--id", "badid"],
+            204,
+            True,
+            pytest.raises(requests.exceptions.RequestException),
+        ),
+        (
+            ["upload", "--user", "user", "--id", "id", "--export-dir", "./foo"],
+            204,
+            False,
+            does_not_raise(),
+        ),
+    ],
+)
+def test_cli_creates_studies(
+    mock_glob, requests_mock, args, status, login_error, raises
+):
+    mock_glob.side_effect = [
+        [Path(__file__)],
+        [Path(str(Path(__file__)) + "/test_data/count_synthea_patient.parquet")],
+    ]
+    with raises:
+        if login_error:
+            requests_mock.post(
+                "https://dev.aggregator.smartcumulus.org/upload/", status_code=401
+            )
+        else:
+            requests_mock.post(
+                "https://dev.aggregator.smartcumulus.org/upload/",
+                json={"url": "https://presigned.url.org", "fields": {"a": "b"}},
+            )
+        requests_mock.post("https://presigned.url.org", status_code=status)
+        builder = cli.main(cli_args=args)
