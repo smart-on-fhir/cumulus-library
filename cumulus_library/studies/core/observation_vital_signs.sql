@@ -15,11 +15,27 @@
 --a result value or a reason why the data is absent*
 --if the result value is a numeric quantity, a standard UCUM unit
 
-drop table if exists core__observation_vital_signs;
-
-create TABLE core__observation_vital_signs as
-    SELECT * from core__observation
-        ,UNNEST(category) t (observation_category)
-        ,UNNEST(observation_category.coding) t (category_row)
-    WHERE category_row.code = 'vital-signs'
-;
+CREATE TABLE core__observation_vital_signs AS
+SELECT
+    co.category,
+    co.component,
+    co.status,
+    co.obs_code,
+    co.interpretation,
+    co.referencerange,
+    co.valuequantity,
+    co.valuecodeableconcept,
+    co.obs_date,
+    co.obs_week,
+    co.obs_month,
+    co.obs_year,
+    co.subject_ref,
+    co.encounter_ref,
+    co.observation_id,
+    co.observation_ref,
+    t_obs.observation_category,
+    t_cat.category_row
+FROM core__observation AS co,
+    UNNEST(category) AS t_obs (observation_category), --noqa: AL05
+    UNNEST(observation_category.coding) AS t_cat (category_row) --noqa: AL05
+WHERE category_row.code = 'vital-signs';

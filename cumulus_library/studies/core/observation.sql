@@ -1,40 +1,40 @@
-drop table if exists core__observation;
-
-create TABLE core__observation as
-with temp_observation as (
+CREATE TABLE core__observation AS
+WITH temp_observation AS (
     SELECT
-          category
-        , component
-        , status
-        , code_row as obs_code
-        , code
-        , interpretation
-        , referenceRange
-        , valueQuantity
-        , valueCodeableConcept
-        , subject.reference as subject_ref
-        , encounter.reference as encounter_ref
-        , date(from_iso8601_timestamp(effectiveDateTime)) as effectiveDateTime
-        , id as observation_id, concat('Observation/', id) as observation_ref
-    FROM observation
-        ,UNNEST(code.coding) t (code_row)
+        o.category,
+        o.component,
+        o.status,
+        o.code_row AS obs_code,
+        t_coding.code,
+        o.interpretation,
+        o.referencerange,
+        o.valuequantity,
+        o.valuecodeableconcept,
+        o.subject.reference AS subject_ref,
+        o.encounter.reference AS encounter_ref,
+        date(from_iso8601_timestamp(o.effectivedatetime)) AS effectivedatetime,
+        o.id AS observation_id,
+        concat('Observation/', o.id) AS observation_ref
+    FROM observation AS o,
+        unnest(code.coding) AS t_coding (code_row) --noqa: AL05
 )
+
 SELECT
-      category
-    , component
-    , status
-    , obs_code
-    , interpretation
-    , referenceRange
-    , valueQuantity
-    , valueCodeableConcept
-    , date_trunc('day',   date(effectiveDateTime)) as obs_date
-    , date_trunc('week',  date(effectiveDateTime)) as obs_week
-    , date_trunc('month', date(effectiveDateTime)) as obs_month
-    , date_trunc('year',  date(effectiveDateTime)) as obs_year
-    , subject_ref
-    , encounter_ref
-    , observation_id, observation_ref
+    category,
+    component,
+    status,
+    obs_code,
+    interpretation,
+    referencerange,
+    valuequantity,
+    valuecodeableconcept,
+    date_trunc('day', date(effectivedatetime)) AS obs_date,
+    date_trunc('week', date(effectivedatetime)) AS obs_week,
+    date_trunc('month', date(effectivedatetime)) AS obs_month,
+    date_trunc('year', date(effectivedatetime)) AS obs_year,
+    subject_ref,
+    encounter_ref,
+    observation_id,
+    observation_ref
 FROM temp_observation
-WHERE effectiveDateTime between date('2016-06-01') and current_date
-;
+WHERE effectivedatetime BETWEEN date('2016-06-01') AND current_date;
