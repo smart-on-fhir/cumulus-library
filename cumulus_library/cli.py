@@ -89,11 +89,10 @@ class StudyBuilder:
                 "Explicit targets for cleaning not provided. "
                 "Provide one or more explicit study prefixes to remove."
             )
-        else:
-            for study in targets:
-                StudyManifestParser.clean_study(
-                    self.cursor, self.schema_name, self.verbose, prefix=f"{study}__"
-                )
+        for study in targets:
+            StudyManifestParser.clean_study(
+                self.cursor, self.schema_name, self.verbose, prefix=f"{study}__"
+            )
 
     def clean_and_build_study(self, target: PosixPath) -> None:
         """Recreates study views/tables
@@ -217,11 +216,9 @@ def upload_files(args: dict):
     if args["export_dir"] is None:
         args["export_dir"] = Path(__file__).resolve().parent / "data_export"
     file_paths = list(args["export_dir"].glob("**/*.parquet"))
-    print(file_paths)
     num_uploads = len(file_paths)
     if not args["user"] or not args["id"]:
-        print("user/id not found")
-        raise KeyError
+        sys.exit("user/id not provided, please pass --user and --id")
     with get_progress_bar() as progress:
         file_upload_progress = progress.add_task("Uploading", total=num_uploads)
         for file_path in file_paths:
