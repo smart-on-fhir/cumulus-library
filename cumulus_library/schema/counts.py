@@ -1,7 +1,7 @@
 # pylint: disable=W,C,R
-from library.schema.valueset import DurationUnits
-from library.schema.columns import ColumnEnum as Column
-from library.errors import LibraryError
+from cumulus_library.schema.valueset import DurationUnits
+from cumulus_library.schema.columns import ColumnEnum as Column
+from cumulus_library.errors import LibraryError
 
 ##################################################
 # Google Style Guide
