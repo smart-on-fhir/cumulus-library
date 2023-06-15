@@ -13,7 +13,9 @@ file_names = [
     "encounter.sql",
     "documentreference.sql",
     "condition.sql",
+    "observation.sql",
     "observation_lab.sql",
+    "observation_vital_signs.sql",
     "medication_request.sql",
     "study_period.sql",
 ]
