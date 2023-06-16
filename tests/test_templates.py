@@ -1,10 +1,30 @@
 """ tests for jinja sql templates """
 from cumulus_library.template_sql.templates import (
+    get_create_view_query,
     get_ctas_query,
     get_insert_into_query,
     get_extension_denormalize_query,
     ExtensionConfig,
 )
+
+
+def test_create_view_query_creation():
+    expected = """CREATE OR REPLACE VIEW test_view AS (
+    SELECT * FROM (
+        VALUES
+        ('foo','foo'),
+        ('bar','bar')
+    )
+    AS t -- noqa: L025
+    (a,b)
+);"""
+    query = get_create_view_query(
+        view_name="test_view",
+        dataset=[["foo", "foo"], ["bar", "bar"]],
+        view_cols=["a", "b"],
+    )
+    print(query)
+    assert query == expected
 
 
 def test_ctas_query_creation():

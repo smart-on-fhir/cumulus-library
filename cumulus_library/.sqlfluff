@@ -18,11 +18,13 @@ capitalisation_policy = upper
 [sqlfluff:templater:jinja:context]
 schema_name = test_schema
 table_name = test_table
+view_name = test_view
 view_or_table_name = test_view_or_table
 view_or_table = TABLE
 prefix = Test
 dataset = [["foo","foo"],["bar","bar"]]
 table_cols = ["a","b"]
+view_cols = ["c","d"]
 col_type_list = ["a string","b string"]
 source_table = source_table
 source_id = source_id
