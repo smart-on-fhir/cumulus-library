@@ -6,6 +6,7 @@ from cumulus_library.schema.valueset import DurationUnits
 from cumulus_library.schema.valueset import EncounterCode
 from cumulus_library.schema.valueset import ObservationInterpretationDetection
 
+
 class ColumnEnum(Enum):
     # Counts
     cnt = Datatypes.Int, "Count"
