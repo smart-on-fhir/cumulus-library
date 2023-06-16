@@ -23,7 +23,7 @@ def add_study_dir_argument(parser: argparse.ArgumentParser) -> None:
         action="append",
         help=(
             "Optionally add one or more directories to look for study definitions in. "
-            "Default is in project directory and CUMULUS_LIBRARY_PATH, if present, "
+            "Default is in project directory and CUMULUS_LIBRARY_STUDY_DIR, if present, "
             "followed by any supplied paths. Target, and all its subdirectories, "
             "are checked for manifests. Overriding studies with the same namespace "
             "supersede earlier ones."
