@@ -79,7 +79,7 @@ This should be much faster - these tables will be created in around 15 seconds.
 - You can use the AWS Athena console to view these tables directly, but you can also
 download designated study artifacts. To do the latter, run the following command:
 ```bash
-cumulus-library build --target export
+cumulus-library export --target template
 ```
 And this will download some example count aggregates to the `data_export` directory
 inside of this repository. There's only a few bins, but this will give you an idea
