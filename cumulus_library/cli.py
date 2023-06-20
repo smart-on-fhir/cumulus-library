@@ -255,7 +255,7 @@ def main(cli_args=None):
     if args["action"] is None:
         parser.print_usage()
         sys.exit(1)
-    if "target" in args and args["target"] is not None:
+    if args.get("target"):
         for target in args["target"]:
             if target == "all":
                 args["target"] = ["all"]
@@ -276,13 +276,13 @@ def main(cli_args=None):
         if env_val := os.environ.get(pair[1]):
             args[pair[0]] = env_val
 
-    if "study_dir" in args and args["study_dir"] is not None:
+    if args.get("study_dir"):
         posix_paths = []
         for path in args["study_dir"]:
             posix_paths.append(get_abs_posix_path(path))
         args["study_dir"] = posix_paths
 
-    if "data_path" in args and args["data_path"] is not None:
+    if args.get("data_path"):
         args["data_path"] = get_abs_posix_path(args["data_path"])
 
     print(args)
