@@ -1,6 +1,6 @@
 [project]
 name = "cumulus-library"
-version = "0.2.2"
+version = "0.3.0"
 # In order to support 3.12, we wil need to refactor out load_module, which is
 # targeted for deprecation in that version.
 requires-python = ">= 3.9, <3.12"
