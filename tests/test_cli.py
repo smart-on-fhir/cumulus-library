@@ -104,7 +104,6 @@ def test_cli_path_mapping(
             4,
             0,
         ),
-
         (
             ["build", "-t", "core", "-s", "tests/test_data/", "--database", "test"],
             27,
@@ -117,7 +116,6 @@ def test_cli_path_mapping(
                 "core",
                 "--database",
                 "test",
-                "--export-dir",
                 "cumulus_library/data_export",
             ],
             1,
@@ -169,7 +167,7 @@ def test_cli_creates_studies(mock_mkdir, mock_write, args, raises):
             pytest.raises(requests.exceptions.RequestException),
         ),
         (
-            ["upload", "--user", "user", "--id", "id", "--export-dir", "./foo"],
+            ["upload", "--user", "user", "--id", "id", "./foo"],
             204,
             False,
             does_not_raise(),

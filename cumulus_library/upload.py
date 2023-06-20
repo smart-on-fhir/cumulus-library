@@ -56,9 +56,12 @@ def upload_data(
 
 def upload_files(args: dict):
     """Wrapper to prep files & console output"""
-    if args["export_dir"] is None:
-        args["export_dir"] = Path(__file__).resolve().parent / "data_export"
-    file_paths = list(args["export_dir"].glob("**/*.parquet"))
+    if args["data_path"] is None:
+        sys.exit(
+            "No data directory provided - please provide a path to your"
+            "study export folder."
+        )
+    file_paths = list(args["data_path"].glob("**/*.parquet"))
     num_uploads = len(file_paths)
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")

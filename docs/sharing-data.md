@@ -20,12 +20,11 @@ subset of tables set as being exportable to disk. By default, we export two file
 formats: csv, and parquet. The former is intended for things like SME verification,
 while the latter is intended for transport/programmatic consumption/type safety.
 
-Data exported from Cumulus goes into the `cumulus_library/data_export` directory 
-of the project, which is ignored by git by default. From here, you can load them 
-into your analysis tool of choice. If you're using the pip package you may want to
-use the `--export-dir` flag to specify a path for this data if you want to manually
-review it, or set the `CUMULUS_LIBRARY_EXPORT_DIR` environment variable so that
-all future runs will export to an easy to find directory.
+When exporting/uploading data, you need to provide a path to a data directory for
+local reading and writing. Optionally, you can specify a path value to use for this
+in a `CUMULUS_LIBRARY_DATA_PATH` variable. The library will create subfolders in
+this directory based on the names studies you are exporting. These will be emptied
+before each export run.
 
 ## Uploading data to Cumulus Aggregator
 

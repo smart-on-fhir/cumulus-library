@@ -62,7 +62,7 @@ class StudyBuilder:
         ).cursor()
         self.schema_name = schema
 
-    def reset_export_dir(self, study: PosixPath) -> None:
+    def reset_data_path(self, study: PosixPath) -> None:
         """
         Removes existing exports from a study's local data dir
         """
@@ -119,20 +119,20 @@ class StudyBuilder:
             self.clean_and_build_study(study_dict[key])
 
     ### Data exporters
-    def export_study(self, target: PosixPath, export_dir: PosixPath) -> None:
+    def export_study(self, target: PosixPath, data_path: PosixPath) -> None:
         """Exports aggregates defined in a manifest
 
         :param target: A PosixPath to the study directory
         """
-        if export_dir is None:
-            export_dir = Path(__file__).resolve().parent / "data_export"
+        if data_path is None:
+            sys.exit("Missing destination - please provide a path argument.")
         studyparser = StudyManifestParser(target)
-        studyparser.export_study(self.pandas_cursor, export_dir)
+        studyparser.export_study(self.pandas_cursor, data_path)
 
-    def export_all(self, study_dict: Dict, export_dir: PosixPath):
+    def export_all(self, study_dict: Dict, data_path: PosixPath):
         """Exports all defined count tables to disk"""
         for key in study_dict.keys():
-            self.export_study(study_dict[key], export_dir)
+            self.export_study(study_dict[key], data_path)
 
 
 def get_abs_posix_path(path: str) -> PosixPath:
@@ -239,10 +239,10 @@ def run_cli(args: Dict):
 
             elif args["action"] == "export":
                 if "all" in args["target"]:
-                    builder.export_all(study_dict, args["export_dir"])
+                    builder.export_all(study_dict, args["data_path"])
                 else:
                     for target in args["target"]:
-                        builder.export_study(study_dict[target], args["export_dir"])
+                        builder.export_study(study_dict[target], args["data_path"])
 
         # returning the builder for ease of unit testing
         return builder
@@ -261,22 +261,13 @@ def main(cli_args=None):
                 args["target"] = ["all"]
                 break
 
-    if "study_dir" in args and args["study_dir"] is not None:
-        posix_paths = []
-        for path in args["study_dir"]:
-            posix_paths.append(get_abs_posix_path(path))
-        args["study_dir"] = posix_paths
-
-    if "export_dir" in args and args["export_dir"] is not None:
-        args["export_dir"] = get_abs_posix_path(args["export_dir"])
-
     arg_env_pairs = (
         ("profile", "CUMULUS_LIBRARY_PROFILE"),
         ("schema_name", "CUMULUS_LIBRARY_DATABASE"),
         ("workgroup", "CUMULUS_LIBRARY_WORKGROUP"),
         ("region", "CUMULUS_LIBRARY_REGION"),
         ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
-        ("export_dir", "CUMULUS_LIBRARY_EXPORT_DIR"),
+        ("data_path", "CUMULUS_LIBRARY_DATA_PATH"),
         ("user", "CUMULUS_AGGREGATOR_USER"),
         ("id", "CUMULUS_AGGREGATOR_ID"),
         ("url", "CUMULUS_AGGREGATOR_URL"),
@@ -284,6 +275,17 @@ def main(cli_args=None):
     for pair in arg_env_pairs:
         if env_val := os.environ.get(pair[1]):
             args[pair[0]] = env_val
+
+    if "study_dir" in args and args["study_dir"] is not None:
+        posix_paths = []
+        for path in args["study_dir"]:
+            posix_paths.append(get_abs_posix_path(path))
+        args["study_dir"] = posix_paths
+
+    if "data_path" in args and args["data_path"] is not None:
+        args["data_path"] = get_abs_posix_path(args["data_path"])
+
+    print(args)
     return run_cli(args)
 
 

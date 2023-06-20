@@ -31,16 +31,15 @@ def add_study_dir_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def add_export_dir_argument(parser: argparse.ArgumentParser) -> None:
-    """Adds --export_dir arg to a subparser"""
+def add_data_path_argument(parser: argparse.ArgumentParser) -> None:
+    """Adds path arg to a subparser"""
     parser.add_argument(
-        "-e",
-        "--export-dir",
+        "data_path",
+        default="./",
+        nargs="?",
         help=(
-            "Provide a custom export directory. "
-            "By default, this will be the value of CUMULUS_LIBRARY_EXPORT_DIR, "
-            "or the root of the project install directory, which will be in your "
-            "python modules directory if you've pip installed Cumulus library."
+            "The path to use for Athena counts data. "
+            "Can be povided via CUMULUS_LIBRARY_DATA_PATH environment variable."
         ),
     )
 
@@ -101,8 +100,7 @@ following order of preference is used to select credentials:
         "create", help="Create a study instance from a template"
     )
     create.add_argument(
-        "-c",
-        "--create_dir",
+        "create_dir",
         default="./",
         help=(
             "The the directory the study will be created in. Default is "
@@ -130,7 +128,7 @@ following order of preference is used to select credentials:
     )
     add_target_argument(export)
     add_study_dir_argument(export)
-    add_export_dir_argument(export)
+    add_data_path_argument(export)
     add_verbose_argument(export)
     add_aws_config(export)
 
@@ -138,7 +136,7 @@ following order of preference is used to select credentials:
         "upload", help="Bulk uploads data to Cumulus aggregator"
     )
     add_target_argument(upload)
-    add_export_dir_argument(upload)
+    add_data_path_argument(upload)
     upload.add_argument(
         "--user", help="Cumulus user. Default is value of CUMULUS_AGGREGATOR_USER"
     )
