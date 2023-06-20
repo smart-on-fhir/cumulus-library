@@ -102,6 +102,7 @@ following order of preference is used to select credentials:
     create.add_argument(
         "create_dir",
         default="./",
+        nargs="?",
         help=(
             "The the directory the study will be created in. Default is "
             "the current directory."

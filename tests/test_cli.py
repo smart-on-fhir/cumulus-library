@@ -1,5 +1,6 @@
 """ tests for the cli interface to studies """
 import json
+import os
 import pytest
 import sysconfig
 
@@ -136,10 +137,9 @@ def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_ca
     "args,raises",
     [
         (["create"], does_not_raise()),
-        (["create", "-c"], pytest.raises(SystemExit)),
-        (["create", "-c", "/tmp/foo"], does_not_raise()),
-        (["create", "-c", "./test_data"], does_not_raise()),
-        (["create", "-c", "./test_data/fakedir"], does_not_raise()),
+        (["create", "/tmp/foo"], does_not_raise()),
+        (["create", "./test_data"], does_not_raise()),
+        (["create", "./test_data/fakedir"], does_not_raise()),
     ],
 )
 def test_cli_creates_studies(mock_mkdir, mock_write, args, raises):
@@ -148,11 +148,15 @@ def test_cli_creates_studies(mock_mkdir, mock_write, args, raises):
         assert mock_write.called
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 @mock.patch("pathlib.Path.glob")
 @pytest.mark.parametrize(
     "args,status,login_error,raises",
     [
-        (["upload"], 204, False, does_not_raise()),
+        (["upload"], 204, False, pytest.raises(SystemExit)),
         (["upload", "--user", "user", "--id", "id"], 204, False, does_not_raise()),
         (
             ["upload", "--user", "user", "--id", "id"],
@@ -174,7 +178,7 @@ def test_cli_creates_studies(mock_mkdir, mock_write, args, raises):
         ),
     ],
 )
-def test_cli_creates_studies(
+def test_cli_upload_studies(
     mock_glob, requests_mock, args, status, login_error, raises
 ):
     mock_glob.side_effect = [
@@ -184,11 +188,11 @@ def test_cli_creates_studies(
     with raises:
         if login_error:
             requests_mock.post(
-                "https://dev.aggregator.smartcumulus.org/upload/", status_code=401
+                "https://aggregator.smartcumulus.org/upload/", status_code=401
             )
         else:
             requests_mock.post(
-                "https://dev.aggregator.smartcumulus.org/upload/",
+                "https://aggregator.smartcumulus.org/upload/",
                 json={"url": "https://presigned.url.org", "fields": {"a": "b"}},
             )
         requests_mock.post("https://presigned.url.org", status_code=status)
