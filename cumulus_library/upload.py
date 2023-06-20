@@ -1,15 +1,9 @@
-#!/usr/bin/env python3
-"""Upload utililty for sending data to Cumulus aggregator"""
-
-import argparse
-import os
-import sys
-
 from pathlib import Path
 
 import requests
-
 from rich.progress import Progress, TaskID
+
+from cumulus_library.helper import get_progress_bar
 
 
 def upload_data(
@@ -60,61 +54,18 @@ def upload_data(
     progress.update(file_upload_progress, advance=1)
 
 
-def run_uploads(args: dict):
+def upload_files(args: dict):
     """Wrapper to prep files & console output"""
-    base_path = Path(__file__).resolve().parent
-    file_paths = list(base_path.glob("**/*.parquet"))
+    if args["data_path"] is None:
+        sys.exit(
+            "No data directory provided - please provide a path to your"
+            "study export folder."
+        )
+    file_paths = list(args["data_path"].glob("**/*.parquet"))
     num_uploads = len(file_paths)
     if not args["user"] or not args["id"]:
-        print("user/id not found")
-        raise KeyError
-    with Progress() as progress:
+        sys.exit("user/id not provided, please pass --user and --id")
+    with get_progress_bar() as progress:
         file_upload_progress = progress.add_task("Uploading", total=num_uploads)
         for file_path in file_paths:
             upload_data(progress, file_upload_progress, file_path, args)
-
-
-def get_parser():
-    """Provides an argument parser object for CLI interface"""
-    parser = argparse.ArgumentParser(
-        description="""Uploads study data to cumulus aggregator.
-
-    Each argument can also be provided via a environment variable, following the
-    pattern 'CUMUMLUS_AGGREGATOR_ARGNAME'.
-    """
-    )
-    parser.add_argument("-u", "--user", help="Cumulus user")
-    parser.add_argument("-i", "--id", help="Site ID")
-    parser.add_argument(
-        "--url",
-        help="Upload URL",
-        default="https://aggregator.smartcumulus.org/upload/",
-    )
-    parser.add_argument(
-        "-p",
-        "--preview",
-        default=False,
-        action="store_true",
-        help="Run prefetch and prepare upload, but log output instead of sending.",
-    )
-    return parser
-
-
-def main(cli_args=None):
-    """Manages CLI arguments and envrionment variables for upload job"""
-    parser = get_parser()
-    args = vars(parser.parse_args(cli_args))
-    if user_env := os.environ.get("CUMULUS_AGGREGATOR_USER"):
-        args["user"] = user_env
-    if id_env := os.environ.get("CUMULUS_AGGREGATOR_ID"):
-        args["id"] = id_env
-    if url_env := os.environ.get("CUMULUS_AGGREGATOR_URL"):
-        args["url"] = url_env
-    try:
-        run_uploads(args)
-    except (KeyError, requests.RequestException):
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()

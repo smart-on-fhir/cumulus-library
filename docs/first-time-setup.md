@@ -21,17 +21,19 @@ services. See the [AWS setup guide](./aws-setup.md) for more information on this
 ## Command line usage
 
 Installing adds a `cumulus-library` command for interacting with athena.
-There are three primary modes most users will be interested in:
+It provides several actions for users:
 
-- `--create` will create a manifest file for you so you can start working on
+- `create` will create a manifest file for you so you can start working on
 authoring queires (more information on this in 
 [Creating studies](./creating-studies.md)).
-- `--build` will create new study tables, replacing previously created versions
+- `build` will create new study tables, replacing previously created versions
 (more information on this in [Creating studies](./creating-studies.md)).
-- `--export` will output the data in the tables to both a `.csv` and
+- `clean` will remove studies from Athena, in case you no longer need them
+- `export` will output the data in the tables to both a `.csv` and
 `.parquet` file. The former is intended for human review, while the latter is
 more compressed and should be preferred (if supported) for use when transmitting
 data/loading data into analytics packages.
+- `upload` will send data you exported to the cumulus aggregator
 
 By default, all available studies will be used by build and export, but you can use
 or `--target` to specify a specific study to be run. You can use it multiple
@@ -58,7 +60,7 @@ study creates mappings of system codes to strings, and the `core` study creates
 tables for commonly used base FHIR resources like `Patient` and `Observation`
 using that vocab. To do this, run the following command:
 ```bash
-cumulus-library --build --target vocab --target core
+cumulus-library build --target vocab --target core
 ```
 This usually takes around five minutes, but once it's done, you won't need build
 `vocab` again unless there's a coding system addition, and you'll only need to build
@@ -71,13 +73,13 @@ Creating core study in db... ━━━━━━━━━━━━━━━━━
 ```
 - Now, we'll build the template study. Run a very similar command to target `template`:
 ```bash
-cumulus-library --build --target template
+cumulus-library build --target template
 ```
 This should be much faster - these tables will be created in around 15 seconds.
 - You can use the AWS Athena console to view these tables directly, but you can also
 download designated study artifacts. To do the latter, run the following command:
 ```bash
-cumulus-library --build --target export
+cumulus-library export --target template ./path/to/my/data/dir/
 ```
 And this will download some example count aggregates to the `data_export` directory
 inside of this repository. There's only a few bins, but this will give you an idea

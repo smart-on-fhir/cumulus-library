@@ -141,5 +141,5 @@ def test_export_study(monkeypatch):
     mock_cursor = mock.MagicMock()
     parser = StudyManifestParser("./tests/test_data/study_valid/")
     monkeypatch.setattr(pathlib, "PosixPath", mock.MagicMock())
-    queries = parser.export_study(mock_cursor)
+    queries = parser.export_study(mock_cursor, "./path")
     assert queries == ["select * from test__table"]

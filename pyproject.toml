@@ -35,6 +35,7 @@ dev = [
 ]
 test = [
     "pytest",
+    "requests-mock"
 ]
 
 [project.urls]

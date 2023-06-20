@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Utility for building/retrieving data views in AWS Athena"""
 
-import argparse
 import json
 import os
 import sys
@@ -14,7 +13,9 @@ import pyathena
 
 from pyathena.pandas.cursor import PandasCursor
 
+from cumulus_library.cli_parser import get_parser
 from cumulus_library.study_parser import StudyManifestParser
+from cumulus_library.upload import upload_files
 
 
 # ** Don't delete! **
@@ -61,7 +62,7 @@ class StudyBuilder:
         ).cursor()
         self.schema_name = schema
 
-    def reset_export_dir(self, study: PosixPath) -> None:
+    def reset_data_path(self, study: PosixPath) -> None:
         """
         Removes existing exports from a study's local data dir
         """
@@ -72,10 +73,29 @@ class StudyBuilder:
                 file.unlink()
 
     ### Creating studies
-    def clean_and_build_study(self, target: PosixPath) -> None:
-        """Exports aggregates defined in a manifesty
 
-        :param taget: A PosixPath to the study directory
+    def clean_study(self, targets: List[str]) -> None:
+        """Removes study table/views from Athena.
+
+        While this is usually not required, since it it done as part of a build,
+        this can be useful for cleaning up tables if a study prefix is changed
+        for some reason.
+
+        :param target: The study prefix to use for IDing tables to remove"""
+        if targets is None or targets == ["all"]:
+            sys.exit(
+                "Explicit targets for cleaning not provided. "
+                "Provide one or more explicit study prefixes to remove."
+            )
+        for study in targets:
+            StudyManifestParser.clean_study(
+                self.cursor, self.schema_name, self.verbose, prefix=f"{study}__"
+            )
+
+    def clean_and_build_study(self, target: PosixPath) -> None:
+        """Recreates study views/tables
+
+        :param target: A PosixPath to the study directory
         """
         studyparser = StudyManifestParser(target)
         studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
@@ -99,22 +119,24 @@ class StudyBuilder:
             self.clean_and_build_study(study_dict[key])
 
     ### Data exporters
-    def export_study(self, target: PosixPath) -> None:
-        """Exports aggregates defined in a manifesty
+    def export_study(self, target: PosixPath, data_path: PosixPath) -> None:
+        """Exports aggregates defined in a manifest
 
-        :param taget: A PosixPath to the study directory
+        :param target: A PosixPath to the study directory
         """
+        if data_path is None:
+            sys.exit("Missing destination - please provide a path argument.")
         studyparser = StudyManifestParser(target)
-        studyparser.export_study(self.pandas_cursor)
+        studyparser.export_study(self.pandas_cursor, data_path)
 
-    def export_all(self, study_dict: Dict):
+    def export_all(self, study_dict: Dict, data_path: PosixPath):
         """Exports all defined count tables to disk"""
         for key in study_dict.keys():
-            self.export_study(study_dict[key])
+            self.export_study(study_dict[key], data_path)
 
 
 def get_abs_posix_path(path: str) -> PosixPath:
-    """Conveince method for hanlding abs vs rel paths"""
+    """Convenience method for handling abs vs rel paths"""
     if path[0] == "/":
         return Path(path)
     else:
@@ -174,18 +196,14 @@ def get_study_dict(alt_dir_paths: List) -> Optional[Dict[str, PosixPath]]:
 
 def run_cli(args: Dict):
     """Controls which library tasks are run based on CLI arguments"""
-    if not args["build"] and not args["export"] and not args["create"]:
-        sys.exit(
-            (
-                "Expecting at least one of build, export or create as arguments. "
-                "See `cumulus-library --help` for more information"
-            )
-        )
+    if args["action"] == "create":
+        create_template(args["create_dir"])
 
-    if args["create"]:
-        create_template(args["path"])
+    elif args["action"] == "upload":
+        upload_files(args)
 
-    elif args["build"] or args["export"]:
+    # all other actions require connecting to AWS
+    else:
         builder = StudyBuilder(
             args["region"],
             args["workgroup"],
@@ -194,165 +212,78 @@ def run_cli(args: Dict):
         )
         if args["verbose"]:
             builder.verbose = True
-
-        study_dict = get_study_dict(args["study_dir"])
-        if args["target"]:
-            for target in args["target"]:
-                if target not in study_dict:
-                    sys.exit(
-                        f"{target} was not found in available studies: "
-                        f"{list(study_dict.keys())}.\n\n"
-                        "If you are trying to run a custom study, make sure "
-                        "you include `-s path/to/study/dir` as an arugment."
-                    )
-        # here we invoke the cursor once to confirm valid connections
+        print("Testing connection to athena...")
         builder.cursor.execute("show tables")
 
-        if args["build"]:
-            if "all" in args["target"]:
-                builder.clean_and_build_all(study_dict)
-            else:
-                for target in args["target"]:
-                    builder.clean_and_build_study(study_dict[target])
+        if args["action"] == "clean":
+            builder.clean_study(args["target"])
 
-        if args["export"]:
-            if "all" in args["target"]:
-                builder.export_all(study_dict)
-            else:
+        else:
+            study_dict = get_study_dict(args["study_dir"])
+            if args["target"]:
                 for target in args["target"]:
-                    builder.export_study(study_dict[target])
+                    if target not in study_dict:
+                        sys.exit(
+                            f"{target} was not found in available studies: "
+                            f"{list(study_dict.keys())}.\n\n"
+                            "If you are trying to run a custom study, make sure "
+                            "you include `-s path/to/study/dir` as an arugment."
+                        )
+
+            if args["action"] == "build":
+                if "all" in args["target"]:
+                    builder.clean_and_build_all(study_dict)
+                else:
+                    for target in args["target"]:
+                        builder.clean_and_build_study(study_dict[target])
+
+            elif args["action"] == "export":
+                if "all" in args["target"]:
+                    builder.export_all(study_dict, args["data_path"])
+                else:
+                    for target in args["target"]:
+                        builder.export_study(study_dict[target], args["data_path"])
 
         # returning the builder for ease of unit testing
         return builder
-
-
-def get_parser():
-    """Provides parser for handling CLI arguments"""
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="""Generates study tables and views from post-Cumulus ETL data.
-
-cumulus_library will attempt to create a connection to AWS athena. The
-following order of preference is used to select credentials:
-  - explict command line arguments
-  - cumulus environment variables (CUMULUS_LIBRARY_PROFILE, 
-    CUMULUS_LIBRARY_DATABASE, CUMULUS_LIBRARY_REGION)
-  - Normal boto profile order (AWS env vars, ~/.aws/credentials, ~/.aws/config)""",
-    )
-
-    studygen = parser.add_argument_group("Creating study templates")
-    studygen.add_argument(
-        "-c",
-        "--create",
-        action="store_true",
-        default=False,
-        help=("Create a study instance from a template"),
-    )
-    studygen.add_argument(
-        "-p",
-        "--path",
-        default="./",
-        help=(
-            "The the directory the study will be created in. Default is "
-            "the current directory."
-        ),
-    )
-
-    db = parser.add_argument_group("SQL database modifications")
-    db.add_argument(
-        "-t",
-        "--target",
-        action="append",
-        help=(
-            "Specify one or more studies to create views form. Default is to "
-            "build all studies."
-        ),
-    )
-    db.add_argument(
-        "-s",
-        "--study-dir",
-        action="append",
-        help=(
-            "Optionally add one or more directories to look for study definitions in. "
-            "Default is in project directory and CUMULUS_LIBRARY_PATH, if present, "
-            "followed by any supplied paths. Target, and all its subdirectories, "
-            "are checked for manifests. Overriding studies with the same namespace "
-            "supersede earlier ones."
-        ),
-    )
-    db.add_argument(
-        "-b",
-        "--build",
-        default=False,
-        action="store_true",
-        help=("Removes and recreates Athena tables & views for the specified studies"),
-    )
-    db.add_argument(
-        "-e",
-        "--export",
-        default=False,
-        action="store_true",
-        help=("Generates files on disk from Athena views for the specified studies"),
-    )
-    db.add_argument(
-        "-v",
-        "--verbose",
-        default=False,
-        action="store_true",
-        help=("Prints detailed SQL query info"),
-    )
-
-    aws = parser.add_argument_group("AWS config")
-    aws.add_argument("--profile", help="AWS profile", default="default")
-    aws.add_argument(
-        "--database",
-        # internally, we use PyAthena's terminology for this but the UX term is "database"
-        dest="schema_name",
-        help="Cumulus Athena database name",
-    )
-    aws.add_argument(
-        "--workgroup",
-        default="cumulus",
-        help="Cumulus Athena workgroup (default: cumulus)",
-    )
-    aws.add_argument(
-        "--region",
-        help="AWS region data of Athena instance (default: us-east-1)",
-        default="us-east-1",
-    )
-
-    return parser
 
 
 def main(cli_args=None):
     """Reads CLI input/environment variables and invokes library calls"""
     parser = get_parser()
     args = vars(parser.parse_args(cli_args))
-
-    if args["target"] is not None:
+    if args["action"] is None:
+        parser.print_usage()
+        sys.exit(1)
+    if args.get("target"):
         for target in args["target"]:
             if target == "all":
                 args["target"] = ["all"]
                 break
-    else:
-        args["target"] = ["all"]
 
-    if args["study_dir"] is not None:
+    arg_env_pairs = (
+        ("profile", "CUMULUS_LIBRARY_PROFILE"),
+        ("schema_name", "CUMULUS_LIBRARY_DATABASE"),
+        ("workgroup", "CUMULUS_LIBRARY_WORKGROUP"),
+        ("region", "CUMULUS_LIBRARY_REGION"),
+        ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
+        ("data_path", "CUMULUS_LIBRARY_DATA_PATH"),
+        ("user", "CUMULUS_AGGREGATOR_USER"),
+        ("id", "CUMULUS_AGGREGATOR_ID"),
+        ("url", "CUMULUS_AGGREGATOR_URL"),
+    )
+    for pair in arg_env_pairs:
+        if env_val := os.environ.get(pair[1]):
+            args[pair[0]] = env_val
+
+    if args.get("study_dir"):
         posix_paths = []
         for path in args["study_dir"]:
             posix_paths.append(get_abs_posix_path(path))
         args["study_dir"] = posix_paths
 
-    if profile_env := os.environ.get("CUMULUS_LIBRARY_PROFILE"):
-        args["profile"] = profile_env
-    if database_env := os.environ.get("CUMULUS_LIBRARY_DATABASE"):
-        args["schema_name"] = database_env
-    if workgroup_env := os.environ.get("CUMULUS_LIBRARY_WORKGROUP"):
-        args["workgroup"] = workgroup_env
-    if region_env := os.environ.get("CUMULUS_LIBRARY_REGION"):
-        args["region"] = region_env
-    if path_dir := os.environ.get("CUMULUS_LIBRARY_PATH"):
-        args["path"] = [path_dir] + args["path"]
+    if args.get("data_path"):
+        args["data_path"] = get_abs_posix_path(args["data_path"])
 
     return run_cli(args)
 
