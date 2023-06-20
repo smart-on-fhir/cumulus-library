@@ -1,5 +1,6 @@
 """ tests for the cli interface to studies """
 import json
+import os
 import pytest
 import sysconfig
 
@@ -148,6 +149,10 @@ def test_cli_creates_studies(mock_mkdir, mock_write, args, raises):
         assert mock_write.called
 
 
+@mock.patch.dict(
+    os.environ,
+    {"CUMULUS_AGGREGATOR_URL": "https://test.aggregator.smartcumulus.org/upload/"},
+)
 @mock.patch("pathlib.Path.glob")
 @pytest.mark.parametrize(
     "args,status,login_error,raises",
@@ -184,11 +189,11 @@ def test_cli_creates_studies(
     with raises:
         if login_error:
             requests_mock.post(
-                "https://dev.aggregator.smartcumulus.org/upload/", status_code=401
+                "https://test.aggregator.smartcumulus.org/upload/", status_code=401
             )
         else:
             requests_mock.post(
-                "https://dev.aggregator.smartcumulus.org/upload/",
+                "https://test.aggregator.smartcumulus.org/upload/",
                 json={"url": "https://presigned.url.org", "fields": {"a": "b"}},
             )
         requests_mock.post("https://presigned.url.org", status_code=status)
