@@ -7,7 +7,7 @@ exclude_rules=references.from,structure.column_order
 max_line_length = 88
 
 [sqlfluff:indentation]
-template_blocks_indent = true
+template_blocks_indent = false
 
 [sqlfluff:rules:layout.long_lines]
 ignore_comment_lines = true
