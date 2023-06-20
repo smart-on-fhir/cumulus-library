@@ -78,6 +78,24 @@ def get_ctas_query(
         )
 
 
+def get_create_view_query(
+    view_name: str, dataset: List[List[str]], view_cols: List[str]
+) -> str:
+    """Generates a create view as query for inserting static data into athena
+
+    :param view_name: The name of the athena table to create
+    :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
+    :param table_cols: Comma deleniated column names, i.e. ['first,second']
+    """
+    path = Path(__file__).parent
+    with open(f"{path}/create_view_as.sql.jinja") as cvas:
+        return Template(cvas.read()).render(
+            view_name=view_name,
+            dataset=dataset,
+            view_cols=view_cols,
+        )
+
+
 def get_insert_into_query(
     table_name: str, table_cols: List[str], dataset: List[List[str]]
 ) -> str:

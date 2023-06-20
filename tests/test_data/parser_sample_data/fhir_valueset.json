@@ -1,0 +1,70 @@
+{
+  "resourceType": "ValueSet",
+  "id": "2.16.840.1.113883.3.600.1476",
+  "meta": {
+    "versionId": "94",
+    "lastUpdated": "2023-02-16T01:03:04.000-05:00",
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+      "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+      "valueString": "Mathematica EP"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/resource-lastReviewDate",
+      "valueDate": "2023-02-16"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/valueset-effectiveDate",
+      "valueDate": "2023-02-16"
+    }
+  ],
+  "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.600.1476",
+  "identifier": [
+    {
+      "system": "urn:ietf:rfc:3986",
+      "value": "urn:oid:2.16.840.1.113883.3.600.1476"
+    }
+  ],
+  "version": "20230216",
+  "name": "mock valueset name",
+  "status": "active",
+  "date": "2023-02-16T01:03:04-05:00",
+  "publisher": "Mathematica",
+  "jurisdiction": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+          "valueString": "UNKNOWN"
+        }
+      ]
+    }
+  ],
+  "purpose": "mock purpose",
+  "compose": {
+    "include": [
+      {
+        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+        "concept": [
+          {
+            "code": "1000001",
+            "display": "display 1000001"
+          },
+          {
+            "code": "2000002",
+            "display": "display 2000002"
+          },
+          {
+            "code": "3000003",
+            "display": "display 3000003"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 # pylint: disable=W,C,R
 from enum import Enum
-from library.schema.typesystem import Coding, Vocab
+from cumulus_library.schema.typesystem import Coding, Vocab
 
 ################################################################################
 # FHIR ValueSets
