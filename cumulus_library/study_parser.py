@@ -355,7 +355,7 @@ class StudyManifestParser:
 
     # Database exporting functions
 
-    def export_study(self, cursor: object, export_path: PosixPath = None) -> List:
+    def export_study(self, cursor: object, data_path: PosixPath) -> List:
         """Exports csvs/parquet extracts of tables listed in export_list
 
         :param cursor: A PEP-249 compatible cursor object
@@ -372,13 +372,7 @@ class StudyManifestParser:
         ):
             query = f"select * from {table}"
             dataframe = cursor.execute(query).as_pandas()
-            if export_path is None:
-                project_path = Path(__file__).resolve().parents[1]
-                path = Path(
-                    f"{str(project_path)}/data_export/{self.get_study_prefix()}/"
-                )
-            else:
-                path = Path(f"{str(export_path)}/{self.get_study_prefix()}/")
+            path = Path(f"{str(data_path)}/{self.get_study_prefix()}/")
             path.mkdir(parents=True, exist_ok=True)
             dataframe.to_csv(f"{path}/{table}.csv", index=False)
             dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
