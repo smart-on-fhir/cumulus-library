@@ -1,6 +1,6 @@
 -- Emergency Department Notes
 --
-CREATE OR REPLACE VIEW core__ed_note AS
+CREATE TABLE core__ed_note AS
 SELECT
     t.from_system,
     t.from_code,

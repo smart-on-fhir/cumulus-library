@@ -18,7 +18,7 @@ FROM medicationrequest AS mr,
 WHERE med_coding.system = 'http://www.nlm.nih.gov/research/umls/rxnorm';
 
 
-CREATE OR REPLACE VIEW core__count_medicationrequest_month AS
+CREATE TABLE core__count_medicationrequest_month AS
 WITH powerset AS (
     SELECT
         count(DISTINCT cmr.subject_id) AS cnt_subject,

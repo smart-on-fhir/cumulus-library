@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW vocab__icd_legend AS
+CREATE TABLE vocab__icd_legend AS
 SELECT
     code,
     display,

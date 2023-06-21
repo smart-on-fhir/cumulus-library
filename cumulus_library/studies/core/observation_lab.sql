@@ -54,7 +54,7 @@ WHERE tol.effectivedatetime BETWEEN date('2016-06-01') AND current_date;
 -- ###########################################################################
 -- COUNT Patients, Encounters, Lab Results
 -- ###########################################################################
-CREATE OR REPLACE VIEW core__count_observation_lab_month AS
+CREATE TABLE core__count_observation_lab_month AS
 WITH powerset AS (
     SELECT
         count(DISTINCT o.subject_ref) AS cnt_subject,

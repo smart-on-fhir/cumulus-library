@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW template__influenza_codes AS
+CREATE TABLE template__influenza_codes AS
 SELECT
     t.from_system,
     t.analyte,

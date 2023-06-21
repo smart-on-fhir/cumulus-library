@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW template__count_influenza_test_month AS
+CREATE TABLE template__count_influenza_test_month AS
 WITH powerset AS (
     SELECT
         count(DISTINCT tflo.subject_ref) AS cnt_subject,

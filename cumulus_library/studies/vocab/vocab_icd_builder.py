@@ -3,10 +3,8 @@ import csv
 
 from pathlib import Path
 
-from rich.progress import Progress
-
 from cumulus_library.base_runner import BaseRunner
-from cumulus_library.helper import query_console_output
+from cumulus_library.helper import query_console_output, get_progress_bar
 from cumulus_library.template_sql.templates import (
     get_ctas_query,
     get_insert_into_query,
@@ -49,7 +47,7 @@ class VocabIcdRunner(BaseRunner):
                 sum(1 for i in open(f"{path}/{filename}.bsv", "rb")) / partition_size
             )
 
-        with Progress(disable=verbose) as progress:
+        with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 f"Uploading {table_name} data...",
                 total=query_count,
