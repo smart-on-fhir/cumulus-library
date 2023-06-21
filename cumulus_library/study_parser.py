@@ -11,6 +11,7 @@ import toml
 from rich.progress import Progress, TaskID, track
 
 from cumulus_library.base_runner import BaseRunner
+from cumulus_library.errors import StudyManifestParsingError
 from cumulus_library.helper import (
     query_console_output,
     load_text,
@@ -26,10 +27,6 @@ from cumulus_library.template_sql.templates import (
 StrList = List[str]
 
 RESERVED_TABLE_KEYWORDS = ["etl", "nlp", "lib"]
-
-
-class StudyManifestParsingError(Exception):
-    """Basic error for StudyManifestParser"""
 
 
 class StudyManifestParser:
