@@ -47,18 +47,30 @@ class StudyBuilder:
     def __init__(  # pylint: disable=too-many-arguments
         self, region: str, workgroup: str, profile: str, schema: str
     ):
+        connect_kwargs = {}
+        for aws_env_name in [
+            "AWS_ACCESS_KEY_ID",
+            "AWS_SECRET_ACCESS_KEY",
+            "AWS_SESSION_TOKEN",
+        ]:
+            if aws_env_val := os.environ.get(aws_env_name):
+                connect_kwargs[aws_env_name.lower()] = aws_env_val
+        # the profile may not be required, provided the above three AWS env vars
+        # are set. If both are present, the env vars take precedence
+        if profile is not None:
+            connect_kwargs["profile_name"] = profile
         self.cursor = pyathena.connect(
             region_name=region,
             work_group=workgroup,
-            profile_name=profile,
             schema_name=schema,
+            **connect_kwargs,
         ).cursor()
         self.pandas_cursor = pyathena.connect(
             region_name=region,
             work_group=workgroup,
-            profile_name=profile,
             schema_name=schema,
             cursor_class=PandasCursor,
+            **connect_kwargs,
         ).cursor()
         self.schema_name = schema
 

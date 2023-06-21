@@ -14,4 +14,6 @@ class LibrarySchemaError(Exception):
     Package level error
     """
 
-    pass
+
+class StudyManifestParsingError(Exception):
+    """Basic error for StudyManifestParser"""
