@@ -36,7 +36,7 @@ WHERE
     e.subject_ref = p.subject_ref
     AND start_date BETWEEN date('2016-06-01') AND current_date;
 
-CREATE OR REPLACE VIEW core__join_encounter_patient AS
+CREATE TABLE core__join_encounter_patient AS
 SELECT
     ce.enc_class,
     ce.enc_type,
@@ -58,7 +58,7 @@ FROM core__encounter AS ce, core__patient AS cp
 WHERE ce.subject_ref = cp.subject_ref;
 
 
-CREATE OR REPLACE VIEW core__count_encounter_month AS
+CREATE TABLE core__count_encounter_month AS
 WITH powerset AS (
     SELECT
         count(DISTINCT ce.subject_ref) AS cnt_subject,
@@ -68,8 +68,7 @@ WITH powerset AS (
         ce.age_at_visit,
         cp.gender,
         cp.race_display,
-        cp.ethnicity_display,
-        cp.postalcode3
+        cp.ethnicity_display
     FROM core__encounter AS ce, core__patient AS cp
     WHERE ce.subject_ref = cp.subject_ref
     GROUP BY
@@ -79,8 +78,7 @@ WITH powerset AS (
             ce.age_at_visit,
             cp.gender,
             cp.race_display,
-            cp.ethnicity_display,
-            cp.postalcode3
+            cp.ethnicity_display
         )
 )
 
@@ -91,14 +89,13 @@ SELECT DISTINCT
     powerset.age_at_visit,
     powerset.gender,
     powerset.race_display,
-    powerset.ethnicity_display,
-    powerset.postalcode3
+    powerset.ethnicity_display
 FROM powerset
 WHERE powerset.cnt_subject >= 10
 ORDER BY
     powerset.start_month ASC, powerset.enc_class_code ASC, powerset.age_at_visit ASC;
 
-CREATE OR REPLACE VIEW core__count_encounter_day AS
+CREATE TABLE core__count_encounter_day AS
 WITH powerset AS (
     SELECT
         count(DISTINCT ce.subject_ref) AS cnt_subject,

@@ -57,7 +57,7 @@ FROM temp_documentreference AS tdr,
 WHERE author_date BETWEEN date('2016-06-01') AND current_date;
 
 -- count *group by* DocumentReference.type
-CREATE OR REPLACE VIEW core__count_documentreference_month AS
+CREATE TABLE core__count_documentreference_month AS
 WITH powerset AS (
     SELECT
         count(DISTINCT d.subject_ref) AS cnt_subject,

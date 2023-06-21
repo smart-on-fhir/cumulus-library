@@ -296,7 +296,6 @@ def main(cli_args=None):
 
     if args.get("data_path"):
         args["data_path"] = get_abs_posix_path(args["data_path"])
-
     return run_cli(args)
 
 

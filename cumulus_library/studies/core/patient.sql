@@ -41,7 +41,7 @@ WHERE
     AND tp.gender IS NOT NULL;
 
 
-CREATE OR REPLACE VIEW core__count_patient AS
+CREATE TABLE core__count_patient AS
 WITH powerset AS (
     SELECT
         count(DISTINCT cp.subject_ref) AS cnt_subject,

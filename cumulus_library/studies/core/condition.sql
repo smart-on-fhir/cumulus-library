@@ -47,7 +47,7 @@ FROM temp_condition AS tc,
     unnest(code.coding) AS t_coding (code_row) --noqa
 WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
 
-CREATE OR REPLACE VIEW core__join_condition_icd AS
+CREATE TABLE core__join_condition_icd AS
 SELECT
     cc.subject_ref,
     cc.encounter_ref,
@@ -60,7 +60,7 @@ WHERE
     cc.encounter_ref = ce.encounter_ref
     AND cc.cond_code.coding[1].code = vil.code; --noqa
 
-CREATE OR REPLACE VIEW core__count_condition_icd10_month AS
+CREATE TABLE core__count_condition_icd10_month AS
 WITH powerset AS (
     SELECT
         count(DISTINCT cc.subject_ref) AS cnt_subject,
