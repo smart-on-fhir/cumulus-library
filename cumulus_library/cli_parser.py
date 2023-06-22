@@ -90,6 +90,10 @@ following order of preference is used to select credentials:
         epilog="See 'cumulus-library -h [action]' for usage of a specific action",
     )
 
+    parser.add_argument(
+        "--version", action="store_true", help="Display cumulus-library version number"
+    )
+
     actions = parser.add_subparsers(
         title="actions",
         help="Available library actions",
