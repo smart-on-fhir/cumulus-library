@@ -3,6 +3,7 @@
 
 import json
 import os
+import pkg_resources
 import sys
 import sysconfig
 
@@ -13,6 +14,7 @@ import pyathena
 
 from pyathena.pandas.cursor import PandasCursor
 
+from cumulus_library import __version__
 from cumulus_library.cli_parser import get_parser
 from cumulus_library.study_parser import StudyManifestParser
 from cumulus_library.upload import upload_files
@@ -262,8 +264,12 @@ def run_cli(args: Dict):
 
 def main(cli_args=None):
     """Reads CLI input/environment variables and invokes library calls"""
+
     parser = get_parser()
     args = vars(parser.parse_args(cli_args))
+    if args["version"]:
+        print(__version__)
+        sys.exit(0)
     if args["action"] is None:
         parser.print_usage()
         sys.exit(1)
