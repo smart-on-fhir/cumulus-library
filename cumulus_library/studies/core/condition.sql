@@ -57,7 +57,7 @@ WITH powerset AS (
         ce.enc_class
     FROM core__condition AS cc,
         core__encounter AS ce,
-        core__condtition_codable_concepts AS cccc
+        core__condition_codable_concepts AS cccc
     WHERE
         cc.encounter_ref = ce.encounter_ref
         AND cc.condition_id = cccc.id

@@ -68,7 +68,7 @@ class PatientExtensionRunner(BaseRunner):
         codeable_concept_query = get_codeable_concept_denormalize_query(
             "condition",
             "code",
-            "core__condtition_codable_concepts",
+            "core__condition_codable_concepts",
             [
                 "http://snomed.info/sct",
                 "http://hl7.org/fhir/sid/icd-10-cm",
