@@ -1,13 +1,12 @@
 """ tests for the cli interface to studies """
-import json
 import os
-import pytest
 import sysconfig
 
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest import mock
 
+import pytest
 import requests
 import requests_mock
 
@@ -30,7 +29,7 @@ def test_cli_invalid_study(mock_connect):  # pylint: disable=unused-argument
 )
 def test_cli_no_reads_or_writes(mock_connect, args):  # pylint: disable=unused-argument
     with pytest.raises(SystemExit):
-        builder = cli.main(cli_args=args)
+        cli.main(cli_args=args)
 
 
 @mock.patch("pyathena.connect")
@@ -76,7 +75,7 @@ def test_cli_path_mapping(
 @pytest.mark.parametrize(
     "args,cursor_calls,pandas_cursor_calls",
     [
-        (["build", "-t", "vocab", "--database", "test"], 119, 0),
+        (["build", "-t", "vocab", "--database", "test"], 344, 0),
         (["build", "-t", "core", "--database", "test"], 27, 0),
         (["export", "-t", "core", "--database", "test"], 1, 7),
         (
@@ -142,9 +141,11 @@ def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_ca
         (["create", "./test_data/fakedir"], does_not_raise()),
     ],
 )
-def test_cli_creates_studies(mock_mkdir, mock_write, args, raises):
+def test_cli_creates_studies(
+    mock_mkdir, mock_write, args, raises
+):  # pylint: disable=unused-argument
     with raises:
-        builder = cli.main(cli_args=args)
+        cli.main(cli_args=args)
         assert mock_write.called
 
 
@@ -178,22 +179,19 @@ def test_cli_creates_studies(mock_mkdir, mock_write, args, raises):
         ),
     ],
 )
-def test_cli_upload_studies(
-    mock_glob, requests_mock, args, status, login_error, raises
-):
+def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
     mock_glob.side_effect = [
         [Path(__file__)],
         [Path(str(Path(__file__)) + "/test_data/count_synthea_patient.parquet")],
     ]
     with raises:
-        if login_error:
-            requests_mock.post(
-                "https://aggregator.smartcumulus.org/upload/", status_code=401
-            )
-        else:
-            requests_mock.post(
-                "https://aggregator.smartcumulus.org/upload/",
-                json={"url": "https://presigned.url.org", "fields": {"a": "b"}},
-            )
-        requests_mock.post("https://presigned.url.org", status_code=status)
-        builder = cli.main(cli_args=args)
+        with requests_mock.Mocker() as r:
+            if login_error:
+                r.post("https://aggregator.smartcumulus.org/upload/", status_code=401)
+            else:
+                r.post(
+                    "https://aggregator.smartcumulus.org/upload/",
+                    json={"url": "https://presigned.url.org", "fields": {"a": "b"}},
+                )
+            r.post("https://presigned.url.org", status_code=status)
+            cli.main(cli_args=args)

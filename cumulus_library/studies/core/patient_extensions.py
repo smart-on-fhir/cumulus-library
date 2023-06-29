@@ -1,11 +1,10 @@
 """ Module for directly loading ICD bsvs into athena tables """
 import csv
 
-from rich.progress import Progress
-
 from cumulus_library.base_runner import BaseRunner
-from cumulus_library.helper import query_console_output
+from cumulus_library.helper import get_progress_bar, query_console_output
 from cumulus_library.template_sql.templates import (
+    get_codeable_concept_denormalize_query,
     get_extension_denormalize_query,
     ExtensionConfig,
 )
@@ -42,22 +41,39 @@ class PatientExtensionRunner(BaseRunner):
                 )
             )
 
-        with Progress(disable=verbose) as progress:
+        with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
-                f"Extracting core extensions from patients...",
-                total=len(configs),
+                f"Preprocessing core datasets...",
+                total=len(configs) + 1,
                 visible=not verbose,
             )
             self.build_patient_extensions(
                 self, cursor, schema, verbose, progress, task, configs
             )
+            self.build_condition_codes(self, cursor, schema, verbose, progress, task)
 
     @staticmethod
     def build_patient_extensions(
         self, cursor, schema, verbose, progress, task, configs
     ):
-        """Constructs queries and posts to athena."""
+        """Constructs patient extension queries and posts to athena."""
         for config in configs:
             extension_query = get_extension_denormalize_query(config)
             cursor.execute(extension_query)
             query_console_output(verbose, extension_query, progress, task)
+
+    @staticmethod
+    def build_condition_codes(self, cursor, schema, verbose, progress, task):
+        """Constructs patient extension queries and posts to athena."""
+        codeable_concept_query = get_codeable_concept_denormalize_query(
+            "condition",
+            "code",
+            "core__condtition_codable_concepts",
+            [
+                "http://snomed.info/sct",
+                "http://hl7.org/fhir/sid/icd-10-cm",
+                "http://hl7.org/fhir/sid/icd-9-cm",
+            ],
+        )
+        cursor.execute(codeable_concept_query)
+        query_console_output(verbose, codeable_concept_query, progress, task)

@@ -1,12 +1,14 @@
+"""Test for FHIR resource parsers"""
 from contextlib import nullcontext as does_not_raise
 import json
 
 from unittest.mock import mock_open, patch
 
-from cumulus_library.parsers import fhir_valueset
+import pytest
+
 from fhirclient.models.coding import Coding
 
-import pytest
+from cumulus_library.parsers import fhir_valueset
 
 
 @pytest.mark.parametrize(

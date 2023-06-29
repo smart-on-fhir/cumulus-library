@@ -1,3 +1,4 @@
+""" Handles pushing data to the aggregator"""
 import sys
 
 from pathlib import Path
