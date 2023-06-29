@@ -2,7 +2,7 @@ study_prefix = "core"
 
 [python_config]
 file_names = [
-    "patient_extensions.py",
+    "denormalizer.py",
 ]
 
 [sql_config]

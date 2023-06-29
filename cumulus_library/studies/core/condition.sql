@@ -56,11 +56,10 @@ WITH powerset AS (
         cc.recorded_month,
         ce.enc_class
     FROM core__condition AS cc,
-        core__encounter AS ce,
-        core__condition_codable_concepts AS cccc
+        core__encounter AS ce
+    LEFT JOIN core__condition_codable_concepts AS cccc ON cc.condition_id = cccc.id
     WHERE
         cc.encounter_ref = ce.encounter_ref
-        AND cc.condition_id = cccc.id
     GROUP BY cube(display, cc.recorded_month, ce.enc_class)
 )
 

@@ -1,4 +1,11 @@
-""" Module for directly loading ICD bsvs into athena tables """
+""" Module for generating dynamic denormalized table from FHIR resources. 
+
+If there is a nested resource we're extracting (i.e. a column with multiple
+extensions, or a codingConcept field that could have more than one value),
+we attempt to dynamically generate denormalized tables of the subset of
+the data we're interested in, and we'll later left join these tables to
+the parent when we're building the core resource tables.
+"""
 import csv
 
 from cumulus_library.base_runner import BaseRunner
@@ -77,3 +84,32 @@ class PatientExtensionRunner(BaseRunner):
         )
         cursor.execute(codeable_concept_query)
         query_console_output(verbose, codeable_concept_query, progress, task)
+
+
+if __name__ == "__main__":
+
+    extension_types = [
+        {
+            "name": "race",
+            "fhirpath": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+        },
+        {
+            "name": "ethnicity",
+            "fhirpath": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+        },
+    ]
+    configs = []
+    for extension in extension_types:
+        configs.append(
+            ExtensionConfig(
+                "patient",
+                "id",
+                f"core__patient_ext_{extension['name']}",
+                extension["name"],
+                extension["fhirpath"],
+                ["ombCategory", "detailed", "text"],
+            )
+        )
+
+    for config in configs:
+        print(get_extension_denormalize_query(config))
