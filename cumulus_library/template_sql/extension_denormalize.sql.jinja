@@ -1,6 +1,6 @@
 CREATE TABLE {{ target_table }} AS (
     WITH
-    {%- for system in code_systems %}
+    {%- for system in ext_systems %}
 
     system_{{ system }} AS (
         SELECT DISTINCT
@@ -21,7 +21,7 @@ CREATE TABLE {{ target_table }} AS (
     {%- endfor %}
 
     union_table AS (
-        {%- for system in code_systems %}
+        {%- for system in ext_systems %}
         SELECT
             id,
             priority,

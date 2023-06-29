@@ -47,38 +47,26 @@ FROM temp_condition AS tc,
     unnest(code.coding) AS t_coding (code_row) --noqa
 WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
 
-CREATE TABLE core__join_condition_icd AS
-SELECT
-    cc.subject_ref,
-    cc.encounter_ref,
-    cc.recorded_month AS cond_month,
-    ce.enc_class.code AS enc_class_code,
-    vil.code AS cond_code,
-    vil.code_display AS cond_code_display
-FROM core__condition AS cc, core__encounter AS ce, vocab__icd_legend AS vil
-WHERE
-    cc.encounter_ref = ce.encounter_ref
-    AND cc.cond_code.coding[1].code = vil.code; --noqa
-
-CREATE TABLE core__count_condition_icd10_month AS
+CREATE TABLE core__count_condition_month AS
 WITH powerset AS (
     SELECT
         count(DISTINCT cc.subject_ref) AS cnt_subject,
         count(DISTINCT cc.encounter_ref) AS cnt_encounter,
-        vil.code_display,
+        cccc.display AS display,
         cc.recorded_month,
         ce.enc_class
-    FROM core__condition AS cc, core__encounter AS ce, vocab__icd_legend AS vil
-    WHERE
-        cc.encounter_ref = ce.encounter_ref
-        AND cc.cond_code.coding[1].code = vil.code --noqa
-    GROUP BY cube(vil.code_display, cc.recorded_month, ce.enc_class)
+    FROM core__condition AS cc
+    INNER JOIN core__encounter AS ce
+        ON cc.encounter_ref = ce.encounter_ref
+    LEFT JOIN core__condition_codable_concepts AS cccc
+        ON cc.condition_id = cccc.id
+    GROUP BY cube(display, cc.recorded_month, ce.enc_class)
 )
 
 SELECT
     powerset.cnt_subject AS cnt,
     powerset.recorded_month AS cond_month,
-    powerset.code_display AS cond_code_display,
+    powerset.display AS cond_code_display,
     enc_class.code AS enc_class_code
 FROM powerset
 WHERE powerset.cnt_subject >= 10

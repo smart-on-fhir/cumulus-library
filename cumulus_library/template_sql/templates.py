@@ -131,14 +131,14 @@ class ExtensionConfig(object):
         target_table: str,
         target_col_prefix: str,
         fhir_extension: str,
-        code_systems: List[str],
+        ext_systems: List[str],
     ):
         self.source_table = source_table
         self.source_id = source_id
         self.target_table = target_table
         self.target_col_prefix = target_col_prefix
         self.fhir_extension = fhir_extension
-        self.code_systems = code_systems
+        self.ext_systems = ext_systems
 
 
 def get_extension_denormalize_query(config: ExtensionConfig) -> str:
@@ -148,9 +148,9 @@ def get_extension_denormalize_query(config: ExtensionConfig) -> str:
     of a FHIR resource - as an example, see the 5 codes at the root node of
     http://hl7.org/fhir/us/core/STU6/StructureDefinition-us-core-patient.html.
     The template will create a new table with the extension data, in arrays,
-    mapped 1-1 to the table id. You can specify multiple coding systems
+    mapped 1-1 to the table id. You can specify multiple systems
     in the ExtensionConfig passed to this function. For each patient, we'll
-    take the data from the first coding system we find for each patient.
+    take the data from the first extension coding system we find for each patient.
 
     :param config: An instance of ExtensionConfig.
     """
@@ -162,5 +162,29 @@ def get_extension_denormalize_query(config: ExtensionConfig) -> str:
             target_table=config.target_table,
             target_col_prefix=config.target_col_prefix,
             fhir_extension=config.fhir_extension,
-            code_systems=config.code_systems,
+            ext_systems=config.ext_systems,
+        )
+
+
+def get_codeable_concept_denormalize_query(
+    source_table: str, cc_column: str, target_table: str, code_systems: List[str]
+) -> str:
+    """extracts codeable concepts from a specified table.
+
+    See http://hl7.org/fhir/datatypes-definitions.html#CodeableConcept for more info
+
+    :param source_table: the table to extract extensions from
+    :param cc_column: the column containing the codeableConcept you want to extract
+    :param target_table: the name of the table to create
+    :param code_systems: a list of coding systems, in preference order, to use to select data
+    """
+    path = Path(__file__).parent
+    with open(
+        f"{path}/codeable_concept_denormalize.sql.jinja"
+    ) as extension_denormalize:
+        return Template(extension_denormalize.read()).render(
+            source_table=source_table,
+            cc_column=cc_column,
+            target_table=target_table,
+            code_systems=code_systems,
         )

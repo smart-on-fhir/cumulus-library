@@ -2,7 +2,7 @@ study_prefix = "core"
 
 [python_config]
 file_names = [
-    "patient_extensions.py",
+    "denormalizer.py",
 ]
 
 [sql_config]
@@ -26,7 +26,7 @@ export_list = [
     "core__count_encounter_month",
     "core__count_documentreference_month",
     "core__count_observation_lab_month",
-    "core__count_condition_icd10_month",
+    "core__count_condition_month",
     "core__count_medicationrequest_month",
     "core__meta_date",
 ]

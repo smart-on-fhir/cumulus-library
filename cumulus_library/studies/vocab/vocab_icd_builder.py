@@ -17,19 +17,14 @@ class VocabIcdRunner(BaseRunner):
 
     @staticmethod
     def clean_row(row, filename):
-        """Removes non-SQL safe charatcers from the input row.
-
-        WARNING: This function, for the intended datasource specifically, drops the last
-        column since it is a known duplicate. This should be re-examined for other
-        datasources
-        """
-        for i in range(len(row) - 1):
+        """Removes non-SQL safe charatcers from the input row."""
+        for i in range(len(row)):
             cell = str(row[i]).replace("'", "").replace(";", ",")
             row[i] = cell
-        return row[:-1]
+        return row
 
     def create_icd_legend(
-        self, cursor: object, schema: str, verbose: bool, partition_size: int = 2000
+        self, cursor: object, schema: str, verbose: bool, partition_size: int = 1200
     ):
         """input point from make.execute_sql_template.
 
@@ -39,7 +34,7 @@ class VocabIcdRunner(BaseRunner):
         :partition_size: number of lines to read. Athena queries have a char limit.
         """
         table_name = "vocab__icd"
-        icd_files = ["ICD10", "ICD9"]
+        icd_files = ["ICD10CM_2023AA", "ICD10PCS_2023AA", "ICD9CM_2023AA"]
         path = Path(__file__).parent
         query_count = 1  # accounts for static CTAS query
         for filename in icd_files:
@@ -80,7 +75,7 @@ class VocabIcdRunner(BaseRunner):
         task,
     ):
         """Constructs queries and posts to athena."""
-        headers = ["CUI", "TUI", "TTY", "CODE", "SAB", "STR"]
+        headers = ["CUI", "TTY", "CODE", "SAB", "STR"]
         header_types = [f"{x} string" for x in headers]
         rows_processed = 0
         dataset = []

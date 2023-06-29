@@ -1,5 +1,6 @@
 """ tests for jinja sql templates """
 from cumulus_library.template_sql.templates import (
+    get_codeable_concept_denormalize_query,
     get_create_view_query,
     get_ctas_query,
     get_insert_into_query,
@@ -149,4 +150,84 @@ def test_extension_denormalize_creation():
         ["omb", "text"],
     )
     query = get_extension_denormalize_query(config)
+    assert query == expected
+
+
+def test_codeable_concept_denormalize_creation():
+    expected = """CREATE TABLE target__concepts AS (
+    WITH
+
+    system_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            '0' AS priority,
+            u.codeable_concept.code AS code,
+            u.codeable_concept.display AS display,
+            u.codeable_concept.system AS code_system
+        FROM
+            source AS s,
+            UNNEST(s.code_col.coding) AS u (codeable_concept) --noqa: AL05
+        WHERE
+            u.codeable_concept.system = 'http://snomed.info/sct'
+    ), --noqa: LT07
+
+    system_1 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            '1' AS priority,
+            u.codeable_concept.code AS code,
+            u.codeable_concept.display AS display,
+            u.codeable_concept.system AS code_system
+        FROM
+            source AS s,
+            UNNEST(s.code_col.coding) AS u (codeable_concept) --noqa: AL05
+        WHERE
+            u.codeable_concept.system = 'http://hl7.org/fhir/sid/icd-10-cm'
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            priority,
+            code_system,
+            code,
+            display
+        FROM system_0
+        UNION
+        SELECT
+            id,
+            priority,
+            code_system,
+            code,
+            display
+        FROM system_1
+        ORDER BY id, priority
+    )
+
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM (
+        SELECT
+            id,
+            code,
+            code_system,
+            display,
+            ROW_NUMBER()
+            OVER (
+                PARTITION BY id
+            ) AS available_priority
+        FROM union_table
+        GROUP BY id, code_system, code, display
+    )
+    WHERE available_priority = 1
+);"""
+    query = get_codeable_concept_denormalize_query(
+        "source",
+        "code_col",
+        "target__concepts",
+        ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"],
+    )
     assert query == expected
