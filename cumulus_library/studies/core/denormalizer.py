@@ -87,7 +87,6 @@ class PatientExtensionRunner(BaseRunner):
 
 
 if __name__ == "__main__":
-
     extension_types = [
         {
             "name": "race",
