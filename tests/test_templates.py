@@ -201,7 +201,22 @@ def test_codeable_concept_denormalize_creation():
             code,
             display
         FROM system_1
-        ORDER BY id, priority
+    ),
+
+    partitioned_table AS (
+        SELECT
+            id,
+            code,
+            code_system,
+            display,
+            priority,
+            ROW_NUMBER()
+            OVER (
+                PARTITION BY id
+            ) AS available_priority
+        FROM union_table
+        GROUP BY id, priority, code_system, code, display
+        ORDER BY priority ASC
     )
 
     SELECT
@@ -209,19 +224,7 @@ def test_codeable_concept_denormalize_creation():
         code,
         code_system,
         display
-    FROM (
-        SELECT
-            id,
-            code,
-            code_system,
-            display,
-            ROW_NUMBER()
-            OVER (
-                PARTITION BY id
-            ) AS available_priority
-        FROM union_table
-        GROUP BY id, code_system, code, display
-    )
+    FROM partitioned_table
     WHERE available_priority = 1
 );"""
     query = get_codeable_concept_denormalize_query(
@@ -230,4 +233,5 @@ def test_codeable_concept_denormalize_creation():
         "target__concepts",
         ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"],
     )
+    print(query)
     assert query == expected

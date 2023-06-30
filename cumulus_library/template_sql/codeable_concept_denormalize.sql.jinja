@@ -31,6 +31,7 @@ CREATE TABLE {{ target_table }} AS (
         {%- endif -%}
         {%- endfor %}
     ),
+
     partitioned_table AS (
         SELECT
             id,
