@@ -16,12 +16,6 @@ def count_patient():
 
     return counts.count_patient(view_name, from_table, cols)
 
-def count_procedure():
-    view_name = table('count_procedure')
-    from_table = table('procedure')
-    cols = ['proc_display', 'proc_system']
-    return counts.count_encounter(view_name, from_table, cols)
-
 def count_encounter_demographics(duration=None):
     view_name = table('count_encounter_demographics', duration)
     from_table = table('encounter')
