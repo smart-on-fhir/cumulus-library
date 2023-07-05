@@ -18,25 +18,6 @@ CREATE or replace VIEW core__count_patient AS
     ORDER BY cnt desc;
 
 -- ###########################################################
-CREATE or replace VIEW core__count_procedure AS 
-    with powerset as
-    (
-        select
-        count(distinct subject_ref)   as cnt_subject
-        , count(distinct encounter_ref)   as cnt_encounter
-        , proc_display, proc_system        
-        FROM core__procedure
-        group by CUBE
-        ( proc_display, proc_system )
-    )
-    select
-          cnt_encounter  as cnt 
-        , proc_display, proc_system
-    from powerset 
-    WHERE cnt_subject >= 10 
-    ORDER BY cnt desc;
-
--- ###########################################################
 CREATE or replace VIEW core__count_encounter_demographics_month AS 
     with powerset as
     (
