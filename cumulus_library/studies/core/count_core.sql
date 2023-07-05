@@ -15,7 +15,7 @@ CREATE or replace VIEW core__count_patient AS
         , age, gender, race_display, ethnicity_display
     from powerset 
     WHERE cnt_subject >= 10 
-    ORDER BY cnt desc;
+    ;
 
 -- ###########################################################
 CREATE or replace VIEW core__count_encounter_demographics_month AS 
@@ -34,7 +34,7 @@ CREATE or replace VIEW core__count_encounter_demographics_month AS
         , start_month, enc_class_display, age_at_visit, gender, race_display, ethnicity_display
     from powerset 
     WHERE cnt_subject >= 10 
-    ORDER BY cnt desc;
+    ;
 
 -- ###########################################################
 CREATE or replace VIEW core__count_encounter_type AS 
@@ -52,8 +52,8 @@ CREATE or replace VIEW core__count_encounter_type AS
           cnt_encounter  as cnt 
         , enc_class_display, enc_type_display, enc_service_display, enc_priority_display
     from powerset 
-    WHERE cnt_subject >= 100 
-    ORDER BY cnt desc;
+    WHERE cnt_subject >= 10 
+    ;
 
 -- ###########################################################
 CREATE or replace VIEW core__count_encounter_type_month AS 
@@ -71,8 +71,8 @@ CREATE or replace VIEW core__count_encounter_type_month AS
           cnt_encounter  as cnt 
         , enc_class_display, enc_type_display, enc_service_display, enc_priority_display, start_month
     from powerset 
-    WHERE cnt_subject >= 100 
-    ORDER BY cnt desc;
+    WHERE cnt_subject >= 10 
+    ;
 
 -- ###########################################################
 CREATE or replace VIEW core__count_encounter_enc_type_month AS 
@@ -90,8 +90,8 @@ CREATE or replace VIEW core__count_encounter_enc_type_month AS
           cnt_encounter  as cnt 
         , enc_class_display, enc_type_display, start_month
     from powerset 
-    WHERE cnt_subject >= 100 
-    ORDER BY cnt desc;
+    WHERE cnt_subject >= 10 
+    ;
 
 -- ###########################################################
 CREATE or replace VIEW core__count_encounter_service_month AS 
@@ -109,8 +109,8 @@ CREATE or replace VIEW core__count_encounter_service_month AS
           cnt_encounter  as cnt 
         , enc_class_display, enc_service_display, start_month
     from powerset 
-    WHERE cnt_subject >= 100 
-    ORDER BY cnt desc;
+    WHERE cnt_subject >= 10 
+    ;
 
 -- ###########################################################
 CREATE or replace VIEW core__count_encounter_priority_month AS 
@@ -128,5 +128,5 @@ CREATE or replace VIEW core__count_encounter_priority_month AS
           cnt_encounter  as cnt 
         , enc_class_display, enc_priority_display, start_month
     from powerset 
-    WHERE cnt_subject >= 100 
-    ORDER BY cnt desc;
+    WHERE cnt_subject >= 10 
+    ;
