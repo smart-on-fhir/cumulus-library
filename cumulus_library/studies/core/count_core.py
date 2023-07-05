@@ -16,6 +16,12 @@ def count_patient():
 
     return counts.count_patient(view_name, from_table, cols)
 
+def count_procedure():
+    view_name = table('count_procedure')
+    from_table = table('procedure')
+    cols = ['proc_display', 'proc_system']
+    return counts.count_encounter(view_name, from_table, cols)
+
 def count_encounter_demographics(duration=None):
     view_name = table('count_encounter_demographics', duration)
     from_table = table('encounter')
@@ -68,6 +74,8 @@ def count_encounter_priority(duration='month'):
     cols = ['enc_class_display', 'enc_priority_display']
     return _count_encounter_type('count_encounter_priority', cols, duration)
 
+
+
 def concat_view_sql(create_view_list: List[str]) -> str:
     """
     :param create_view_list: SQL prepared statements
@@ -93,6 +101,7 @@ def write_view_sql(view_list_sql: List[str], filename='count_core.sql') -> None:
 if __name__ == '__main__':
     write_view_sql([
         count_patient(),
+        count_procedure(),
         count_encounter_demographics('month'),
         count_encounter_type(),
         count_encounter_type('month'),

@@ -17,6 +17,7 @@ file_names = [
     "observation_lab.sql",
     "observation_vital_signs.sql",
     "medication_request.sql",
+    "procedure.sql",
     "study_period.sql",
     "count_core.sql"
 ]
