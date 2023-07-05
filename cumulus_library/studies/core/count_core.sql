@@ -18,7 +18,7 @@ CREATE or replace VIEW core__count_patient AS
     ;
 
 -- ###########################################################
-CREATE or replace VIEW core__count_encounter_demographics_month AS 
+CREATE or replace VIEW core__count_encounter_month AS 
     with powerset as
     (
         select

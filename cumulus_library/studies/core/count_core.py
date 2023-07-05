@@ -16,8 +16,8 @@ def count_patient():
 
     return counts.count_patient(view_name, from_table, cols)
 
-def count_encounter_demographics(duration=None):
-    view_name = table('count_encounter_demographics', duration)
+def count_encounter(duration=None):
+    view_name = table('count_encounter', duration)
     from_table = table('encounter')
 
     cols = [f'start_{duration}',
@@ -94,7 +94,7 @@ def write_view_sql(view_list_sql: List[str], filename='count_core.sql') -> None:
 if __name__ == '__main__':
     write_view_sql([
         count_patient(),
-        count_encounter_demographics('month'),
+        count_encounter('month'),
         count_encounter_type(),
         count_encounter_type('month'),
         count_encounter_enc_type('month'),
