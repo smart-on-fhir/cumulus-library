@@ -45,7 +45,7 @@ def _count_encounter_type(view_name, cols, duration):
     if duration:
         cols.append(f'start_{duration}')
 
-    where = counts.where_clauses(min_subject=100)
+    where = counts.where_clauses(min_subject=10)
 
     return counts.count_encounter(view_name, from_table, cols, where)
 
@@ -68,8 +68,6 @@ def count_encounter_priority(duration='month'):
     cols = ['enc_class_display', 'enc_priority_display']
     return _count_encounter_type('count_encounter_priority', cols, duration)
 
-
-
 def concat_view_sql(create_view_list: List[str]) -> str:
     """
     :param create_view_list: SQL prepared statements
@@ -86,10 +84,11 @@ def concat_view_sql(create_view_list: List[str]) -> str:
 def write_view_sql(view_list_sql: List[str], filename='count_core.sql') -> None:
     """
     :param view_list_sql: SQL prepared statements
-    :param filename: path to output file, default 'count_core.sql'
+    :param filename: path to output file, default 'count_core.sql' in PWD
     """
+    sql_optimizer = concat_view_sql(view_list_sql).replace('ORDER BY cnt desc', '')
     with open(filename, 'w') as fout:
-        fout.write(concat_view_sql(view_list_sql))
+        fout.write(sql_optimizer)
 
 
 if __name__ == '__main__':
