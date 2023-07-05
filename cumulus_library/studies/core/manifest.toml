@@ -11,6 +11,7 @@ file_names = [
     "fhir_define.sql",
     "patient.sql",
     "encounter.sql",
+    "encounter_type.sql",
     "documentreference.sql",
     "condition.sql",
     "observation.sql",
