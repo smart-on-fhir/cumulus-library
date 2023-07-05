@@ -101,7 +101,6 @@ def write_view_sql(view_list_sql: List[str], filename='count_core.sql') -> None:
 if __name__ == '__main__':
     write_view_sql([
         count_patient(),
-        count_procedure(),
         count_encounter_demographics('month'),
         count_encounter_type(),
         count_encounter_type('month'),
