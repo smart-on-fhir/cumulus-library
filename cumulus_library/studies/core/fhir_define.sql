@@ -65,13 +65,16 @@ SELECT * FROM
             'http://hl7.org/fhir/datatypes-definitions.html#Address.postalCode'
         ),
         (
+            'PatientClass', 'http://terminology.hl7.org/CodeSystem/v2-0004')
+        (
             'Encounter',
             'http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter'
         ),
         ('EncounterStatus', 'http://hl7.org/fhir/ValueSet/encounter-status'),
         ('EncounterType', 'http://hl7.org/fhir/ValueSet/encounter-type'),
         ('EncounterReason', 'http://hl7.org/fhir/ValueSet/encounter-reason'),
-        ('EncounterCode', 'http://hl7.org/fhir/v3/ActEncounterCode/vs.html'),
+        ('EncounterCode', 'http://terminology.hl7.org/ValueSet/v3-ActEncounterCode'),
+        ('EncounterPriority', 'http://terminology.hl7.org/CodeSystem/v3-ActPriority'),
         (
             'EncounterLocationStatus',
             'http://hl7.org/fhir/ValueSet/encounter-location-status'

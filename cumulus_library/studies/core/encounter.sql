@@ -9,19 +9,25 @@ WITH temp_encounter AS (
         e.status,
         e.class,
         e.type,
+        e.serviceType,
+        e.priority,
+        e.reasonCode,
         e.subject.reference AS subject_ref,
         e.id AS encounter_id,
         date(from_iso8601_timestamp(e.period."start")) AS start_date,
         date(from_iso8601_timestamp(e.period."end")) AS end_date,
         concat('Encounter/', e.id) AS encounter_ref
-    -- , reasonCode
-    -- , dischargeDisposition
     FROM encounter AS e
 )
 
 SELECT DISTINCT
     e.class AS enc_class,
+    e.class.code AS enc_class_code,
+    e.class.display AS enc_class_display,
     e.type AS enc_type,
+    e.serviceType as service_type,
+    e.priority,
+    e.reasonCode as reason_code,
     date_diff('year', date(p.birthdate), e.start_date) AS age_at_visit,
     date_trunc('day', e.start_date) AS start_date,
     date_trunc('day', e.end_date) AS end_date,
@@ -30,87 +36,61 @@ SELECT DISTINCT
     date_trunc('year', e.start_date) AS start_year,
     e.subject_ref,
     e.encounter_ref,
-    e.encounter_id
+    e.encounter_id,
+    p.gender,
+    p.race_display,
+    p.ethnicity_display,
+    p.postalcode3
 FROM temp_encounter AS e, core__patient AS p
 WHERE
     e.subject_ref = p.subject_ref
     AND start_date BETWEEN date('2016-06-01') AND current_date;
 
-CREATE TABLE core__join_encounter_patient AS
-SELECT
-    ce.enc_class,
-    ce.enc_type,
-    ce.age_at_visit,
-    ce.start_date,
-    ce.end_date,
-    ce.start_week,
-    ce.start_month,
-    ce.start_year,
-    ce.subject_ref,
-    ce.encounter_ref,
-    ce.encounter_id,
-    ce.enc_class.code AS enc_class_code,
-    cp.gender,
-    cp.race_display,
-    cp.ethnicity_display,
-    cp.postalcode3
-FROM core__encounter AS ce, core__patient AS cp
-WHERE ce.subject_ref = cp.subject_ref;
+-- ############################################################################
+-- # Encounter.Type, Encounter.serviceType, Encounter.Priority
 
-
-CREATE TABLE core__count_encounter_month AS
-WITH powerset AS (
-    SELECT
-        count(DISTINCT ce.subject_ref) AS cnt_subject,
-        count(DISTINCT ce.encounter_id) AS cnt_encounter,
-        ce.enc_class.code AS enc_class_code,
-        ce.start_month,
-        ce.age_at_visit,
-        cp.gender,
-        cp.race_display,
-        cp.ethnicity_display
-    FROM core__encounter AS ce, core__patient AS cp
-    WHERE ce.subject_ref = cp.subject_ref
-    GROUP BY
-        cube(
-            ce.enc_class,
-            ce.start_month,
-            ce.age_at_visit,
-            cp.gender,
-            cp.race_display,
-            cp.ethnicity_display
-        )
+create table core__encounter_type as WITH
+join_enc_type as (
+    select distinct encounter_id, as_coding from core__encounter,
+    unnest(enc_type) as t (as_row),
+    unnest(as_row.coding) as t (as_coding)
+),
+join_service as (
+    select distinct encounter_id, as_coding from core__encounter,
+    unnest(service_type.coding) as t (as_coding)
+),
+join_priority as (
+    select distinct encounter_id, as_coding from core__encounter,
+    unnest(priority.coding) as t (as_coding)
 )
-
 SELECT DISTINCT
-    powerset.cnt_encounter AS cnt,
-    powerset.enc_class_code,
-    powerset.start_month,
-    powerset.age_at_visit,
-    powerset.gender,
-    powerset.race_display,
-    powerset.ethnicity_display
-FROM powerset
-WHERE powerset.cnt_subject >= 10
-ORDER BY
-    powerset.start_month ASC, powerset.enc_class_code ASC, powerset.age_at_visit ASC;
-
-CREATE TABLE core__count_encounter_day AS
-WITH powerset AS (
-    SELECT
-        count(DISTINCT ce.subject_ref) AS cnt_subject,
-        count(DISTINCT ce.encounter_id) AS cnt_encounter,
-        ce.enc_class.code AS enc_class_code,
-        ce.start_date
-    FROM core__encounter AS ce, core__patient AS cp
-    WHERE ce.subject_ref = cp.subject_ref
-    GROUP BY cube(ce.enc_class, ce.start_date)
-)
-
-SELECT DISTINCT
-    cnt_encounter AS cnt,
-    enc_class_code,
-    start_date
-FROM powerset
-WHERE cnt_subject >= 10
-ORDER BY start_date ASC, enc_class_code ASC;
+    E.enc_class_code,
+    E.enc_class_display,
+    COALESCE(join_enc_type.as_coding.system, '?')   as enc_type_system,
+    COALESCE(join_enc_type.as_coding.code, '?')     as enc_type_code,
+    COALESCE(join_enc_type.as_coding.display, '?')  as enc_type_display,
+    COALESCE(join_service.as_coding.system, '?')    as enc_service_system,
+    COALESCE(join_service.as_coding.code, '?')      as enc_service_code,
+    COALESCE(join_service.as_coding.display, '?')   as enc_service_display,
+    COALESCE(join_priority.as_coding.system, '?')   as enc_priority_system,
+    COALESCE(join_priority.as_coding.code, '?')     as enc_priority_code,
+    COALESCE(lower(join_priority.as_coding.display), '?')  as enc_priority_display,
+    E.reason_code,
+    E.age_at_visit,
+    E.start_date,
+    E.end_date,
+    E.start_week,
+    E.start_month,
+    E.start_year,
+    E.subject_ref,
+    E.encounter_ref,
+    E.encounter_id,
+    E.gender,
+    E.race_display,
+    E.ethnicity_display,
+    E.postalcode3
+FROM        core__encounter as E
+LEFT JOIN   join_enc_type   ON E.encounter_id = join_enc_type.encounter_id
+LEFT JOIN   join_service    ON E.encounter_id = join_service.encounter_id
+LEFT JOIN   join_priority   ON E.encounter_id = join_priority.encounter_id
+;

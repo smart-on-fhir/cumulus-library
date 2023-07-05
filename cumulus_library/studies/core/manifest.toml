@@ -18,6 +18,7 @@ file_names = [
     "observation_vital_signs.sql",
     "medication_request.sql",
     "study_period.sql",
+    "count_core.sql"
 ]
 
 [export_config]

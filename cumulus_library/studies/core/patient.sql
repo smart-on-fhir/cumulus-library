@@ -39,26 +39,3 @@ FROM
 WHERE
     tp.birthdate IS NOT NULL
     AND tp.gender IS NOT NULL;
-
-
-CREATE TABLE core__count_patient AS
-WITH powerset AS (
-    SELECT
-        count(DISTINCT cp.subject_ref) AS cnt_subject,
-        cp.gender,
-        cp.age,
-        cp.race_display,
-        cp.ethnicity_display
-    FROM core__patient AS cp
-    GROUP BY cube(cp.gender, cp.age, cp.race_display, cp.ethnicity_display)
-)
-
-SELECT
-    cnt_subject AS cnt,
-    gender,
-    age,
-    race_display,
-    ethnicity_display
-FROM powerset
-WHERE cnt_subject >= 10
-ORDER BY cnt DESC;
