@@ -65,7 +65,9 @@ SELECT * FROM
             'http://hl7.org/fhir/datatypes-definitions.html#Address.postalCode'
         ),
         (
-            'PatientClass', 'http://terminology.hl7.org/CodeSystem/v2-0004')
+            'PatientClass',
+            'http://terminology.hl7.org/CodeSystem/v2-0004'
+        ),
         (
             'Encounter',
             'http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter'
