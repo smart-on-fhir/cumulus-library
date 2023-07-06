@@ -13,9 +13,9 @@ class ValueSet(Enum):
     Ethnicity = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
     DurationUnits = "http://hl7.org/fhir/valueset-duration-units.html"
     Units = "http://hl7.org/fhir/ValueSet/ucum-units"
-    PatientClass = 'http://terminology.hl7.org/CodeSystem/v2-0004'
+    PatientClass = "http://terminology.hl7.org/CodeSystem/v2-0004"
     EncounterCode = "http://terminology.hl7.org/ValueSet/v3-ActEncounterCode"
-    EncounterPriority = 'http://terminology.hl7.org/CodeSystem/v3-ActPriority'
+    EncounterPriority = "http://terminology.hl7.org/CodeSystem/v3-ActPriority"
     EncounterStatus = "http://hl7.org/fhir/ValueSet/encounter-status"
     EncounterType = "http://hl7.org/fhir/ValueSet/encounter-type"
     EncounterReason = "http://hl7.org/fhir/ValueSet/encounter-reason"
