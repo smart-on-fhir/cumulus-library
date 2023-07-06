@@ -76,8 +76,8 @@ def test_cli_path_mapping(
     "args,cursor_calls,pandas_cursor_calls",
     [
         (["build", "-t", "vocab", "--database", "test"], 344, 0),
-        (["build", "-t", "core", "--database", "test"], 27, 0),
-        (["export", "-t", "core", "--database", "test"], 1, 7),
+        (["build", "-t", "core", "--database", "test"], 31, 0),
+        (["export", "-t", "core", "--database", "test"], 1, 9),
         (
             [
                 "build",
@@ -106,7 +106,7 @@ def test_cli_path_mapping(
         ),
         (
             ["build", "-t", "core", "-s", "tests/test_data/", "--database", "test"],
-            27,
+            31,
             0,
         ),
         (
@@ -119,7 +119,7 @@ def test_cli_path_mapping(
                 "cumulus_library/data_export",
             ],
             1,
-            7,
+            9,
         ),
     ],
 )
