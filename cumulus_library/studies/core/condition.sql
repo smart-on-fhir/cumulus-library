@@ -47,27 +47,38 @@ FROM temp_condition AS tc,
     unnest(code.coding) AS t_coding (code_row) --noqa
 WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
 
-CREATE TABLE core__count_condition_month AS
-WITH powerset AS (
-    SELECT
-        count(DISTINCT cc.subject_ref) AS cnt_subject,
-        count(DISTINCT cc.encounter_ref) AS cnt_encounter,
-        cccc.display AS display,
-        cc.recorded_month,
-        ce.enc_class
-    FROM core__condition AS cc
-    INNER JOIN core__encounter AS ce
-        ON cc.encounter_ref = ce.encounter_ref
-    LEFT JOIN core__condition_codable_concepts AS cccc
-        ON cc.condition_id = cccc.id
-    GROUP BY cube(display, cc.recorded_month, ce.enc_class)
-)
+-- ###########################################################################
+-- Encounter.diagnosis may also join, we can't rely on link to encounter!
+-- cond_month is a similar enough proxy for encounter month
 
-SELECT
+CREATE TABLE core__count_condition_month AS WITH
+concept_map as
+ (
+    select
+        C.recorded_month  as cond_month,
+        C.subject_ref,
+        coalesce(C.encounter_ref, 'None') as encounter_ref,
+        coalesce(mapping.display, 'None') AS cond_code_display,
+        C.category.code   as cond_category_code
+    from core__condition C
+    left join core__condition_codable_concepts as mapping
+           on C.condition_id = mapping.id
+),
+powerset AS (
+    SELECT
+        count(DISTINCT subject_ref) AS cnt_subject,
+        count(DISTINCT encounter_ref) AS cnt_encounter,
+        cond_category_code,
+        cond_month,
+        cond_code_display
+    FROM concept_map
+    GROUP BY cube(cond_category_code, cond_month, cond_code_display)
+)
+SELECT distinct
     powerset.cnt_subject AS cnt,
-    powerset.recorded_month AS cond_month,
-    powerset.display AS cond_code_display,
-    enc_class.code AS enc_class_code
+    powerset.cond_category_code,
+    powerset.cond_month,
+    powerset.cond_code_display
 FROM powerset
 WHERE powerset.cnt_subject >= 10
-ORDER BY powerset.cnt_subject DESC, powerset.cnt_encounter DESC;
+;
