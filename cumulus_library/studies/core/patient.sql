@@ -26,7 +26,7 @@ SELECT DISTINCT
         WHEN
             t_address.addr_row.postalcode IS NOT NULL
             THEN substr(t_address.addr_row.postalcode, 1, 3)
-        ELSE '?'
+        ELSE 'None'
     END AS postalcode3,
     tp.subject_id,
     tp.subject_ref,

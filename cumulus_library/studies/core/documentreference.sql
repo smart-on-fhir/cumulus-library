@@ -35,7 +35,7 @@ WITH temp_documentreference AS (
 
 SELECT DISTINCT
     type_coding.type_row AS doc_type,
-    coalesce(type_coding.type_row.code, '?') AS doc_type_code,
+    coalesce(type_coding.type_row.code, 'None') AS doc_type_code,
     CASE
         WHEN
             type_coding.type_row.display IS NOT NULL
@@ -65,7 +65,7 @@ WITH powerset AS (
         count(DISTINCT d.doc_id) AS cnt_document,
         d.doc_type_display,
         d.author_month,
-        e.enc_class.code AS enc_class_code
+        e.enc_class.display AS enc_class_code
     FROM core__documentreference AS d, core__encounter AS e
     WHERE d.encounter_ref = e.encounter_ref
     GROUP BY cube(d.doc_type_display, d.author_month, e.enc_class)
