@@ -52,18 +52,18 @@ WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
 -- cond_month is a similar enough proxy for encounter month
 
 CREATE TABLE core__count_condition_month AS WITH
-concept_map as
- (
-    select
-        C.recorded_month  as cond_month,
-        C.subject_ref,
-        coalesce(C.encounter_ref, 'None') as encounter_ref,
+concept_map AS (
+    SELECT
+        c.recorded_month AS cond_month,
+        c.subject_ref,
+        coalesce(c.encounter_ref, 'None') AS encounter_ref,
         coalesce(mapping.display, 'None') AS cond_code_display,
-        C.category.code   as cond_category_code
-    from core__condition C
-    left join core__condition_codable_concepts as mapping
-           on C.condition_id = mapping.id
+        c.category.code AS cond_category_code
+    FROM core__condition AS c
+    LEFT JOIN core__condition_codable_concepts AS mapping
+        ON c.condition_id = mapping.id
 ),
+
 powerset AS (
     SELECT
         count(DISTINCT subject_ref) AS cnt_subject,
@@ -74,11 +74,11 @@ powerset AS (
     FROM concept_map
     GROUP BY cube(cond_category_code, cond_month, cond_code_display)
 )
-SELECT distinct
+
+SELECT DISTINCT
     powerset.cnt_subject AS cnt,
     powerset.cond_category_code,
     powerset.cond_month,
     powerset.cond_code_display
 FROM powerset
-WHERE powerset.cnt_subject >= 10
-;
+WHERE powerset.cnt_subject >= 10;

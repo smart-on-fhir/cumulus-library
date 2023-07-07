@@ -10,7 +10,7 @@ join_enc_type AS (
         t.as_coding
     FROM core__encounter AS e,
         unnest(enc_type) AS tr (as_row), --noqa: AL05
-        unnest(tr.as_row.coding) AS t (as_coding)
+        unnest(tr.as_row.coding) AS t (as_coding) --noqa: AL05
 ),
 
 join_service AS (
@@ -18,7 +18,7 @@ join_service AS (
         e.encounter_id,
         t.as_coding
     FROM core__encounter AS e,
-        unnest(service_type.coding) AS t (as_coding)
+        unnest(service_type.coding) AS t (as_coding) --noqa: AL05
 ),
 
 join_priority AS (
@@ -26,7 +26,7 @@ join_priority AS (
         e.encounter_id,
         t.as_coding
     FROM core__encounter AS e,
-        unnest(priority.coding) AS t (as_coding)
+        unnest(priority.coding) AS t (as_coding) --noqa: AL05
 )
 
 SELECT DISTINCT
