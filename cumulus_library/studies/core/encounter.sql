@@ -49,7 +49,7 @@ SELECT
     ce.subject_ref,
     ce.encounter_ref,
     ce.encounter_id,
-    ce.enc_class.code AS enc_class_code,
+    ce.enc_class.display AS enc_class_code,
     cp.gender,
     cp.race_display,
     cp.ethnicity_display,
@@ -63,7 +63,7 @@ WITH powerset AS (
     SELECT
         count(DISTINCT ce.subject_ref) AS cnt_subject,
         count(DISTINCT ce.encounter_id) AS cnt_encounter,
-        ce.enc_class.code AS enc_class_code,
+        ce.enc_class.display AS enc_class_code,
         ce.start_month,
         ce.age_at_visit,
         cp.gender,
@@ -100,7 +100,7 @@ WITH powerset AS (
     SELECT
         count(DISTINCT ce.subject_ref) AS cnt_subject,
         count(DISTINCT ce.encounter_id) AS cnt_encounter,
-        ce.enc_class.code AS enc_class_code,
+        ce.enc_class.display AS enc_class_code,
         ce.start_date
     FROM core__encounter AS ce, core__patient AS cp
     WHERE ce.subject_ref = cp.subject_ref

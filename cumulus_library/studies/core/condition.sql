@@ -67,7 +67,7 @@ SELECT
     powerset.cnt_subject AS cnt,
     powerset.recorded_month AS cond_month,
     powerset.display AS cond_code_display,
-    enc_class.code AS enc_class_code
+    enc_class.display AS enc_class_code
 FROM powerset
 WHERE powerset.cnt_subject >= 10
 ORDER BY powerset.cnt_subject DESC, powerset.cnt_encounter DESC;
