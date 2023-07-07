@@ -100,7 +100,10 @@ def write_view_sql(view_list_sql: List[str], filename="count_core.sql") -> None:
     :param view_list_sql: SQL prepared statements
     :param filename: path to output file, default 'count_core.sql' in PWD
     """
-    sql_optimizer = concat_view_sql(view_list_sql).replace("ORDER BY cnt desc", "")
+    sql_optimizer = concat_view_sql(view_list_sql)
+    sql_optimizer = sql_optimizer.replace("ORDER BY cnt desc", "")
+    sql_optimizer = sql_optimizer.replace("CREATE or replace VIEW", 'CREATE TABLE')
+
     with open(filename, "w") as fout:
         fout.write(sql_optimizer)
 
