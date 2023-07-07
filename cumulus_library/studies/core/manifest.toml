@@ -11,6 +11,7 @@ file_names = [
     "fhir_define.sql",
     "patient.sql",
     "encounter.sql",
+    "encounter_type.sql",
     "documentreference.sql",
     "condition.sql",
     "observation.sql",
@@ -18,12 +19,15 @@ file_names = [
     "observation_vital_signs.sql",
     "medication_request.sql",
     "study_period.sql",
+    "count_core.sql"
 ]
 
 [export_config]
 export_list = [
     "core__count_patient",
     "core__count_encounter_month",
+    "core__count_encounter_type",
+    "core__count_encounter_type_month",
     "core__count_documentreference_month",
     "core__count_observation_lab_month",
     "core__count_condition_month",
