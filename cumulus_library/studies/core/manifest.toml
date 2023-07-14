@@ -23,6 +23,7 @@ file_names = [
     "observation_vital_signs.sql",
     "medication_request.sql",
     "study_period.sql",
+    "soe_sequence_of_events.sql",
 ]
 
 [counts_builder_config]
@@ -42,4 +43,7 @@ export_list = [
     "core__count_medicationrequest_month",
     "core__meta_date",
     "core__meta_version",
+    "core__count_soe_cond_week",
+    "core__count_soe_document_week",
+    "core__count_soe_medreq_week"
 ]
