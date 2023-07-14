@@ -228,7 +228,7 @@ class StudyManifestParser:
         # Per an article on the subject: "Tradition dictates that this is to shield
         # – from God’s eyes – the shame of such a decadent and disgraceful act."
         for file in self.get_table_builder_file_list():
-            # Grab the BaseTableBUilder class from the manifest-defined module
+            # Grab the BaseTableBuilder class from the manifest-defined module
             spec = importlib.util.spec_from_file_location(
                 "table_builder", f"{self._study_path}/{file}"
             )
