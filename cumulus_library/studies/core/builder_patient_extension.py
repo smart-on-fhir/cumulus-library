@@ -7,7 +7,6 @@ from cumulus_library.template_sql.templates import (
 
 
 class PatientExtensionBuilder(BaseTableBuilder):
-
     display_text = "Creating patient extension tables..."
 
     def prepare_queries(self, cursor: object, schema: str):

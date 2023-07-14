@@ -12,7 +12,6 @@ from cumulus_library.template_sql.templates import (
 
 
 class VocabIcdRunner(BaseTableBuilder):
-
     display_text = "Creating ICD vocab..."
     partition_size = 1200
 
