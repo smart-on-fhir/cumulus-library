@@ -7,9 +7,8 @@ from cumulus_library.template_sql.templates import (
 
 
 class ConditionCodableConceptRunner(BaseTableBuilder):
-    def __init__(self):
-        super().__init__()
-        self.display_text = "Creating condition code table..."
+
+    display_text = "Creating condition code table..."
 
     def prepare_queries(self, cursor: object, schema: str):
         """Constructs queries related to condition codeableConcept

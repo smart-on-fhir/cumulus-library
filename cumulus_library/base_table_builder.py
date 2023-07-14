@@ -12,9 +12,10 @@ class BaseTableBuilder(ABC):
     See ./studies/vocab or ./studies/core for example usage.
     """
 
+    display_text = "Building custom tables..."
+
     def __init__(self):
         self.queries = []
-        self.display_text = "Building custom tables..."
 
     @abstractmethod
     def prepare_queries(self, cursor: object, schema: str):

@@ -12,10 +12,9 @@ from cumulus_library.template_sql.templates import (
 
 
 class VocabIcdRunner(BaseTableBuilder):
-    def __init__(self):
-        super().__init__()
-        self.display_text = "Creating ICD vocab..."
-        self.partition_size = 1200
+
+    display_text = "Creating ICD vocab..."
+    partition_size = 1200
 
     @staticmethod
     def clean_row(row, filename):
