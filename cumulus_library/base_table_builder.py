@@ -18,7 +18,7 @@ class BaseTableBuilder(ABC):
 
     @abstractmethod
     def prepare_queries(self, cursor: object, schema: str):
-        """Main entrypoint for python runners.
+        """Main entrypoint for python table builders.
 
         When completed, prepare_queries should populate self.queries with sql
         statements to execute. This array will the be read by run queries.
