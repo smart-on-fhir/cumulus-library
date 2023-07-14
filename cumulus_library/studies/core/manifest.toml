@@ -1,8 +1,9 @@
 study_prefix = "core"
 
-[python_config]
+[table_builder_config]
 file_names = [
-    "denormalizer.py",
+    "builder_patient_extension.py",
+    "builder_condition_codes.py",    
 ]
 
 [sql_config]
