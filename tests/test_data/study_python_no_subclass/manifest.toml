@@ -1,5 +1,5 @@
 study_prefix = "test_python"
 
-[python_config]
+[table_builder_config]
 file_names = ["module1.py", "module2.py"]
 

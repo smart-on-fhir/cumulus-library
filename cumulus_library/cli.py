@@ -112,7 +112,7 @@ class StudyBuilder:
         """
         studyparser = StudyManifestParser(target)
         studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
-        studyparser.run_python_builder(self.cursor, self.schema_name, self.verbose)
+        studyparser.run_table_builder(self.cursor, self.schema_name, self.verbose)
         studyparser.build_study(self.cursor, self.verbose)
 
     def clean_and_build_all(self, study_dict: Dict) -> None:

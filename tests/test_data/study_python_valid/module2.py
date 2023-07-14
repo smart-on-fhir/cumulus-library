@@ -1,6 +1,8 @@
-from cumulus_library.base_runner import BaseRunner
+from cumulus_library.base_table_builder import BaseTableBuilder
 
 
-class ModuleTwoRunner(BaseRunner):
-    def run_executor(self, cursor: object, schema: str, verbose: bool):
+class ModuleTwoRunner(BaseTableBuilder):
+    display_text = "module2"
+
+    def prepare_queries(self, cursor: object, schema: str):
         pass

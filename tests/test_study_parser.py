@@ -130,7 +130,7 @@ def test_build_study(mock_output, path, verbose, raises):
     with raises:
         mock_cursor = mock.MagicMock()
         parser = StudyManifestParser(path)
-        parser.run_python_builder(mock_cursor, verbose)
+        parser.run_table_builder(mock_cursor, verbose)
         queries = parser.build_study(mock_cursor, verbose)
         if "python" not in path:
             assert queries == [["CREATE TABLE test__table (test int)", "test.sql"]]

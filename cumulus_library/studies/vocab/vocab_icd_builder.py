@@ -3,7 +3,7 @@ import csv
 
 from pathlib import Path
 
-from cumulus_library.base_runner import BaseRunner
+from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.helper import query_console_output, get_progress_bar
 from cumulus_library.template_sql.templates import (
     get_ctas_query,
@@ -11,9 +11,9 @@ from cumulus_library.template_sql.templates import (
 )
 
 
-class VocabIcdRunner(BaseRunner):
-    def run_executor(self, cursor: object, schema: str, verbose: bool):
-        self.create_icd_legend(self, cursor, schema, verbose)
+class VocabIcdRunner(BaseTableBuilder):
+    display_text = "Creating ICD vocab..."
+    partition_size = 1200
 
     @staticmethod
     def clean_row(row, filename):
@@ -23,58 +23,20 @@ class VocabIcdRunner(BaseRunner):
             row[i] = cell
         return row
 
-    def create_icd_legend(
-        self, cursor: object, schema: str, verbose: bool, partition_size: int = 1200
-    ):
-        """input point from make.execute_sql_template.
+    def prepare_queries(self, cursor: object, schema: str):
+        """Creates queries for populating ICD vocab
+
+        TODO: this would be a lot faster if we converted the bsv to parquet,
+        uploaded that, and then created the table from an external datasource
 
         :param cursor: A database cursor object
         :param schema: the schema/db name, matching the cursor
-        :param verbose: if true, outputs raw query, else displays progress bar
-        :partition_size: number of lines to read. Athena queries have a char limit.
         """
+
         table_name = "vocab__icd"
         icd_files = ["ICD10CM_2023AA", "ICD10PCS_2023AA", "ICD9CM_2023AA"]
         path = Path(__file__).parent
-        query_count = 1  # accounts for static CTAS query
-        for filename in icd_files:
-            query_count += (
-                sum(1 for i in open(f"{path}/{filename}.bsv", "rb")) / partition_size
-            )
 
-        with get_progress_bar(disable=verbose) as progress:
-            task = progress.add_task(
-                f"Uploading {table_name} data...",
-                total=query_count,
-                visible=not verbose,
-            )
-            self.build_vocab_icd(
-                self,
-                cursor,
-                schema,
-                verbose,
-                partition_size,
-                table_name,
-                path,
-                icd_files,
-                progress,
-                task,
-            )
-
-    @staticmethod
-    def build_vocab_icd(
-        self,
-        cursor,
-        schema,
-        verbose,
-        partition_size,
-        table_name,
-        path,
-        icd_files,
-        progress,
-        task,
-    ):
-        """Constructs queries and posts to athena."""
         headers = ["CUI", "TTY", "CODE", "SAB", "STR"]
         header_types = [f"{x} string" for x in headers]
         rows_processed = 0
@@ -90,30 +52,32 @@ class VocabIcdRunner(BaseRunner):
                 reader = csv.reader(file, delimiter="|")
                 if not created:
                     row = self.clean_row(next(reader), filename)
-                    ctas_query = get_ctas_query(
-                        schema_name=schema,
-                        table_name=table_name,
-                        dataset=[row],
-                        table_cols=headers,
+                    self.queries.append(
+                        get_ctas_query(
+                            schema_name=schema,
+                            table_name=table_name,
+                            dataset=[row],
+                            table_cols=headers,
+                        )
                     )
-                    cursor.execute(ctas_query)
-                    query_console_output(verbose, ctas_query, progress, task)
                     created = True
                 for row in reader:
                     row = self.clean_row(row, filename)
                     dataset.append(row)
                     rows_processed += 1
-                    if rows_processed == partition_size:
-                        insert_into_query = get_insert_into_query(
-                            table_name=table_name, table_cols=headers, dataset=dataset
+                    if rows_processed == self.partition_size:
+                        self.queries.append(
+                            get_insert_into_query(
+                                table_name=table_name,
+                                table_cols=headers,
+                                dataset=dataset,
+                            )
                         )
-                        query_console_output(verbose, insert_into_query, progress, task)
-                        cursor.execute(insert_into_query)
                         dataset = []
                         rows_processed = 0
                 if rows_processed > 0:
-                    insert_into_query = get_insert_into_query(
-                        table_name=table_name, table_cols=headers, dataset=dataset
+                    self.queries.append(
+                        get_insert_into_query(
+                            table_name=table_name, table_cols=headers, dataset=dataset
+                        )
                     )
-                    cursor.execute(insert_into_query)
-                    query_console_output(verbose, insert_into_query, progress, task)

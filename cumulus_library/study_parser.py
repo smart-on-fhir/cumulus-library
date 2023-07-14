@@ -1,8 +1,8 @@
 """ Contains classes for loading study data based on manifest.toml files """
 import inspect
+import importlib.util
 import sys
 
-from importlib.machinery import SourceFileLoader
 from pathlib import Path, PosixPath
 from typing import List, Optional
 
@@ -10,7 +10,7 @@ import toml
 
 from rich.progress import Progress, TaskID, track
 
-from cumulus_library.base_runner import BaseRunner
+from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.errors import StudyManifestParsingError
 from cumulus_library.helper import (
     query_console_output,
@@ -94,12 +94,12 @@ class StudyManifestParser:
         sql_config = self._study_config.get("sql_config", {})
         return sql_config.get("file_names", [])
 
-    def get_python_file_list(self) -> Optional[StrList]:
+    def get_table_builder_file_list(self) -> Optional[StrList]:
         """Reads the contents of the python_config array from the manifest
 
         :returns: An array of sql files from the manifest, or None if not found.
         """
-        sql_config = self._study_config.get("python_config", {})
+        sql_config = self._study_config.get("table_builder_config", {})
         return sql_config.get("file_names", [])
 
     def get_export_table_list(self) -> Optional[StrList]:
@@ -210,43 +210,57 @@ class StudyManifestParser:
             cursor.execute(drop_view_table)
             query_console_output(verbose, drop_view_table, progress, task)
 
-    def run_python_builder(
+    def run_table_builder(
         self, cursor: object, schema: str, verbose: bool = False
     ) -> None:
-        """Loads arbitrary modules from a manifest and executes code via BaseRunners
+        """Loads modules from a manifest and executes code via BaseTableBuilder
 
         :param cursor: A PEP-249 compatible cursor object
         :param schema: The name of the schema to write tables to
         :param verbose: toggle from progress bar to query output
         """
-        for file in self.get_python_file_list():
-            # Grab the baserunner class from the manifest-defined module
-            # TODO: if we need to support python 3.12, cutover to exec_modules
-            # (warning: it sounds like this is non-trivial)
-            runner_module = SourceFileLoader(  # pylint: disable=deprecated-method, no-value-for-parameter
-                "BaseRunner", f"{self._study_path}/{file}"
-            ).load_module()
 
-            # We're going to find all subclasses of BaseRunner in this file.
-            # Since BaseRunner itself is a valid subclass of BaseRunner, we'll
-            # detect and skip it. If we don't find exactly one subclass, we'll punt.
-            runner_subclasses = []
-            for _, cls_obj in inspect.getmembers(runner_module, inspect.isclass):
-                if issubclass(cls_obj, BaseRunner) and cls_obj != BaseRunner:
-                    runner_subclasses.append(cls_obj)
-            if len(runner_subclasses) != 1:
+        # Since we have to support arbitrary user-defined python files here, we
+        # jump through some importlib hoops to import the module directly from
+        # a source file defined in the manifest.
+
+        # As with eating an ortolan, you may wish to cover your head with a cloth.
+        # Per an article on the subject: "Tradition dictates that this is to shield
+        # – from God’s eyes – the shame of such a decadent and disgraceful act."
+        for file in self.get_table_builder_file_list():
+            # Grab the BaseTableBuilder class from the manifest-defined module
+            spec = importlib.util.spec_from_file_location(
+                "table_builder", f"{self._study_path}/{file}"
+            )
+            table_builder_module = importlib.util.module_from_spec(spec)
+            sys.modules["table_builder"] = table_builder_module
+            spec.loader.exec_module(table_builder_module)
+
+            # We're going to find all subclasses of BaseTableBuild in this file.
+            # Since BaseTableBuilder itself is a valid subclass of BaseTableBuilder,
+            # we'll detect and skip it. If we don't find exactly one subclass,
+            # we'll punt.
+            table_builder_subclasses = []
+            for _, cls_obj in inspect.getmembers(table_builder_module, inspect.isclass):
+                if (
+                    issubclass(cls_obj, BaseTableBuilder)
+                    and cls_obj != BaseTableBuilder
+                ):
+                    table_builder_subclasses.append(cls_obj)
+            if len(table_builder_subclasses) != 1:
                 raise StudyManifestParsingError(
-                    f"Error loading {self._study_path}/{file}\n"
-                    "Custom runners must extend the BaseRunner class exactly once per module."
+                    f"Error loading {self._study_path}{file}\n"
+                    "Custom builders must extend the BaseTableBuilder class exactly once per module."
                 )
 
-            # We'll get the subclass, run the executor code, and then remove it
-            # so it doesn't interfere with the next python module to execute, since
-            # the subclass would otherwise hang around.
-            runner = runner_subclasses[0]
-            runner.run_executor(runner, cursor, schema, verbose)
-            del sys.modules[runner_module.__name__]
-            del runner_module
+            # We'll get the subclass, initialize it, run the executor code, and then
+            # remove it so it doesn't interfere with the next python module to
+            # execute, since the subclass would otherwise hang around.
+            table_builder_class = table_builder_subclasses[0]
+            table_builder = table_builder_class()
+            table_builder.execute_queries(cursor, schema, verbose)
+            del sys.modules[table_builder_module.__name__]
+            del table_builder_module
 
     def build_study(self, cursor: object, verbose: bool = False) -> List:
         """Creates tables in the schema by iterating through the sql_config.file_names
