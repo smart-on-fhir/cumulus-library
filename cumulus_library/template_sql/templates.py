@@ -1,7 +1,7 @@
 """ Collection of jinja template getters for common SQL queries """
 from enum import Enum
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 from jinja2 import Template
 
@@ -166,25 +166,64 @@ def get_extension_denormalize_query(config: ExtensionConfig) -> str:
         )
 
 
-def get_codeable_concept_denormalize_query(
-    source_table: str, cc_column: str, target_table: str, code_systems: List[str]
-) -> str:
-    """extracts codeable concepts from a specified table.
-
-    See http://hl7.org/fhir/datatypes-definitions.html#CodeableConcept for more info
+class CodeableConceptConfig:
+    """Convenience class for holding parameters for generating codableconcept tables.
 
     :param source_table: the table to extract extensions from
-    :param cc_column: the column containing the codeableConcept you want to extract
+    :param source_id: the id field to use in the new table
+    :param cc_columns: the column containing the codeableConcept you want to extract.
+        Should be declared as {'name':[column], 'is_array': [boolean]}. is_array
+        relates to the FHIR spec - if the field is specified to 0...*, set this
+        to be true.
     :param target_table: the name of the table to create
-    :param code_systems: a list of coding systems, in preference order, to use to select data
+    :param code_systems: a list of systems, in preference order, for selecting data
+    """
+
+    def __init__(
+        self,
+        source_table: str,
+        source_id: str,
+        cc_columns: List[Dict],
+        target_table: str,
+        code_systems: List[str],
+    ):
+        self.source_table = source_table
+        self.source_id = source_id
+        self.cc_columns = cc_columns
+        self.target_table = target_table
+        self.code_systems = code_systems
+
+
+def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str:
+    """extracts codeable concepts from a specified table.
+
+    This function is targeted at arbitrary codeableConcept elements - see
+    http://hl7.org/fhir/datatypes-definitions.html#CodeableConcept for more info.
+    This may be or may not be an array field depending on the context of use -
+    check the specification of the specific resource you're interested in.
+    See the CodeableConceptConfig for details on how to handle array vs non-
+    array use cases.
+
+    :param config: a CodableConeptConfig
     """
     path = Path(__file__).parent
-    with open(
-        f"{path}/codeable_concept_denormalize.sql.jinja"
-    ) as extension_denormalize:
-        return Template(extension_denormalize.read()).render(
+    with open(f"{path}/codeable_concept_denormalize.sql.jinja") as codable_concept:
+        return Template(codable_concept.read()).render(
+            source_table=config.source_table,
+            source_id=config.source_id,
+            cc_columns=config.cc_columns,
+            target_table=config.target_table,
+            code_systems=config.code_systems,
+        )
+
+
+def get_is_table_not_empty_query(
+    source_table: str, field: str, unnests: List[Dict] = []
+):
+    path = Path(__file__).parent
+    with open(f"{path}/is_table_not_empty.sql.jinja") as is_table_not_empty:
+        return Template(is_table_not_empty.read()).render(
             source_table=source_table,
-            cc_column=cc_column,
-            target_table=target_table,
-            code_systems=code_systems,
+            field=field,
+            unnests=unnests,
         )

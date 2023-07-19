@@ -58,27 +58,9 @@ def _count_encounter_type(view_name, cols, duration):
 
 def count_encounter_type(duration=None):
     cols = [
-        "enc_class_display",
-        "enc_type_display",
-        "enc_service_display",
-        "enc_priority_display",
+        "codableconcept_display",
     ]
     return _count_encounter_type("count_encounter_type", cols, duration)
-
-
-def count_encounter_enc_type(duration="month"):
-    cols = ["enc_class_display", "enc_type_display"]
-    return _count_encounter_type("count_encounter_enc_type", cols, duration)
-
-
-def count_encounter_service(duration="month"):
-    cols = ["enc_class_display", "enc_service_display"]
-    return _count_encounter_type("count_encounter_service", cols, duration)
-
-
-def count_encounter_priority(duration="month"):
-    cols = ["enc_class_display", "enc_priority_display"]
-    return _count_encounter_type("count_encounter_priority", cols, duration)
 
 
 def concat_view_sql(create_view_list: List[str]) -> str:

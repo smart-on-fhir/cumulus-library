@@ -38,13 +38,13 @@ class BaseTableBuilder(ABC):
         :param schema: A schema name
         :param verbose: toggle for verbose output mode
         """
+        self.prepare_queries(cursor, schema)
         with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 self.display_text,
                 total=len(self.queries),
                 visible=not verbose,
             )
-            self.prepare_queries(cursor, schema)
             for query in self.queries:
                 cursor.execute(query)
                 query_console_output(verbose, self.queries, progress, task)
