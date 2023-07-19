@@ -16,6 +16,9 @@ class EncounterCodingBuilder(BaseTableBuilder):
 
     def _check_data_in_fields(self, code_sources: List[Dict], cursor, progress, task):
         """checks if CodableConcept fields actually have data available"""
+
+        # TODO: consider moving to a utility library if we have another case like
+        # this one
         cols_with_data = []
         for code_source in code_sources:
             query = get_is_table_not_empty_query("encounter", code_source["name"])
