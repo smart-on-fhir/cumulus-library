@@ -42,7 +42,7 @@ jobs:
           pip install ".[dev]"
       - name: Run sqlfluff on jinja templates
         run: |
-          sqlfluff lint
+          sqlfluff lint --library-path none
       - name: Run black
         if: success() || failure() # still run black if above checks fails
         run: |
