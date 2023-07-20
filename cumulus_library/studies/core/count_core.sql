@@ -62,17 +62,26 @@ WITH powerset AS (
     SELECT
         count(DISTINCT subject_ref) AS cnt_subject,
         count(DISTINCT encounter_ref) AS cnt_encounter,
-        codeableconcept_display
+        enc_class_display,
+        enc_type_display,
+        enc_service_display,
+        enc_priority_display
     FROM core__encounter_type
     GROUP BY
         cube(
-            codeableconcept_display
+            enc_class_display,
+            enc_type_display,
+            enc_service_display,
+            enc_priority_display
         )
 )
 
 SELECT
     cnt_encounter AS cnt,
-    codeableconcept_display
+    enc_class_display,
+    enc_type_display,
+    enc_service_display,
+    enc_priority_display
 FROM powerset
 WHERE cnt_subject >= 10;
 
@@ -83,13 +92,17 @@ WITH powerset AS (
         count(DISTINCT subject_ref) AS cnt_subject,
         count(DISTINCT encounter_ref) AS cnt_encounter,
         enc_class_display,
-        codeableconcept_display,
+        enc_type_display,
+        enc_service_display,
+        enc_priority_display,
         start_month
     FROM core__encounter_type
     GROUP BY
         cube(
             enc_class_display,
-            codeableconcept_display,
+            enc_type_display,
+            enc_service_display,
+            enc_priority_display,
             start_month
         )
 )
@@ -97,7 +110,73 @@ WITH powerset AS (
 SELECT
     cnt_encounter AS cnt,
     enc_class_display,
-    codeableconcept_display,
+    enc_type_display,
+    enc_service_display,
+    enc_priority_display,
+    start_month
+FROM powerset
+WHERE cnt_subject >= 10;
+
+
+-- ###########################################################
+CREATE TABLE core__count_encounter_enc_type_month AS
+WITH powerset AS (
+    SELECT
+        count(DISTINCT subject_ref) AS cnt_subject,
+        count(DISTINCT encounter_ref) AS cnt_encounter,
+        enc_class_display,
+        enc_type_display,
+        start_month
+    FROM core__encounter_type
+    GROUP BY cube(enc_class_display, enc_type_display, start_month)
+)
+
+SELECT
+    cnt_encounter AS cnt,
+    enc_class_display,
+    enc_type_display,
+    start_month
+FROM powerset
+WHERE cnt_subject >= 10;
+
+-- ###########################################################
+CREATE TABLE core__count_encounter_service_month AS
+WITH powerset AS (
+    SELECT
+        count(DISTINCT subject_ref) AS cnt_subject,
+        count(DISTINCT encounter_ref) AS cnt_encounter,
+        enc_class_display,
+        enc_service_display,
+        start_month
+    FROM core__encounter_type
+    GROUP BY cube(enc_class_display, enc_service_display, start_month)
+)
+
+SELECT
+    cnt_encounter AS cnt,
+    enc_class_display,
+    enc_service_display,
+    start_month
+FROM powerset
+WHERE cnt_subject >= 10;
+
+-- ###########################################################
+CREATE TABLE core__count_encounter_priority_month AS
+WITH powerset AS (
+    SELECT
+        count(DISTINCT subject_ref) AS cnt_subject,
+        count(DISTINCT encounter_ref) AS cnt_encounter,
+        enc_class_display,
+        enc_priority_display,
+        start_month
+    FROM core__encounter_type
+    GROUP BY cube(enc_class_display, enc_priority_display, start_month)
+)
+
+SELECT
+    cnt_encounter AS cnt,
+    enc_class_display,
+    enc_priority_display,
     start_month
 FROM powerset
 WHERE cnt_subject >= 10;

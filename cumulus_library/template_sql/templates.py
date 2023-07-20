@@ -78,6 +78,29 @@ def get_ctas_query(
         )
 
 
+def get_ctas_empty_query(
+    schema_name: str, table_name: str, table_cols: List[str]
+) -> str:
+    """Generates a create table as query for initializing an empty table
+
+    Note that unlike other queries, the nature of the CTAS implementation in athena
+    requires a schema name. This schema name should match the schema of your cursor,
+    or the other queries in this template will not function correctly. All columns
+    will be specified as varchar type.
+
+    :param schema_name: The athena schema to create the table in
+    :param table_name: The name of the athena table to create
+    :param table_cols: Comma deleniated column names, i.e. ['first,second']
+    """
+    path = Path(__file__).parent
+    with open(f"{path}/ctas_empty.sql.jinja") as ctas_empty:
+        return Template(ctas_empty.read()).render(
+            schema_name=schema_name,
+            table_name=table_name,
+            table_cols=table_cols,
+        )
+
+
 def get_create_view_query(
     view_name: str, dataset: List[List[str]], view_cols: List[str]
 ) -> str:
@@ -172,26 +195,23 @@ class CodeableConceptConfig:
     :param source_table: the table to extract extensions from
     :param source_id: the id field to use in the new table
     :param cc_columns: the column containing the codeableConcept you want to extract.
-        Should be declared as {'name':[column], 'is_array': [boolean]}. is_array
-        relates to the FHIR spec - if the field is specified to 0...*, set this
-        to be true.
+        Format:
+            {'name':[column],
+            'is_array': [boolean],
+            'code_systems':[List of code system strings, in priority order]}
+        is_array relates to the FHIR spec - if the field is specified
+        as 0...*, set this to be true.
     :param target_table: the name of the table to create
     :param code_systems: a list of systems, in preference order, for selecting data
     """
 
     def __init__(
-        self,
-        source_table: str,
-        source_id: str,
-        cc_columns: List[Dict],
-        target_table: str,
-        code_systems: List[str],
+        self, source_table: str, source_id: str, cc_column: dict, target_table: str
     ):
         self.source_table = source_table
         self.source_id = source_id
-        self.cc_columns = cc_columns
+        self.cc_column = cc_column
         self.target_table = target_table
-        self.code_systems = code_systems
 
 
 def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str:
@@ -211,9 +231,8 @@ def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str
         return Template(codable_concept.read()).render(
             source_table=config.source_table,
             source_id=config.source_id,
-            cc_columns=config.cc_columns,
+            cc_column=config.cc_column,
             target_table=config.target_table,
-            code_systems=config.code_systems,
         )
 
 

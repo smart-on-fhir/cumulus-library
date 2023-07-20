@@ -1,8 +1,6 @@
 CREATE TABLE {{ target_table }} AS (
     WITH
-    {%- for cc_column in cc_columns %}
-    {%- for system in code_systems %}
-
+    {%- for system in cc_column.code_systems %}
     system_{{ cc_column.name }}_{{ loop.index0 }} AS (
         SELECT DISTINCT
             s.{{ source_id }} AS id,
@@ -22,11 +20,9 @@ CREATE TABLE {{ target_table }} AS (
             u.codeable_concept.system = '{{ system }}'
     ), --noqa: LT07
     {%- endfor %}
-    {% endfor %}
 
     union_table AS (
-        {%- for cc_column in cc_columns %}    
-        {%- for system in code_systems %}
+        {%- for system in cc_column.code_systems %}
         SELECT
             id,
             priority,
@@ -36,10 +32,6 @@ CREATE TABLE {{ target_table }} AS (
         FROM system_{{ cc_column.name }}_{{ loop.index0 }}
         {%- if not loop.last %}
         UNION 
-        {%- endif -%}
-        {%- endfor %}
-        {%- if not loop.last %}
-        UNION
         {%- endif -%}
         {%- endfor %}
     ),

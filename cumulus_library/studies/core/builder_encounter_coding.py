@@ -6,13 +6,14 @@ from cumulus_library.template_sql.templates import (
     CodeableConceptConfig,
     get_codeable_concept_denormalize_query,
     get_is_table_not_empty_query,
+    get_ctas_empty_query,
 )
 
 
 class EncounterCodingBuilder(BaseTableBuilder):
-    display_text = "Creating encounter type code table..."
+    display_text = "Creating encounter codeableConcept tables..."
 
-    def _check_data_in_fields(self, code_sources: list[dict], cursor):
+    def _check_data_in_fields(self, code_sources: list[dict], cursor) -> dict:
         """checks if CodeableConcept fields actually have data available
 
         CodeableConcept fields are mostly optional in the FHIR spec, and may be arrays
@@ -34,10 +35,9 @@ class EncounterCodingBuilder(BaseTableBuilder):
         # TODO: consider moving to a utility library if we have another case like
         # this one
 
-        cols_with_data = []
         with get_progress_bar(transient=True) as progress:
             task = progress.add_task(
-                "Detecting available encounter codes...",
+                "Detecting available encounter codaebleConcepts...",
                 # Each column in code_sources requires at most 3 queries to
                 # detect valid data is in the DB
                 total=len(code_sources) * 3,
@@ -47,8 +47,8 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 query = get_is_table_not_empty_query("encounter", code_source["name"])
                 cursor.execute(query)
                 progress.advance(task)
-
-                if len(cursor.fetchall()) > 0:
+                res = cursor.fetchone()
+                if len(res) > 0 and "coding=" in res:
                     if code_source["is_array"]:
                         query = get_is_table_not_empty_query(
                             "encounter",
@@ -101,12 +101,12 @@ class EncounterCodingBuilder(BaseTableBuilder):
                         cursor.execute(query)
                         progress.advance(task)
                         if len(cursor.fetchall()) > 0:
-                            cols_with_data.append(code_source)
+                            code_source["has_data"] = True
                     else:
                         progress.advance(task)
                 else:
                     progress.advance(task, advance=2)
-        return cols_with_data
+        return code_sources
 
     def prepare_queries(self, cursor: object, schema: str):
         """Constructs queries related to condition codeableConcept
@@ -115,22 +115,58 @@ class EncounterCodingBuilder(BaseTableBuilder):
         :param schema: the schema/db name, matching the cursor
 
         """
-        code_sources = [
-            {"name": "type", "is_array": True},
-            {"name": "servicetype", "is_array": False},
-            {"name": "priority", "is_array": False},
-        ]
-        cols_with_data = self._check_data_in_fields(code_sources, cursor)
 
-        config = CodeableConceptConfig(
-            source_table="encounter",
-            source_id="id",
-            cc_columns=cols_with_data,
-            target_table="core__encounter_coding",
-            code_systems=[
-                "http://snomed.info/sct",
-                "http://hl7.org/fhir/sid/icd-10-cm",
-                "http://hl7.org/fhir/sid/icd-9-cm",
-            ],
-        )
-        self.queries.append(get_codeable_concept_denormalize_query(config))
+        code_sources = [
+            {
+                "name": "type",
+                "is_array": True,
+                "code_systems": [
+                    "http://hl7.org/fhir/ValueSet/encounter-type",
+                    "http://terminology.hl7.org/CodeSystem/encounter-type",
+                    "http://terminology.hl7.org/CodeSystem/v2-0004",
+                    "2.16.840.1.113883.4.642.3.248",
+                    "http://snomed.info/sct",
+                ],
+                "has_data": False,
+            },
+            {
+                "name": "servicetype",
+                "is_array": False,
+                "code_systems": [
+                    "http://hl7.org/fhir/ValueSet/service-type",
+                    "http://terminology.hl7.org/CodeSystem/service-type",
+                    "2.16.840.1.113883.4.642.3.518",
+                    "http://snomed.info/sct",
+                ],
+                "has_data": False,
+            },
+            {
+                "name": "priority",
+                "is_array": False,
+                "code_systems": [
+                    "http://terminology.hl7.org/ValueSet/v3-ActPriority",
+                    "http://terminology.hl7.org/CodeSystem/v3-ActPriority",
+                    "http://snomed.info/sct",
+                ],
+                "has_data": False,
+            },
+        ]
+        code_sources = self._check_data_in_fields(code_sources, cursor)
+
+        for code_source in code_sources:
+            if code_source["has_data"]:
+                config = CodeableConceptConfig(
+                    source_table="encounter",
+                    source_id="id",
+                    cc_column=code_source,
+                    target_table=f"core__encounter_dn_{code_source['name']}",
+                )
+                self.queries.append(get_codeable_concept_denormalize_query(config))
+            else:
+                self.queries.append(
+                    get_ctas_empty_query(
+                        schema_name=schema,
+                        table_name=f"core__encounter_dn_{code_source['name']}",
+                        table_cols=["id", "code", "code_system", "display"],
+                    )
+                )

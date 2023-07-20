@@ -20,12 +20,15 @@ class ConditionCodableConceptBuilder(BaseTableBuilder):
         config = CodeableConceptConfig(
             source_table="condition",
             source_id="id",
-            cc_columns=[{"name": "code", "is_array": False}],
+            cc_column={
+                "name": "code",
+                "is_array": False,
+                "code_systems": [
+                    "http://snomed.info/sct",
+                    "http://hl7.org/fhir/sid/icd-10-cm",
+                    "http://hl7.org/fhir/sid/icd-9-cm",
+                ],
+            },
             target_table="core__condition_codable_concepts",
-            code_systems=[
-                "http://snomed.info/sct",
-                "http://hl7.org/fhir/sid/icd-10-cm",
-                "http://hl7.org/fhir/sid/icd-9-cm",
-            ],
         )
         self.queries.append(get_codeable_concept_denormalize_query(config))

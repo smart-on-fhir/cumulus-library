@@ -158,7 +158,6 @@ def test_extension_denormalize_creation():
 def test_codeable_concept_denormalize_creation():
     expected = """CREATE TABLE target__concepts AS (
     WITH
-
     system_code_col_0 AS (
         SELECT DISTINCT
             s.id AS id,
@@ -173,7 +172,6 @@ def test_codeable_concept_denormalize_creation():
         WHERE
             u.codeable_concept.system = 'http://snomed.info/sct'
     ), --noqa: LT07
-
     system_code_col_1 AS (
         SELECT DISTINCT
             s.id AS id,
@@ -188,42 +186,6 @@ def test_codeable_concept_denormalize_creation():
         WHERE
             u.codeable_concept.system = 'http://hl7.org/fhir/sid/icd-10-cm'
     ), --noqa: LT07
-    
-
-    system_array_col_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            '0' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
-            u.codeable_concept.system AS code_system
-        FROM
-            source AS s,
-        
-            UNNEST(s.array_col) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-        
-        WHERE
-            u.codeable_concept.system = 'http://snomed.info/sct'
-    ), --noqa: LT07
-
-    system_array_col_1 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            '1' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
-            u.codeable_concept.system AS code_system
-        FROM
-            source AS s,
-        
-            UNNEST(s.array_col) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-        
-        WHERE
-            u.codeable_concept.system = 'http://hl7.org/fhir/sid/icd-10-cm'
-    ), --noqa: LT07
-    
 
     union_table AS (
         SELECT
@@ -241,22 +203,6 @@ def test_codeable_concept_denormalize_creation():
             code,
             display
         FROM system_code_col_1
-        UNION
-        SELECT
-            id,
-            priority,
-            code_system,
-            code,
-            display
-        FROM system_array_col_0
-        UNION
-        SELECT
-            id,
-            priority,
-            code_system,
-            code,
-            display
-        FROM system_array_col_1
     ),
 
     partitioned_table AS (
@@ -287,18 +233,21 @@ def test_codeable_concept_denormalize_creation():
     config = CodeableConceptConfig(
         source_table="source",
         source_id="id",
-        cc_columns=[
-            {"name": "code_col", "is_array": False},
-            {"name": "array_col", "is_array": True},
-        ],
+        cc_column={
+            "name": "code_col",
+            "is_array": False,
+            "code_systems": [
+                "http://snomed.info/sct",
+                "http://hl7.org/fhir/sid/icd-10-cm",
+            ],
+        },
         target_table="target__concepts",
-        code_systems=["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"],
     )
     query = get_codeable_concept_denormalize_query(config)
     assert query == expected
 
 
-def test_codeable_concept_denormalize_creation():
+def test_is_table_not_empty():
     expected = """SELECT
     field_name
 FROM
