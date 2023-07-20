@@ -1,8 +1,11 @@
 """ tests for jinja sql templates """
+import pytest
 from cumulus_library.template_sql.templates import (
     CodeableConceptConfig,
     ExtensionConfig,
     get_codeable_concept_denormalize_query,
+    get_column_datatype_query,
+    get_core_medication_query,
     get_create_view_query,
     get_ctas_query,
     get_extension_denormalize_query,
@@ -252,11 +255,10 @@ def test_is_table_not_empty():
     field_name
 FROM
     table_name
-WHERE field_name IS NOT NULL
+WHERE
+    field_name IS NOT NULL
 LIMIT 1;"""
     query = get_is_table_not_empty_query(source_table="table_name", field="field_name")
-    # with open('out.txt','w') as f:
-    #    f.write(query)
     assert query == expected
 
     expected = """SELECT
@@ -265,7 +267,8 @@ FROM
     table_name,
     UNNEST(t) AS a (b),
     UNNEST(x) AS y (z)
-WHERE field_name IS NOT NULL
+WHERE
+    field_name IS NOT NULL
 LIMIT 1;"""
     query = get_is_table_not_empty_query(
         source_table="table_name",
@@ -276,3 +279,84 @@ LIMIT 1;"""
         ],
     )
     assert query == expected
+
+    expected = """SELECT
+    field_name
+FROM
+    table_name
+WHERE
+    field_name IS NOT NULL
+    AND field_name LIKE 's%' --noqa: LT02
+    AND field_name IS NOT NULL --noqa: LT02
+LIMIT 1;"""
+
+    query = get_is_table_not_empty_query(
+        source_table="table_name",
+        field="field_name",
+        conditions=["field_name LIKE 's%'", "field_name IS NOT NULL"],
+    )
+    assert query == expected
+
+
+def test_get_column_datatype_query():
+    expected = """SELECT data_type
+FROM information_schema.columns
+WHERE
+    table_schema = 'schema_name'
+    AND table_name = 'table_name'
+    AND column_name = 'column_name'"""
+
+    query = get_column_datatype_query(
+        schema_name="schema_name",
+        table_name="table_name",
+        column_name="column_name",
+    )
+    assert query == expected
+
+
+""" for this one, since the query output is very long and likely to change
+since it's a study table, we're going to do targeted comparisons around the
+polymorphism and not validate the whole thing """
+
+# omitting the double false case since we don't call thison that condition
+@pytest.mark.parametrize(
+    "medication_datasources,contains,omits",
+    [
+        (
+            {
+                "by_contained_ref": True,
+                "by_external_ref": False,
+            },
+            ["LIKE '#%'", "contained_medications"],
+            ["LIKE 'Medication/%'", "UNION", "external_medications"],
+        ),
+        (
+            {
+                "by_contained_ref": False,
+                "by_external_ref": True,
+            },
+            ["LIKE 'Medication/%'", "external_medications"],
+            ["LIKE '#%'", "UNION", "contained_medications"],
+        ),
+        (
+            {
+                "by_contained_ref": True,
+                "by_external_ref": True,
+            },
+            [
+                "LIKE '#%'",
+                "LIKE 'Medication/%'",
+                "UNION",
+                "contained_medications",
+                "external_medications",
+            ],
+            [],
+        ),
+    ],
+)
+def test_core_medication_query(medication_datasources, contains, omits):
+    query = get_core_medication_query(medication_datasources=medication_datasources)
+    for item in contains:
+        assert item in query
+    for item in omits:
+        assert item not in query

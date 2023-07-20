@@ -237,7 +237,7 @@ def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str
 
 
 def get_is_table_not_empty_query(
-    source_table: str, field: str, unnests: List[Dict] = []
+    source_table: str, field: str, unnests: list[dict] = [], conditions: list[str] = []
 ):
     path = Path(__file__).parent
     with open(f"{path}/is_table_not_empty.sql.jinja") as is_table_not_empty:
@@ -245,4 +245,23 @@ def get_is_table_not_empty_query(
             source_table=source_table,
             field=field,
             unnests=unnests,
+            conditions=conditions,
+        )
+
+
+def get_core_medication_query(medication_datasources: dict):
+    path = Path(__file__).parent
+    with open(f"{path}/core_medication.sql.jinja") as core_medication:
+        return Template(core_medication.read()).render(
+            medication_datasources=medication_datasources,
+        )
+
+
+def get_column_datatype_query(schema_name: str, table_name: str, column_name: str):
+    path = Path(__file__).parent
+    with open(f"{path}/column_datatype.sql.jinja") as column_datatype:
+        return Template(column_datatype.read()).render(
+            schema_name=schema_name,
+            table_name=table_name,
+            column_name=column_name,
         )

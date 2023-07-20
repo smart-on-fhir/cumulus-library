@@ -1,0 +1,105 @@
+CREATE TABLE core__medications AS (
+    WITH 
+    {%- if medication_datasources.by_contained_ref %}
+    med_ref AS (
+        SELECT medicationreference
+        FROM medicationrequest
+        WHERE medicationreference IS NOT NULL
+    ),
+
+    ref_id AS (
+        SELECT DISTINCT substring(med_ref.medicationreference.reference, 2) AS id
+        FROM med_ref
+        WHERE
+            medicationreference.reference IS NOT NULL
+            AND medicationreference.reference LIKE '#%'
+    ),
+
+    contained_nested AS (
+        SELECT contained
+        FROM medicationrequest
+        WHERE contained IS NOT NULL
+    ),
+
+    contained_unnest AS (
+        SELECT DISTINCT
+            row.id,
+            row.resourcetype,
+            row.code,
+            row.form,
+            row.ingredient
+        FROM contained_nested,
+            unnest(contained_nested.contained) AS t (row)
+    ),
+
+    contained_medications AS (
+        SELECT
+            cu.id,
+            cu.resourcetype,
+            cu.code,
+            cu.form,
+            cu.ingredient
+        FROM contained_unnest AS cu
+        INNER JOIN ref_id AS ri ON ri.id = cu.id
+    )
+    {%- endif %}
+    {# we drop a comma in here to make the nesting of ctas valid
+    when both types of medication data are present #}
+    {%- if medication_datasources.by_contained_ref 
+        and medication_datasources.by_external_ref %}
+    ,
+    {%- endif %}
+
+    {%- if medication_datasources.by_external_ref %}
+    med_ref AS (
+        SELECT medicationreference
+        FROM medicationrequest
+        WHERE medicationreference IS NOT NULL
+    ),
+
+    ref_id AS (
+        SELECT DISTINCT substring(med_ref.medicationreference.reference, 12) AS id
+        FROM med_ref
+        WHERE
+            medicationreference.reference IS NOT NULL
+            AND medicationreference.reference LIKE 'Medication/%'
+    ),
+
+    external_medications AS (
+        SELECT DISTINCT
+            m.id,
+            m.resourcetype,
+            m.code,
+            m.form,
+            m.ingredient
+        FROM medication AS m
+        INNER JOIN ref_id AS ri ON ri.id = m.id
+    )
+    {%- endif %}
+
+    {%- if medication_datasources.by_contained_ref %}
+
+    SELECT
+        id,
+        resourcetype,
+        code,
+        form
+        AS ingredient
+    FROM
+        contained_medications
+    {%- endif %}
+    {%- if medication_datasources.by_contained_ref 
+        and medication_datasources.by_external_ref %}
+    UNION
+    {%- endif %}
+    {%- if medication_datasources.by_external_ref %}
+    SELECT
+        id,
+        resourcetype,
+        code,
+        form
+        AS ingredient
+    FROM
+        external_medications
+    {%- endif %}
+);
