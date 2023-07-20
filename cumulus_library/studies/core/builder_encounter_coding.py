@@ -15,7 +15,7 @@ class EncounterCodingBuilder(BaseTableBuilder):
     def _check_data_in_fields(self, code_sources: list[dict], cursor):
         """checks if CodeableConcept fields actually have data available
 
-        CodeableConcept fields are mostly optional in the Fhir spec, and may be arrays
+        CodeableConcept fields are mostly optional in the FHIR spec, and may be arrays
         or single objects. Additionally, the null representation can be inconsistent,
         depending on how the data is provided from an EHR and how the ETL manages
         schema inference (wide, but not deep). We :could: try to find the data and
