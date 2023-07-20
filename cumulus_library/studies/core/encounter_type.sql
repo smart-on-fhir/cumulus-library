@@ -8,9 +8,9 @@ CREATE TABLE core__encounter_type AS
 SELECT DISTINCT
     e.enc_class_code,
     e.enc_class_display,
-    cec.code AS codableconcept_code,
-    cec.code_system AS codableconcept_system,
-    cec.display AS codableconcept_display,
+    cec.code AS codeableconcept_code,
+    cec.code_system AS codeableconcept_system,
+    cec.display AS codeableconcept_display,
     e.reason_code,
     e.age_at_visit,
     e.start_date,

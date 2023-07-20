@@ -58,7 +58,7 @@ def _count_encounter_type(view_name, cols, duration):
 
 def count_encounter_type(duration=None):
     cols = [
-        "codableconcept_display",
+        "codeableconcept_display",
     ]
     return _count_encounter_type("count_encounter_type", cols, duration)
 

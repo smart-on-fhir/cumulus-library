@@ -62,17 +62,17 @@ WITH powerset AS (
     SELECT
         count(DISTINCT subject_ref) AS cnt_subject,
         count(DISTINCT encounter_ref) AS cnt_encounter,
-        codableconcept_display
+        codeableconcept_display
     FROM core__encounter_type
     GROUP BY
         cube(
-            codableconcept_display
+            codeableconcept_display
         )
 )
 
 SELECT
     cnt_encounter AS cnt,
-    codableconcept_display
+    codeableconcept_display
 FROM powerset
 WHERE cnt_subject >= 10;
 
@@ -83,13 +83,13 @@ WITH powerset AS (
         count(DISTINCT subject_ref) AS cnt_subject,
         count(DISTINCT encounter_ref) AS cnt_encounter,
         enc_class_display,
-        codableconcept_display,
+        codeableconcept_display,
         start_month
     FROM core__encounter_type
     GROUP BY
         cube(
             enc_class_display,
-            codableconcept_display,
+            codeableconcept_display,
             start_month
         )
 )
@@ -97,7 +97,7 @@ WITH powerset AS (
 SELECT
     cnt_encounter AS cnt,
     enc_class_display,
-    codableconcept_display,
+    codeableconcept_display,
     start_month
 FROM powerset
 WHERE cnt_subject >= 10;
