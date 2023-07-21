@@ -12,6 +12,8 @@ from typing import Dict, List, Optional
 import pyathena
 
 from pyathena.pandas.cursor import PandasCursor
+from rich.console import Console
+from rich.table import Table
 
 from cumulus_library import __version__
 from cumulus_library.cli_parser import get_parser
@@ -289,9 +291,23 @@ def main(cli_args=None):
         ("id", "CUMULUS_AGGREGATOR_ID"),
         ("url", "CUMULUS_AGGREGATOR_URL"),
     )
+    read_env_vars = []
     for pair in arg_env_pairs:
         if env_val := os.environ.get(pair[1]):
             args[pair[0]] = env_val
+            read_env_vars.append([pair[1], env_val])
+
+    if len(read_env_vars) > 0:
+        table = Table(title="Values read from environment variables")
+        table.add_column("Environment Variable", style="green")
+        table.add_column("Value", style="cyan")
+        for row in read_env_vars:
+            if row[0] == "CUMULUS_AGGREGATOR_ID":
+                table.add_row(row[0], "#########")
+            else:
+                table.add_row(row[0], row[1])
+        console = Console()
+        console.print(table)
 
     if args.get("study_dir"):
         posix_paths = []

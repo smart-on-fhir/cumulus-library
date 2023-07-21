@@ -10,5 +10,12 @@ FROM
 {%- endif -%}
 {% endfor -%}
 {% endif %}
-WHERE {{ field }} IS NOT NULL
+
+WHERE
+    {{ field }} IS NOT NULL
+{%- if conditions|length >0 -%}
+{%- for condition in conditions %}
+    AND {{ condition }} --noqa: LT02
+{%- endfor %}
+{%- endif %}
 LIMIT 1;

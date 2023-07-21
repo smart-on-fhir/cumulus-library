@@ -20,11 +20,15 @@ code_systems = ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"]
 col_type_list = ["a string","b string"]
 cc_columns = [{"name": "baz", "is_array": True}, {"name": "foobar", "is_array": False}]
 cc_column = 'code'
+
+column_name = 'bar'
+conditions = ["1 > 0", "1 < 2"]
 dataset = [["foo","foo"],["bar","bar"]]
 ext_systems = ["omb", "text"]
 field = 'column_name'
 fhir_extension = fhir_extension
 id = 'id'
+medication_datasources = {"by_contained_ref" : True, "by_external_ref" : True}
 prefix = Test
 schema_name = test_schema
 source_table = source_table
