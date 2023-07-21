@@ -14,8 +14,14 @@ from cumulus_library.template_sql.templates import (
 class MedicationBuilder(BaseTableBuilder):
     display_text = "Creating core medication table..."
 
-    def _check_data_in_fields(self, data_types: dict, cursor, schema: str):
+    def _check_data_in_fields(self, cursor, schema: str):
         """Validates whether either observed medication source is present"""
+
+        data_types = {
+            "by_contained_ref": False,
+            "by_external_ref": False,
+        }
+
         with get_progress_bar(transient=True) as progress:
             task = progress.add_task(
                 "Detecting available medication sources...",
@@ -73,13 +79,7 @@ class MedicationBuilder(BaseTableBuilder):
         :param schema: the schema/db name, matching the cursor
 
         """
-        medication_datasources = {
-            "by_contained_ref": False,
-            "by_external_ref": False,
-        }
-        medication_datasources = self._check_data_in_fields(
-            medication_datasources, cursor, schema
-        )
+        medication_datasources = self._check_data_in_fields(cursor, schema)
         if (
             medication_datasources["by_contained_ref"]
             or medication_datasources["by_external_ref"]
