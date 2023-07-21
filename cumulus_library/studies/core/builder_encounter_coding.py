@@ -48,7 +48,7 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 cursor.execute(query)
                 progress.advance(task)
                 res = cursor.fetchone()
-                if len(res) > 0 and "coding=" in res:
+                if len(res) > 0:
                     if code_source["is_array"]:
                         query = get_is_table_not_empty_query(
                             "encounter",
@@ -152,7 +152,6 @@ class EncounterCodingBuilder(BaseTableBuilder):
             },
         ]
         code_sources = self._check_data_in_fields(code_sources, cursor)
-
         for code_source in code_sources:
             if code_source["has_data"]:
                 config = CodeableConceptConfig(

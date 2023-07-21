@@ -1,5 +1,6 @@
 """ abstract base for python-based study executors """
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import final
 
 from cumulus_library.helper import get_progress_bar, query_console_output
@@ -48,3 +49,9 @@ class BaseTableBuilder(ABC):
             for query in self.queries:
                 cursor.execute(query)
                 query_console_output(verbose, self.queries, progress, task)
+
+    def write_queries(self, filename="output.sql": str):
+        with open(filename,"w") as file:
+            for query in self.queries:
+                file.write(query)
+                file.write('\n')
