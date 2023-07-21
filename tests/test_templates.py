@@ -255,6 +255,7 @@ def test_is_table_not_empty():
     field_name
 FROM
     table_name
+
 WHERE
     field_name IS NOT NULL
 LIMIT 1;"""
@@ -267,6 +268,7 @@ FROM
     table_name,
     UNNEST(t) AS a (b),
     UNNEST(x) AS y (z)
+
 WHERE
     field_name IS NOT NULL
 LIMIT 1;"""
@@ -284,6 +286,7 @@ LIMIT 1;"""
     field_name
 FROM
     table_name
+
 WHERE
     field_name IS NOT NULL
     AND field_name LIKE 's%' --noqa: LT02
