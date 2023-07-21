@@ -1,4 +1,4 @@
-""" Module for generating encounter codeableConcept table"""
+""" Module for generating core medication table"""
 
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.helper import get_progress_bar, query_console_output
@@ -15,11 +15,10 @@ class MedicationBuilder(BaseTableBuilder):
     display_text = "Creating core medication table..."
 
     def _check_data_in_fields(self, data_types: dict, cursor, schema: str):
+        """Validates whether either observed medication source is present"""
         with get_progress_bar(transient=True) as progress:
             task = progress.add_task(
                 "Detecting available medication sources...",
-                # Each column in code_sources requires at most 3 queries to
-                # detect valid data is in the DB
                 total=5,
             )
 
