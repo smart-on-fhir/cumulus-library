@@ -68,7 +68,7 @@ CREATE TABLE core__encounter_dn_type AS (
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         
         WHERE
-            u.codeable_concept.system = '2.16.840.1.113883.4.642.3.248'
+            u.codeable_concept.system = 'urn:oid:2.16.840.1.113883.4.642.3.248'
     ), --noqa: LT07
     system_type_4 AS (
         SELECT DISTINCT
@@ -196,7 +196,7 @@ CREATE TABLE core__encounter_dn_servicetype AS (
         
             UNNEST(s.servicetype.coding) AS u (codeable_concept)
         WHERE
-            u.codeable_concept.system = '2.16.840.1.113883.4.642.3.518'
+            u.codeable_concept.system = 'urn:oid:2.16.840.1.113883.4.642.3.518'
     ), --noqa: LT07
     system_servicetype_3 AS (
         SELECT DISTINCT
