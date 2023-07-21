@@ -121,10 +121,9 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 "name": "type",
                 "is_array": True,
                 "code_systems": [
-                    "http://hl7.org/fhir/ValueSet/encounter-type",
                     "http://terminology.hl7.org/CodeSystem/encounter-type",
                     "http://terminology.hl7.org/CodeSystem/v2-0004",
-                    "2.16.840.1.113883.4.642.3.248",
+                    "urn:oid:2.16.840.1.113883.4.642.3.248",
                     "http://snomed.info/sct",
                 ],
                 "has_data": False,
@@ -133,9 +132,8 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 "name": "servicetype",
                 "is_array": False,
                 "code_systems": [
-                    "http://hl7.org/fhir/ValueSet/service-type",
                     "http://terminology.hl7.org/CodeSystem/service-type",
-                    "2.16.840.1.113883.4.642.3.518",
+                    "urn:oid:2.16.840.1.113883.4.642.3.518",
                     "http://snomed.info/sct",
                 ],
                 "has_data": False,
@@ -144,7 +142,6 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 "name": "priority",
                 "is_array": False,
                 "code_systems": [
-                    "http://terminology.hl7.org/ValueSet/v3-ActPriority",
                     "http://terminology.hl7.org/CodeSystem/v3-ActPriority",
                     "http://snomed.info/sct",
                 ],
