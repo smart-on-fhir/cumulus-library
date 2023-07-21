@@ -83,8 +83,8 @@ CREATE TABLE core__medications AS (
         id,
         resourcetype,
         code,
-        form
-        AS ingredient
+        form,
+        ingredient
     FROM
         contained_medications
     {%- endif %}
@@ -97,8 +97,8 @@ CREATE TABLE core__medications AS (
         id,
         resourcetype,
         code,
-        form
-        AS ingredient
+        form,
+        ingredient
     FROM
         external_medications
     {%- endif %}
