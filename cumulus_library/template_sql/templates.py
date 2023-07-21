@@ -245,6 +245,7 @@ def get_is_table_not_empty_query(
             source_table=source_table,
             field=field,
             unnests=unnests,
+
             conditions=conditions,
         )
 

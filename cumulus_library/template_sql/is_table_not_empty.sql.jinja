@@ -10,6 +10,7 @@ FROM
 {%- endif -%}
 {% endfor -%}
 {% endif %}
+
 WHERE
     {{ field }} IS NOT NULL
 {%- if conditions|length >0 -%}
