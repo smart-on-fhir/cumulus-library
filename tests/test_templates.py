@@ -318,6 +318,7 @@ WHERE
 since it's a study table, we're going to do targeted comparisons around the
 polymorphism and not validate the whole thing """
 
+
 # omitting the double false case since we don't call thison that condition
 @pytest.mark.parametrize(
     "medication_datasources,contains,omits",
