@@ -1,31 +1,35 @@
 CREATE TABLE {{ target_table }} AS (
     WITH
-    {%- for system in code_systems %}
-
-    system_{{ loop.index0 }} AS (
+    {%- for system in cc_column.code_systems %}
+    system_{{ cc_column.name }}_{{ loop.index0 }} AS (
         SELECT DISTINCT
-            s.id AS id,
+            s.{{ source_id }} AS id,
             '{{ loop.index0 }}' AS priority,
             u.codeable_concept.code AS code,
             u.codeable_concept.display AS display,
             u.codeable_concept.system AS code_system
         FROM
             {{ source_table }} AS s,
-            UNNEST(s.{{ cc_column }}.coding) AS u (codeable_concept) --noqa: AL05
+        {% if cc_column.is_array %}
+            UNNEST(s.{{ cc_column.name }}) AS cc (cc_row),
+            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+        {% else %}
+            UNNEST(s.{{ cc_column.name }}.coding) AS u (codeable_concept)
+        {%- endif %}
         WHERE
             u.codeable_concept.system = '{{ system }}'
     ), --noqa: LT07
     {%- endfor %}
 
     union_table AS (
-        {%- for system in code_systems %}
+        {%- for system in cc_column.code_systems %}
         SELECT
             id,
             priority,
             code_system,
             code,
             display
-        FROM system_{{ loop.index0 }}
+        FROM system_{{ cc_column.name }}_{{ loop.index0 }}
         {%- if not loop.last %}
         UNION 
         {%- endif -%}

@@ -1,5 +1,6 @@
 """ abstract base for python-based study executors """
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import final
 
 from cumulus_library.helper import get_progress_bar, query_console_output
@@ -38,13 +39,19 @@ class BaseTableBuilder(ABC):
         :param schema: A schema name
         :param verbose: toggle for verbose output mode
         """
+        self.prepare_queries(cursor, schema)
         with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 self.display_text,
                 total=len(self.queries),
                 visible=not verbose,
             )
-            self.prepare_queries(cursor, schema)
             for query in self.queries:
                 cursor.execute(query)
                 query_console_output(verbose, self.queries, progress, task)
+
+    def write_queries(self, filename: str = "output.sql"):
+        with open(filename, "w") as file:
+            for query in self.queries:
+                file.write(query)
+                file.write("\n")

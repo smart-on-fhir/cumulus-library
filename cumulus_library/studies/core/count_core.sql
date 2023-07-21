@@ -117,6 +117,7 @@ SELECT
 FROM powerset
 WHERE cnt_subject >= 10;
 
+
 -- ###########################################################
 CREATE TABLE core__count_encounter_enc_type_month AS
 WITH powerset AS (

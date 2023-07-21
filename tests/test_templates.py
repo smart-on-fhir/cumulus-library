@@ -1,11 +1,13 @@
 """ tests for jinja sql templates """
 from cumulus_library.template_sql.templates import (
+    CodeableConceptConfig,
+    ExtensionConfig,
     get_codeable_concept_denormalize_query,
     get_create_view_query,
     get_ctas_query,
-    get_insert_into_query,
     get_extension_denormalize_query,
-    ExtensionConfig,
+    get_insert_into_query,
+    get_is_table_not_empty_query,
 )
 
 
@@ -68,15 +70,15 @@ def test_extension_denormalize_creation():
 
     system_omb AS (
         SELECT DISTINCT
-            s.id,
+            s.source_id AS id,
             '0' AS priority,
             'omb' AS system, -- noqa: RF04
             ext_child.ext.valuecoding.code AS prefix_code,
             ext_child.ext.valuecoding.display AS prefix_display
         FROM
             source_table AS s,
-            UNNEST(extension) AS ext_parent (ext), --noqa: AL05
-            UNNEST(ext_parent.ext.extension) AS ext_child (ext) --noqa: AL05
+            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'fhir_extension'
             AND ext_child.ext.url = 'omb'
@@ -85,15 +87,15 @@ def test_extension_denormalize_creation():
 
     system_text AS (
         SELECT DISTINCT
-            s.id,
+            s.source_id AS id,
             '1' AS priority,
             'text' AS system, -- noqa: RF04
             ext_child.ext.valuecoding.code AS prefix_code,
             ext_child.ext.valuecoding.display AS prefix_display
         FROM
             source_table AS s,
-            UNNEST(extension) AS ext_parent (ext), --noqa: AL05
-            UNNEST(ext_parent.ext.extension) AS ext_child (ext) --noqa: AL05
+            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'fhir_extension'
             AND ext_child.ext.url = 'text'
@@ -156,8 +158,7 @@ def test_extension_denormalize_creation():
 def test_codeable_concept_denormalize_creation():
     expected = """CREATE TABLE target__concepts AS (
     WITH
-
-    system_0 AS (
+    system_code_col_0 AS (
         SELECT DISTINCT
             s.id AS id,
             '0' AS priority,
@@ -166,12 +167,12 @@ def test_codeable_concept_denormalize_creation():
             u.codeable_concept.system AS code_system
         FROM
             source AS s,
-            UNNEST(s.code_col.coding) AS u (codeable_concept) --noqa: AL05
+        
+            UNNEST(s.code_col.coding) AS u (codeable_concept)
         WHERE
             u.codeable_concept.system = 'http://snomed.info/sct'
     ), --noqa: LT07
-
-    system_1 AS (
+    system_code_col_1 AS (
         SELECT DISTINCT
             s.id AS id,
             '1' AS priority,
@@ -180,7 +181,8 @@ def test_codeable_concept_denormalize_creation():
             u.codeable_concept.system AS code_system
         FROM
             source AS s,
-            UNNEST(s.code_col.coding) AS u (codeable_concept) --noqa: AL05
+        
+            UNNEST(s.code_col.coding) AS u (codeable_concept)
         WHERE
             u.codeable_concept.system = 'http://hl7.org/fhir/sid/icd-10-cm'
     ), --noqa: LT07
@@ -192,7 +194,7 @@ def test_codeable_concept_denormalize_creation():
             code_system,
             code,
             display
-        FROM system_0
+        FROM system_code_col_0
         UNION
         SELECT
             id,
@@ -200,7 +202,7 @@ def test_codeable_concept_denormalize_creation():
             code_system,
             code,
             display
-        FROM system_1
+        FROM system_code_col_1
     ),
 
     partitioned_table AS (
@@ -227,11 +229,50 @@ def test_codeable_concept_denormalize_creation():
     FROM partitioned_table
     WHERE available_priority = 1
 );"""
-    query = get_codeable_concept_denormalize_query(
-        "source",
-        "code_col",
-        "target__concepts",
-        ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"],
+
+    config = CodeableConceptConfig(
+        source_table="source",
+        source_id="id",
+        cc_column={
+            "name": "code_col",
+            "is_array": False,
+            "code_systems": [
+                "http://snomed.info/sct",
+                "http://hl7.org/fhir/sid/icd-10-cm",
+            ],
+        },
+        target_table="target__concepts",
     )
-    print(query)
+    query = get_codeable_concept_denormalize_query(config)
+    assert query == expected
+
+
+def test_is_table_not_empty():
+    expected = """SELECT
+    field_name
+FROM
+    table_name
+WHERE field_name IS NOT NULL
+LIMIT 1;"""
+    query = get_is_table_not_empty_query(source_table="table_name", field="field_name")
+    # with open('out.txt','w') as f:
+    #    f.write(query)
+    assert query == expected
+
+    expected = """SELECT
+    field_name
+FROM
+    table_name,
+    UNNEST(t) AS a (b),
+    UNNEST(x) AS y (z)
+WHERE field_name IS NOT NULL
+LIMIT 1;"""
+    query = get_is_table_not_empty_query(
+        source_table="table_name",
+        field="field_name",
+        unnests=[
+            {"source_col": "t", "table_alias": "a", "row_alias": "b"},
+            {"source_col": "x", "table_alias": "y", "row_alias": "z"},
+        ],
+    )
     assert query == expected

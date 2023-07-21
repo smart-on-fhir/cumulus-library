@@ -3,7 +3,7 @@ templater = jinja
 dialect = athena
 sql_file_exts = .sql,.sql.jinja
 # this rule overfires on athena nested arrays
-exclude_rules=references.from,structure.column_order
+exclude_rules=references.from,structure.column_order,aliasing.unused
 max_line_length = 88
 
 [sqlfluff:indentation]
@@ -16,21 +16,25 @@ ignore_comment_lines = true
 capitalisation_policy = upper
 
 [sqlfluff:templater:jinja:context]
+code_systems = ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"]
+col_type_list = ["a string","b string"]
+cc_columns = [{"name": "baz", "is_array": True}, {"name": "foobar", "is_array": False}]
+cc_column = 'code'
+dataset = [["foo","foo"],["bar","bar"]]
+ext_systems = ["omb", "text"]
+field = 'column_name'
+fhir_extension = fhir_extension
+id = 'id'
+prefix = Test
 schema_name = test_schema
+source_table = source_table
+source_id = source_id
+table_cols = ["a","b"]
 table_name = test_table
+target_col_prefix = prefix
+target_table = target_table
+unnests = [{"source col": "g", "table_alias": "i", "row_alias":"j"}, {"source col": "k", "table_alias": "l", "row_alias":"m"},]
+view_cols = ["c","d"]
 view_name = test_view
 view_or_table_name = test_view_or_table
 view_or_table = TABLE
-prefix = Test
-dataset = [["foo","foo"],["bar","bar"]]
-table_cols = ["a","b"]
-view_cols = ["c","d"]
-col_type_list = ["a string","b string"]
-source_table = source_table
-source_id = source_id
-target_table = target_table
-target_col_prefix = prefix
-fhir_extension = fhir_extension
-ext_systems = ["omb", "text"]
-code_systems = ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"]
-cc_column = 'code'

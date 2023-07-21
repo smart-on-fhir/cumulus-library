@@ -2,11 +2,12 @@
 
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.template_sql.templates import (
+    CodeableConceptConfig,
     get_codeable_concept_denormalize_query,
 )
 
 
-class ConditionCodableConceptRunner(BaseTableBuilder):
+class ConditionCodableConceptBuilder(BaseTableBuilder):
     display_text = "Creating condition code table..."
 
     def prepare_queries(self, cursor: object, schema: str):
@@ -16,15 +17,18 @@ class ConditionCodableConceptRunner(BaseTableBuilder):
         :param schema: the schema/db name, matching the cursor
 
         """
-        self.queries.append(
-            get_codeable_concept_denormalize_query(
-                "condition",
-                "code",
-                "core__condition_codable_concepts",
-                [
+        config = CodeableConceptConfig(
+            source_table="condition",
+            source_id="id",
+            cc_column={
+                "name": "code",
+                "is_array": False,
+                "code_systems": [
                     "http://snomed.info/sct",
                     "http://hl7.org/fhir/sid/icd-10-cm",
                     "http://hl7.org/fhir/sid/icd-9-cm",
                 ],
-            )
+            },
+            target_table="core__condition_codable_concepts",
         )
+        self.queries.append(get_codeable_concept_denormalize_query(config))

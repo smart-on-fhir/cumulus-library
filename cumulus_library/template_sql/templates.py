@@ -1,7 +1,7 @@
 """ Collection of jinja template getters for common SQL queries """
 from enum import Enum
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 from jinja2 import Template
 
@@ -74,6 +74,29 @@ def get_ctas_query(
             schema_name=schema_name,
             table_name=table_name,
             dataset=dataset,
+            table_cols=table_cols,
+        )
+
+
+def get_ctas_empty_query(
+    schema_name: str, table_name: str, table_cols: List[str]
+) -> str:
+    """Generates a create table as query for initializing an empty table
+
+    Note that unlike other queries, the nature of the CTAS implementation in athena
+    requires a schema name. This schema name should match the schema of your cursor,
+    or the other queries in this template will not function correctly. All columns
+    will be specified as varchar type.
+
+    :param schema_name: The athena schema to create the table in
+    :param table_name: The name of the athena table to create
+    :param table_cols: Comma deleniated column names, i.e. ['first,second']
+    """
+    path = Path(__file__).parent
+    with open(f"{path}/ctas_empty.sql.jinja") as ctas_empty:
+        return Template(ctas_empty.read()).render(
+            schema_name=schema_name,
+            table_name=table_name,
             table_cols=table_cols,
         )
 
@@ -166,25 +189,60 @@ def get_extension_denormalize_query(config: ExtensionConfig) -> str:
         )
 
 
-def get_codeable_concept_denormalize_query(
-    source_table: str, cc_column: str, target_table: str, code_systems: List[str]
-) -> str:
-    """extracts codeable concepts from a specified table.
-
-    See http://hl7.org/fhir/datatypes-definitions.html#CodeableConcept for more info
+class CodeableConceptConfig:
+    """Convenience class for holding parameters for generating codableconcept tables.
 
     :param source_table: the table to extract extensions from
-    :param cc_column: the column containing the codeableConcept you want to extract
+    :param source_id: the id field to use in the new table
+    :param cc_columns: the column containing the codeableConcept you want to extract.
+        Format:
+            {'name':[column],
+            'is_array': [boolean],
+            'code_systems':[List of code system strings, in priority order]}
+        is_array relates to the FHIR spec - if the field is specified
+        as 0...*, set this to be true.
     :param target_table: the name of the table to create
-    :param code_systems: a list of coding systems, in preference order, to use to select data
+    :param code_systems: a list of systems, in preference order, for selecting data
+    """
+
+    def __init__(
+        self, source_table: str, source_id: str, cc_column: dict, target_table: str
+    ):
+        self.source_table = source_table
+        self.source_id = source_id
+        self.cc_column = cc_column
+        self.target_table = target_table
+
+
+def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str:
+    """extracts codeable concepts from a specified table.
+
+    This function is targeted at arbitrary codeableConcept elements - see
+    http://hl7.org/fhir/datatypes-definitions.html#CodeableConcept for more info.
+    This may be or may not be an array field depending on the context of use -
+    check the specification of the specific resource you're interested in.
+    See the CodeableConceptConfig for details on how to handle array vs non-
+    array use cases.
+
+    :param config: a CodableConeptConfig
     """
     path = Path(__file__).parent
-    with open(
-        f"{path}/codeable_concept_denormalize.sql.jinja"
-    ) as extension_denormalize:
-        return Template(extension_denormalize.read()).render(
+    with open(f"{path}/codeable_concept_denormalize.sql.jinja") as codable_concept:
+        return Template(codable_concept.read()).render(
+            source_table=config.source_table,
+            source_id=config.source_id,
+            cc_column=config.cc_column,
+            target_table=config.target_table,
+        )
+
+
+def get_is_table_not_empty_query(
+    source_table: str, field: str, unnests: List[Dict] = []
+):
+    path = Path(__file__).parent
+    with open(f"{path}/is_table_not_empty.sql.jinja") as is_table_not_empty:
+        return Template(is_table_not_empty.read()).render(
             source_table=source_table,
-            cc_column=cc_column,
-            target_table=target_table,
-            code_systems=code_systems,
+            field=field,
+            unnests=unnests,
         )

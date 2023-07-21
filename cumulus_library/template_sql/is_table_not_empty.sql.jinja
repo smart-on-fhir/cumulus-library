@@ -1,0 +1,14 @@
+SELECT
+    {{ field }}
+FROM
+    {{ source_table }}
+{%- if unnests|length >0 %},
+{%- for unnest in unnests %}
+    UNNEST({{ unnest.source_col }}) AS {{ unnest.table_alias }} ({{ unnest.row_alias }})
+{%- if not loop.last -%}
+,
+{%- endif -%}
+{% endfor -%}
+{% endif %}
+WHERE {{ field }} IS NOT NULL
+LIMIT 1;
