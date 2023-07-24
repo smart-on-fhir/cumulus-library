@@ -18,17 +18,50 @@ class MedicationBuilder(BaseTableBuilder):
         """Validates whether either observed medication source is present"""
 
         data_types = {
+            "inline": False,
             "by_contained_ref": False,
             "by_external_ref": False,
         }
 
+        table = "medicationrequest"
+        base_col = "medicationcodeableconcept"
+
         with get_progress_bar(transient=True) as progress:
             task = progress.add_task(
                 "Detecting available medication sources...",
-                total=5,
+                total=8,
             )
 
-            # Validating medication requests
+            # inline medications from FHIR medication
+            query = get_is_table_not_empty_query(table, base_col)
+            cursor.execute(query)
+            progress.advance(task)
+            if cursor.fetchone() is not None:
+                query = get_column_datatype_query(schema, table, base_col)
+                cursor.execute(query)
+                progress.advance(task)
+                if "coding" in str(cursor.fetchone()[0]):
+                    query = get_is_table_not_empty_query(
+                        table,
+                        "t1.row1",
+                        [
+                            {
+                                "source_col": f"{base_col}.coding",
+                                "table_alias": "t1",
+                                "row_alias": "row1",
+                            }
+                        ],
+                    )
+                    cursor.execute(query)
+                    progress.advance(task)
+                    if cursor.fetchone() is not None:
+                        data_types["inline"] = True
+                else:
+                    progress.advance(task)
+            else:
+                progress.advance(task, advance=2)
+
+            # Validating presence of FHIR medication requests
             query = get_is_table_not_empty_query(
                 "medicationrequest", "medicationreference"
             )
@@ -70,6 +103,7 @@ class MedicationBuilder(BaseTableBuilder):
             progress.advance(task)
             if cursor.fetchone() is not None:
                 data_types["by_external_ref"] = True
+
             return data_types
 
     def prepare_queries(self, cursor: object, schema: str) -> dict:
@@ -89,7 +123,7 @@ class MedicationBuilder(BaseTableBuilder):
             self.queries.append(
                 get_ctas_empty_query(
                     schema,
-                    "core__medications",
+                    "core__medication",
                     ["id", "resourcetype", "code", "ingredient"],
                 )
             )

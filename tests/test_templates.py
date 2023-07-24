@@ -255,7 +255,6 @@ def test_is_table_not_empty():
     field_name
 FROM
     table_name
-
 WHERE
     field_name IS NOT NULL
 LIMIT 1;"""
@@ -268,7 +267,6 @@ FROM
     table_name,
     UNNEST(t) AS a (b),
     UNNEST(x) AS y (z)
-
 WHERE
     field_name IS NOT NULL
 LIMIT 1;"""
@@ -286,7 +284,6 @@ LIMIT 1;"""
     field_name
 FROM
     table_name
-
 WHERE
     field_name IS NOT NULL
     AND field_name LIKE 's%' --noqa: LT02
@@ -331,16 +328,16 @@ polymorphism and not validate the whole thing """
                 "by_contained_ref": True,
                 "by_external_ref": False,
             },
-            ["LIKE '#%'", "contained_medications"],
-            ["LIKE 'Medication/%'", "UNION", "external_medications"],
+            ["LIKE '#%'", "contained_medication"],
+            ["LIKE 'Medication/%'", "UNION", "external_medication"],
         ),
         (
             {
                 "by_contained_ref": False,
                 "by_external_ref": True,
             },
-            ["LIKE 'Medication/%'", "external_medications"],
-            ["LIKE '#%'", "UNION", "contained_medications"],
+            ["LIKE 'Medication/%'", "external_medication"],
+            ["LIKE '#%'", "UNION", "contained_medication"],
         ),
         (
             {
@@ -351,8 +348,8 @@ polymorphism and not validate the whole thing """
                 "LIKE '#%'",
                 "LIKE 'Medication/%'",
                 "UNION",
-                "contained_medications",
-                "external_medications",
+                "contained_medication",
+                "external_medication",
             ],
             [],
         ),

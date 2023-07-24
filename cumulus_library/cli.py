@@ -228,7 +228,7 @@ def run_cli(args: Dict):
         if args["verbose"]:
             builder.verbose = True
         print("Testing connection to athena...")
-        builder.cursor.execute("show tables")
+        builder.cursor.execute("SHOW DATABASES")
 
         if args["action"] == "clean":
             builder.clean_study(args["target"])

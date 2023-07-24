@@ -33,7 +33,9 @@ class EncounterCodingBuilder(BaseTableBuilder):
 
         """
         # TODO: consider moving to a utility library if we have another case like
-        # this one
+        # this one - it would probably involve splitting this into two paths, one
+        # for array encodings and one for non-array encodings.
+        # See builder_core_medication for a non-array example
 
         with get_progress_bar(transient=True) as progress:
             task = progress.add_task(
