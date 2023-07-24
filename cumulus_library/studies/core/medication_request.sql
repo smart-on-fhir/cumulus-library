@@ -8,26 +8,26 @@ SELECT
     date_trunc('month', date(from_iso8601_timestamp(mr.authoredon)))
     AS authoredon_month,
     mr.category,
-    med_coding.code AS code,
-    med_coding.display AS display,
-    med_coding.system AS system, --noqa: RF04
+    cm.code AS rx_code,
+    cm.display AS rx_display,
+    cm.code_system AS rx_system,
     mr.id AS med_admin_id,
-    mr.subject.reference AS subject_id
-FROM medicationrequest AS mr,
-    unnest(mr.medicationcodeableconcept.coding) AS t (med_coding) --noqa: AL05
-WHERE med_coding.system = 'http://www.nlm.nih.gov/research/umls/rxnorm';
+    mr.subject.reference AS subject_ref
+FROM medicationrequest AS mr
+INNER JOIN core__medication AS cm ON cm.id = mr.id
+WHERE cm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm';
 
 
 CREATE TABLE core__count_medicationrequest_month AS
 WITH powerset AS (
     SELECT
-        count(DISTINCT cmr.subject_id) AS cnt_subject,
+        count(DISTINCT cmr.subject_ref) AS cnt_subject,
         cmr.status,
         cmr.intent,
         cmr.authoredon_month,
-        cmr.display
+        cmr.rx_display AS display
     FROM core__medicationrequest AS cmr
-    GROUP BY cube(cmr.status, cmr.intent, cmr.authoredon_month, cmr.display)
+    GROUP BY cube(cmr.status, cmr.intent, cmr.authoredon_month, cmr.rx_display)
 )
 
 SELECT
