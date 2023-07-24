@@ -8,9 +8,9 @@ SELECT
     date_trunc('month', date(from_iso8601_timestamp(mr.authoredon)))
     AS authoredon_month,
     mr.category,
-    cm.code AS medication_code,
-    cm.display AS medication_display,
-    cm.code_system AS medication_system,
+    cm.code AS rx_code,
+    cm.display AS rx_display,
+    cm.code_system AS rx_system,
     mr.id AS med_admin_id,
     mr.subject.reference AS subject_id
 FROM medicationrequest AS mr
