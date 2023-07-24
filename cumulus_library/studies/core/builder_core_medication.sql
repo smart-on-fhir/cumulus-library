@@ -20,8 +20,8 @@ CREATE TABLE core__medication AS (
     inline_medication AS (
         SELECT
             id,
-            subject.reference as "patient_id",
-            encounter.reference AS "encounter_id",
+            subject.reference as patient_ref,
+            encounter.reference AS encounter_ref,
             t.r.code,
             t.r.display,
             t.r.system AS code_system,
@@ -70,8 +70,8 @@ CREATE TABLE core__medication AS (
     contained_medication AS (
         SELECT
             cu.mr_id AS id,
-            cu.encounter.reference AS encounter_id,
-            cu.subject.reference AS patient_id,
+            cu.encounter.reference AS encounter_ref,
+            cu.subject.reference AS patient_ref,
             'None' AS code,
             cu.code.text AS display,
             'None' AS code_system,
@@ -92,34 +92,45 @@ CREATE TABLE core__medication AS (
 
     mre_ref_id AS (
         SELECT DISTINCT
-            mr.id,
+            mr.id AS id,
             mr.encounter,
             mr.subject,
-            substring(mr.medicationreference.reference, 12) AS id
+            substring(mr.medicationreference.reference, 12) AS medication_id
         FROM mre_med_ref AS mr
         WHERE
-            mr.reference IS NOT NULL
-            AND mr.reference LIKE 'Medication/%'
+            mr.medicationreference.reference IS NOT NULL
+            AND mr.medicationreference.reference LIKE 'Medication/%'
     ),
 
-    external_medications AS (
+    mre_med_nonnull AS (
+
         SELECT DISTINCT
-            m.id,
-            m.encounter AS encounter_id,
-            m.subject AS patient_id,
+            mri.id,
+            mri.encounter,
+            mri.subject,
+            m.code
+        FROM medication AS m
+        INNER JOIN mre_ref_id AS mri ON m.id = mri.medication_id
+        WHERE m.code.coding IS NOT NULL
+    ),
+
+    external_medication AS (
+        SELECT
+            mmn.id,
+            mmn.encounter AS encounter_ref,
+            mmn.subject AS patient_ref,
             t.r.code AS code,
-            t.r.display AS display,
+            mmn.code.text AS display,
             t.r.system AS code_system,
-            t.r.userselected AS userselected
-        FROM medication AS m,
-            unnest(code) AS t (r)
-        INNER JOIN mre_ref_id AS ri ON ri.id = m.id
+            false AS userselected
+        FROM mre_med_nonnull AS mmn,
+            unnest(mmn.code.coding) AS t (r)
     )
     
     SELECT
         id,
-        encounter_id,
-        patient_id,
+        encounter_ref,
+        patient_ref,
         code,
         display,
         code_system,
@@ -130,8 +141,8 @@ CREATE TABLE core__medication AS (
     
     SELECT
         id,
-        encounter_id,
-        patient_id,
+        encounter_ref,
+        patient_ref,
         code,
         display,
         code_system,
@@ -149,5 +160,5 @@ CREATE TABLE core__medication AS (
         code_system,
         userselected
     FROM
-        external_medications
+        external_medication
 );
