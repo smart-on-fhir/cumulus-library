@@ -117,6 +117,18 @@ class StudyBuilder:
         studyparser.run_table_builder(self.cursor, self.schema_name, self.verbose)
         studyparser.build_study(self.cursor, self.verbose)
 
+    def run_single_table_builder(
+        self, target: PosixPath, table_builder_name: str
+    ) -> None:
+        """Runs a single table builder
+
+        :param target: A PosixPath to the study directory
+        """
+        studyparser = StudyManifestParser(target)
+        studyparser.run_single_table_builder(
+            self.cursor, self.schema_name, table_builder_name, self.verbose
+        )
+
     def clean_and_build_all(self, study_dict: Dict) -> None:
         """Builds views for all studies.
 
@@ -250,7 +262,12 @@ def run_cli(args: Dict):
                     builder.clean_and_build_all(study_dict)
                 else:
                     for target in args["target"]:
-                        builder.clean_and_build_study(study_dict[target])
+                        if args["table_builder"] is not None:
+                            builder.run_single_table_builder(
+                                study_dict[target], args["table_builder"]
+                            )
+                        else:
+                            builder.clean_and_build_study(study_dict[target])
 
             elif args["action"] == "export":
                 if "all" in args["target"]:

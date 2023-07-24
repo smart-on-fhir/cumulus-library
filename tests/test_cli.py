@@ -76,7 +76,7 @@ def test_cli_path_mapping(
     "args,cursor_calls,pandas_cursor_calls",
     [
         (["build", "-t", "vocab", "--database", "test"], 344, 0),
-        (["build", "-t", "core", "--database", "test"], 42, 0),
+        (["build", "-t", "core", "--database", "test"], 45, 0),
         (["export", "-t", "core", "--database", "test"], 1, 9),
         (
             [
@@ -106,7 +106,7 @@ def test_cli_path_mapping(
         ),
         (
             ["build", "-t", "core", "-s", "tests/test_data/", "--database", "test"],
-            42,
+            45,
             0,
         ),
         (

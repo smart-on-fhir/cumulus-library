@@ -8,12 +8,16 @@ from cumulus_library.template_sql.templates import (
     get_is_table_not_empty_query,
     get_ctas_empty_query,
 )
+from cumulus_library.template_sql.utils import (
+    is_codeable_concept_array_populated,
+    is_codeable_concept_populated,
+)
 
 
 class EncounterCodingBuilder(BaseTableBuilder):
     display_text = "Creating encounter codeableConcept tables..."
 
-    def _check_data_in_fields(self, code_sources: list[dict], cursor) -> dict:
+    def _check_data_in_fields(self, code_sources: list[dict], schema, cursor) -> dict:
         """checks if CodeableConcept fields actually have data available
 
         CodeableConcept fields are mostly optional in the FHIR spec, and may be arrays
@@ -44,70 +48,15 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 # detect valid data is in the DB
                 total=len(code_sources) * 3,
             )
-
             for code_source in code_sources:
-                query = get_is_table_not_empty_query("encounter", code_source["name"])
-                cursor.execute(query)
-                progress.advance(task)
-                res = cursor.fetchone()
-                if len(res) > 0:
-                    if code_source["is_array"]:
-                        query = get_is_table_not_empty_query(
-                            "encounter",
-                            "t1.row1",
-                            [
-                                {
-                                    "source_col": code_source["name"],
-                                    "table_alias": "t1",
-                                    "row_alias": "row1",
-                                }
-                            ],
-                        )
-                    else:
-                        query = get_is_table_not_empty_query(
-                            "encounter", f"{code_source['name']}.coding"
-                        )
-                    cursor.execute(query)
-                    progress.advance(task)
-
-                    if len(cursor.fetchall()) > 0:
-                        if code_source["is_array"]:
-                            query = get_is_table_not_empty_query(
-                                "encounter",
-                                "t2.row2",
-                                [
-                                    {
-                                        "source_col": code_source["name"],
-                                        "table_alias": "t1",
-                                        "row_alias": "row1",
-                                    },
-                                    {
-                                        "source_col": "row1.coding",
-                                        "table_alias": "t2",
-                                        "row_alias": "row2",
-                                    },
-                                ],
-                            )
-                        else:
-                            query = get_is_table_not_empty_query(
-                                "encounter",
-                                "t1.row1",
-                                [
-                                    {
-                                        "source_col": f"{code_source['name']}.coding",
-                                        "table_alias": "t1",
-                                        "row_alias": "row1",
-                                    }
-                                ],
-                            )
-                        cursor.execute(query)
-                        progress.advance(task)
-                        if len(cursor.fetchall()) > 0:
-                            code_source["has_data"] = True
-                    else:
-                        progress.advance(task)
+                if code_source["is_array"]:
+                    code_source["has_data"] = is_codeable_concept_array_populated(
+                        schema, "encounter", code_source["name"], cursor, progress, task
+                    )
                 else:
-                    progress.advance(task, advance=2)
+                    code_source["has_data"] = is_codeable_concept_populated(
+                        schema, "encounter", code_source["name"], cursor, progress, task
+                    )
         return code_sources
 
     def prepare_queries(self, cursor: object, schema: str):
@@ -150,7 +99,7 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 "has_data": False,
             },
         ]
-        code_sources = self._check_data_in_fields(code_sources, cursor)
+        code_sources = self._check_data_in_fields(code_sources, schema, cursor)
         for code_source in code_sources:
             if code_source["has_data"]:
                 config = CodeableConceptConfig(
@@ -168,3 +117,4 @@ class EncounterCodingBuilder(BaseTableBuilder):
                         table_cols=["id", "code", "code_system", "display"],
                     )
                 )
+        self.write_queries()

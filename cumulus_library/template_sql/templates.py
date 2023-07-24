@@ -249,11 +249,14 @@ def get_is_table_not_empty_query(
         )
 
 
-def get_core_medication_query(medication_datasources: dict):
+def get_core_medication_query(
+    medication_datasources: dict, missing_userselected: bool = False
+):
     path = Path(__file__).parent
     with open(f"{path}/core_medication.sql.jinja") as core_medication:
         return Template(core_medication.read()).render(
             medication_datasources=medication_datasources,
+            missing_userselected=missing_userselected,
         )
 
 
