@@ -153,8 +153,8 @@ CREATE TABLE core__medication AS (
     
     SELECT
         id,
-        encounter_id,
-        patient_id,
+        encounter_ref,
+        patient_ref,
         code,
         display,
         code_system,
