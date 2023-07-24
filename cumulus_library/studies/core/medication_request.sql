@@ -12,7 +12,7 @@ SELECT
     cm.display AS rx_display,
     cm.code_system AS rx_system,
     mr.id AS med_admin_id,
-    mr.subject.reference AS subject_id
+    mr.subject.reference AS subject_ref
 FROM medicationrequest AS mr
 INNER JOIN core__medication AS cm ON cm.id = mr.id
 WHERE cm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm';
@@ -21,13 +21,13 @@ WHERE cm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm';
 CREATE TABLE core__count_medicationrequest_month AS
 WITH powerset AS (
     SELECT
-        count(DISTINCT cmr.subject_id) AS cnt_subject,
+        count(DISTINCT cmr.subject_ref) AS cnt_subject,
         cmr.status,
         cmr.intent,
         cmr.authoredon_month,
-        cmr.medication_display AS display
+        cmr.rx_display AS display
     FROM core__medicationrequest AS cmr
-    GROUP BY cube(cmr.status, cmr.intent, cmr.authoredon_month, cmr.medication_display)
+    GROUP BY cube(cmr.status, cmr.intent, cmr.authoredon_month, cmr.rx_display)
 )
 
 SELECT

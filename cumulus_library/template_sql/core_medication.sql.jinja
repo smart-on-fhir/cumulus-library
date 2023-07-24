@@ -18,8 +18,8 @@ CREATE TABLE core__medication AS (
     inline_medication AS (
         SELECT
             id,
-            subject.reference as "patient_id",
-            encounter.reference AS "encounter_id",
+            subject.reference as patient_ref,
+            encounter.reference AS encounter_ref,
             t.r.code,
             t.r.display,
             t.r.system AS code_system,
@@ -86,8 +86,8 @@ CREATE TABLE core__medication AS (
     contained_medication AS (
         SELECT
             cu.mr_id AS id,
-            cu.encounter.reference AS encounter_id,
-            cu.subject.reference AS patient_id,
+            cu.encounter.reference AS encounter_ref,
+            cu.subject.reference AS patient_ref,
             'None' AS code,
             cu.code.text AS display,
             'None' AS code_system,
@@ -142,8 +142,8 @@ CREATE TABLE core__medication AS (
     external_medication AS (
         SELECT
             mmn.id,
-            mmn.encounter AS encounter_id,
-            mmn.subject AS patient_id,
+            mmn.encounter AS encounter_ref,
+            mmn.subject AS patient_ref,
             t.r.code AS code,
             mmn.code.text AS display,
             t.r.system AS code_system,
@@ -156,8 +156,8 @@ CREATE TABLE core__medication AS (
     {%- if medication_datasources.inline %}
     SELECT
         id,
-        encounter_id,
-        patient_id,
+        encounter_ref,
+        patient_ref,
         code,
         display,
         code_system,
@@ -174,8 +174,8 @@ CREATE TABLE core__medication AS (
     {%- if medication_datasources.by_contained_ref %}
     SELECT
         id,
-        encounter_id,
-        patient_id,
+        encounter_ref,
+        patient_ref,
         code,
         display,
         code_system,
