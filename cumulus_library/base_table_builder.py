@@ -49,7 +49,9 @@ class BaseTableBuilder(ABC):
             table_names = []
             for query in self.queries:
                 # Get the first non-whitespace word after create table
-                table_name = re.search("(?i)(?<=create table )(\S+)", query)[0]
+                table_name = re.search(
+                    '(?i)(?<=create table )(([a-zA-Z0-9_".-]+))', query
+                )[0]
                 # if it contains a schema, remove it (usually it won't, but some CTAS
                 # forms may)
                 if "." in table_name:

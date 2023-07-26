@@ -103,7 +103,7 @@ def is_codeable_concept_array_populated(
         query = get_column_datatype_query(schema, table, base_col)
         cursor.execute(query)
         progress.advance(task)
-        if len(cursor.fetchall()) > 0:
+        if coding_element in str(cursor.fetchone()[0]):
             query = get_is_table_not_empty_query(
                 table,
                 "t2.row2",
