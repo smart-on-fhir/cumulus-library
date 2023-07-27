@@ -37,9 +37,7 @@ def test_is_codeable_concept_populated(mock_pyathena, query_results, expected):
             "test_task",
             total=3,
         )
-        res = is_codeable_concept_populated(
-            SCHEMA, "table", "base_col", cursor, progress, task
-        )
+        res = is_codeable_concept_populated(SCHEMA, "table", "base_col", cursor)
     assert res == expected
 
 
@@ -66,7 +64,5 @@ def test_is_codeable_concept_array_populated(mock_pyathena, query_results, expec
             "test_task",
             total=3,
         )
-        res = is_codeable_concept_populated(
-            SCHEMA, "table", "base_col", cursor, progress, task
-        )
+        res = is_codeable_concept_populated(SCHEMA, "table", "base_col", cursor)
     assert res == expected
