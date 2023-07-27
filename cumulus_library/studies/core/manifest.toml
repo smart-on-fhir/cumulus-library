@@ -2,7 +2,7 @@ study_prefix = "core"
 
 [table_builder_config]
 file_names = [
-    "builder_condition_codableconcept.py",
+    "builder_condition_codeableconcept.py",
     "builder_encounter_coding.py",
     "builder_core_medication.py",
     "builder_patient_extension.py",

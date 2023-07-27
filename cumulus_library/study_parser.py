@@ -210,6 +210,55 @@ class StudyManifestParser:
             cursor.execute(drop_view_table)
             query_console_output(verbose, drop_view_table, progress, task)
 
+    def _load_and_execute_builder(
+        self, filename, cursor, schema, verbose, drop_table=False
+    ) -> None:
+        """Loads a table builder from a file.
+
+        Since we have to support arbitrary user-defined python files here, we
+        jump through some importlib hoops to import the module directly from
+        a source file defined in the manifest.
+
+        As with eating an ortolan, you may wish to cover your head with a cloth.
+        Per an article on the subject: "Tradition dictates that this is to shield
+        – from God’s eyes – the shame of such a decadent and disgraceful act."
+
+        """
+        spec = importlib.util.spec_from_file_location(
+            "table_builder", f"{self._study_path}/{filename}"
+        )
+        table_builder_module = importlib.util.module_from_spec(spec)
+        sys.modules["table_builder"] = table_builder_module
+        spec.loader.exec_module(table_builder_module)
+
+        # We're going to find all subclasses of BaseTableBuild in this file.
+        # Since BaseTableBuilder itself is a valid subclass of BaseTableBuilder,
+        # we'll detect and skip it. If we don't find exactly one subclass,
+        # we'll punt.
+        table_builder_subclasses = []
+        for _, cls_obj in inspect.getmembers(table_builder_module, inspect.isclass):
+            if issubclass(cls_obj, BaseTableBuilder) and cls_obj != BaseTableBuilder:
+                table_builder_subclasses.append(cls_obj)
+        if len(table_builder_subclasses) != 1:
+            raise StudyManifestParsingError(
+                f"Error loading {self._study_path}{filename}\n"
+                "Custom builders must extend the BaseTableBuilder "
+                "class exactly once per module."
+            )
+
+        # We'll get the subclass, initialize it, run the executor code, and then
+        # remove it so it doesn't interfere with the next python module to
+        # execute, since the subclass would otherwise hang around.
+        table_builder_class = table_builder_subclasses[0]
+        table_builder = table_builder_class()
+        table_builder.execute_queries(cursor, schema, verbose, drop_table)
+
+        # After runnning the executor code, we'll remove
+        # remove it so it doesn't interfere with the next python module to
+        # execute, since the subclass would otherwise hang around.
+        del sys.modules[table_builder_module.__name__]
+        del table_builder_module
+
     def run_table_builder(
         self, cursor: object, schema: str, verbose: bool = False
     ) -> None:
@@ -219,48 +268,16 @@ class StudyManifestParser:
         :param schema: The name of the schema to write tables to
         :param verbose: toggle from progress bar to query output
         """
-
-        # Since we have to support arbitrary user-defined python files here, we
-        # jump through some importlib hoops to import the module directly from
-        # a source file defined in the manifest.
-
-        # As with eating an ortolan, you may wish to cover your head with a cloth.
-        # Per an article on the subject: "Tradition dictates that this is to shield
-        # – from God’s eyes – the shame of such a decadent and disgraceful act."
         for file in self.get_table_builder_file_list():
-            # Grab the BaseTableBuilder class from the manifest-defined module
-            spec = importlib.util.spec_from_file_location(
-                "table_builder", f"{self._study_path}/{file}"
-            )
-            table_builder_module = importlib.util.module_from_spec(spec)
-            sys.modules["table_builder"] = table_builder_module
-            spec.loader.exec_module(table_builder_module)
+            self._load_and_execute_builder(file, cursor, schema, verbose)
 
-            # We're going to find all subclasses of BaseTableBuild in this file.
-            # Since BaseTableBuilder itself is a valid subclass of BaseTableBuilder,
-            # we'll detect and skip it. If we don't find exactly one subclass,
-            # we'll punt.
-            table_builder_subclasses = []
-            for _, cls_obj in inspect.getmembers(table_builder_module, inspect.isclass):
-                if (
-                    issubclass(cls_obj, BaseTableBuilder)
-                    and cls_obj != BaseTableBuilder
-                ):
-                    table_builder_subclasses.append(cls_obj)
-            if len(table_builder_subclasses) != 1:
-                raise StudyManifestParsingError(
-                    f"Error loading {self._study_path}{file}\n"
-                    "Custom builders must extend the BaseTableBuilder class exactly once per module."
-                )
-
-            # We'll get the subclass, initialize it, run the executor code, and then
-            # remove it so it doesn't interfere with the next python module to
-            # execute, since the subclass would otherwise hang around.
-            table_builder_class = table_builder_subclasses[0]
-            table_builder = table_builder_class()
-            table_builder.execute_queries(cursor, schema, verbose)
-            del sys.modules[table_builder_module.__name__]
-            del table_builder_module
+    def run_single_table_builder(
+        self, cursor: object, schema: str, name: str, verbose: bool = False
+    ):
+        """targets a single table builder to run"""
+        if not name.endswith(".py"):
+            name = f"{name}.py"
+        self._load_and_execute_builder(name, cursor, schema, verbose, drop_table=True)
 
     def build_study(self, cursor: object, verbose: bool = False) -> List:
         """Creates tables in the schema by iterating through the sql_config.file_names
