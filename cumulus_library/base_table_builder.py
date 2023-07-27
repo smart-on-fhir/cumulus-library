@@ -51,12 +51,14 @@ class BaseTableBuilder(ABC):
                 # Get the first non-whitespace word after create table
                 table_name = re.search(
                     '(?i)(?<=create table )(([a-zA-Z0-9_".-]+))', query
-                )[0]
-                # if it contains a schema, remove it (usually it won't, but some CTAS
-                # forms may)
-                if "." in table_name:
-                    table_name = table_name.split(".")[1].replace('"', "")
-                table_names.append(table_name)
+                )  # [0]
+                if table_name:
+                    table_name = table_name[0]
+                    # if it contains a schema, remove it (usually it won't, but some CTAS
+                    # forms may)
+                    if "." in table_name[0]:
+                        table_name = table_name.split(".")[1].replace('"', "")
+                    table_names.append(table_name)
             for table_name in table_names:
                 cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
         with get_progress_bar(disable=verbose) as progress:

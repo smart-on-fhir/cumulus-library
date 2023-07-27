@@ -262,7 +262,7 @@ def run_cli(args: Dict):
                     builder.clean_and_build_all(study_dict)
                 else:
                     for target in args["target"]:
-                        if args["table_builder"] is not None:
+                        if args["table_builder"]:
                             builder.run_single_table_builder(
                                 study_dict[target], args["table_builder"]
                             )

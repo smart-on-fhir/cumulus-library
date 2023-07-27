@@ -19,11 +19,7 @@ def add_table_builder_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --table_builder arg to a subparser"""
     parser.add_argument(
         "--table-builder",
-        help=(
-            "Within a study, specify a specific table builder to run, skipping all "
-            "other files. Primarily intended for development/debugging. Will still "
-            "remove study tables."
-        ),
+        help=(argparse.SUPPRESS),
     )
 
 

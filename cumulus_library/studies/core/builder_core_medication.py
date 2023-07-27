@@ -30,23 +30,23 @@ class MedicationBuilder(BaseTableBuilder):
         with get_progress_bar(transient=True) as progress:
             task = progress.add_task(
                 "Detecting available medication sources...",
-                total=9,
+                total=7,
             )
 
             # inline medications from FHIR medication
             data_types["inline"] = is_codeable_concept_populated(
-                schema, table, base_col, cursor, progress, task
+                schema, table, base_col, cursor
             )
             if data_types["inline"]:
                 query = get_column_datatype_query(schema, table, base_col)
                 cursor.execute(query)
                 progress.advance(task)
                 if "userselected" not in str(cursor.fetchone()[0]):
-                    missing_userselected = True
+                    has_userselected = False
                 else:
-                    missing_userselected = False
+                    has_userselected = True
             else:
-                missing_userselected = False
+                has_userselected = False
             # Validating presence of FHIR medication requests
             query = get_is_table_not_empty_query(
                 "medicationrequest", "medicationreference"
@@ -54,21 +54,21 @@ class MedicationBuilder(BaseTableBuilder):
             cursor.execute(query)
             progress.advance(task)
             if cursor.fetchone() is None:
-                return data_types, missing_userselected
+                return data_types, has_userselected
             query = get_column_datatype_query(
                 schema, "medicationrequest", "medicationreference"
             )
             cursor.execute(query)
             progress.advance(task)
             if "reference" not in cursor.fetchone()[0]:
-                return data_types, missing_userselected
+                return data_types, has_userselected
             query = get_is_table_not_empty_query(
                 "medicationrequest", "medicationreference.reference"
             )
             cursor.execute(query)
             progress.advance(task)
             if cursor.fetchone() is None:
-                return data_types, missing_userselected
+                return data_types, has_userselected
 
             # checking med ref contents for our two linkage cases
             query = get_is_table_not_empty_query(
@@ -90,7 +90,7 @@ class MedicationBuilder(BaseTableBuilder):
             if cursor.fetchone() is not None:
                 data_types["by_external_ref"] = True
 
-            return data_types, missing_userselected
+            return data_types, has_userselected
 
     def prepare_queries(self, cursor: object, schema: str) -> dict:
         """Constructs queries related to condition codeableConcept
@@ -99,7 +99,7 @@ class MedicationBuilder(BaseTableBuilder):
         :param schema: the schema/db name, matching the cursor
 
         """
-        medication_datasources, missing_userselected = self._check_data_in_fields(
+        medication_datasources, has_userselected = self._check_data_in_fields(
             cursor, schema
         )
         if (
@@ -108,7 +108,7 @@ class MedicationBuilder(BaseTableBuilder):
             or medication_datasources["by_external_ref"]
         ):
             self.queries.append(
-                get_core_medication_query(medication_datasources, missing_userselected)
+                get_core_medication_query(medication_datasources, has_userselected)
             )
         else:
             self.queries.append(

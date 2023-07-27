@@ -21,54 +21,47 @@ def is_codeable_concept_populated(
     table: str,
     base_col: str,
     cursor,
-    progress: Progress,
-    task: Task,
     coding_element="coding",
 ) -> bool:
     """Check db to see if codeableconcept data exists.
 
     Will execute several exploratory queries to see if the column in question
-    can be queried naively. Will advance the associated progress's task by 3 steps.
+    can be queried naively.
 
     :param schema: The schema/database name
     :param table: The table to query against
     :param base_col: the place to start validation from.
         This can be a nested element, like column.object.code
     :param cursor: a PEP-249 compliant database cursor
-    :param progress: a Rich progress bar manager
-    :param task: The TaskID of the progress bar to update
     :param coding_element: the place inside the code element to look for coding info.
         default: 'coding' (and :hopefully: this is always right)
     :returns: a boolean indicating if valid data is present.
     """
     query = get_is_table_not_empty_query(table, base_col)
     cursor.execute(query)
-    progress.advance(task)
-    if cursor.fetchone() is not None:
-        query = get_column_datatype_query(schema, table, base_col)
-        cursor.execute(query)
-        progress.advance(task)
-        if coding_element in str(cursor.fetchone()[0]):
-            query = get_is_table_not_empty_query(
-                table,
-                "t1.row1",
-                [
-                    {
-                        "source_col": f"{base_col}.coding",
-                        "table_alias": "t1",
-                        "row_alias": "row1",
-                    }
-                ],
-            )
-            cursor.execute(query)
-            progress.advance(task)
-            if cursor.fetchone() is not None:
-                return True
-        else:
-            progress.advance(task)
-    else:
-        progress.advance(task, advance=2)
-    return False
+    if cursor.fetchone() is None:
+        return False
+
+    query = get_column_datatype_query(schema, table, base_col)
+    cursor.execute(query)
+    if coding_element not in str(cursor.fetchone()[0]):
+        return False
+
+    query = get_is_table_not_empty_query(
+        table,
+        "t1.row1",
+        [
+            {
+                "source_col": f"{base_col}.coding",
+                "table_alias": "t1",
+                "row_alias": "row1",
+            }
+        ],
+    )
+    cursor.execute(query)
+    if cursor.fetchone() is None:
+        return False
+    return True
 
 
 def is_codeable_concept_array_populated(
@@ -76,8 +69,6 @@ def is_codeable_concept_array_populated(
     table: str,
     base_col: str,
     cursor,
-    progress: Progress,
-    task: Task,
     coding_element="coding",
 ) -> bool:
     """Check db to see if an array of codeableconcept data exists.
@@ -90,42 +81,37 @@ def is_codeable_concept_array_populated(
     :param base_col: the place to start validation from.
         This can be a nested element, like column.object.code
     :param cursor: a PEP-249 compliant database cursor
-    :param progress: a Rich progress bar manager
-    :param task: The TaskID of the progress bar to update
     :param coding_element: the place inside the code element to look for coding info.
         default: 'coding' (and :hopefully: this is always right)
     :returns: a boolean indicating if valid data is present.
     """
     query = get_is_table_not_empty_query(table, base_col)
     cursor.execute(query)
-    progress.advance(task)
-    if cursor.fetchone() is not None:
-        query = get_column_datatype_query(schema, table, base_col)
-        cursor.execute(query)
-        progress.advance(task)
-        if coding_element in str(cursor.fetchone()[0]):
-            query = get_is_table_not_empty_query(
-                table,
-                "t2.row2",
-                [
-                    {
-                        "source_col": base_col,
-                        "table_alias": "t1",
-                        "row_alias": "row1",
-                    },
-                    {
-                        "source_col": "row1.coding",
-                        "table_alias": "t2",
-                        "row_alias": "row2",
-                    },
-                ],
-            )
-            cursor.execute(query)
-            progress.advance(task)
-            if len(cursor.fetchall()) > 0:
-                return True
-        else:
-            progress.advance(task)
-    else:
-        progress.advance(task, advance=2)
-    return False
+    if cursor.fetchone() is None:
+        return False
+
+    query = get_column_datatype_query(schema, table, base_col)
+    cursor.execute(query)
+    if coding_element not in str(cursor.fetchone()[0]):
+        return False
+
+    query = get_is_table_not_empty_query(
+        table,
+        "t2.row2",
+        [
+            {
+                "source_col": base_col,
+                "table_alias": "t1",
+                "row_alias": "row1",
+            },
+            {
+                "source_col": "row1.coding",
+                "table_alias": "t2",
+                "row_alias": "row2",
+            },
+        ],
+    )
+    cursor.execute(query)
+    if cursor.fetchone() is None:
+        return False
+    return True

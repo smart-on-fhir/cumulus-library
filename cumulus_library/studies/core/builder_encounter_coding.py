@@ -46,17 +46,18 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 "Detecting available encounter codaebleConcepts...",
                 # Each column in code_sources requires at most 3 queries to
                 # detect valid data is in the DB
-                total=len(code_sources) * 3,
+                total=len(code_sources),
             )
             for code_source in code_sources:
                 if code_source["is_array"]:
                     code_source["has_data"] = is_codeable_concept_array_populated(
-                        schema, "encounter", code_source["name"], cursor, progress, task
+                        schema, "encounter", code_source["name"], cursor
                     )
                 else:
                     code_source["has_data"] = is_codeable_concept_populated(
-                        schema, "encounter", code_source["name"], cursor, progress, task
+                        schema, "encounter", code_source["name"], cursor
                     )
+                progress.advance(task)
         return code_sources
 
     def prepare_queries(self, cursor: object, schema: str):
@@ -117,4 +118,3 @@ class EncounterCodingBuilder(BaseTableBuilder):
                         table_cols=["id", "code", "code_system", "display"],
                     )
                 )
-        self.write_queries()

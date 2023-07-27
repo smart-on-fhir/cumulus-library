@@ -210,7 +210,9 @@ class StudyManifestParser:
             cursor.execute(drop_view_table)
             query_console_output(verbose, drop_view_table, progress, task)
 
-    def load_builder_from_file(self, filename) -> (BaseTableBuilder, object):
+    def _load_and_execute_builder(
+        self, filename, cursor, schema, verbose, drop_table=False
+    ) -> None:
         """Loads a table builder from a file.
 
         Since we have to support arbitrary user-defined python files here, we
@@ -248,7 +250,14 @@ class StudyManifestParser:
         # remove it so it doesn't interfere with the next python module to
         # execute, since the subclass would otherwise hang around.
         table_builder_class = table_builder_subclasses[0]
-        return table_builder_class(), table_builder_module
+        table_builder = table_builder_class()
+        table_builder.execute_queries(cursor, schema, verbose, drop_table)
+
+        # After runnning the executor code, we'll remove
+        # remove it so it doesn't interfere with the next python module to
+        # execute, since the subclass would otherwise hang around.
+        del sys.modules[table_builder_module.__name__]
+        del table_builder_module
 
     def run_table_builder(
         self, cursor: object, schema: str, verbose: bool = False
@@ -260,14 +269,7 @@ class StudyManifestParser:
         :param verbose: toggle from progress bar to query output
         """
         for file in self.get_table_builder_file_list():
-            table_builder, table_builder_module = self.load_builder_from_file(file)
-            # After runnning the executor code, we'll remove the builder
-            # remove it so it doesn't interfere with the next python module to
-            # execute, since the subclass would otherwise hang around.
-
-            table_builder.execute_queries(cursor, schema, verbose)
-            del sys.modules[table_builder_module.__name__]
-            del table_builder_module
+            self._load_and_execute_builder(file, cursor, schema, verbose)
 
     def run_single_table_builder(
         self, cursor: object, schema: str, name: str, verbose: bool = False
@@ -275,8 +277,7 @@ class StudyManifestParser:
         """targets a single table builder to run"""
         if not name.endswith(".py"):
             name = f"{name}.py"
-        table_builder, _ = self.load_builder_from_file(name)
-        table_builder.execute_queries(cursor, schema, verbose, drop_table=True)
+        self._load_and_execute_builder(name, cursor, schema, verbose, drop_table=True)
 
     def build_study(self, cursor: object, verbose: bool = False) -> List:
         """Creates tables in the schema by iterating through the sql_config.file_names
