@@ -1,0 +1,34 @@
+version: '3'
+services:
+  hadoop-master:
+    container_name: hadoop-master-container
+    hostname: hadoop-master
+    image: trinodb/trino
+    #image: sfrancavilla/prestodev-hdp3.1-hive:mothena
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    ports:
+      - "10000:10000"
+    volumes:
+      - ./trino_s3_conf.properties:/etc/trino/catalog/trino_s3_conf.properties
+      
+  moto-server:
+    container_name: moto-server-container
+    hostname: moto-server
+    image: motoserver/moto
+    ports:
+      - "5000:5000"
+
+
+
+  # presto:
+  #   container_name: presto-container
+  #   hostname: presto
+  #   #image: prestosql-docker
+  #   image: sfrancavilla/prestosql-docker:mothena
+  #   environment:
+  #     - AWS_ACCESS_KEY_ID=test
+  #     - AWS_SECRET_ACCESS_KEY=test
+  #   ports:
+  #     - "8080:8080"
