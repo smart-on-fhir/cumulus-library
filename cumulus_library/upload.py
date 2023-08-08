@@ -87,4 +87,3 @@ def upload_files(args: dict):
             version = 0
         for file_path in file_paths:
             upload_data(progress, file_upload_progress, file_path, version, args)
-            exit()
