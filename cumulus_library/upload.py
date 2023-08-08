@@ -28,7 +28,7 @@ def upload_data(
         json={
             "study": study,
             "data_package": data_package,
-            "version": f"{version:03d}",
+            "data_package_version": version,
             "filename": f"{args['user']}_{file_name}",
         },
         auth=(args["user"], args["id"]),
@@ -77,13 +77,13 @@ def upload_files(args: dict):
         sys.exit("user/id not provided, please pass --user and --id")
     with get_progress_bar() as progress:
         file_upload_progress = progress.add_task("Uploading", total=num_uploads)
-        meta_version = next(
-            filter(lambda x: "__meta_version" in str(x), file_paths), None
-        )
-        if meta_version:
+        try:
+            meta_version = next(
+                filter(lambda x: str(x).endswith("__meta_version"), file_paths)
+            )
             version = read_parquet(meta_version)["data_package_version"][0]
             file_paths.remove(meta_version)
-        else:
+        except StopIteration:
             version = 0
         for file_path in file_paths:
             upload_data(progress, file_upload_progress, file_path, version, args)
