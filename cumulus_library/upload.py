@@ -72,18 +72,18 @@ def upload_files(args: dict):
             "study export folder."
         )
     file_paths = list(args["data_path"].glob("**/*.parquet"))
-    num_uploads = len(file_paths)
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
+    try:
+        meta_version = next(
+            filter(lambda x: str(x).endswith("__meta_version.parquet"), file_paths)
+        )
+        version = str(read_parquet(meta_version)["data_package_version"][0])
+        file_paths.remove(meta_version)
+    except StopIteration:
+        version = "0"
+    num_uploads = len(file_paths)
     with get_progress_bar() as progress:
         file_upload_progress = progress.add_task("Uploading", total=num_uploads)
-        try:
-            meta_version = next(
-                filter(lambda x: str(x).endswith("__meta_version"), file_paths)
-            )
-            version = read_parquet(meta_version)["data_package_version"][0]
-            file_paths.remove(meta_version)
-        except StopIteration:
-            version = 0
         for file_path in file_paths:
             upload_data(progress, file_upload_progress, file_path, version, args)
