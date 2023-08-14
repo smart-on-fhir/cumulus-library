@@ -10,6 +10,7 @@ file_names = [
 
 [sql_config]
 file_names = [
+    "version.sql",
     "setup.sql",
     "fhir_define.sql",
     "patient.sql",
@@ -36,4 +37,5 @@ export_list = [
     "core__count_condition_month",
     "core__count_medicationrequest_month",
     "core__meta_date",
+    "core__meta_version",
 ]
