@@ -3,7 +3,6 @@
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.helper import get_progress_bar, query_console_output
 from cumulus_library.template_sql.templates import (
-    CodeableConceptConfig,
     get_core_medication_query,
     get_is_table_not_empty_query,
     get_column_datatype_query,

@@ -51,11 +51,11 @@ class EncounterCodingBuilder(BaseTableBuilder):
             for code_source in code_sources:
                 if code_source["is_array"]:
                     code_source["has_data"] = is_codeable_concept_array_populated(
-                        schema, "encounter", code_source["name"], cursor
+                        schema, "encounter", code_source["column_name"], cursor
                     )
                 else:
                     code_source["has_data"] = is_codeable_concept_populated(
-                        schema, "encounter", code_source["name"], cursor
+                        schema, "encounter", code_source["column_name"], cursor
                     )
                 progress.advance(task)
         return code_sources
@@ -70,8 +70,9 @@ class EncounterCodingBuilder(BaseTableBuilder):
 
         code_sources = [
             {
-                "name": "type",
+                "column_name": "type",
                 "is_array": True,
+                "filter_priority": True,
                 "code_systems": [
                     "http://terminology.hl7.org/CodeSystem/encounter-type",
                     "http://terminology.hl7.org/CodeSystem/v2-0004",
@@ -81,8 +82,9 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 "has_data": False,
             },
             {
-                "name": "servicetype",
+                "column_name": "servicetype",
                 "is_array": False,
+                "filter_priority": True,
                 "code_systems": [
                     "http://terminology.hl7.org/CodeSystem/service-type",
                     "urn:oid:2.16.840.1.113883.4.642.3.518",
@@ -91,8 +93,9 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 "has_data": False,
             },
             {
-                "name": "priority",
+                "column_name": "priority",
                 "is_array": False,
+                "filter_priority": True,
                 "code_systems": [
                     "http://terminology.hl7.org/CodeSystem/v3-ActPriority",
                     "http://snomed.info/sct",
@@ -106,15 +109,18 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 config = CodeableConceptConfig(
                     source_table="encounter",
                     source_id="id",
-                    cc_column=code_source,
-                    target_table=f"core__encounter_dn_{code_source['name']}",
+                    column_name=code_source["column_name"],
+                    is_array=code_source["is_array"],
+                    filter_priority=code_source["filter_priority"],
+                    code_systems=code_source["code_systems"],
+                    target_table=f"core__encounter_dn_{code_source['column_name']}",
                 )
                 self.queries.append(get_codeable_concept_denormalize_query(config))
             else:
                 self.queries.append(
                     get_ctas_empty_query(
                         schema_name=schema,
-                        table_name=f"core__encounter_dn_{code_source['name']}",
+                        table_name=f"core__encounter_dn_{code_source['column_name']}",
                         table_cols=["id", "code", "code_system", "display"],
                     )
                 )
