@@ -104,3 +104,32 @@ CREATE TABLE core__condition_codable_concepts_preferred AS (
 
 #non-filtering case
 
+CREATE TABLE target__concepts AS (
+    WITH
+    system_code_col_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            u.codeable_concept.code AS code,
+            u.codeable_concept.display AS display,
+            u.codeable_concept.system AS code_system
+        FROM
+            source AS s,
+            UNNEST(s.code_col) AS cc (cc_row),
+            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            code_system,
+            code,
+            display
+        FROM system_code_col_0
+    )
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM union_table
+);
