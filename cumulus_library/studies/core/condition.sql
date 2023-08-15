@@ -20,6 +20,9 @@ WITH temp_condition AS (
     SELECT
         c.category,
         c.clinicalstatus,
+        cca.code,
+        cca.code_system,
+        cca.display,
         c.verificationstatus,
         c.subject.reference AS subject_ref,
         c.encounter.reference AS encounter_ref,
@@ -27,11 +30,15 @@ WITH temp_condition AS (
         date(from_iso8601_timestamp(c.recordeddate)) AS recordeddate,
         concat('Condition/', c.id) AS condition_ref
     FROM condition AS c
+    INNER JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
 )
 
 SELECT
     t_category_coding.category_row.code AS category_code,
     t_category_coding.category_row.display AS category_display,
+    tc.code,
+    tc.code_system,
+    tc.display,
     tc.subject_ref,
     tc.encounter_ref,
     tc.condition_id,
@@ -43,6 +50,7 @@ SELECT
 FROM temp_condition AS tc,
     unnest(category) AS t_category (category_coding),
     unnest(category_coding.coding) AS t_category_coding (category_row)
+
 WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
 
 -- ###########################################################################
@@ -51,7 +59,7 @@ WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
 
 CREATE TABLE core__count_condition_month AS WITH
 concept_map AS (
-    SELECT
+    SELECT DISTINCT
         c.recorded_month AS cond_month,
         c.subject_ref,
         coalesce(c.encounter_ref, 'None') AS encounter_ref,

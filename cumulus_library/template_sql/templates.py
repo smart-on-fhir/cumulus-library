@@ -211,9 +211,9 @@ class CodeableConceptConfig:
         is_array: bool,
         target_table: str,
         filter_priority: bool = False,
-        code_systems: list = ["all"],
+        code_systems: list = None,
     ):
-        if not filter_priority and code_systems != ["all"]:
+        if not filter_priority and code_systems != None:
             raise Exception(
                 "CodeableConceptConfig cannot have non-default value assigned to "
                 "code_systems unless filter_priority is true."
@@ -240,6 +240,12 @@ def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str
     :param config: a CodableConeptConfig
     """
     path = Path(__file__).parent
+
+    # If we get a None for code systems, we want one dummy value so the jinja
+    # for loop will do a single pass. This implicitly means that we're not
+    # filtering, so this parameter will be otherwise ignored
+    config.code_systems = config.code_systems or ["all"]
+
     with open(f"{path}/codeable_concept_denormalize.sql.jinja") as codable_concept:
         return Template(codable_concept.read()).render(
             source_table=config.source_table,
