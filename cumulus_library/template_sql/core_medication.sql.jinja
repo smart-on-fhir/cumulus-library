@@ -95,11 +95,7 @@ CREATE TABLE core__medication AS (
             'None' AS code,
             cu.code.text AS display,
             'None' AS code_system,
-            {% if has_userselected %}
-            t.r.userselected
-            {% else %}
             false AS userselected
-            {% endif %}
         FROM mrc_contained_unnest AS cu
         INNER JOIN mrc_ref_id AS ri ON ri.id = cu.id
     )
@@ -155,11 +151,7 @@ CREATE TABLE core__medication AS (
             t.r.code AS code,
             mmn.code.text AS display,
             t.r.system AS code_system,
-            {% if has_userselected %}
-            t.r.userselected
-            {% else %}
             false AS userselected
-            {% endif %}
         FROM mre_med_nonnull AS mmn,
             unnest(mmn.code.coding) AS t (r)
     )
