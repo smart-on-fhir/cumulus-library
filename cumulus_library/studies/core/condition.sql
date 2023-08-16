@@ -2,11 +2,12 @@
 -- Condition
 -- https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-condition-encounter-diagnosis.html
 -- 
---Each Condition must have:
+-- Each Condition must have:
 --    a category code of “problem-list-item” or “health-concern”
---    a code that identifies the condition
+--    a code that identifies the condition (this is available in 
+--        core__condition_codable_concepts_all)
 --    a patient
---Each Condition must support:
+-- Each Condition must support:
 --    a clinical status of the condition (e.g., active or resolved)
 --    a verification status
 --    a category code of ‘sdoh’
@@ -14,13 +15,14 @@
 --    abatement date (in other words, date of resolution or remission)
 --    a date when recorded
 
-
 CREATE TABLE core__condition AS
 WITH temp_condition AS (
     SELECT
         c.category,
-        c.code,
         c.clinicalstatus,
+        cca.code,
+        cca.code_system,
+        cca.display,
         c.verificationstatus,
         c.subject.reference AS subject_ref,
         c.encounter.reference AS encounter_ref,
@@ -28,11 +30,15 @@ WITH temp_condition AS (
         date(from_iso8601_timestamp(c.recordeddate)) AS recordeddate,
         concat('Condition/', c.id) AS condition_ref
     FROM condition AS c
+    INNER JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
 )
 
 SELECT
-    t_category_coding.category_row AS category,
-    tc.code AS cond_code,
+    t_category_coding.category_row.code AS category_code,
+    t_category_coding.category_row.display AS category_display,
+    tc.code,
+    tc.code_system,
+    tc.code_display,
     tc.subject_ref,
     tc.encounter_ref,
     tc.condition_id,
@@ -42,9 +48,9 @@ SELECT
     date_trunc('month', date(tc.recordeddate)) AS recorded_month,
     date_trunc('year', date(tc.recordeddate)) AS recorded_year
 FROM temp_condition AS tc,
-    unnest(category) AS t_category (category_coding), --noqa
-    unnest(category_coding.coding) AS t_category_coding (category_row), --noqa
-    unnest(code.coding) AS t_coding (code_row) --noqa
+    unnest(category) AS t_category (category_coding),
+    unnest(category_coding.coding) AS t_category_coding (category_row)
+
 WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
 
 -- ###########################################################################
@@ -53,14 +59,14 @@ WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
 
 CREATE TABLE core__count_condition_month AS WITH
 concept_map AS (
-    SELECT
+    SELECT DISTINCT
         c.recorded_month AS cond_month,
         c.subject_ref,
         coalesce(c.encounter_ref, 'None') AS encounter_ref,
         coalesce(mapping.display, 'None') AS cond_code_display,
-        c.category.code AS cond_category_code
+        c.category_code AS cond_category_code
     FROM core__condition AS c
-    LEFT JOIN core__condition_codable_concepts AS mapping
+    LEFT JOIN core__condition_codable_concepts_display AS mapping
         ON c.condition_id = mapping.id
 ),
 

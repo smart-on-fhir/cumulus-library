@@ -7,10 +7,11 @@ in the future change the priority order of concept systems, or add
 additional systems to support other implementations if we run into
 unusual data in the wild.
 */
-CREATE TABLE core__condition_codable_concepts AS (
-    WITH
 
-    system_0 AS (
+# filtering case
+CREATE TABLE core__condition_codable_concepts_preferred AS (
+    WITH
+    system_code_0 AS (
         SELECT DISTINCT
             s.id AS id,
             '0' AS priority,
@@ -19,12 +20,11 @@ CREATE TABLE core__condition_codable_concepts AS (
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept) --noqa: AL05
+            UNNEST(s.code.coding) AS u (codeable_concept)
         WHERE
             u.codeable_concept.system = 'http://snomed.info/sct'
     ), --noqa: LT07
-
-    system_1 AS (
+    system_code_1 AS (
         SELECT DISTINCT
             s.id AS id,
             '1' AS priority,
@@ -33,12 +33,11 @@ CREATE TABLE core__condition_codable_concepts AS (
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept) --noqa: AL05
+            UNNEST(s.code.coding) AS u (codeable_concept)
         WHERE
             u.codeable_concept.system = 'http://hl7.org/fhir/sid/icd-10-cm'
     ), --noqa: LT07
-
-    system_2 AS (
+    system_code_2 AS (
         SELECT DISTINCT
             s.id AS id,
             '2' AS priority,
@@ -47,7 +46,7 @@ CREATE TABLE core__condition_codable_concepts AS (
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept) --noqa: AL05
+            UNNEST(s.code.coding) AS u (codeable_concept)
         WHERE
             u.codeable_concept.system = 'http://hl7.org/fhir/sid/icd-9-cm'
     ), --noqa: LT07
@@ -59,7 +58,7 @@ CREATE TABLE core__condition_codable_concepts AS (
             code_system,
             code,
             display
-        FROM system_0
+        FROM system_code_0
         UNION
         SELECT
             id,
@@ -67,7 +66,7 @@ CREATE TABLE core__condition_codable_concepts AS (
             code_system,
             code,
             display
-        FROM system_1
+        FROM system_code_1
         UNION
         SELECT
             id,
@@ -75,8 +74,23 @@ CREATE TABLE core__condition_codable_concepts AS (
             code_system,
             code,
             display
-        FROM system_2
-        ORDER BY id, priority
+        FROM system_code_2
+    ),
+
+    partitioned_table AS (
+        SELECT
+            id,
+            code,
+            code_system,
+            display,
+            priority,
+            ROW_NUMBER()
+            OVER (
+                PARTITION BY id
+            ) AS available_priority
+        FROM union_table
+        GROUP BY id, priority, code_system, code, display
+        ORDER BY priority ASC
     )
 
     SELECT
@@ -84,18 +98,38 @@ CREATE TABLE core__condition_codable_concepts AS (
         code,
         code_system,
         display
-    FROM (
+    FROM partitioned_table
+    WHERE available_priority = 1
+);
+
+#non-filtering case
+
+CREATE TABLE target__concepts AS (
+    WITH
+    system_code_col_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            u.codeable_concept.code AS code,
+            u.codeable_concept.display AS display,
+            u.codeable_concept.system AS code_system
+        FROM
+            source AS s,
+            UNNEST(s.code_col) AS cc (cc_row),
+            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+    ), --noqa: LT07
+
+    union_table AS (
         SELECT
             id,
-            code,
             code_system,
-            display,
-            ROW_NUMBER()
-            OVER (
-                PARTITION BY id
-            ) AS available_priority
-        FROM union_table
-        GROUP BY id, code_system, code, display
+            code,
+            display
+        FROM system_code_col_0
     )
-    WHERE available_priority = 1
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM union_table
 );

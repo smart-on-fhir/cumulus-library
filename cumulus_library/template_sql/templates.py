@@ -1,7 +1,7 @@
 """ Collection of jinja template getters for common SQL queries """
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, TypedDict
 
 from jinja2 import Template
 
@@ -194,24 +194,37 @@ class CodeableConceptConfig:
 
     :param source_table: the table to extract extensions from
     :param source_id: the id field to use in the new table
-    :param cc_columns: the column containing the codeableConcept you want to extract.
-        Format:
-            {'name':[column],
-            'is_array': [boolean],
-            'code_systems':[List of code system strings, in priority order]}
-        is_array relates to the FHIR spec - if the field is specified
-        as 0...*, set this to be true.
+    :param column_name: the column containing the codeableConcept you want to extract.
+    :param is_array: whether the codeableConcept is 0...1 or 0..* in the FHIR spec
     :param target_table: the name of the table to create
+    :param filter_priority: If true, will use code systems to select a single code,
+      in preference order, for use as a display value.
     :param code_systems: a list of systems, in preference order, for selecting data
+      for filtering. This should not be set if filter_priority is false.
     """
 
     def __init__(
-        self, source_table: str, source_id: str, cc_column: dict, target_table: str
+        self,
+        source_table: str,
+        source_id: str,
+        column_name: str,
+        is_array: bool,
+        target_table: str,
+        filter_priority: bool = False,
+        code_systems: list = None,
     ):
+        if not filter_priority and code_systems != None:
+            raise Exception(
+                "CodeableConceptConfig cannot have non-default value assigned to "
+                "code_systems unless filter_priority is true."
+            )
         self.source_table = source_table
         self.source_id = source_id
-        self.cc_column = cc_column
+        self.column_name = column_name
+        self.is_array = is_array
         self.target_table = target_table
+        self.filter_priority = filter_priority
+        self.code_systems = code_systems
 
 
 def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str:
@@ -227,12 +240,21 @@ def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str
     :param config: a CodableConeptConfig
     """
     path = Path(__file__).parent
+
+    # If we get a None for code systems, we want one dummy value so the jinja
+    # for loop will do a single pass. This implicitly means that we're not
+    # filtering, so this parameter will be otherwise ignored
+    config.code_systems = config.code_systems or ["all"]
+
     with open(f"{path}/codeable_concept_denormalize.sql.jinja") as codable_concept:
         return Template(codable_concept.read()).render(
             source_table=config.source_table,
             source_id=config.source_id,
-            cc_column=config.cc_column,
+            column_name=config.column_name,
+            is_array=config.is_array,
             target_table=config.target_table,
+            filter_priority=config.filter_priority,
+            code_systems=config.code_systems,
         )
 
 

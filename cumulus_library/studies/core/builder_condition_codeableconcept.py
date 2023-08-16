@@ -17,18 +17,27 @@ class ConditionCodableConceptBuilder(BaseTableBuilder):
         :param schema: the schema/db name, matching the cursor
 
         """
-        config = CodeableConceptConfig(
+        preferred_config = CodeableConceptConfig(
             source_table="condition",
             source_id="id",
-            cc_column={
-                "name": "code",
-                "is_array": False,
-                "code_systems": [
-                    "http://snomed.info/sct",
-                    "http://hl7.org/fhir/sid/icd-10-cm",
-                    "http://hl7.org/fhir/sid/icd-9-cm",
-                ],
-            },
-            target_table="core__condition_codable_concepts",
+            column_name="code",
+            is_array=False,
+            target_table="core__condition_codable_concepts_display",
+            filter_priority=True,
+            code_systems=[
+                "http://snomed.info/sct",
+                "http://hl7.org/fhir/sid/icd-10-cm",
+                "http://hl7.org/fhir/sid/icd-9-cm",
+            ],
         )
-        self.queries.append(get_codeable_concept_denormalize_query(config))
+        self.queries.append(get_codeable_concept_denormalize_query(preferred_config))
+
+        all_config = CodeableConceptConfig(
+            source_table="condition",
+            source_id="id",
+            column_name="code",
+            is_array=False,
+            target_table="core__condition_codable_concepts_all",
+            filter_priority=False,
+        )
+        self.queries.append(get_codeable_concept_denormalize_query(all_config))

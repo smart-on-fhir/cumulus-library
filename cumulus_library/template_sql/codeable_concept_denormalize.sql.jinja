@@ -1,40 +1,47 @@
 CREATE TABLE {{ target_table }} AS (
     WITH
-    {%- for system in cc_column.code_systems %}
-    system_{{ cc_column.name }}_{{ loop.index0 }} AS (
+    {%- for system in code_systems %}
+    system_{{ column_name }}_{{ loop.index0 }} AS (
         SELECT DISTINCT
             s.{{ source_id }} AS id,
+        {%- if filter_priority %}
             '{{ loop.index0 }}' AS priority,
+        {%- endif %}
             u.codeable_concept.code AS code,
             u.codeable_concept.display AS display,
             u.codeable_concept.system AS code_system
         FROM
             {{ source_table }} AS s,
-        {% if cc_column.is_array %}
-            UNNEST(s.{{ cc_column.name }}) AS cc (cc_row),
+        {%- if is_array %}
+            UNNEST(s.{{ column_name }}) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-        {% else %}
-            UNNEST(s.{{ cc_column.name }}.coding) AS u (codeable_concept)
+        {%- else %}
+            UNNEST(s.{{ column_name }}.coding) AS u (codeable_concept)
         {%- endif %}
+        {%- if filter_priority %}
         WHERE
             u.codeable_concept.system = '{{ system }}'
+        {%- endif %}
     ), --noqa: LT07
     {%- endfor %}
 
     union_table AS (
-        {%- for system in cc_column.code_systems %}
+        {%- for system in code_systems %}
         SELECT
             id,
+        {%- if filter_priority %}
             priority,
+        {%- endif %}
             code_system,
             code,
             display
-        FROM system_{{ cc_column.name }}_{{ loop.index0 }}
+        FROM system_{{ column_name }}_{{ loop.index0 }}
         {%- if not loop.last %}
         UNION 
         {%- endif -%}
         {%- endfor %}
-    ),
+    )
+{%- if filter_priority -%},
 
     partitioned_table AS (
         SELECT
@@ -60,3 +67,12 @@ CREATE TABLE {{ target_table }} AS (
     FROM partitioned_table
     WHERE available_priority = 1
 );
+{% else %}
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM union_table
+);
+{% endif %}
