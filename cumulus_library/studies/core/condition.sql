@@ -38,7 +38,7 @@ SELECT
     t_category_coding.category_row.display AS category_display,
     tc.code,
     tc.code_system,
-    tc.display,
+    tc.code_display,
     tc.subject_ref,
     tc.encounter_ref,
     tc.condition_id,
