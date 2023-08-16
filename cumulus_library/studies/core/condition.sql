@@ -22,7 +22,7 @@ WITH temp_condition AS (
         c.clinicalstatus,
         cca.code,
         cca.code_system,
-        cca.display,
+        cca.display AS code_display,
         c.verificationstatus,
         c.subject.reference AS subject_ref,
         c.encounter.reference AS encounter_ref,
@@ -30,7 +30,7 @@ WITH temp_condition AS (
         date(from_iso8601_timestamp(c.recordeddate)) AS recordeddate,
         concat('Condition/', c.id) AS condition_ref
     FROM condition AS c
-    INNER JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
+    LEFT JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
 )
 
 SELECT
