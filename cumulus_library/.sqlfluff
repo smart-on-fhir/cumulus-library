@@ -20,8 +20,8 @@ code_systems = ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"]
 col_type_list = ["a string","b string"]
 cc_columns = [{"name": "baz", "is_array": True}, {"name": "foobar", "is_array": False}]
 cc_column = 'code'
-
 column_name = 'bar'
+cnt_encounter = False
 conditions = ["1 > 0", "1 < 2"]
 dataset = [["foo","foo"],["bar","bar"]]
 ext_systems = ["omb", "text"]
@@ -42,3 +42,4 @@ view_cols = ["c","d"]
 view_name = test_view
 view_or_table_name = test_view_or_table
 view_or_table = TABLE
+where_clauses = ['cnt_subject >= 99', 'cnt_encounter >= 5']
