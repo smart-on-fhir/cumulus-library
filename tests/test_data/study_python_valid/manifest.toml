@@ -2,4 +2,3 @@ study_prefix = "test_python"
 
 [table_builder_config]
 file_names = ["module1.py", "module1.py", "module2.py"]
-

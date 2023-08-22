@@ -71,7 +71,19 @@ class BaseTableBuilder(ABC):
                 cursor.execute(query)
                 query_console_output(verbose, self.queries, progress, task)
 
+    def comment_queries(self):
+        """Convenience method for annotating outputs of template generators to disk"""
+        commented_queries = ["-- noqa: disable=all"]
+        for query in self.queries:
+            commented_queries.append(query)
+            commented_queries.append(
+                "\n-- ###########################################################"
+            )
+        commented_queries.pop()
+        self.queries = commented_queries
+
     def write_queries(self, filename: str = "output.sql"):
+        """writes all queries constructed by prepare_queries to disk"""
         with open(filename, "w") as file:
             for query in self.queries:
                 file.write(query)

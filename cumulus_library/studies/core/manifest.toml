@@ -23,7 +23,11 @@ file_names = [
     "observation_vital_signs.sql",
     "medication_request.sql",
     "study_period.sql",
-    "count_core.sql"
+]
+
+[count_table_builder_config]
+file_names = [
+    "count_core.py"
 ]
 
 [export_config]

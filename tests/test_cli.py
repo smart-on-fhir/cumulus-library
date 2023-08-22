@@ -72,6 +72,20 @@ def test_cli_path_mapping(
 
 
 @mock.patch("pyathena.connect")
+def test_count_builder_mapping(mock_connect):  # pylint: disable=unused-argument
+    with does_not_raise():
+        builder = cli.main(
+            cli_args=[
+                "build",
+                "-t",
+                "study_python_counts_valid",
+                "-s" "./tests/test_data",
+            ]
+        )
+        builder.cursor.execute.assert_called()
+
+
+@mock.patch("pyathena.connect")
 @pytest.mark.parametrize(
     "args,cursor_calls,pandas_cursor_calls",
     [

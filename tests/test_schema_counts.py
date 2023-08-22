@@ -5,19 +5,22 @@ from unittest import mock
 
 import pytest
 
-from cumulus_library.errors import LibraryError
-from cumulus_library.schema import counts
+from cumulus_library.errors import CountsBuilderError
+from cumulus_library.schema.counts import CountsBuilder
+
+TEST_PREFIX = "test"
 
 
 @pytest.mark.parametrize(
-    "prefix,name,duration,expected",
+    "name,duration,expected",
     [
-        ("test", "table", None, "test__table"),
-        ("test", "table", "month", "test__table_month"),
+        ("table", None, "test__table"),
+        ("table", "month", "test__table_month"),
     ],
 )
-def test_get_table_name(prefix, name, duration, expected):
-    output = counts.get_table_name(prefix, name, duration)
+def test_get_table_name(name, duration, expected):
+    builder = CountsBuilder(study_prefix=TEST_PREFIX)
+    output = builder.get_table_name(name, duration)
     assert output == expected
 
 
@@ -29,7 +32,7 @@ def test_get_table_name(prefix, name, duration, expected):
         ("age > 5", None, ["age > 5"], does_not_raise()),
         (["age > 5", "sex =='F'"], None, ["age > 5", "sex =='F'"], does_not_raise()),
         ("age > 5", 7, ["age > 5"], does_not_raise()),
-        ({"age": "5"}, None, None, pytest.raises(LibraryError)),
+        ({"age": "5"}, None, None, pytest.raises(CountsBuilderError)),
     ],
 )
 def test_get_where_clauses(clause, min_subject, expected, raises):
@@ -39,27 +42,33 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
             kwargs["clause"] = clause
         if min_subject is not None:
             kwargs["min_subject"] = min_subject
-        print(kwargs)
-        output = counts.get_where_clauses(**kwargs)
+        builder = CountsBuilder(study_prefix=TEST_PREFIX)
+        output = builder.get_where_clauses(**kwargs)
         assert output == expected
 
 
 @pytest.mark.parametrize(
     "table_name,source_table,table_cols,kwargs,raises",
     [
-        ("test", "source", ["a", "b"], {}, does_not_raise()),
+        ("table", "source", ["a", "b"], {}, does_not_raise()),
         (
-            "test",
+            "table",
             "source",
             ["a", "b"],
             {"min_subject": 10, "where_clauses": "where True", "cnt_encounter": True},
             does_not_raise(),
         ),
-        ("test", "source", ["a", "b"], {"bad_key": True}, pytest.raises(LibraryError)),
-        (None, "source", ["a", "b"], {}, pytest.raises(LibraryError)),
-        ("test", None, ["a", "b"], {}, pytest.raises(LibraryError)),
-        ("test", "source", [], {}, pytest.raises(LibraryError)),
-        ("test", "source", None, {}, pytest.raises(LibraryError)),
+        (
+            "table",
+            "source",
+            ["a", "b"],
+            {"bad_key": True},
+            pytest.raises(CountsBuilderError),
+        ),
+        (None, "source", ["a", "b"], {}, pytest.raises(CountsBuilderError)),
+        ("table", None, ["a", "b"], {}, pytest.raises(CountsBuilderError)),
+        ("table", "source", [], {}, pytest.raises(CountsBuilderError)),
+        ("table", "source", None, {}, pytest.raises(CountsBuilderError)),
     ],
 )
 @mock.patch("cumulus_library.template_sql.templates.get_count_query")
@@ -67,7 +76,8 @@ def test_get_count_query(
     mock_count, table_name, source_table, table_cols, kwargs, raises
 ):
     with raises:
-        counts.get_count_query(table_name, source_table, table_cols, **kwargs)
+        builder = CountsBuilder(study_prefix=TEST_PREFIX)
+        builder.get_count_query(table_name, source_table, table_cols, **kwargs)
         assert mock_count.called
         call_args, call_kwargs = mock_count.call_args
         assert call_args == (table_name, source_table, table_cols)
@@ -86,7 +96,8 @@ def test_count_patient(mock_count, table_name, source_table, table_cols, where):
     kwargs = {}
     if where is not None:
         kwargs["where_clauses"] = where
-    counts.count_patient(table_name, source_table, table_cols, **kwargs)
+    builder = CountsBuilder(study_prefix=TEST_PREFIX)
+    builder.count_patient(table_name, source_table, table_cols, **kwargs)
     assert mock_count.called
     call_args, call_kwargs = mock_count.call_args
     assert call_args == (table_name, source_table, table_cols)
@@ -105,7 +116,8 @@ def test_count_encounter(mock_count, table_name, source_table, table_cols, where
     kwargs = {}
     if where is not None:
         kwargs["where_clauses"] = where
-    counts.count_encounter(table_name, source_table, table_cols, **kwargs)
+    builder = CountsBuilder(study_prefix=TEST_PREFIX)
+    builder.count_encounter(table_name, source_table, table_cols, **kwargs)
     assert mock_count.called
     call_args, call_kwargs = mock_count.call_args
     assert call_args == (table_name, source_table, table_cols)

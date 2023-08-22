@@ -1,5 +1,4 @@
 -- noqa: disable=all
--- ###########################################################
 
 CREATE TABLE core__count_patient AS (
     WITH powerset AS (

@@ -1,18 +1,20 @@
 """Error types"""
 
 
-class LibraryError(Exception):
+class CumulusLibraryError(Exception):
     """
     Package level error
     """
 
-    pass
 
-
-class LibrarySchemaError(Exception):
+class CumulusLibrarySchemaError(Exception):
     """
     Package level error
     """
+
+
+class CountsBuilderError(Exception):
+    """Basic error for CountsBuilder"""
 
 
 class StudyManifestParsingError(Exception):
