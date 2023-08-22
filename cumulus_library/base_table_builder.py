@@ -2,7 +2,6 @@
 import re
 
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import final
 
 from cumulus_library.helper import get_progress_bar, query_console_output
@@ -84,7 +83,7 @@ class BaseTableBuilder(ABC):
 
     def write_queries(self, filename: str = "output.sql"):
         """writes all queries constructed by prepare_queries to disk"""
-        with open(filename, "w") as file:
+        with open(filename, "w", encoding="utf-8") as file:
             for query in self.queries:
                 file.write(query)
                 file.write("\n")

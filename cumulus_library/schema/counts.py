@@ -1,18 +1,18 @@
+"""Class for generating counts tables from templates"""
 import sys
-
 
 from pathlib import Path
 from typing import Union
 
 from cumulus_library.base_table_builder import BaseTableBuilder
-from cumulus_library.schema.valueset import DurationUnits
-from cumulus_library.schema.columns import ColumnEnum as Column
 from cumulus_library.study_parser import StudyManifestParser
 from cumulus_library.template_sql import templates
 from cumulus_library.errors import CountsBuilderError
 
 
 class CountsBuilder(BaseTableBuilder):
+    """Extends BaseTableBuilder for counts-related use cases"""
+
     def __init__(self, study_prefix: str = None):
         if study_prefix is None:
             # This slightly wonky approach will give us the path of the
@@ -22,11 +22,11 @@ class CountsBuilder(BaseTableBuilder):
             try:
                 parser = StudyManifestParser(study_path)
                 self.study_prefix = parser.get_study_prefix()
-            except:
+            except Exception as e:
                 raise CountsBuilderError(
                     "CountsBuilder must be either initiated with a study prefix, "
                     "or be in a directory with a valid manifest.toml"
-                )
+                ) from e
         else:
             self.study_prefix = study_prefix
         super().__init__()
