@@ -80,6 +80,8 @@ def test_count_builder_mapping(mock_connect):  # pylint: disable=unused-argument
                 "-t",
                 "study_python_counts_valid",
                 "-s" "./tests/test_data",
+                "--database",
+                "test",
             ]
         )
         builder.cursor.execute.assert_called()
