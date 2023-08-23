@@ -14,12 +14,10 @@ class CountsBuilder(BaseTableBuilder):
     """Extends BaseTableBuilder for counts-related use cases"""
 
     def __init__(self, study_prefix: str = None):
-        print(study_prefix)
         if study_prefix is None:
             # This slightly wonky approach will give us the path of the
             # directory of a class extending the CountsBuilder
             study_path = Path(sys.modules[self.__module__].__file__).parent
-            print(study_path)
 
             try:
                 parser = StudyManifestParser(study_path)

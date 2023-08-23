@@ -69,8 +69,6 @@ def test_cli_path_mapping(
         sysconfig.get_path("purelib")
         builder = cli.main(cli_args=args)
         builder.cursor.execute.assert_called()
-        print(f"{args[2]}__")
-        print(builder.cursor.execute.call_args.args[0])
         assert f"{args[2]}__" in builder.cursor.execute.call_args.args[0]
 
 
