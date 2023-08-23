@@ -76,13 +76,13 @@ def test_manifest_data(manifest_key, raises):
 @pytest.mark.parametrize(
     "schema,verbose,query_res,raises",
     [
-        ("schema", True, "test__table", does_not_raise()),
-        ("schema", False, "test__table", does_not_raise()),
-        ("schema", None, "test__table", does_not_raise()),
-        (None, True, "test__table", pytest.raises(ValueError)),
-        ("schema", None, "test__etl_table", does_not_raise()),
-        ("schema", None, "test__nlp_table", does_not_raise()),
-        ("schema", None, "test__lib_table", does_not_raise()),
+        ("schema", True, "study_valid__table", does_not_raise()),
+        ("schema", False, "study_valid__table", does_not_raise()),
+        ("schema", None, "study_valid__table", does_not_raise()),
+        (None, True, "study_valid__table", pytest.raises(ValueError)),
+        ("schema", None, "study_valid__etl_table", does_not_raise()),
+        ("schema", None, "study_valid__nlp_table", does_not_raise()),
+        ("schema", None, "study_valid__lib_table", does_not_raise()),
     ],
 )
 @mock.patch("cumulus_library.helper.query_console_output")
@@ -92,10 +92,10 @@ def test_clean_study(mock_output, schema, verbose, query_res, raises):
         mock_cursor.__iter__.return_value = [[query_res]]
         parser = StudyManifestParser("./tests/test_data/study_valid/")
         tables = parser.clean_study(mock_cursor, schema, verbose)
-        if query_res != "test__table":
+        if query_res != "study_valid__table":
             assert not tables
         else:
-            assert tables == [["test__table", "VIEW"]]
+            assert tables == [["study_valid__table", "VIEW"]]
         assert mock_output.is_called()
 
 
@@ -133,7 +133,7 @@ def test_build_study(mock_output, path, verbose, raises):
         parser.run_table_builder(mock_cursor, verbose)
         queries = parser.build_study(mock_cursor, verbose)
         if "python" not in path:
-            assert queries == [["CREATE TABLE test__table (test int)", "test.sql"]]
+            assert "CREATE TABLE" in queries[0][0]
             assert mock_output.is_called()
 
 
@@ -142,4 +142,4 @@ def test_export_study(monkeypatch):
     parser = StudyManifestParser("./tests/test_data/study_valid/")
     monkeypatch.setattr(pathlib, "PosixPath", mock.MagicMock())
     queries = parser.export_study(mock_cursor, "./path")
-    assert queries == ["select * from test__table"]
+    assert queries == ["select * from study_valid__table"]

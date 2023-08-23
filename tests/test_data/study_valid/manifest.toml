@@ -4,4 +4,4 @@ study_prefix = "study_valid"
 file_names = ["test.sql"]
 
 [export_config]
-export_list = ["test__table"]
+export_list = ["study_valid__table"]

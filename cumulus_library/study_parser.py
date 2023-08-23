@@ -255,9 +255,9 @@ class StudyManifestParser:
             )
 
         # Remove instances of intermediate classes, if present
-        for classref in table_builder_subclasses:
-            if classref.__name__ == "CountsBuilder":
-                table_builder_subclasses.remove(classref)
+        table_builder_subclasses = list(
+            filter(lambda x: x.__name__ != "CountsBuilder", table_builder_subclasses)
+        )
 
         # We'll get the subclass, initialize it, run the executor code, and then
         # remove it so it doesn't interfere with the next python module to
