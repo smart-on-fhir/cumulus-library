@@ -98,8 +98,8 @@ def test_count_builder_mapping(
     "args,cursor_calls,pandas_cursor_calls",
     [
         (["build", "-t", "vocab", "--database", "test"], 344, 0),
-        (["build", "-t", "core", "--database", "test"], 47, 0),
-        (["export", "-t", "core", "--database", "test"], 1, 10),
+        (["build", "-t", "core", "--database", "test"], 54, 0),
+        (["export", "-t", "core", "--database", "test"], 1, 13),
         (
             [
                 "build",
@@ -128,7 +128,7 @@ def test_count_builder_mapping(
         ),
         (
             ["build", "-t", "core", "-s", "tests/test_data/", "--database", "test"],
-            47,
+            54,
             0,
         ),
         (
@@ -141,7 +141,7 @@ def test_count_builder_mapping(
                 "cumulus_library/data_export",
             ],
             1,
-            10,
+            13,
         ),
     ],
 )
