@@ -25,7 +25,7 @@ file_names = [
     "study_period.sql",
 ]
 
-[count_table_builder_config]
+[counts_builder_config]
 file_names = [
     "count_core.py"
 ]

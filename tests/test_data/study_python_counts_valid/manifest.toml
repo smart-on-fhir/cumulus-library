@@ -1,4 +1,4 @@
 study_prefix = "study_python_counts_valid"
 
-[counts_table_builder_config]
+[counts_builder_config]
 file_names = ["module1.py", "module1.py", "module2.py"]

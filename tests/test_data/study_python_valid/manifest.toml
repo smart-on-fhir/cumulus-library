@@ -1,4 +1,4 @@
-study_prefix = "test_python"
+study_prefix = "study_python_valid"
 
 [table_builder_config]
 file_names = ["module1.py", "module1.py", "module2.py"]

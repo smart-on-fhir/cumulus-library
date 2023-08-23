@@ -116,7 +116,7 @@ class StudyBuilder:
         studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
         studyparser.run_table_builder(self.cursor, self.schema_name, self.verbose)
         studyparser.build_study(self.cursor, self.verbose)
-        studyparser.run_count_table_builder(self.cursor, self.schema_name, self.verbose)
+        studyparser.run_counts_builder(self.cursor, self.schema_name, self.verbose)
 
     def run_single_table_builder(
         self, target: PosixPath, table_builder_name: str
