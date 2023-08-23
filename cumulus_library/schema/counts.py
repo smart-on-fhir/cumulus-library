@@ -61,7 +61,7 @@ class CountsBuilder(BaseTableBuilder):
             )
         for key in kwargs:
             if key not in ["min_subject", "where_clauses", "cnt_encounter"]:
-                raise CountsBuilderError(f"count_query recieved unexpected key: {key}")
+                raise CountsBuilderError(f"count_query received unexpected key: {key}")
         return templates.get_count_query(table_name, source_table, table_cols, **kwargs)
 
     def count_patient(
