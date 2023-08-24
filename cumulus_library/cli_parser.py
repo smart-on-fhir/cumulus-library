@@ -16,9 +16,9 @@ def add_target_argument(parser: argparse.ArgumentParser) -> None:
 
 
 def add_table_builder_argument(parser: argparse.ArgumentParser) -> None:
-    """Adds --table_builder arg to a subparser"""
+    """Adds --builder arg to a subparser"""
     parser.add_argument(
-        "--table-builder",
+        "--builder",
         help=(argparse.SUPPRESS),
     )
 
