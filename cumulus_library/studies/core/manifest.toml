@@ -6,6 +6,7 @@ file_names = [
     "builder_encounter_coding.py",
     "builder_core_medication.py",
     "builder_patient_extension.py",
+    "builder_soe.py"
 ]
 
 [sql_config]

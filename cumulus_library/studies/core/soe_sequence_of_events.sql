@@ -241,16 +241,17 @@ CREATE TABLE core__soe_document AS
 WITH soe_document_rawdata AS (
     SELECT DISTINCT
         cast(
-            from_iso8601_timestamp(context.period."start") AS timestamp
+            from_iso8601_timestamp(sdp."start") AS timestamp
         ) AS doc_start_datetime,
         cast(
-            from_iso8601_timestamp(context.period."end") AS timestamp
+            from_iso8601_timestamp(sdp."end") AS timestamp
         ) AS doc_end_datetime,
         doc.subject.reference AS subject_ref,
         doc.context,
         doc.id AS doc_id,
         concat('DocumentReference/', doc.id) AS doc_ref
     FROM documentreference AS doc
+    LEFT JOIN core__soe_doc_period AS sdp ON sdp.id = doc.id
 ),
 
 document AS (

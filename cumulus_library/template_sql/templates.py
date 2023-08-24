@@ -318,3 +318,23 @@ def get_show_views(schema_name: str, prefix: str) -> str:
         return Template(show_tables.read()).render(
             schema_name=schema_name, prefix=prefix
         )
+
+
+def get_object_denormalize_query(
+    schema: str,
+    source_table: str,
+    source_id: str,
+    field: str,
+    field_config: dict,
+    target_table: str,
+):
+    path = Path(__file__).parent
+    with open(f"{path}/object_denormalize.sql.jinja") as column_datatype:
+        return Template(column_datatype.read()).render(
+            schema=schema,
+            source_table=source_table,
+            source_id=source_id,
+            field=field,
+            field_config=field_config,
+            target_table=target_table,
+        )

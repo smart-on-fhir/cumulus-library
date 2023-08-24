@@ -1,0 +1,15 @@
+CREATE TABLE "{{schema}}"."{{ target_table }}" AS (
+    SELECT
+        {{ source_id }},
+        {%- for key in field_config.keys() %}
+        {%- if field_config[key]['present'] %}
+        {{ field }}."{{ key }}" as "{{ key }}"
+        {%- else %}
+        cast(NULL AS {{  field_config[key]['type'] }}) as "{{ key }}"
+        {%- endif %}
+        {%- if not loop.last -%}
+        , 
+        {%- endif -%}
+        {%- endfor %}
+    FROM {{ source_table }}
+);

@@ -59,6 +59,7 @@ class BaseTableBuilder(ABC):
                         table_name = table_name.split(".")[1].replace('"', "")
                     table_names.append(table_name)
             for table_name in table_names:
+                table_name = table_name.replace('"', "")
                 cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
         with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
