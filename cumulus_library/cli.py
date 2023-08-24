@@ -116,6 +116,7 @@ class StudyBuilder:
         studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
         studyparser.run_table_builder(self.cursor, self.schema_name, self.verbose)
         studyparser.build_study(self.cursor, self.verbose)
+        studyparser.run_counts_builder(self.cursor, self.schema_name, self.verbose)
 
     def run_single_table_builder(
         self, target: PosixPath, table_builder_name: str
@@ -262,9 +263,9 @@ def run_cli(args: Dict):
                     builder.clean_and_build_all(study_dict)
                 else:
                     for target in args["target"]:
-                        if args["table_builder"]:
+                        if args["builder"]:
                             builder.run_single_table_builder(
-                                study_dict[target], args["table_builder"]
+                                study_dict[target], args["builder"]
                             )
                         else:
                             builder.clean_and_build_study(study_dict[target])

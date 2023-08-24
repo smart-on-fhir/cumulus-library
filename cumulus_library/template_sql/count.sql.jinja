@@ -1,0 +1,53 @@
+-- noqa: disable=LT02
+{# LT02 is a indentation rule that overfires in the where clause construction;
+it simultaneously asks for indentation of 4 and 8 spaces.
+
+TODO: revisit on sqlfluff upgrade #}
+CREATE TABLE {{ table_name }} AS (
+    WITH powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject,
+            {%- if cnt_encounter %}
+            count(DISTINCT encounter_ref) AS cnt_encounter,
+            {%- endif -%}
+            {% for col in table_cols %}
+            {{ col }}
+            {%- if not loop.last -%}
+            , 
+            {%- endif -%}
+            {%- endfor %}
+        FROM {{ source_table }}
+        GROUP BY
+            cube( 
+                {%- for col in table_cols %}
+                {{ col }}
+                {%- if not loop.last -%}
+                , 
+                {%- endif -%}
+                {%- endfor %}
+            )
+    )
+
+    SELECT
+        {%- if cnt_encounter %}
+        cnt_encounter
+        {%- else %}
+        cnt_subject
+        {%- endif %} AS cnt,
+        {%- for col in table_cols %}
+        {{ col }}
+        {%- if not loop.last -%}
+        , 
+        {%- endif -%}
+        {%- endfor %}
+    FROM powerset
+    {%- if where_clauses %}
+    WHERE
+        {% for clause in where_clauses %}{{ clause }}
+        {% if not loop.last %}AND {% endif %}
+        {%- endfor -%}
+    {% else %}
+    WHERE 
+        cnt_subject >= {{ min_subject }}
+    {%- endif %}
+);

@@ -6,6 +6,7 @@ from cumulus_library.template_sql.templates import (
     get_codeable_concept_denormalize_query,
     get_column_datatype_query,
     get_core_medication_query,
+    get_count_query,
     get_create_view_query,
     get_ctas_query,
     get_extension_denormalize_query,
@@ -14,147 +15,45 @@ from cumulus_library.template_sql.templates import (
 )
 
 
-def test_create_view_query_creation():
-    expected = """CREATE OR REPLACE VIEW test_view AS (
-    SELECT * FROM (
-        VALUES
-        ('foo','foo'),
-        ('bar','bar')
-    )
-    AS t -- noqa: L025
-    (a,b)
-);"""
-    query = get_create_view_query(
-        view_name="test_view",
-        dataset=[["foo", "foo"], ["bar", "bar"]],
-        view_cols=["a", "b"],
-    )
-    print(query)
-    assert query == expected
-
-
-def test_ctas_query_creation():
-    expected = """CREATE TABLE "test_schema"."test_table" AS (
-    SELECT * FROM (
-        VALUES
-        ((cast('foo' AS varchar),cast('foo' AS varchar))),
-        ((cast('bar' AS varchar),cast('bar' AS varchar)))
-    )
-    AS t -- noqa: L025
-    (a,b)
-);"""
-    query = get_ctas_query(
-        schema_name="test_schema",
-        table_name="test_table",
-        dataset=[["foo", "foo"], ["bar", "bar"]],
-        table_cols=["a", "b"],
-    )
-    print(query)
-    assert query == expected
-
-
-def test_insert_into_query_creation():
-    expected = """INSERT INTO test_table
-(a,b)
-VALUES
-(('foo','foo')),
-(('bar','bar'));"""
-    query = get_insert_into_query(
-        table_name="test_table",
-        table_cols=["a", "b"],
-        dataset=[["foo", "foo"], ["bar", "bar"]],
-    )
-    assert query == expected
-
-
-def test_extension_denormalize_creation():
-    expected = """CREATE TABLE target_table AS (
+def test_codeable_concept_denormalize_all_creation():
+    expected = """CREATE TABLE target__concepts AS (
     WITH
-
-    system_omb AS (
+    system_code_col_0 AS (
         SELECT DISTINCT
-            s.source_id AS id,
-            '0' AS priority,
-            'omb' AS system, -- noqa: RF04
-            ext_child.ext.valuecoding.code AS prefix_code,
-            ext_child.ext.valuecoding.display AS prefix_display
+            s.id AS id,
+            u.codeable_concept.code AS code,
+            u.codeable_concept.display AS display,
+            u.codeable_concept.system AS code_system
         FROM
-            source_table AS s,
-            UNNEST(extension) AS ext_parent (ext),
-            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
-        WHERE
-            ext_parent.ext.url = 'fhir_extension'
-            AND ext_child.ext.url = 'omb'
-            AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
-
-    system_text AS (
-        SELECT DISTINCT
-            s.source_id AS id,
-            '1' AS priority,
-            'text' AS system, -- noqa: RF04
-            ext_child.ext.valuecoding.code AS prefix_code,
-            ext_child.ext.valuecoding.display AS prefix_display
-        FROM
-            source_table AS s,
-            UNNEST(extension) AS ext_parent (ext),
-            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
-        WHERE
-            ext_parent.ext.url = 'fhir_extension'
-            AND ext_child.ext.url = 'text'
-            AND ext_child.ext.valuecoding.display != ''
+            source AS s,
+            UNNEST(s.code_col) AS cc (cc_row),
+            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
     ), --noqa: LT07
 
     union_table AS (
         SELECT
             id,
-            priority,
-            system,
-            prefix_code,
-            prefix_display
-        FROM system_omb
-        UNION
-        SELECT
-            id,
-            priority,
-            system,
-            prefix_code,
-            prefix_display
-        FROM system_text
-        ORDER BY id, priority
+            code_system,
+            code,
+            display
+        FROM system_code_col_0
     )
-
     SELECT
         id,
-        system,
-        prefix_code,
-        prefix_display
-    FROM (
-        SELECT
-            id,
-            system,
-            ARRAY_AGG(prefix_code) AS prefix_code,
-            ARRAY_AGG(
-                prefix_display
-            ) AS prefix_display,
-            ROW_NUMBER()
-            OVER (
-                PARTITION BY id, system
-            ) AS available_priority
-        FROM union_table
-        GROUP BY id, system
+        code,
+        code_system,
+        display
+    FROM union_table
+);
+"""
+    config = CodeableConceptConfig(
+        source_table="source",
+        source_id="id",
+        column_name="code_col",
+        target_table="target__concepts",
+        is_array=True,
     )
-    WHERE available_priority = 1
-);"""
-    config = ExtensionConfig(
-        "source_table",
-        "source_id",
-        "target_table",
-        "prefix",
-        "fhir_extension",
-        ["omb", "text"],
-    )
-    query = get_extension_denormalize_query(config)
+    query = get_codeable_concept_denormalize_query(config)
     assert query == expected
 
 
@@ -249,96 +148,6 @@ def test_codeable_concept_denormalize_filter_creation():
     assert query == expected
 
 
-def test_codeable_concept_denormalize_all_creation():
-    expected = """CREATE TABLE target__concepts AS (
-    WITH
-    system_code_col_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
-            u.codeable_concept.system AS code_system
-        FROM
-            source AS s,
-            UNNEST(s.code_col) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            code_system,
-            code,
-            display
-        FROM system_code_col_0
-    )
-    SELECT
-        id,
-        code,
-        code_system,
-        display
-    FROM union_table
-);
-"""
-    config = CodeableConceptConfig(
-        source_table="source",
-        source_id="id",
-        column_name="code_col",
-        target_table="target__concepts",
-        is_array=True,
-    )
-    query = get_codeable_concept_denormalize_query(config)
-    assert query == expected
-
-
-def test_is_table_not_empty():
-    expected = """SELECT
-    field_name
-FROM
-    table_name
-WHERE
-    field_name IS NOT NULL
-LIMIT 1;"""
-    query = get_is_table_not_empty_query(source_table="table_name", field="field_name")
-    assert query == expected
-
-    expected = """SELECT
-    field_name
-FROM
-    table_name,
-    UNNEST(t) AS a (b),
-    UNNEST(x) AS y (z)
-WHERE
-    field_name IS NOT NULL
-LIMIT 1;"""
-    query = get_is_table_not_empty_query(
-        source_table="table_name",
-        field="field_name",
-        unnests=[
-            {"source_col": "t", "table_alias": "a", "row_alias": "b"},
-            {"source_col": "x", "table_alias": "y", "row_alias": "z"},
-        ],
-    )
-    assert query == expected
-
-    expected = """SELECT
-    field_name
-FROM
-    table_name
-WHERE
-    field_name IS NOT NULL
-    AND field_name LIKE 's%' --noqa: LT02
-    AND field_name IS NOT NULL --noqa: LT02
-LIMIT 1;"""
-
-    query = get_is_table_not_empty_query(
-        source_table="table_name",
-        field="field_name",
-        conditions=["field_name LIKE 's%'", "field_name IS NOT NULL"],
-    )
-    assert query == expected
-
-
 def test_get_column_datatype_query():
     expected = """SELECT data_type
 FROM information_schema.columns
@@ -402,3 +211,271 @@ def test_core_medication_query(medication_datasources, contains, omits):
         assert item in query
     for item in omits:
         assert item not in query
+
+
+def test_count_query():
+    expected = """
+CREATE TABLE test_table AS (
+    WITH powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject,
+            age,
+            sex
+        FROM test_source
+        GROUP BY
+            cube(
+                age,
+                sex
+            )
+    )
+
+    SELECT
+        cnt_subject AS cnt,
+        age,
+        sex
+    FROM powerset
+    WHERE 
+        cnt_subject >= 10
+);"""
+    expected2 = """    table_name: str,
+    source_table: str,
+    table_cols: list,
+    min_subject: int = 10,
+    where_clauses: Optional[list] = None,
+    cnt_encounter: Optional[str] = None,"""
+    query = get_count_query("test_table", "test_source", ["age", "sex"])
+    with open("output.sql", "w") as f:
+        f.write(query)
+    assert query == expected
+    query = get_count_query("test_table", "test_source", ["age", "sex"], min_subject=5)
+    print(query)
+    assert "cnt_subject >= 5" in query
+
+    expected = """
+CREATE TABLE test_table AS (
+    WITH powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject,
+            count(DISTINCT encounter_ref) AS cnt_encounter,
+            age,
+            sex
+        FROM test_source
+        GROUP BY
+            cube(
+                age,
+                sex
+            )
+    )
+
+    SELECT
+        cnt_encounter AS cnt,
+        age,
+        sex
+    FROM powerset
+    WHERE
+        age > 10
+        AND sex ==  'F'
+        
+);"""
+    query = get_count_query(
+        "test_table",
+        "test_source",
+        ["age", "sex"],
+        where_clauses=["age > 10", "sex ==  'F'"],
+        cnt_encounter=True,
+    )
+    with open("output.sql", "w") as f:
+        f.write(query)
+    assert query == expected
+
+
+def test_create_view_query_creation():
+    expected = """CREATE OR REPLACE VIEW test_view AS (
+    SELECT * FROM (
+        VALUES
+        ('foo','foo'),
+        ('bar','bar')
+    )
+    AS t -- noqa: L025
+    (a,b)
+);"""
+    query = get_create_view_query(
+        view_name="test_view",
+        dataset=[["foo", "foo"], ["bar", "bar"]],
+        view_cols=["a", "b"],
+    )
+    print(query)
+    assert query == expected
+
+
+def test_ctas_query_creation():
+    expected = """CREATE TABLE "test_schema"."test_table" AS (
+    SELECT * FROM (
+        VALUES
+        ((cast('foo' AS varchar),cast('foo' AS varchar))),
+        ((cast('bar' AS varchar),cast('bar' AS varchar)))
+    )
+    AS t -- noqa: L025
+    (a,b)
+);"""
+    query = get_ctas_query(
+        schema_name="test_schema",
+        table_name="test_table",
+        dataset=[["foo", "foo"], ["bar", "bar"]],
+        table_cols=["a", "b"],
+    )
+    print(query)
+    assert query == expected
+
+
+def test_extension_denormalize_creation():
+    expected = """CREATE TABLE target_table AS (
+    WITH
+
+    system_omb AS (
+        SELECT DISTINCT
+            s.source_id AS id,
+            '0' AS priority,
+            'omb' AS system, -- noqa: RF04
+            ext_child.ext.valuecoding.code AS prefix_code,
+            ext_child.ext.valuecoding.display AS prefix_display
+        FROM
+            source_table AS s,
+            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
+        WHERE
+            ext_parent.ext.url = 'fhir_extension'
+            AND ext_child.ext.url = 'omb'
+            AND ext_child.ext.valuecoding.display != ''
+    ), --noqa: LT07
+
+    system_text AS (
+        SELECT DISTINCT
+            s.source_id AS id,
+            '1' AS priority,
+            'text' AS system, -- noqa: RF04
+            ext_child.ext.valuecoding.code AS prefix_code,
+            ext_child.ext.valuecoding.display AS prefix_display
+        FROM
+            source_table AS s,
+            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
+        WHERE
+            ext_parent.ext.url = 'fhir_extension'
+            AND ext_child.ext.url = 'text'
+            AND ext_child.ext.valuecoding.display != ''
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            priority,
+            system,
+            prefix_code,
+            prefix_display
+        FROM system_omb
+        UNION
+        SELECT
+            id,
+            priority,
+            system,
+            prefix_code,
+            prefix_display
+        FROM system_text
+        ORDER BY id, priority
+    )
+
+    SELECT
+        id,
+        system,
+        prefix_code,
+        prefix_display
+    FROM (
+        SELECT
+            id,
+            system,
+            ARRAY_AGG(prefix_code) AS prefix_code,
+            ARRAY_AGG(
+                prefix_display
+            ) AS prefix_display,
+            ROW_NUMBER()
+            OVER (
+                PARTITION BY id, system
+            ) AS available_priority
+        FROM union_table
+        GROUP BY id, system
+    )
+    WHERE available_priority = 1
+);"""
+    config = ExtensionConfig(
+        "source_table",
+        "source_id",
+        "target_table",
+        "prefix",
+        "fhir_extension",
+        ["omb", "text"],
+    )
+    query = get_extension_denormalize_query(config)
+    assert query == expected
+
+
+def test_insert_into_query_creation():
+    expected = """INSERT INTO test_table
+(a,b)
+VALUES
+(('foo','foo')),
+(('bar','bar'));"""
+    query = get_insert_into_query(
+        table_name="test_table",
+        table_cols=["a", "b"],
+        dataset=[["foo", "foo"], ["bar", "bar"]],
+    )
+    assert query == expected
+
+
+def test_is_table_not_empty():
+    expected = """SELECT
+    field_name
+FROM
+    table_name
+WHERE
+    field_name IS NOT NULL
+LIMIT 1;"""
+    query = get_is_table_not_empty_query(source_table="table_name", field="field_name")
+    assert query == expected
+
+    expected = """SELECT
+    field_name
+FROM
+    table_name,
+    UNNEST(t) AS a (b),
+    UNNEST(x) AS y (z)
+WHERE
+    field_name IS NOT NULL
+LIMIT 1;"""
+    query = get_is_table_not_empty_query(
+        source_table="table_name",
+        field="field_name",
+        unnests=[
+            {"source_col": "t", "table_alias": "a", "row_alias": "b"},
+            {"source_col": "x", "table_alias": "y", "row_alias": "z"},
+        ],
+    )
+    assert query == expected
+
+    expected = """SELECT
+    field_name
+FROM
+    table_name
+WHERE
+    field_name IS NOT NULL
+    AND field_name LIKE 's%' --noqa: LT02
+    AND field_name IS NOT NULL --noqa: LT02
+LIMIT 1;"""
+
+    query = get_is_table_not_empty_query(
+        source_table="table_name",
+        field="field_name",
+        conditions=["field_name LIKE 's%'", "field_name IS NOT NULL"],
+    )
+    assert query == expected

@@ -95,11 +95,19 @@ class StudyManifestParser:
         return sql_config.get("file_names", [])
 
     def get_table_builder_file_list(self) -> Optional[StrList]:
-        """Reads the contents of the python_config array from the manifest
+        """Reads the contents of the table_builder_config array from the manifest
 
         :returns: An array of sql files from the manifest, or None if not found.
         """
         sql_config = self._study_config.get("table_builder_config", {})
+        return sql_config.get("file_names", [])
+
+    def get_counts_builder_file_list(self) -> Optional[StrList]:
+        """Reads the contents of the counts_builder_config array from the manifest
+
+        :returns: An array of sql files from the manifest, or None if not found.
+        """
+        sql_config = self._study_config.get("counts_builder_config", {})
         return sql_config.get("file_names", [])
 
     def get_export_table_list(self) -> Optional[StrList]:
@@ -233,18 +241,23 @@ class StudyManifestParser:
 
         # We're going to find all subclasses of BaseTableBuild in this file.
         # Since BaseTableBuilder itself is a valid subclass of BaseTableBuilder,
-        # we'll detect and skip it. If we don't find exactly one subclass,
+        # we'll detect and skip it. If we don't find any subclasses,
         # we'll punt.
         table_builder_subclasses = []
         for _, cls_obj in inspect.getmembers(table_builder_module, inspect.isclass):
             if issubclass(cls_obj, BaseTableBuilder) and cls_obj != BaseTableBuilder:
                 table_builder_subclasses.append(cls_obj)
-        if len(table_builder_subclasses) != 1:
+
+        if len(table_builder_subclasses) == 0:
             raise StudyManifestParsingError(
                 f"Error loading {self._study_path}{filename}\n"
-                "Custom builders must extend the BaseTableBuilder "
-                "class exactly once per module."
+                "Custom builders must extend the BaseTableBuilder class."
             )
+
+        # Remove instances of intermediate classes, if present
+        table_builder_subclasses = list(
+            filter(lambda x: x.__name__ != "CountsBuilder", table_builder_subclasses)
+        )
 
         # We'll get the subclass, initialize it, run the executor code, and then
         # remove it so it doesn't interfere with the next python module to
@@ -269,6 +282,18 @@ class StudyManifestParser:
         :param verbose: toggle from progress bar to query output
         """
         for file in self.get_table_builder_file_list():
+            self._load_and_execute_builder(file, cursor, schema, verbose)
+
+    def run_counts_builder(
+        self, cursor: object, schema: str, verbose: bool = False
+    ) -> None:
+        """Loads counts modules from a manifest and executes code via BaseTableBuilder
+
+        :param cursor: A PEP-249 compatible cursor object
+        :param schema: The name of the schema to write tables to
+        :param verbose: toggle from progress bar to query output
+        """
+        for file in self.get_counts_builder_file_list():
             self._load_and_execute_builder(file, cursor, schema, verbose)
 
     def run_single_table_builder(

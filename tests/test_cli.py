@@ -69,6 +69,28 @@ def test_cli_path_mapping(
         sysconfig.get_path("purelib")
         builder = cli.main(cli_args=args)
         builder.cursor.execute.assert_called()
+        assert f"{args[2]}__" in builder.cursor.execute.call_args.args[0]
+
+
+@mock.patch("sysconfig.get_path")
+@mock.patch("pyathena.connect")
+def test_count_builder_mapping(
+    mock_connect, mock_path
+):  # pylint: disable=unused-argument
+    mock_path.return_value = f"{Path(__file__).resolve().parents[0]}" "/test_data/"
+    with does_not_raise():
+        builder = cli.main(
+            cli_args=[
+                "build",
+                "-t",
+                "study_python_counts_valid",
+                "-s" "./tests/test_data",
+                "--database",
+                "test",
+            ]
+        )
+        builder.cursor.execute.assert_called()
+        assert "study_python_counts_valid__" in builder.cursor.execute.call_args.args[0]
 
 
 @mock.patch("pyathena.connect")

@@ -1,128 +1,98 @@
-# pylint: disable=W,C,R
-from cumulus_library.schema.valueset import DurationUnits
-from cumulus_library.schema.columns import ColumnEnum as Column
-from cumulus_library.errors import LibraryError
+"""Class for generating counts tables from templates"""
+import sys
 
-##################################################
-# Google Style Guide
-#
-# https://google.github.io/styleguide/pyguide.html
-# Design by composition composition for
-#
-# Query Grammar (in progress)
-#
-# Functions = support iterable lists/types
-# Objects = typesafety only
-##################################################
+from pathlib import Path
+from typing import Union
+
+from cumulus_library.base_table_builder import BaseTableBuilder
+from cumulus_library.study_parser import StudyManifestParser
+from cumulus_library.template_sql import templates
+from cumulus_library.errors import CountsBuilderError
 
 
-def drop(table_or_view) -> str:
-    return f"DROP table if exists {table_or_view};"
+class CountsBuilder(BaseTableBuilder):
+    """Extends BaseTableBuilder for counts-related use cases"""
 
+    def __init__(self, study_prefix: str = None):
+        if study_prefix is None:
+            # This slightly wonky approach will give us the path of the
+            # directory of a class extending the CountsBuilder
+            study_path = Path(sys.modules[self.__module__].__file__).parent
 
-def create_view(view_name) -> str:
-    return f"CREATE or replace VIEW {view_name} AS "
-
-
-def name_view(count_from_table: str, duration_col=None):
-    if duration_col:
-        return f"{count_from_table}_{as_duration(duration_col).name}"
-    else:
-        return f"{count_from_table}"
-
-
-def as_duration(col: str) -> DurationUnits:
-    if "_months" in col:
-        return DurationUnits.months
-    elif "_weeks" in col:
-        return DurationUnits.weeks
-    elif "_days" in col:
-        return DurationUnits.days
-
-
-def str_columns(cols) -> str:
-    if isinstance(cols, str):
-        return cols
-    if isinstance(cols, Column):
-        return cols.name
-    if isinstance(cols, list):
-        targets = [str_columns(c) for c in cols]
-        return ", ".join(targets)
-
-
-def where_clauses(clause=None, min_subject=10) -> str:
-    if not clause:
-        return f"cnt_subject >= {min_subject}"
-    elif isinstance(clause, str):
-        return clause
-    elif isinstance(clause, list):
-        return str_columns(clause) + ", cnt desc"
-    else:
-        raise LibraryError(f"where_sql() invalid clause {clause}")
-
-
-def order_by_sql(order=None, cnt_desc=True) -> str:
-    if not order:
-        if cnt_desc:
-            return "cnt desc;"
-    elif isinstance(order, str):
-        return order
-    elif isinstance(order, list):
-        if cnt_desc:
-            return str_columns(order) + ", cnt desc;"
+            try:
+                parser = StudyManifestParser(study_path)
+                self.study_prefix = parser.get_study_prefix()
+            except Exception as e:
+                raise CountsBuilderError(
+                    "CountsBuilder must be either initiated with a study prefix, "
+                    "or be in a directory with a valid manifest.toml"
+                ) from e
         else:
-            return str_columns(order) + ";"
+            self.study_prefix = study_prefix
+        super().__init__()
 
+    def get_table_name(self, table_name: str, duration=None) -> str:
+        """Convenience method for constructing table name"""
+        if duration:
+            return f"{self.study_prefix}__{table_name}_{duration}"
+        else:
+            return f"{self.study_prefix}__{table_name}"
 
-def count_patient(
-    view_name: str, from_table: str, cols_object, where=None, order_by=None
-) -> str:
-    return count_query(
-        view_name, from_table, cols_object, where, order_by, cnt_encounter=False
-    )
+    def get_where_clauses(
+        self, clause: Union[list, str, None] = None, min_subject: int = 10
+    ) -> str:
+        """convenience method for constructing where clauses"""
+        if clause is None:
+            return [f"cnt_subject >= {min_subject}"]
+        elif isinstance(clause, str):
+            return [clause]
+        elif isinstance(clause, list):
+            return clause
+        else:
+            raise CountsBuilderError(f"get_where_clauses invalid clause {clause}")
 
+    def get_count_query(
+        self, table_name: str, source_table: str, table_cols: list, **kwargs
+    ) -> str:
+        """Wrapper method for generating a counts table from a template"""
+        if not table_name or not source_table or not table_cols:
+            raise CountsBuilderError(
+                "count_query missing required arguments. " f"output table: {table_name}"
+            )
+        for key in kwargs:
+            if key not in ["min_subject", "where_clauses", "cnt_encounter"]:
+                raise CountsBuilderError(f"count_query received unexpected key: {key}")
+        return templates.get_count_query(table_name, source_table, table_cols, **kwargs)
 
-def count_encounter(
-    view_name: str, from_table: str, cols_object, where=None, order_by=None
-) -> str:
-    return count_query(
-        view_name, from_table, cols_object, where, order_by, cnt_encounter=True
-    )
+    def count_patient(
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: list,
+        where_clauses=None,
+    ) -> str:
+        """wrapper method for constructing patient counts tables"""
+        return self.get_count_query(
+            table_name, source_table, table_cols, where_clauses=where_clauses
+        )
 
+    def count_encounter(
+        self, table_name: str, source_table: str, table_cols: list, where_clauses=None
+    ) -> str:
+        """wrapper method for constructing encounter counts tables"""
+        return self.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            where_clauses=where_clauses,
+            cnt_encounter=True,
+        )
 
-def count_query(
-    view_name: str,
-    from_table: str,
-    cols_object,
-    where=None,
-    order_by=None,
-    cnt_encounter=None,
-) -> str:
-    cols = str_columns(cols_object)
+    def write_counts(self, filepath: str):
+        """Convenience method for writing counts queries to disk"""
+        self.prepare_queries(cursor=None, schema=None)
+        self.comment_queries()
+        self.write_queries(filename=filepath)
 
-    cnt_subject = "count(distinct subject_ref)   as cnt_subject"
-
-    if cnt_encounter:
-        cnt_encounter = ", count(distinct encounter_ref)   as cnt_encounter"
-    else:
-        cnt_encounter = False
-
-    return f"""
-    {create_view(view_name)}
-    with powerset as
-    (
-        select
-        {cnt_subject}
-        {cnt_encounter if cnt_encounter else ''}
-        , {cols}        
-        FROM {from_table}
-        group by CUBE
-        ( {cols} )
-    )
-    select
-          {'cnt_encounter ' if cnt_encounter else 'cnt_subject'} as cnt 
-        , {cols}
-    from powerset 
-    WHERE {where_clauses(where)} 
-    ORDER BY {order_by_sql(order_by)}
-    """.strip()
+    def prepare_queries(self, cursor: object = None, schema: str = None):
+        pass
