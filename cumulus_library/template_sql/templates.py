@@ -278,6 +278,7 @@ def get_is_table_not_empty_query(
     unnests: Optional[list[dict]] = [],
     conditions: Optional[list[str]] = [],
 ):
+    """Checks for presence of data, allowing for unnesting or filtering"""
     path = Path(__file__).parent
     with open(f"{path}/is_table_not_empty.sql.jinja") as is_table_not_empty:
         return Template(is_table_not_empty.read()).render(
@@ -285,6 +286,34 @@ def get_is_table_not_empty_query(
             field=field,
             unnests=unnests,
             conditions=conditions,
+        )
+
+
+def get_object_denormalize_query(
+    schema_name: str,
+    source_table: str,
+    source_id: str,
+    field: str,
+    field_config: dict,
+    target_table: str,
+):
+    """Generates a table by expanding a specified row element
+
+    :param schema_name: The athena query to create the table in
+    :param table_name: The name of the athena table to create
+    :param table_cols: Comma deleniated column names, i.e. ['first','second']
+    :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
+
+    """
+    path = Path(__file__).parent
+    with open(f"{path}/object_denormalize.sql.jinja") as column_datatype:
+        return Template(column_datatype.read()).render(
+            schema_name=schema_name,
+            source_table=source_table,
+            source_id=source_id,
+            field=field,
+            field_config=field_config,
+            target_table=target_table,
         )
 
 
@@ -317,24 +346,4 @@ def get_show_views(schema_name: str, prefix: str) -> str:
     with open(f"{path}/show_views.sql.jinja") as show_tables:
         return Template(show_tables.read()).render(
             schema_name=schema_name, prefix=prefix
-        )
-
-
-def get_object_denormalize_query(
-    schema: str,
-    source_table: str,
-    source_id: str,
-    field: str,
-    field_config: dict,
-    target_table: str,
-):
-    path = Path(__file__).parent
-    with open(f"{path}/object_denormalize.sql.jinja") as column_datatype:
-        return Template(column_datatype.read()).render(
-            schema=schema,
-            source_table=source_table,
-            source_id=source_id,
-            field=field,
-            field_config=field_config,
-            target_table=target_table,
         )

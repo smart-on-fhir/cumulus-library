@@ -9,10 +9,10 @@ from cumulus_library.template_sql.templates import (
 
 
 class SOEBuilder(BaseTableBuilder):
-    display_text = "Creating condition code table..."
+    display_text = "Creating SoE support tables..."
 
     def prepare_queries(self, cursor: object, schema: str):
-        """Constructs queries related to condition codeableConcept
+        """Constructs tables for SOE QA verification
 
         :param cursor: A database cursor object
         :param schema: the schema/db name, matching the cursor
@@ -55,4 +55,3 @@ class SOEBuilder(BaseTableBuilder):
                 "core__soe_doc_period",
             )
         )
-        self.write_queries()
