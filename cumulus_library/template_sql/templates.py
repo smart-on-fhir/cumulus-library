@@ -297,12 +297,26 @@ def get_object_denormalize_query(
     field_config: dict,
     target_table: str,
 ):
-    """Generates a table by expanding a specified row element
+    """Generates a table by expanding a specified row element.
+
+    More generally, this is meant to help deal with nested FHIR elements that
+    differ in implementation between different EHR platforms. As an example,
+    the first way this is used was to deal with the DocumentReference.context
+    field which contains a period element (represented by a row in SQL)
+    (https://www.hl7.org/fhir/datatypes.html#Period). In one EHR vendor's data,
+    both start and end were present, while in another, only start was present.
+
+    This method allows us to extract the data from these two fields, if present,
+    and otherwise cast a null value as a missing column, such that the output
+    table is always guaranteed to have the desired columns for downstream
+    joins.
 
     :param schema_name: The athena query to create the table in
-    :param table_name: The name of the athena table to create
-    :param table_cols: Comma deleniated column names, i.e. ['first','second']
-    :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
+    :param source_table: The name of the athena table to create
+    :param source_id: The ID field for use in downstream joins
+    :param field: the field to target (either column or nested element)
+    :param field_config: config dict: {'field':{'present':bool,'type':type}}
+    :param target_table: name of the table to create
 
     """
     path = Path(__file__).parent
