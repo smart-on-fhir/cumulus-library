@@ -98,7 +98,7 @@ def test_count_builder_mapping(
     "args,cursor_calls,pandas_cursor_calls",
     [
         (["build", "-t", "vocab", "--database", "test"], 344, 0),
-        (["build", "-t", "core", "--database", "test"], 54, 0),
+        (["build", "-t", "core", "--database", "test"], 56, 0),
         (["export", "-t", "core", "--database", "test"], 1, 13),
         (
             [
@@ -128,7 +128,7 @@ def test_count_builder_mapping(
         ),
         (
             ["build", "-t", "core", "-s", "tests/test_data/", "--database", "test"],
-            54,
+            56,
             0,
         ),
         (

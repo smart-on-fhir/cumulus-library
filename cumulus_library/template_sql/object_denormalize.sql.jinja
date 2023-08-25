@@ -1,11 +1,11 @@
-CREATE TABLE "{{schema_name}}"."{{ target_table }}" AS (
+CREATE TABLE "{{ schema_name }}"."{{ target_table }}" AS (
     SELECT
         {{ source_id }},
         {%- for key in field_config.keys() %}
         {%- if field_config[key]['present'] %}
-        {{ field }}."{{ key }}" as "{{ key }}"
+        {{ field }}."{{ key }}" AS "{{ key }}"
         {%- else %}
-        cast(NULL AS {{  field_config[key]['type'] }}) as "{{ key }}"
+        cast(NULL AS {{ field_config[key]['type'] }}) AS "{{ key }}"
         {%- endif %}
         {%- if not loop.last -%}
         , 
