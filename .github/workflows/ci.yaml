@@ -47,3 +47,33 @@ jobs:
         if: success() || failure() # still run black if above checks fails
         run: |
           black --check --verbose .
+  regression:
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write # This is required for requesting the JWT
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+      # See https://github.com/aws-actions/configure-aws-credentials for configuring
+      # the aws side of this - the below action is just a light wrapper
+      - name: Configure AWS Credentials
+        uses: mcblair/configure-aws-profile-action@v0.1.1
+        with:
+          role-arn: arn:aws:iam::{{$AWS_ACCOUNT}}:role/cumulus-library-ci
+          region: us-east-1
+          profile-name: cumulus-library-ci
+      - name: Rebuild tables
+        env:
+          PROFILE: cumulus-library-ci
+          WG: cumulus-deid-regression
+          DB: cumulus_deid_regression_db
+        run: |
+          cumulus-library build -t core --profile $PROFILE --workgroup $WG --database $DB
+          cumulus-library export -t core ./tests/regression/data_export/ --profile $PROFILE --workgroup $WG --database $DB
+      - name: Compare vs known data
+        run: python ./tests/regression/run_regression.py
+
+  
