@@ -16,7 +16,7 @@ class CoreCountsBuilder(CountsBuilder):
         return self.count_patient(table_name, from_table, cols)
 
     def count_core_encounter(self, duration=None):
-        table_name = self.get_table_name("count_encounter")
+        table_name = self.get_table_name("count_encounter", duration=duration)
         from_table = self.get_table_name("encounter")
 
         cols = [
@@ -80,12 +80,12 @@ class CoreCountsBuilder(CountsBuilder):
     def prepare_queries(self, cursor=None, schema=None):
         self.queries = [
             self.count_core_patient(),
-            self.count_core_encounter("month"),
+            self.count_core_encounter(duration="month"),
             self.count_core_encounter_type(),
-            self.count_core_encounter_type("month"),
-            self.count_core_encounter_enc_type("month"),
-            self.count_core_encounter_service("month"),
-            self.count_core_encounter_priority("month"),
+            self.count_core_encounter_type(duration="month"),
+            self.count_core_encounter_enc_type(duration="month"),
+            self.count_core_encounter_service(duration="month"),
+            self.count_core_encounter_priority(duration="month"),
         ]
 
 

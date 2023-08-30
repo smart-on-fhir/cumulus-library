@@ -1,0 +1,94 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:BatchGetCrawlers",
+                "glue:GetCrawler",
+                "glue:GetCrawlerMetrics",
+                "glue:GetCrawlers",
+                "glue:ListCrawls",
+                "glue:ListCrawlers",
+                "glue:StartCrawler",
+                "glue:StopCrawler"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:GetDatabase",
+                "glue:CreateDatabase"
+            ],
+            "Resource": [
+                "arn:aws:glue:*:*:catalog",
+                "arn:aws:glue:*:*:database"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:CreatePartition",
+                "glue:CreateTable",
+                "glue:DeletePartition",
+                "glue:DeleteTable",
+                "glue:GetDatabase",
+                "glue:GetDatabases",
+                "glue:GetPartition",
+                "glue:GetPartitions",
+                "glue:GetTable",
+                "glue:GetTables",
+                "glue:UpdatePartition",
+                "glue:UpdateTable"
+            ],
+            "Resource": [
+                "arn:aws:glue:*:*:catalog",
+                "arn:aws:glue:*:*:database/*",
+                "arn:aws:glue:*:*:table/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "athena:*"
+            ],
+            "Resource": [
+                "arn:aws:athena:*:*:workgroup/*"
+            ]
+        },
+        {
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:PutObjectAcl",
+                "secretsmanager:GetSecretValue",
+                "kms:DescribeKey",
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:GenerateDataKey",
+                "kms:GenerateDataKeyPair"
+            ],
+            "Resource": [
+                "arn:aws:secretsmanager:us-east-1:[replace with account #]:secret:*",
+                "arn:aws:kms:us-east-1:[replace with account #]:key/*",
+                "arn:aws:s3:::cumulus-etl-synthetic-regression*",
+                "arn:aws:s3:::cumulus-etl-synthetic-regression*/"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetBucketLocation"
+            ],
+            "Resource": [
+                "arn:aws:s3:::cumulus-etl-synthetic-regression*",
+                "arn:aws:s3:::cumulus-etl-synthetic-regression*/"
+            ]
+        }
+    ]
+}
