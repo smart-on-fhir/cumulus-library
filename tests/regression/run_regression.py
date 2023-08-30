@@ -28,9 +28,9 @@ exports = set(os.listdir(export_path))
 
 if references != exports:
     ref_missing = references - exports
-    export_missing = export - references
+    export_missing = exports - references
     sys.exit(
-        "Found differences in files present:\n"
+        "❌ Found differences in files present: ❌\n"
         f"Files present in reference not in export: {str(ref_missing)}\n"
         f"Files present in export not in reference: {str(export_missing)}"
     )
