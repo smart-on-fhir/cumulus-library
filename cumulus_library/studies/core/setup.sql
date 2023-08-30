@@ -5,7 +5,7 @@ SELECT
     t.from_system,
     t.from_code,
     t.analyte,
-    t.system,
+    t.code_system,
     t.code,
     t.display
 FROM
@@ -60,4 +60,4 @@ FROM
             'Emergency department Consult note'
         )
     )
-    AS t (from_system, from_code, analyte, system, code, display);
+    AS t (from_system, from_code, analyte, code_system, code, display);

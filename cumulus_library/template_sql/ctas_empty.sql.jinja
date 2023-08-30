@@ -13,7 +13,7 @@ CREATE TABLE "{{ schema_name }}"."{{ table_name }}" AS (
     AS t -- noqa: L025
     (
         {%- for col in table_cols -%}
-        {{ col }}
+        "{{ col }}"
         {%- if not loop.last -%}
         , 
         {%- endif -%}

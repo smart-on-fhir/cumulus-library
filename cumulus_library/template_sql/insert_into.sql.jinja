@@ -1,7 +1,7 @@
 INSERT INTO {{ table_name }}
 (
     {%- for col in table_cols -%}
-    {{ col }}
+    "{{ col }}"
     {%- if not loop.last -%}
     , 
     {%- endif -%}

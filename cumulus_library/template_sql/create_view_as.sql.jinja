@@ -18,7 +18,7 @@ CREATE OR REPLACE VIEW {{ view_name }} AS (
     AS t -- noqa: L025
     (
         {%- for col in view_cols -%}
-        {{ col }}
+        "{{ col }}"
         {%- if not loop.last -%}
         , 
         {%- endif -%}
