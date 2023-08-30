@@ -11,7 +11,7 @@ CREATE TABLE {{ table_name }} AS (
             count(DISTINCT encounter_ref) AS cnt_encounter,
             {%- endif -%}
             {% for col in table_cols %}
-            {{ col }}
+            "{{ col }}"
             {%- if not loop.last -%}
             , 
             {%- endif -%}
@@ -20,7 +20,7 @@ CREATE TABLE {{ table_name }} AS (
         GROUP BY
             cube( 
                 {%- for col in table_cols %}
-                {{ col }}
+                "{{ col }}"
                 {%- if not loop.last -%}
                 , 
                 {%- endif -%}
@@ -35,7 +35,7 @@ CREATE TABLE {{ table_name }} AS (
         cnt_subject
         {%- endif %} AS cnt,
         {%- for col in table_cols %}
-        {{ col }}
+        "{{ col }}"
         {%- if not loop.last -%}
         , 
         {%- endif -%}

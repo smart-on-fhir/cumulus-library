@@ -219,20 +219,20 @@ CREATE TABLE test_table AS (
     WITH powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
-            age,
-            sex
+            "age",
+            "sex"
         FROM test_source
         GROUP BY
             cube(
-                age,
-                sex
+                "age",
+                "sex"
             )
     )
 
     SELECT
         cnt_subject AS cnt,
-        age,
-        sex
+        "age",
+        "sex"
     FROM powerset
     WHERE 
         cnt_subject >= 10
@@ -248,7 +248,6 @@ CREATE TABLE test_table AS (
         f.write(query)
     assert query == expected
     query = get_count_query("test_table", "test_source", ["age", "sex"], min_subject=5)
-    print(query)
     assert "cnt_subject >= 5" in query
 
     expected = """
@@ -257,20 +256,20 @@ CREATE TABLE test_table AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
             count(DISTINCT encounter_ref) AS cnt_encounter,
-            age,
-            sex
+            "age",
+            "sex"
         FROM test_source
         GROUP BY
             cube(
-                age,
-                sex
+                "age",
+                "sex"
             )
     )
 
     SELECT
         cnt_encounter AS cnt,
-        age,
-        sex
+        "age",
+        "sex"
     FROM powerset
     WHERE
         age > 10
@@ -284,8 +283,6 @@ CREATE TABLE test_table AS (
         where_clauses=["age > 10", "sex ==  'F'"],
         cnt_encounter=True,
     )
-    with open("output.sql", "w") as f:
-        f.write(query)
     assert query == expected
 
 
@@ -297,14 +294,13 @@ def test_create_view_query_creation():
         ('bar','bar')
     )
     AS t -- noqa: L025
-    (a,b)
+    ("a","b")
 );"""
     query = get_create_view_query(
         view_name="test_view",
         dataset=[["foo", "foo"], ["bar", "bar"]],
         view_cols=["a", "b"],
     )
-    print(query)
     assert query == expected
 
 
@@ -316,7 +312,7 @@ def test_ctas_query_creation():
         ((cast('bar' AS varchar),cast('bar' AS varchar)))
     )
     AS t -- noqa: L025
-    (a,b)
+    ("a","b")
 );"""
     query = get_ctas_query(
         schema_name="test_schema",
@@ -324,7 +320,6 @@ def test_ctas_query_creation():
         dataset=[["foo", "foo"], ["bar", "bar"]],
         table_cols=["a", "b"],
     )
-    print(query)
     assert query == expected
 
 
@@ -421,7 +416,7 @@ def test_extension_denormalize_creation():
 
 def test_insert_into_query_creation():
     expected = """INSERT INTO test_table
-(a,b)
+("a","b")
 VALUES
 (('foo','foo')),
 (('bar','bar'));"""
