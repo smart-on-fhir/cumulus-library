@@ -1,8 +1,18 @@
 """Checks export against known dataset.
 
-This is intended to be primarily run as part of CI only, and does not leverage
-pytest due to the requirements for AWS secrets/federated tokens/network 
-connectivity."""
+This file is excluded from the pytest suite because it's finicky to 
+run locally at BCH:
+
+- You need to be on the BCH VPN
+- You need to have a federated token for access from the bch-aws-login script
+- You need to do a fresh library build and export to ./data_export core
+
+You can elect to strategically do all of these things, but that's outside
+the scope of the test suite.
+
+This is primarily meant to be run in CI, where we handle the auth via github's
+trusted OIDC token AWS endpoint. See .github/workflows/ci.yaml for more info on
+this approach."""
 import os
 import sys
 
