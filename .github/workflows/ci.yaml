@@ -62,7 +62,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: mcblair/configure-aws-profile-action@v0.1.1
         with:
-          role-arn: arn:aws:iam::{{$AWS_ACCOUNT}}:role/cumulus-library-ci
+          role-arn: arn:aws:iam::${{secrets.AWS_ACCOUNT}}:role/cumulus-library-ci
           region: us-east-1
           profile-name: cumulus-library-ci
       - name: Rebuild tables
