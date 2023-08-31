@@ -26,6 +26,7 @@ conditions = ["1 > 0", "1 < 2"]
 dataset = [["foo","foo"],["bar","bar"]]
 ext_systems = ["omb", "text"]
 field = 'column_name'
+field_config = {'col1':{'present':True, 'type': 'varchar'},'col2':{'present':False, 'type': 'varchar'}}
 fhir_extension = fhir_extension
 id = 'id'
 medication_datasources = {"by_contained_ref" : True, "by_external_ref" : True}
