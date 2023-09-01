@@ -32,7 +32,11 @@ class CountsBuilder(BaseTableBuilder):
         super().__init__()
 
     def get_table_name(self, table_name: str, duration=None) -> str:
-        """Convenience method for constructing table name"""
+        """Convenience method for constructing table name
+
+        :param table_name: table name to add after the study prefix
+        :param duration: a time period reflecting the table binning strategy
+        """
         if duration:
             return f"{self.study_prefix}__{table_name}_{duration}"
         else:
@@ -41,7 +45,12 @@ class CountsBuilder(BaseTableBuilder):
     def get_where_clauses(
         self, clause: Union[list, str, None] = None, min_subject: int = 10
     ) -> str:
-        """convenience method for constructing where clauses"""
+        """Convenience method for constructing arbitrary where clauses.
+
+        :param clause: either a string or a list of sql where statements
+        :min subject: if clause is none, the bin size for a cnt_subject filter
+            (deprecated, use count_[fhir_resource](min_subject) instead)
+        """
         if clause is None:
             return [f"cnt_subject >= {min_subject}"]
         elif isinstance(clause, str):
@@ -54,45 +63,177 @@ class CountsBuilder(BaseTableBuilder):
     def get_count_query(
         self, table_name: str, source_table: str, table_cols: list, **kwargs
     ) -> str:
-        """Wrapper method for generating a counts table from a template"""
+        """Generates a counts table using a template
+
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :keyword where_clauses: An array of where clauses to use for filtering the data
+        :keyword min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        :keyword fhir_resource: The type of FHIR resource to count (see
+            template_sql/templates.CountableFhirResource)
+        """
         if not table_name or not source_table or not table_cols:
             raise CountsBuilderError(
                 "count_query missing required arguments. " f"output table: {table_name}"
             )
         for key in kwargs:
-            if key not in ["min_subject", "where_clauses", "cnt_encounter"]:
+            if key not in ["min_subject", "where_clauses", "fhir_resource"]:
                 raise CountsBuilderError(f"count_query received unexpected key: {key}")
         return templates.get_count_query(table_name, source_table, table_cols, **kwargs)
+
+    # ----------------------------------------------------------------------
+    # The following function all wrap get_count_query as convenience methods.
+    # We're not trying to be overly clever about this to persist the docstrings as the
+    # primary interface that study authors would see when using these functions.
+
+    def count_condition(
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: list,
+        where_clauses: Union[list, None] = None,
+        min_subject: int = None,
+    ) -> str:
+        """wrapper method for constructing condition counts tables
+
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :param where_clauses: An array of where clauses to use for filtering the data
+        :param min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        """
+        return self.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            where_clauses=where_clauses,
+            min_subject=min_subject,
+            fhir_resource="condition",
+        )
+
+    def count_document(
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: list,
+        where_clauses: Union[list, None] = None,
+        min_subject: int = None,
+    ) -> str:
+        """wrapper method for constructing document counts tables
+
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :param where_clauses: An array of where clauses to use for filtering the data
+        :param min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        """
+        return self.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            where_clauses=where_clauses,
+            min_subject=min_subject,
+            fhir_resource="document",
+        )
+
+    def count_encounter(
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: list,
+        where_clauses: Union[list, None] = None,
+        min_subject: int = None,
+    ) -> str:
+        """wrapper method for constructing encounter counts tables
+
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :param where_clauses: An array of where clauses to use for filtering the data
+        :param min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        """
+        return self.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            where_clauses=where_clauses,
+            min_subject=min_subject,
+            fhir_resource="encounter",
+        )
+
+    def count_observation(
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: list,
+        where_clauses: Union[list, None] = None,
+        min_subject: int = None,
+    ) -> str:
+        """wrapper method for constructing observation counts tables
+
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :param where_clauses: An array of where clauses to use for filtering the data
+        :param min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        """
+        return self.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            where_clauses=where_clauses,
+            min_subject=min_subject,
+            fhir_resource="observation",
+        )
 
     def count_patient(
         self,
         table_name: str,
         source_table: str,
         table_cols: list,
-        where_clauses=None,
+        where_clauses: Union[list, None] = None,
+        min_subject: int = None,
     ) -> str:
-        """wrapper method for constructing patient counts tables"""
-        return self.get_count_query(
-            table_name, source_table, table_cols, where_clauses=where_clauses
-        )
+        """wrapper method for constructing patient counts tables
 
-    def count_encounter(
-        self, table_name: str, source_table: str, table_cols: list, where_clauses=None
-    ) -> str:
-        """wrapper method for constructing encounter counts tables"""
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :param where_clauses: An array of where clauses to use for filtering the data
+        :param min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        """
         return self.get_count_query(
             table_name,
             source_table,
             table_cols,
             where_clauses=where_clauses,
-            cnt_encounter=True,
+            min_subject=min_subject,
+            fhir_resource="patient",
         )
 
+    # End of wrapper section
+    # ----------------------------------------------------------------------
+
     def write_counts(self, filepath: str):
-        """Convenience method for writing counts queries to disk"""
+        """Convenience method for writing counts queries to disk
+
+        :param filepath: path to file to write queries out to.
+        """
         self.prepare_queries(cursor=None, schema=None)
         self.comment_queries()
         self.write_queries(filename=filepath)
 
     def prepare_queries(self, cursor: object = None, schema: str = None):
+        """Stub implementing abstract base class
+
+        This should be overridden in any count generator. See core study count_core.py
+        for an example
+        """
         pass

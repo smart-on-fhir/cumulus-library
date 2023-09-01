@@ -55,7 +55,11 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
             "table",
             "source",
             ["a", "b"],
-            {"min_subject": 10, "where_clauses": "where True", "cnt_encounter": True},
+            {
+                "min_subject": 5,
+                "where_clauses": "where True",
+                "fhir_resource": "encounter",
+            },
             does_not_raise(),
         ),
         (
@@ -85,44 +89,52 @@ def test_get_count_query(
 
 
 @pytest.mark.parametrize(
-    "table_name,source_table,table_cols,where",
+    "table_name,source_table,table_cols,where,min_subject,method,fhir_resource",
     [
-        ("table", "source", ["a", "b"], None),
-        ("table", "source", ["a", "b"], "a = True"),
+        ("table", "source", ["a", "b"], None, None, "count_condition", "condition"),
+        ("table", "source", ["a", "b"], "a = True", 5, "count_condition", "condition"),
+        ("table", "source", ["a", "b"], None, None, "count_document", "document"),
+        ("table", "source", ["a", "b"], "a = True", 5, "count_document", "document"),
+        ("table", "source", ["a", "b"], None, None, "count_encounter", "encounter"),
+        ("table", "source", ["a", "b"], "a = True", 5, "count_encounter", "encounter"),
+        ("table", "source", ["a", "b"], None, None, "count_patient", "patient"),
+        ("table", "source", ["a", "b"], "a = True", 5, "count_patient", "patient"),
+        ("table", "source", ["a", "b"], None, None, "count_observation", "observation"),
+        (
+            "table",
+            "source",
+            ["a", "b"],
+            "a = True",
+            5,
+            "count_observation",
+            "observation",
+        ),
     ],
 )
 @mock.patch("cumulus_library.template_sql.templates.get_count_query")
-def test_count_patient(mock_count, table_name, source_table, table_cols, where):
+def test_count_wrappers(
+    mock_count,
+    table_name,
+    source_table,
+    table_cols,
+    where,
+    min_subject,
+    method,
+    fhir_resource,
+):
     kwargs = {}
     if where is not None:
         kwargs["where_clauses"] = where
+    if min_subject is not None:
+        kwargs["min_subject"] = min_subject
     builder = CountsBuilder(study_prefix=TEST_PREFIX)
-    builder.count_patient(table_name, source_table, table_cols, **kwargs)
+    wrapper = getattr(builder, method)
+    wrapper(table_name, source_table, table_cols, **kwargs)
     assert mock_count.called
     call_args, call_kwargs = mock_count.call_args
     assert call_args == (table_name, source_table, table_cols)
-    assert call_kwargs["where_clauses"] == where
-
-
-@pytest.mark.parametrize(
-    "table_name,source_table,table_cols,where",
-    [
-        ("table", "source", ["a", "b"], None),
-        ("table", "source", ["a", "b"], "a = True"),
-    ],
-)
-@mock.patch("cumulus_library.template_sql.templates.get_count_query")
-def test_count_encounter(mock_count, table_name, source_table, table_cols, where):
-    kwargs = {}
+    assert call_kwargs["fhir_resource"] == fhir_resource
     if where is not None:
-        kwargs["where_clauses"] = where
-    builder = CountsBuilder(study_prefix=TEST_PREFIX)
-    builder.count_encounter(table_name, source_table, table_cols, **kwargs)
-    assert mock_count.called
-    call_args, call_kwargs = mock_count.call_args
-    assert call_args == (table_name, source_table, table_cols)
-    if where is None:
-        assert call_kwargs["cnt_encounter"] == True
-    else:
-        assert call_kwargs["cnt_encounter"] == True
         assert call_kwargs["where_clauses"] == where
+    if min_subject is not None:
+        assert call_kwargs["min_subject"] == min_subject

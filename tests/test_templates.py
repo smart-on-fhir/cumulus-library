@@ -242,7 +242,7 @@ CREATE TABLE test_table AS (
     table_cols: list,
     min_subject: int = 10,
     where_clauses: Optional[list] = None,
-    cnt_encounter: Optional[str] = None,"""
+    fhir_resource: Optional[str] = None,"""
     query = get_count_query("test_table", "test_source", ["age", "sex"])
     with open("output.sql", "w") as f:
         f.write(query)
@@ -281,7 +281,7 @@ CREATE TABLE test_table AS (
         "test_source",
         ["age", "sex"],
         where_clauses=["age > 10", "sex ==  'F'"],
-        cnt_encounter=True,
+        fhir_resource="encounter",
     )
     assert query == expected
 

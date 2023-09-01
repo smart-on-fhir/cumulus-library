@@ -7,8 +7,14 @@ CREATE TABLE {{ table_name }} AS (
     WITH powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
-            {%- if cnt_encounter %}
+            {%- if fhir_resource=='condition' %}
+            count(DISTINCT condition_ref) AS cnt_condition,
+            {%- elif fhir_resource=='document' %}
+            count(DISTINCT document_ref) AS cnt_document,
+            {%- elif fhir_resource=='encounter' %}
             count(DISTINCT encounter_ref) AS cnt_encounter,
+            {%- elif fhir_resource=='observation' %}
+            count(DISTINCT observation_ref) AS cnt_observation,
             {%- endif -%}
             {% for col in table_cols %}
             "{{ col }}"
@@ -29,8 +35,14 @@ CREATE TABLE {{ table_name }} AS (
     )
 
     SELECT
-        {%- if cnt_encounter %}
+        {%- if fhir_resource=='condition' %}
+        cnt_condition
+        {%- elif fhir_resource=='document' %}
+        cnt_document
+        {%- elif fhir_resource=='encounter' %}
         cnt_encounter
+        {%- elif fhir_resource=='observation' %}
+        cnt_observation
         {%- else %}
         cnt_subject
         {%- endif %} AS cnt,
