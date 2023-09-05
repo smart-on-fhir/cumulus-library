@@ -94,7 +94,7 @@ class CountsBuilder(BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: Union[list, None] = None,
-        min_subject: int = None,
+        min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing condition counts tables
 
@@ -120,7 +120,7 @@ class CountsBuilder(BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: Union[list, None] = None,
-        min_subject: int = None,
+        min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing document counts tables
 
@@ -146,7 +146,7 @@ class CountsBuilder(BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: Union[list, None] = None,
-        min_subject: int = None,
+        min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing encounter counts tables
 
@@ -172,7 +172,7 @@ class CountsBuilder(BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: Union[list, None] = None,
-        min_subject: int = None,
+        min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing observation counts tables
 
@@ -198,7 +198,7 @@ class CountsBuilder(BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: Union[list, None] = None,
-        min_subject: int = None,
+        min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing patient counts tables
 
