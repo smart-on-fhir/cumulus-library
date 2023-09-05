@@ -7,3 +7,6 @@ show_views.sql.jinja
 # This is a temporary ignore due to time pressure - not sure of root cause,
 # but the table in question builds
 codeable_concept_denormalize.sql.jinja
+
+# This is a common destination for debugging sql generation
+output.sql

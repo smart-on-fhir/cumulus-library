@@ -6,16 +6,13 @@ from cumulus_library.schema.counts import CountsBuilder
 class CoreCountsBuilder(CountsBuilder):
     display_text = "Creating core counts..."
 
-    def __init__(self):
-        super().__init__()
-
     def count_core_patient(self):
         table_name = self.get_table_name("count_patient")
         from_table = self.get_table_name("patient")
         cols = ["age", "gender", "race_display", "ethnicity_display"]
         return self.count_patient(table_name, from_table, cols)
 
-    def count_core_encounter(self, duration=None):
+    def count_core_encounter(self, duration: str = None):
         table_name = self.get_table_name("count_encounter", duration=duration)
         from_table = self.get_table_name("encounter")
 
@@ -30,7 +27,9 @@ class CoreCountsBuilder(CountsBuilder):
 
         return self.count_encounter(table_name, from_table, cols)
 
-    def _count_core_encounter_type(self, table_name, cols, duration):
+    def _count_core_encounter_type(
+        self, table_name: str, cols: list, duration: str = None
+    ):
         """
         Encounter Type information is for every visit, and therefore this
         SQL should be precise in which fields to select (This is a BIG query).
@@ -38,7 +37,7 @@ class CoreCountsBuilder(CountsBuilder):
         :param table_name: name of the view from "core__encounter_type"
         :param cols: from "core__encounter_type"
         :param duration: None or ''month', 'year'
-        :return: SQL commands
+        :return: A SQL statement as a string
         """
         table_name = self.get_table_name(table_name, duration)
         from_table = self.get_table_name("encounter_type")
@@ -46,11 +45,9 @@ class CoreCountsBuilder(CountsBuilder):
         if duration:
             cols.append(f"start_{duration}")
 
-        where = self.get_where_clauses(min_subject=10)
+        return self.count_encounter(table_name, from_table, cols)
 
-        return self.count_encounter(table_name, from_table, cols, where_clauses=where)
-
-    def count_core_encounter_type(self, duration=None):
+    def count_core_encounter_type(self, duration: str = None):
         cols = [
             "enc_class_display",
             "enc_type_display",
@@ -59,19 +56,19 @@ class CoreCountsBuilder(CountsBuilder):
         ]
         return self._count_core_encounter_type("count_encounter_type", cols, duration)
 
-    def count_core_encounter_enc_type(self, duration="month"):
+    def count_core_encounter_enc_type(self, duration: str = "month"):
         cols = ["enc_class_display", "enc_type_display"]
         return self._count_core_encounter_type(
             "count_encounter_enc_type", cols, duration
         )
 
-    def count_core_encounter_service(self, duration="month"):
+    def count_core_encounter_service(self, duration: str = "month"):
         cols = ["enc_class_display", "enc_service_display"]
         return self._count_core_encounter_type(
             "count_encounter_service", cols, duration
         )
 
-    def count_core_encounter_priority(self, duration="month"):
+    def count_core_encounter_priority(self, duration: str = "month"):
         cols = ["enc_class_display", "enc_priority_display"]
         return self._count_core_encounter_type(
             "count_encounter_priority", cols, duration
