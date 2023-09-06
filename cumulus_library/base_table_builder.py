@@ -55,7 +55,7 @@ class BaseTableBuilder(ABC):
                     table_name = table_name[0]
                     # if it contains a schema, remove it (usually it won't, but some CTAS
                     # forms may)
-                    if "." in table_name[0]:
+                    if "." in table_name:
                         table_name = table_name.split(".")[1].replace('"', "")
                     table_names.append(table_name)
             for table_name in table_names:
