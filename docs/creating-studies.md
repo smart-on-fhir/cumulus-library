@@ -160,8 +160,9 @@ styling.
   SELECT 1 AS data_package_version;
   ```
   allows you to signal versions for use in segregating data upstream, like in the
-  Cumulus aggregator - just increment it when you want third parties to start running
-  a new data model. If this is not set, the version will implicitly be set to zero.
+  Cumulus aggregator - just increment it when you will need third parties to rerun
+  your study from scratch due to a change in your counts output. If this is not
+  set, the version will implicitly be set to zero.
 
 ## Sharing studies
 

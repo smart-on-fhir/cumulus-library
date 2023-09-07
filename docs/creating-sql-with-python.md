@@ -10,7 +10,7 @@ nav_order: 4
 
 Before jumping into this doc, take a look at 
 [Creating Studies](creating-studies.md).
-If you're just working on `core` tables related to the US Core FHIR profiles, you 
+If you're just working with `core` tables related to the US Core FHIR profiles, you 
 may not be interested in this, or only need to look at the 
 [Working with TableBuilders](#working-with-tablebuilders)
 and the
@@ -54,7 +54,7 @@ should create an array of queries in `self.queries`. The CLI will pass in a curs
 object and database/schema name, so if you need to interrogate the dataset to decide
 how to structure your queries, you can.
 - An `execute_queries` function, which will run `prepare_queries` and then apply
-those queries to the database. Generally, you shouldn't need to touch this function -
+those queries to the database. You shouldn't need to touch this function -
 just be aware this is how your queries actually get run.
 - A `write_queries` function, which will write your queries from `prepare_function`
 to disk. If you are creating multiple queries in one go, calling `comment_queries`
@@ -67,7 +67,9 @@ You can either extend this class directly (like `builder_*.py` files in
 for a repeated use case (like in `cumulus_library/schema/counts.py`).
 
 TableBuilder SQL generally should go through a template SQL generator, so that
-your SQL has been validated.
+your SQL has been validated. If you're just working on counts, you don't need
+to worry about this detail, but otherwise, the following section talks about
+our templating mechanism.
 
 ### Working with template SQL
 
@@ -180,7 +182,7 @@ is populated with the schema elements you're expecting
 more than once
 - Write a jinja template that handles the conditionally present data, and a 
 template function to invoke that template
-- Test this against as many different sample databases as you can
+- Test this against data samples from as many different EHR vendors as you can
 - Be prepared to need to update this when you hit a condition you didn't expect
 - Create a distinct table that has an ID for joining back to the original
 - Perform this join as appropriate to create a table with unnested data
