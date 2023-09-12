@@ -213,13 +213,21 @@ def get_study_dict(alt_dir_paths: List) -> Optional[Dict[str, PosixPath]]:
     paths = [Path(cli_path, "studies")]
     if alt_dir_paths is not None:
         paths = paths + alt_dir_paths
-    for parent_path in paths:
-        for child_path in parent_path.iterdir():
-            if child_path.is_dir():
-                manifest_studies[child_path.name] = child_path
-            elif child_path.name == "manifest.toml":
-                manifest_studies[parent_path.name] = parent_path
+    for path in paths:
+        found_studies = get_studies_by_manifest_path(path)
+        manifest_studies.update(found_studies)
     return manifest_studies
+
+
+def get_studies_by_manifest_path(path: PosixPath) -> dict:
+    """Recursively search for manifest.toml files from a given path"""
+    manifest_paths = {}
+    for child_path in path.iterdir():
+        if child_path.is_dir():
+            manifest_paths.update(get_studies_by_manifest_path(child_path))
+        elif child_path.name == "manifest.toml":
+            manifest_paths[path.name] = path
+    return manifest_paths
 
 
 def run_cli(args: Dict):
