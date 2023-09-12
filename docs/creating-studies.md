@@ -134,10 +134,11 @@ styling.
 **Recommended**
   - You may want to select a SQL style guide as a reference. Mozilla provides a
   [SQL style guide](https://docs.telemetry.mozilla.org/concepts/sql_style.html),
-  which our sqlfluff config enforces.
+  which our sqlfluff config enforces. If you have a different style you'd like
+  to use, you can update the `.sqlfluff` config to allow this. For example,
   [Gitlab's data team](https://about.gitlab.com/handbook/business-technology/data-team/platform/sql-style-guide/)
-  has a style guide that is more centered around DBT, but also has some practices
-  you may want to consider adopting.
+  has a style guide that is more centered around DBT, but is more perscriptive
+  around formatting.
   - Don't implicitly reference columns tables. Either use the full table name,
   or give the table an alias, and use that any time you are referencing a column.
   - Don't use the * wildcard in your final tables. Explicitly list the columns
