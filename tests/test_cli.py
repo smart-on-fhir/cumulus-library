@@ -11,6 +11,7 @@ import requests
 import requests_mock
 
 from cumulus_library import cli
+from cumulus_library import upload
 
 
 @mock.patch("pyathena.connect")
@@ -204,7 +205,7 @@ def test_cli_creates_studies(
 def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
     mock_glob.side_effect = [
         [Path(__file__)],
-        [Path(str(Path(__file__)) + "/test_data/count_synthea_patient.parquet")],
+        [Path(str(Path(__file__).parent) + "/test_data/count_synthea_patient.parquet")],
     ]
     with raises:
         with requests_mock.Mocker() as r:
@@ -217,3 +218,32 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
                 )
             r.post("https://presigned.url.org", status_code=status)
             cli.main(cli_args=args)
+
+
+@pytest.mark.parametrize(
+    "args,calls",
+    [
+        (["upload", "--user", "user", "--id", "id", "./foo"], 2),
+        (["upload", "--user", "user", "--id", "id", "./foo", "-t", "test_data"], 1),
+        (["upload", "--user", "user", "--id", "id", "./foo", "-t", "not_found"], 0),
+    ],
+)
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("pathlib.Path.glob")
+@mock.patch("cumulus_library.upload.upload_data")
+def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls):
+    mock_glob.side_effect = [
+        [
+            Path(
+                str(Path(__file__).parent) + "/test_data/count_synthea_patient.parquet"
+            ),
+            Path(
+                str(Path(__file__).parent) + "/other_data/count_synthea_patient.parquet"
+            ),
+        ],
+    ]
+    cli.main(cli_args=args)
+    assert mock_upload_data.call_count == calls
