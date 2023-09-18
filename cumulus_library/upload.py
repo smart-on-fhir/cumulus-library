@@ -72,7 +72,7 @@ def upload_files(args: dict):
             "study export folder."
         )
     file_paths = list(args["data_path"].glob("**/*.parquet"))
-    if args["target"] is not None:
+    if args["target"]:
         filtered_paths = []
         for path in file_paths:
             if any(study in str(path) for study in args["target"]):

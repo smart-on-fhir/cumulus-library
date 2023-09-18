@@ -246,4 +246,8 @@ def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls):
         ],
     ]
     cli.main(cli_args=args)
+    if len(mock_upload_data.call_args_list) == 1:
+        target = args[args.index("-t") + 1]
+        # filepath is in the third argument position in the upload data arg list
+        assert target in str(mock_upload_data.call_args[0][2])
     assert mock_upload_data.call_count == calls
