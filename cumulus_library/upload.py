@@ -72,6 +72,13 @@ def upload_files(args: dict):
             "study export folder."
         )
     file_paths = list(args["data_path"].glob("**/*.parquet"))
+    if args["target"]:
+        filtered_paths = []
+        for path in file_paths:
+            if any(study in str(path) for study in args["target"]):
+                filtered_paths.append(path)
+        file_paths = filtered_paths
+
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
     try:
