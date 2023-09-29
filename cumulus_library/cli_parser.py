@@ -8,10 +8,7 @@ def add_target_argument(parser: argparse.ArgumentParser) -> None:
         "-t",
         "--target",
         action="append",
-        help=(
-            "Specify one or more studies to perform actions against. "
-            "Default is to use all studies."
-        ),
+        help=("Specify one or more studies to perform actions against."),
     )
 
 
@@ -124,8 +121,15 @@ following order of preference is used to select credentials:
     clean = actions.add_parser(
         "clean", help="Removes tables & views beginning with '[target]__' from Athena"
     )
+
     add_target_argument(clean)
+    add_verbose_argument(clean)
     add_aws_config(clean)
+    clean.add_argument(
+        "--explicit_prefix",
+        action="store_true",
+        help=(argparse.SUPPRESS),
+    )
 
     build = actions.add_parser(
         "build",

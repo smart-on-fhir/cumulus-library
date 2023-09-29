@@ -65,17 +65,17 @@ WITH powerset AS (
         count(DISTINCT d.doc_id) AS cnt_document,
         d.doc_type_display,
         d.author_month,
-        e.enc_class.display AS enc_class_code
+        e.enc_class_display
     FROM core__documentreference AS d, core__encounter AS e
     WHERE d.encounter_ref = e.encounter_ref
-    GROUP BY cube(d.doc_type_display, d.author_month, e.enc_class)
+    GROUP BY cube(d.doc_type_display, d.author_month, e.enc_class_display)
 )
 
 SELECT DISTINCT
     cnt_document AS cnt,
     author_month,
-    enc_class_code,
+    enc_class_display,
     doc_type_display
 FROM powerset
 WHERE cnt_subject >= 10
-ORDER BY cnt_document DESC, enc_class_code ASC;
+ORDER BY cnt_document DESC, enc_class_display ASC;

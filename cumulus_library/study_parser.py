@@ -156,9 +156,13 @@ class StudyManifestParser:
         if not schema_name:
             raise ValueError("No database provided")
         if not prefix:
-            prefix = self.get_study_prefix()
-        view_sql = get_show_views(schema_name, prefix)
-        table_sql = get_show_tables(schema_name, prefix)
+            drop_prefix = f"{self.get_study_prefix()}__"
+            display_prefix = self.get_study_prefix()
+        else:
+            drop_prefix = prefix
+            display_prefix = drop_prefix
+        view_sql = get_show_views(schema_name, drop_prefix)
+        table_sql = get_show_tables(schema_name, drop_prefix)
         view_table_list = []
         for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
             cursor.execute(query_and_type[0])
@@ -179,20 +183,29 @@ class StudyManifestParser:
         # We'll do a pass to see if any of these tables were created outside of a
         # study builder, and remove them from the list.
         for view_table in view_table_list.copy():
-            if any(
-                view_table[0].startswith(f"{self.get_study_prefix()}__{word}_")
-                for word in RESERVED_TABLE_KEYWORDS
-            ):
+            if any((f"_{word}_") in view_table[0] for word in RESERVED_TABLE_KEYWORDS):
                 view_table_list.remove(view_table)
 
         # We want to only show a progress bar if we are :not: printing SQL lines
         with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
-                f"Removing {self.get_study_prefix()} study artifacts...",
+                f"Removing {display_prefix} study artifacts...",
                 total=len(view_table_list),
                 visible=not verbose,
             )
-            self._execute_drop_queries(cursor, verbose, view_table_list, progress, task)
+            if not prefix:
+                self._execute_drop_queries(
+                    cursor, verbose, view_table_list, progress, task
+                )
+            else:
+                self._execute_drop_queries(
+                    cursor,
+                    verbose,
+                    view_table_list,
+                    progress,
+                    task,
+                    explicit_prefix=True,
+                )
         return view_table_list
 
     def _execute_drop_queries(
@@ -202,6 +215,7 @@ class StudyManifestParser:
         view_table_list: List,
         progress: Progress,
         task: TaskID,
+        explicit_prefix: bool = False,
     ) -> None:
         """Handler for executing drop view/table queries and displaying console output.
 
@@ -212,8 +226,12 @@ class StudyManifestParser:
         :param task: a TaskID for a given progress bar
         """
         for view_table in view_table_list:
+            if explicit_prefix:
+                prefix = f"{view_table[0]}"
+            else:
+                prefix = f"{view_table[0]}__"
             drop_view_table = get_drop_view_table(
-                name=view_table[0], view_or_table=view_table[1]
+                name=f"{view_table[0]}", view_or_table=view_table[1]
             )
             cursor.execute(drop_view_table)
             query_console_output(verbose, drop_view_table, progress, task)

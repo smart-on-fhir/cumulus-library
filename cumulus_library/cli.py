@@ -89,7 +89,7 @@ class StudyBuilder:
 
     ### Creating studies
 
-    def clean_study(self, targets: List[str]) -> None:
+    def clean_study(self, targets: List[str], explicit_prefix=False) -> None:
         """Removes study table/views from Athena.
 
         While this is usually not required, since it it done as part of a build,
@@ -102,9 +102,14 @@ class StudyBuilder:
                 "Explicit targets for cleaning not provided. "
                 "Provide one or more explicit study prefixes to remove."
             )
-        for study in targets:
-            StudyManifestParser.clean_study(
-                self.cursor, self.schema_name, self.verbose, prefix=f"{study}__"
+        for target in targets:
+            if explicit_prefix:
+                prefix = target
+            else:
+                prefix = f"{target}__"
+            parser = StudyManifestParser()
+            parser.clean_study(
+                self.cursor, self.schema_name, self.verbose, prefix=prefix
             )
 
     def clean_and_build_study(self, target: PosixPath) -> None:
@@ -252,7 +257,7 @@ def run_cli(args: Dict):
         builder.cursor.execute("SHOW DATABASES")
 
         if args["action"] == "clean":
-            builder.clean_study(args["target"])
+            builder.clean_study(args["target"], args["explicit_prefix"])
 
         else:
             study_dict = get_study_dict(args["study_dir"])
@@ -320,7 +325,10 @@ def main(cli_args=None):
     read_env_vars = []
     for pair in arg_env_pairs:
         if env_val := os.environ.get(pair[1]):
-            args[pair[0]] = env_val
+            if pair[0] == "study_dir":
+                args[pair[0]] = [env_val]
+            else:
+                args[pair[0]] = env_val
             read_env_vars.append([pair[1], env_val])
 
     if len(read_env_vars) > 0:

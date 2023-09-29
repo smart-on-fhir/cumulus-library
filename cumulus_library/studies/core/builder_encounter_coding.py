@@ -102,6 +102,16 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 ],
                 "has_data": False,
             },
+            {
+                "column_name": "reasoncode",
+                "is_array": True,
+                "filter_priority": True,
+                "code_systems": [
+                    "http://terminology.hl7.org/CodeSystem/v3-ActPriority",
+                    "http://snomed.info/sct",
+                ],
+                "has_data": False,
+            },
         ]
         code_sources = self._check_data_in_fields(code_sources, schema, cursor)
         for code_source in code_sources:

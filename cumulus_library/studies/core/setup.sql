@@ -61,3 +61,57 @@ FROM
         )
     )
     AS t (from_system, from_code, analyte, code_system, code, display);
+
+CREATE TABLE core__act_encounter_code_v3 AS
+SELECT
+    t.code,
+    t.display
+FROM
+    (
+        VALUES
+        (
+            'AMB',
+            'ambulatory'
+        ),
+        (
+            'EMER',
+            'emergency'
+        ),
+        (
+            'FLD',
+            'field'
+        ),
+        (
+            'HH',
+            'home health'
+        ),
+        (
+            'IMP',
+            'inpatient encounter'
+        ),
+        (
+            'ACUTE',
+            'inpatient acute'
+        ),
+        (
+            'NONAC',
+            'inpatient non-acute'
+        ),
+        (
+            'OBSENC',
+            'observation encounter'
+        ),
+        (
+            'PRENC',
+            'pre-admission'
+        ),
+        (
+            'SS',
+            'short stay'
+        ),
+        (
+            'VR',
+            'virtual'
+        )
+    )
+    AS t (code, display)

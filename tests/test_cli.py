@@ -33,6 +33,10 @@ def test_cli_no_reads_or_writes(mock_connect, args):  # pylint: disable=unused-a
         cli.main(cli_args=args)
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 @mock.patch("pyathena.connect")
 @mock.patch("sysconfig.get_path")
 @mock.patch("json.load")
@@ -73,6 +77,10 @@ def test_cli_path_mapping(
         assert f"{args[2]}__" in builder.cursor.execute.call_args.args[0]
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 @mock.patch("sysconfig.get_path")
 @mock.patch("pyathena.connect")
 def test_count_builder_mapping(
@@ -85,7 +93,8 @@ def test_count_builder_mapping(
                 "build",
                 "-t",
                 "study_python_counts_valid",
-                "-s" "./tests/test_data",
+                "-s",
+                "./tests/test_data",
                 "--database",
                 "test",
             ]
@@ -94,12 +103,57 @@ def test_count_builder_mapping(
         assert "study_python_counts_valid__" in builder.cursor.execute.call_args.args[0]
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("sysconfig.get_path")
+@mock.patch("pyathena.connect")
+@pytest.mark.parametrize(
+    "args,expected",
+    [
+        (
+            [
+                "clean",
+                "-t",
+                "study_python_counts_valid",
+                "--database",
+                "test",
+            ],
+            "study_python_counts_valid__",
+        ),
+        (
+            [
+                "clean",
+                "--explicit_prefix",
+                "-t" "foo",
+                "--database",
+                "test",
+            ],
+            "foo",
+        ),
+    ],
+)
+def test_clean(
+    mock_connect, mock_path, args, expected
+):  # pylint: disable=unused-argument
+    mock_path.return_value = f"{Path(__file__).resolve().parents[0]}" "/test_data/"
+    with does_not_raise():
+        builder = cli.main(cli_args=args)
+        builder.cursor.execute.assert_called()
+        assert expected in builder.cursor.execute.call_args.args[0]
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 @mock.patch("pyathena.connect")
 @pytest.mark.parametrize(
     "args,cursor_calls,pandas_cursor_calls",
     [
         (["build", "-t", "vocab", "--database", "test"], 344, 0),
-        (["build", "-t", "core", "--database", "test"], 47, 0),
+        (["build", "-t", "core", "--database", "test"], 51, 0),
         (["export", "-t", "core", "--database", "test"], 1, 10),
         (
             [
@@ -129,7 +183,7 @@ def test_count_builder_mapping(
         ),
         (
             ["build", "-t", "core", "-s", "tests/test_data/", "--database", "test"],
-            47,
+            51,
             0,
         ),
         (
