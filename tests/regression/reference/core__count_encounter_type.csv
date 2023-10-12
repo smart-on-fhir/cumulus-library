@@ -1,361 +1,385 @@
 cnt,enc_class_display,enc_type_display,enc_service_display,enc_priority_display
-37,,Emergency hospital admission for asthma,None,None
-643,,Consultation for treatment,,
-188,,Postnatal visit,None,
-73,,Domiciliary or rest home patient evaluation and management,None,None
-73,,Domiciliary or rest home patient evaluation and management,None,
-31669,,,None,None
-919,,Emergency room admission (procedure),None,
-643,,Consultation for treatment,None,
-15,,Allergic disorder follow-up assessment,None,
-281,,Postoperative follow-up visit (procedure),None,None
-12,,Non-urgent orthopedic admission,,
-37,,Death Certification,,
-16,,Admission to ward (procedure),None,
-582,,Encounter for problem,None,
-31669,,,,
-88,,Drug rehabilitation and detoxification,,None
-123,,Encounter for symptom (procedure),,None
-23,,Allergic disorder initial assessment,None,
-1602,,Prenatal visit,None,None
-490,,Encounter for check up,None,None
-121,,Screening surveillance (regime/therapy),None,
-23,,Allergic disorder initial assessment,None,None
-2079,,Urgent care clinic (environment),,
-21,,Admission to surgical department,,None
-16,,Patient transfer to intensive care unit (procedure),,
-12,,Non-urgent orthopedic admission,,None
-135,,Asthma follow-up,,None
-88,,Drug rehabilitation and detoxification,,
-20,,Admission to intensive care unit (procedure),,
-7618,,Encounter for problem (procedure),None,None
-1270,,Administration of vaccine to produce active immunity (procedure),,
-104,,Admission to skilled nursing facility (procedure),,
-2423,,Encounter for check up (procedure),,None
-281,,Postoperative follow-up visit (procedure),,None
-186,,Obstetric emergency hospital admission,,None
-178,,Follow-up encounter (procedure),,
-12,,Hospital admission for isolation (procedure),,None
-15,,Allergic disorder follow-up assessment,None,None
-132,,Patient encounter procedure (procedure),None,None
-68,,Gynecology service (qualifier value),,
-67,,Admission to hospice (procedure),None,
-643,,Consultation for treatment,,None
-1141,,Patient encounter procedure,None,
-14,,Admission to surgical transplant department (procedure),,None
-2079,,Urgent care clinic (environment),,
-15,,Allergic disorder follow-up assessment,None,
-37,,Emergency hospital admission for asthma,,
-3852,,General examination of patient (procedure),None,
-135,,Asthma follow-up,,None
-12,,Hospital admission for isolation (procedure),None,
-1602,,Prenatal visit,None,None
-17,,Office Visit,,
-1979,,Encounter for symptom,,
-296,,Prenatal initial visit,None,None
-582,,Encounter for problem,,
-17,,Office Visit,None,None
-31669,,,None,
-3852,,General examination of patient (procedure),None,
-582,,Encounter for problem,None,None
-1141,,Patient encounter procedure,,None
-16,,Patient transfer to intensive care unit (procedure),None,None
-643,,Consultation for treatment,,None
-1141,,Patient encounter procedure,None,
-135,,Asthma follow-up,None,
-73,,Domiciliary or rest home patient evaluation and management,,
-2079,,Urgent care clinic (environment),,None
-49,,Patient-initiated encounter,None,
-16,,Patient transfer to intensive care unit (procedure),,None
-178,,Follow-up encounter (procedure),,
-1270,,Administration of vaccine to produce active immunity (procedure),,None
-12,,Hospital admission for isolation (procedure),None,None
-1270,,Administration of vaccine to produce active immunity (procedure),None,
-14,,Admission to surgical transplant department (procedure),,
-912,,Outpatient procedure,,
-132,,Patient encounter procedure (procedure),None,
-2423,,Encounter for check up (procedure),None,
-18,,Encounter for Problem,,
-37,,Death Certification,,None
-643,,Consultation for treatment,None,None
-88,,Drug rehabilitation and detoxification,None,
-572,,Follow-up encounter,,None
-2561,,Well child visit (procedure),None,None
-1979,,Encounter for symptom,None,None
+37,ambulatory,Death Certification,None,None
+16,inpatient encounter,Hospital admission (procedure),,None
+123,ambulatory,Encounter for symptom (procedure),,None
+1602,ambulatory,Prenatal visit,None,
+166,ambulatory,Follow-up encounter (procedure),,
+12,inpatient encounter,Hospital admission for isolation (procedure),None,None
+7602,ambulatory,Encounter for problem (procedure),,
+14,inpatient encounter,Admission to surgical transplant department (procedure),,
+88,,Drug rehabilitation and detoxification,None,None
+88,inpatient encounter,Drug rehabilitation and detoxification,None,
+68,ambulatory,Gynecology service (qualifier value),,None
 67,,Admission to hospice (procedure),None,None
-68,,Gynecology service (qualifier value),None,None
-31669,,,None,None
-912,,Outpatient procedure,,None
-16,,Admission to ward (procedure),None,
-121,,Screening surveillance (regime/therapy),,
-12,,Hospital admission for isolation (procedure),,
-37,,Death Certification,None,
-14,,Admission to surgical transplant department (procedure),None,None
-919,,Emergency room admission (procedure),None,None
-121,,Screening surveillance (regime/therapy),,None
-25,,Hospital admission (procedure),,None
-2079,,Urgent care clinic (environment),None,None
-1979,,Encounter for symptom,None,
-188,,Postnatal visit,None,None
-20,,Admission to intensive care unit (procedure),None,None
-7618,,Encounter for problem (procedure),,
-37,,Death Certification,,None
-12,,Non-urgent orthopedic admission,,None
-1602,,Prenatal visit,,None
-1979,,Encounter for symptom,,None
-178,,Follow-up encounter (procedure),None,None
-121,,Screening surveillance (regime/therapy),None,None
-490,,Encounter for check up,,
-21,,Admission to surgical department,None,
-572,,Follow-up encounter,None,
-188,,Postnatal visit,,
-68,,Gynecology service (qualifier value),,None
-1270,,Administration of vaccine to produce active immunity (procedure),,None
+80,virtual,,None,
+45,inpatient encounter,Encounter for problem,,None
+16,emergency,Encounter for Problem,None,
+1270,ambulatory,Administration of vaccine to produce active immunity (procedure),,None
 912,,Outpatient procedure,,None
 490,,Encounter for check up,None,
 17,,Office Visit,,None
-88,,Drug rehabilitation and detoxification,None,None
-67,,Admission to hospice (procedure),None,None
-14,,Admission to surgical transplant department (procedure),None,
-132,,Patient encounter procedure (procedure),None,
-582,,Encounter for problem,,None
-67,,Admission to hospice (procedure),,
-12,,Hospital admission for isolation (procedure),,
-18,,Encounter for Problem,None,None
-67,,Admission to hospice (procedure),None,
-2561,,Well child visit (procedure),None,
-31669,,,,None
-1602,,Prenatal visit,None,
-2079,,Urgent care clinic (environment),None,None
-281,,Postoperative follow-up visit (procedure),,None
-25,,Hospital admission (procedure),None,None
-281,,Postoperative follow-up visit (procedure),,
-572,,Follow-up encounter,,
-25,,Hospital admission (procedure),None,None
-2079,,Urgent care clinic (environment),None,
-912,,Outpatient procedure,None,None
-121,,Screening surveillance (regime/therapy),None,
-23,,Allergic disorder initial assessment,None,
-2079,,Urgent care clinic (environment),None,
-15,,Allergic disorder follow-up assessment,,
-296,,Prenatal initial visit,,
-49,,Patient-initiated encounter,None,None
-17,,Office Visit,None,
-2423,,Encounter for check up (procedure),,None
-104,,Admission to skilled nursing facility (procedure),,None
-25,,Hospital admission (procedure),,
-296,,Prenatal initial visit,None,
-572,,Follow-up encounter,,None
-3852,,General examination of patient (procedure),None,None
-2561,,Well child visit (procedure),None,None
-1979,,Encounter for symptom,None,None
-643,,Consultation for treatment,None,None
-572,,Follow-up encounter,None,None
-68,,Gynecology service (qualifier value),None,None
-68,,Gynecology service (qualifier value),None,
-23,,Allergic disorder initial assessment,,
-281,,Postoperative follow-up visit (procedure),None,
-20,,Admission to intensive care unit (procedure),,None
-132,,Patient encounter procedure (procedure),,
-135,,Asthma follow-up,None,
-37,,Emergency hospital admission for asthma,,None
-16,,Patient transfer to intensive care unit (procedure),None,
-2561,,Well child visit (procedure),None,
-16,,Admission to ward (procedure),,
-15,,Allergic disorder follow-up assessment,,
-17,,Office Visit,None,None
-104,,Admission to skilled nursing facility (procedure),,
-14,,Admission to surgical transplant department (procedure),,
-7618,,Encounter for problem (procedure),,None
-2423,,Encounter for check up (procedure),,
-1979,,Encounter for symptom,,
-135,,Asthma follow-up,None,None
-68,,Gynecology service (qualifier value),,
-132,,Patient encounter procedure (procedure),,None
-7618,,Encounter for problem (procedure),,None
-23,,Allergic disorder initial assessment,,None
-49,,Patient-initiated encounter,None,None
-178,,Follow-up encounter (procedure),None,None
-2423,,Encounter for check up (procedure),,
-1141,,Patient encounter procedure,,
-37,,Death Certification,None,
-18,,Encounter for Problem,None,
-12,,Non-urgent orthopedic admission,None,None
-3852,,General examination of patient (procedure),,None
-25,,Hospital admission (procedure),,None
-16,,Admission to ward (procedure),,None
-919,,Emergency room admission (procedure),,
-178,,Follow-up encounter (procedure),None,
-135,,Asthma follow-up,,
-123,,Encounter for symptom (procedure),,
-14,,Admission to surgical transplant department (procedure),,None
+16,inpatient encounter,Patient transfer to intensive care unit (procedure),,None
+104,inpatient encounter,Admission to skilled nursing facility (procedure),,None
+16,,Admission to ward (procedure),None,
+29698,ambulatory,,None,
+489,ambulatory,Encounter for check up,,None
 37,,Emergency hospital admission for asthma,None,
-21,,Admission to surgical department,,
+16,inpatient encounter,Encounter for problem (procedure),,None
 20,,Admission to intensive care unit (procedure),None,
+21,inpatient encounter,Admission to surgical department,None,
+15,ambulatory,Allergic disorder follow-up assessment,None,None
 3852,,General examination of patient (procedure),,
-31669,,,,
-643,,Consultation for treatment,,
-104,,Admission to skilled nursing facility (procedure),None,
-296,,Prenatal initial visit,None,
 2561,,Well child visit (procedure),,
-1270,,Administration of vaccine to produce active immunity (procedure),,
-21,,Admission to surgical department,None,None
-12,,Non-urgent orthopedic admission,None,None
-572,,Follow-up encounter,,
-188,,Postnatal visit,None,None
-2561,,Well child visit (procedure),,None
-37,,Emergency hospital admission for asthma,None,None
-132,,Patient encounter procedure (procedure),None,None
-67,,Admission to hospice (procedure),,None
-73,,Domiciliary or rest home patient evaluation and management,,None
-21,,Admission to surgical department,None,
-18,,Encounter for Problem,,None
-1270,,Administration of vaccine to produce active immunity (procedure),None,None
-296,,Prenatal initial visit,,
+2079,ambulatory,Urgent care clinic (environment),None,
+166,ambulatory,Follow-up encounter (procedure),None,None
+186,,Obstetric emergency hospital admission,,
 7618,,Encounter for problem (procedure),None,
-121,,Screening surveillance (regime/therapy),,
+526,ambulatory,Encounter for problem,,
 73,,Domiciliary or rest home patient evaluation and management,None,
-2079,,Urgent care clinic (environment),,None
-88,,Drug rehabilitation and detoxification,None,None
-132,,Patient encounter procedure (procedure),,None
-15,,Allergic disorder follow-up assessment,,None
-14,,Admission to surgical transplant department (procedure),None,
-572,,Follow-up encounter,None,None
-17,,Office Visit,,
-135,,Asthma follow-up,,
-23,,Allergic disorder initial assessment,None,None
+296,ambulatory,Prenatal initial visit,,None
+919,,Emergency room admission (procedure),None,None
+2079,ambulatory,Urgent care clinic (environment),None,None
+912,,Outpatient procedure,None,None
+1270,,Administration of vaccine to produce active immunity (procedure),,None
+178,,Follow-up encounter (procedure),,
+16,inpatient encounter,Hospital admission (procedure),None,
+12,,Hospital admission for isolation (procedure),None,None
+919,emergency,Emergency room admission (procedure),None,None
+582,,Encounter for problem,,
+186,,Obstetric emergency hospital admission,None,
+25,,Hospital admission (procedure),,
+73,,Domiciliary or rest home patient evaluation and management,,None
+2079,,Urgent care clinic (environment),,
+135,ambulatory,Asthma follow-up,,None
+16,inpatient encounter,Admission to ward (procedure),None,None
+37,,Emergency hospital admission for asthma,,
+1270,,Administration of vaccine to produce active immunity (procedure),,
+12,,Non-urgent orthopedic admission,None,None
+49,ambulatory,Patient-initiated encounter,,
+132,ambulatory,Patient encounter procedure (procedure),,None
+12,inpatient encounter,Non-urgent orthopedic admission,,
+271,ambulatory,Postoperative follow-up visit (procedure),None,
+296,ambulatory,Prenatal initial visit,None,
+37,emergency,Emergency hospital admission for asthma,,None
+7618,,Encounter for problem (procedure),,
+37,,Death Certification,,None
+16,ambulatory,Office Visit,,None
+12,,Non-urgent orthopedic admission,,None
+296,,Prenatal initial visit,,None
+37,,Emergency hospital admission for asthma,,None
+16,emergency,Encounter for Problem,None,None
+16,inpatient encounter,Hospital admission (procedure),,
 919,,Emergency room admission (procedure),None,
 135,,Asthma follow-up,None,None
-582,,Encounter for problem,,None
-37,,Death Certification,None,None
+2423,,Encounter for check up (procedure),,
+271,ambulatory,Postoperative follow-up visit (procedure),,
+135,ambulatory,Asthma follow-up,None,
+18,,Encounter for Problem,None,
+37,,Death Certification,None,
+643,ambulatory,Consultation for treatment,None,None
+135,ambulatory,Asthma follow-up,,
+1602,,Prenatal visit,None,
+2079,,Urgent care clinic (environment),None,None
+25,,Hospital admission (procedure),None,None
+31669,,,,None
+121,ambulatory,Screening surveillance (regime/therapy),None,
+121,,Screening surveillance (regime/therapy),None,None
+88,inpatient encounter,Drug rehabilitation and detoxification,None,None
+20,inpatient encounter,Admission to intensive care unit (procedure),None,
+2423,ambulatory,Encounter for check up (procedure),,
+16,,Admission to ward (procedure),,None
+135,,Asthma follow-up,,
 178,,Follow-up encounter (procedure),None,
-572,,Follow-up encounter,None,
-16,,Patient transfer to intensive care unit (procedure),None,None
-37,,Death Certification,,
-1979,,Encounter for symptom,,None
-490,,Encounter for check up,None,
-123,,Encounter for symptom (procedure),,None
-21,,Admission to surgical department,,None
-123,,Encounter for symptom (procedure),None,None
-188,,Postnatal visit,,None
-12,,Non-urgent orthopedic admission,None,
-12,,Hospital admission for isolation (procedure),None,None
+14,,Admission to surgical transplant department (procedure),,None
 3852,,General examination of patient (procedure),,None
 88,,Drug rehabilitation and detoxification,,None
-2423,,Encounter for check up (procedure),None,None
-1270,,Administration of vaccine to produce active immunity (procedure),None,
-912,,Outpatient procedure,,
-16,,Admission to ward (procedure),,None
-18,,Encounter for Problem,,
-296,,Prenatal initial visit,,None
-188,,Postnatal visit,,
-919,,Emergency room admission (procedure),,None
-296,,Prenatal initial visit,None,None
-17,,Office Visit,,None
-1602,,Prenatal visit,,None
-123,,Encounter for symptom (procedure),None,
-12,,Non-urgent orthopedic admission,None,
-23,,Allergic disorder initial assessment,,None
-188,,Postnatal visit,,None
-37,,Death Certification,None,None
-1602,,Prenatal visit,,
-73,,Domiciliary or rest home patient evaluation and management,,
-21,,Admission to surgical department,,
-296,,Prenatal initial visit,,None
-37,,Emergency hospital admission for asthma,,None
-73,,Domiciliary or rest home patient evaluation and management,None,None
-123,,Encounter for symptom (procedure),None,None
-1270,,Administration of vaccine to produce active immunity (procedure),None,None
-1141,,Patient encounter procedure,None,None
+73,ambulatory,Domiciliary or rest home patient evaluation and management,None,None
+572,,Follow-up encounter,None,None
+23,,Allergic disorder initial assessment,None,None
+17,,Office Visit,,
+643,ambulatory,Consultation for treatment,,
+1141,ambulatory,Patient encounter procedure,,None
+188,ambulatory,Postnatal visit,None,None
+67,,Admission to hospice (procedure),,None
+1270,ambulatory,Administration of vaccine to produce active immunity (procedure),None,None
+919,,Emergency room admission (procedure),,
+20,,Admission to intensive care unit (procedure),None,None
+391,inpatient encounter,,None,None
+121,,Screening surveillance (regime/therapy),None,
+135,ambulatory,Asthma follow-up,None,None
+2561,ambulatory,Well child visit (procedure),None,
+121,,Screening surveillance (regime/therapy),,
+80,virtual,,,None
 14,,Admission to surgical transplant department (procedure),None,None
+3852,ambulatory,General examination of patient (procedure),None,None
+212,home health,,None,None
+88,inpatient encounter,Drug rehabilitation and detoxification,,
+2561,ambulatory,Well child visit (procedure),None,None
+188,,Postnatal visit,,
+296,,Prenatal initial visit,None,None
+526,ambulatory,Encounter for problem,,None
+104,inpatient encounter,Admission to skilled nursing facility (procedure),None,
+23,,Allergic disorder initial assessment,,None
+489,ambulatory,Encounter for check up,None,
+912,ambulatory,Outpatient procedure,,None
+45,inpatient encounter,Encounter for problem,None,
+14,inpatient encounter,Admission to surgical transplant department (procedure),None,
+296,ambulatory,Prenatal initial visit,None,None
+121,ambulatory,Screening surveillance (regime/therapy),,
+16,ambulatory,Office Visit,None,
+919,,Emergency room admission (procedure),,None
+123,,Encounter for symptom (procedure),None,
+15,ambulatory,Allergic disorder follow-up assessment,,
+49,,Patient-initiated encounter,,None
+643,,Consultation for treatment,None,None
+2561,,Well child visit (procedure),None,None
+68,,Gynecology service (qualifier value),None,
+45,inpatient encounter,Encounter for problem,None,None
+1288,emergency,,None,
+2561,ambulatory,Well child visit (procedure),,
+23,ambulatory,Allergic disorder initial assessment,None,None
+14,,Admission to surgical transplant department (procedure),None,
+2423,,Encounter for check up (procedure),None,
+489,ambulatory,Encounter for check up,None,None
+18,,Encounter for Problem,,
 7618,,Encounter for problem (procedure),None,None
+1270,ambulatory,Administration of vaccine to produce active immunity (procedure),,
 123,,Encounter for symptom (procedure),,
 104,,Admission to skilled nursing facility (procedure),None,
-912,,Outpatient procedure,None,
-18,,Encounter for Problem,,None
-16,,Admission to ward (procedure),,
-1602,,Prenatal visit,,
-188,,Postnatal visit,None,
-16,,Patient transfer to intensive care unit (procedure),,None
-49,,Patient-initiated encounter,,
-67,,Admission to hospice (procedure),,
-104,,Admission to skilled nursing facility (procedure),,None
-7618,,Encounter for problem (procedure),,
-186,,Obstetric emergency hospital admission,None,
-12,,Hospital admission for isolation (procedure),None,
-31669,,,,None
-121,,Screening surveillance (regime/therapy),None,None
-18,,Encounter for Problem,None,
-12,,Hospital admission for isolation (procedure),,None
-490,,Encounter for check up,,None
-281,,Postoperative follow-up visit (procedure),,
-643,,Consultation for treatment,None,
+1288,emergency,,None,None
+570,ambulatory,Follow-up encounter,,None
+104,inpatient encounter,Admission to skilled nursing facility (procedure),None,None
+572,,Follow-up encounter,,None
+1979,,Encounter for symptom,None,None
+16,inpatient encounter,Patient transfer to intensive care unit (procedure),None,None
+68,,Gynecology service (qualifier value),None,None
+29698,ambulatory,,,
 88,,Drug rehabilitation and detoxification,None,
-12,,Non-urgent orthopedic admission,,
-49,,Patient-initiated encounter,,
+1270,,Administration of vaccine to produce active immunity (procedure),None,None
+1141,,Patient encounter procedure,None,None
+7602,ambulatory,Encounter for problem (procedure),None,
+296,,Prenatal initial visit,,
+49,,Patient-initiated encounter,None,None
 17,,Office Visit,None,
-21,,Admission to surgical department,None,None
-16,,Patient transfer to intensive care unit (procedure),None,
-912,,Outpatient procedure,None,None
-490,,Encounter for check up,,
-16,,Admission to ward (procedure),None,None
-919,,Emergency room admission (procedure),,
-186,,Obstetric emergency hospital admission,,None
-20,,Admission to intensive care unit (procedure),None,None
-919,,Emergency room admission (procedure),,None
-49,,Patient-initiated encounter,,None
-123,,Encounter for symptom (procedure),None,
-3852,,General examination of patient (procedure),None,None
-490,,Encounter for check up,None,None
-178,,Follow-up encounter (procedure),,None
-1141,,Patient encounter procedure,,None
-2423,,Encounter for check up (procedure),None,
+1602,ambulatory,Prenatal visit,,
+135,,Asthma follow-up,None,
+643,,Consultation for treatment,,
+296,,Prenatal initial visit,None,
+12,inpatient encounter,Hospital admission for isolation (procedure),,None
+2423,ambulatory,Encounter for check up (procedure),,None
+643,ambulatory,Consultation for treatment,None,
+132,,Patient encounter procedure (procedure),,
+2561,,Well child visit (procedure),None,
+21,inpatient encounter,Admission to surgical department,None,None
+121,ambulatory,Screening surveillance (regime/therapy),None,None
+1270,ambulatory,Administration of vaccine to produce active immunity (procedure),None,
+16,,Admission to ward (procedure),,
+16,inpatient encounter,Encounter for problem (procedure),None,None
+919,emergency,Emergency room admission (procedure),,
+1979,,Encounter for symptom,,None
+1602,,Prenatal visit,,None
+188,ambulatory,Postnatal visit,,
+21,,Admission to surgical department,None,
+37,ambulatory,Death Certification,,
+7602,ambulatory,Encounter for problem (procedure),None,None
+391,inpatient encounter,,,
+572,,Follow-up encounter,None,
+912,ambulatory,Outpatient procedure,None,
+31669,,,,
+570,ambulatory,Follow-up encounter,,
+23,,Allergic disorder initial assessment,None,
+23,ambulatory,Allergic disorder initial assessment,,
+31669,,,None,None
+643,,Consultation for treatment,None,
+271,ambulatory,Postoperative follow-up visit (procedure),None,None
+15,,Allergic disorder follow-up assessment,None,
 281,,Postoperative follow-up visit (procedure),None,
-186,,Obstetric emergency hospital admission,None,None
 121,,Screening surveillance (regime/therapy),,None
-49,,Patient-initiated encounter,None,
+15,ambulatory,Allergic disorder follow-up assessment,None,
 18,,Encounter for Problem,None,None
-919,,Emergency room admission (procedure),None,None
-1602,,Prenatal visit,None,
-7618,,Encounter for problem (procedure),None,
-490,,Encounter for check up,,None
+2423,ambulatory,Encounter for check up (procedure),None,None
+1141,,Patient encounter procedure,,None
+1288,emergency,,,None
+3852,ambulatory,General examination of patient (procedure),None,
+123,ambulatory,Encounter for symptom (procedure),,
+73,ambulatory,Domiciliary or rest home patient evaluation and management,,
+186,emergency,Obstetric emergency hospital admission,None,None
+20,inpatient encounter,Admission to intensive care unit (procedure),,None
+186,emergency,Obstetric emergency hospital admission,,None
+2423,,Encounter for check up (procedure),,None
+104,,Admission to skilled nursing facility (procedure),,None
+49,ambulatory,Patient-initiated encounter,None,
+132,ambulatory,Patient encounter procedure (procedure),None,None
+919,emergency,Emergency room admission (procedure),,None
+1288,emergency,,,
+23,ambulatory,Allergic disorder initial assessment,,None
+45,inpatient encounter,Encounter for problem,,
+1602,,Prenatal visit,,
+15,ambulatory,Allergic disorder follow-up assessment,,None
+16,,Patient transfer to intensive care unit (procedure),,None
+212,home health,,,
+67,home health,Admission to hospice (procedure),,None
+1141,ambulatory,Patient encounter procedure,,
+1975,ambulatory,Encounter for symptom,,None
+21,inpatient encounter,Admission to surgical department,,
+37,emergency,Emergency hospital admission for asthma,None,None
+18,,Encounter for Problem,,None
+296,ambulatory,Prenatal initial visit,,
+37,ambulatory,Death Certification,,None
+20,inpatient encounter,Admission to intensive care unit (procedure),,
+12,inpatient encounter,Hospital admission for isolation (procedure),,
 15,,Allergic disorder follow-up assessment,None,None
-186,,Obstetric emergency hospital admission,None,
-25,,Hospital admission (procedure),,
-73,,Domiciliary or rest home patient evaluation and management,,None
-582,,Encounter for problem,,
+212,home health,,,None
+132,ambulatory,Patient encounter procedure (procedure),None,
+132,,Patient encounter procedure (procedure),None,None
+67,home health,Admission to hospice (procedure),,
+1975,ambulatory,Encounter for symptom,,
+2079,ambulatory,Urgent care clinic (environment),,None
+212,home health,,None,
+16,ambulatory,Office Visit,None,None
+37,emergency,Emergency hospital admission for asthma,,
+14,,Admission to surgical transplant department (procedure),,
+16,emergency,Encounter for Problem,,
+123,ambulatory,Encounter for symptom (procedure),None,
+186,,Obstetric emergency hospital admission,,None
+281,,Postoperative follow-up visit (procedure),,None
+12,,Hospital admission for isolation (procedure),,None
+31669,,,None,
+186,,Obstetric emergency hospital admission,None,None
+29698,ambulatory,,None,None
+16,,Admission to ward (procedure),None,None
+16,inpatient encounter,Patient transfer to intensive care unit (procedure),,
+643,,Consultation for treatment,,None
+919,emergency,Emergency room admission (procedure),None,
+1141,,Patient encounter procedure,None,
+123,,Encounter for symptom (procedure),,None
+21,,Admission to surgical department,,None
+16,ambulatory,Office Visit,,
+1602,,Prenatal visit,None,None
+3852,,General examination of patient (procedure),None,
+73,ambulatory,Domiciliary or rest home patient evaluation and management,None,
+12,inpatient encounter,Non-urgent orthopedic admission,None,None
+12,,Hospital admission for isolation (procedure),None,
+73,,Domiciliary or rest home patient evaluation and management,,
+121,ambulatory,Screening surveillance (regime/therapy),,None
+37,,Death Certification,None,None
+21,,Admission to surgical department,,
+188,,Postnatal visit,None,
+73,,Domiciliary or rest home patient evaluation and management,None,None
+188,,Postnatal visit,None,None
+572,,Follow-up encounter,,
+88,,Drug rehabilitation and detoxification,,
+135,,Asthma follow-up,,None
+14,inpatient encounter,Admission to surgical transplant department (procedure),None,None
+104,inpatient encounter,Admission to skilled nursing facility (procedure),,
+490,,Encounter for check up,,
+489,ambulatory,Encounter for check up,,
+123,ambulatory,Encounter for symptom (procedure),None,None
+16,inpatient encounter,Admission to ward (procedure),,None
+7602,ambulatory,Encounter for problem (procedure),,None
+1975,ambulatory,Encounter for symptom,None,None
+912,ambulatory,Outpatient procedure,None,None
+186,emergency,Obstetric emergency hospital admission,,
+21,,Admission to surgical department,None,None
+80,virtual,,None,None
+16,,Patient transfer to intensive care unit (procedure),None,
+582,,Encounter for problem,,None
+67,,Admission to hospice (procedure),,
+132,,Patient encounter procedure (procedure),None,
+73,ambulatory,Domiciliary or rest home patient evaluation and management,,None
+12,,Hospital admission for isolation (procedure),,
+12,inpatient encounter,Non-urgent orthopedic admission,None,
+37,ambulatory,Death Certification,None,
+17,,Office Visit,None,None
 1141,,Patient encounter procedure,,
+271,ambulatory,Postoperative follow-up visit (procedure),,None
 281,,Postoperative follow-up visit (procedure),None,None
-178,,Follow-up encounter (procedure),,None
-37,,Emergency hospital admission for asthma,None,
+132,ambulatory,Patient encounter procedure (procedure),,
 20,,Admission to intensive care unit (procedure),,None
 25,,Hospital admission (procedure),None,
-25,,Hospital admission (procedure),None,
-2561,,Well child visit (procedure),,
-3852,,General examination of patient (procedure),,
-186,,Obstetric emergency hospital admission,,
-104,,Admission to skilled nursing facility (procedure),None,None
-37,,Emergency hospital admission for asthma,,
-23,,Allergic disorder initial assessment,,
+12,inpatient encounter,Hospital admission for isolation (procedure),None,
+912,ambulatory,Outpatient procedure,,
+570,ambulatory,Follow-up encounter,None,
+80,virtual,,,
+23,ambulatory,Allergic disorder initial assessment,None,
+16,inpatient encounter,Patient transfer to intensive care unit (procedure),None,
+178,,Follow-up encounter (procedure),None,None
+582,,Encounter for problem,None,
+166,ambulatory,Follow-up encounter (procedure),,None
+16,inpatient encounter,Encounter for problem (procedure),None,
+1270,,Administration of vaccine to produce active immunity (procedure),None,
+166,ambulatory,Follow-up encounter (procedure),None,
+2561,,Well child visit (procedure),,None
+188,ambulatory,Postnatal visit,None,
+37,,Emergency hospital admission for asthma,None,None
+1602,ambulatory,Prenatal visit,,None
+1141,ambulatory,Patient encounter procedure,None,None
+16,emergency,Encounter for Problem,,None
+391,inpatient encounter,,None,
+68,ambulatory,Gynecology service (qualifier value),None,None
+67,,Admission to hospice (procedure),None,
+2079,,Urgent care clinic (environment),,None
+391,inpatient encounter,,,None
+68,ambulatory,Gynecology service (qualifier value),None,
+643,ambulatory,Consultation for treatment,,None
+49,ambulatory,Patient-initiated encounter,None,None
 582,,Encounter for problem,None,None
-186,,Obstetric emergency hospital admission,,
+16,inpatient encounter,Admission to ward (procedure),,
+88,inpatient encounter,Drug rehabilitation and detoxification,,None
+2423,ambulatory,Encounter for check up (procedure),None,
+1979,,Encounter for symptom,None,
+1602,ambulatory,Prenatal visit,None,None
+3852,ambulatory,General examination of patient (procedure),,None
+2079,ambulatory,Urgent care clinic (environment),,
+912,,Outpatient procedure,,
+1975,ambulatory,Encounter for symptom,None,
+14,inpatient encounter,Admission to surgical transplant department (procedure),,None
+3852,,General examination of patient (procedure),None,None
+68,ambulatory,Gynecology service (qualifier value),,
+490,,Encounter for check up,None,None
+178,,Follow-up encounter (procedure),,None
+526,ambulatory,Encounter for problem,None,None
+49,,Patient-initiated encounter,None,
+188,,Postnatal visit,,None
+12,,Non-urgent orthopedic admission,None,
+123,,Encounter for symptom (procedure),None,None
+12,inpatient encounter,Non-urgent orthopedic admission,,None
+3852,ambulatory,General examination of patient (procedure),,
+49,ambulatory,Patient-initiated encounter,,None
+188,ambulatory,Postnatal visit,,None
+25,,Hospital admission (procedure),,None
+16,inpatient encounter,Admission to ward (procedure),None,
+23,,Allergic disorder initial assessment,,
+37,emergency,Emergency hospital admission for asthma,None,
+104,,Admission to skilled nursing facility (procedure),,
+37,,Death Certification,,
+16,,Patient transfer to intensive care unit (procedure),None,None
+1979,,Encounter for symptom,,
+7618,,Encounter for problem (procedure),,None
+132,,Patient encounter procedure (procedure),,None
+21,inpatient encounter,Admission to surgical department,,None
+68,,Gynecology service (qualifier value),,
+16,inpatient encounter,Encounter for problem (procedure),,
 2423,,Encounter for check up (procedure),None,None
 912,,Outpatient procedure,None,
-49,,Patient-initiated encounter,,None
-68,,Gynecology service (qualifier value),None,
-68,,Gynecology service (qualifier value),,None
+186,emergency,Obstetric emergency hospital admission,None,
 104,,Admission to skilled nursing facility (procedure),None,None
+68,,Gynecology service (qualifier value),,None
+67,home health,Admission to hospice (procedure),None,
 20,,Admission to intensive care unit (procedure),,
-15,,Allergic disorder follow-up assessment,,None
 16,,Patient transfer to intensive care unit (procedure),,
-31669,,,None,
-2561,,Well child visit (procedure),,None
-582,,Encounter for problem,None,
-16,,Admission to ward (procedure),None,None
-88,,Drug rehabilitation and detoxification,,
-186,,Obstetric emergency hospital admission,None,None
-20,,Admission to intensive care unit (procedure),None,
-132,,Patient encounter procedure (procedure),,
-67,,Admission to hospice (procedure),,None
-1141,,Patient encounter procedure,None,None
-1979,,Encounter for symptom,None,
+15,,Allergic disorder follow-up assessment,,None
+281,,Postoperative follow-up visit (procedure),,
+490,,Encounter for check up,,None
+12,,Non-urgent orthopedic admission,,
+1141,ambulatory,Patient encounter procedure,None,
+29698,ambulatory,,,None
+526,ambulatory,Encounter for problem,None,
+20,inpatient encounter,Admission to intensive care unit (procedure),None,None
+16,inpatient encounter,Hospital admission (procedure),None,None
+49,,Patient-initiated encounter,,
+570,ambulatory,Follow-up encounter,None,None
+2561,ambulatory,Well child visit (procedure),,None
+2079,,Urgent care clinic (environment),None,
+67,home health,Admission to hospice (procedure),None,None
+15,,Allergic disorder follow-up assessment,,
