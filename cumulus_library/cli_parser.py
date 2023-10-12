@@ -126,7 +126,7 @@ following order of preference is used to select credentials:
     add_verbose_argument(clean)
     add_aws_config(clean)
     clean.add_argument(
-        "--explicit_prefix",
+        "--prefix",
         action="store_true",
         help=(argparse.SUPPRESS),
     )

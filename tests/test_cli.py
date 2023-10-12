@@ -125,7 +125,7 @@ def test_count_builder_mapping(
         (
             [
                 "clean",
-                "--explicit_prefix",
+                "--prefix",
                 "-t" "foo",
                 "--database",
                 "test",

@@ -183,9 +183,11 @@ class StudyManifestParser:
         # We'll do a pass to see if any of these tables were created outside of a
         # study builder, and remove them from the list.
         for view_table in view_table_list.copy():
-            if any((f"_{word}_") in view_table[0] for word in RESERVED_TABLE_KEYWORDS):
+            if any(
+                ((f"_{word}_") in view_table[0] or view_table[0].endswith(word))
+                for word in RESERVED_TABLE_KEYWORDS
+            ):
                 view_table_list.remove(view_table)
-
         # We want to only show a progress bar if we are :not: printing SQL lines
         with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
@@ -204,7 +206,7 @@ class StudyManifestParser:
                     view_table_list,
                     progress,
                     task,
-                    explicit_prefix=True,
+                    prefix=True,
                 )
         return view_table_list
 
@@ -215,7 +217,7 @@ class StudyManifestParser:
         view_table_list: List,
         progress: Progress,
         task: TaskID,
-        explicit_prefix: bool = False,
+        prefix: bool = False,
     ) -> None:
         """Handler for executing drop view/table queries and displaying console output.
 
@@ -226,12 +228,12 @@ class StudyManifestParser:
         :param task: a TaskID for a given progress bar
         """
         for view_table in view_table_list:
-            if explicit_prefix:
+            if prefix:
                 prefix = f"{view_table[0]}"
             else:
                 prefix = f"{view_table[0]}__"
             drop_view_table = get_drop_view_table(
-                name=f"{view_table[0]}", view_or_table=view_table[1]
+                name=prefix, view_or_table=view_table[1]
             )
             cursor.execute(drop_view_table)
             query_console_output(verbose, drop_view_table, progress, task)

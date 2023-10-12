@@ -89,7 +89,7 @@ class StudyBuilder:
 
     ### Creating studies
 
-    def clean_study(self, targets: List[str], explicit_prefix=False) -> None:
+    def clean_study(self, targets: List[str], prefix=False) -> None:
         """Removes study table/views from Athena.
 
         While this is usually not required, since it it done as part of a build,
@@ -103,7 +103,7 @@ class StudyBuilder:
                 "Provide one or more explicit study prefixes to remove."
             )
         for target in targets:
-            if explicit_prefix:
+            if prefix:
                 prefix = target
             else:
                 prefix = f"{target}__"
@@ -257,7 +257,7 @@ def run_cli(args: Dict):
         builder.cursor.execute("SHOW DATABASES")
 
         if args["action"] == "clean":
-            builder.clean_study(args["target"], args["explicit_prefix"])
+            builder.clean_study(args["target"], args["prefix"])
 
         else:
             study_dict = get_study_dict(args["study_dir"])
