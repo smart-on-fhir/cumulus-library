@@ -149,6 +149,7 @@ class StudyManifestParser:
         :param schema_name: The name of the schema containing the study tables
         :verbose: toggle from progress bar to query output, optional
         :returns: list of dropped tables (for unit testing only)
+        :prefix: override prefix discovery with the provided prefix
 
         TODO: If we need to support additional databases, we may need to investigate
         additional ways to get a list of table prefixes
@@ -195,19 +196,13 @@ class StudyManifestParser:
                 total=len(view_table_list),
                 visible=not verbose,
             )
-            if not prefix:
-                self._execute_drop_queries(
-                    cursor, verbose, view_table_list, progress, task
-                )
-            else:
-                self._execute_drop_queries(
-                    cursor,
-                    verbose,
-                    view_table_list,
-                    progress,
-                    task,
-                    prefix=True,
-                )
+            self._execute_drop_queries(
+                cursor,
+                verbose,
+                view_table_list,
+                progress,
+                task,
+            )
         return view_table_list
 
     def _execute_drop_queries(
@@ -217,7 +212,6 @@ class StudyManifestParser:
         view_table_list: List,
         progress: Progress,
         task: TaskID,
-        prefix: bool = False,
     ) -> None:
         """Handler for executing drop view/table queries and displaying console output.
 
@@ -228,12 +222,8 @@ class StudyManifestParser:
         :param task: a TaskID for a given progress bar
         """
         for view_table in view_table_list:
-            if prefix:
-                prefix = f"{view_table[0]}"
-            else:
-                prefix = f"{view_table[0]}__"
             drop_view_table = get_drop_view_table(
-                name=prefix, view_or_table=view_table[1]
+                name=view_table[0], view_or_table=view_table[1]
             )
             cursor.execute(drop_view_table)
             query_console_output(verbose, drop_view_table, progress, task)
