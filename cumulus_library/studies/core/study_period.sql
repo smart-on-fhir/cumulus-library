@@ -17,7 +17,7 @@ WITH documented_encounter AS (
         ce.encounter_ref,
         cd.doc_ref,
         date_diff('day', ce.start_date, cd.author_date) AS diff_enc_note_days,
-        coalesce(ce.enc_class.display, 'None') AS enc_class_code,
+        coalesce(ce.enc_class_display, 'None') AS enc_class_display,
         coalesce(cd.doc_type.code, 'None') AS doc_type_code,
         coalesce(cd.doc_type.display, cd.doc_type.code) AS doc_type_display
     FROM
@@ -33,11 +33,29 @@ WITH documented_encounter AS (
 )
 
 SELECT
-    documented_encounter.*,
+    de.start_date,
+    de.start_week,
+    de.start_month,
+    de.end_date,
+    de.age_at_visit,
+    de.author_date,
+    de.author_week,
+    de.author_month,
+    de.author_year,
+    de.gender,
+    de.race_display,
+    de.ethnicity_display,
+    de.subject_ref,
+    de.encounter_ref,
+    de.doc_ref,
+    de.diff_enc_note_days,
+    de.enc_class_display,
+    de.doc_type_code,
+    de.doc_type_display,
     coalesce(ed.code IS NOT NULL, false) AS ed_note
-FROM documented_encounter
+FROM documented_encounter AS de
 LEFT JOIN core__ed_note AS ed
-    ON documented_encounter.doc_type_code = ed.from_code;
+    ON de.doc_type_code = ed.from_code;
 
 CREATE TABLE core__meta_date AS
 SELECT

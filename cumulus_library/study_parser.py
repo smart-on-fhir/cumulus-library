@@ -149,6 +149,7 @@ class StudyManifestParser:
         :param schema_name: The name of the schema containing the study tables
         :verbose: toggle from progress bar to query output, optional
         :returns: list of dropped tables (for unit testing only)
+        :prefix: override prefix discovery with the provided prefix
 
         TODO: If we need to support additional databases, we may need to investigate
         additional ways to get a list of table prefixes
@@ -156,9 +157,13 @@ class StudyManifestParser:
         if not schema_name:
             raise ValueError("No database provided")
         if not prefix:
-            prefix = self.get_study_prefix()
-        view_sql = get_show_views(schema_name, prefix)
-        table_sql = get_show_tables(schema_name, prefix)
+            drop_prefix = f"{self.get_study_prefix()}__"
+            display_prefix = self.get_study_prefix()
+        else:
+            drop_prefix = prefix
+            display_prefix = drop_prefix
+        view_sql = get_show_views(schema_name, drop_prefix)
+        table_sql = get_show_tables(schema_name, drop_prefix)
         view_table_list = []
         for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
             cursor.execute(query_and_type[0])
@@ -180,19 +185,24 @@ class StudyManifestParser:
         # study builder, and remove them from the list.
         for view_table in view_table_list.copy():
             if any(
-                view_table[0].startswith(f"{self.get_study_prefix()}__{word}_")
+                ((f"_{word}_") in view_table[0] or view_table[0].endswith(word))
                 for word in RESERVED_TABLE_KEYWORDS
             ):
                 view_table_list.remove(view_table)
-
         # We want to only show a progress bar if we are :not: printing SQL lines
         with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
-                f"Removing {self.get_study_prefix()} study artifacts...",
+                f"Removing {display_prefix} study artifacts...",
                 total=len(view_table_list),
                 visible=not verbose,
             )
-            self._execute_drop_queries(cursor, verbose, view_table_list, progress, task)
+            self._execute_drop_queries(
+                cursor,
+                verbose,
+                view_table_list,
+                progress,
+                task,
+            )
         return view_table_list
 
     def _execute_drop_queries(
@@ -427,6 +437,9 @@ class StudyManifestParser:
             dataframe = cursor.execute(query).as_pandas()
             path = Path(f"{str(data_path)}/{self.get_study_prefix()}/")
             path.mkdir(parents=True, exist_ok=True)
+            dataframe = dataframe.sort_values(
+                by=list(dataframe.columns), ascending=False, na_position="first"
+            )
             dataframe.to_csv(f"{path}/{table}.csv", index=False)
             dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
             queries.append(query)

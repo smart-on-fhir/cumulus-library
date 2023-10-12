@@ -37,13 +37,21 @@ def is_codeable_concept_populated(
         default: 'coding' (and :hopefully: this is always right)
     :returns: a boolean indicating if valid data is present.
     """
-    query = get_is_table_not_empty_query(table, base_col)
-    cursor.execute(query)
-    if cursor.fetchone() is None:
+
+    # if the source column is missing for some reason (i.e. we're dealing with
+    # conversion to FHIR rather than a true FHIR source and it's incomplete),
+    # we'll return false
+    try:
+        query = get_is_table_not_empty_query(table, base_col)
+        cursor.execute(query)
+        if cursor.fetchone() is None:
+            return False
+    except:
         return False
 
     query = get_column_datatype_query(schema, table, base_col)
     cursor.execute(query)
+
     if coding_element not in str(cursor.fetchone()[0]):
         return False
 
@@ -85,9 +93,12 @@ def is_codeable_concept_array_populated(
         default: 'coding' (and :hopefully: this is always right)
     :returns: a boolean indicating if valid data is present.
     """
-    query = get_is_table_not_empty_query(table, base_col)
-    cursor.execute(query)
-    if cursor.fetchone() is None:
+    try:
+        query = get_is_table_not_empty_query(table, base_col)
+        cursor.execute(query)
+        if cursor.fetchone() is None:
+            return False
+    except:
         return False
 
     query = get_column_datatype_query(schema, table, base_col)
