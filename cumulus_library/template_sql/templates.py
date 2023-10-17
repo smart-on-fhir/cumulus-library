@@ -156,7 +156,6 @@ def get_count_query(
     fhir_resource: Optional[str] = None,
     filter_resource: Optional[bool] = True,
 ) -> str:
-    print(filter_resource)
     """Generates count tables for generating study outputs"""
     path = Path(__file__).parent
     if fhir_resource not in [e.value for e in CountableFhirResource]:
