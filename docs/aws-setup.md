@@ -25,7 +25,9 @@ the following permissions:
 - Athena CRUD query access and queing permissions
 - S3 CRUD access to your ETL bucket (along with any secrets/kms keys)
 
-A [sample IAM policy](./sample-iam-policy.json) for this use case is available as
+A 
+[sample IAM policy](https://github.com/smart-on-fhir/cumulus-library/blob/main/docs//sample-iam-policy.json) 
+for this use case is available as
 a starting point.
 
 ## Local AWS configuration

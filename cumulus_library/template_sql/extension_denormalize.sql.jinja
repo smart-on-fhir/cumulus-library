@@ -45,10 +45,32 @@ CREATE TABLE {{ target_table }} AS (
         SELECT
             id,
             system,
-            ARRAY_AGG({{ target_col_prefix }}_code) AS {{ target_col_prefix }}_code,
-            ARRAY_AGG(
+            {%- if is_array %}
+            LOWER(
+                ARRAY_JOIN(
+                    ARRAY_SORT(
+                        ARRAY_AGG(
+                            {{ target_col_prefix }}_code
+                        )
+                    ), ','
+                )
+            )
+            AS {{ target_col_prefix }}_code,
+            LOWER(
+                ARRAY_JOIN(
+                    ARRAY_SORT(
+                        ARRAY_AGG(
+                            {{ target_col_prefix }}_display
+                        )
+                    ), ', '
+                )
+            ) AS {{ target_col_prefix }}_display,
+            {%- else %}
+            LOWER({{ target_col_prefix }}_code) AS {{ target_col_prefix }}_code,
+            LOWER(
                 {{ target_col_prefix }}_display
             ) AS {{ target_col_prefix }}_display,
+            {%- endif %}
             ROW_NUMBER()
             OVER (
                 PARTITION BY id, system

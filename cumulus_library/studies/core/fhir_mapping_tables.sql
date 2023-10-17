@@ -1,7 +1,9 @@
 -- ############################################################
--- FHIR Terminology
+-- FHIR mapping of code systems to URIs
+-- This includes both the expected URI, as well as several found URIs from
+-- various source systems
 
-CREATE TABLE core__fhir_vocab AS SELECT * FROM
+CREATE TABLE core__fhir_mapping_code_system_uri AS SELECT * FROM
     (
         VALUES
         ('ICD10', 'http://hl7.org/fhir/sid/icd-10-cm'),
@@ -38,12 +40,12 @@ CREATE TABLE core__fhir_vocab AS SELECT * FROM
 
         ('CPT', 'http://www.ama-assn.org/go/cpt'),
         ('CPT', 'CPT')
-    ) AS t (alias, vocab); --noqa: AL05
+    ) AS t (code_system, uri); --noqa: AL05
 
 -- ############################################################
--- FHIR StructureDefinition
+-- FHIR mapping of Resource names to expected URIs
 
-CREATE TABLE core__fhir_define AS
+CREATE TABLE core__fhir_mapping_resource_uri AS
 SELECT * FROM
     (
         VALUES
@@ -111,10 +113,28 @@ SELECT * FROM
             'ObservationValue',
             'http://hl7.org/fhir/observation-definitions.html#Observation.value_x_'
         ),
-        ('VitalSign', 'http://hl7.org/fhir/observation-vitalsigns.html'),
-        ('UMLS', 'http://www.nlm.nih.gov/research/umls/'),
-        ('ICD9', 'http://hl7.org/fhir/sid/icd-9-cm'),
-        ('ICD10', 'http://hl7.org/fhir/sid/icd-10-cm'),
-        ('LOINC', 'http://loinc.org'),
-        ('SNOMED', 'http://snomed.info/sct')
-    ) AS t (define, url); --noqa: AL05
+        ('VitalSign', 'http://hl7.org/fhir/observation-vitalsigns.html')
+    ) AS t (resource, uri); --noqa: AL05
+
+-- ############################################################
+-- FHIR mapping of as found Encounter codes to the expected encounter code from
+-- http://hl7.org/fhir/STU3/v3/ActEncounterCode/vs.html
+
+CREATE TABLE core__fhir_mapping_expected_act_encounter_code_v3 AS
+SELECT * FROM
+    (
+        VALUES
+        ('AMB', 'AMB'),
+        ('AMB', 'R'),
+        ('AMB', 'O'),
+        ('EMER', 'EMER'),
+        ('EMER', 'E'),
+        ('FLD', 'FLD'),
+        ('HH', 'HH'),
+        ('IMP', 'IMP'),
+        ('ACUTE', 'ACUTE'),
+        ('NONAC', 'NONAC'),
+        ('PRENC', 'PRENC'),
+        ('SS', 'SS'),
+        ('VR', 'VR')
+    ) AS t (expected, found)

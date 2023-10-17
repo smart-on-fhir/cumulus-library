@@ -153,7 +153,7 @@ def test_clean(
     "args,cursor_calls,pandas_cursor_calls",
     [
         (["build", "-t", "vocab", "--database", "test"], 344, 0),
-        (["build", "-t", "core", "--database", "test"], 51, 0),
+        (["build", "-t", "core", "--database", "test"], 52, 0),
         (["export", "-t", "core", "--database", "test"], 1, 10),
         (
             [
@@ -183,7 +183,7 @@ def test_clean(
         ),
         (
             ["build", "-t", "core", "-s", "tests/test_data/", "--database", "test"],
-            51,
+            52,
             0,
         ),
         (

@@ -1,327 +1,327 @@
 cnt,age,gender,race_display,ethnicity_display
 1144,,,,
-1040,,,,[Not Hispanic or Latino]
-1021,,,[White],
-930,,,[White],[Not Hispanic or Latino]
+1040,,,,not hispanic or latino
+1021,,,white,
+930,,,white,not hispanic or latino
 578,,female,,
 566,,male,,
-527,,female,[White],
-524,,female,,[Not Hispanic or Latino]
-516,,male,,[Not Hispanic or Latino]
-494,,male,[White],
-479,,female,[White],[Not Hispanic or Latino]
-451,,male,[White],[Not Hispanic or Latino]
-104,,,,[Hispanic or Latino]
-91,,,[White],[Hispanic or Latino]
-65,,,[Black or African American],
-54,,,[Black or African American],[Not Hispanic or Latino]
-54,,female,,[Hispanic or Latino]
-50,,male,,[Hispanic or Latino]
-48,,female,[White],[Hispanic or Latino]
-43,,male,[White],[Hispanic or Latino]
-43,,male,[Black or African American],
-36,,male,[Black or African American],[Not Hispanic or Latino]
-22,,female,[Black or African American],
+527,,female,white,
+524,,female,,not hispanic or latino
+516,,male,,not hispanic or latino
+494,,male,white,
+479,,female,white,not hispanic or latino
+451,,male,white,not hispanic or latino
+104,,,,hispanic or latino
+91,,,white,hispanic or latino
+65,,,black or african american,
+54,,,black or african american,not hispanic or latino
+54,,female,,hispanic or latino
+50,,male,,hispanic or latino
+48,,female,white,hispanic or latino
+43,,male,white,hispanic or latino
+43,,male,black or african american,
+36,,male,black or african american,not hispanic or latino
+22,,female,black or african american,
 22,16,,,
 21,74,,,
-21,74,,,[Not Hispanic or Latino]
-21,74,,[White],
-21,74,,[White],[Not Hispanic or Latino]
+21,74,,,not hispanic or latino
+21,74,,white,
+21,74,,white,not hispanic or latino
 21,46,,,
-21,46,,,[Not Hispanic or Latino]
+21,46,,,not hispanic or latino
 21,11,,,
-20,,,[Asian],
+20,,,asian,
 20,22,,,
-20,16,,,[Not Hispanic or Latino]
+20,16,,,not hispanic or latino
 20,2,,,
-19,,,[Asian],[Not Hispanic or Latino]
+19,,,asian,not hispanic or latino
 19,48,,,
-19,46,,[White],
-19,46,,[White],[Not Hispanic or Latino]
+19,46,,white,
+19,46,,white,not hispanic or latino
 19,40,,,
-19,40,,,[Not Hispanic or Latino]
+19,40,,,not hispanic or latino
 19,21,,,
 19,20,,,
-19,20,,,[Not Hispanic or Latino]
+19,20,,,not hispanic or latino
 19,14,,,
-19,2,,,[Not Hispanic or Latino]
-18,,female,[Black or African American],[Not Hispanic or Latino]
+19,2,,,not hispanic or latino
+18,,female,black or african american,not hispanic or latino
 18,62,,,
-18,62,,,[Not Hispanic or Latino]
-18,48,,,[Not Hispanic or Latino]
+18,62,,,not hispanic or latino
+18,48,,,not hispanic or latino
 18,32,,,
-18,22,,,[Not Hispanic or Latino]
-18,16,,[White],
-18,11,,,[Not Hispanic or Latino]
-18,11,,[White],
+18,22,,,not hispanic or latino
+18,16,,white,
+18,11,,,not hispanic or latino
+18,11,,white,
 18,10,,,
-18,10,,[White],
+18,10,,white,
 17,65,,,
-17,65,,,[Not Hispanic or Latino]
+17,65,,,not hispanic or latino
 17,63,,,
-17,62,,[White],
-17,62,,[White],[Not Hispanic or Latino]
+17,62,,white,
+17,62,,white,not hispanic or latino
 17,53,,,
-17,53,,[White],
-17,32,,[White],
-17,20,,[White],
-17,20,,[White],[Not Hispanic or Latino]
-17,14,,,[Not Hispanic or Latino]
-17,14,,[White],
-17,10,,,[Not Hispanic or Latino]
-17,10,,[White],[Not Hispanic or Latino]
+17,53,,white,
+17,32,,white,
+17,20,,white,
+17,20,,white,not hispanic or latino
+17,14,,,not hispanic or latino
+17,14,,white,
+17,10,,,not hispanic or latino
+17,10,,white,not hispanic or latino
 16,88,,,
-16,88,,,[Not Hispanic or Latino]
-16,88,,[White],
-16,88,,[White],[Not Hispanic or Latino]
+16,88,,,not hispanic or latino
+16,88,,white,
+16,88,,white,not hispanic or latino
 16,75,,,
 16,61,,,
-16,61,,,[Not Hispanic or Latino]
-16,53,,,[Not Hispanic or Latino]
-16,53,,[White],[Not Hispanic or Latino]
-16,48,,[White],
+16,61,,,not hispanic or latino
+16,53,,,not hispanic or latino
+16,53,,white,not hispanic or latino
+16,48,,white,
 16,46,male,,
-16,46,male,,[Not Hispanic or Latino]
-16,40,,[White],
-16,40,,[White],[Not Hispanic or Latino]
+16,46,male,,not hispanic or latino
+16,40,,white,
+16,40,,white,not hispanic or latino
 16,33,,,
-16,32,,,[Not Hispanic or Latino]
+16,32,,,not hispanic or latino
 16,24,,,
-16,24,,,[Not Hispanic or Latino]
-16,24,,[White],
-16,24,,[White],[Not Hispanic or Latino]
-16,22,,[White],
-16,16,,[White],[Not Hispanic or Latino]
-16,11,,[White],[Not Hispanic or Latino]
+16,24,,,not hispanic or latino
+16,24,,white,
+16,24,,white,not hispanic or latino
+16,22,,white,
+16,16,,white,not hispanic or latino
+16,11,,white,not hispanic or latino
 16,4,,,
-15,,,[Unknown],
-15,,,[Unknown],[Not Hispanic or Latino]
-15,65,,[White],
-15,65,,[White],[Not Hispanic or Latino]
+15,,,unknown,
+15,,,unknown,not hispanic or latino
+15,65,,white,
+15,65,,white,not hispanic or latino
 15,58,,,
 15,51,,,
-15,48,,[White],[Not Hispanic or Latino]
-15,46,male,[White],
-15,46,male,[White],[Not Hispanic or Latino]
+15,48,,white,not hispanic or latino
+15,46,male,white,
+15,46,male,white,not hispanic or latino
 15,43,,,
-15,33,,[White],
-15,32,,[White],[Not Hispanic or Latino]
+15,33,,white,
+15,32,,white,not hispanic or latino
 15,25,,,
-15,25,,[White],
-15,22,,[White],[Not Hispanic or Latino]
-15,21,,[White],
-15,14,,[White],[Not Hispanic or Latino]
-15,4,,,[Not Hispanic or Latino]
+15,25,,white,
+15,22,,white,not hispanic or latino
+15,21,,white,
+15,14,,white,not hispanic or latino
+15,4,,,not hispanic or latino
 15,3,,,
-15,2,,[White],
-14,,,[Native Hawaiian or Other Pacific Islander],
-14,75,,[White],
+15,2,,white,
+14,,,native hawaiian or other pacific islander,
+14,75,,white,
 14,75,female,,
-14,75,female,[White],
-14,63,,[White],
-14,58,,,[Not Hispanic or Latino]
-14,51,,[White],
+14,75,female,white,
+14,63,,white,
+14,58,,,not hispanic or latino
+14,51,,white,
 14,37,,,
-14,33,,,[Not Hispanic or Latino]
+14,33,,,not hispanic or latino
 14,27,,,
-14,27,,[White],
-14,25,,,[Not Hispanic or Latino]
-14,25,,[White],[Not Hispanic or Latino]
-14,21,,,[Not Hispanic or Latino]
+14,27,,white,
+14,25,,,not hispanic or latino
+14,25,,white,not hispanic or latino
+14,21,,,not hispanic or latino
 14,5,,,
-14,5,,[White],
-14,4,,[White],
-14,3,,[White],
-14,2,,[White],[Not Hispanic or Latino]
-13,,,[Native Hawaiian or Other Pacific Islander],[Not Hispanic or Latino]
+14,5,,white,
+14,4,,white,
+14,3,,white,
+14,2,,white,not hispanic or latino
+13,,,native hawaiian or other pacific islander,not hispanic or latino
 13,82,,,
-13,82,,,[Not Hispanic or Latino]
-13,82,,[White],
-13,82,,[White],[Not Hispanic or Latino]
-13,75,,,[Not Hispanic or Latino]
-13,75,,[White],[Not Hispanic or Latino]
-13,75,female,,[Not Hispanic or Latino]
-13,75,female,[White],[Not Hispanic or Latino]
+13,82,,,not hispanic or latino
+13,82,,white,
+13,82,,white,not hispanic or latino
+13,75,,,not hispanic or latino
+13,75,,white,not hispanic or latino
+13,75,female,,not hispanic or latino
+13,75,female,white,not hispanic or latino
 13,67,,,
-13,63,,,[Not Hispanic or Latino]
+13,63,,,not hispanic or latino
 13,59,,,
-13,58,,[White],
-13,51,,,[Not Hispanic or Latino]
+13,58,,white,
+13,51,,,not hispanic or latino
 13,50,,,
 13,41,,,
-13,33,,[White],[Not Hispanic or Latino]
+13,33,,white,not hispanic or latino
 13,30,,,
-13,27,,,[Not Hispanic or Latino]
-13,27,,[White],[Not Hispanic or Latino]
+13,27,,,not hispanic or latino
+13,27,,white,not hispanic or latino
 13,18,,,
-13,18,,,[Not Hispanic or Latino]
+13,18,,,not hispanic or latino
 13,16,female,,
-13,16,female,,[Not Hispanic or Latino]
+13,16,female,,not hispanic or latino
 13,15,,,
 13,8,,,
-13,4,,[White],[Not Hispanic or Latino]
-13,3,,,[Not Hispanic or Latino]
+13,4,,white,not hispanic or latino
+13,3,,,not hispanic or latino
 13,1,,,
-12,,female,[Asian],
+12,,female,asian,
 12,82,male,,
-12,82,male,,[Not Hispanic or Latino]
-12,82,male,[White],
-12,82,male,[White],[Not Hispanic or Latino]
-12,67,,,[Not Hispanic or Latino]
+12,82,male,,not hispanic or latino
+12,82,male,white,
+12,82,male,white,not hispanic or latino
+12,67,,,not hispanic or latino
 12,66,,,
 12,64,,,
-12,64,,,[Not Hispanic or Latino]
-12,64,,[White],
-12,64,,[White],[Not Hispanic or Latino]
-12,63,,[White],[Not Hispanic or Latino]
-12,61,,[White],
-12,61,,[White],[Not Hispanic or Latino]
-12,59,,,[Not Hispanic or Latino]
-12,58,,[White],[Not Hispanic or Latino]
+12,64,,,not hispanic or latino
+12,64,,white,
+12,64,,white,not hispanic or latino
+12,63,,white,not hispanic or latino
+12,61,,white,
+12,61,,white,not hispanic or latino
+12,59,,,not hispanic or latino
+12,58,,white,not hispanic or latino
 12,52,,,
-12,52,,,[Not Hispanic or Latino]
-12,52,,[White],
-12,52,,[White],[Not Hispanic or Latino]
-12,51,,[White],[Not Hispanic or Latino]
-12,50,,,[Not Hispanic or Latino]
-12,50,,[White],
+12,52,,,not hispanic or latino
+12,52,,white,
+12,52,,white,not hispanic or latino
+12,51,,white,not hispanic or latino
+12,50,,,not hispanic or latino
+12,50,,white,
 12,44,,,
-12,43,,,[Not Hispanic or Latino]
-12,43,,[White],
+12,43,,,not hispanic or latino
+12,43,,white,
 12,42,,,
-12,42,,[White],
-12,41,,[White],
+12,42,,white,
+12,41,,white,
 12,38,,,
-12,37,,[White],
+12,37,,white,
 12,36,,,
 12,31,,,
-12,31,,,[Not Hispanic or Latino]
-12,30,,[White],
+12,31,,,not hispanic or latino
+12,30,,white,
 12,19,,,
-12,19,,,[Not Hispanic or Latino]
+12,19,,,not hispanic or latino
 12,12,,,
 12,11,male,,
 12,9,,,
-12,9,,,[Not Hispanic or Latino]
-12,8,,,[Not Hispanic or Latino]
-12,8,,[White],
+12,9,,,not hispanic or latino
+12,8,,,not hispanic or latino
+12,8,,white,
 12,6,,,
-12,6,,,[Not Hispanic or Latino]
-12,5,,,[Not Hispanic or Latino]
-12,5,,[White],[Not Hispanic or Latino]
-12,3,,[White],[Not Hispanic or Latino]
+12,6,,,not hispanic or latino
+12,5,,,not hispanic or latino
+12,5,,white,not hispanic or latino
+12,3,,white,not hispanic or latino
 12,2,male,,
-12,2,male,,[Not Hispanic or Latino]
-12,1,,[White],
-11,,,[Black or African American],[Hispanic or Latino]
-11,,female,[Asian],[Not Hispanic or Latino]
+12,2,male,,not hispanic or latino
+12,1,,white,
+11,,,black or african american,hispanic or latino
+11,,female,asian,not hispanic or latino
 11,88,female,,
-11,88,female,,[Not Hispanic or Latino]
-11,88,female,[White],
-11,88,female,[White],[Not Hispanic or Latino]
+11,88,female,,not hispanic or latino
+11,88,female,white,
+11,88,female,white,not hispanic or latino
 11,78,,,
-11,78,,[White],
+11,78,,white,
 11,77,,,
 11,74,male,,
-11,74,male,,[Not Hispanic or Latino]
-11,74,male,[White],
-11,74,male,[White],[Not Hispanic or Latino]
+11,74,male,,not hispanic or latino
+11,74,male,white,
+11,74,male,white,not hispanic or latino
 11,68,,,
-11,67,,[White],
-11,66,,[White],
+11,67,,white,
+11,66,,white,
 11,63,female,,
 11,55,,,
-11,50,,[White],[Not Hispanic or Latino]
+11,50,,white,not hispanic or latino
 11,48,male,,
-11,48,male,,[Not Hispanic or Latino]
+11,48,male,,not hispanic or latino
 11,47,,,
-11,47,,[White],
+11,47,,white,
 11,45,,,
-11,45,,,[Not Hispanic or Latino]
-11,45,,[White],
-11,45,,[White],[Not Hispanic or Latino]
-11,44,,,[Not Hispanic or Latino]
-11,41,,,[Not Hispanic or Latino]
+11,45,,,not hispanic or latino
+11,45,,white,
+11,45,,white,not hispanic or latino
+11,44,,,not hispanic or latino
+11,41,,,not hispanic or latino
 11,40,female,,
-11,40,female,,[Not Hispanic or Latino]
-11,38,,[White],
-11,37,,,[Not Hispanic or Latino]
-11,36,,[White],
+11,40,female,,not hispanic or latino
+11,38,,white,
+11,37,,,not hispanic or latino
+11,36,,white,
 11,35,,,
-11,30,,,[Not Hispanic or Latino]
+11,30,,,not hispanic or latino
 11,29,,,
-11,29,,,[Not Hispanic or Latino]
+11,29,,,not hispanic or latino
 11,22,male,,
-11,22,male,,[Not Hispanic or Latino]
+11,22,male,,not hispanic or latino
 11,20,female,,
-11,20,female,,[Not Hispanic or Latino]
-11,18,,[White],
-11,18,,[White],[Not Hispanic or Latino]
-11,16,female,[White],
-11,16,female,[White],[Not Hispanic or Latino]
-11,15,,,[Not Hispanic or Latino]
-11,15,,[White],
+11,20,female,,not hispanic or latino
+11,18,,white,
+11,18,,white,not hispanic or latino
+11,16,female,white,
+11,16,female,white,not hispanic or latino
+11,15,,,not hispanic or latino
+11,15,,white,
 11,13,,,
-11,12,,,[Not Hispanic or Latino]
-11,12,,[White],
-11,12,,[White],[Not Hispanic or Latino]
-11,11,male,,[Not Hispanic or Latino]
-11,8,,[White],[Not Hispanic or Latino]
+11,12,,,not hispanic or latino
+11,12,,white,
+11,12,,white,not hispanic or latino
+11,11,male,,not hispanic or latino
+11,8,,white,not hispanic or latino
 11,7,,,
-11,7,,,[Not Hispanic or Latino]
-11,6,,[White],
-11,6,,[White],[Not Hispanic or Latino]
-10,,male,[Unknown],
-10,,male,[Unknown],[Not Hispanic or Latino]
-10,78,,,[Not Hispanic or Latino]
-10,78,,[White],[Not Hispanic or Latino]
+11,7,,,not hispanic or latino
+11,6,,white,
+11,6,,white,not hispanic or latino
+10,,male,unknown,
+10,,male,unknown,not hispanic or latino
+10,78,,,not hispanic or latino
+10,78,,white,not hispanic or latino
 10,74,female,,
-10,74,female,,[Not Hispanic or Latino]
-10,74,female,[White],
-10,74,female,[White],[Not Hispanic or Latino]
+10,74,female,,not hispanic or latino
+10,74,female,white,
+10,74,female,white,not hispanic or latino
 10,69,,,
-10,69,,,[Not Hispanic or Latino]
-10,69,,[White],
-10,69,,[White],[Not Hispanic or Latino]
-10,68,,,[Not Hispanic or Latino]
-10,68,,[White],
-10,67,,[White],[Not Hispanic or Latino]
-10,66,,,[Not Hispanic or Latino]
+10,69,,,not hispanic or latino
+10,69,,white,
+10,69,,white,not hispanic or latino
+10,68,,,not hispanic or latino
+10,68,,white,
+10,67,,white,not hispanic or latino
+10,66,,,not hispanic or latino
 10,65,male,,
-10,65,male,,[Not Hispanic or Latino]
+10,65,male,,not hispanic or latino
 10,57,,,
-10,57,,[White],
+10,57,,white,
 10,56,,,
-10,55,,,[Not Hispanic or Latino]
+10,55,,,not hispanic or latino
 10,51,female,,
-10,43,,[White],[Not Hispanic or Latino]
-10,42,,,[Not Hispanic or Latino]
-10,42,,[White],[Not Hispanic or Latino]
-10,41,,[White],[Not Hispanic or Latino]
-10,40,female,[White],
-10,40,female,[White],[Not Hispanic or Latino]
+10,43,,white,not hispanic or latino
+10,42,,,not hispanic or latino
+10,42,,white,not hispanic or latino
+10,41,,white,not hispanic or latino
+10,40,female,white,
+10,40,female,white,not hispanic or latino
 10,39,,,
-10,36,,,[Not Hispanic or Latino]
-10,35,,[White],
+10,36,,,not hispanic or latino
+10,35,,white,
 10,33,female,,
-10,30,,[White],[Not Hispanic or Latino]
-10,29,,[White],
-10,29,,[White],[Not Hispanic or Latino]
+10,30,,white,not hispanic or latino
+10,29,,white,
+10,29,,white,not hispanic or latino
 10,26,,,
-10,26,,[White],
-10,21,,[White],[Not Hispanic or Latino]
+10,26,,white,
+10,21,,white,not hispanic or latino
 10,21,female,,
-10,20,female,[White],
-10,20,female,[White],[Not Hispanic or Latino]
+10,20,female,white,
+10,20,female,white,not hispanic or latino
 10,17,,,
-10,17,,,[Not Hispanic or Latino]
-10,15,,[White],[Not Hispanic or Latino]
+10,17,,,not hispanic or latino
+10,15,,white,not hispanic or latino
 10,14,male,,
-10,11,male,[White],
+10,11,male,white,
 10,10,male,,
-10,10,male,,[Not Hispanic or Latino]
-10,10,male,[White],
-10,10,male,[White],[Not Hispanic or Latino]
-10,7,,[White],
-10,7,,[White],[Not Hispanic or Latino]
-10,1,,,[Not Hispanic or Latino]
+10,10,male,,not hispanic or latino
+10,10,male,white,
+10,10,male,white,not hispanic or latino
+10,7,,white,
+10,7,,white,not hispanic or latino
+10,1,,,not hispanic or latino

@@ -213,15 +213,27 @@ def test_core_medication_query(medication_datasources, contains, omits):
         assert item not in query
 
 
-def test_count_query():
-    expected = """
+@pytest.mark.parametrize(
+    "expected,filter_resource,where_clauses,fhir_resource,min_subject",
+    [
+        (
+            """
 CREATE TABLE test_table AS (
-    WITH powerset AS (
+    WITH
+    filtered_table AS (
+        SELECT
+            subject_ref,
+            "age",
+            "sex"
+        FROM test_source
+    ),
+    
+    powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
             "age",
             "sex"
-        FROM test_source
+        FROM filtered_table
         GROUP BY
             cube(
                 "age",
@@ -236,29 +248,64 @@ CREATE TABLE test_table AS (
     FROM powerset
     WHERE 
         cnt_subject >= 10
-);"""
-    expected2 = """    table_name: str,
-    source_table: str,
-    table_cols: list,
-    min_subject: int = 10,
-    where_clauses: Optional[list] = None,
-    fhir_resource: Optional[str] = None,"""
-    query = get_count_query("test_table", "test_source", ["age", "sex"])
-    with open("output.sql", "w") as f:
-        f.write(query)
-    assert query == expected
-    query = get_count_query("test_table", "test_source", ["age", "sex"], min_subject=5)
-    assert "cnt_subject >= 5" in query
-
-    expected = """
+);""",
+            None,
+            None,
+            None,
+            None,
+        ),
+        (
+            """
 CREATE TABLE test_table AS (
-    WITH powerset AS (
+    WITH
+    powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject,
+            "age",
+            "sex"
+        FROM test_source
+        
+        GROUP BY
+            cube(
+                "age",
+                "sex"
+            )
+    )
+
+    SELECT
+        cnt_subject AS cnt,
+        "age",
+        "sex"
+    FROM powerset
+    WHERE 
+        cnt_subject >= 5
+);""",
+            False,
+            None,
+            None,
+            5,
+        ),
+        (
+            """
+CREATE TABLE test_table AS (
+    WITH
+    filtered_table AS (
+        SELECT
+            subject_ref,
+            encounter_ref,
+            "age",
+            "sex"
+        FROM test_source
+        WHERE status = 'finished'
+    ),
+    
+    powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
             count(DISTINCT encounter_ref) AS cnt_encounter,
             "age",
             "sex"
-        FROM test_source
+        FROM filtered_table
         GROUP BY
             cube(
                 "age",
@@ -275,14 +322,24 @@ CREATE TABLE test_table AS (
         age > 10
         AND sex ==  'F'
         
-);"""
-    query = get_count_query(
-        "test_table",
-        "test_source",
-        ["age", "sex"],
-        where_clauses=["age > 10", "sex ==  'F'"],
-        fhir_resource="encounter",
-    )
+);""",
+            True,
+            ["age > 10", "sex ==  'F'"],
+            "encounter",
+            None,
+        ),
+    ],
+)
+def test_count_query(
+    expected, filter_resource, where_clauses, fhir_resource, min_subject
+):
+    kwargs = {}
+    for kwarg in ["filter_resource", "where_clauses", "fhir_resource", "min_subject"]:
+        if eval(kwarg) is not None:
+            kwargs[kwarg] = eval(kwarg)
+    query = get_count_query("test_table", "test_source", ["age", "sex"], **kwargs)
+    with open("output.sql", "w") as f:
+        f.write(query)
     assert query == expected
 
 
@@ -389,8 +446,8 @@ def test_extension_denormalize_creation():
         SELECT
             id,
             system,
-            ARRAY_AGG(prefix_code) AS prefix_code,
-            ARRAY_AGG(
+            LOWER(prefix_code) AS prefix_code,
+            LOWER(
                 prefix_display
             ) AS prefix_display,
             ROW_NUMBER()
@@ -412,6 +469,36 @@ def test_extension_denormalize_creation():
     )
     query = get_extension_denormalize_query(config)
     assert query == expected
+    config = ExtensionConfig(
+        "source_table",
+        "source_id",
+        "target_table",
+        "prefix",
+        "fhir_extension",
+        ["omb", "text"],
+        is_array=True,
+    )
+    query = get_extension_denormalize_query(config)
+    array_sql = """LOWER(
+                ARRAY_JOIN(
+                    ARRAY_SORT(
+                        ARRAY_AGG(
+                            prefix_code
+                        )
+                    ), ','
+                )
+            )
+            AS prefix_code,
+            LOWER(
+                ARRAY_JOIN(
+                    ARRAY_SORT(
+                        ARRAY_AGG(
+                            prefix_display
+                        )
+                    ), ', '
+                )
+            ) AS prefix_display,"""
+    assert array_sql in query
 
 
 def test_insert_into_query_creation():

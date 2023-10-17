@@ -19,6 +19,7 @@ SELECT DISTINCT
     coalesce(cep.display, 'None') AS enc_priority_display,
     coalesce(cer.code, 'None') AS enc_reasoncode_code,
     coalesce(cer.display, 'None') AS enc_reasoncode_display,
+    e.status,
     e.age_at_visit,
     e.start_date,
     e.end_date,

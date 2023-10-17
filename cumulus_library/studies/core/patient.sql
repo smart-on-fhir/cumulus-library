@@ -30,8 +30,8 @@ SELECT DISTINCT
     END AS postalcode3,
     tp.subject_id,
     tp.subject_ref,
-    coalesce(tp.race_display, ARRAY['unknown']) AS race_display,
-    coalesce(tp.ethnicity_display, ARRAY['unknown']) AS ethnicity_display
+    coalesce(tp.race_display, 'unknown') AS race_display,
+    coalesce(tp.ethnicity_display, 'unknown') AS ethnicity_display
 FROM
     temp_patient AS tp,
     unnest(tp.address) AS t_address (addr_row) --noqa: AL05

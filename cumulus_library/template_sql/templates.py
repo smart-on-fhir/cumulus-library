@@ -73,6 +73,7 @@ class ExtensionConfig(object):
     :param target_col_prefix: the string to prepend code/display column names with
     :param fhir_extension: the URL of the FHIR resource to select
     :param code_systems: a list of codes, in preference order, to use to select data
+    :param is_array: a boolean indicating if the targeted field is an array type
     """
 
     def __init__(
@@ -83,6 +84,7 @@ class ExtensionConfig(object):
         target_col_prefix: str,
         fhir_extension: str,
         ext_systems: List[str],
+        is_array: bool = False,
     ):
         self.source_table = source_table
         self.source_id = source_id
@@ -90,6 +92,7 @@ class ExtensionConfig(object):
         self.target_col_prefix = target_col_prefix
         self.fhir_extension = fhir_extension
         self.ext_systems = ext_systems
+        self.is_array = is_array
 
 
 def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str:
@@ -151,7 +154,9 @@ def get_count_query(
     min_subject: int = 10,
     where_clauses: Optional[list] = None,
     fhir_resource: Optional[str] = None,
+    filter_resource: Optional[bool] = True,
 ) -> str:
+    print(filter_resource)
     """Generates count tables for generating study outputs"""
     path = Path(__file__).parent
     if fhir_resource not in [e.value for e in CountableFhirResource]:
@@ -166,6 +171,7 @@ def get_count_query(
             min_subject=min_subject,
             where_clauses=where_clauses,
             fhir_resource=fhir_resource,
+            filter_resource=filter_resource,
         )
         # workaround for conflicting sqlfluff enforcement
         return query.replace("-- noqa: disable=LT02\n", "")
@@ -269,6 +275,7 @@ def get_extension_denormalize_query(config: ExtensionConfig) -> str:
             target_col_prefix=config.target_col_prefix,
             fhir_extension=config.fhir_extension,
             ext_systems=config.ext_systems,
+            is_array=config.is_array,
         )
 
 

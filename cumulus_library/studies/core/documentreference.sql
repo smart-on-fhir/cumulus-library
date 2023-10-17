@@ -67,7 +67,7 @@ WITH powerset AS (
         d.author_month,
         e.enc_class_display
     FROM core__documentreference AS d, core__encounter AS e
-    WHERE d.encounter_ref = e.encounter_ref
+    WHERE d.encounter_ref = e.encounter_ref AND d.status = 'current'
     GROUP BY cube(d.doc_type_display, d.author_month, e.enc_class_display)
 )
 
