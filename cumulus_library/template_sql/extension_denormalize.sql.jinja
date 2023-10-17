@@ -52,7 +52,7 @@ CREATE TABLE {{ target_table }} AS (
                         ARRAY_AGG(
                             {{ target_col_prefix }}_code
                         )
-                    ), ','
+                    ), '; '
                 )
             )
             AS {{ target_col_prefix }}_code,
@@ -62,7 +62,7 @@ CREATE TABLE {{ target_table }} AS (
                         ARRAY_AGG(
                             {{ target_col_prefix }}_display
                         )
-                    ), ', '
+                    ), '; '
                 )
             ) AS {{ target_col_prefix }}_display,
             {%- else %}
