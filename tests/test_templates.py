@@ -479,13 +479,15 @@ def test_extension_denormalize_creation():
         is_array=True,
     )
     query = get_extension_denormalize_query(config)
+    with open("output.sql", "w") as f:
+        f.write(query)
     array_sql = """LOWER(
                 ARRAY_JOIN(
                     ARRAY_SORT(
                         ARRAY_AGG(
                             prefix_code
                         )
-                    ), ','
+                    ), '; '
                 )
             )
             AS prefix_code,
@@ -495,7 +497,7 @@ def test_extension_denormalize_creation():
                         ARRAY_AGG(
                             prefix_display
                         )
-                    ), ', '
+                    ), '; '
                 )
             ) AS prefix_display,"""
     assert array_sql in query

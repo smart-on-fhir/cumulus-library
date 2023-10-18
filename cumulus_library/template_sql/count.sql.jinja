@@ -27,6 +27,7 @@ CREATE TABLE {{ table_name }} AS (
         FROM {{ source_table }}
         {%- if fhir_resource=='document' and filter_resource %}
         WHERE (status = 'current')
+        AND d.docStatus IN (null, 'final', 'amended')
         {%- elif fhir_resource=='encounter' and filter_resource %}
         WHERE status = 'finished'
         {%- elif fhir_resource=='observation' and filter_resource %}
