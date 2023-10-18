@@ -32,8 +32,9 @@ WITH temp_encounter AS (
 
 SELECT DISTINCT
     e.class AS enc_class,
-    e.class.code AS enc_class_code,
+    ac.code AS enc_class_code,
     ac.display AS enc_class_display,
+    e.status,
     e.type_code,
     e.type_code_system,
     e.sevicetype_code,
@@ -56,7 +57,9 @@ SELECT DISTINCT
     p.ethnicity_display,
     p.postalcode3
 FROM temp_encounter AS e
-LEFT JOIN core__act_encounter_code_v3 AS ac ON ac.code = e.class.code
+LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
+    ON eac.found = e.class.code
+LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
 INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref
 WHERE
     start_date BETWEEN date('2016-06-01') AND current_date;

@@ -42,6 +42,7 @@ SELECT
     date_trunc('week', date(tol.effectivedatetime)) AS lab_week,
     date_trunc('month', date(tol.effectivedatetime)) AS lab_month,
     date_trunc('year', date(tol.effectivedatetime)) AS lab_year,
+    tol.status,
     tol.subject_ref,
     tol.encounter_ref,
     tol.observation_id,
@@ -65,7 +66,9 @@ WITH powerset AS (
         o.lab_result,
         e.enc_class
     FROM core__observation_lab AS o, core__encounter AS e
-    WHERE o.encounter_ref = e.encounter_ref
+    WHERE
+        o.encounter_ref = e.encounter_ref
+        AND (o.status = 'final' OR o.status = 'amended')
     GROUP BY cube(o.lab_month, o.lab_code, o.lab_result, e.enc_class)
 )
 

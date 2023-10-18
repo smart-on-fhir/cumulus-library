@@ -12,7 +12,8 @@ file_names = [
 file_names = [
     "version.sql",
     "setup.sql",
-    "fhir_define.sql",
+    "fhir_lookup_tables.sql",
+    "fhir_mapping_tables.sql",
     "patient.sql",
     "encounter.sql",
     "encounter_type.sql",

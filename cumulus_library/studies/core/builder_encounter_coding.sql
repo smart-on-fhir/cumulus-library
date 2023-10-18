@@ -15,12 +15,10 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
-        
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-        
         WHERE
-            u.codeable_concept.system = 'http://hl7.org/fhir/ValueSet/encounter-type'
+            u.codeable_concept.system = 'http://terminology.hl7.org/CodeSystem/encounter-type'
     ), --noqa: LT07
     system_type_1 AS (
         SELECT DISTINCT
@@ -31,12 +29,10 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
-        
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-        
         WHERE
-            u.codeable_concept.system = 'http://terminology.hl7.org/CodeSystem/encounter-type'
+            u.codeable_concept.system = 'http://terminology.hl7.org/CodeSystem/v2-0004'
     ), --noqa: LT07
     system_type_2 AS (
         SELECT DISTINCT
@@ -47,12 +43,10 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
-        
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-        
         WHERE
-            u.codeable_concept.system = 'http://terminology.hl7.org/CodeSystem/v2-0004'
+            u.codeable_concept.system = 'urn:oid:2.16.840.1.113883.4.642.3.248'
     ), --noqa: LT07
     system_type_3 AS (
         SELECT DISTINCT
@@ -63,26 +57,8 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
-        
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-        
-        WHERE
-            u.codeable_concept.system = 'urn:oid:2.16.840.1.113883.4.642.3.248'
-    ), --noqa: LT07
-    system_type_4 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            '4' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
-            u.codeable_concept.system AS code_system
-        FROM
-            encounter AS s,
-        
-            UNNEST(s.type) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-        
         WHERE
             u.codeable_concept.system = 'http://snomed.info/sct'
     ), --noqa: LT07
@@ -119,14 +95,6 @@ CREATE TABLE core__encounter_dn_type AS (
             code,
             display
         FROM system_type_3
-        UNION
-        SELECT
-            id,
-            priority,
-            code_system,
-            code,
-            display
-        FROM system_type_4
     ),
 
     partitioned_table AS (
@@ -165,10 +133,9 @@ CREATE TABLE core__encounter_dn_servicetype AS (
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
-        
             UNNEST(s.servicetype.coding) AS u (codeable_concept)
         WHERE
-            u.codeable_concept.system = 'http://hl7.org/fhir/ValueSet/service-type'
+            u.codeable_concept.system = 'http://terminology.hl7.org/CodeSystem/service-type'
     ), --noqa: LT07
     system_servicetype_1 AS (
         SELECT DISTINCT
@@ -179,10 +146,9 @@ CREATE TABLE core__encounter_dn_servicetype AS (
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
-        
             UNNEST(s.servicetype.coding) AS u (codeable_concept)
         WHERE
-            u.codeable_concept.system = 'http://terminology.hl7.org/CodeSystem/service-type'
+            u.codeable_concept.system = 'urn:oid:2.16.840.1.113883.4.642.3.518'
     ), --noqa: LT07
     system_servicetype_2 AS (
         SELECT DISTINCT
@@ -193,21 +159,6 @@ CREATE TABLE core__encounter_dn_servicetype AS (
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
-        
-            UNNEST(s.servicetype.coding) AS u (codeable_concept)
-        WHERE
-            u.codeable_concept.system = 'urn:oid:2.16.840.1.113883.4.642.3.518'
-    ), --noqa: LT07
-    system_servicetype_3 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            '3' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
-            u.codeable_concept.system AS code_system
-        FROM
-            encounter AS s,
-        
             UNNEST(s.servicetype.coding) AS u (codeable_concept)
         WHERE
             u.codeable_concept.system = 'http://snomed.info/sct'
@@ -237,14 +188,6 @@ CREATE TABLE core__encounter_dn_servicetype AS (
             code,
             display
         FROM system_servicetype_2
-        UNION
-        SELECT
-            id,
-            priority,
-            code_system,
-            code,
-            display
-        FROM system_servicetype_3
     ),
 
     partitioned_table AS (
@@ -283,10 +226,9 @@ CREATE TABLE core__encounter_dn_priority AS (
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
-        
             UNNEST(s.priority.coding) AS u (codeable_concept)
         WHERE
-            u.codeable_concept.system = 'http://terminology.hl7.org/ValueSet/v3-ActPriority'
+            u.codeable_concept.system = 'http://terminology.hl7.org/CodeSystem/v3-ActPriority'
     ), --noqa: LT07
     system_priority_1 AS (
         SELECT DISTINCT
@@ -297,21 +239,6 @@ CREATE TABLE core__encounter_dn_priority AS (
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
-        
-            UNNEST(s.priority.coding) AS u (codeable_concept)
-        WHERE
-            u.codeable_concept.system = 'http://terminology.hl7.org/CodeSystem/v3-ActPriority'
-    ), --noqa: LT07
-    system_priority_2 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            '2' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
-            u.codeable_concept.system AS code_system
-        FROM
-            encounter AS s,
-        
             UNNEST(s.priority.coding) AS u (codeable_concept)
         WHERE
             u.codeable_concept.system = 'http://snomed.info/sct'
@@ -333,14 +260,6 @@ CREATE TABLE core__encounter_dn_priority AS (
             code,
             display
         FROM system_priority_1
-        UNION
-        SELECT
-            id,
-            priority,
-            code_system,
-            code,
-            display
-        FROM system_priority_2
     ),
 
     partitioned_table AS (
@@ -367,3 +286,78 @@ CREATE TABLE core__encounter_dn_priority AS (
     FROM partitioned_table
     WHERE available_priority = 1
 );
+
+CREATE TABLE core__encounter_dn_reasoncode AS (
+    WITH
+    system_reasoncode_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            '0' AS priority,
+            u.codeable_concept.code AS code,
+            u.codeable_concept.display AS display,
+            u.codeable_concept.system AS code_system
+        FROM
+            encounter AS s,
+            UNNEST(s.reasoncode) AS cc (cc_row),
+            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+        WHERE
+            u.codeable_concept.system = 'http://terminology.hl7.org/CodeSystem/v3-ActPriority'
+    ), --noqa: LT07
+    system_reasoncode_1 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            '1' AS priority,
+            u.codeable_concept.code AS code,
+            u.codeable_concept.display AS display,
+            u.codeable_concept.system AS code_system
+        FROM
+            encounter AS s,
+            UNNEST(s.reasoncode) AS cc (cc_row),
+            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+        WHERE
+            u.codeable_concept.system = 'http://snomed.info/sct'
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            priority,
+            code_system,
+            code,
+            display
+        FROM system_reasoncode_0
+        UNION
+        SELECT
+            id,
+            priority,
+            code_system,
+            code,
+            display
+        FROM system_reasoncode_1
+    ),
+
+    partitioned_table AS (
+        SELECT
+            id,
+            code,
+            code_system,
+            display,
+            priority,
+            ROW_NUMBER()
+            OVER (
+                PARTITION BY id
+            ) AS available_priority
+        FROM union_table
+        GROUP BY id, priority, code_system, code, display
+        ORDER BY priority ASC
+    )
+
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM partitioned_table
+    WHERE available_priority = 1
+);
+

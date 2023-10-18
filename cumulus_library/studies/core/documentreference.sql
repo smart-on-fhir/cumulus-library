@@ -23,6 +23,7 @@ WITH temp_documentreference AS (
     SELECT DISTINCT
         dr.type,
         dr.status,
+        dr.docstatus,
         dr.context,
         dr.subject.reference AS subject_ref,
         dr.id AS doc_id,
@@ -43,6 +44,7 @@ SELECT DISTINCT
         ELSE type_row.code
     END AS doc_type_display,
     tdr.status,
+    tdr.docstatus,
     context_encounter.encounter.reference AS encounter_ref,
     date_trunc('day', tdr.author_date) AS author_date,
     date_trunc('week', tdr.author_date) AS author_week,
@@ -67,7 +69,10 @@ WITH powerset AS (
         d.author_month,
         e.enc_class_display
     FROM core__documentreference AS d, core__encounter AS e
-    WHERE d.encounter_ref = e.encounter_ref
+    WHERE
+        d.encounter_ref = e.encounter_ref
+        AND d.status = 'current'
+        AND d.docstatus IN (null, 'final', 'amended')
     GROUP BY cube(d.doc_type_display, d.author_month, e.enc_class_display)
 )
 

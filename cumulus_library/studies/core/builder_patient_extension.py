@@ -34,5 +34,6 @@ class PatientExtensionBuilder(BaseTableBuilder):
                 extension["name"],
                 extension["fhirpath"],
                 ["ombCategory", "detailed", "text"],
+                is_array=True,
             )
             self.queries.append(get_extension_denormalize_query(config))

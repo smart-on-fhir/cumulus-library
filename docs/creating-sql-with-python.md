@@ -45,9 +45,8 @@ The TableBuilder class, and the collection of template SQL.
 ### Working with TableBuilders
 
 We have a base
-[TableBuilder class](../cumulus_library/base_table_builder.py)
-that
-all the above use cases leverage. At a high level, here's what it provides:
+[TableBuilder class](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/base_table_builder.py)
+that all the above use cases leverage. At a high level, here's what it provides:
 
 - A `prepare_queries` function, which is where you put your custom logic. It
 should create an array of queries in `self.queries`. The CLI will pass in a cursor
@@ -98,10 +97,10 @@ against a filtered resource to get data about a certain kind of clinical populat
 Since this is so common we created a class just for this, and we're using it in all
 studies the Cumulus team is directly authoring.
 
-The [CountsBuilder class](../cumulus_library/schema/counts.py) 
+The [CountsBuilder class](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/schema/counts.py) 
 provides a number of convenience methods that are available for use (this covers
 mechanics of generation). You can see examples of usage in the 
-[Core counts builder](../cumulus_library/studies/core/count_core.py)
+[Core counts builder](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/core/count_core.py)
 (which is where the business logic of your study lives). 
 
 - `get_table_name` will scan the study's `manifest.toml` and auto prepend a table
@@ -120,7 +119,7 @@ As a convenience, if you include a `if __name__ == "__main__":` clause like you
 see in `count_core.py`, you can invoke the builder's output by invoking it with
 python, which is a nice way to get example SQL output for inclusion in github.
 This is where the 
-[count core sql output](../cumulus_library/studies/core/count_core.sql)
+[count core sql output](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/core/count_core.sql)
 originated from.
 
 Add your count generator file to the `counts_builder_config` section of your
@@ -134,11 +133,11 @@ to develop a faster methodology for adding new datasets.
 
 Occasionally you will have a dataset from a third party that is useful for working
 with your dataset. In the vocab study (requiring a license to use), we 
-[add coding system data](../cumulus_library/studies/vocab/vocab_icd_builder.py)
+[add coding system data](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/vocab/vocab_icd_builder.py)
 from flat files to athena. If you need to do this, you should extend the base
 TableBuilder class, and your `prepare_queries` function should do the following,
 leveraging the
-[template function library](../cumulus_library/template_sql/templates.py):
+[template function library](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/template_sql/templates.py):
 - Use the `get_ctas_query` function to get a CREATE TABLE AS statement to 
 instantiate your table in athena
 - Since athena SQL queries are limited in size to 262144 bytes, if you have
@@ -165,9 +164,9 @@ This means you may have differing schemas in Athena from one site's data to anot
 may differ). In order to handle this, you need to create a standard output
 representation that accounts for all the different permutations you have, and
 conform data to match that. The 
-[encounter coding](../cumulus_library/studies/core/builder_encounter_coding.py)
+[encounter coding](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/core/builder_encounter_coding.py)
 and
-[condition codeableConcept](../cumulus_library/studies/core/builder_condition_codeableconcept.py)
+[condition codeableConcept](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/core/builder_condition_codeableconcept.py)
 builders both jump through hoops to try and get this data into flat tables for
 downstream use.
 
