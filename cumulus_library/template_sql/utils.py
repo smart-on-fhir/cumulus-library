@@ -22,6 +22,7 @@ def is_codeable_concept_populated(
     base_col: str,
     cursor,
     coding_element="coding",
+    allow_partial: bool = True,
 ) -> bool:
     """Check db to see if codeableconcept data exists.
 
@@ -35,6 +36,8 @@ def is_codeable_concept_populated(
     :param cursor: a PEP-249 compliant database cursor
     :param coding_element: the place inside the code element to look for coding info.
         default: 'coding' (and :hopefully: this is always right)
+    :allow_partial: If true, codings which do not have fields expected by the library
+        will still be included, and will need to be manually coerced.
     :returns: a boolean indicating if valid data is present.
     """
 
@@ -46,13 +49,20 @@ def is_codeable_concept_populated(
         cursor.execute(query)
         if cursor.fetchone() is None:
             return False
+
+        query = get_column_datatype_query(schema, table, base_col)
+        cursor.execute(query)
+        schema_str = str(cursor.fetchone()[0])
+        if allow_partial:
+            if coding_element not in schema_str:
+                return False
+        else:
+            if any(
+                x not in schema_str
+                for x in [coding_element, "code", "system", "display"]
+            ):
+                return False
     except:
-        return False
-
-    query = get_column_datatype_query(schema, table, base_col)
-    cursor.execute(query)
-
-    if coding_element not in str(cursor.fetchone()[0]):
         return False
 
     query = get_is_table_not_empty_query(
@@ -78,6 +88,7 @@ def is_codeable_concept_array_populated(
     base_col: str,
     cursor,
     coding_element="coding",
+    allow_partial: bool = True,
 ) -> bool:
     """Check db to see if an array of codeableconcept data exists.
 
@@ -91,21 +102,35 @@ def is_codeable_concept_array_populated(
     :param cursor: a PEP-249 compliant database cursor
     :param coding_element: the place inside the code element to look for coding info.
         default: 'coding' (and :hopefully: this is always right)
+    :allow_partial: If true, codings which do not have fields expected by the library
+        will still be included, and will need to be manually coerced.
     :returns: a boolean indicating if valid data is present.
     """
+
+    # if the source column is missing for some reason (i.e. we're dealing with
+    # conversion to FHIR rather than a true FHIR source and it's incomplete),
+    # we'll return false
     try:
         query = get_is_table_not_empty_query(table, base_col)
         cursor.execute(query)
         if cursor.fetchone() is None:
             return False
+
+        query = get_column_datatype_query(schema, table, base_col)
+        cursor.execute(query)
+        schema_str = str(cursor.fetchone()[0])
+        if allow_partial:
+            if coding_element not in schema_str:
+                return False
+        else:
+            if any(
+                x not in schema_str
+                for x in [coding_element, "code", "system", "display"]
+            ):
+                return False
+
     except:
         return False
-
-    query = get_column_datatype_query(schema, table, base_col)
-    cursor.execute(query)
-    if coding_element not in str(cursor.fetchone()[0]):
-        return False
-
     query = get_is_table_not_empty_query(
         table,
         "t2.row2",
@@ -121,6 +146,55 @@ def is_codeable_concept_array_populated(
                 "row_alias": "row2",
             },
         ],
+    )
+    cursor.execute(query)
+    if cursor.fetchone() is None:
+        return False
+    return True
+
+
+def is_code_populated(
+    schema: str,
+    table: str,
+    base_col: str,
+    cursor,
+    allow_partial: bool = True,
+) -> bool:
+    """Check db to see if a bare code exists and is populated.
+
+    Will execute several exploratory queries to see if the column in question
+    can be queried naively.
+
+    :param schema: The schema/database name
+    :param table: The table to query against
+    :param base_col: the place to start validation from.
+        This can be a nested element, like column.object.code
+    :param cursor: a PEP-249 compliant database cursor
+    :allow_partial: If true, codings which do not have fields expected by the library
+        will still be included, and will need to be manually coerced.
+    :returns: a boolean indicating if valid data is present.
+    """
+
+    # if the source column is missing for some reason (i.e. we're dealing with
+    # conversion to FHIR rather than a true FHIR source and it's incomplete),
+    # we'll return false
+    try:
+        query = get_is_table_not_empty_query(table, base_col)
+        cursor.execute(query)
+        if cursor.fetchone() is None:
+            return False
+
+        query = get_column_datatype_query(schema, table, base_col)
+        cursor.execute(query)
+        schema_str = str(cursor.fetchone()[0])
+    except:
+        return False
+    if any(x not in schema_str for x in ["code", "system", "display"]):
+        return False
+
+    query = get_is_table_not_empty_query(
+        table,
+        base_col,
     )
     cursor.execute(query)
     if cursor.fetchone() is None:

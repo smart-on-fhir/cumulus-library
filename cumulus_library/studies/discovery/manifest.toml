@@ -1,0 +1,12 @@
+study_prefix = "discovery"
+
+[table_builder_config]
+file_names = [
+    "code_detection.py",
+]
+
+
+[export_config]
+export_list = [
+    "discovery__code_sources",
+]

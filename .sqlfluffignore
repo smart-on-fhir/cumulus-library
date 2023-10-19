@@ -8,5 +8,8 @@ show_views.sql.jinja
 # but the table in question builds
 codeable_concept_denormalize.sql.jinja
 
+# This template causes sqlfluff to hang - need to try a version uprev at some point
+code_system_pairs.sql.jinja
+
 # This is a common destination for debugging sql generation
 output.sql

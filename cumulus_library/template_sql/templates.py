@@ -95,6 +95,15 @@ class ExtensionConfig(object):
         self.is_array = is_array
 
 
+def get_code_system_pairs(output_table_name: str, code_system_tables: list) -> str:
+    """Extracts code system details as a standalone table"""
+    path = Path(__file__).parent
+    with open(f"{path}/code_system_pairs.sql.jinja") as code_system_pairs:
+        return Template(code_system_pairs.read()).render(
+            output_table_name=output_table_name, code_system_tables=code_system_tables
+        )
+
+
 def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str:
     """extracts codeable concepts from a specified table.
 

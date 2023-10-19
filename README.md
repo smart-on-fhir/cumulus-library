@@ -5,8 +5,6 @@ A framework for designing, executing, and distributing SQL queries packaged as "
 ## Installing
 
 For end users, just run `pip install cumulus-library`. 
-For running from source, checkout the repo, and at the project root run `pip install -e .`.
-
-
+For running from source, checkout the repo, and at the project root run `pip install -e .`. If you're not working on new features, you should check out the tag associated with the latest release.
 
 For more information, [browse the documentation](https://docs.smarthealthit.org/cumulus/library).
