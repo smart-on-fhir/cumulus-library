@@ -1,5 +1,9 @@
 # A collection of codes & codeableConcepts to extract available codes from.
-# is_array and is_bare_code are assumed to be false unless explicitly set true.
+# Two optional booleans are available for use:
+#   - is_array: the field in question is an array of CodeableConcepts
+#   - is_bare_coding: the field in question is a Coding not wrapped in concepts
+#   - otherwise, it is assumed to be a 0..1 or 1..1 CodeableConcept
+# TODO: if another state is needed, move to an Enum
 
 code_list = [
     # Condition

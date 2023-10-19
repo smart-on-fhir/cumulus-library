@@ -41,28 +41,9 @@ def is_codeable_concept_populated(
     :returns: a boolean indicating if valid data is present.
     """
 
-    # if the source column is missing for some reason (i.e. we're dealing with
-    # conversion to FHIR rather than a true FHIR source and it's incomplete),
-    # we'll return false
-    try:
-        query = get_is_table_not_empty_query(table, base_col)
-        cursor.execute(query)
-        if cursor.fetchone() is None:
-            return False
-
-        query = get_column_datatype_query(schema, table, base_col)
-        cursor.execute(query)
-        schema_str = str(cursor.fetchone()[0])
-        if allow_partial:
-            if coding_element not in schema_str:
-                return False
-        else:
-            if any(
-                x not in schema_str
-                for x in [coding_element, "code", "system", "display"]
-            ):
-                return False
-    except:
+    if not _check_schema_if_exists(
+        schema, table, base_col, cursor, coding_element, allow_partial
+    ):
         return False
 
     query = get_is_table_not_empty_query(
@@ -107,29 +88,9 @@ def is_codeable_concept_array_populated(
     :returns: a boolean indicating if valid data is present.
     """
 
-    # if the source column is missing for some reason (i.e. we're dealing with
-    # conversion to FHIR rather than a true FHIR source and it's incomplete),
-    # we'll return false
-    try:
-        query = get_is_table_not_empty_query(table, base_col)
-        cursor.execute(query)
-        if cursor.fetchone() is None:
-            return False
-
-        query = get_column_datatype_query(schema, table, base_col)
-        cursor.execute(query)
-        schema_str = str(cursor.fetchone()[0])
-        if allow_partial:
-            if coding_element not in schema_str:
-                return False
-        else:
-            if any(
-                x not in schema_str
-                for x in [coding_element, "code", "system", "display"]
-            ):
-                return False
-
-    except:
+    if not _check_schema_if_exists(
+        schema, table, base_col, cursor, coding_element, allow_partial
+    ):
         return False
     query = get_is_table_not_empty_query(
         table,
@@ -175,9 +136,24 @@ def is_code_populated(
     :returns: a boolean indicating if valid data is present.
     """
 
-    # if the source column is missing for some reason (i.e. we're dealing with
-    # conversion to FHIR rather than a true FHIR source and it's incomplete),
-    # we'll return false
+    if not _check_schema_if_exists(
+        schema, table, base_col, cursor, False, allow_partial
+    ):
+        return False
+    query = get_is_table_not_empty_query(
+        table,
+        base_col,
+    )
+    cursor.execute(query)
+    if cursor.fetchone() is None:
+        return False
+    return True
+
+
+def _check_schema_if_exists(
+    schema: str, table: str, base_col: str, cursor, coding_element, allow_partial: bool
+) -> bool:
+    """Validation check for a column existing, and having the expected schema"""
     try:
         query = get_is_table_not_empty_query(table, base_col)
         cursor.execute(query)
@@ -187,16 +163,13 @@ def is_code_populated(
         query = get_column_datatype_query(schema, table, base_col)
         cursor.execute(query)
         schema_str = str(cursor.fetchone()[0])
+        required_fields = [coding_element]
+        if allow_partial:
+            required_fields + ["code", "system", "display"]
+        if any(x not in schema_str for x in required_fields):
+            return False
+
+        return True
+
     except:
         return False
-    if any(x not in schema_str for x in ["code", "system", "display"]):
-        return False
-
-    query = get_is_table_not_empty_query(
-        table,
-        base_col,
-    )
-    cursor.execute(query)
-    if cursor.fetchone() is None:
-        return False
-    return True

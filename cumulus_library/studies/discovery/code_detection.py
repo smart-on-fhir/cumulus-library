@@ -21,8 +21,6 @@ class CodeDetectionBuilder(BaseTableBuilder):
         with get_progress_bar() as progress:
             task = progress.add_task(
                 "Discovering available coding systems...",
-                # Each column in code_sources requires at most 3 queries to
-                # detect valid data is in the DB
                 total=len(code_sources),
             )
             for code_source in code_sources:
@@ -62,21 +60,21 @@ class CodeDetectionBuilder(BaseTableBuilder):
         """
 
         code_sources = []
-        for code_definiton in code_list:
+        for code_definition in code_list:
             if any(
-                x not in code_definiton.keys() for x in ["table_name", "column_name"]
+                x not in code_definition.keys() for x in ["table_name", "column_name"]
             ):
                 raise KeyError(
                     "Expected table_name and column_name keys in "
-                    f"{str(code_definiton)}"
+                    f"{str(code_definition)}"
                 )
             code_source = {
                 "is_bare_coding": False,
                 "is_array": False,
                 "has_data": False,
             }
-            for key in code_definiton.keys():
-                code_source[key] = code_definiton[key]
+            for key in code_definition.keys():
+                code_source[key] = code_definition[key]
             code_sources.append(code_source)
 
         code_sources = self._check_codes_in_fields(code_sources, schema, cursor)
