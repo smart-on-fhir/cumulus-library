@@ -3,6 +3,7 @@ import pytest
 from cumulus_library.template_sql.templates import (
     CodeableConceptConfig,
     ExtensionConfig,
+    get_code_system_pairs,
     get_codeable_concept_denormalize_query,
     get_column_datatype_query,
     get_core_medication_query,
@@ -338,8 +339,6 @@ def test_count_query(
         if eval(kwarg) is not None:
             kwargs[kwarg] = eval(kwarg)
     query = get_count_query("test_table", "test_source", ["age", "sex"], **kwargs)
-    with open("output.sql", "w") as f:
-        f.write(query)
     assert query == expected
 
 
@@ -479,8 +478,6 @@ def test_extension_denormalize_creation():
         is_array=True,
     )
     query = get_extension_denormalize_query(config)
-    with open("output.sql", "w") as f:
-        f.write(query)
     array_sql = """LOWER(
                 ARRAY_JOIN(
                     ARRAY_SORT(
@@ -561,5 +558,77 @@ LIMIT 1;"""
         source_table="table_name",
         field="field_name",
         conditions=["field_name LIKE 's%'", "field_name IS NOT NULL"],
+    )
+    assert query == expected
+
+
+def test_get_code_system_pairs():
+    expected = """CREATE TABLE output_table AS
+SELECT DISTINCT
+    'hasarray' AS table_name,
+    'acol' AS column_name,
+    t2.row2.code,
+    t2.row2.display,
+    t2.row2.system
+FROM hasarray,
+UNNEST(acol) AS t1 (row1),
+UNNEST(t1.row1.coding) AS t2 (row2)
+UNION
+SELECT DISTINCT
+    'noarray' AS table_name,
+    'col' AS column_name,
+    t.row.code,
+    t.row.display,
+    t.row.system
+FROM noarray,
+UNNEST(col.coding) AS t (row)
+UNION
+SELECT DISTINCT
+    'bare' AS table_name,
+    'bcol' AS column_name,
+    bcol.code,
+    bcol.display,
+    bcol.system
+FROM bare
+UNION
+SELECT * 
+    FROM ( 
+        VALUES (
+            ('empty','empty', '', '', '')
+        )
+    )
+AS t ( table_name, column_name, code, display, system ) -- noqa: L025"""
+    query = get_code_system_pairs(
+        "output_table",
+        [
+            {
+                "table_name": "hasarray",
+                "column_name": "acol",
+                "is_bare_coding": False,
+                "is_array": True,
+                "has_data": True,
+            },
+            {
+                "table_name": "noarray",
+                "column_name": "col",
+                "is_bare_coding": False,
+                "is_array": False,
+                "has_data": True,
+            },
+            {
+                "table_name": "bare",
+                "column_name": "bcol",
+                "is_bare_coding": True,
+                "is_array": False,
+                "has_data": True,
+            },
+            {
+                "table_name": "empty",
+                "column_name": "empty",
+                "is_bare_coding": False,
+                "is_array": False,
+                "has_data": False,
+            },
+        ],
     )
     assert query == expected

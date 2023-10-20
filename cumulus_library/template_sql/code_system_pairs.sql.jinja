@@ -1,0 +1,44 @@
+CREATE TABLE {{ output_table_name }} AS
+{%- for source in code_system_tables %}
+{%- if source.has_data %}
+{%- if source.is_bare_coding %}
+SELECT DISTINCT
+    '{{ source.table_name }}' AS table_name,
+    '{{ source.column_name }}' AS column_name,
+    {{ source.column_name }}.code,
+    {{ source.column_name }}.display,
+    {{ source.column_name }}.system
+FROM {{ source.table_name }}
+{%- elif source.is_array %}
+SELECT DISTINCT
+    '{{ source.table_name }}' AS table_name,
+    '{{ source.column_name }}' AS column_name,
+    t2.row2.code,
+    t2.row2.display,
+    t2.row2.system
+FROM {{ source.table_name }},
+UNNEST({{ source.column_name }}) AS t1 (row1),
+UNNEST(t1.row1.coding) AS t2 (row2)
+{%- else %}
+SELECT DISTINCT
+    '{{ source.table_name }}' AS table_name,
+    '{{ source.column_name }}' AS column_name,
+    t.row.code,
+    t.row.display,
+    t.row.system
+FROM {{ source.table_name }},
+UNNEST({{source.column_name}}.coding) AS t (row)
+{%- endif %}
+{%- else %}
+SELECT * 
+    FROM ( 
+        VALUES (
+            ('{{ source.table_name }}','{{ source.column_name }}', '', '', '')
+        )
+    )
+AS t ( table_name, column_name, code, display, system ) -- noqa: L025
+{%- endif -%}
+{%- if not loop.last %}
+UNION
+{%- endif -%}
+{%  endfor %}
