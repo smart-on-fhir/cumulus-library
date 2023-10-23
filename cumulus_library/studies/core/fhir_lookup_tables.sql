@@ -51,4 +51,4 @@ FROM
             'virtual'
         )
     )
-    AS t (code, display)
+        AS t (code, display)

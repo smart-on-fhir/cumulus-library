@@ -27,18 +27,24 @@ SELECT DISTINCT
     t.row.display,
     t.row.system
 FROM {{ source.table_name }},
-UNNEST({{source.column_name}}.coding) AS t (row)
+UNNEST({{ source.column_name }}.coding) AS t (row)
 {%- endif %}
 {%- else %}
-SELECT * 
-    FROM ( 
-        VALUES (
-            ('{{ source.table_name }}','{{ source.column_name }}', '', '', '')
+SELECT *
+FROM (
+    VALUES (
+        (
+            {{ source.table_name }}',
+            {{ source.column_name }}',
+            '',
+            '',
+            ''
         )
     )
-AS t ( table_name, column_name, code, display, system ) -- noqa: L025
+)
+    AS t (table_name, column_name, code, display, system) -- noqa: L025
 {%- endif -%}
 {%- if not loop.last %}
 UNION
 {%- endif -%}
-{%  endfor %}
+{% endfor %}

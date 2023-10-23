@@ -95,9 +95,9 @@ CREATE TABLE core__medication AS (
             'None' AS code,
             cu.code.text AS display,
             'None' AS code_system,
-            false AS userselected
+            FALSE AS userselected
         FROM mrc_contained_unnest AS cu
-        INNER JOIN mrc_ref_id AS ri ON ri.id = cu.id
+        INNER JOIN mrc_ref_id AS ri ON cu.id = ri.id
     )
     {%- endif -%}
     {# comma handling for ctas chaining #}
@@ -151,7 +151,7 @@ CREATE TABLE core__medication AS (
             t.r.code AS code,
             mmn.code.text AS display,
             t.r.system AS code_system,
-            false AS userselected
+            FALSE AS userselected
         FROM mre_med_nonnull AS mmn,
             unnest(mmn.code.coding) AS t (r)
     )

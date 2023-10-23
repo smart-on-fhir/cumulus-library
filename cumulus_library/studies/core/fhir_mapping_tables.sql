@@ -114,7 +114,7 @@ SELECT * FROM
             'http://hl7.org/fhir/observation-definitions.html#Observation.value_x_'
         ),
         ('VitalSign', 'http://hl7.org/fhir/observation-vitalsigns.html')
-    ) AS t (resource, uri); --noqa: AL05
+    ) AS t (resource, uri);
 
 -- ############################################################
 -- FHIR mapping of as found Encounter codes to the expected encounter code from

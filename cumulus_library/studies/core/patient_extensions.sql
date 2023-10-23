@@ -23,7 +23,7 @@ CREATE TABLE core__patient_ext_race AS (
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
             AND ext_child.ext.url = 'ombCategory'
             AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
+    ),
 
     system_detailed AS (
         SELECT DISTINCT
@@ -40,7 +40,7 @@ CREATE TABLE core__patient_ext_race AS (
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
             AND ext_child.ext.url = 'detailed'
             AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
+    ),
 
     system_text AS (
         SELECT DISTINCT
@@ -57,7 +57,7 @@ CREATE TABLE core__patient_ext_race AS (
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
             AND ext_child.ext.url = 'text'
             AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
+    ),
 
     union_table AS (
         SELECT
@@ -126,7 +126,7 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'
             AND ext_child.ext.url = 'ombCategory'
             AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
+    ),
 
     system_detailed AS (
         SELECT DISTINCT
@@ -143,7 +143,7 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'
             AND ext_child.ext.url = 'detailed'
             AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
+    ),
 
     system_text AS (
         SELECT DISTINCT
@@ -160,7 +160,7 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'
             AND ext_child.ext.url = 'text'
             AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
+    ),
 
     union_table AS (
         SELECT

@@ -6,7 +6,7 @@ SELECT
     mr.intent,
     date(from_iso8601_timestamp(mr.authoredon)) AS authoredon,
     date_trunc('month', date(from_iso8601_timestamp(mr.authoredon)))
-    AS authoredon_month,
+        AS authoredon_month,
     mr.category,
     cm.code_system AS rx_system,
     cm.code AS rx_code,
@@ -14,7 +14,7 @@ SELECT
     mr.id AS med_admin_id,
     mr.subject.reference AS subject_ref
 FROM medicationrequest AS mr
-INNER JOIN core__medication AS cm ON cm.id = mr.id
+INNER JOIN core__medication AS cm ON mr.id = cm.id
 WHERE cm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm';
 
 

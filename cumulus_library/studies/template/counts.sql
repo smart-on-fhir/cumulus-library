@@ -9,9 +9,9 @@ WITH powerset AS (
     FROM template__influenza_lab_observations AS tflo
     GROUP BY
         cube(
-            tflo.influenza_test_code,
-            tflo.influenza_test_result,
-            tflo.influenza_test_month
+                tflo.influenza_test_code,
+                tflo.influenza_test_result,
+                tflo.influenza_test_month
         )
 )
 

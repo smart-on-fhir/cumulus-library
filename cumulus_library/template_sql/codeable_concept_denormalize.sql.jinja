@@ -1,12 +1,13 @@
 CREATE TABLE {{ target_table }} AS (
     WITH
     {%- for system in code_systems %}
+
     system_{{ column_name }}_{{ loop.index0 }} AS (
         SELECT DISTINCT
             s.{{ source_id }} AS id,
-        {%- if filter_priority %}
+            {%- if filter_priority %}
             '{{ loop.index0 }}' AS priority,
-        {%- endif %}
+            {%- endif %}
             u.codeable_concept.code AS code,
             u.codeable_concept.display AS display,
             u.codeable_concept.system AS code_system
@@ -29,9 +30,9 @@ CREATE TABLE {{ target_table }} AS (
         {%- for system in code_systems %}
         SELECT
             id,
-        {%- if filter_priority %}
+            {%- if filter_priority %}
             priority,
-        {%- endif %}
+            {%- endif %}
             code_system,
             code,
             display
@@ -41,7 +42,7 @@ CREATE TABLE {{ target_table }} AS (
         {%- endif -%}
         {%- endfor %}
     )
-{%- if filter_priority -%},
+    {%- if filter_priority -%},
 
     partitioned_table AS (
         SELECT
@@ -51,9 +52,9 @@ CREATE TABLE {{ target_table }} AS (
             display,
             priority,
             ROW_NUMBER()
-            OVER (
-                PARTITION BY id
-            ) AS available_priority
+                OVER (
+                    PARTITION BY id
+                ) AS available_priority
         FROM union_table
         GROUP BY id, priority, code_system, code, display
         ORDER BY priority ASC

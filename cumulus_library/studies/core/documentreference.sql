@@ -72,7 +72,7 @@ WITH powerset AS (
     WHERE
         d.encounter_ref = e.encounter_ref
         AND d.status = 'current'
-        AND d.docstatus IN (null, 'final', 'amended')
+        AND d.docstatus IN (NULL, 'final', 'amended')
     GROUP BY cube(d.doc_type_display, d.author_month, e.enc_class_display)
 )
 
