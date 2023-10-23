@@ -1,15 +1,3 @@
-# The following valid templates are ignored until sqlfluff support SHOW statements
-# https://github.com/sqlfluff/sqlfluff/issues/4811
-show_tables.sql.jinja
-show_views.sql.jinja
 /scratch/
-
-# This is a temporary ignore due to time pressure - not sure of root cause,
-# but the table in question builds
-codeable_concept_denormalize.sql.jinja
-
-# This template causes sqlfluff to hang - need to try a version uprev at some point
-code_system_pairs.sql.jinja
-
 # This is a common destination for debugging sql generation
 output.sql

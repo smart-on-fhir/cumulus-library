@@ -11,10 +11,10 @@ FROM (
         CONCAT(code, ' ', str) AS code_display,
         sab AS code_system,
         ROW_NUMBER()
-        OVER (
-            PARTITION BY sab, code
-            ORDER BY LENGTH(str) ASC
-        ) AS pref
+            OVER (
+                PARTITION BY sab, code
+                ORDER BY LENGTH(str) ASC
+            ) AS pref
     FROM vocab__icd
 )
 WHERE pref = 1;

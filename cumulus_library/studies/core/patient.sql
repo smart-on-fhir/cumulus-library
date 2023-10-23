@@ -34,7 +34,7 @@ SELECT DISTINCT
     coalesce(tp.ethnicity_display, 'unknown') AS ethnicity_display
 FROM
     temp_patient AS tp,
-    unnest(tp.address) AS t_address (addr_row) --noqa: AL05
+    unnest(tp.address) AS t_address (addr_row)
 
 WHERE
     tp.birthdate IS NOT NULL

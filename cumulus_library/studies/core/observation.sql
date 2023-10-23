@@ -16,7 +16,7 @@ WITH temp_observation AS (
         o.id AS observation_id,
         concat('Observation/', o.id) AS observation_ref
     FROM observation AS o,
-        unnest(code.coding) AS t_coding (code_row) --noqa: AL05
+        unnest(code.coding) AS t_coding (code_row)
 )
 
 SELECT

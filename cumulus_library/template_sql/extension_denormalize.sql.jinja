@@ -17,7 +17,7 @@ CREATE TABLE {{ target_table }} AS (
             ext_parent.ext.url = '{{ fhir_extension }}'
             AND ext_child.ext.url = '{{ system }}'
             AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
+    ),
     {%- endfor %}
 
     union_table AS (
@@ -55,7 +55,7 @@ CREATE TABLE {{ target_table }} AS (
                     ), '; '
                 )
             )
-            AS {{ target_col_prefix }}_code,
+                AS {{ target_col_prefix }}_code,
             LOWER(
                 ARRAY_JOIN(
                     ARRAY_SORT(
@@ -72,9 +72,9 @@ CREATE TABLE {{ target_table }} AS (
             ) AS {{ target_col_prefix }}_display,
             {%- endif %}
             ROW_NUMBER()
-            OVER (
-                PARTITION BY id, system
-            ) AS available_priority
+                OVER (
+                    PARTITION BY id, system
+                ) AS available_priority
         FROM union_table
         GROUP BY id, system
     )

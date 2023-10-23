@@ -60,4 +60,4 @@ FROM
             'Emergency department Consult note'
         )
     )
-    AS t (from_system, from_code, analyte, code_system, code, display);
+        AS t (from_system, from_code, analyte, code_system, code, display);

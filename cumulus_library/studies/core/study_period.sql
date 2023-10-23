@@ -56,7 +56,7 @@ SELECT
     de.enc_class_display,
     de.doc_type_code,
     de.doc_type_display,
-    coalesce(ed.code IS NOT NULL, false) AS ed_note
+    coalesce(ed.code IS NOT NULL, FALSE) AS ed_note
 FROM documented_encounter AS de
 LEFT JOIN core__ed_note AS ed
     ON de.doc_type_code = ed.from_code;

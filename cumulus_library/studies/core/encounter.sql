@@ -58,7 +58,7 @@ SELECT DISTINCT
     p.postalcode3
 FROM temp_encounter AS e
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
-    ON eac.found = e.class.code
+    ON e.class.code = eac.found
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
 INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref
 WHERE

@@ -15,13 +15,13 @@ CREATE OR REPLACE VIEW {{ view_name }} AS (
         {%- endif -%}
         {%- endfor %}
     )
-    AS t -- noqa: L025
-    (
-        {%- for col in view_cols -%}
-        "{{ col }}"
-        {%- if not loop.last -%}
-        , 
-        {%- endif -%}
-        {%- endfor -%}
-    )
+        AS t
+        (
+            {%- for col in view_cols -%}
+            "{{ col }}"
+            {%- if not loop.last -%}
+            , 
+            {%- endif -%}
+            {%- endfor -%}
+        )
 );

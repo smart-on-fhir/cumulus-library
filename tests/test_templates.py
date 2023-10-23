@@ -19,6 +19,7 @@ from cumulus_library.template_sql.templates import (
 def test_codeable_concept_denormalize_all_creation():
     expected = """CREATE TABLE target__concepts AS (
     WITH
+
     system_code_col_0 AS (
         SELECT DISTINCT
             s.id AS id,
@@ -61,6 +62,7 @@ def test_codeable_concept_denormalize_all_creation():
 def test_codeable_concept_denormalize_filter_creation():
     expected = """CREATE TABLE target__concepts AS (
     WITH
+
     system_code_col_0 AS (
         SELECT DISTINCT
             s.id AS id,
@@ -74,6 +76,7 @@ def test_codeable_concept_denormalize_filter_creation():
         WHERE
             u.codeable_concept.system = 'http://snomed.info/sct'
     ), --noqa: LT07
+
     system_code_col_1 AS (
         SELECT DISTINCT
             s.id AS id,
@@ -114,9 +117,9 @@ def test_codeable_concept_denormalize_filter_creation():
             display,
             priority,
             ROW_NUMBER()
-            OVER (
-                PARTITION BY id
-            ) AS available_priority
+                OVER (
+                    PARTITION BY id
+                ) AS available_priority
         FROM union_table
         GROUP BY id, priority, code_system, code, display
         ORDER BY priority ASC
@@ -349,8 +352,8 @@ def test_create_view_query_creation():
         ('foo','foo'),
         ('bar','bar')
     )
-    AS t -- noqa: L025
-    ("a","b")
+        AS t
+        ("a","b")
 );"""
     query = get_create_view_query(
         view_name="test_view",
@@ -367,8 +370,8 @@ def test_ctas_query_creation():
         ((cast('foo' AS varchar),cast('foo' AS varchar))),
         ((cast('bar' AS varchar),cast('bar' AS varchar)))
     )
-    AS t -- noqa: L025
-    ("a","b")
+        AS t
+        ("a","b")
 );"""
     query = get_ctas_query(
         schema_name="test_schema",
@@ -398,7 +401,7 @@ def test_extension_denormalize_creation():
             ext_parent.ext.url = 'fhir_extension'
             AND ext_child.ext.url = 'omb'
             AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
+    ),
 
     system_text AS (
         SELECT DISTINCT
@@ -415,7 +418,7 @@ def test_extension_denormalize_creation():
             ext_parent.ext.url = 'fhir_extension'
             AND ext_child.ext.url = 'text'
             AND ext_child.ext.valuecoding.display != ''
-    ), --noqa: LT07
+    ),
 
     union_table AS (
         SELECT
@@ -450,9 +453,9 @@ def test_extension_denormalize_creation():
                 prefix_display
             ) AS prefix_display,
             ROW_NUMBER()
-            OVER (
-                PARTITION BY id, system
-            ) AS available_priority
+                OVER (
+                    PARTITION BY id, system
+                ) AS available_priority
         FROM union_table
         GROUP BY id, system
     )
@@ -487,7 +490,7 @@ def test_extension_denormalize_creation():
                     ), '; '
                 )
             )
-            AS prefix_code,
+                AS prefix_code,
             LOWER(
                 ARRAY_JOIN(
                     ARRAY_SORT(
@@ -591,13 +594,19 @@ SELECT DISTINCT
     bcol.system
 FROM bare
 UNION
-SELECT * 
-    FROM ( 
-        VALUES (
-            ('empty','empty', '', '', '')
+SELECT *
+FROM (
+    VALUES (
+        (
+            empty',
+            empty',
+            '',
+            '',
+            ''
         )
     )
-AS t ( table_name, column_name, code, display, system ) -- noqa: L025"""
+)
+    AS t (table_name, column_name, code, display, system)"""
     query = get_code_system_pairs(
         "output_table",
         [

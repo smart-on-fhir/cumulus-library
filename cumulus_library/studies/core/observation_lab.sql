@@ -29,8 +29,8 @@ WITH temp_observation_lab AS (
         concat('Observation/', o.id) AS observation_ref
     -- , valueQuantity
     FROM observation AS o,
-        unnest(category) AS t_category(observation_category), --noqa
-        unnest(observation_category.coding) AS t_coding(category_row) --noqa
+        unnest(category) AS t_category (observation_category),
+        unnest(observation_category.coding) AS t_coding (category_row)
     WHERE category_row.code = 'laboratory'
 )
 

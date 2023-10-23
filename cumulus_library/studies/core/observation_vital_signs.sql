@@ -36,6 +36,6 @@ SELECT
     t_obs.observation_category,
     t_cat.category_row
 FROM core__observation AS co,
-    UNNEST(category) AS t_obs (observation_category), --noqa: AL05
-    UNNEST(observation_category.coding) AS t_cat (category_row) --noqa: AL05
+    UNNEST(category) AS t_obs (observation_category),
+    UNNEST(observation_category.coding) AS t_cat (category_row)
 WHERE category_row.code = 'vital-signs';
