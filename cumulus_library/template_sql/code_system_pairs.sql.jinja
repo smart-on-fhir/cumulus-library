@@ -42,7 +42,7 @@ FROM (
         )
     )
 )
-    AS t (table_name, column_name, code, display, system) -- noqa: L025
+    AS t (table_name, column_name, code, display, system)
 {%- endif -%}
 {%- if not loop.last %}
 UNION
