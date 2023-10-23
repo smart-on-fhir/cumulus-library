@@ -141,6 +141,12 @@ following order of preference is used to select credentials:
     add_verbose_argument(build)
     add_aws_config(build)
 
+    build.add_argument(
+        "--continue",
+        dest="continue_from",
+        help=(argparse.SUPPRESS),
+    )
+
     export = actions.add_parser(
         "export", help="Generates files on disk from Athena views"
     )

@@ -104,23 +104,26 @@ class StudyBuilder:
             )
         for target in targets:
             if prefix:
-                prefix = target
+                explicit_prefix = target
             else:
-                prefix = f"{target}__"
+                explicit_prefix = None
             parser = StudyManifestParser()
             parser.clean_study(
-                self.cursor, self.schema_name, self.verbose, prefix=prefix
+                self.cursor, self.schema_name, self.verbose, prefix=explicit_prefix
             )
 
-    def clean_and_build_study(self, target: PosixPath) -> None:
+    def clean_and_build_study(
+        self, target: PosixPath, continue_from: str = None
+    ) -> None:
         """Recreates study views/tables
 
         :param target: A PosixPath to the study directory
         """
         studyparser = StudyManifestParser(target)
-        studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
-        studyparser.run_table_builder(self.cursor, self.schema_name, self.verbose)
-        studyparser.build_study(self.cursor, self.verbose)
+        if not continue_from:
+            studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
+            studyparser.run_table_builder(self.cursor, self.schema_name, self.verbose)
+        studyparser.build_study(self.cursor, self.verbose, continue_from)
         studyparser.run_counts_builder(self.cursor, self.schema_name, self.verbose)
 
     def run_single_table_builder(
@@ -281,7 +284,9 @@ def run_cli(args: Dict):
                                 study_dict[target], args["builder"]
                             )
                         else:
-                            builder.clean_and_build_study(study_dict[target])
+                            builder.clean_and_build_study(
+                                study_dict[target], continue_from=args["continue_from"]
+                            )
 
             elif args["action"] == "export":
                 if "all" in args["target"]:

@@ -1,4 +1,5 @@
 """ tests for study parser against mocks in test_data """
+import builtins
 import pathlib
 from contextlib import nullcontext as does_not_raise
 from unittest import mock
@@ -74,37 +75,38 @@ def test_manifest_data(manifest_key, raises):
 
 
 @pytest.mark.parametrize(
-    "schema,verbose,prefix,query_res,raises",
+    "schema,verbose,prefix,confirm,query_res,raises",
     [
-        ("schema", True, None, "study_valid__table", does_not_raise()),
-        ("schema", False, None, "study_valid__table", does_not_raise()),
-        ("schema", None, None, "study_valid__table", does_not_raise()),
-        (None, True, None, [], pytest.raises(ValueError)),
-        ("schema", None, None, "study_valid__etl_table", does_not_raise()),
-        ("schema", None, None, "study_valid__nlp_table", does_not_raise()),
-        ("schema", None, None, "study_valid__lib_table", does_not_raise()),
-        ("schema", None, None, "study_valid__lib", does_not_raise()),
-        ("schema", None, "foo", "foo_table", does_not_raise()),
+        ("schema", True, None, None, "study_valid__table", does_not_raise()),
+        ("schema", False, None, None, "study_valid__table", does_not_raise()),
+        ("schema", None, None, None, "study_valid__table", does_not_raise()),
+        (None, True, None, None, [], pytest.raises(ValueError)),
+        ("schema", None, None, None, "study_valid__etl_table", does_not_raise()),
+        ("schema", None, None, None, "study_valid__nlp_table", does_not_raise()),
+        ("schema", None, None, None, "study_valid__lib_table", does_not_raise()),
+        ("schema", None, None, None, "study_valid__lib", does_not_raise()),
+        ("schema", None, "foo", "y", "foo_table", does_not_raise()),
+        ("schema", None, "foo", "n", "foo_table", pytest.raises(SystemExit)),
     ],
 )
 @mock.patch("cumulus_library.helper.query_console_output")
-def test_clean_study(mock_output, schema, verbose, prefix, query_res, raises):
+def test_clean_study(mock_output, schema, verbose, prefix, confirm, query_res, raises):
     with raises:
-        mock_cursor = mock.MagicMock()
-        mock_cursor.__iter__.return_value = [[query_res]]
-        parser = StudyManifestParser("./tests/test_data/study_valid/")
-        tables = parser.clean_study(mock_cursor, schema, verbose, prefix=prefix)
+        with mock.patch.object(builtins, "input", lambda _: confirm):
+            mock_cursor = mock.MagicMock()
+            mock_cursor.__iter__.return_value = [[query_res]]
+            parser = StudyManifestParser("./tests/test_data/study_valid/")
+            tables = parser.clean_study(mock_cursor, schema, verbose, prefix=prefix)
 
-        if "study_valid__table" not in query_res and prefix is None:
-            print("wha")
-            assert not tables
-        else:
-            assert tables == [[query_res, "VIEW"]]
-            if prefix is not None:
-                assert prefix in mock_cursor.execute.call_args.args[0]
+            if "study_valid__table" not in query_res and prefix is None:
+                assert not tables
             else:
-                assert "study_valid__" in mock_cursor.execute.call_args.args[0]
-        assert mock_output.is_called()
+                assert tables == [[query_res, "VIEW"]]
+                if prefix is not None:
+                    assert prefix in mock_cursor.execute.call_args.args[0]
+                else:
+                    assert "study_valid__" in mock_cursor.execute.call_args.args[0]
+            assert mock_output.is_called()
 
 
 @pytest.mark.parametrize(
