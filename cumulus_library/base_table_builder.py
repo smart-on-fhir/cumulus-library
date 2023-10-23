@@ -67,8 +67,8 @@ class BaseTableBuilder(ABC):
                 visible=not verbose,
             )
             for query in self.queries:
+                query_console_output(verbose, query, progress, task)
                 cursor.execute(query)
-                query_console_output(verbose, self.queries, progress, task)
 
     def comment_queries(self):
         """Convenience method for annotating outputs of template generators to disk"""
