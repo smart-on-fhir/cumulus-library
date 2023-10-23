@@ -116,11 +116,11 @@ def test_count_builder_mapping(
             [
                 "clean",
                 "-t",
-                "study_python_counts_valid",
+                "core",
                 "--database",
                 "test",
             ],
-            "study_python_counts_valid__",
+            "core__",
         ),
         (
             [

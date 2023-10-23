@@ -123,6 +123,7 @@ following order of preference is used to select credentials:
     )
 
     add_target_argument(clean)
+    add_study_dir_argument(clean)
     add_verbose_argument(clean)
     add_aws_config(clean)
     clean.add_argument(

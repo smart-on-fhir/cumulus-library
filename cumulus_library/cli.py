@@ -89,7 +89,7 @@ class StudyBuilder:
 
     ### Creating studies
 
-    def clean_study(self, targets: List[str], prefix=False) -> None:
+    def clean_study(self, targets: List[str], study_dict, prefix=False) -> None:
         """Removes study table/views from Athena.
 
         While this is usually not required, since it it done as part of a build,
@@ -104,13 +104,13 @@ class StudyBuilder:
             )
         for target in targets:
             if prefix:
-                explicit_prefix = target
+                parser = StudyManifestParser()
+                parser.clean_study(
+                    self.cursor, self.schema_name, self.verbose, prefix=target
+                )
             else:
-                explicit_prefix = None
-            parser = StudyManifestParser()
-            parser.clean_study(
-                self.cursor, self.schema_name, self.verbose, prefix=explicit_prefix
-            )
+                parser = StudyManifestParser(study_dict[target])
+                parser.clean_study(self.cursor, self.schema_name, self.verbose)
 
     def clean_and_build_study(
         self, target: PosixPath, continue_from: str = None
@@ -259,11 +259,8 @@ def run_cli(args: Dict):
         print("Testing connection to athena...")
         builder.cursor.execute("SHOW DATABASES")
 
-        if args["action"] == "clean":
-            builder.clean_study(args["target"], args["prefix"])
-
-        else:
-            study_dict = get_study_dict(args["study_dir"])
+        study_dict = get_study_dict(args["study_dir"])
+        if "prefix" not in args.keys():
             if args["target"]:
                 for target in args["target"]:
                     if target not in study_dict:
@@ -273,27 +270,32 @@ def run_cli(args: Dict):
                             "If you are trying to run a custom study, make sure "
                             "you include `-s path/to/study/dir` as an arugment."
                         )
+        if args["action"] == "clean":
+            builder.clean_study(
+                args["target"],
+                study_dict,
+                args["prefix"],
+            )
+        elif args["action"] == "build":
+            if "all" in args["target"]:
+                builder.clean_and_build_all(study_dict)
+            else:
+                for target in args["target"]:
+                    if args["builder"]:
+                        builder.run_single_table_builder(
+                            study_dict[target], args["builder"]
+                        )
+                    else:
+                        builder.clean_and_build_study(
+                            study_dict[target], continue_from=args["continue_from"]
+                        )
 
-            if args["action"] == "build":
-                if "all" in args["target"]:
-                    builder.clean_and_build_all(study_dict)
-                else:
-                    for target in args["target"]:
-                        if args["builder"]:
-                            builder.run_single_table_builder(
-                                study_dict[target], args["builder"]
-                            )
-                        else:
-                            builder.clean_and_build_study(
-                                study_dict[target], continue_from=args["continue_from"]
-                            )
-
-            elif args["action"] == "export":
-                if "all" in args["target"]:
-                    builder.export_all(study_dict, args["data_path"])
-                else:
-                    for target in args["target"]:
-                        builder.export_study(study_dict[target], args["data_path"])
+        elif args["action"] == "export":
+            if "all" in args["target"]:
+                builder.export_all(study_dict, args["data_path"])
+            else:
+                for target in args["target"]:
+                    builder.export_study(study_dict[target], args["data_path"])
 
         # returning the builder for ease of unit testing
         return builder
