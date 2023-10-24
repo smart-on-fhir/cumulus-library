@@ -86,13 +86,21 @@ class StudyManifestParser:
         """
         return self._study_config.get("study_prefix")
 
-    def get_sql_file_list(self) -> Optional[StrList]:
+    def get_sql_file_list(self, continue_from: str = None) -> Optional[StrList]:
         """Reads the contents of the sql_config array from the manifest
 
         :returns: An array of sql files from the manifest, or None if not found.
         """
         sql_config = self._study_config.get("sql_config", {})
-        return sql_config.get("file_names", [])
+        sql_files = sql_config.get("file_names", [])
+        if continue_from:
+            for pos, file in enumerate(sql_files):
+                if continue_from.replace(".sql", "") == file.replace(".sql", ""):
+                    sql_files = sql_files[pos:]
+                    break
+            else:
+                sys.exit(f"No tables matching '{continue_from}' found")
+        return sql_files
 
     def get_table_builder_file_list(self) -> Optional[StrList]:
         """Reads the contents of the table_builder_config array from the manifest
@@ -190,6 +198,13 @@ class StudyManifestParser:
             ):
                 view_table_list.remove(view_table)
         # We want to only show a progress bar if we are :not: printing SQL lines
+        if prefix:
+            print("The following views/tables were selected by prefix:")
+            for view_table in view_table_list:
+                print(f"  {view_table[0]}")
+            confirm = input("Remove these tables? (y/N)")
+            if confirm.lower() not in ("y", "yes"):
+                sys.exit("Table cleaning aborted")
         with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 f"Removing {display_prefix} study artifacts...",
@@ -314,7 +329,9 @@ class StudyManifestParser:
             name = f"{name}.py"
         self._load_and_execute_builder(name, cursor, schema, verbose, drop_table=True)
 
-    def build_study(self, cursor: object, verbose: bool = False) -> List:
+    def build_study(
+        self, cursor: object, verbose: bool = False, continue_from: str = None
+    ) -> List:
         """Creates tables in the schema by iterating through the sql_config.file_names
 
         :param cursor: A PEP-249 compatible cursor object
@@ -323,7 +340,7 @@ class StudyManifestParser:
         :returns: loaded queries (for unit testing only)
         """
         queries = []
-        for file in self.get_sql_file_list():
+        for file in self.get_sql_file_list(continue_from):
             for query in parse_sql(load_text(f"{self._study_path}/{file}")):
                 queries.append([query, file])
         if len(queries) == 0:

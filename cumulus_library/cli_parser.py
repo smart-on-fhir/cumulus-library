@@ -16,7 +16,7 @@ def add_table_builder_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --builder arg to a subparser"""
     parser.add_argument(
         "--builder",
-        help=(argparse.SUPPRESS),
+        help=argparse.SUPPRESS,
     )
 
 
@@ -123,12 +123,13 @@ following order of preference is used to select credentials:
     )
 
     add_target_argument(clean)
+    add_study_dir_argument(clean)
     add_verbose_argument(clean)
     add_aws_config(clean)
     clean.add_argument(
         "--prefix",
         action="store_true",
-        help=(argparse.SUPPRESS),
+        help=argparse.SUPPRESS,
     )
 
     build = actions.add_parser(
@@ -140,6 +141,12 @@ following order of preference is used to select credentials:
     add_study_dir_argument(build)
     add_verbose_argument(build)
     add_aws_config(build)
+
+    build.add_argument(
+        "--continue",
+        dest="continue_from",
+        help=argparse.SUPPRESS,
+    )
 
     export = actions.add_parser(
         "export", help="Generates files on disk from Athena views"
