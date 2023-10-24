@@ -94,15 +94,11 @@ class StudyManifestParser:
         sql_config = self._study_config.get("sql_config", {})
         sql_files = sql_config.get("file_names", [])
         if continue_from:
-            match_found = False
-            for file in sql_files:
-                print(continue_from.replace(".sql", ""))
-                print(file.replace(".sql", ""))
+            for pos, file in enumerate(sql_files):
                 if continue_from.replace(".sql", "") == file.replace(".sql", ""):
-                    sql_files = sql_files[sql_files.index(file) :]
-                    match_found = True
+                    sql_files = sql_files[pos:]
                     break
-            if not match_found:
+            else:
                 sys.exit(f"No tables matching '{continue_from}' found")
         return sql_files
 
@@ -206,7 +202,7 @@ class StudyManifestParser:
             print("The following views/tables were selected by prefix:")
             for view_table in view_table_list:
                 print(f"  {view_table[0]}")
-            confirm = input("Remove these tables? (Y/N)")
+            confirm = input("Remove these tables? (y/N)")
             if confirm.lower() not in ("y", "yes"):
                 sys.exit("Table cleaning aborted")
         with get_progress_bar(disable=verbose) as progress:
