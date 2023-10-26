@@ -598,8 +598,8 @@ SELECT *
 FROM (
     VALUES (
         (
-            empty',
-            empty',
+            'empty',
+            'empty',
             '',
             '',
             ''
