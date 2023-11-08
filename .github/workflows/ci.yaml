@@ -68,8 +68,8 @@ jobs:
       - name: Rebuild tables
         env:
           PROFILE: cumulus-library-ci
-          WG: cumulus-deid-regression
-          DB: cumulus_deid_regression_db
+          WG: cumulus
+          DB: cumulus_regression_db
         run: |
           cumulus-library build -t core --profile $PROFILE --workgroup $WG --database $DB
           cumulus-library export -t core ./tests/regression/data_export/ --profile $PROFILE --workgroup $WG --database $DB
