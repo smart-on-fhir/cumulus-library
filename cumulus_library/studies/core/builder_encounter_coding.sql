@@ -107,6 +107,7 @@ CREATE TABLE core__encounter_dn_type AS (
             ROW_NUMBER()
             OVER (
                 PARTITION BY id
+                ORDER BY priority ASC
             ) AS available_priority
         FROM union_table
         GROUP BY id, priority, code_system, code, display
@@ -200,6 +201,7 @@ CREATE TABLE core__encounter_dn_servicetype AS (
             ROW_NUMBER()
             OVER (
                 PARTITION BY id
+                ORDER BY priority ASC
             ) AS available_priority
         FROM union_table
         GROUP BY id, priority, code_system, code, display
@@ -272,6 +274,7 @@ CREATE TABLE core__encounter_dn_priority AS (
             ROW_NUMBER()
             OVER (
                 PARTITION BY id
+                ORDER BY priority ASC
             ) AS available_priority
         FROM union_table
         GROUP BY id, priority, code_system, code, display
@@ -346,6 +349,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             ROW_NUMBER()
             OVER (
                 PARTITION BY id
+                ORDER BY priority ASC
             ) AS available_priority
         FROM union_table
         GROUP BY id, priority, code_system, code, display

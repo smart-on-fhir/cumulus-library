@@ -94,7 +94,7 @@ def test_clean_study(mock_output, schema, verbose, prefix, confirm, query_res, r
     with raises:
         with mock.patch.object(builtins, "input", lambda _: confirm):
             mock_cursor = mock.MagicMock()
-            mock_cursor.__iter__.return_value = [[query_res]]
+            mock_cursor.fetchall.return_value = [[query_res]]
             parser = StudyManifestParser("./tests/test_data/study_valid/")
             tables = parser.clean_study(mock_cursor, schema, verbose, prefix=prefix)
 

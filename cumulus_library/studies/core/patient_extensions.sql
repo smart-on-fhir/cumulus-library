@@ -102,6 +102,7 @@ CREATE TABLE core__patient_ext_race AS (
             ROW_NUMBER()
             OVER (
                 PARTITION BY id, system
+                ORDER BY priority ASC
             ) AS available_priority
         FROM union_table
         GROUP BY id, system
@@ -205,6 +206,7 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             ROW_NUMBER()
             OVER (
                 PARTITION BY id, system
+                ORDER BY priority ASC
             ) AS available_priority
         FROM union_table
         GROUP BY id, system

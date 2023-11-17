@@ -3,6 +3,8 @@ name = "cumulus-library"
 requires-python = ">= 3.9"
 dependencies = [
     "ctakesclient >= 1.3",
+    "cumulus-fhir-support >= 1",
+    "duckdb >= 0.9",
     "fhirclient >= 4.1",
     "Jinja2 > 3",
     "pandas <3, >=2.1.1",
@@ -27,6 +29,7 @@ dynamic=["version"]
 [project.optional-dependencies]
 dev = [
     "black",
+    "pre-commit",
     "pylint",
 ]
 test = [
@@ -37,7 +40,7 @@ test = [
 [project.urls]
 Home = "https://smarthealthit.org/cumulus-a-universal-sidecar-for-a-smart-learning-healthcare-system/"
 Documentation = "https://docs.smarthealthit.org/cumulus/"
-Source = "https://github.com/smart-on-fhir/cumulus-library-core"
+Source = "https://github.com/smart-on-fhir/cumulus-library"
 
 
 [project.scripts]

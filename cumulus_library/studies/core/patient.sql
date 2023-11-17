@@ -10,7 +10,7 @@ WITH temp_patient AS (
         ee.ethnicity_display,
         p.address,
         p.id AS subject_id,
-        date(concat(p.birthdate, '-01-01')) AS birthdate,
+        date(concat(substr(p.birthdate, 1, 4), '-01-01')) AS birthdate,
         concat('Patient/', p.id) AS subject_ref
     FROM
         patient AS p

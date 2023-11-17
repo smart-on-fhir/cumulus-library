@@ -87,6 +87,7 @@ CREATE TABLE core__condition_codable_concepts_preferred AS (
             ROW_NUMBER()
             OVER (
                 PARTITION BY id
+                ORDER BY priority ASC
             ) AS available_priority
         FROM union_table
         GROUP BY id, priority, code_system, code, display

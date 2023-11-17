@@ -164,12 +164,12 @@ def _check_schema_if_exists(
         cursor.execute(query)
         schema_str = str(cursor.fetchone()[0])
         required_fields = [coding_element]
-        if allow_partial:
-            required_fields + ["code", "system", "display"]
+        if not allow_partial:
+            required_fields += ["code", "system", "display"]
         if any(x not in schema_str for x in required_fields):
             return False
 
         return True
 
-    except:
+    except Exception:
         return False
