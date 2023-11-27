@@ -165,6 +165,59 @@ styling.
   your study from scratch due to a change in your counts output. If this is not
   set, the version will implicitly be set to zero.
 
+## Testing studies
+
+If you have a Cumulus database in Athena already,
+you can easily point at that during study development.
+
+But it may also be faster or easier to work with local files,
+where you can add edge cases.
+Cumulus Library has an optional database backend driven by local ndjson just for that!
+
+### Set up your ndjson
+
+You can grab fake
+[Synthea data](https://github.com/smart-on-fhir/sample-bulk-fhir-datasets)
+or use the result of actual bulk-export results from your EHR.
+
+Once you have that,
+run [Cumulus ETL](https://docs.smarthealthit.org/cumulus/etl/)
+on your source ndjson with the
+`--output-format=ndjson` flag and pointing at some local directory.
+For example:
+```shell
+docker compose run \
+  --volume local_dir:/in \
+  cumulus-etl \
+  /in/ndjson \
+  /in/output \
+  /in/phi \
+  --output-format=ndjson
+```
+
+This will generate a tree of processed & anonymized ndjson
+(just like the ETL normally makes).
+
+### Run your study on the local ndjson
+
+Now you can run Cumulus Library but point it at the output files with the
+`--db-type=duckdb` and `--load-ndjson-dir=DIR` flags. For example:
+```shell
+cumulus-library build \
+  --db-type duckdb \
+  --load-ndjson-dir local_dir/output \
+  --database local_dir/duck.db \
+  --target my_study
+```
+
+### Adding edge cases
+
+Not only is this faster than talking to Athena,
+but you can edit the local ndjson to add interest edge cases that you want your
+SQL to be able to handle.
+
+We use this feature in some of our studies to even add automated unit tests.
+
 ## Sharing studies
 
 If you want to share your study as an official Cumulus study, please let us know

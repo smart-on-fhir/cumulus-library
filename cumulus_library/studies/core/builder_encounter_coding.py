@@ -43,7 +43,7 @@ class EncounterCodingBuilder(BaseTableBuilder):
 
         with get_progress_bar(transient=True) as progress:
             task = progress.add_task(
-                "Detecting available encounter codaebleConcepts...",
+                "Detecting available encounter codeableConcepts...",
                 # Each column in code_sources requires at most 3 queries to
                 # detect valid data is in the DB
                 total=len(code_sources),

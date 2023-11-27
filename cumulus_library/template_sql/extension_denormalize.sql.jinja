@@ -74,9 +74,10 @@ CREATE TABLE {{ target_table }} AS (
             ROW_NUMBER()
                 OVER (
                     PARTITION BY id, system
+                    ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, system
+        GROUP BY id, system, priority
     )
     WHERE available_priority = 1
 );

@@ -44,7 +44,7 @@ def add_data_path_argument(parser: argparse.ArgumentParser) -> None:
         nargs="?",
         help=(
             "The path to use for Athena counts data. "
-            "Can be povided via CUMULUS_LIBRARY_DATA_PATH environment variable."
+            "Can be provided via CUMULUS_LIBRARY_DATA_PATH environment variable."
         ),
     )
 
@@ -64,12 +64,6 @@ def add_aws_config(parser: argparse.ArgumentParser) -> None:
     aws = parser.add_argument_group("AWS config")
     aws.add_argument("--profile", help="AWS profile", default="default")
     aws.add_argument(
-        "--database",
-        # internally, we use PyAthena's terminology for this but the UX term is "database"
-        dest="schema_name",
-        help="Cumulus Athena database name",
-    )
-    aws.add_argument(
         "--workgroup",
         default="cumulus",
         help="Cumulus Athena workgroup (default: cumulus)",
@@ -79,6 +73,29 @@ def add_aws_config(parser: argparse.ArgumentParser) -> None:
         help="AWS region data of Athena instance (default: us-east-1)",
         default="us-east-1",
     )
+
+
+def add_db_config(parser: argparse.ArgumentParser) -> None:
+    """Adds arguments related to database backends to a subparser"""
+    group = parser.add_argument_group("Database config")
+    group.add_argument(
+        "--db-type",
+        help="Which database backend to use (default athena)",
+        choices=["athena", "duckdb"],
+        default="athena",
+    )
+    group.add_argument(
+        "--database",
+        # In Athena, we use this as the schema_name (which is also called a Database in their UX).
+        # In DuckDB, we use this as the path to the filename to store tables.
+        # Since we started as an Athena-centric codebase, we mostly keep referring to this as
+        # name "schema_name". But to the user, both uses are still conceptually a "database".
+        dest="schema_name",
+        help="Database name (for Athena) or file (for DuckDB)",
+    )
+
+    # Backend-specific config:
+    add_aws_config(parser)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -125,7 +142,7 @@ following order of preference is used to select credentials:
     add_target_argument(clean)
     add_study_dir_argument(clean)
     add_verbose_argument(clean)
-    add_aws_config(clean)
+    add_db_config(clean)
     clean.add_argument(
         "--prefix",
         action="store_true",
@@ -140,8 +157,11 @@ following order of preference is used to select credentials:
     add_table_builder_argument(build)
     add_study_dir_argument(build)
     add_verbose_argument(build)
-    add_aws_config(build)
+    add_db_config(build)
 
+    build.add_argument(
+        "--load-ndjson-dir", help="Load ndjson files from this folder", metavar="DIR"
+    )
     build.add_argument(
         "--continue",
         dest="continue_from",
@@ -155,7 +175,7 @@ following order of preference is used to select credentials:
     add_study_dir_argument(export)
     add_data_path_argument(export)
     add_verbose_argument(export)
-    add_aws_config(export)
+    add_db_config(export)
 
     upload = actions.add_parser(
         "upload", help="Bulk uploads data to Cumulus aggregator"

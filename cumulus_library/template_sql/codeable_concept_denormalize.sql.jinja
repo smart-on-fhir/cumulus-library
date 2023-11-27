@@ -54,6 +54,7 @@ CREATE TABLE {{ target_table }} AS (
             ROW_NUMBER()
                 OVER (
                     PARTITION BY id
+                    ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
         GROUP BY id, priority, code_system, code, display

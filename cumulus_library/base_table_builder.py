@@ -4,6 +4,7 @@ import re
 from abc import ABC, abstractmethod
 from typing import final
 
+from cumulus_library.databases import DatabaseCursor
 from cumulus_library.helper import get_progress_bar, query_console_output
 
 
@@ -34,7 +35,11 @@ class BaseTableBuilder(ABC):
 
     @final
     def execute_queries(
-        self, cursor: object, schema: str, verbose: bool, drop_table: bool = False
+        self,
+        cursor: DatabaseCursor,
+        schema: str,
+        verbose: bool,
+        drop_table: bool = False,
     ):
         """Executes queries set up by a prepare_queries call
 

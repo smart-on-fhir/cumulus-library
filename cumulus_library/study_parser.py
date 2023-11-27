@@ -11,6 +11,7 @@ import toml
 from rich.progress import Progress, TaskID, track
 
 from cumulus_library.base_table_builder import BaseTableBuilder
+from cumulus_library.databases import DatabaseBackend, DatabaseCursor
 from cumulus_library.errors import StudyManifestParsingError
 from cumulus_library.helper import (
     query_console_output,
@@ -146,7 +147,7 @@ class StudyManifestParser:
     # SQL related functions
     def clean_study(
         self,
-        cursor: object,
+        cursor: DatabaseCursor,
         schema_name: str,
         verbose: bool = False,
         prefix: str = None,
@@ -158,9 +159,6 @@ class StudyManifestParser:
         :verbose: toggle from progress bar to query output, optional
         :returns: list of dropped tables (for unit testing only)
         :prefix: override prefix discovery with the provided prefix
-
-        TODO: If we need to support additional databases, we may need to investigate
-        additional ways to get a list of table prefixes
         """
         if not schema_name:
             raise ValueError("No database provided")
@@ -175,13 +173,13 @@ class StudyManifestParser:
         view_table_list = []
         for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
             cursor.execute(query_and_type[0])
-            for db_row_tuple in cursor:
+            for db_row_tuple in cursor.fetchall():
                 # this check handles athena reporting views as also being tables,
                 # so we don't waste time dropping things that don't exist
                 if query_and_type[1] == "TABLE":
                     if not any(
-                        db_row_tuple[0] in query_and_type
-                        for query_and_type in view_table_list
+                        db_row_tuple[0] in iter_q_and_t
+                        for iter_q_and_t in view_table_list
                     ):
                         view_table_list.append([db_row_tuple[0], query_and_type[1]])
                 else:
@@ -222,7 +220,7 @@ class StudyManifestParser:
 
     def _execute_drop_queries(
         self,
-        cursor: object,
+        cursor: DatabaseCursor,
         verbose: bool,
         view_table_list: List,
         progress: Progress,
@@ -298,7 +296,7 @@ class StudyManifestParser:
         del table_builder_module
 
     def run_table_builder(
-        self, cursor: object, schema: str, verbose: bool = False
+        self, cursor: DatabaseCursor, schema: str, verbose: bool = False
     ) -> None:
         """Loads modules from a manifest and executes code via BaseTableBuilder
 
@@ -310,7 +308,7 @@ class StudyManifestParser:
             self._load_and_execute_builder(file, cursor, schema, verbose)
 
     def run_counts_builder(
-        self, cursor: object, schema: str, verbose: bool = False
+        self, cursor: DatabaseCursor, schema: str, verbose: bool = False
     ) -> None:
         """Loads counts modules from a manifest and executes code via BaseTableBuilder
 
@@ -322,7 +320,7 @@ class StudyManifestParser:
             self._load_and_execute_builder(file, cursor, schema, verbose)
 
     def run_single_table_builder(
-        self, cursor: object, schema: str, name: str, verbose: bool = False
+        self, cursor: DatabaseCursor, schema: str, name: str, verbose: bool = False
     ):
         """targets a single table builder to run"""
         if not name.endswith(".py"):
@@ -330,7 +328,7 @@ class StudyManifestParser:
         self._load_and_execute_builder(name, cursor, schema, verbose, drop_table=True)
 
     def build_study(
-        self, cursor: object, verbose: bool = False, continue_from: str = None
+        self, cursor: DatabaseCursor, verbose: bool = False, continue_from: str = None
     ) -> List:
         """Creates tables in the schema by iterating through the sql_config.file_names
 
@@ -373,7 +371,7 @@ class StudyManifestParser:
 
     def _execute_build_queries(
         self,
-        cursor: object,
+        cursor: DatabaseCursor,
         verbose: bool,
         queries: list,
         progress: Progress,
@@ -435,14 +433,11 @@ class StudyManifestParser:
 
     # Database exporting functions
 
-    def export_study(self, cursor: object, data_path: PosixPath) -> List:
+    def export_study(self, db: DatabaseBackend, data_path: PosixPath) -> List:
         """Exports csvs/parquet extracts of tables listed in export_list
 
-        :param cursor: A PEP-249 compatible cursor object
+        :param db: A database backend
         :returns: list of executed queries (for unit testing only)
-
-        TODO: If we need to support additional databases, we may need to investigate
-        additional ways to convert the query to a pandas object
         """
         self.reset_export_dir()
         queries = []
@@ -451,7 +446,7 @@ class StudyManifestParser:
             description=f"Exporting {self.get_study_prefix()} counts...",
         ):
             query = f"select * from {table}"
-            dataframe = cursor.execute(query).as_pandas()
+            dataframe = db.execute_as_pandas(query)
             path = Path(f"{str(data_path)}/{self.get_study_prefix()}/")
             path.mkdir(parents=True, exist_ok=True)
             dataframe = dataframe.sort_values(

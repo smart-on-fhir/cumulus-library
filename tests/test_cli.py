@@ -201,10 +201,14 @@ def test_clean(
     ],
 )
 def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_calls):
-    mock_connect.side_effect = [mock.MagicMock(), mock.MagicMock()]
-    builder = cli.main(cli_args=args)
-    assert builder.cursor.execute.call_count == cursor_calls
-    assert builder.pandas_cursor.execute.call_count == pandas_cursor_calls
+    mock_connection = mock.MagicMock()
+    normal_cursor = mock.MagicMock()
+    pandas_cursor = mock.MagicMock()
+    mock_connect.return_value = mock_connection
+    mock_connection.cursor.side_effect = [pandas_cursor, normal_cursor]
+    cli.main(cli_args=args)
+    assert normal_cursor.execute.call_count == cursor_calls
+    assert pandas_cursor.execute.call_count == pandas_cursor_calls
 
 
 @mock.patch("pathlib.PosixPath.mkdir")

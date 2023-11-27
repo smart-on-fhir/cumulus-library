@@ -9,14 +9,16 @@ import sysconfig
 from pathlib import Path, PosixPath
 from typing import Dict, List, Optional
 
-import pyathena
-
-from pyathena.pandas.cursor import PandasCursor
 from rich.console import Console
 from rich.table import Table
 
 from cumulus_library import __version__
 from cumulus_library.cli_parser import get_parser
+from cumulus_library.databases import (
+    AthenaDatabaseBackend,
+    DatabaseBackend,
+    create_db_backend,
+)
 from cumulus_library.study_parser import StudyManifestParser
 from cumulus_library.upload import upload_files
 
@@ -38,7 +40,10 @@ class CumulusEnv:  # pylint: disable=too-few-public-methods
 
     def get_study_builder(self):
         """Convenience method for getting athena args from environment"""
-        return StudyBuilder(self.region, self.workgroup, self.profile, self.schema_name)
+        db = AthenaDatabaseBackend(
+            self.region, self.workgroup, self.profile, self.schema_name
+        )
+        return StudyBuilder(db)
 
 
 class StudyBuilder:
@@ -47,35 +52,10 @@ class StudyBuilder:
     verbose = False
     schema_name = None
 
-    def __init__(  # pylint: disable=too-many-arguments
-        self, region: str, workgroup: str, profile: str, schema: str
-    ):
-        connect_kwargs = {}
-        for aws_env_name in [
-            "AWS_ACCESS_KEY_ID",
-            "AWS_SECRET_ACCESS_KEY",
-            "AWS_SESSION_TOKEN",
-        ]:
-            if aws_env_val := os.environ.get(aws_env_name):
-                connect_kwargs[aws_env_name.lower()] = aws_env_val
-        # the profile may not be required, provided the above three AWS env vars
-        # are set. If both are present, the env vars take precedence
-        if profile is not None:
-            connect_kwargs["profile_name"] = profile
-        self.cursor = pyathena.connect(
-            region_name=region,
-            work_group=workgroup,
-            schema_name=schema,
-            **connect_kwargs,
-        ).cursor()
-        self.pandas_cursor = pyathena.connect(
-            region_name=region,
-            work_group=workgroup,
-            schema_name=schema,
-            cursor_class=PandasCursor,
-            **connect_kwargs,
-        ).cursor()
-        self.schema_name = schema
+    def __init__(self, db: DatabaseBackend):
+        self.db = db
+        self.cursor = db.cursor()
+        self.schema_name = db.schema_name
 
     def reset_data_path(self, study: PosixPath) -> None:
         """
@@ -163,7 +143,7 @@ class StudyBuilder:
         if data_path is None:
             sys.exit("Missing destination - please provide a path argument.")
         studyparser = StudyManifestParser(target)
-        studyparser.export_study(self.pandas_cursor, data_path)
+        studyparser.export_study(self.db, data_path)
 
     def export_all(self, study_dict: Dict, data_path: PosixPath):
         """Exports all defined count tables to disk"""
@@ -248,15 +228,11 @@ def run_cli(args: Dict):
 
     # all other actions require connecting to AWS
     else:
-        builder = StudyBuilder(
-            args["region"],
-            args["workgroup"],
-            args["profile"],
-            args["schema_name"],
-        )
+        db_backend = create_db_backend(args)
+        builder = StudyBuilder(db_backend)
         if args["verbose"]:
             builder.verbose = True
-        print("Testing connection to athena...")
+        print("Testing connection to database...")
         builder.cursor.execute("SHOW DATABASES")
 
         study_dict = get_study_dict(args["study_dir"])
@@ -297,6 +273,7 @@ def run_cli(args: Dict):
                 for target in args["target"]:
                     builder.export_study(study_dict[target], args["data_path"])
 
+        db_backend.close()
         # returning the builder for ease of unit testing
         return builder
 
@@ -319,12 +296,14 @@ def main(cli_args=None):
                 break
 
     arg_env_pairs = (
+        ("db_type", "CUMULUS_LIBRARY_DB_TYPE"),
         ("profile", "CUMULUS_LIBRARY_PROFILE"),
         ("schema_name", "CUMULUS_LIBRARY_DATABASE"),
         ("workgroup", "CUMULUS_LIBRARY_WORKGROUP"),
         ("region", "CUMULUS_LIBRARY_REGION"),
         ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
         ("data_path", "CUMULUS_LIBRARY_DATA_PATH"),
+        ("load_ndjson_dir", "CUMULUS_LIBRARY_LOAD_NDJSON_DIR"),
         ("user", "CUMULUS_AGGREGATOR_USER"),
         ("id", "CUMULUS_AGGREGATOR_ID"),
         ("url", "CUMULUS_AGGREGATOR_URL"),

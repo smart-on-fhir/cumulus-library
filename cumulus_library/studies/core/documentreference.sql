@@ -40,7 +40,7 @@ SELECT DISTINCT
     CASE
         WHEN
             type_coding.type_row.display IS NOT NULL
-            THEN replace(type_coding.type_row.display, ',')
+            THEN replace(type_coding.type_row.display, ',', '')
         ELSE type_row.code
     END AS doc_type_display,
     tdr.status,
@@ -72,7 +72,7 @@ WITH powerset AS (
     WHERE
         d.encounter_ref = e.encounter_ref
         AND d.status = 'current'
-        AND d.docstatus IN (NULL, 'final', 'amended')
+        AND (d.docstatus IS NULL OR d.docstatus IN ('final', 'amended'))
     GROUP BY cube(d.doc_type_display, d.author_month, e.enc_class_display)
 )
 

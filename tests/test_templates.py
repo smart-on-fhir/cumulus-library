@@ -119,6 +119,7 @@ def test_codeable_concept_denormalize_filter_creation():
             ROW_NUMBER()
                 OVER (
                     PARTITION BY id
+                    ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
         GROUP BY id, priority, code_system, code, display
@@ -158,7 +159,7 @@ FROM information_schema.columns
 WHERE
     table_schema = 'schema_name'
     AND table_name = 'table_name'
-    AND column_name = 'column_name'"""
+    AND LOWER(column_name) = 'column_name'"""
 
     query = get_column_datatype_query(
         schema_name="schema_name",
@@ -455,9 +456,10 @@ def test_extension_denormalize_creation():
             ROW_NUMBER()
                 OVER (
                     PARTITION BY id, system
+                    ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, system
+        GROUP BY id, system, priority
     )
     WHERE available_priority = 1
 );"""
