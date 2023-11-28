@@ -175,6 +175,7 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
         "DocumentReference",
         "Encounter",
         "Immunization",
+        "Medication",
         "MedicationRequest",
         "Observation",
         "Patient",
