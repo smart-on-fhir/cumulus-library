@@ -1,4 +1,12 @@
-"""Abstraction layers for supported database backends (e.g. AWS & DuckDB)"""
+"""Abstraction layers for supported database backends (e.g. AWS & DuckDB)
+
+By convention, to maintain this as a relatively light wrapper layer, if you have
+to chose between a convenience function in a specific library (as an example, the
+[pyathena to_sql function](https://github.com/laughingman7743/PyAthena/#to-sql))
+or using raw sql directly in some form, you should do the latter. This not a law;
+if there's a compelling reason to do so, just make sure you add an appropriate
+wrapper method in one of DatabaseCursor or DatabaseBackend.
+"""
 
 import abc
 import datetime

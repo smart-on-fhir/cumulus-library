@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from jinja2 import Template
+from pandas import DataFrame
 
 from cumulus_library.errors import CountsBuilderError
 
@@ -226,6 +227,21 @@ def get_ctas_query(
             dataset=dataset,
             table_cols=table_cols,
         )
+
+
+def get_ctas_query_from_df(schema_name: str, table_name: str, df: DataFrame) -> str:
+    """Generates a create table as query from a dataframe
+
+    This is a convenience wrapper for get_ctas_query.
+
+    :param schema_name: The athena schema to create the table in
+    :param table_name: The name of the athena table to create
+    :param df: A pandas dataframe
+    """
+    split_dict = df.to_dict(orient="split")
+    return get_ctas_query(
+        schema_name, table_name, split_dict["data"], split_dict["columns"]
+    )
 
 
 def get_ctas_empty_query(
