@@ -116,7 +116,7 @@ class DuckDatabaseBackend(DatabaseBackend):
             "from_iso8601_timestamp",
             self._compat_from_iso8601_timestamp,
             None,
-            duckdb.typing.TIMESTAMP_TZ,
+            duckdb.typing.TIMESTAMP,
         )
 
     def insert_tables(self, tables: dict[str, pyarrow.Table]) -> None:
@@ -151,7 +151,11 @@ class DuckDatabaseBackend(DatabaseBackend):
         return self.connection
 
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
-        return self.connection.execute(sql).df()
+        # We call convert_dtypes here in case there are integer columns.
+        # Pandas will normally cast nullable-int as a float type unless
+        # we call this to convert to its nullable int column type.
+        # PyAthena seems to do this correctly for us, but not DuckDB.
+        return self.connection.execute(sql).df().convert_dtypes()
 
     def close(self) -> None:
         self.connection.close()
