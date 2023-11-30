@@ -129,7 +129,9 @@ class PsmBuilder(BaseTableBuilder):
         # drop = get_drop_view_table(f"{self.config.pos_source_table}_sampled_ids", 'TABLE')
         # cursor.execute(drop)
         ctas_query = get_ctas_query_from_df(
-            schema, f"{self.config.pos_source_table}_sampled_ids", cohort
+            schema,
+            f"{self.config.pos_source_table}_sampled_ids",
+            cohort.drop("index", axis=1),
         )
         self.queries.append(ctas_query)
         # drop = get_drop_view_table(self.config.target_table, 'TABLE')
@@ -196,6 +198,8 @@ class PsmBuilder(BaseTableBuilder):
         drop_table: bool = False,
     ):
         super().execute_queries(cursor, schema, verbose, drop_table)
+        self.comment_queries()
+        self.write_queries()
         self.generate_psm_analysis(cursor, schema)
 
 
