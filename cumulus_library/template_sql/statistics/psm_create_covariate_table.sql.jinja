@@ -7,7 +7,6 @@ CREATE TABLE {{ target_table }} AS (
             SELECT COUNT(DISTINCT {{ primary_ref }})
             FROM "{{ count_table }}"
             WHERE sample_cohort."{{ count_ref }}" = "{{ count_table }}"."{{ count_ref }}"
-            --AND sample_cohort.enc_end_date >= "{{ count_table }}".recordeddate
         ) AS instance_count,
         {%- endif %}
         {%- for key in join_cols_by_table %}
@@ -37,6 +36,5 @@ CREATE TABLE {{ target_table }} AS (
         , 
         {%- endif -%}
         {% endfor %}
-    -- AND c.recordeddate <= sample_cohort.enc_end_date
     ORDER BY sample_cohort."{{ primary_ref }}"
 )
