@@ -26,7 +26,12 @@ from cumulus_library.template_sql.statistics.psm_templates import (
 
 @dataclass
 class PsmConfig:
-    """Provides expected values for PSM execution"""
+    """Provides expected values for PSM execution
+
+    These values should be read in from a toml configuration file.
+    See tests/test_data/psm/psm_config.toml for an example with details about
+    the expected values for these fields.
+    """
 
     classification_json: str
     pos_source_table: str
@@ -39,7 +44,7 @@ class PsmConfig:
     pos_sample_size: int
     neg_sample_size: int
     join_cols_by_table: dict[str, dict]
-    seed: int = 1234567890
+    seed: int
 
 
 class PsmBuilder(BaseTableBuilder):
@@ -48,7 +53,7 @@ class PsmBuilder(BaseTableBuilder):
     display_text = "Building PSM tables..."
 
     def __init__(self, toml_config_path: str):
-        """Loads PSM job details from a psm TOML file"""
+        """Loads PSM job details from a PSM configuration file"""
         with open(toml_config_path, encoding="UTF-8") as file:
             toml_config = toml.load(file)
         self.config = PsmConfig(

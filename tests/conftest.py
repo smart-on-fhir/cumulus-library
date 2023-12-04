@@ -27,7 +27,7 @@ def mock_db():
 
 @pytest.fixture
 def mock_db_core():
-    """Provides a DuckDatabaseBackend with the core study ranfor local testing"""
+    """Provides a DuckDatabaseBackend with the core study ran for local testing"""
     data_dir = f"{Path(__file__).parent}/test_data/duckdb_data"
     with tempfile.TemporaryDirectory() as tmpdir:
         db = create_db_backend(

@@ -1,5 +1,8 @@
 """ tests for jinja sql templates """
 import pytest
+
+from pandas import DataFrame
+
 from cumulus_library.template_sql.templates import (
     CodeableConceptConfig,
     ExtensionConfig,
@@ -10,6 +13,7 @@ from cumulus_library.template_sql.templates import (
     get_count_query,
     get_create_view_query,
     get_ctas_query,
+    get_ctas_query_from_df,
     get_extension_denormalize_query,
     get_insert_into_query,
     get_is_table_not_empty_query,
@@ -378,6 +382,12 @@ def test_ctas_query_creation():
         table_name="test_table",
         dataset=[["foo", "foo"], ["bar", "bar"]],
         table_cols=["a", "b"],
+    )
+    assert query == expected
+    query = get_ctas_query_from_df(
+        schema_name="test_schema",
+        table_name="test_table",
+        df=DataFrame({"a": ["foo", "bar"], "b": ["foo", "bar"]}),
     )
     assert query == expected
 

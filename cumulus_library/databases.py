@@ -13,7 +13,6 @@ import datetime
 import json
 import os
 import sys
-from functools import partial
 from pathlib import Path
 from typing import Optional, Protocol, Union
 
@@ -57,6 +56,14 @@ class DatabaseBackend(abc.ABC):
         """Returns a connection to the backing database"""
 
     @abc.abstractmethod
+    def pandas_cursor(self) -> DatabaseCursor:
+        """Returns a connection to the backing database optimized for dataframes
+
+        If your database does not provide an optimized cursor, this should function the
+        same as a vanilla cursor.
+        """
+
+    @abc.abstractmethod
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
         """Returns a pandas.DataFrame version of the results from the provided SQL"""
 
@@ -89,10 +96,12 @@ class AthenaDatabaseBackend(DatabaseBackend):
             schema_name=self.schema_name,
             **connect_kwargs,
         )
-        self.pandas_cursor = self.connection.cursor(cursor=AthenaPandasCursor)
 
     def cursor(self) -> AthenaCursor:
         return self.connection.cursor()
+
+    def pandas_cursor(self) -> AthenaCursor:
+        return self.connection.cursor(cursor=AthenaPandasCursor)
 
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
         return self.pandas_cursor.execute(sql).as_pandas()
@@ -162,9 +171,8 @@ class DuckDatabaseBackend(DatabaseBackend):
         return self.connection
 
     def pandas_cursor(self) -> duckdb.DuckDBPyConnection:
-        # Don't actually create a new connection,
-        # because then we'd have to re-register our json tables.
-        return self.connection
+        # Since this is not provided, return the vanilla cursor
+        return self.cursor()
 
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
         # We call convert_dtypes here in case there are integer columns.
