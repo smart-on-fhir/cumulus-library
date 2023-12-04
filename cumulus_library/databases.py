@@ -13,6 +13,7 @@ import datetime
 import json
 import os
 import sys
+from functools import partial
 from pathlib import Path
 from typing import Optional, Protocol, Union
 
@@ -103,6 +104,8 @@ class DuckDatabaseBackend(DatabaseBackend):
     def __init__(self, db_file: str):
         super().__init__("main")
         self.connection = duckdb.connect(db_file)
+        # Aliasing Athena's as_pandas to duckDB's df cast
+        setattr(duckdb.DuckDBPyConnection, "as_pandas", duckdb.DuckDBPyConnection.df)
 
         # Paper over some syntax differences between Athena and DuckDB
         self.connection.create_function(
@@ -154,6 +157,11 @@ class DuckDatabaseBackend(DatabaseBackend):
         return datetime.datetime.fromisoformat(value)
 
     def cursor(self) -> duckdb.DuckDBPyConnection:
+        # Don't actually create a new connection,
+        # because then we'd have to re-register our json tables.
+        return self.connection
+
+    def pandas_cursor(self) -> duckdb.DuckDBPyConnection:
         # Don't actually create a new connection,
         # because then we'd have to re-register our json tables.
         return self.connection

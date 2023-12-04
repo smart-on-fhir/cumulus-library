@@ -33,8 +33,8 @@ class BaseTableBuilder(ABC):
         """
         raise NotImplementedError
 
-    # 🚨🚨🚨 WARNING: 🚨🚨🚨 in 99% of cases, subclasses should *not* re-implement
-    # execute_queries.
+    # 🚨🚨🚨 WARNING: in 99% of cases, subclasses should *not* re-implement 🚨🚨🚨
+    # 🚨🚨🚨 execute_queries.                                               🚨🚨🚨
 
     # If you know what you are doing, you can attempt to override it, but it is
     # strongly recommended you invoke this as is via a super() call, and then
