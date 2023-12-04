@@ -2,7 +2,6 @@
 import re
 
 from abc import ABC, abstractmethod
-from typing import final
 
 from cumulus_library.databases import DatabaseCursor
 from cumulus_library.helper import get_progress_bar, query_console_output
