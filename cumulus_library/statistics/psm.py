@@ -146,6 +146,7 @@ class PsmBuilder(BaseTableBuilder):
             0,
         )
         cohort = pandas.concat([pos, neg])
+
         # Replace table (if it exists)
         # TODO - replace with timestamp prepended table
         drop = get_drop_view_table(
@@ -181,7 +182,9 @@ class PsmBuilder(BaseTableBuilder):
             df[dependent_variable] = df["code"].apply(lambda x: 1 if x in codes else 0)
         df = df.drop(columns="code")
         # instance_count present but unused for PSM if table contains a count_ref input
+        # (it's intended for manual review)
         df = df.drop(columns="instance_count", errors="ignore")
+
         columns = []
         if self.config.join_cols_by_table is not None:
             for table_key in self.config.join_cols_by_table:
@@ -192,11 +195,13 @@ class PsmBuilder(BaseTableBuilder):
                         columns.append(column[1])
                     else:
                         columns.append(column[0])
+
         for column in columns:
             encoded_df = pandas.get_dummies(df[column])
             df = pandas.concat([df, encoded_df], axis=1)
             df = df.drop(column, axis=1)
         df = df.reset_index()
+
         try:
             psm = PsmPy(
                 df,
