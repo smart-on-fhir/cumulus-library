@@ -368,11 +368,10 @@ def test_ctas_query_creation():
     expected = """CREATE TABLE "test_schema"."test_table" AS (
     SELECT * FROM (
         VALUES
-        ((cast('foo' AS varchar),cast('foo' AS varchar))),
-        ((cast('bar' AS varchar),cast('bar' AS varchar)))
+        (cast('foo' AS varchar),cast('foo' AS varchar)),
+        (cast('bar' AS varchar),cast('bar' AS varchar))
     )
-        AS t
-        ("a","b")
+        AS t ("a","b")
 );"""
     query = get_ctas_query(
         schema_name="test_schema",
