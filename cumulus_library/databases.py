@@ -96,12 +96,13 @@ class AthenaDatabaseBackend(DatabaseBackend):
             schema_name=self.schema_name,
             **connect_kwargs,
         )
+        self.pandas_cursor = self.connection.cursor(cursor=AthenaPandasCursor)
 
     def cursor(self) -> AthenaCursor:
         return self.connection.cursor()
 
-    def pandas_cursor(self) -> AthenaCursor:
-        return self.connection.cursor(cursor=AthenaPandasCursor)
+    def pandas_cursor(self) -> AthenaPandasCursor:
+        return self.pandas_cursor
 
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
         return self.pandas_cursor.execute(sql).as_pandas()
@@ -172,7 +173,7 @@ class DuckDatabaseBackend(DatabaseBackend):
 
     def pandas_cursor(self) -> duckdb.DuckDBPyConnection:
         # Since this is not provided, return the vanilla cursor
-        return self.cursor()
+        return self.connection
 
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
         # We call convert_dtypes here in case there are integer columns.

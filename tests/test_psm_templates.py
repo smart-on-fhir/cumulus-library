@@ -71,7 +71,6 @@ def test_get_distinct_ids(
         "neg_table",
     WHERE
         sample_cohort."subject_id" = "neg_table"."subject_id"
-    -- AND c.recordeddate <= sample_cohort.enc_end_date
     ORDER BY sample_cohort."subject_id"
 )""",
             does_not_raise(),
@@ -98,7 +97,6 @@ def test_get_distinct_ids(
             SELECT COUNT(DISTINCT subject_id)
             FROM "join_table"
             WHERE sample_cohort."enc_ref" = "join_table"."enc_ref"
-            --AND sample_cohort.enc_end_date >= "join_table".recordeddate
         ) AS instance_count,
         "join_table"."a",
         "join_table"."b" AS "c",
@@ -110,7 +108,6 @@ def test_get_distinct_ids(
         sample_cohort."subject_id" = "neg_table"."subject_id"
         AND sample_cohort."enc_ref"
         = "join_table"."enc_ref"
-    -- AND c.recordeddate <= sample_cohort.enc_end_date
     ORDER BY sample_cohort."subject_id"
 )""",
             does_not_raise(),
