@@ -21,10 +21,11 @@ from cumulus_library.template_sql.statistics.psm_templates import (
     "source"."a",
     "source"."b"
 FROM source
-WHERE "source"."ref_id" NOT IN (
-    SELECT "filter"."ref_id"
-    FROM filter
-)""",
+WHERE
+    "source"."ref_id" NOT IN (
+        SELECT "filter"."ref_id"
+        FROM filter
+    )""",
             does_not_raise(),
         ),
         (
@@ -62,13 +63,14 @@ def test_get_distinct_ids(
             None,
             None,
             """CREATE TABLE target AS (
-    SELECT 
-        DISTINCT sample_cohort."subject_id",
+    SELECT DISTINCT
+        sample_cohort."subject_id",
         sample_cohort."has_flu",
         neg_table.code
-    FROM "pos_table_sampled_ids" AS sample_cohort, 
+    FROM "pos_table_sampled_ids" AS sample_cohort,
         "neg_table",
-    WHERE sample_cohort."subject_id" = "neg_table"."subject_id"
+    WHERE
+        sample_cohort."subject_id" = "neg_table"."subject_id"
     -- AND c.recordeddate <= sample_cohort.enc_end_date
     ORDER BY sample_cohort."subject_id"
 )""",
@@ -89,11 +91,11 @@ def test_get_distinct_ids(
             "enc_ref",
             "join_table",
             """CREATE TABLE target AS (
-    SELECT 
-        DISTINCT sample_cohort."subject_id",
+    SELECT DISTINCT
+        sample_cohort."subject_id",
         sample_cohort."has_flu",
         (
-            SELECT COUNT( DISTINCT subject_id )
+            SELECT COUNT(DISTINCT subject_id)
             FROM "join_table"
             WHERE sample_cohort."enc_ref" = "join_table"."enc_ref"
             --AND sample_cohort.enc_end_date >= "join_table".recordeddate
@@ -101,11 +103,13 @@ def test_get_distinct_ids(
         "join_table"."a",
         "join_table"."b" AS "c",
         neg_table.code
-    FROM "pos_table_sampled_ids" AS sample_cohort, 
+    FROM "pos_table_sampled_ids" AS sample_cohort,
         "neg_table",
         "join_table"
-    WHERE sample_cohort."subject_id" = "neg_table"."subject_id"
-        AND sample_cohort."enc_ref" = "join_table"."enc_ref"
+    WHERE
+        sample_cohort."subject_id" = "neg_table"."subject_id"
+        AND sample_cohort."enc_ref"
+        = "join_table"."enc_ref"
     -- AND c.recordeddate <= sample_cohort.enc_end_date
     ORDER BY sample_cohort."subject_id"
 )""",
@@ -148,6 +152,4 @@ def test_create_covariate_table(
             count_ref,
             count_table,
         )
-        with open("output.sql", "w") as f:
-            f.write(query)
         assert query == expected

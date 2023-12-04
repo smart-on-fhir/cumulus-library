@@ -1,10 +1,10 @@
 CREATE TABLE {{ target_table }} AS (
-    SELECT 
-        DISTINCT sample_cohort."{{ primary_ref }}",
+    SELECT DISTINCT
+        sample_cohort."{{ primary_ref }}",
         sample_cohort."{{ dependent_variable }}",
         {%- if count_table %}
         (
-            SELECT COUNT( DISTINCT {{ primary_ref }} )
+            SELECT COUNT(DISTINCT {{ primary_ref }})
             FROM "{{ count_table }}"
             WHERE sample_cohort."{{ count_ref }}" = "{{ count_table }}"."{{ count_ref }}"
             --AND sample_cohort.enc_end_date >= "{{ count_table }}".recordeddate
@@ -15,26 +15,28 @@ CREATE TABLE {{ target_table }} AS (
         {%- if column|length == 1 %}
         "{{ key }}"."{{ column[0] }}",
         {%- else %}
-        "{{ key }}"."{{ column[0] }}" AS "{{ column[1]}}",
+        "{{ key }}"."{{ column[0] }}" AS "{{ column[1] }}",
         {%- endif %}
         {%- endfor %}
         {%- endfor %}
         {{ neg_source_table }}.code
-    FROM "{{ pos_source_table }}_sampled_ids" AS sample_cohort, 
+    FROM "{{ pos_source_table }}_sampled_ids" AS sample_cohort,
         "{{ neg_source_table }}", 
-        {%- for key in join_cols_by_table %}
+    {%- for key in join_cols_by_table %}
         "{{ key }}"
-        {%- if not loop.last -%}
+    {%- if not loop.last -%}
         , 
         {%- endif -%}
-        {%  endfor %}
-    WHERE sample_cohort."{{ primary_ref }}" = "{{ neg_source_table }}"."{{ primary_ref }}"
+    {% endfor %}
+    WHERE
+        sample_cohort."{{ primary_ref }}" = "{{ neg_source_table }}"."{{ primary_ref }}"
         {%- for key in join_cols_by_table %}
-        AND sample_cohort."{{ join_cols_by_table[key]["join_id"] }}" = "{{ key }}"."{{ join_cols_by_table[key]["join_id"] }}"
-        {%- if not loop.last -%}
+        AND sample_cohort."{{ join_cols_by_table[key]["join_id"] }}"
+        = "{{ key }}"."{{ join_cols_by_table[key]["join_id"] }}"
+    {%- if not loop.last -%}
         , 
         {%- endif -%}
-        {%  endfor %}
+        {% endfor %}
     -- AND c.recordeddate <= sample_cohort.enc_end_date
     ORDER BY sample_cohort."{{ primary_ref }}"
 )
