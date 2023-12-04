@@ -1,19 +1,18 @@
-#
+# Module for generating Propensity Score matching cohorts
 
 import numpy as np
 import pandas
 import toml
 
-# from psmpy import PsmPy
-# from psmpy.functions import cohenD
-from psmpy.plotting import *
+from psmpy import PsmPy
+
 
 import json
 from pathlib import PosixPath
 from dataclasses import dataclass
 
 from cumulus_library.cli import StudyBuilder
-from cumulus_library.databases import AthenaDatabaseBackend as AthenaDb
+from cumulus_library.databases import DatabaseCursor
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.template_sql.templates import (
     get_ctas_query_from_df,
@@ -23,7 +22,6 @@ from cumulus_library.template_sql.statistics.psm_templates import (
     get_distinct_ids,
     get_create_covariate_table,
 )
-import os
 
 
 @dataclass
@@ -45,9 +43,12 @@ class PsmConfig:
 
 
 class PsmBuilder(BaseTableBuilder):
+    """TableBuilder for creating PSM tables"""
+
     display_text = "Building PSM tables..."
 
     def __init__(self, toml_config_path: str):
+        """Loads PSM job details from a psm TOML file"""
         with open(toml_config_path, encoding="UTF-8") as file:
             toml_config = toml.load(file)
         self.config = PsmConfig(
@@ -59,34 +60,39 @@ class PsmBuilder(BaseTableBuilder):
             dependent_variable=toml_config["dependent_variable"],
             pos_sample_size=toml_config["pos_sample_size"],
             neg_sample_size=toml_config["neg_sample_size"],
-            join_cols_by_table=toml_config["join_cols_by_table"],
+            join_cols_by_table=toml_config.get("join_cols_by_table", {}),
             count_ref=toml_config.get("count_ref", None),
             count_table=toml_config.get("count_table", None),
-            seed=toml_config.get("seed", None),
+            seed=toml_config.get("seed", 123),
         )
         super().__init__()
 
     def _get_symptoms_dict(self, path: str) -> dict:
+        """convenience function for loading symptoms dictionaries from a json file"""
         with open(path) as f:
             symptoms = json.load(f)
         return symptoms
 
-    # Todo: replace cusror object with new dbcursor object
-
     def _get_sampled_ids(
         self,
-        cursor: object,
+        cursor: DatabaseCursor,
         schema: str,
         query: str,
         sample_size: int,
-        label: str,
+        dependent_variable: str,
         is_positive: bool,
     ):
         """Creates a table containing randomly sampled patients for PSM analysis
 
         To use this, it is assumed you have already identified a cohort of positively
         IDed patients as a manual process.
-        TODO: recommend a name
+        :param cursor: A valid DatabaseCusror:
+        :param schema: the schema/database name where the data exists
+        :param query: a query generated from the psm_dsitinct_ids template
+        :param sample_size: the number of records to include in the random sample.
+            This should generally be >= 20.
+        :param dependent_variable: the name to use for your filtering column
+        :param is_positive: defines the value to be used for your filtering column
         """
         df = cursor.execute(query).as_pandas()
         df = (
@@ -95,18 +101,22 @@ class PsmBuilder(BaseTableBuilder):
             .drop("index", axis=1)
         )
         df = (
+            # TODO: remove replace behavior after increasing data sample size
             df.sample(n=sample_size, random_state=self.config.seed, replace=True)
             .sort_values(by=[self.config.primary_ref])
             .reset_index()
             .drop("index", axis=1)
         )
 
-        df[label] = is_positive
+        df[dependent_variable] = is_positive
         return df
 
-    def _create_covariate_table(self, cursor: object, schema: str):
+    def _create_covariate_table(self, cursor: DatabaseCursor, schema: str):
+        """Creates a covariate table from the loaded toml config"""
         # checks for primary & link ref being the same
-        source_refs = list({self.config.primary_ref, self.config.count_ref})
+        source_refs = list(
+            {self.config.primary_ref, self.config.count_ref} - set([None])
+        )
         pos_query = get_distinct_ids(source_refs, self.config.pos_source_table)
         pos = self._get_sampled_ids(
             cursor,
@@ -159,13 +169,25 @@ class PsmBuilder(BaseTableBuilder):
         self.queries.append(dataset_query)
 
     def generate_psm_analysis(self, cursor: object, schema: str):
+        """Runs PSM statistics on generated tables"""
         df = cursor.execute(f"select * from {self.config.target_table}").as_pandas()
         symptoms_dict = self._get_symptoms_dict(self.config.classification_json)
         for dependent_variable, codes in symptoms_dict.items():
             df[dependent_variable] = df["code"].apply(lambda x: 1 if x in codes else 0)
         df = df.drop(columns="code")
-        df = df.drop(columns="instance_count")
-        for column in ["gender", "race"]:
+        # instance_count present but unused for PSM if table contains a count_ref input
+        df = df.drop(columns="instance_count", errors="ignore")
+        columns = []
+        if self.config.join_cols_by_table is not None:
+            for table_key in self.config.join_cols_by_table:
+                for column in self.config.join_cols_by_table[table_key][
+                    "included_cols"
+                ]:
+                    if len(column) == 2:
+                        columns.append(column[1])
+                    else:
+                        columns.append(column[0])
+        for column in columns:
             encoded_df = pandas.get_dummies(df[column])
             df = pandas.concat([df, encoded_df], axis=1)
             df = df.drop(column, axis=1)
@@ -179,9 +201,10 @@ class PsmBuilder(BaseTableBuilder):
             )
             # This function populates the psm.predicted_data element, which is required
             # for things like the knn_matched() function call
-            psm.logistic_ps(balance=False)
+            psm.logistic_ps(balance=True)
             print(psm.predicted_data)
             # This function populates the psm.df_matched element
+            # TODO: flip replacement to false after increasing sample data size
             psm.knn_matched(
                 matcher="propensity_logit",
                 replacement=True,
@@ -212,34 +235,3 @@ class PsmBuilder(BaseTableBuilder):
         self.comment_queries()
         self.write_queries()
         self.generate_psm_analysis(cursor, schema)
-
-
-# if __name__ == "__main__":
-#     arg_env_pairs = (
-#         ("profile", "CUMULUS_LIBRARY_PROFILE"),
-#         ("schema_name", "CUMULUS_LIBRARY_DATABASE"),
-#         ("workgroup", "CUMULUS_LIBRARY_WORKGROUP"),
-#         ("region", "CUMULUS_LIBRARY_REGION"),
-#         ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
-#         ("data_path", "CUMULUS_LIBRARY_DATA_PATH"),
-#         ("user", "CUMULUS_AGGREGATOR_USER"),
-#         ("id", "CUMULUS_AGGREGATOR_ID"),
-#         ("url", "CUMULUS_AGGREGATOR_URL"),
-#     )
-#     args = {}
-#     read_env_vars = []
-#     for pair in arg_env_pairs:
-#         if env_val := os.environ.get(pair[1]):
-#             if pair[0] == "study_dir":
-#                 args[pair[0]] = [env_val]
-#             else:
-#                 args[pair[0]] = env_val
-#             read_env_vars.append([pair[1], env_val])
-#     database = AthenaDb(
-#         args["region"], args["workgroup"], args["profile"], args["schema_name"]
-#     )
-#     builder = StudyBuilder(database)
-#     psm = PsmBuilder(f"../../tests/test_data/psm/psm_config.toml")
-#     psm.execute_queries(
-#         database.pandas_cursor, builder.schema_name, False, drop_table=True
-#     )

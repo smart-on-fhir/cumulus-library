@@ -79,11 +79,24 @@ def get_create_covariate_table(
     neg_source_table: str,
     primary_ref: str,
     dependent_variable: str,
-    join_cols_by_table: dict,
+    join_cols_by_table: dict = {},
     count_ref: str = None,
     count_table: str = None,
 ) -> str:
-    """ """
+    """Gets a query to create a covariate table for PSM analysis
+
+    :param target_table: the name of the table to create
+    :param pos_source_table: the table defining your positive cohort
+    :param neg_source_table: the table you defined your positive cohort against,
+        containing the full population
+    :primary_ref: the ID field to use for IDing members of your cohort
+    :dependent_variable: the name for the condition you are investigating, which
+        will differentiate your positive and negative sources
+    :join_cols_by_table: A dict defining extra data to join. See the psm_config.toml
+        in tests/test_data/psm for more details
+    :count_ref: optional ID to count records with for validation
+    :count_table: optional table to use as the source of the count_refs
+    """
     if (count_ref is None and count_table is not None) or (
         count_ref is not None and count_table is None
     ):

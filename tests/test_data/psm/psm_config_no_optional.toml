@@ -33,15 +33,6 @@ target_table = "core__psm_encounter_covariate"
 #from neg_source_table
 primary_ref = 'encounter_ref'
 
-# count_ref is an optional second ref in your positive_source table that can be used
-# to id the number of instances associated with your primary_ref. It is only used
-# for validation
-count_ref = 'subject_ref'
-
-# count_table is the table to use to select your count_ref from. It should :probably:
-# be the same as your neg_source_table
-count_table = 'core__condition'
-
 # dependent_variable is the name to use for identifying which cohort a record is in.
 # It should be phrased such that a value of true would indicate it is originally from
 # your pos_source_table.
@@ -59,18 +50,3 @@ neg_sample_size = 10
 # to make sure that, for a given population, you'll always get the same sample set
 # for repeatability. You probably don't need to change this in most cases.
  seed = 1234567890
-
-# [join_cols_by_table.table_name] allows you to add arbitrary data from other sources
-# to your target_table. it should be comprised of two keys:
-#   - join_id - the field to use to join to your cohort table. It should :probably: 
-#   be the primary ref.
-#   - included_cols - a list of columns to join from the table in question. An array
-#   of one string string will be included as the column name. An array of two strings
-#   will create an alias, like "table_name.first_string AS second_str"
-# You can join as many tables as you like.
-[join_cols_by_table.core__encounter]
-join_id = "encounter_ref"
-included_cols = [
-    ["gender"], 
-    ["race_display", "race"]
-]
