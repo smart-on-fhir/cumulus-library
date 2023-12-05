@@ -10,8 +10,7 @@ CREATE TABLE "{{ schema_name }}"."{{ table_name }}" AS (
             {%- endfor -%}
         )
     )
-        AS t
-        (
+        AS t (
             {%- for col in table_cols -%}
             "{{ col }}"
             {%- if not loop.last -%}

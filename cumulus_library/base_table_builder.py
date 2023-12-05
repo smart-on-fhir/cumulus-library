@@ -74,6 +74,17 @@ class BaseTableBuilder(ABC):
             for query in self.queries:
                 query_console_output(verbose, query, progress, task)
                 cursor.execute(query)
+        self.post_execution(cursor, schema, verbose, drop_table)
+
+    def post_execution(
+        self,
+        cursor: DatabaseCursor,
+        schema: str,
+        verbose: bool,
+        drop_table: bool = False,
+    ):
+        """Hook for any additional actions to run after execute_queries"""
+        pass
 
     def comment_queries(self):
         """Convenience method for annotating outputs of template generators to disk"""

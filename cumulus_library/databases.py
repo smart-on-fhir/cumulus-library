@@ -1,4 +1,12 @@
-"""Abstraction layers for supported database backends (e.g. AWS & DuckDB)"""
+"""Abstraction layers for supported database backends (e.g. AWS & DuckDB)
+
+By convention, to maintain this as a relatively light wrapper layer, if you have
+to chose between a convenience function in a specific library (as an example, the
+[pyathena to_sql function](https://github.com/laughingman7743/PyAthena/#to-sql))
+or using raw sql directly in some form, you should do the latter. This not a law;
+if there's a compelling reason to do so, just make sure you add an appropriate
+wrapper method in one of DatabaseCursor or DatabaseBackend.
+"""
 
 import abc
 import datetime
@@ -48,6 +56,14 @@ class DatabaseBackend(abc.ABC):
         """Returns a connection to the backing database"""
 
     @abc.abstractmethod
+    def pandas_cursor(self) -> DatabaseCursor:
+        """Returns a connection to the backing database optimized for dataframes
+
+        If your database does not provide an optimized cursor, this should function the
+        same as a vanilla cursor.
+        """
+
+    @abc.abstractmethod
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
         """Returns a pandas.DataFrame version of the results from the provided SQL"""
 
@@ -85,6 +101,9 @@ class AthenaDatabaseBackend(DatabaseBackend):
     def cursor(self) -> AthenaCursor:
         return self.connection.cursor()
 
+    def pandas_cursor(self) -> AthenaPandasCursor:
+        return self.pandas_cursor
+
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
         return self.pandas_cursor.execute(sql).as_pandas()
 
@@ -95,6 +114,8 @@ class DuckDatabaseBackend(DatabaseBackend):
     def __init__(self, db_file: str):
         super().__init__("main")
         self.connection = duckdb.connect(db_file)
+        # Aliasing Athena's as_pandas to duckDB's df cast
+        setattr(duckdb.DuckDBPyConnection, "as_pandas", duckdb.DuckDBPyConnection.df)
 
         # Paper over some syntax differences between Athena and DuckDB
         self.connection.create_function(
@@ -148,6 +169,10 @@ class DuckDatabaseBackend(DatabaseBackend):
     def cursor(self) -> duckdb.DuckDBPyConnection:
         # Don't actually create a new connection,
         # because then we'd have to re-register our json tables.
+        return self.connection
+
+    def pandas_cursor(self) -> duckdb.DuckDBPyConnection:
+        # Since this is not provided, return the vanilla cursor
         return self.connection
 
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:

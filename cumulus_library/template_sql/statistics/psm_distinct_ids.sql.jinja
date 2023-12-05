@@ -1,0 +1,15 @@
+SELECT DISTINCT 
+    {%- for column in columns %}
+    "{{ source_table }}"."{{ column }}"
+    {%- if not loop.last -%}
+    , 
+    {%- endif -%}
+    {%- endfor %}
+FROM {{ source_table }}
+{%- if join_id %}
+WHERE
+    "{{ source_table }}"."{{ join_id }}" NOT IN (
+        SELECT "{{ filter_table }}"."{{ join_id }}"
+        FROM {{ filter_table }}
+    )
+{%- endif %}
