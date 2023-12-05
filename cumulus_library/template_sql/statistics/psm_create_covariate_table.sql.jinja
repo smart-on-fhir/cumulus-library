@@ -1,3 +1,25 @@
+{#- 
+    Macros
+-#}
+{%-  macro comma_delineate(loop) -%}
+        {%- if not loop.last -%}
+        , 
+        {%- endif -%}
+{%- endmacro -%}
+{%- macro select_column_or_alias(join_cols_by_table) -%}
+        {%- for key in join_cols_by_table %}
+        {%- for column in join_cols_by_table[key]["included_cols"] %}
+        {%- if column|length == 1 %}
+        "{{ key }}"."{{ column[0] }}",
+        {%- else %}
+        "{{ key }}"."{{ column[0] }}" AS "{{ column[1] }}",
+        {%- endif %}
+        {%- endfor %}
+        {%- endfor %}    
+{%- endmacro -%}
+{#- 
+    Query
+-#}
 CREATE TABLE {{ target_table }} AS (
     SELECT DISTINCT
         sample_cohort."{{ primary_ref }}",
@@ -8,33 +30,21 @@ CREATE TABLE {{ target_table }} AS (
             FROM "{{ count_table }}"
             WHERE sample_cohort."{{ count_ref }}" = "{{ count_table }}"."{{ count_ref }}"
         ) AS instance_count,
-        {%- endif %}
-        {%- for key in join_cols_by_table %}
-        {%- for column in join_cols_by_table[key]["included_cols"] %}
-        {%- if column|length == 1 %}
-        "{{ key }}"."{{ column[0] }}",
-        {%- else %}
-        "{{ key }}"."{{ column[0] }}" AS "{{ column[1] }}",
-        {%- endif %}
-        {%- endfor %}
-        {%- endfor %}
+        {%- endif -%}
+        {{ select_column_or_alias(join_cols_by_table) }}
         {{ neg_source_table }}.code
     FROM "{{ pos_source_table }}_sampled_ids" AS sample_cohort,
         "{{ neg_source_table }}", 
     {%- for key in join_cols_by_table %}
         "{{ key }}"
-    {%- if not loop.last -%}
-        , 
-        {%- endif -%}
+    {{- comma_delineate(loop) -}}
     {% endfor %}
     WHERE
         sample_cohort."{{ primary_ref }}" = "{{ neg_source_table }}"."{{ primary_ref }}"
         {%- for key in join_cols_by_table %}
         AND sample_cohort."{{ join_cols_by_table[key]["join_id"] }}"
         = "{{ key }}"."{{ join_cols_by_table[key]["join_id"] }}"
-    {%- if not loop.last -%}
-        , 
-        {%- endif -%}
-        {% endfor %}
+        {{- comma_delineate(loop) -}}
+         {% endfor %}
     ORDER BY sample_cohort."{{ primary_ref }}"
 )

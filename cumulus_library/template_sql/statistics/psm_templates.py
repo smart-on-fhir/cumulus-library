@@ -25,9 +25,7 @@ def get_distinct_ids(
     :param join_id: the id column to use for joining. Expected to exist in both source and filter tables
     :param filter_table: a table containing ids you want to exclude
     """
-    if (join_id is None and filter_table is not None) or (
-        join_id is not None and filter_table is None
-    ):
+    if (join_id and not filter_table) or (not join_id and filter_table):
         raise CumulusLibraryError(
             "psm_templates.get_distinct_ids expects all optional parameters to be defined if supplied"
         )
@@ -66,9 +64,7 @@ def get_create_covariate_table(
     :count_ref: optional ID to count records with for validation
     :count_table: optional table to use as the source of the count_refs
     """
-    if (count_ref is None and count_table is not None) or (
-        count_ref is not None and count_table is None
-    ):
+    if (count_ref and not count_table) or (not count_ref and count_table):
         raise CumulusLibraryError(
             "psm_templates.get_create_covariate_table expects all count parameters to be defined if supplied"
         )

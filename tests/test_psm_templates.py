@@ -149,4 +149,6 @@ def test_create_covariate_table(
             count_ref,
             count_table,
         )
+        with open("output.sql", "w") as f:
+            f.write(query)
         assert query == expected

@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas
+import sys
 import toml
 
 from psmpy import PsmPy
@@ -29,7 +30,7 @@ class PsmConfig:
     """Provides expected values for PSM execution
 
     These values should be read in from a toml configuration file.
-    See tests/test_data/psm/psm_config.toml for an example with details about
+    See docs/statistics/propensity-score-matching.md for an example with details about
     the expected values for these fields.
     """
 
@@ -54,27 +55,40 @@ class PsmBuilder(BaseTableBuilder):
 
     def __init__(self, toml_config_path: str):
         """Loads PSM job details from a PSM configuration file"""
-        with open(toml_config_path, encoding="UTF-8") as file:
-            toml_config = toml.load(file)
-        self.config = PsmConfig(
-            classification_json=f"{PosixPath(toml_config_path).parent}/{toml_config['classification_json']}",
-            pos_source_table=toml_config["pos_source_table"],
-            neg_source_table=toml_config["neg_source_table"],
-            target_table=toml_config["target_table"],
-            primary_ref=toml_config["primary_ref"],
-            dependent_variable=toml_config["dependent_variable"],
-            pos_sample_size=toml_config["pos_sample_size"],
-            neg_sample_size=toml_config["neg_sample_size"],
-            join_cols_by_table=toml_config.get("join_cols_by_table", {}),
-            count_ref=toml_config.get("count_ref", None),
-            count_table=toml_config.get("count_table", None),
-            seed=toml_config.get("seed", 123),
-        )
         super().__init__()
+        # We're stashing the toml path for error reporting later
+        self.toml_path = toml_config_path
+        try:
+            with open(self.toml_path, encoding="UTF-8") as file:
+                toml_config = toml.load(file)
+
+        except OSError:
+            sys.exit(f"PSM configuration not found at {self.toml_path}")
+        try:
+            self.config = PsmConfig(
+                classification_json=f"{PosixPath(self.toml_path).parent}/{toml_config['classification_json']}",
+                pos_source_table=toml_config["pos_source_table"],
+                neg_source_table=toml_config["neg_source_table"],
+                target_table=toml_config["target_table"],
+                primary_ref=toml_config["primary_ref"],
+                dependent_variable=toml_config["dependent_variable"],
+                pos_sample_size=toml_config["pos_sample_size"],
+                neg_sample_size=toml_config["neg_sample_size"],
+                join_cols_by_table=toml_config.get("join_cols_by_table", {}),
+                count_ref=toml_config.get("count_ref", None),
+                count_table=toml_config.get("count_table", None),
+                seed=toml_config.get("seed", 123),
+            )
+        except KeyError:
+            # TODO: add link to docsite when you have network access
+            sys.exit(
+                f"PSM configuration at {toml_config_path} contains missing/invalid keys."
+                "Check the PSM documentation for an example config with more details"
+            )
 
     def _get_symptoms_dict(self, path: str) -> dict:
         """convenience function for loading symptoms dictionaries from a json file"""
-        with open(path) as f:
+        with open(path, encoding="UTF-8") as f:
             symptoms = json.load(f)
         return symptoms
 
@@ -102,11 +116,13 @@ class PsmBuilder(BaseTableBuilder):
         df = cursor.execute(query).as_pandas()
         df = (
             df.sort_values(by=[self.config.primary_ref])
-            .reset_index()
-            .drop("index", axis=1)
+            # .reset_index()
+            # .drop("index", axis=1)
         )
+
         df = (
-            # TODO: remove replace behavior after increasing data sample size
+            # TODO: flip polarity of replace kwarg after increasing the size of the
+            # unit testing data
             df.sample(n=sample_size, random_state=self.config.seed, replace=True)
             .sort_values(by=[self.config.primary_ref])
             .reset_index()
@@ -119,9 +135,7 @@ class PsmBuilder(BaseTableBuilder):
     def _create_covariate_table(self, cursor: DatabaseCursor, schema: str):
         """Creates a covariate table from the loaded toml config"""
         # checks for primary & link ref being the same
-        source_refs = list(
-            {self.config.primary_ref, self.config.count_ref} - set([None])
-        )
+        source_refs = list({self.config.primary_ref, self.config.count_ref} - {None})
         pos_query = get_distinct_ids(source_refs, self.config.pos_source_table)
         pos = self._get_sampled_ids(
             cursor,
@@ -148,7 +162,7 @@ class PsmBuilder(BaseTableBuilder):
         cohort = pandas.concat([pos, neg])
 
         # Replace table (if it exists)
-        # TODO - replace with timestamp prepended table
+        # TODO - replace with timestamp prepended table in future PR
         drop = get_drop_view_table(
             f"{self.config.pos_source_table}_sampled_ids", "TABLE"
         )
@@ -174,7 +188,7 @@ class PsmBuilder(BaseTableBuilder):
         )
         self.queries.append(dataset_query)
 
-    def generate_psm_analysis(self, cursor: object, schema: str):
+    def generate_psm_analysis(self, cursor: DatabaseCursor, schema: str):
         """Runs PSM statistics on generated tables"""
         df = cursor.execute(f"select * from {self.config.target_table}").as_pandas()
         symptoms_dict = self._get_symptoms_dict(self.config.classification_json)
@@ -187,15 +201,26 @@ class PsmBuilder(BaseTableBuilder):
 
         columns = []
         if self.config.join_cols_by_table is not None:
-            for table_key in self.config.join_cols_by_table:
-                for column in self.config.join_cols_by_table[table_key][
-                    "included_cols"
-                ]:
+            for table_config in self.config.join_cols_by_table.values():
+                for column in table_config["included_cols"]:
+                    # If there are two elements, it's a SQL column that has been
+                    # aliased, so we'll look for the alias name
                     if len(column) == 2:
                         columns.append(column[1])
-                    else:
+                    # If there is one element, it's a straight SQL column we can
+                    # use with no modification
+                    elif len(column) == 1:
                         columns.append(column[0])
+                    else:
+                        sys.exit(
+                            f"PSM config at {self.toml_path} contains an "
+                            f"unexpected SQL column definition: {column}."
+                            "Check the PSM documentation for valid usages."
+                        )
 
+        # This code block is replacing a column which may contain several categories
+        # (like male/female/other/unknown for AdministrativeGender), and converts
+        # it into a series of 1-hot columns for each distinct value in that column,
         for column in columns:
             encoded_df = pandas.get_dummies(df[column])
             df = pandas.concat([df, encoded_df], axis=1)
@@ -211,23 +236,24 @@ class PsmBuilder(BaseTableBuilder):
             )
             # This function populates the psm.predicted_data element, which is required
             # for things like the knn_matched() function call
+            # TODO: create graph from this data
             psm.logistic_ps(balance=True)
-            print(psm.predicted_data)
             # This function populates the psm.df_matched element
             # TODO: flip replacement to false after increasing sample data size
+            # TODO: create graph from this data
             psm.knn_matched(
                 matcher="propensity_logit",
                 replacement=True,
                 caliper=None,
                 drop_unmatched=True,
             )
-            print(psm.df_matched)
+
         except ZeroDivisionError:
-            print(
+            sys.exit(
                 "Encountered a divide by zero error during statistical graph generation. Try increasing your sample size."
             )
         except ValueError:
-            print(
+            sys.exit(
                 "Encountered a value error during KNN matching. Try increasing your sample size."
             )
 
@@ -242,6 +268,4 @@ class PsmBuilder(BaseTableBuilder):
         drop_table: bool = False,
     ):
         super().execute_queries(cursor, schema, verbose, drop_table)
-        self.comment_queries()
-        self.write_queries()
         self.generate_psm_analysis(cursor, schema)

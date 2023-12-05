@@ -26,19 +26,10 @@ def mock_db():
 
 
 @pytest.fixture
-def mock_db_core():
+def mock_db_core(mock_db):
     """Provides a DuckDatabaseBackend with the core study ran for local testing"""
-    data_dir = f"{Path(__file__).parent}/test_data/duckdb_data"
-    with tempfile.TemporaryDirectory() as tmpdir:
-        db = create_db_backend(
-            {
-                "db_type": "duckdb",
-                "schema_name": f"{tmpdir}/duck.db",
-                "load_ndjson_dir": data_dir,
-            }
-        )
-        builder = StudyBuilder(db)
-        builder.clean_and_build_study(
-            f"{Path(__file__).parent.parent}/cumulus_library/studies/core"
-        )
-        yield db
+    builder = StudyBuilder(mock_db)
+    builder.clean_and_build_study(
+        f"{Path(__file__).parent.parent}/cumulus_library/studies/core"
+    )
+    yield mock_db
