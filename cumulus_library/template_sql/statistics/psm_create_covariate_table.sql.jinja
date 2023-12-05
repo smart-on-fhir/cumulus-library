@@ -42,7 +42,8 @@ CREATE TABLE {{ target_table }} AS (
     WHERE
         sample_cohort."{{ primary_ref }}" = "{{ neg_source_table }}"."{{ primary_ref }}"
     {%- for key in join_cols_by_table %}
-    AND sample_cohort."{{ join_cols_by_table[key]["join_id"] }}" = "{{ key }}"."{{ join_cols_by_table[key]["join_id"] }}"
+    AND sample_cohort."{{ join_cols_by_table[key]["join_id"] }}" 
+        = "{{ key }}"."{{ join_cols_by_table[key]["join_id"] }}"
 {{- comma_delineate(loop) -}}
     {% endfor %}
     ORDER BY sample_cohort."{{ primary_ref }}"
