@@ -1,21 +1,21 @@
 {#- 
     Macros
 -#}
-{%-  macro comma_delineate(loop) -%}
-        {%- if not loop.last -%}
-        , 
-        {%- endif -%}
+{%- macro comma_delineate(loop) -%}
+{%- if not loop.last -%}
+, 
+{%- endif -%}
 {%- endmacro -%}
 {%- macro select_column_or_alias(join_cols_by_table) -%}
-        {%- for key in join_cols_by_table %}
-        {%- for column in join_cols_by_table[key]["included_cols"] %}
-        {%- if column|length == 1 %}
+{%- for key in join_cols_by_table %}
+{%- for column in join_cols_by_table[key]["included_cols"] %}
+{%- if column|length == 1 %}
         "{{ key }}"."{{ column[0] }}",
         {%- else %}
         "{{ key }}"."{{ column[0] }}" AS "{{ column[1] }}",
-        {%- endif %}
-        {%- endfor %}
-        {%- endfor %}    
+{%- endif %}
+{%- endfor %}
+{%- endfor %}    
 {%- endmacro -%}
 {#- 
     Query
@@ -41,10 +41,9 @@ CREATE TABLE {{ target_table }} AS (
     {% endfor %}
     WHERE
         sample_cohort."{{ primary_ref }}" = "{{ neg_source_table }}"."{{ primary_ref }}"
-        {%- for key in join_cols_by_table %}
-        AND sample_cohort."{{ join_cols_by_table[key]["join_id"] }}"
-        = "{{ key }}"."{{ join_cols_by_table[key]["join_id"] }}"
-        {{- comma_delineate(loop) -}}
-         {% endfor %}
+    {%- for key in join_cols_by_table %}
+    AND sample_cohort."{{ join_cols_by_table[key]["join_id"] }}" = "{{ key }}"."{{ join_cols_by_table[key]["join_id"] }}"
+{{- comma_delineate(loop) -}}
+    {% endfor %}
     ORDER BY sample_cohort."{{ primary_ref }}"
 )

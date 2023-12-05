@@ -518,8 +518,8 @@ def test_insert_into_query_creation():
     expected = """INSERT INTO test_table
 ("a","b")
 VALUES
-(('foo','foo')),
-(('bar','bar'));"""
+('foo','foo'),
+('bar','bar');"""
     query = get_insert_into_query(
         table_name="test_table",
         table_cols=["a", "b"],

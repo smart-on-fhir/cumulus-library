@@ -106,8 +106,7 @@ def test_get_distinct_ids(
         "join_table"
     WHERE
         sample_cohort."subject_id" = "neg_table"."subject_id"
-        AND sample_cohort."enc_ref"
-        = "join_table"."enc_ref"
+    AND sample_cohort."enc_ref" = "join_table"."enc_ref"
     ORDER BY sample_cohort."subject_id"
 )""",
             does_not_raise(),
@@ -149,6 +148,4 @@ def test_create_covariate_table(
             count_ref,
             count_table,
         )
-        with open("output.sql", "w") as f:
-            f.write(query)
         assert query == expected
