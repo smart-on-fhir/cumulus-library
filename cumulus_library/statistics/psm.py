@@ -260,12 +260,12 @@ class PsmBuilder(BaseTableBuilder):
     def prepare_queries(self, cursor: object, schema: str):
         self._create_covariate_table(cursor, schema)
 
-    def execute_queries(
+    def post_execution(
         self,
         cursor: object,
         schema: str,
         verbose: bool,
         drop_table: bool = False,
     ):
-        super().execute_queries(cursor, schema, verbose, drop_table)
+        # super().execute_queries(cursor, schema, verbose, drop_table)
         self.generate_psm_analysis(cursor, schema)

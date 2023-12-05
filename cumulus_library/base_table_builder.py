@@ -2,6 +2,7 @@
 import re
 
 from abc import ABC, abstractmethod
+from typing import final
 
 from cumulus_library.databases import DatabaseCursor
 from cumulus_library.helper import get_progress_bar, query_console_output
@@ -32,12 +33,7 @@ class BaseTableBuilder(ABC):
         """
         raise NotImplementedError
 
-    # 🚨🚨🚨 WARNING: in 99% of cases, subclasses should *not* re-implement 🚨🚨🚨
-    # 🚨🚨🚨 execute_queries.                                               🚨🚨🚨
-
-    # If you know what you are doing, you can attempt to override it, but it is
-    # strongly recommended you invoke this as is via a super() call, and then
-    # run code before or after that as makes sense for your use case.
+    @final
     def execute_queries(
         self,
         cursor: DatabaseCursor,
@@ -78,6 +74,17 @@ class BaseTableBuilder(ABC):
             for query in self.queries:
                 query_console_output(verbose, query, progress, task)
                 cursor.execute(query)
+        self.post_execution(cursor, schema, verbose, drop_table)
+
+    def post_execution(
+        self,
+        cursor: DatabaseCursor,
+        schema: str,
+        verbose: bool,
+        drop_table: bool = False,
+    ):
+        """Hook for any additional actions to run after execute_queries"""
+        pass
 
     def comment_queries(self):
         """Convenience method for annotating outputs of template generators to disk"""
