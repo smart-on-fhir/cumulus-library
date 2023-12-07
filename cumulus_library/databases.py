@@ -101,6 +101,8 @@ class DuckDatabaseBackend(DatabaseBackend):
             # DuckDB's version is array_to_string -- seems there is no standard here.
             "array_join",
             self._compat_array_join,
+            None,
+            duckdb.typing.VARCHAR,
         )
         self.connection.create_function(
             # We frequently use Athena's date() function because it's easier than
@@ -125,14 +127,18 @@ class DuckDatabaseBackend(DatabaseBackend):
             self.connection.register(name, table)
 
     @staticmethod
-    def _compat_array_join(value: list[str], delimiter: str) -> str:
+    def _compat_array_join(value: Optional[list[str]], delimiter: str) -> Optional[str]:
+        if value is None:
+            return None
         return delimiter.join(value)
 
     @staticmethod
     def _compat_date(
-        value: Union[str, datetime.datetime, datetime.date]
-    ) -> datetime.date:
-        if isinstance(value, str):
+        value: Union[str, datetime.datetime, datetime.date, None]
+    ) -> Optional[datetime.date]:
+        if value is None:
+            return None
+        elif isinstance(value, str):
             return datetime.date.fromisoformat(value)
         elif isinstance(value, datetime.datetime):
             return value.date()
@@ -142,7 +148,11 @@ class DuckDatabaseBackend(DatabaseBackend):
             raise ValueError("Unexpected date() argument:", type(value), value)
 
     @staticmethod
-    def _compat_from_iso8601_timestamp(value: str) -> datetime.datetime:
+    def _compat_from_iso8601_timestamp(
+        value: Optional[str],
+    ) -> Optional[datetime.datetime]:
+        if value is None:
+            return None
         return datetime.datetime.fromisoformat(value)
 
     def cursor(self) -> duckdb.DuckDBPyConnection:
