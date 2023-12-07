@@ -1,0 +1,1 @@
+[(15, 'encounter-diagnosis', None, None), (15, None, None, None)]
