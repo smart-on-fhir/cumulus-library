@@ -137,7 +137,6 @@ def test_count_builder_mapping(mock_path, tmp_path):
         )
         cli.main(cli_args=args)
         db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
-        print(db.cursor().execute("show tables").fetchall())
         assert [
             ("study_python_counts_valid__table1",),
             ("study_python_counts_valid__table2",),
@@ -226,6 +225,7 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
         if export_args is not None:
             export_args = duckdb_args(export_args, tmp_path)
             cli.main(cli_args=export_args)
+
         db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
         found_tables = db.cursor().execute("show tables").fetchall()
         assert len(found_tables) == expected_tables
@@ -233,6 +233,7 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
             # If a table was created by this run, check it has the study prefix
             if "__" in table[0]:
                 assert build_args[2] in table[0]
+
         if export_args is not None:
             # Expected length if not specifying a study dir
             if len(build_args) == 9:
@@ -241,9 +242,9 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
                 manifest_dir = cli.get_study_dict(
                     [cli.get_abs_posix_path(build_args[4])]
                 )[build_args[2]]
+
             with open(f"{manifest_dir}/manifest.toml", encoding="UTF-8") as file:
                 config = toml.load(file)
-
             csv_files = glob.glob(f"{tmp_path}/counts/{build_args[2]}/*.csv")
             for export_table in config["export_config"]["export_list"]:
                 assert any(export_table in x for x in csv_files)
@@ -261,7 +262,6 @@ def test_cli_creates_study(tmp_path):
         source = toml.load(file)
     with open(f"{tmp_path}/studydir/manifest.toml", encoding="UTF-8") as file:
         target = toml.load(file)
-    print(source, target)
     assert source == target
 
 
