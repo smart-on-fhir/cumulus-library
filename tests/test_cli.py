@@ -1,26 +1,51 @@
 """ tests for the cli interface to studies """
+import glob
 import os
 import sysconfig
+import tempfile
 
 from contextlib import nullcontext as does_not_raise
-from pathlib import Path
+from pathlib import Path, PosixPath
 from unittest import mock
 
 import pytest
 import requests
 import requests_mock
+import toml
 
 from cumulus_library import cli
 from cumulus_library import upload
+from cumulus_library.databases import DuckDatabaseBackend
+from tests.conftest import duckdb_args
 
 
-@mock.patch("pyathena.connect")
-def test_cli_invalid_study(mock_connect):  # pylint: disable=unused-argument
+class MockVocabBsv:
+    builtin_open = open
+
+    def open(self, *args, **kwargs):
+        if str(args[0]).endswith(".bsv"):
+            print(args)
+            args = (
+                PosixPath(f"./tests/test_data/mock_bsvs/{str(args[0]).split('/')[-1]}"),
+                "r",
+            )
+        return self.builtin_open(*args, **kwargs)
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+def test_cli_invalid_study(tmp_path):
     with pytest.raises(SystemExit):
-        cli.main(cli_args=["build", "-t", "foo"])
+        args = duckdb_args(["build", "-t", "foo"], tmp_path)
+        cli.main(cli_args=args)
 
 
-@mock.patch("pyathena.connect")
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 @pytest.mark.parametrize(
     "args",
     [
@@ -28,7 +53,7 @@ def test_cli_invalid_study(mock_connect):  # pylint: disable=unused-argument
         (["-t", "all"]),
     ],
 )
-def test_cli_no_reads_or_writes(mock_connect, args):  # pylint: disable=unused-argument
+def test_cli_early_exit(args):
     with pytest.raises(SystemExit):
         cli.main(cli_args=args)
 
@@ -37,15 +62,26 @@ def test_cli_no_reads_or_writes(mock_connect, args):  # pylint: disable=unused-a
     os.environ,
     clear=True,
 )
-@mock.patch("pyathena.connect")
 @mock.patch("sysconfig.get_path")
 @mock.patch("json.load")
 @pytest.mark.parametrize(
-    "args,raises",
+    "args,raises,expected",
     [
-        (["build", "-t", "core", "--database", "test"], does_not_raise()),
-        (["build", "-t", "study_python_valid", "--database", "test"], does_not_raise()),
-        (["build", "-t", "wrong", "--database", "test"], pytest.raises(SystemExit)),
+        (
+            [
+                "build",
+                "-t",
+                "core",
+            ],
+            does_not_raise(),
+            "core__condition",
+        ),
+        (
+            ["build", "-t", "study_python_valid"],
+            does_not_raise(),
+            "study_python_valid__table",
+        ),
+        (["build", "-t", "wrong"], pytest.raises(SystemExit), None),
         (
             [
                 "build",
@@ -57,11 +93,12 @@ def test_cli_no_reads_or_writes(mock_connect, args):  # pylint: disable=unused-a
                 "test",
             ],
             does_not_raise(),
+            "study_valid__table",
         ),
     ],
 )
 def test_cli_path_mapping(
-    mock_load_json, mock_path, mock_connect, args, raises
+    mock_load_json, mock_path, tmp_path, args, raises, expected
 ):  # pylint: disable=unused-argument
     with raises:
         mock_path.return_value = f"{Path(__file__).resolve().parents[0]}" "/test_data/"
@@ -72,9 +109,10 @@ def test_cli_path_mapping(
             },
         }
         sysconfig.get_path("purelib")
+        args = duckdb_args(args, tmp_path)
         builder = cli.main(cli_args=args)
-        builder.cursor.execute.assert_called()
-        assert f"{args[2]}__" in builder.cursor.execute.call_args.args[0]
+        db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        assert (expected) in db.cursor().execute("show tables").fetchone()[0]
 
 
 @mock.patch.dict(
@@ -82,14 +120,11 @@ def test_cli_path_mapping(
     clear=True,
 )
 @mock.patch("sysconfig.get_path")
-@mock.patch("pyathena.connect")
-def test_count_builder_mapping(
-    mock_connect, mock_path
-):  # pylint: disable=unused-argument
+def test_count_builder_mapping(mock_path, tmp_path):
     mock_path.return_value = f"{Path(__file__).resolve().parents[0]}" "/test_data/"
     with does_not_raise():
-        builder = cli.main(
-            cli_args=[
+        args = duckdb_args(
+            [
                 "build",
                 "-t",
                 "study_python_counts_valid",
@@ -97,10 +132,15 @@ def test_count_builder_mapping(
                 "./tests/test_data",
                 "--database",
                 "test",
-            ]
+            ],
+            tmp_path,
         )
-        builder.cursor.execute.assert_called()
-        assert "study_python_counts_valid__" in builder.cursor.execute.call_args.args[0]
+        cli.main(cli_args=args)
+        db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        assert [
+            ("study_python_counts_valid__table1",),
+            ("study_python_counts_valid__table2",),
+        ] == db.cursor().execute("show tables").fetchall()
 
 
 @mock.patch.dict(
@@ -108,7 +148,6 @@ def test_count_builder_mapping(
     clear=True,
 )
 @mock.patch("sysconfig.get_path")
-@mock.patch("pyathena.connect")
 @pytest.mark.parametrize(
     "args,expected",
     [
@@ -117,8 +156,6 @@ def test_count_builder_mapping(
                 "clean",
                 "-t",
                 "core",
-                "--database",
-                "test",
             ],
             "core__",
         ),
@@ -126,108 +163,106 @@ def test_count_builder_mapping(
             [
                 "clean",
                 "--prefix",
-                "-t" "foo",
-                "--database",
-                "test",
+                "-t",
+                "foo",
             ],
             "foo",
         ),
     ],
 )
-def test_clean(
-    mock_connect, mock_path, args, expected
-):  # pylint: disable=unused-argument
+def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-argument
     mock_path.return_value = f"{Path(__file__).resolve().parents[0]}" "/test_data/"
+    cli.main(
+        cli_args=duckdb_args(["build", "-t", "core", "--database", "test"], tmp_path)
+    )
     with does_not_raise():
-        builder = cli.main(cli_args=args)
-        builder.cursor.execute.assert_called()
-        assert expected in builder.cursor.execute.call_args.args[0]
+        cli.main(
+            cli_args=args + ["--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
+        )
+        db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        for table in db.cursor().execute("show tables").fetchall():
+            assert expected not in table
+
+
+@mock.patch("builtins.open", MockVocabBsv().open)
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@pytest.mark.parametrize(
+    "build_args,export_args,expected_tables",
+    [
+        (["build", "-t", "core"], ["export", "-t", "core"], 37),
+        (
+            [  # checking that a study is loaded from a child directory of a user-defined path
+                "build",
+                "-t",
+                "study_valid",
+                "-s",
+                "tests/test_data/",
+            ],
+            ["export", "-t", "study_valid", "-s", "tests/test_data/"],
+            1,
+        ),
+        (["build", "-t", "vocab"], None, 2),
+        (
+            [  # checking that a study is loaded from the directory of a user-defined path
+                "build",
+                "-t",
+                "study_valid",
+                "-s",
+                "tests/test_data/study_valid/",
+            ],
+            ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
+            1,
+        ),
+    ],
+)
+def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables):
+    with does_not_raise():
+        build_args = duckdb_args(build_args, tmp_path)
+        cli.main(cli_args=build_args)
+        if export_args is not None:
+            export_args = duckdb_args(export_args, tmp_path)
+            cli.main(cli_args=export_args)
+
+        db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        found_tables = db.cursor().execute("show tables").fetchall()
+        assert len(found_tables) == expected_tables
+        for table in found_tables:
+            # If a table was created by this run, check it has the study prefix
+            if "__" in table[0]:
+                assert build_args[2] in table[0]
+
+        if export_args is not None:
+            # Expected length if not specifying a study dir
+            if len(build_args) == 9:
+                manifest_dir = cli.get_study_dict([])[build_args[2]]
+            else:
+                manifest_dir = cli.get_study_dict(
+                    [cli.get_abs_posix_path(build_args[4])]
+                )[build_args[2]]
+
+            with open(f"{manifest_dir}/manifest.toml", encoding="UTF-8") as file:
+                config = toml.load(file)
+            csv_files = glob.glob(f"{tmp_path}/counts/{build_args[2]}/*.csv")
+            for export_table in config["export_config"]["export_list"]:
+                assert any(export_table in x for x in csv_files)
 
 
 @mock.patch.dict(
     os.environ,
     clear=True,
 )
-@mock.patch("pyathena.connect")
-@pytest.mark.parametrize(
-    "args,cursor_calls,pandas_cursor_calls",
-    [
-        (["build", "-t", "vocab", "--database", "test"], 344, 0),
-        (["build", "-t", "core", "--database", "test"], 52, 0),
-        (["export", "-t", "core", "--database", "test"], 1, 10),
-        (
-            [
-                "build",
-                "-t",
-                "study_valid",
-                "-s",
-                "tests/test_data/",
-                "--database",
-                "test",
-            ],
-            4,
-            0,
-        ),
-        (
-            [
-                "build",
-                "-t",
-                "study_valid",
-                "-s",
-                "tests/test_data/study_valid/",
-                "--database",
-                "test",
-            ],
-            4,
-            0,
-        ),
-        (
-            ["build", "-t", "core", "-s", "tests/test_data/", "--database", "test"],
-            52,
-            0,
-        ),
-        (
-            [
-                "export",
-                "-t",
-                "core",
-                "--database",
-                "test",
-                "cumulus_library/data_export",
-            ],
-            1,
-            10,
-        ),
-    ],
-)
-def test_cli_executes_queries(mock_connect, args, cursor_calls, pandas_cursor_calls):
-    mock_connection = mock.MagicMock()
-    normal_cursor = mock.MagicMock()
-    pandas_cursor = mock.MagicMock()
-    mock_connect.return_value = mock_connection
-    mock_connection.cursor.side_effect = [pandas_cursor, normal_cursor]
-    cli.main(cli_args=args)
-    assert normal_cursor.execute.call_count == cursor_calls
-    assert pandas_cursor.execute.call_count == pandas_cursor_calls
-
-
-@mock.patch("pathlib.PosixPath.mkdir")
-@mock.patch("pathlib.PosixPath.write_bytes")
-@pytest.mark.parametrize(
-    "args,raises",
-    [
-        (["create"], does_not_raise()),
-        (["create", "/tmp/foo"], does_not_raise()),
-        (["create", "./test_data"], does_not_raise()),
-        (["create", "./test_data/fakedir"], does_not_raise()),
-    ],
-)
-def test_cli_creates_studies(
-    mock_mkdir, mock_write, args, raises
-):  # pylint: disable=unused-argument
-    with raises:
-        cli.main(cli_args=args)
-        assert mock_write.called
+def test_cli_creates_study(tmp_path):
+    cli.main(cli_args=["create", f"{tmp_path}/studydir/"])
+    with open(
+        "./cumulus_library/studies/template/manifest.toml", encoding="UTF-8"
+    ) as file:
+        source = toml.load(file)
+    with open(f"{tmp_path}/studydir/manifest.toml", encoding="UTF-8") as file:
+        target = toml.load(file)
+    assert source == target
 
 
 @mock.patch.dict(

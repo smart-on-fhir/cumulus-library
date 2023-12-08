@@ -3,11 +3,17 @@
 import glob
 import os
 import tempfile
+
+from unittest import mock
 from pathlib import Path
 
 from cumulus_library import cli
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 def test_duckdb_core_build_and_export():
     data_dir = f"{Path(__file__).parent}/test_data/duckdb_data"
 
