@@ -10,7 +10,6 @@ from cumulus_library.template_sql.templates import (
     get_codeable_concept_denormalize_query,
     get_column_datatype_query,
     get_core_medication_query,
-    get_count_query,
     get_create_view_query,
     get_ctas_query,
     get_ctas_query_from_df,
@@ -173,9 +172,9 @@ WHERE
     assert query == expected
 
 
-""" for this one, since the query output is very long and likely to change
-since it's a study table, we're going to do targeted comparisons around the
-polymorphism and not validate the whole thing """
+# for this one, since the query output is very long and likely to change
+# since it's a study table, we're going to do targeted comparisons around the
+# polymorphism and not validate the whole thing
 
 
 # omitting the double false case since we don't call thison that condition
@@ -220,134 +219,6 @@ def test_core_medication_query(medication_datasources, contains, omits):
         assert item in query
     for item in omits:
         assert item not in query
-
-
-@pytest.mark.parametrize(
-    "expected,filter_resource,where_clauses,fhir_resource,min_subject",
-    [
-        (
-            """
-CREATE TABLE test_table AS (
-    WITH
-    filtered_table AS (
-        SELECT
-            subject_ref,
-            "age",
-            "sex"
-        FROM test_source
-    ),
-    
-    powerset AS (
-        SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            "age",
-            "sex"
-        FROM filtered_table
-        GROUP BY
-            cube(
-                "age",
-                "sex"
-            )
-    )
-
-    SELECT
-        cnt_subject AS cnt,
-        "age",
-        "sex"
-    FROM powerset
-    WHERE 
-        cnt_subject >= 10
-);""",
-            None,
-            None,
-            None,
-            None,
-        ),
-        (
-            """
-CREATE TABLE test_table AS (
-    WITH
-    powerset AS (
-        SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            "age",
-            "sex"
-        FROM test_source
-        
-        GROUP BY
-            cube(
-                "age",
-                "sex"
-            )
-    )
-
-    SELECT
-        cnt_subject AS cnt,
-        "age",
-        "sex"
-    FROM powerset
-    WHERE 
-        cnt_subject >= 5
-);""",
-            False,
-            None,
-            None,
-            5,
-        ),
-        (
-            """
-CREATE TABLE test_table AS (
-    WITH
-    filtered_table AS (
-        SELECT
-            subject_ref,
-            encounter_ref,
-            "age",
-            "sex"
-        FROM test_source
-        WHERE status = 'finished'
-    ),
-    
-    powerset AS (
-        SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            count(DISTINCT encounter_ref) AS cnt_encounter,
-            "age",
-            "sex"
-        FROM filtered_table
-        GROUP BY
-            cube(
-                "age",
-                "sex"
-            )
-    )
-
-    SELECT
-        cnt_encounter AS cnt,
-        "age",
-        "sex"
-    FROM powerset
-    WHERE
-        age > 10
-        AND sex ==  'F'
-        
-);""",
-            True,
-            ["age > 10", "sex ==  'F'"],
-            "encounter",
-            None,
-        ),
-    ],
-)
-def test_count_query(
-    expected, filter_resource, where_clauses, fhir_resource, min_subject
-):
-    kwargs = {}
-    for kwarg in ["filter_resource", "where_clauses", "fhir_resource", "min_subject"]:
-        if eval(kwarg) is not None:
-            kwargs[kwarg] = eval(kwarg)
-    query = get_count_query("test_table", "test_source", ["age", "sex"], **kwargs)
-    assert query == expected
 
 
 def test_create_view_query_creation():

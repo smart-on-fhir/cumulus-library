@@ -1062,8 +1062,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 302,2019-12-01,,,,white,not hispanic or latino
 301,,,61,female,white,not hispanic or latino
 301,,ambulatory,69,,white,
-301,,ambulatory,16,female,,not hispanic or latino
 301,,ambulatory,2,,,
+301,,ambulatory,16,female,,not hispanic or latino
 301,2022-03-01,,,,white,not hispanic or latino
 301,2020-05-01,,,,white,not hispanic or latino
 301,2018-11-01,,,,white,not hispanic or latino
@@ -1306,8 +1306,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 265,,,60,male,white,not hispanic or latino
 265,,,56,female,white,
 265,,,55,female,,not hispanic or latino
-265,,,19,,white,
 265,,,2,,white,not hispanic or latino
+265,,,19,,white,
 265,2020-02-01,ambulatory,,,white,
 265,2017-11-01,ambulatory,,,white,not hispanic or latino
 264,,,83,,,not hispanic or latino
@@ -1320,9 +1320,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 264,2019-02-01,ambulatory,,,white,not hispanic or latino
 264,2016-11-01,ambulatory,,,white,not hispanic or latino
 263,,,14,female,white,
+263,,ambulatory,3,,,
 263,,ambulatory,29,,white,not hispanic or latino
 263,,ambulatory,18,female,,
-263,,ambulatory,3,,,
 263,2019-11-01,ambulatory,,,,not hispanic or latino
 262,,,83,,white,not hispanic or latino
 262,,,56,female,white,not hispanic or latino
@@ -1333,9 +1333,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 262,,ambulatory,53,,,not hispanic or latino
 262,2021-05-01,ambulatory,,female,white,
 261,,,75,male,white,
+261,,,3,,,not hispanic or latino
 261,,,25,,white,not hispanic or latino
 261,,,14,female,white,not hispanic or latino
-261,,,3,,,not hispanic or latino
 261,,ambulatory,60,male,,not hispanic or latino
 261,,ambulatory,55,female,,
 261,,ambulatory,34,,,not hispanic or latino
@@ -1395,8 +1395,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 253,,,75,male,white,not hispanic or latino
 253,,,47,female,white,
 253,,,42,,white,
-253,,,28,female,white,
 253,,,3,,white,
+253,,,28,female,white,
 253,,ambulatory,83,,white,
 253,,ambulatory,78,,,not hispanic or latino
 253,,ambulatory,60,male,white,
@@ -1431,9 +1431,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 249,2019-09-01,,,,white,not hispanic or latino
 248,,ambulatory,71,,,not hispanic or latino
 248,,ambulatory,51,,white,not hispanic or latino
+248,,ambulatory,3,,,not hispanic or latino
 248,,ambulatory,20,,,not hispanic or latino
 248,,ambulatory,19,,white,
-248,,ambulatory,3,,,not hispanic or latino
 248,2021-05-01,ambulatory,,female,white,not hispanic or latino
 247,,,43,,white,not hispanic or latino
 247,,,27,,white,not hispanic or latino
@@ -1486,8 +1486,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 242,2021-07-01,,,female,,
 241,,ambulatory,75,male,white,
 241,,ambulatory,66,,white,
-241,,ambulatory,27,,,not hispanic or latino
 241,,ambulatory,3,,white,
+241,,ambulatory,27,,,not hispanic or latino
 241,2021-10-01,,,female,white,
 240,,,69,male,,not hispanic or latino
 240,,,58,female,,
@@ -1612,15 +1612,15 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 227,,ambulatory,58,female,,not hispanic or latino
 227,,ambulatory,54,female,white,
 227,,ambulatory,28,female,,not hispanic or latino
+226,,,9,,,
 226,,,78,male,,
 226,,,69,male,white,
 226,,,69,male,white,not hispanic or latino
 226,,,68,male,,not hispanic or latino
-226,,,9,,,
 226,,ambulatory,58,male,white,
+226,,ambulatory,3,,white,not hispanic or latino
 226,,ambulatory,23,,,not hispanic or latino
 226,,ambulatory,22,,white,
-226,,ambulatory,3,,white,not hispanic or latino
 226,2023-02-01,,,female,,
 226,2021-01-01,,,female,,not hispanic or latino
 226,2018-09-01,,,female,,not hispanic or latino
@@ -1814,11 +1814,11 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 208,2019-04-01,ambulatory,,female,,
 208,2019-01-01,,,female,,not hispanic or latino
 208,2017-03-01,,,male,,
+207,,,9,,white,
 207,,,79,male,,
 207,,,79,male,,not hispanic or latino
 207,,,74,male,,
 207,,,59,male,,
-207,,,9,,white,
 207,,,0,male,,
 207,,,0,female,,
 207,,ambulatory,57,male,,not hispanic or latino
@@ -1831,10 +1831,10 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 206,,,50,female,,not hispanic or latino
 206,,,40,female,,
 206,,,19,female,,not hispanic or latino
+206,,ambulatory,9,,,
 206,,ambulatory,49,female,,
 206,,ambulatory,45,,white,not hispanic or latino
 206,,ambulatory,41,female,,not hispanic or latino
-206,,ambulatory,9,,,
 206,,ambulatory,0,female,,
 206,2022-05-01,ambulatory,,female,,not hispanic or latino
 206,2020-07-01,,,female,,
@@ -1938,9 +1938,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 200,2020-06-01,,,female,,
 200,2019-12-01,ambulatory,,female,,
 199,,,72,male,white,
+199,,,4,,,
 199,,,21,female,,not hispanic or latino
 199,,,10,,,
-199,,,4,,,
 199,,ambulatory,47,male,,
 199,,ambulatory,32,female,white,
 199,,ambulatory,29,female,white,
@@ -2019,12 +2019,12 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 195,2019-03-01,ambulatory,,female,,
 195,2018-01-01,,,male,,not hispanic or latino
 195,2017-08-01,,,male,,
+194,,,7,,,
 194,,,48,female,white,
 194,,,27,female,white,not hispanic or latino
 194,,,26,female,,not hispanic or latino
 194,,,20,female,white,
 194,,,16,male,,
-194,,,7,,,
 194,,inpatient encounter,,male,,not hispanic or latino
 194,,ambulatory,72,male,,not hispanic or latino
 194,,ambulatory,67,male,white,
@@ -2074,9 +2074,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 192,2018-01-01,,,female,,
 192,2017-10-01,,,male,,
 192,2017-06-01,,,male,,
+191,,,9,,,not hispanic or latino
 191,,,47,male,white,
 191,,,12,,white,
-191,,,9,,,not hispanic or latino
 191,,,1,female,,not hispanic or latino
 191,,ambulatory,40,female,,
 191,,ambulatory,33,male,,not hispanic or latino
@@ -2093,11 +2093,11 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 190,,,49,female,,not hispanic or latino
 190,,,26,female,white,
 190,,ambulatory,59,male,,
+190,,ambulatory,4,,,
 190,,ambulatory,38,,,not hispanic or latino
 190,,ambulatory,30,female,,
 190,,ambulatory,26,female,,
 190,,ambulatory,10,,,
-190,,ambulatory,4,,,
 190,2022-09-01,ambulatory,,female,white,not hispanic or latino
 190,2021-11-01,ambulatory,,male,,
 190,2021-06-01,ambulatory,,male,white,not hispanic or latino
@@ -2148,6 +2148,7 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 188,2016-07-01,,,female,,
 188,2016-06-01,,,male,,not hispanic or latino
 187,,,74,male,white,
+187,,ambulatory,9,,white,
 187,,ambulatory,78,male,,
 187,,ambulatory,69,male,white,
 187,,ambulatory,69,male,white,not hispanic or latino
@@ -2156,7 +2157,6 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 187,,ambulatory,25,female,white,
 187,,ambulatory,13,female,,
 187,,ambulatory,13,female,,not hispanic or latino
-187,,ambulatory,9,,white,
 187,2022-02-01,ambulatory,,female,,not hispanic or latino
 187,2021-11-01,,,male,,not hispanic or latino
 187,2021-10-01,,,male,,
@@ -2235,8 +2235,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 185,2016-07-01,ambulatory,,male,,
 184,,,73,male,white,
 184,,,47,male,white,not hispanic or latino
-184,,,23,female,,
 184,,,4,,white,
+184,,,23,female,,
 184,,ambulatory,78,male,white,
 184,,ambulatory,65,female,,
 184,,ambulatory,34,female,white,
@@ -2298,8 +2298,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 182,2016-09-01,ambulatory,,male,,
 181,,,73,male,white,not hispanic or latino
 181,,,44,male,white,
-181,,,23,female,,not hispanic or latino
 181,,,4,,,not hispanic or latino
+181,,,23,female,,not hispanic or latino
 181,2023-03-01,ambulatory,,female,white,
 181,2022-03-01,ambulatory,,female,,
 181,2021-12-01,,,male,white,
@@ -2408,14 +2408,14 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 177,2018-06-01,ambulatory,,female,white,
 177,2018-04-01,ambulatory,,female,,
 177,2017-04-01,,,male,,
+176,,,9,,white,not hispanic or latino
+176,,,8,,,
 176,,,40,female,,not hispanic or latino
 176,,,40,female,white,
 176,,,26,female,white,not hispanic or latino
 176,,,22,female,,not hispanic or latino
 176,,,13,female,white,
 176,,,13,female,white,not hispanic or latino
-176,,,9,,white,not hispanic or latino
-176,,,8,,,
 176,,ambulatory,7,,,
 176,2023-01-01,,,male,,
 176,2021-12-01,,,male,white,not hispanic or latino
@@ -2442,10 +2442,10 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 175,,,18,male,,
 175,,ambulatory,74,male,white,
 175,,ambulatory,49,female,white,
+175,,ambulatory,4,,white,
 175,,ambulatory,26,female,white,
 175,,ambulatory,25,female,white,not hispanic or latino
 175,,ambulatory,24,,white,not hispanic or latino
-175,,ambulatory,4,,white,
 175,2023-02-01,ambulatory,,female,white,not hispanic or latino
 175,2022-03-01,,,female,,not hispanic or latino
 175,2020-09-01,ambulatory,,female,,
@@ -2459,13 +2459,13 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 174,,,,,unknown,
 174,,,,,unknown,not hispanic or latino
 174,,,23,female,white,
-174,,,12,,white,not hispanic or latino
 174,,,2,male,,
+174,,,12,,white,not hispanic or latino
 174,,,0,male,white,
 174,,,0,female,,not hispanic or latino
+174,,ambulatory,9,,,not hispanic or latino
 174,,ambulatory,44,male,white,
 174,,ambulatory,22,female,,
-174,,ambulatory,9,,,not hispanic or latino
 174,2022-07-01,,,male,,
 174,2022-04-01,,,female,white,not hispanic or latino
 174,2019-08-01,,,female,white,
@@ -2480,9 +2480,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 174,2016-10-01,ambulatory,,female,,
 174,2016-09-01,ambulatory,,male,,not hispanic or latino
 174,2016-07-01,,,male,white,not hispanic or latino
-173,,,15,male,,
 173,,,7,,,not hispanic or latino
 173,,,6,,,
+173,,,15,male,,
 173,,ambulatory,44,female,,
 173,,ambulatory,23,female,,
 173,,ambulatory,0,female,,not hispanic or latino
@@ -2521,10 +2521,10 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 172,,inpatient encounter,,female,white,
 172,,ambulatory,65,female,white,not hispanic or latino
 172,,ambulatory,52,,white,
+172,,ambulatory,4,,,not hispanic or latino
 172,,ambulatory,39,,white,not hispanic or latino
 172,,ambulatory,20,female,white,not hispanic or latino
 172,,ambulatory,15,male,,
-172,,ambulatory,4,,,not hispanic or latino
 172,,ambulatory,0,male,white,
 172,2022-11-01,,,female,white,not hispanic or latino
 172,2021-11-01,ambulatory,,male,white,
@@ -2549,10 +2549,10 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 172,2017-07-01,,,male,white,
 172,2017-03-01,,,male,white,not hispanic or latino
 171,,,53,female,white,not hispanic or latino
+171,,,5,,,
 171,,,44,female,,not hispanic or latino
 171,,,23,female,white,not hispanic or latino
 171,,,19,female,white,
-171,,,5,,,
 171,,,1,female,white,not hispanic or latino
 171,,home health,,,white,
 171,,ambulatory,73,male,,
@@ -2581,8 +2581,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 171,2017-01-01,,,female,white,
 171,2016-10-01,,,female,,not hispanic or latino
 171,2016-10-01,,,female,white,
-170,,,33,female,white,
 170,,,4,,white,not hispanic or latino
+170,,,33,female,white,
 170,,ambulatory,74,male,,not hispanic or latino
 170,,ambulatory,62,male,,
 170,,ambulatory,62,male,,not hispanic or latino
@@ -2606,8 +2606,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 170,2016-09-01,,,male,white,
 169,,,50,female,white,not hispanic or latino
 169,,,48,female,white,not hispanic or latino
-169,,,10,,white,
 169,,,2,male,,not hispanic or latino
+169,,,10,,white,
 169,,ambulatory,51,female,,
 169,,ambulatory,45,female,,
 169,,ambulatory,18,male,,
@@ -2763,9 +2763,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 163,,ambulatory,26,female,white,not hispanic or latino
 163,,ambulatory,23,female,white,
 163,,ambulatory,21,female,white,not hispanic or latino
+163,,ambulatory,2,male,,not hispanic or latino
 163,,ambulatory,19,female,white,
 163,,ambulatory,10,,white,
-163,,ambulatory,2,male,,not hispanic or latino
 163,2021-09-01,,,male,white,not hispanic or latino
 163,2021-01-01,ambulatory,,male,white,not hispanic or latino
 163,2020-12-01,,,male,white,not hispanic or latino
@@ -2785,12 +2785,12 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 162,,,41,female,white,
 162,,,11,,,not hispanic or latino
 162,,,10,,,not hispanic or latino
+162,,ambulatory,8,,,
 162,,ambulatory,73,male,white,
+162,,ambulatory,5,,,
 162,,ambulatory,40,female,,not hispanic or latino
 162,,ambulatory,39,female,,not hispanic or latino
 162,,ambulatory,33,female,white,
-162,,ambulatory,8,,,
-162,,ambulatory,5,,,
 162,2023-01-01,,,male,,not hispanic or latino
 162,2023-01-01,ambulatory,,male,,
 162,2022-11-01,,,male,,
@@ -2820,12 +2820,12 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 161,,,24,female,white,
 161,,ambulatory,71,female,,
 161,,ambulatory,71,female,white,
+161,,ambulatory,6,,,
 161,,ambulatory,40,female,white,
+161,,ambulatory,4,,white,not hispanic or latino
 161,,ambulatory,37,female,,
 161,,ambulatory,36,female,,not hispanic or latino
 161,,ambulatory,23,female,white,not hispanic or latino
-161,,ambulatory,6,,,
-161,,ambulatory,4,,white,not hispanic or latino
 161,2022-06-01,ambulatory,,male,,
 161,2022-04-01,ambulatory,,male,,
 161,2020-12-01,ambulatory,,female,,not hispanic or latino
@@ -2844,12 +2844,12 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 161,2017-01-01,ambulatory,,female,white,
 161,2016-12-01,ambulatory,,female,white,
 161,2016-06-01,,,female,,not hispanic or latino
+160,,,8,,,not hispanic or latino
 160,,,63,male,,
 160,,,63,male,,not hispanic or latino
-160,,,22,female,white,
-160,,,8,,,not hispanic or latino
 160,,,6,,,not hispanic or latino
 160,,,5,,,not hispanic or latino
+160,,,22,female,white,
 160,,,2,male,white,
 160,,ambulatory,7,,white,
 160,2022-06-01,,,male,,not hispanic or latino
@@ -2870,8 +2870,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 160,2016-10-01,ambulatory,,male,,not hispanic or latino
 159,,,46,male,,
 159,,,34,female,,not hispanic or latino
-159,,ambulatory,73,male,white,not hispanic or latino
 159,,ambulatory,9,,white,not hispanic or latino
+159,,ambulatory,73,male,white,not hispanic or latino
 159,2023-03-01,,,male,,not hispanic or latino
 159,2022-12-01,,,male,,
 159,2022-09-01,,,male,,
@@ -2900,12 +2900,12 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 159,2016-09-01,,,female,white,not hispanic or latino
 158,,,83,male,,
 158,,,83,male,white,
+158,,,8,,white,
+158,,,7,,white,not hispanic or latino
 158,,,51,female,,not hispanic or latino
 158,,,39,female,white,
 158,,,18,male,,not hispanic or latino
 158,,,16,male,white,
-158,,,8,,white,
-158,,,7,,white,not hispanic or latino
 158,,home health,,male,,
 158,,ambulatory,53,female,white,not hispanic or latino
 158,,ambulatory,45,female,,not hispanic or latino
@@ -2973,8 +2973,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 155,,ambulatory,45,female,white,
 155,,ambulatory,44,female,white,
 155,,ambulatory,22,female,white,
-155,,ambulatory,19,female,white,not hispanic or latino
 155,,ambulatory,2,male,white,
+155,,ambulatory,19,female,white,not hispanic or latino
 155,2023-03-01,,,male,white,
 155,2022-10-01,,,male,,
 155,2022-05-01,,,male,white,not hispanic or latino
@@ -3047,11 +3047,11 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 153,2016-07-01,,,female,white,not hispanic or latino
 153,2016-06-01,ambulatory,,male,white,not hispanic or latino
 152,,,70,male,,
+152,,,6,,white,
+152,,,5,,white,
 152,,,45,female,white,not hispanic or latino
 152,,,32,male,white,not hispanic or latino
 152,,,18,male,white,
-152,,,6,,white,
-152,,,5,,white,
 152,,,0,female,white,not hispanic or latino
 152,,ambulatory,55,male,,
 152,,ambulatory,24,female,white,
@@ -3071,8 +3071,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 152,2016-07-01,ambulatory,,female,white,
 152,2016-06-01,ambulatory,,female,white,
 151,,,56,male,,not hispanic or latino
-151,,ambulatory,16,male,white,
 151,,ambulatory,5,,,not hispanic or latino
+151,,ambulatory,16,male,white,
 151,2022-07-01,ambulatory,,male,,not hispanic or latino
 151,2022-06-01,,,male,white,
 151,2022-03-01,,,male,white,
@@ -3096,8 +3096,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 150,,,30,female,white,not hispanic or latino
 150,,ambulatory,46,male,,
 150,,ambulatory,32,male,,
-150,,ambulatory,11,,white,
 150,,ambulatory,2,male,white,not hispanic or latino
+150,,ambulatory,11,,white,
 150,2022-07-01,,,male,white,not hispanic or latino
 150,2022-05-01,ambulatory,,male,white,
 150,2022-04-01,,,male,white,not hispanic or latino
@@ -3115,10 +3115,10 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 150,2017-11-01,,,female,,not hispanic or latino
 150,2017-06-01,ambulatory,,female,white,not hispanic or latino
 149,,,43,male,,
+149,,ambulatory,6,,,not hispanic or latino
 149,,ambulatory,56,male,,
 149,,ambulatory,41,female,white,
 149,,ambulatory,11,,,not hispanic or latino
-149,,ambulatory,6,,,not hispanic or latino
 149,2022-11-01,,,male,white,
 149,2020-11-01,,,male,white,not hispanic or latino
 149,2020-10-01,ambulatory,,female,,not hispanic or latino
@@ -3136,13 +3136,13 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 148,,,55,male,,not hispanic or latino
 148,,,33,female,,not hispanic or latino
 148,,,3,male,,not hispanic or latino
+148,,ambulatory,8,,,not hispanic or latino
 148,,ambulatory,71,female,,not hispanic or latino
 148,,ambulatory,71,female,white,not hispanic or latino
 148,,ambulatory,63,male,,
 148,,ambulatory,63,male,,not hispanic or latino
 148,,ambulatory,34,female,,not hispanic or latino
 148,,ambulatory,24,female,white,not hispanic or latino
-148,,ambulatory,8,,,not hispanic or latino
 148,2023-03-01,,,male,white,not hispanic or latino
 148,2023-03-01,ambulatory,,male,,not hispanic or latino
 148,2023-02-01,,,male,,not hispanic or latino
@@ -3182,14 +3182,14 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 147,2016-12-01,ambulatory,,male,white,not hispanic or latino
 147,2016-08-01,,,female,white,not hispanic or latino
 147,2016-08-01,ambulatory,,female,white,
+146,,,8,,white,not hispanic or latino
+146,,,5,,white,not hispanic or latino
 146,,,42,female,white,
 146,,,38,female,,
 146,,,11,,white,not hispanic or latino
-146,,,8,,white,not hispanic or latino
-146,,,5,,white,not hispanic or latino
+146,,ambulatory,8,,white,
 146,,ambulatory,51,female,,not hispanic or latino
 146,,ambulatory,18,male,white,
-146,,ambulatory,8,,white,
 146,2023-02-01,,,male,white,
 146,2022-12-01,,,male,,not hispanic or latino
 146,2022-12-01,ambulatory,,male,,
@@ -3251,13 +3251,13 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 144,2017-01-01,ambulatory,,female,white,not hispanic or latino
 144,2016-11-01,,,male,white,not hispanic or latino
 144,2016-06-01,,,female,white,not hispanic or latino
-143,,,37,female,,not hispanic or latino
 143,,,6,,white,not hispanic or latino
-143,,ambulatory,51,female,white,
-143,,ambulatory,36,female,white,not hispanic or latino
+143,,,37,female,,not hispanic or latino
 143,,ambulatory,7,,white,not hispanic or latino
 143,,ambulatory,6,,white,
+143,,ambulatory,51,female,white,
 143,,ambulatory,5,,white,
+143,,ambulatory,36,female,white,not hispanic or latino
 143,2023-01-01,ambulatory,,male,white,
 143,2022-04-01,ambulatory,,male,white,
 143,2022-03-01,ambulatory,,female,white,not hispanic or latino
@@ -3361,8 +3361,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 137,,,30,male,white,not hispanic or latino
 137,,ambulatory,70,male,,not hispanic or latino
 137,,ambulatory,56,male,,not hispanic or latino
-137,,ambulatory,10,,white,not hispanic or latino
 137,,ambulatory,5,,white,not hispanic or latino
+137,,ambulatory,10,,white,not hispanic or latino
 137,2023-02-01,,,male,white,not hispanic or latino
 137,2022-11-01,,,male,white,not hispanic or latino
 137,2022-08-01,,,male,white,not hispanic or latino
@@ -3382,11 +3382,11 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 137,2017-04-01,ambulatory,,male,white,not hispanic or latino
 136,,,56,male,white,
 136,,,41,female,white,not hispanic or latino
-136,,,17,male,,not hispanic or latino
 136,,,3,male,white,not hispanic or latino
+136,,,17,male,,not hispanic or latino
+136,,ambulatory,8,,white,not hispanic or latino
 136,,ambulatory,51,male,,
 136,,ambulatory,34,female,white,not hispanic or latino
-136,,ambulatory,8,,white,not hispanic or latino
 136,2023-02-01,ambulatory,,male,,not hispanic or latino
 136,2023-02-01,ambulatory,,male,white,
 136,2022-12-01,,,male,white,not hispanic or latino
@@ -3404,8 +3404,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 135,,,51,male,,not hispanic or latino
 135,,,46,male,white,
 135,,,18,male,white,not hispanic or latino
-135,,ambulatory,11,,white,not hispanic or latino
 135,,ambulatory,6,,white,not hispanic or latino
+135,,ambulatory,11,,white,not hispanic or latino
 135,2022-12-01,ambulatory,,male,white,
 135,2022-06-01,ambulatory,,male,white,not hispanic or latino
 135,2020-09-01,,,male,white,
@@ -3428,8 +3428,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 133,,ambulatory,46,male,,not hispanic or latino
 133,,ambulatory,40,female,white,not hispanic or latino
 133,,ambulatory,34,male,,
-133,,ambulatory,15,male,white,
 133,,ambulatory,2,female,,
+133,,ambulatory,15,male,white,
 133,2022-10-01,,,male,white,not hispanic or latino
 133,2022-10-01,ambulatory,,male,white,
 133,2022-09-01,,,male,white,not hispanic or latino
@@ -3485,9 +3485,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 129,,,71,male,white,
 129,,,68,female,,not hispanic or latino
 129,,,68,female,white,not hispanic or latino
+129,,,2,female,white,
 129,,,17,male,white,
 129,,,16,male,white,not hispanic or latino
-129,,,2,female,white,
 129,,ambulatory,43,male,white,not hispanic or latino
 129,2020-07-01,ambulatory,,male,white,not hispanic or latino
 129,2020-02-01,ambulatory,,male,,
@@ -3502,9 +3502,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 127,,,43,female,white,
 127,,ambulatory,37,female,white,
 127,,ambulatory,33,female,white,not hispanic or latino
+127,,ambulatory,3,male,white,not hispanic or latino
 127,,ambulatory,17,male,,not hispanic or latino
 127,,ambulatory,14,male,white,
-127,,ambulatory,3,male,white,not hispanic or latino
 127,2023-02-01,ambulatory,,male,white,not hispanic or latino
 127,2022-10-01,ambulatory,,male,white,not hispanic or latino
 127,2022-09-01,ambulatory,,male,white,not hispanic or latino
@@ -3555,8 +3555,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 123,2019-10-01,ambulatory,,male,white,not hispanic or latino
 122,,ambulatory,68,female,,not hispanic or latino
 122,,ambulatory,68,female,white,not hispanic or latino
-122,,ambulatory,17,male,white,
 122,,ambulatory,2,female,white,
+122,,ambulatory,17,male,white,
 122,2020-02-01,,,male,white,not hispanic or latino
 122,2019-07-01,ambulatory,,male,,not hispanic or latino
 121,,,55,male,white,not hispanic or latino
@@ -3597,8 +3597,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 116,2020-04-01,ambulatory,,male,white,
 115,,,54,male,,not hispanic or latino
 115,,home health,,male,white,not hispanic or latino
-115,,ambulatory,12,female,,
 115,,ambulatory,2,female,,not hispanic or latino
+115,,ambulatory,12,female,,
 115,2020-02-01,ambulatory,,male,white,not hispanic or latino
 115,2019-11-01,ambulatory,,male,,not hispanic or latino
 115,2019-09-01,,,male,,
@@ -3620,8 +3620,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 113,,ambulatory,34,male,,not hispanic or latino
 112,,,42,male,,not hispanic or latino
 112,,,34,male,white,
-112,,,12,female,,not hispanic or latino
 112,,,3,female,white,
+112,,,12,female,,not hispanic or latino
 112,,ambulatory,69,female,,not hispanic or latino
 112,,ambulatory,69,female,white,not hispanic or latino
 112,2020-04-01,ambulatory,,male,white,not hispanic or latino
@@ -3629,11 +3629,11 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 111,,,12,female,white,
 111,,ambulatory,28,male,,not hispanic or latino
 111,,ambulatory,17,male,white,not hispanic or latino
+110,,,9,female,,
 110,,,52,female,,not hispanic or latino
 110,,,40,male,,
-110,,,19,male,,
-110,,,9,female,,
 110,,,2,female,white,not hispanic or latino
+110,,,19,male,,
 110,,ambulatory,64,male,white,
 110,,ambulatory,64,male,white,not hispanic or latino
 110,,ambulatory,42,male,,
@@ -3644,8 +3644,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 109,,ambulatory,34,male,white,
 109,,ambulatory,3,female,,not hispanic or latino
 109,,ambulatory,3,female,white,
-108,,,13,male,,not hispanic or latino
 108,,,4,male,,
+108,,,13,male,,not hispanic or latino
 108,,ambulatory,30,male,,not hispanic or latino
 108,,ambulatory,12,female,,not hispanic or latino
 108,2019-09-01,,,male,,not hispanic or latino
@@ -3666,8 +3666,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 106,,,34,male,white,not hispanic or latino
 106,,ambulatory,28,male,white,not hispanic or latino
 106,2019-09-01,,,male,white,
-105,,,40,male,,not hispanic or latino
 105,,,9,female,white,
+105,,,40,male,,not hispanic or latino
 105,,,4,male,,not hispanic or latino
 105,,ambulatory,71,male,,
 105,,ambulatory,43,female,white,not hispanic or latino
@@ -3675,8 +3675,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 105,,ambulatory,38,female,white,
 105,,ambulatory,30,male,white,not hispanic or latino
 104,,,12,male,,
-104,,ambulatory,34,male,white,not hispanic or latino
 104,,ambulatory,9,male,,
+104,,ambulatory,34,male,white,not hispanic or latino
 104,,ambulatory,2,female,white,not hispanic or latino
 103,,,7,male,,
 103,,ambulatory,54,male,,not hispanic or latino
@@ -3684,53 +3684,53 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 103,,ambulatory,12,female,white,not hispanic or latino
 102,,,9,male,white,
 102,,,3,female,white,not hispanic or latino
+102,,ambulatory,9,female,,
 102,,ambulatory,40,male,,not hispanic or latino
 102,,ambulatory,10,female,,
-102,,ambulatory,9,female,,
 102,2019-09-01,ambulatory,,male,,not hispanic or latino
 101,,,52,male,,not hispanic or latino
+101,,ambulatory,4,male,,
 101,,ambulatory,19,male,,
 101,,ambulatory,13,male,,not hispanic or latino
-101,,ambulatory,4,male,,
 100,,,75,female,,not hispanic or latino
 100,,,75,female,white,not hispanic or latino
 100,,,54,male,white,
 100,,,42,male,white,not hispanic or latino
 100,,ambulatory,71,male,,not hispanic or latino
 100,,ambulatory,12,male,,
-99,,,15,male,white,not hispanic or latino
-99,,,13,male,white,
 99,,,9,male,,not hispanic or latino
 99,,,4,male,white,
-99,,ambulatory,15,male,white,not hispanic or latino
+99,,,15,male,white,not hispanic or latino
+99,,,13,male,white,
 99,,ambulatory,3,female,white,not hispanic or latino
+99,,ambulatory,15,male,white,not hispanic or latino
 99,2019-09-01,,,male,white,not hispanic or latino
 99,2019-09-01,ambulatory,,male,white,
 98,,,19,male,,not hispanic or latino
 98,,ambulatory,52,male,,
 98,,ambulatory,42,male,white,
-98,,ambulatory,37,female,white,not hispanic or latino
 98,,ambulatory,4,male,,not hispanic or latino
+98,,ambulatory,37,female,white,not hispanic or latino
 97,,,67,female,,
 97,,,11,female,,
 97,,ambulatory,9,female,white,
-96,,,14,male,white,not hispanic or latino
 96,,,7,male,,not hispanic or latino
 96,,,4,male,white,not hispanic or latino
+96,,,14,male,white,not hispanic or latino
+95,,,8,male,,
 95,,,67,female,,not hispanic or latino
 95,,,67,female,white,
-95,,,31,male,,
-95,,,8,male,,
 95,,,5,male,,
+95,,,31,male,,
 95,,ambulatory,71,male,white,
+94,,,7,male,white,
 94,,,66,female,,
 94,,,54,male,white,not hispanic or latino
+94,,,5,male,,not hispanic or latino
 94,,,40,male,white,
 94,,,38,female,white,not hispanic or latino
 94,,,19,male,white,
 94,,,11,female,,not hispanic or latino
-94,,,7,male,white,
-94,,,5,male,,not hispanic or latino
 94,,ambulatory,7,male,,
 93,,,67,female,white,not hispanic or latino
 93,,,52,male,white,
@@ -3740,15 +3740,15 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 93,,ambulatory,42,male,white,not hispanic or latino
 93,,ambulatory,14,male,white,not hispanic or latino
 93,2019-09-01,ambulatory,,male,white,not hispanic or latino
+92,,,9,female,,not hispanic or latino
 92,,,37,male,,
 92,,,11,female,white,
 92,,,10,male,,
-92,,,9,female,,not hispanic or latino
 92,,ambulatory,71,male,white,not hispanic or latino
 92,,ambulatory,66,female,,
 92,,ambulatory,52,male,,not hispanic or latino
-92,,ambulatory,13,male,white,
 92,,ambulatory,4,male,white,
+92,,ambulatory,13,male,white,
 91,,,7,female,,
 91,,,4,female,,
 91,,ambulatory,75,female,,
@@ -3757,40 +3757,40 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 91,,ambulatory,40,male,white,
 91,,ambulatory,29,male,,not hispanic or latino
 91,,ambulatory,10,female,white,
+90,,,9,female,white,not hispanic or latino
 90,,,66,female,white,
 90,,,12,male,,not hispanic or latino
 90,,,11,female,white,not hispanic or latino
-90,,,9,female,white,not hispanic or latino
 90,,ambulatory,9,male,white,
 90,,ambulatory,5,male,,
 89,,,52,male,white,not hispanic or latino
 89,,,52,female,white,not hispanic or latino
 89,,,40,male,white,not hispanic or latino
-89,,ambulatory,19,male,,not hispanic or latino
-89,,ambulatory,11,female,,
 89,,ambulatory,9,male,,not hispanic or latino
 89,,ambulatory,5,male,,not hispanic or latino
 89,,ambulatory,4,male,white,not hispanic or latino
 89,,ambulatory,4,female,,
+89,,ambulatory,19,male,,not hispanic or latino
+89,,ambulatory,11,female,,
 88,,,66,female,,not hispanic or latino
-88,,,45,male,,
-88,,,37,male,,not hispanic or latino
 88,,,6,female,,
 88,,,5,male,white,
+88,,,45,male,,
+88,,,37,male,,not hispanic or latino
+88,,ambulatory,8,male,,
 88,,ambulatory,66,female,white,
 88,,ambulatory,52,female,white,
 88,,ambulatory,38,female,white,not hispanic or latino
 88,,ambulatory,37,male,,
 88,,ambulatory,29,male,white,
 88,,ambulatory,10,male,,
-88,,ambulatory,8,male,,
 87,,,8,male,,not hispanic or latino
 87,,,7,male,white,not hispanic or latino
 87,,,5,male,white,not hispanic or latino
 87,,ambulatory,7,male,,not hispanic or latino
+86,,,9,male,white,not hispanic or latino
 86,,,41,male,,
 86,,,25,male,,
-86,,,9,male,white,not hispanic or latino
 86,,ambulatory,75,female,,not hispanic or latino
 86,,ambulatory,75,female,white,not hispanic or latino
 86,,ambulatory,66,female,,not hispanic or latino
@@ -3798,47 +3798,47 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 86,,ambulatory,29,male,white,not hispanic or latino
 86,,ambulatory,12,male,,not hispanic or latino
 86,,ambulatory,11,female,,not hispanic or latino
+85,,,6,male,,
 85,,,53,male,,
+85,,,4,female,white,
 85,,,11,male,,
 85,,,10,female,,not hispanic or latino
-85,,,6,male,,
-85,,,4,female,white,
+85,,ambulatory,9,female,,not hispanic or latino
+85,,ambulatory,7,male,white,
 85,,ambulatory,54,male,white,not hispanic or latino
 85,,ambulatory,19,male,white,
 85,,ambulatory,11,female,white,
-85,,ambulatory,9,female,,not hispanic or latino
-85,,ambulatory,7,male,white,
-84,,,66,female,white,not hispanic or latino
-84,,,31,male,white,
 84,,,8,male,white,
+84,,,66,female,white,not hispanic or latino
 84,,,6,male,,not hispanic or latino
+84,,,31,male,white,
 84,,emergency,,,white,hispanic or latino
 84,,ambulatory,52,male,white,
 84,,ambulatory,52,female,white,not hispanic or latino
 84,,ambulatory,37,male,,not hispanic or latino
 83,,,7,female,white,
-83,,ambulatory,45,male,,
-83,,ambulatory,11,female,white,not hispanic or latino
-83,,ambulatory,10,female,,not hispanic or latino
 83,,ambulatory,9,female,white,not hispanic or latino
 83,,ambulatory,6,female,,
 83,,ambulatory,5,male,white,
+83,,ambulatory,45,male,,
 83,,ambulatory,4,female,white,
+83,,ambulatory,11,female,white,not hispanic or latino
+83,,ambulatory,10,female,,not hispanic or latino
 82,,,19,male,white,not hispanic or latino
 82,,,13,male,white,not hispanic or latino
+82,,ambulatory,7,female,,
 82,,ambulatory,66,female,white,not hispanic or latino
 82,,ambulatory,53,male,,
-82,,ambulatory,7,female,,
 82,,ambulatory,5,male,white,not hispanic or latino
+81,,,8,female,,
 81,,,31,male,,not hispanic or latino
 81,,,25,male,,not hispanic or latino
 81,,,22,male,,
-81,,,8,female,,
 81,,ambulatory,8,male,,not hispanic or latino
+80,,,6,female,white,
 80,,,37,male,white,
 80,,,22,male,white,
 80,,,12,male,white,
-80,,,6,female,white,
 80,,virtual,,,,
 80,,ambulatory,52,male,white,not hispanic or latino
 79,,,35,male,,
@@ -3846,54 +3846,54 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 79,,virtual,,,,not hispanic or latino
 78,,,78,female,,
 78,,,25,male,white,
-78,,ambulatory,41,male,,
-78,,ambulatory,25,male,,
 78,,ambulatory,8,male,white,
 78,,ambulatory,7,male,white,not hispanic or latino
 78,,ambulatory,6,male,,
+78,,ambulatory,41,male,,
+78,,ambulatory,25,male,,
+77,,,8,male,white,not hispanic or latino
+77,,,7,female,,not hispanic or latino
 77,,,53,male,,not hispanic or latino
 77,,,45,male,white,
 77,,,38,male,,
 77,,,10,male,,not hispanic or latino
 77,,,10,female,white,not hispanic or latino
-77,,,8,male,white,not hispanic or latino
-77,,,7,female,,not hispanic or latino
 77,,ambulatory,67,female,,
-77,,ambulatory,11,male,,
 77,,ambulatory,6,male,,not hispanic or latino
+77,,ambulatory,11,male,,
+76,,,6,female,,not hispanic or latino
+76,,,5,female,,
 76,,,41,male,,not hispanic or latino
+76,,,4,female,,not hispanic or latino
 76,,,38,male,,not hispanic or latino
 76,,,37,male,white,not hispanic or latino
 76,,,22,male,,not hispanic or latino
 76,,,22,male,white,not hispanic or latino
 76,,,10,male,white,
-76,,,6,female,,not hispanic or latino
-76,,,5,female,,
-76,,,4,female,,not hispanic or latino
 76,,virtual,,,white,
+76,,ambulatory,9,male,white,not hispanic or latino
 76,,ambulatory,37,male,white,
 76,,ambulatory,31,male,,
 76,,ambulatory,12,male,white,
 76,,ambulatory,10,female,white,not hispanic or latino
-76,,ambulatory,9,male,white,not hispanic or latino
 75,,,45,male,,not hispanic or latino
 75,,,25,male,white,not hispanic or latino
 75,,virtual,,,white,not hispanic or latino
+75,,ambulatory,7,female,white,
 75,,ambulatory,67,female,,not hispanic or latino
 75,,ambulatory,67,female,white,
+75,,ambulatory,6,female,white,
 75,,ambulatory,13,male,white,not hispanic or latino
 75,,ambulatory,10,male,,not hispanic or latino
-75,,ambulatory,7,female,white,
-75,,ambulatory,6,female,white,
 74,,,82,female,,
 74,,,82,female,,not hispanic or latino
+74,,,8,female,white,
 74,,,41,male,white,
+74,,,4,female,white,not hispanic or latino
 74,,,39,male,,
 74,,,35,male,,not hispanic or latino
-74,,,8,female,white,
-74,,,4,female,white,not hispanic or latino
-74,,ambulatory,53,male,,not hispanic or latino
 74,,ambulatory,8,female,,
+74,,ambulatory,53,male,,not hispanic or latino
 74,,ambulatory,4,female,,not hispanic or latino
 73,,,8,female,,not hispanic or latino
 73,,ambulatory,67,female,white,not hispanic or latino
@@ -3901,32 +3901,35 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 73,,ambulatory,35,male,,
 73,,ambulatory,25,male,,not hispanic or latino
 73,,ambulatory,19,male,white,not hispanic or latino
+72,,,6,male,white,
+72,,,6,female,white,not hispanic or latino
 72,,,39,male,,not hispanic or latino
 72,,,34,,,hispanic or latino
 72,,,11,male,white,
-72,,,6,male,white,
-72,,,6,female,white,not hispanic or latino
-72,,ambulatory,45,male,,not hispanic or latino
-72,,ambulatory,37,male,white,not hispanic or latino
-72,,ambulatory,22,male,,
-72,,ambulatory,10,male,white,
 72,,ambulatory,8,male,white,not hispanic or latino
 72,,ambulatory,6,female,,not hispanic or latino
 72,,ambulatory,5,female,,
+72,,ambulatory,45,male,,not hispanic or latino
 72,,ambulatory,4,female,white,not hispanic or latino
+72,,ambulatory,37,male,white,not hispanic or latino
+72,,ambulatory,22,male,,
+72,,ambulatory,10,male,white,
 71,,,7,female,white,not hispanic or latino
 71,,,6,male,white,not hispanic or latino
 71,,ambulatory,22,male,white,
 70,,,53,male,white,
+70,,ambulatory,7,female,,not hispanic or latino
 70,,ambulatory,39,male,,
 70,,ambulatory,38,male,,
 70,,ambulatory,25,male,white,
-70,,ambulatory,7,female,,not hispanic or latino
 69,,,8,female,white,not hispanic or latino
 69,,ambulatory,78,female,,
 69,,ambulatory,41,male,,not hispanic or latino
 69,,ambulatory,38,male,,not hispanic or latino
 68,,,11,male,,not hispanic or latino
+68,,ambulatory,8,female,white,
+68,,ambulatory,6,male,white,
+68,,ambulatory,6,female,white,not hispanic or latino
 68,,ambulatory,53,male,white,
 68,,ambulatory,41,male,white,
 68,,ambulatory,39,male,,not hispanic or latino
@@ -3934,29 +3937,26 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 68,,ambulatory,34,,,hispanic or latino
 68,,ambulatory,22,male,,not hispanic or latino
 68,,ambulatory,22,male,white,not hispanic or latino
-68,,ambulatory,8,female,white,
-68,,ambulatory,6,male,white,
-68,,ambulatory,6,female,white,not hispanic or latino
 67,,,23,male,,
 67,,,12,male,white,not hispanic or latino
 67,,ambulatory,82,female,,
 67,,ambulatory,82,female,,not hispanic or latino
-67,,ambulatory,31,male,white,
-67,,ambulatory,25,male,white,not hispanic or latino
 67,,ambulatory,8,female,,not hispanic or latino
 67,,ambulatory,6,male,white,not hispanic or latino
-66,,,35,male,white,
+67,,ambulatory,31,male,white,
+67,,ambulatory,25,male,white,not hispanic or latino
 66,,,5,female,,not hispanic or latino
+66,,,35,male,white,
 65,,,53,male,white,not hispanic or latino
 65,,,23,male,white,
-65,,ambulatory,11,male,white,
 65,,ambulatory,7,female,white,not hispanic or latino
+65,,ambulatory,11,male,white,
 64,,,77,female,,
+64,,,5,female,white,
 64,,,45,male,white,not hispanic or latino
 64,,,41,male,white,not hispanic or latino
-64,,,5,female,white,
-64,,ambulatory,31,male,,not hispanic or latino
 64,,ambulatory,8,female,white,not hispanic or latino
+64,,ambulatory,31,male,,not hispanic or latino
 63,,,77,female,,not hispanic or latino
 63,,,31,,,hispanic or latino
 63,,,10,male,white,not hispanic or latino
@@ -3965,21 +3965,21 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 63,,ambulatory,11,male,,not hispanic or latino
 62,,,77,female,white,
 62,,,35,male,white,not hispanic or latino
+62,,ambulatory,5,female,,not hispanic or latino
 62,,ambulatory,45,male,white,not hispanic or latino
 62,,ambulatory,35,male,white,
 62,,ambulatory,31,male,white,not hispanic or latino
-62,,ambulatory,5,female,,not hispanic or latino
 61,,,77,female,white,not hispanic or latino
 61,,,26,male,,
 61,,,23,male,,not hispanic or latino
 61,,emergency,,female,,hispanic or latino
 61,,ambulatory,10,male,white,not hispanic or latino
 60,,,36,male,,
-60,,ambulatory,23,male,,
 60,,ambulatory,5,female,white,
+60,,ambulatory,23,male,,
+59,,,5,female,white,not hispanic or latino
 59,,,23,male,white,not hispanic or latino
 59,,,20,male,,
-59,,,5,female,white,not hispanic or latino
 59,,ambulatory,41,male,white,not hispanic or latino
 59,,ambulatory,23,male,white,
 58,,ambulatory,77,female,,
@@ -4002,8 +4002,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 55,,virtual,,male,white,not hispanic or latino
 55,,emergency,,female,white,hispanic or latino
 55,,ambulatory,77,female,white,not hispanic or latino
-55,,ambulatory,23,male,,not hispanic or latino
 55,,ambulatory,5,female,white,not hispanic or latino
+55,,ambulatory,23,male,,not hispanic or latino
 54,,,35,,,hispanic or latino
 54,,,31,,white,hispanic or latino
 54,,,27,male,,not hispanic or latino
@@ -4097,9 +4097,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 36,2021-05-01,ambulatory,,,white,hispanic or latino
 36,2021-04-01,ambulatory,,,black or african american,not hispanic or latino
 36,2021-03-01,,,,,hispanic or latino
+35,,,9,,,hispanic or latino
 35,,,40,,,hispanic or latino
 35,,,16,,black or african american,
-35,,,9,,,hispanic or latino
 35,,ambulatory,21,male,,not hispanic or latino
 35,2021-10-01,,,,,hispanic or latino
 35,2021-07-01,,,,,hispanic or latino
@@ -4126,9 +4126,9 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 33,2021-03-01,ambulatory,,,,hispanic or latino
 33,2021-03-01,ambulatory,,,black or african american,
 32,,emergency,,male,,hispanic or latino
+32,,ambulatory,9,,,hispanic or latino
 32,,ambulatory,21,male,white,not hispanic or latino
 32,,ambulatory,10,,,hispanic or latino
-32,,ambulatory,9,,,hispanic or latino
 32,2022-12-01,,,,,hispanic or latino
 32,2022-08-01,,,,black or african american,
 32,2021-04-01,,,,,hispanic or latino
@@ -4172,8 +4172,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 29,2017-01-01,ambulatory,,,,hispanic or latino
 29,2016-06-01,,,,black or african american,not hispanic or latino
 28,,emergency,29,,white,
-28,,ambulatory,24,male,,not hispanic or latino
 28,,ambulatory,9,,white,hispanic or latino
+28,,ambulatory,24,male,,not hispanic or latino
 28,2022-12-01,,,,white,hispanic or latino
 28,2022-12-01,ambulatory,,,,hispanic or latino
 28,2022-11-01,,,,white,hispanic or latino
@@ -4453,8 +4453,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 22,2016-08-01,,,,black or african american,
 22,2016-07-01,ambulatory,,,black or african american,
 22,2016-07-01,ambulatory,,,black or african american,not hispanic or latino
-21,,,12,,,hispanic or latino
 21,,,7,,,hispanic or latino
+21,,,12,,,hispanic or latino
 21,,virtual,,female,white,
 21,,emergency,30,,white,not hispanic or latino
 21,,emergency,28,,,
@@ -4777,6 +4777,7 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 17,,home health,65,,white,
 17,,emergency,,,asian,
 17,,emergency,,,asian,not hispanic or latino
+17,,emergency,7,,,
 17,,emergency,58,,,
 17,,emergency,58,,,not hispanic or latino
 17,,emergency,35,,,
@@ -4787,7 +4788,6 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 17,,emergency,21,,,
 17,,emergency,21,,,not hispanic or latino
 17,,emergency,17,,,
-17,,emergency,7,,,
 17,,ambulatory,11,,,hispanic or latino
 17,2023-03-01,emergency,,,white,not hispanic or latino
 17,2023-02-01,emergency,,,,
@@ -4870,6 +4870,10 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 17,2016-07-01,emergency,,,white,not hispanic or latino
 17,2016-06-01,ambulatory,,female,white,hispanic or latino
 16,,,8,,,hispanic or latino
+16,,emergency,9,,,
+16,,emergency,9,,white,
+16,,emergency,7,,,not hispanic or latino
+16,,emergency,7,,white,
 16,,emergency,39,female,,
 16,,emergency,39,female,,not hispanic or latino
 16,,emergency,36,,,
@@ -4881,10 +4885,6 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 16,,emergency,19,,white,
 16,,emergency,19,,white,not hispanic or latino
 16,,emergency,17,,,not hispanic or latino
-16,,emergency,9,,,
-16,,emergency,9,,white,
-16,,emergency,7,,,not hispanic or latino
-16,,emergency,7,,white,
 16,,emergency,1,,,
 16,2023-03-01,,,female,white,hispanic or latino
 16,2023-03-01,ambulatory,,female,white,hispanic or latino
@@ -4982,6 +4982,7 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 15,,inpatient encounter,,male,black or african american,
 15,,home health,65,female,,
 15,,home health,65,female,white,
+15,,emergency,7,,white,not hispanic or latino
 15,,emergency,61,,white,
 15,,emergency,54,,,
 15,,emergency,40,,,
@@ -4999,7 +5000,6 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 15,,emergency,15,,,
 15,,emergency,15,,white,
 15,,emergency,11,,,
-15,,emergency,7,,white,not hispanic or latino
 15,,emergency,1,,,not hispanic or latino
 15,2023-04-01,,,,,
 15,2023-02-01,emergency,,,white,not hispanic or latino
@@ -5120,13 +5120,13 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 14,,emergency,20,,,not hispanic or latino
 14,,emergency,20,,white,
 14,,emergency,20,,white,not hispanic or latino
+14,,emergency,2,,,
 14,,emergency,18,,,not hispanic or latino
 14,,emergency,17,,white,not hispanic or latino
 14,,emergency,16,,,
 14,,emergency,15,female,,
 14,,emergency,15,female,white,
 14,,emergency,13,,,
-14,,emergency,2,,,
 14,,emergency,1,,white,
 14,,ambulatory,8,,,hispanic or latino
 14,2023-04-01,,,,,not hispanic or latino
@@ -5240,6 +5240,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 14,2016-07-01,,,female,white,hispanic or latino
 14,2016-07-01,ambulatory,,female,,hispanic or latino
 13,,home health,65,,white,not hispanic or latino
+13,,emergency,9,,,not hispanic or latino
+13,,emergency,9,,white,not hispanic or latino
 13,,emergency,37,,,not hispanic or latino
 13,,emergency,36,,white,
 13,,emergency,35,female,white,
@@ -5252,6 +5254,7 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 13,,emergency,27,,white,not hispanic or latino
 13,,emergency,24,,,
 13,,emergency,24,,white,
+13,,emergency,2,,,not hispanic or latino
 13,,emergency,18,,white,
 13,,emergency,16,,,not hispanic or latino
 13,,emergency,15,,,not hispanic or latino
@@ -5262,9 +5265,6 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 13,,emergency,13,,white,
 13,,emergency,13,,white,not hispanic or latino
 13,,emergency,11,,white,
-13,,emergency,9,,,not hispanic or latino
-13,,emergency,9,,white,not hispanic or latino
-13,,emergency,2,,,not hispanic or latino
 13,,emergency,1,,white,not hispanic or latino
 13,2023-04-01,ambulatory,,,,not hispanic or latino
 13,2023-01-01,emergency,,,,
@@ -5514,8 +5514,10 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 11,,home health,75,female,white,
 11,,home health,65,female,,not hispanic or latino
 11,,home health,65,female,white,not hispanic or latino
+11,,emergency,8,,,
 11,,emergency,62,,,
 11,,emergency,62,,,not hispanic or latino
+11,,emergency,6,,,
 11,,emergency,54,,white,not hispanic or latino
 11,,emergency,46,,,
 11,,emergency,45,,,
@@ -5529,10 +5531,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 11,,emergency,26,female,,not hispanic or latino
 11,,emergency,26,female,white,
 11,,emergency,25,female,white,
-11,,emergency,16,,white,not hispanic or latino
-11,,emergency,8,,,
-11,,emergency,6,,,
 11,,emergency,2,,white,
+11,,emergency,16,,white,not hispanic or latino
 11,,emergency,1,male,white,
 11,,emergency,1,male,white,not hispanic or latino
 11,2023-04-01,,,,white,not hispanic or latino
@@ -5630,8 +5630,8 @@ cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_dis
 10,,emergency,34,female,,
 10,,emergency,30,female,,not hispanic or latino
 10,,emergency,26,female,white,not hispanic or latino
-10,,emergency,11,,white,not hispanic or latino
 10,,emergency,2,,white,not hispanic or latino
+10,,emergency,11,,white,not hispanic or latino
 10,2023-04-01,ambulatory,,,white,not hispanic or latino
 10,2022-12-01,ambulatory,,male,,hispanic or latino
 10,2022-07-01,emergency,,female,,

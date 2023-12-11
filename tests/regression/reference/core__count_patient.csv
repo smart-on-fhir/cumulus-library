@@ -32,8 +32,8 @@ cnt,age,gender,race_display,ethnicity_display
 21,11,,,
 20,,,asian,
 20,22,,,
-20,16,,,not hispanic or latino
 20,2,,,
+20,16,,,not hispanic or latino
 19,,,asian,not hispanic or latino
 19,48,,,
 19,46,,white,
@@ -43,8 +43,8 @@ cnt,age,gender,race_display,ethnicity_display
 19,21,,,
 19,20,,,
 19,20,,,not hispanic or latino
-19,14,,,
 19,2,,,not hispanic or latino
+19,14,,,
 18,,female,black or african american,not hispanic or latino
 18,62,,,
 18,62,,,not hispanic or latino
@@ -84,6 +84,7 @@ cnt,age,gender,race_display,ethnicity_display
 16,46,male,,not hispanic or latino
 16,40,,white,
 16,40,,white,not hispanic or latino
+16,4,,,
 16,33,,,
 16,32,,,not hispanic or latino
 16,24,,,
@@ -93,7 +94,6 @@ cnt,age,gender,race_display,ethnicity_display
 16,22,,white,
 16,16,,white,not hispanic or latino
 16,11,,white,not hispanic or latino
-16,4,,,
 15,,,unknown,
 15,,,unknown,not hispanic or latino
 15,65,,white,
@@ -104,16 +104,16 @@ cnt,age,gender,race_display,ethnicity_display
 15,46,male,white,
 15,46,male,white,not hispanic or latino
 15,43,,,
+15,4,,,not hispanic or latino
 15,33,,white,
 15,32,,white,not hispanic or latino
+15,3,,,
 15,25,,,
 15,25,,white,
 15,22,,white,not hispanic or latino
 15,21,,white,
-15,14,,white,not hispanic or latino
-15,4,,,not hispanic or latino
-15,3,,,
 15,2,,white,
+15,14,,white,not hispanic or latino
 14,,,native hawaiian or other pacific islander,
 14,75,,white,
 14,75,female,,
@@ -121,23 +121,24 @@ cnt,age,gender,race_display,ethnicity_display
 14,63,,white,
 14,58,,,not hispanic or latino
 14,51,,white,
+14,5,,,
+14,5,,white,
+14,4,,white,
 14,37,,,
 14,33,,,not hispanic or latino
+14,3,,white,
 14,27,,,
 14,27,,white,
 14,25,,,not hispanic or latino
 14,25,,white,not hispanic or latino
 14,21,,,not hispanic or latino
-14,5,,,
-14,5,,white,
-14,4,,white,
-14,3,,white,
 14,2,,white,not hispanic or latino
 13,,,native hawaiian or other pacific islander,not hispanic or latino
 13,82,,,
 13,82,,,not hispanic or latino
 13,82,,white,
 13,82,,white,not hispanic or latino
+13,8,,,
 13,75,,,not hispanic or latino
 13,75,,white,not hispanic or latino
 13,75,female,,not hispanic or latino
@@ -149,8 +150,10 @@ cnt,age,gender,race_display,ethnicity_display
 13,51,,,not hispanic or latino
 13,50,,,
 13,41,,,
+13,4,,white,not hispanic or latino
 13,33,,white,not hispanic or latino
 13,30,,,
+13,3,,,not hispanic or latino
 13,27,,,not hispanic or latino
 13,27,,white,not hispanic or latino
 13,18,,,
@@ -158,15 +161,16 @@ cnt,age,gender,race_display,ethnicity_display
 13,16,female,,
 13,16,female,,not hispanic or latino
 13,15,,,
-13,8,,,
-13,4,,white,not hispanic or latino
-13,3,,,not hispanic or latino
 13,1,,,
 12,,female,asian,
+12,9,,,
+12,9,,,not hispanic or latino
 12,82,male,,
 12,82,male,,not hispanic or latino
 12,82,male,white,
 12,82,male,white,not hispanic or latino
+12,8,,,not hispanic or latino
+12,8,,white,
 12,67,,,not hispanic or latino
 12,66,,,
 12,64,,,
@@ -176,6 +180,8 @@ cnt,age,gender,race_display,ethnicity_display
 12,63,,white,not hispanic or latino
 12,61,,white,
 12,61,,white,not hispanic or latino
+12,6,,,
+12,6,,,not hispanic or latino
 12,59,,,not hispanic or latino
 12,58,,white,not hispanic or latino
 12,52,,,
@@ -185,6 +191,8 @@ cnt,age,gender,race_display,ethnicity_display
 12,51,,white,not hispanic or latino
 12,50,,,not hispanic or latino
 12,50,,white,
+12,5,,,not hispanic or latino
+12,5,,white,not hispanic or latino
 12,44,,,
 12,43,,,not hispanic or latino
 12,43,,white,
@@ -197,21 +205,13 @@ cnt,age,gender,race_display,ethnicity_display
 12,31,,,
 12,31,,,not hispanic or latino
 12,30,,white,
+12,3,,white,not hispanic or latino
+12,2,male,,
+12,2,male,,not hispanic or latino
 12,19,,,
 12,19,,,not hispanic or latino
 12,12,,,
 12,11,male,,
-12,9,,,
-12,9,,,not hispanic or latino
-12,8,,,not hispanic or latino
-12,8,,white,
-12,6,,,
-12,6,,,not hispanic or latino
-12,5,,,not hispanic or latino
-12,5,,white,not hispanic or latino
-12,3,,white,not hispanic or latino
-12,2,male,,
-12,2,male,,not hispanic or latino
 12,1,,white,
 11,,,black or african american,hispanic or latino
 11,,female,asian,not hispanic or latino
@@ -219,6 +219,7 @@ cnt,age,gender,race_display,ethnicity_display
 11,88,female,,not hispanic or latino
 11,88,female,white,
 11,88,female,white,not hispanic or latino
+11,8,,white,not hispanic or latino
 11,78,,,
 11,78,,white,
 11,77,,,
@@ -226,10 +227,14 @@ cnt,age,gender,race_display,ethnicity_display
 11,74,male,,not hispanic or latino
 11,74,male,white,
 11,74,male,white,not hispanic or latino
+11,7,,,
+11,7,,,not hispanic or latino
 11,68,,,
 11,67,,white,
 11,66,,white,
 11,63,female,,
+11,6,,white,
+11,6,,white,not hispanic or latino
 11,55,,,
 11,50,,white,not hispanic or latino
 11,48,male,,
@@ -266,11 +271,6 @@ cnt,age,gender,race_display,ethnicity_display
 11,12,,white,
 11,12,,white,not hispanic or latino
 11,11,male,,not hispanic or latino
-11,8,,white,not hispanic or latino
-11,7,,,
-11,7,,,not hispanic or latino
-11,6,,white,
-11,6,,white,not hispanic or latino
 10,,male,unknown,
 10,,male,unknown,not hispanic or latino
 10,78,,,not hispanic or latino
@@ -279,6 +279,8 @@ cnt,age,gender,race_display,ethnicity_display
 10,74,female,,not hispanic or latino
 10,74,female,white,
 10,74,female,white,not hispanic or latino
+10,7,,white,
+10,7,,white,not hispanic or latino
 10,69,,,
 10,69,,,not hispanic or latino
 10,69,,white,
@@ -322,6 +324,4 @@ cnt,age,gender,race_display,ethnicity_display
 10,10,male,,not hispanic or latino
 10,10,male,white,
 10,10,male,white,not hispanic or latino
-10,7,,white,
-10,7,,white,not hispanic or latino
 10,1,,,not hispanic or latino

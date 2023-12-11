@@ -1,22 +1,29 @@
--- noqa: disable=LT02
-{# LT02 is a indentation rule that overfires in the where clause construction;
-it simultaneously asks for indentation of 4 and 8 spaces.
+{%- macro comma_delineate(loop) -%}
+{%- if not loop.last -%}
+, 
+{%- endif -%}
+{%- endmacro -%}
 
-TODO: revisit on sqlfluff upgrade #}
+{%- macro secondary_resource(fhir_resource) -%}
+{%- if fhir_resource in ('condition', 'document', 'encounter', 'observation') -%}
+{{ fhir_resource }}
+{%- else -%}
+{# implicit null #}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- set secondary = secondary_resource(fhir_resource) -%}
+
+-- noqa: disable=LT02{# LT02 is a indentation rule that overfires in the where
+clause construction; it simultaneously asks for indentation of 4 and 8 spaces. #}
 CREATE TABLE {{ table_name }} AS (
     WITH 
     {%- if filter_resource %}
     filtered_table AS (
         SELECT
             subject_ref,
-            {%- if fhir_resource=='condition' %}
-            condition_ref,
-            {%- elif fhir_resource=='document' %}
-            document_ref,
-            {%- elif fhir_resource=='encounter' %}
-            encounter_ref,
-            {%- elif fhir_resource=='observation' %}
-            observation_ref,
+            {%- if secondary %}
+            {{ secondary }}_ref,
             {%- endif -%}
             {% for col in table_cols %}
             "{{ col }}"
@@ -35,57 +42,52 @@ CREATE TABLE {{ table_name }} AS (
         {%- endif %}
     ),
     {% endif %}
-    powerset AS (
+    null_replacement AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            {%- if fhir_resource=='condition' %}
-            count(DISTINCT condition_ref) AS cnt_condition,
-            {%- elif fhir_resource=='document' %}
-            count(DISTINCT document_ref) AS cnt_document,
-            {%- elif fhir_resource=='encounter' %}
-            count(DISTINCT encounter_ref) AS cnt_encounter,
-            {%- elif fhir_resource=='observation' %}
-            count(DISTINCT observation_ref) AS cnt_observation,
+            subject_ref,
+            {%- if secondary %}
+            {{ secondary }}_ref,
             {%- endif -%}
             {% for col in table_cols %}
-            "{{ col }}"
-            {%- if not loop.last -%}
-            , 
-            {%- endif -%}
+            coalesce(cast("{{ col }}" AS varchar), 'missing-or-null') AS "{{ col }}"
+            {{- comma_delineate(loop) }}
             {%- endfor %}
         {%- if filter_resource %}
         FROM filtered_table
         {%- else  %}
         FROM {{ source_table }}
         {% endif %}
+    ),
+
+    powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject,
+            {%- if secondary %}
+            count(DISTINCT {{ secondary }}_ref) AS cnt_{{ secondary }},
+            {%- endif -%}
+            {% for col in table_cols %}
+            "{{ col }}"
+            {{- comma_delineate(loop) }}
+            {%- endfor %}
+        FROM null_replacement
         GROUP BY
             cube( 
                 {%- for col in table_cols %}
                 "{{ col }}"
-                {%- if not loop.last -%}
-                , 
-                {%- endif -%}
+                {{- comma_delineate(loop) }}
                 {%- endfor %}
             )
     )
 
     SELECT
-        {%- if fhir_resource=='condition' %}
-        cnt_condition
-        {%- elif fhir_resource=='document' %}
-        cnt_document
-        {%- elif fhir_resource=='encounter' %}
-        cnt_encounter
-        {%- elif fhir_resource=='observation' %}
-        cnt_observation
+        {%- if secondary %}
+        cnt_{{ secondary }}
         {%- else %}
         cnt_subject
         {%- endif %} AS cnt,
         {%- for col in table_cols %}
         "{{ col }}"
-        {%- if not loop.last -%}
-        , 
-        {%- endif -%}
+        {{- comma_delineate(loop) }}
         {%- endfor %}
     FROM powerset
     {%- if where_clauses %}
@@ -93,7 +95,7 @@ CREATE TABLE {{ table_name }} AS (
         {% for clause in where_clauses %}{{ clause }}
         {% if not loop.last %}AND {% endif %}
         {%- endfor -%}
-    {% else %}
+    {%- else %}
     WHERE 
         cnt_subject >= {{ min_subject }}
     {%- endif %}

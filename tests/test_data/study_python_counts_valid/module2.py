@@ -1,4 +1,4 @@
-from cumulus_library.schema.counts import CountsBuilder
+from cumulus_library.statistics.counts import CountsBuilder
 
 
 class ModuleTwoRunner(CountsBuilder):

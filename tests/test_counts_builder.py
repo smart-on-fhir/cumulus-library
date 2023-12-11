@@ -1,4 +1,4 @@
-import json
+""" tests for outputs of counts_builder module """
 
 from contextlib import nullcontext as does_not_raise
 from unittest import mock
@@ -6,7 +6,7 @@ from unittest import mock
 import pytest
 
 from cumulus_library.errors import CountsBuilderError
-from cumulus_library.schema.counts import CountsBuilder
+from cumulus_library.statistics.counts import CountsBuilder
 
 TEST_PREFIX = "test"
 
@@ -75,7 +75,7 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
         ("table", "source", None, {}, pytest.raises(CountsBuilderError)),
     ],
 )
-@mock.patch("cumulus_library.template_sql.templates.get_count_query")
+@mock.patch("cumulus_library.template_sql.statistics.counts_templates.get_count_query")
 def test_get_count_query(
     mock_count, table_name, source_table, table_cols, kwargs, raises
 ):
@@ -111,7 +111,7 @@ def test_get_count_query(
         ),
     ],
 )
-@mock.patch("cumulus_library.template_sql.templates.get_count_query")
+@mock.patch("cumulus_library.template_sql.statistics.counts_templates.get_count_query")
 def test_count_wrappers(
     mock_count,
     table_name,

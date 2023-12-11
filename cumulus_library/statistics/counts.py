@@ -6,7 +6,7 @@ from typing import Union
 
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.study_parser import StudyManifestParser
-from cumulus_library.template_sql import templates
+from cumulus_library.template_sql.statistics import counts_templates
 from cumulus_library.errors import CountsBuilderError
 
 
@@ -81,7 +81,9 @@ class CountsBuilder(BaseTableBuilder):
         for key in kwargs:
             if key not in ["min_subject", "where_clauses", "fhir_resource"]:
                 raise CountsBuilderError(f"count_query received unexpected key: {key}")
-        return templates.get_count_query(table_name, source_table, table_cols, **kwargs)
+        return counts_templates.get_count_query(
+            table_name, source_table, table_cols, **kwargs
+        )
 
     # ----------------------------------------------------------------------
     # The following function all wrap get_count_query as convenience methods.
@@ -233,7 +235,7 @@ class CountsBuilder(BaseTableBuilder):
     def prepare_queries(self, cursor: object = None, schema: str = None):
         """Stub implementing abstract base class
 
-        This should be overridden in any count generator. See core study count_core.py
+        This should be overridden in any count generator. See studies/core/count_core.py
         for an example
         """
         pass
