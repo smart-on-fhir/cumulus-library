@@ -148,10 +148,12 @@ class DuckDatabaseBackend(DatabaseBackend):
             self.connection.register(name, table)
 
     @staticmethod
-    def _compat_array_join(value: Optional[list[str]], delimiter: str) -> Optional[str]:
+    def _compat_array_join(
+        value: Optional[list[Optional[str]]], delimiter: str
+    ) -> Optional[str]:
         if value is None:
             return None
-        return delimiter.join(value)
+        return delimiter.join(v for v in value if v is not None)
 
     @staticmethod
     def _compat_date(
