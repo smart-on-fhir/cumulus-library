@@ -35,7 +35,7 @@ def get_count_query(
 ) -> str:
     """Generates count tables for generating study outputs"""
     path = Path(__file__).parent
-    if fhir_resource not in [e.value for e in CountableFhirResource]:
+    if fhir_resource not in {e.value for e in CountableFhirResource}:
         raise CountsBuilderError(
             f"Tried to create counts table for invalid resource {fhir_resource}."
         )
