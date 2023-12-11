@@ -22,7 +22,7 @@ CREATE TABLE {{ table_name }} AS (
     filtered_table AS (
         SELECT
             subject_ref,
-            {%- if secondary  %}
+            {%- if secondary %}
             {{ secondary }}_ref,
             {%- endif -%}
             {% for col in table_cols %}
@@ -45,7 +45,7 @@ CREATE TABLE {{ table_name }} AS (
     null_replacement AS (
         SELECT
             subject_ref,
-            {%- if secondary  %}
+            {%- if secondary %}
             {{ secondary }}_ref,
             {%- endif -%}
             {% for col in table_cols %}
@@ -62,7 +62,7 @@ CREATE TABLE {{ table_name }} AS (
     powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
-            {%- if secondary  %}
+            {%- if secondary %}
             count(DISTINCT {{ secondary }}_ref) AS cnt_{{ secondary }},
             {%- endif -%}
             {% for col in table_cols %}
@@ -80,7 +80,7 @@ CREATE TABLE {{ table_name }} AS (
     )
 
     SELECT
-        {%- if secondary  %}
+        {%- if secondary %}
         cnt_{{ secondary }}
         {%- else %}
         cnt_subject
