@@ -8,12 +8,18 @@ from cumulus_library.errors import CountsBuilderError
 
 
 class CountableFhirResource(Enum):
-    """Contains FHIR types for which we have count table generation support"""
+    """Contains FHIR types for which we have count table generation support.
+
+    This is primarily used as a way to decide if a secondary join is needed to get the
+    appropriate ID field to count. Patient (and a value of None) skip this check,
+    while the other resources will add an additional source to get the proper countable
+    ids.
+    """
 
     CONDITION = "condition"
     DOCUMENT = "document"
     ENCOUNTER = "encounter"
-    NONE = None  # This is treated as an implicit patient
+    NONE = None
     OBSERVATION = "observation"
     PATIENT = "patient"
 

@@ -3,13 +3,17 @@
 , 
 {%- endif -%}
 {%- endmacro -%}
+
 {%- macro secondary_resource(fhir_resource) -%}
 {%- if fhir_resource in ('condition', 'document', 'encounter', 'observation') -%}
 {{ fhir_resource }}
 {%- else -%}
-None
+{# implicit null #}
 {%- endif -%}
 {%- endmacro -%}
+
+{%- set secondary = secondary_resource(fhir_resource) -%}
+
 -- noqa: disable=LT02{# LT02 is a indentation rule that overfires in the where
 clause construction; it simultaneously asks for indentation of 4 and 8 spaces. #}
 CREATE TABLE {{ table_name }} AS (
@@ -18,8 +22,8 @@ CREATE TABLE {{ table_name }} AS (
     filtered_table AS (
         SELECT
             subject_ref,
-            {%- if secondary_resource(fhir_resource) !='None' %}
-            {{ secondary_resource(fhir_resource) }}_ref,
+            {%- if secondary  %}
+            {{ secondary }}_ref,
             {%- endif -%}
             {% for col in table_cols %}
             "{{ col }}"
@@ -41,8 +45,8 @@ CREATE TABLE {{ table_name }} AS (
     null_replacement AS (
         SELECT
             subject_ref,
-            {%- if secondary_resource(fhir_resource) !='None' %}
-            {{ secondary_resource(fhir_resource) }}_ref,
+            {%- if secondary  %}
+            {{ secondary }}_ref,
             {%- endif -%}
             {% for col in table_cols %}
             coalesce(cast("{{ col }}" AS varchar), 'missing-or-null') AS "{{ col }}"
@@ -58,8 +62,8 @@ CREATE TABLE {{ table_name }} AS (
     powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
-            {%- if secondary_resource(fhir_resource) !='None' %}
-            count(DISTINCT {{ secondary_resource(fhir_resource) }}_ref) AS cnt_{{ secondary_resource(fhir_resource) }},
+            {%- if secondary  %}
+            count(DISTINCT {{ secondary }}_ref) AS cnt_{{ secondary }},
             {%- endif -%}
             {% for col in table_cols %}
             "{{ col }}"
@@ -76,8 +80,8 @@ CREATE TABLE {{ table_name }} AS (
     )
 
     SELECT
-        {%- if secondary_resource(fhir_resource) !='None' %}
-        cnt_{{ secondary_resource(fhir_resource) }}
+        {%- if secondary  %}
+        cnt_{{ secondary }}
         {%- else %}
         cnt_subject
         {%- endif %} AS cnt,

@@ -6,7 +6,7 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
 
 
 @pytest.mark.parametrize(
-    "expected,filter_resource,where_clauses,fhir_resource,min_subject",
+    "expected,kwargs",
     [
         (
             """CREATE TABLE test_table AS (
@@ -48,10 +48,7 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     WHERE 
         cnt_subject >= 10
 );""",
-            None,
-            None,
-            None,
-            None,
+            {},
         ),
         (
             """CREATE TABLE test_table AS (
@@ -86,10 +83,12 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     WHERE 
         cnt_subject >= 5
 );""",
-            False,
-            None,
-            None,
-            5,
+            {
+                "filter_resource": False,
+                "where_clauses": None,
+                "fhir_resource": None,
+                "min_subject": 5,
+            },
         ),
         (
             """CREATE TABLE test_table AS (
@@ -137,25 +136,15 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
         AND sex ==  'F'
         
 );""",
-            True,
-            ["age > 10", "sex ==  'F'"],
-            "encounter",
-            None,
+            {
+                "filter_resource": True,
+                "where_clauses": ["age > 10", "sex ==  'F'"],
+                "fhir_resource": "encounter",
+                "min_subject": None,
+            },
         ),
     ],
 )
-def test_count_query(
-    expected,
-    filter_resource,
-    where_clauses,
-    fhir_resource,
-    min_subject,  # pylint: disable=unused-argument
-):
-    kwargs = {}
-    for kwarg in ["filter_resource", "where_clauses", "fhir_resource", "min_subject"]:
-        if eval(kwarg) is not None:  # pylint: disable=eval-used
-            kwargs[kwarg] = eval(kwarg)  # pylint: disable=eval-used
+def test_count_query(expected, kwargs):
     query = get_count_query("test_table", "test_source", ["age", "sex"], **kwargs)
-    with open("output.sql", "w", encoding="UTF-8") as f:
-        f.write(query)
     assert query == expected
