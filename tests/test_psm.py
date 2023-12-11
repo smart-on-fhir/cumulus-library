@@ -1,3 +1,5 @@
+""" tests for propensity score matching generation """
+
 from pathlib import Path
 
 import pytest
@@ -58,9 +60,10 @@ def test_psm_create(
     builder = StudyBuilder(mock_db_core)
     psm = PsmBuilder(f"{Path(__file__).parent}/test_data/psm/{toml_def}")
     mock_db_core.cursor().execute(
-        f"create table core__psm_cohort as (select * from core__condition ORDER BY {psm.config.primary_ref} limit 10)"
+        "create table core__psm_cohort as (select * from core__condition "
+        f"ORDER BY {psm.config.primary_ref} limit 10)"
     ).df()
-    cohort = mock_db_core.cursor().execute("select * from core__psm_cohort").fetchall()
+    mock_db_core.cursor().execute("select * from core__psm_cohort").fetchall()
 
     psm.execute_queries(
         mock_db_core.pandas_cursor(), builder.schema_name, False, drop_table=True

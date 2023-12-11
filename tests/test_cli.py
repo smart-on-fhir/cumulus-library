@@ -2,7 +2,6 @@
 import glob
 import os
 import sysconfig
-import tempfile
 
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path, PosixPath
@@ -14,19 +13,22 @@ import requests_mock
 import toml
 
 from cumulus_library import cli
-from cumulus_library import upload
 from cumulus_library.databases import DuckDatabaseBackend
 from tests.conftest import duckdb_args
 
 
 class MockVocabBsv:
+    """mock class for patching test BSVs for the vocab study"""
+
     builtin_open = open
 
     def open(self, *args, **kwargs):
         if str(args[0]).endswith(".bsv"):
             print(args)
             args = (
-                PosixPath(f"./tests/test_data/mock_bsvs/{str(args[0]).split('/')[-1]}"),
+                PosixPath(
+                    f"./tests/test_data/mock_bsvs/{str(args[0]).rsplit('/', maxsplit=1)[-1]}"
+                ),
                 "r",
             )
         return self.builtin_open(*args, **kwargs)
@@ -110,9 +112,9 @@ def test_cli_path_mapping(
         }
         sysconfig.get_path("purelib")
         args = duckdb_args(args, tmp_path)
-        builder = cli.main(cli_args=args)
+        cli.main(cli_args=args)
         db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
-        assert (expected) in db.cursor().execute("show tables").fetchone()[0]
+        assert expected in db.cursor().execute("show tables").fetchone()[0]
 
 
 @mock.patch.dict(

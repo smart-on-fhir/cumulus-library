@@ -1,4 +1,5 @@
 """ tests for the cli interface to studies """
+# TODO: cutover to duckdb
 
 from unittest import mock
 
@@ -28,7 +29,10 @@ SCHEMA = "schema"
     ],
 )
 def test_is_codeable_concept_populated(
-    _mock_pyathena, query_results, allow_partial, expected
+    mock_pyathena,
+    query_results,
+    allow_partial,
+    expected,  # pylint: disable=unused-argument
 ):
     cursor = pyathena.connect(
         region_name=REGION,
@@ -55,7 +59,10 @@ def test_is_codeable_concept_populated(
     ],
 )
 def test_is_codeable_concept_array_populated(
-    _mock_pyathena, query_results, allow_partial, expected
+    mock_pyathena,
+    query_results,
+    allow_partial,
+    expected,  # pylint: disable=unused-argument
 ):
     cursor = pyathena.connect(
         region_name=REGION,
