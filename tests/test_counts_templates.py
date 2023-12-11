@@ -22,8 +22,8 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     null_replacement AS (
         SELECT
             subject_ref,
-            coalesce("age", 'missing-or-null') AS "age",
-            coalesce("sex", 'missing-or-null') AS "sex"
+            coalesce(cast("age" AS varchar), 'missing-or-null') AS "age",
+            coalesce(cast("sex" AS varchar), 'missing-or-null') AS "sex"
         FROM filtered_table
     ),
 
@@ -59,8 +59,8 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     null_replacement AS (
         SELECT
             subject_ref,
-            coalesce("age", 'missing-or-null') AS "age",
-            coalesce("sex", 'missing-or-null') AS "sex"
+            coalesce(cast("age" AS varchar), 'missing-or-null') AS "age",
+            coalesce(cast("sex" AS varchar), 'missing-or-null') AS "sex"
         FROM test_source
         
     ),
@@ -108,8 +108,8 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
         SELECT
             subject_ref,
             encounter_ref,
-            coalesce("age", 'missing-or-null') AS "age",
-            coalesce("sex", 'missing-or-null') AS "sex"
+            coalesce(cast("age" AS varchar), 'missing-or-null') AS "age",
+            coalesce(cast("sex" AS varchar), 'missing-or-null') AS "sex"
         FROM filtered_table
     ),
 

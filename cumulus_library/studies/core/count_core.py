@@ -84,6 +84,7 @@ class CoreCountsBuilder(CountsBuilder):
             self.count_core_encounter_service(duration="month"),
             self.count_core_encounter_priority(duration="month"),
         ]
+        self.write_queries()
 
 
 if __name__ == "__main__":

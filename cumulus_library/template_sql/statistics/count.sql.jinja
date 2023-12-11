@@ -5,7 +5,7 @@
 {%- endmacro -%}
 {%- macro secondary_resource(fhir_resource) -%}
 {%- if fhir_resource in ('condition', 'document', 'encounter', 'observation') -%}
-{{fhir_resource}}
+{{ fhir_resource }}
 {%- else -%}
 None
 {%- endif -%}
@@ -45,7 +45,7 @@ CREATE TABLE {{ table_name }} AS (
             {{ secondary_resource(fhir_resource) }}_ref,
             {%- endif -%}
             {% for col in table_cols %}
-            coalesce("{{ col }}", 'missing-or-null') AS "{{ col }}"
+            coalesce(cast("{{ col }}" AS varchar), 'missing-or-null') AS "{{ col }}"
             {{- comma_delineate(loop) }}
             {%- endfor %}
         {%- if filter_resource %}
@@ -59,7 +59,7 @@ CREATE TABLE {{ table_name }} AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
             {%- if secondary_resource(fhir_resource) !='None' %}
-            count(DISTINCT {{ secondary_resource(fhir_resource) }}_ref) AS cnt_{{secondary_resource(fhir_resource)}},
+            count(DISTINCT {{ secondary_resource(fhir_resource) }}_ref) AS cnt_{{ secondary_resource(fhir_resource) }},
             {%- endif -%}
             {% for col in table_cols %}
             "{{ col }}"
@@ -77,7 +77,7 @@ CREATE TABLE {{ table_name }} AS (
 
     SELECT
         {%- if secondary_resource(fhir_resource) !='None' %}
-        cnt_{{secondary_resource(fhir_resource)}}
+        cnt_{{ secondary_resource(fhir_resource) }}
         {%- else %}
         cnt_subject
         {%- endif %} AS cnt,
