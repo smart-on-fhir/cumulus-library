@@ -63,6 +63,6 @@ def get_progress_bar(**kwargs) -> progress.Progress:
         progress.TextColumn("[progress.description]{task.description}"),
         progress.BarColumn(),
         progress.TaskProgressColumn(),
-        progress.TimeRemainingColumn(elapsed_when_finished=True),
+        progress.TimeElapsedColumn(),
         **kwargs,
     )
