@@ -51,6 +51,10 @@ details on the expectations of each value.
 # database. We recommend that you only attempt to use this after you have decided
 # on the first draft of your cohort selection criteria
 
+# config_type should always be "psm" - we use this to distinguish from other
+# statistic type runs
+config_type = "psm"
+
 # classification_json should reference a file in the same directory as this config,
 # which matches a category to a set of ICD codes. As an example, you could use
 # an existing guide like DSM5 classifications for this, but you could also use

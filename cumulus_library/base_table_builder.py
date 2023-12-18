@@ -1,5 +1,6 @@
 """ abstract base for python-based study executors """
 import re
+import sys
 
 from abc import ABC, abstractmethod
 from typing import final
@@ -21,7 +22,7 @@ class BaseTableBuilder(ABC):
         self.queries = []
 
     @abstractmethod
-    def prepare_queries(self, cursor: object, schema: str):
+    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
         """Main entrypoint for python table builders.
 
         When completed, prepare_queries should populate self.queries with sql
@@ -29,7 +30,8 @@ class BaseTableBuilder(ABC):
 
         :param cursor: A PEP-249 compatible cursor
         :param schema: A schema name
-        :param verbose: toggle for verbose output mode
+        :param db_type: The db system being used (only relevant for db-specific
+          query construction)
         """
         raise NotImplementedError
 
@@ -40,6 +42,8 @@ class BaseTableBuilder(ABC):
         schema: str,
         verbose: bool,
         drop_table: bool = False,
+        *args,
+        **kwargs,
     ):
         """Executes queries set up by a prepare_queries call
 
@@ -48,7 +52,7 @@ class BaseTableBuilder(ABC):
         :param verbose: toggle for verbose output mode
         :param drop_table: drops any tables found in prepared_queries results
         """
-        self.prepare_queries(cursor, schema)
+        self.prepare_queries(cursor, schema, *args, **kwargs)
         if drop_table:
             table_names = []
             for query in self.queries:
@@ -73,8 +77,11 @@ class BaseTableBuilder(ABC):
             )
             for query in self.queries:
                 query_console_output(verbose, query, progress, task)
-                cursor.execute(query)
-        self.post_execution(cursor, schema, verbose, drop_table)
+                try:
+                    cursor.execute(query)
+                except Exception as e:
+                    sys.exit(e)
+        self.post_execution(cursor, schema, verbose, drop_table, *args, **kwargs)
 
     def post_execution(
         self,
@@ -82,6 +89,8 @@ class BaseTableBuilder(ABC):
         schema: str,
         verbose: bool,
         drop_table: bool = False,
+        *args,
+        **kwargs,
     ):
         """Hook for any additional actions to run after execute_queries"""
         pass

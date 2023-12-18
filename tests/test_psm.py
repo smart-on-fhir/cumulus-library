@@ -70,7 +70,7 @@ def test_psm_create(
     )
     df = (
         mock_db_core.cursor()
-        .execute("select * from core__psm_encounter_covariate")
+        .execute("select * from psm_test__psm_encounter_covariate")
         .df()
     )
     ed_series = df["example_diagnosis"].value_counts()

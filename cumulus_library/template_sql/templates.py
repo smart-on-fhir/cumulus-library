@@ -203,7 +203,10 @@ def get_ctas_query_from_df(schema_name: str, table_name: str, df: DataFrame) -> 
 
 
 def get_ctas_empty_query(
-    schema_name: str, table_name: str, table_cols: List[str]
+    schema_name: str,
+    table_name: str,
+    table_cols: List[str],
+    table_cols_types: List[str] = [],
 ) -> str:
     """Generates a create table as query for initializing an empty table
 
@@ -215,13 +218,18 @@ def get_ctas_empty_query(
     :param schema_name: The athena schema to create the table in
     :param table_name: The name of the athena table to create
     :param table_cols: Comma deleniated column names, i.e. ['first,second']
+    :param table_cols: Allows specifying a data type per column (default: all varchar)
     """
     path = Path(__file__).parent
+    if table_cols_types == []:
+        for col in table_cols:
+            table_cols_types.append("varchar")
     with open(f"{path}/ctas_empty.sql.jinja") as ctas_empty:
         return Template(ctas_empty.read()).render(
             schema_name=schema_name,
             table_name=table_name,
             table_cols=table_cols,
+            table_cols_types=table_cols_types,
         )
 
 

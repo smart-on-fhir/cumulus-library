@@ -11,6 +11,7 @@ from cumulus_library.template_sql.templates import (
     get_column_datatype_query,
     get_core_medication_query,
     get_create_view_query,
+    get_ctas_empty_query,
     get_ctas_query,
     get_ctas_query_from_df,
     get_extension_denormalize_query,
@@ -236,6 +237,48 @@ def test_create_view_query_creation():
         dataset=[["foo", "foo"], ["bar", "bar"]],
         view_cols=["a", "b"],
     )
+    assert query == expected
+
+
+@pytest.mark.parametrize(
+    "expected,schema,table,cols,types",
+    [
+        (
+            """CREATE TABLE IF NOT EXISTS "test_schema"."test_table" 
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS varchar))
+    )
+        AS t ("a","b")
+);""",
+            "test_schema",
+            "test_table",
+            ["a", "b"],
+            [],
+        ),
+        (
+            """CREATE TABLE IF NOT EXISTS "test_schema"."test_table" 
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS integer),cast(NULL AS varchar))
+    )
+        AS t ("a","b")
+);""",
+            "test_schema",
+            "test_table",
+            ["a", "b"],
+            ["integer", "varchar"],
+        ),
+    ],
+)
+def test_ctas_empty_query_creation(expected, schema, table, cols, types):
+    query = get_ctas_empty_query(
+        schema_name=schema, table_name=table, table_cols=cols, table_cols_types=types
+    )
+    with open("output.sql", "w") as f:
+        f.write(query)
     assert query == expected
 
 

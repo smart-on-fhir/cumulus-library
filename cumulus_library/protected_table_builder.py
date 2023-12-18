@@ -1,0 +1,58 @@
+""" Builder for creating tables for tracking state/logging changes"""
+import datetime
+
+from cumulus_library.base_table_builder import BaseTableBuilder
+from cumulus_library.enums import PROTECTED_TABLES
+from cumulus_library.template_sql.templates import (
+    get_ctas_empty_query,
+    get_create_view_query,
+)
+
+TRANSACTIONS_COLS = ["study_name", "library_version", "status", "event_time"]
+STATISTICS_COLS = [
+    "study_name",
+    "library_version",
+    "table_type",
+    "table_name",
+    "view_name",
+    "created_on",
+]
+
+
+class ProtectedTableBuilder(BaseTableBuilder):
+    display_text = "Creating/updating system tables..."
+
+    def prepare_queries(self, cursor: object, schema: str, study_name: str):
+        safe_timestamp = (
+            datetime.datetime.now()
+            .replace(microsecond=0)
+            .isoformat()
+            .replace(":", "_")
+            .replace("-", "_")
+        )
+        self.queries.append(
+            get_ctas_empty_query(
+                schema,
+                f"{study_name}__{PROTECTED_TABLES.TRANSACTIONS.value}",
+                # while it may seem redundant, study name is included for ease
+                # of constructing a view of multiple transaction tables
+                TRANSACTIONS_COLS,
+                ["varchar", "varchar", "varchar", "timestamp"],
+            )
+        )
+        self.queries.append(
+            get_ctas_empty_query(
+                schema,
+                f"{study_name}__{PROTECTED_TABLES.STATISTICS.value}",
+                # same redundancy note about study_name, and also view_name, applies here
+                STATISTICS_COLS,
+                [
+                    "varchar",
+                    "varchar",
+                    "varchar",
+                    "varchar",
+                    "varchar",
+                    "timestamp",
+                ],
+            )
+        )

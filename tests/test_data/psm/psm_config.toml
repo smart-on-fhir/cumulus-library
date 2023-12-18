@@ -1,13 +1,14 @@
+config_type = "psm"
 classification_json = "dsm5_classifications.json"
-pos_source_table = "core__psm_cohort"
+pos_source_table = "psm_test__psm_cohort"
 neg_source_table = "core__condition"
-target_table = "core__psm_encounter_covariate"
+target_table = "psm_test__psm_encounter_covariate"
 primary_ref = 'encounter_ref'
 count_ref = 'subject_ref'
 count_table = 'core__condition'
 dependent_variable = "example_diagnosis"
 pos_sample_size = 5
-neg_sample_size = 10
+neg_sample_size = 5
 seed = 1234567890
 [join_cols_by_table.core__encounter]
 join_id = "encounter_ref"

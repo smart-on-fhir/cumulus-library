@@ -1,18 +1,22 @@
 # Module for generating Propensity Score matching cohorts
 
-import numpy as np
-import pandas
+import json
+import os
 import sys
+
+from pathlib import PosixPath
+from dataclasses import dataclass
+
+import pandas
 import toml
 
 from psmpy import PsmPy
 
+# these imports are mimicing PsmPy imports for re-implemented functions
+from psmpy.functions import cohenD
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-import json
-from pathlib import PosixPath
-from dataclasses import dataclass
-
-from cumulus_library.cli import StudyBuilder
 from cumulus_library.databases import DatabaseCursor
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.template_sql.templates import (
@@ -53,11 +57,12 @@ class PsmBuilder(BaseTableBuilder):
 
     display_text = "Building PSM tables..."
 
-    def __init__(self, toml_config_path: str):
+    def __init__(self, toml_config_path: str, export_path: PosixPath):
         """Loads PSM job details from a PSM configuration file"""
         super().__init__()
         # We're stashing the toml path for error reporting later
         self.toml_path = toml_config_path
+        self.export_path = export_path
         try:
             with open(self.toml_path, encoding="UTF-8") as file:
                 toml_config = toml.load(file)
@@ -132,7 +137,9 @@ class PsmBuilder(BaseTableBuilder):
         df[dependent_variable] = is_positive
         return df
 
-    def _create_covariate_table(self, cursor: DatabaseCursor, schema: str):
+    def _create_covariate_table(
+        self, cursor: DatabaseCursor, schema: str, table_suffix: str
+    ):
         """Creates a covariate table from the loaded toml config"""
         # checks for primary & link ref being the same
         source_refs = list({self.config.primary_ref, self.config.count_ref} - {None})
@@ -163,23 +170,24 @@ class PsmBuilder(BaseTableBuilder):
 
         # Replace table (if it exists)
         # TODO - replace with timestamp prepended table in future PR
-        drop = get_drop_view_table(
-            f"{self.config.pos_source_table}_sampled_ids", "TABLE"
-        )
-        cursor.execute(drop)
+        # drop = get_drop_view_table(
+        #    f"{self.config.pos_source_table}_sampled_ids", "TABLE"
+        # )
+        # cursor.execute(drop)
         ctas_query = get_ctas_query_from_df(
             schema,
-            f"{self.config.pos_source_table}_sampled_ids",
+            f"{self.config.pos_source_table}_sampled_ids_{table_suffix}",
             cohort,
         )
         self.queries.append(ctas_query)
         # TODO - replace with timestamp prepended table
-        drop = get_drop_view_table(self.config.target_table, "TABLE")
-        cursor.execute(drop)
+        # drop = get_drop_view_table(self.config.target_table, "TABLE")
+        # cursor.execute(drop)
         dataset_query = get_create_covariate_table(
-            target_table=self.config.target_table,
+            target_table=f"{self.config.target_table}_{table_suffix}",
             pos_source_table=self.config.pos_source_table,
             neg_source_table=self.config.neg_source_table,
+            table_suffix=table_suffix,
             primary_ref=self.config.primary_ref,
             dependent_variable=self.config.dependent_variable,
             join_cols_by_table=self.config.join_cols_by_table,
@@ -188,9 +196,90 @@ class PsmBuilder(BaseTableBuilder):
         )
         self.queries.append(dataset_query)
 
-    def generate_psm_analysis(self, cursor: DatabaseCursor, schema: str):
+    def psm_plot_match(
+        self,
+        psm,
+        matched_entity="propensity_logit",
+        Title="Side by side matched controls",
+        Ylabel="Number of patients",
+        Xlabel="propensity logit",
+        names=["positive_cohort", "negative_cohort"],
+        colors=["#E69F00", "#56B4E9"],
+        save=True,
+        filename="propensity_match.png",
+    ):
+        """Plots knn match data
+
+        This function re-implements psm.plot_match, with the only changes
+        allowing for specifiying a filename/location for saving plots to,
+        and passing in the psm object instead of assuming a call from inside
+        the PsmPy class.
+        """
+        dftreat = psm.df_matched[psm.df_matched[psm.treatment] == 1]
+        dfcontrol = psm.df_matched[psm.df_matched[psm.treatment] == 0]
+        x1 = dftreat[matched_entity]
+        x2 = dfcontrol[matched_entity]
+        colors = colors
+        names = names
+        sns.set_style("white")
+        plt.hist([x1, x2], color=colors, label=names)
+        plt.legend()
+        plt.xlabel(Xlabel)
+        plt.ylabel(Ylabel)
+        plt.title(Title)
+        if save == True:
+            plt.savefig(filename, dpi=250)
+
+    def psm_effect_size_plot(
+        self,
+        psm,
+        title="Standardized Mean differences accross covariates before and after matching",
+        before_color="#FCB754",
+        after_color="#3EC8FB",
+        save=False,
+        filename="effect_size.png",
+    ):
+        """Plots effect size of variables for positive/negative matches
+
+        This function re-implements psm.effect_size_plot, with the only changes
+        allowing for specifiying a filename/location for saving plots to,
+        and passing in the psm object instead of assuming a call from inside
+        the PsmPy class.
+        """
+        df_preds_after = psm.df_matched[[psm.treatment] + psm.xvars]
+        df_preds_b4 = psm.data[[psm.treatment] + psm.xvars]
+        df_preds_after_float = df_preds_after.astype(float)
+        df_preds_b4_float = df_preds_b4.astype(float)
+
+        data = []
+        for cl in psm.xvars:
+            data.append([cl, "before", cohenD(df_preds_b4_float, psm.treatment, cl)])
+            data.append([cl, "after", cohenD(df_preds_after_float, psm.treatment, cl)])
+        psm.effect_size = pandas.DataFrame(
+            data, columns=["Variable", "matching", "Effect Size"]
+        )
+        sns.set_style("white")
+        sns_plot = sns.barplot(
+            data=psm.effect_size,
+            y="Variable",
+            x="Effect Size",
+            hue="matching",
+            palette=[before_color, after_color],
+            orient="h",
+        )
+        sns_plot.set(title=title)
+        if save == True:
+            sns_plot.figure.savefig(filename, dpi=250, bbox_inches="tight")
+
+    def generate_psm_analysis(
+        self, cursor: DatabaseCursor, schema: str, table_suffix: str
+    ):
         """Runs PSM statistics on generated tables"""
-        df = cursor.execute(f"select * from {self.config.target_table}").as_pandas()
+        cursor.execute(
+            f"""CREATE OR REPLACE VIEW {self.config.target_table} 
+            AS SELECT * FROM {self.config.target_table}_{table_suffix}"""
+        )
+        df = cursor.execute(f"SELECT * FROM {self.config.target_table}").as_pandas()
         symptoms_dict = self._get_symptoms_dict(self.config.classification_json)
         for dependent_variable, codes in symptoms_dict.items():
             df[dependent_variable] = df["code"].apply(lambda x: 1 if x in codes else 0)
@@ -247,7 +336,19 @@ class PsmBuilder(BaseTableBuilder):
                 caliper=None,
                 drop_unmatched=True,
             )
-
+            os.makedirs(self.export_path, exist_ok=True)
+            self.psm_plot_match(
+                psm,
+                save=True,
+                filename=self.export_path
+                / f"{self.config.target_table}_{table_suffix}_propensity_match.png",
+            )
+            self.psm_effect_size_plot(
+                psm,
+                save=True,
+                filename=self.export_path
+                / f"{self.config.target_table}_{table_suffix}_effect_size.png",
+            )
         except ZeroDivisionError:
             sys.exit(
                 "Encountered a divide by zero error during statistical graph generation. Try increasing your sample size."
@@ -257,8 +358,8 @@ class PsmBuilder(BaseTableBuilder):
                 "Encountered a value error during KNN matching. Try increasing your sample size."
             )
 
-    def prepare_queries(self, cursor: object, schema: str):
-        self._create_covariate_table(cursor, schema)
+    def prepare_queries(self, cursor: object, schema: str, table_suffix: str):
+        self._create_covariate_table(cursor, schema, table_suffix)
 
     def post_execution(
         self,
@@ -266,6 +367,7 @@ class PsmBuilder(BaseTableBuilder):
         schema: str,
         verbose: bool,
         drop_table: bool = False,
+        table_suffix: str = None,
     ):
         # super().execute_queries(cursor, schema, verbose, drop_table)
-        self.generate_psm_analysis(cursor, schema)
+        self.generate_psm_analysis(cursor, schema, table_suffix)

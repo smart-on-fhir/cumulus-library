@@ -6,6 +6,7 @@ import os
 import sys
 import sysconfig
 
+from datetime import datetime
 from pathlib import Path, PosixPath
 from typing import Dict, List, Optional
 
@@ -19,31 +20,11 @@ from cumulus_library.databases import (
     DatabaseBackend,
     create_db_backend,
 )
+from cumulus_library.enums import PROTECTED_TABLES
+from cumulus_library.protected_table_builder import TRANSACTIONS_COLS
 from cumulus_library.study_parser import StudyManifestParser
+from cumulus_library.template_sql.templates import get_insert_into_query
 from cumulus_library.upload import upload_files
-
-
-# ** Don't delete! **
-# This class isn't used in the rest of the code,
-# but it is used manually as a quick & dirty alternative to the CLI.
-class CumulusEnv:  # pylint: disable=too-few-public-methods
-    """
-    Wrapper for Cumulus Environment vars.
-    Simplifies connections to StudyBuilder without requiring CLI parsing.
-    """
-
-    def __init__(self):
-        self.region = os.environ.get("CUMULUS_LIBRARY_REGION", "us-east-1")
-        self.workgroup = os.environ.get("CUMULUS_LIBRARY_WORKGROUP", "cumulus")
-        self.profile = os.environ.get("CUMULUS_LIBRARY_PROFILE")
-        self.schema_name = os.environ.get("CUMULUS_LIBRARY_DATABASE")
-
-    def get_study_builder(self):
-        """Convenience method for getting athena args from environment"""
-        db = AthenaDatabaseBackend(
-            self.region, self.workgroup, self.profile, self.schema_name
-        )
-        return StudyBuilder(db)
 
 
 class StudyBuilder:
@@ -52,24 +33,37 @@ class StudyBuilder:
     verbose = False
     schema_name = None
 
-    def __init__(self, db: DatabaseBackend):
+    def __init__(self, db: DatabaseBackend, data_path: str):
         self.db = db
+        self.data_path = data_path
         self.cursor = db.cursor()
         self.schema_name = db.schema_name
 
-    def reset_data_path(self, study: PosixPath) -> None:
-        """
-        Removes existing exports from a study's local data dir
-        """
-        project_path = Path(__file__).resolve().parents[1]
-        path = Path(f"{str(project_path)}/data_export/{study}/")
-        if path.exists():
-            for file in path.glob("*"):
-                file.unlink()
+    def update_transactions(self, prefix: str, status: str):
+        self.cursor.execute(
+            get_insert_into_query(
+                f"{prefix}__{PROTECTED_TABLES.TRANSACTIONS.value}",
+                TRANSACTIONS_COLS,
+                [
+                    [
+                        prefix,
+                        __version__,
+                        status,
+                        datetime.now().replace(microsecond=0).isoformat(),
+                    ]
+                ],
+            )
+        )
 
     ### Creating studies
 
-    def clean_study(self, targets: List[str], study_dict, prefix=False) -> None:
+    def clean_study(
+        self,
+        targets: List[str],
+        study_dict: Dict,
+        stats_clean: bool,
+        prefix: bool = False,
+    ) -> None:
         """Removes study table/views from Athena.
 
         While this is usually not required, since it it done as part of a build,
@@ -86,25 +80,69 @@ class StudyBuilder:
             if prefix:
                 parser = StudyManifestParser()
                 parser.clean_study(
-                    self.cursor, self.schema_name, self.verbose, prefix=target
+                    self.cursor,
+                    self.schema_name,
+                    verbose=self.verbose,
+                    stats_clean=stats_clean,
+                    prefix=target,
                 )
             else:
                 parser = StudyManifestParser(study_dict[target])
-                parser.clean_study(self.cursor, self.schema_name, self.verbose)
+                parser.clean_study(
+                    self.cursor,
+                    self.schema_name,
+                    verbose=self.verbose,
+                    stats_clean=stats_clean,
+                )
 
     def clean_and_build_study(
-        self, target: PosixPath, continue_from: str = None
+        self,
+        target: PosixPath,
+        export_dir: PosixPath,
+        stats_build: bool,
+        continue_from: str = None,
     ) -> None:
         """Recreates study views/tables
 
         :param target: A PosixPath to the study directory
         """
-        studyparser = StudyManifestParser(target)
-        if not continue_from:
-            studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
-            studyparser.run_table_builder(self.cursor, self.schema_name, self.verbose)
-        studyparser.build_study(self.cursor, self.verbose, continue_from)
-        studyparser.run_counts_builder(self.cursor, self.schema_name, self.verbose)
+
+        studyparser = StudyManifestParser(target, self.data_path)
+        try:
+            if not continue_from:
+                studyparser.run_protected_table_builder(
+                    self.cursor, self.schema_name, verbose=self.verbose
+                )
+                self.update_transactions(studyparser.get_study_prefix(), "started")
+                cleaned_tables = studyparser.clean_study(
+                    self.cursor,
+                    self.schema_name,
+                    verbose=self.verbose,
+                    stats_clean=False,
+                )
+                # If the study hasn't been created before, force stats table generation
+                if len(cleaned_tables) == 0:
+                    stats_build = True
+                studyparser.run_table_builder(
+                    self.cursor, self.schema_name, verbose=self.verbose
+                )
+            else:
+                self.update_transactions(studyparser.get_study_prefix(), "resumed")
+            studyparser.build_study(self.cursor, self.verbose, continue_from)
+            studyparser.run_counts_builders(
+                self.cursor, self.schema_name, verbose=self.verbose
+            )
+            studyparser.run_statistics_builders(
+                self.cursor,
+                self.schema_name,
+                verbose=self.verbose,
+                stats_build=stats_build,
+                data_path=self.data_path,
+            )
+            self.update_transactions(studyparser.get_study_prefix(), "finished")
+        except Exception as e:
+            self.update_transactions(studyparser.get_study_prefix(), "error")
+            raise e
 
     def run_single_table_builder(
         self, target: PosixPath, table_builder_name: str
@@ -118,7 +156,7 @@ class StudyBuilder:
             self.cursor, self.schema_name, table_builder_name, self.verbose
         )
 
-    def clean_and_build_all(self, study_dict: Dict) -> None:
+    def clean_and_build_all(self, study_dict: Dict, export_dir: PosixPath) -> None:
         """Builds views for all studies.
 
         NOTE: By design, this method will always exclude the `template` study dir,
@@ -129,7 +167,7 @@ class StudyBuilder:
         study_dict = dict(study_dict)
         study_dict.pop("template")
         for precursor_study in ["vocab", "core"]:
-            self.clean_and_build_study(study_dict[precursor_study])
+            self.clean_and_build_study(study_dict[precursor_study], export_dir)
             study_dict.pop(precursor_study)
         for key in study_dict:
             self.clean_and_build_study(study_dict[key])
@@ -142,7 +180,7 @@ class StudyBuilder:
         """
         if data_path is None:
             sys.exit("Missing destination - please provide a path argument.")
-        studyparser = StudyManifestParser(target)
+        studyparser = StudyManifestParser(target, data_path)
         studyparser.export_study(self.db, data_path)
 
     def export_all(self, study_dict: Dict, data_path: PosixPath):
@@ -229,7 +267,7 @@ def run_cli(args: Dict):
     # all other actions require connecting to AWS
     else:
         db_backend = create_db_backend(args)
-        builder = StudyBuilder(db_backend)
+        builder = StudyBuilder(db_backend, args["data_path"])
         if args["verbose"]:
             builder.verbose = True
         print("Testing connection to database...")
@@ -250,20 +288,26 @@ def run_cli(args: Dict):
             builder.clean_study(
                 args["target"],
                 study_dict,
+                args["stats_clean"],
                 args["prefix"],
             )
         elif args["action"] == "build":
             if "all" in args["target"]:
-                builder.clean_and_build_all(study_dict)
+                builder.clean_and_build_all(
+                    study_dict, args["export_dir"], args["stats_build"]
+                )
             else:
                 for target in args["target"]:
                     if args["builder"]:
                         builder.run_single_table_builder(
-                            study_dict[target], args["builder"]
+                            study_dict[target], args["builder"], args["stats_build"]
                         )
                     else:
                         builder.clean_and_build_study(
-                            study_dict[target], continue_from=args["continue_from"]
+                            study_dict[target],
+                            args["data_path"],
+                            args["stats_build"],
+                            continue_from=args["continue_from"],
                         )
 
         elif args["action"] == "export":
@@ -273,6 +317,13 @@ def run_cli(args: Dict):
                 for target in args["target"]:
                     builder.export_study(study_dict[target], args["data_path"])
 
+        #         print(set(builder.cursor.execute("""SELECT table_name
+        # FROM information_schema.tables
+        # where table_name ilike '%_lib_%'
+        # or table_name ilike '%_psm_%'""").fetchall()))
+        # print(builder.cursor.execute("select * from psm_test__lib_statistics").fetchall())
+        # print(builder.cursor.execute("select * from psm_test__lib_transactions").fetchall())
+        # print(builder.cursor.execute("select * from psm_test__psm_encounter_covariate").fetchall())
         db_backend.close()
         # returning the builder for ease of unit testing
         return builder
@@ -337,6 +388,7 @@ def main(cli_args=None):
 
     if args.get("data_path"):
         args["data_path"] = get_abs_posix_path(args["data_path"])
+
     return run_cli(args)
 
 

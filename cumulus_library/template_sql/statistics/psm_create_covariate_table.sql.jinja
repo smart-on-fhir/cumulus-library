@@ -33,7 +33,7 @@ CREATE TABLE {{ target_table }} AS (
         {%- endif -%}
         {{ select_column_or_alias(join_cols_by_table) }}
         {{ neg_source_table }}.code
-    FROM "{{ pos_source_table }}_sampled_ids" AS sample_cohort,
+    FROM "{{ pos_source_table }}_sampled_ids_{{table_suffix}}" AS sample_cohort,
         "{{ neg_source_table }}", 
     {%- for key in join_cols_by_table %}
         "{{ key }}"

@@ -1,6 +1,8 @@
 """Manages configuration for argparse"""
 import argparse
 
+from cumulus_library.errors import CumulusLibraryError
+
 
 def add_target_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --target arg to a subparser"""
@@ -122,6 +124,8 @@ following order of preference is used to select credentials:
         dest="action",
     )
 
+    # Study creation
+
     create = actions.add_parser(
         "create", help="Create a study instance from a template"
     )
@@ -135,6 +139,8 @@ following order of preference is used to select credentials:
         ),
     )
 
+    # Database cleaning
+
     clean = actions.add_parser(
         "clean", help="Removes tables & views beginning with '[target]__' from Athena"
     )
@@ -144,10 +150,18 @@ following order of preference is used to select credentials:
     add_verbose_argument(clean)
     add_db_config(clean)
     clean.add_argument(
+        "--statistics",
+        action="store_true",
+        help="Remove artifacts of previous statistics runs",
+        dest="stats_clean",
+    )
+    clean.add_argument(
         "--prefix",
         action="store_true",
         help=argparse.SUPPRESS,
     )
+
+    # Database building
 
     build = actions.add_parser(
         "build",
@@ -158,7 +172,15 @@ following order of preference is used to select credentials:
     add_study_dir_argument(build)
     add_verbose_argument(build)
     add_db_config(build)
-
+    build.add_argument(
+        "--statistics",
+        action="store_true",
+        help=(
+            "Force regenerating statistics data from latest dataset. "
+            "Stats are created by default when study is initially run"
+        ),
+        dest="stats_build",
+    )
     build.add_argument(
         "--load-ndjson-dir", help="Load ndjson files from this folder", metavar="DIR"
     )
@@ -168,6 +190,8 @@ following order of preference is used to select credentials:
         help=argparse.SUPPRESS,
     )
 
+    # Database export
+
     export = actions.add_parser(
         "export", help="Generates files on disk from Athena views"
     )
@@ -176,6 +200,8 @@ following order of preference is used to select credentials:
     add_data_path_argument(export)
     add_verbose_argument(export)
     add_db_config(export)
+
+    # Aggregator upload
 
     upload = actions.add_parser(
         "upload", help="Bulk uploads data to Cumulus aggregator"
