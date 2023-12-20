@@ -31,14 +31,9 @@ The expected workflow looks something like this:
 
 ## Configuring a PSM task
 
-You can configure a PSM task the same way that you would configure python/counts table
-infrastructure in your manifest.toml.
-
-TODO: update after this is implemented with example of usage
-
-The PSM config you are referencing above is expected to contain a number of field 
-definitions. We :strongly: recommend starting from the below template, which contains
-details on the expectations of each value.
+The PSM config you reference in your study manifest is expected to contain a number of 
+field definitions. We :strongly: recommend starting from the below template, which
+contains details on the expectations of each value.
 ```toml
 # This is a config file for generating a propensity score matching (PSM) definition. 
 

@@ -244,7 +244,7 @@ def test_create_view_query_creation():
     "expected,schema,table,cols,types",
     [
         (
-            """CREATE TABLE IF NOT EXISTS "test_schema"."test_table" 
+            """CREATE TABLE IF NOT EXISTS "test_schema"."test_table"
 AS (
     SELECT * FROM (
         VALUES
@@ -258,7 +258,7 @@ AS (
             [],
         ),
         (
-            """CREATE TABLE IF NOT EXISTS "test_schema"."test_table" 
+            """CREATE TABLE IF NOT EXISTS "test_schema"."test_table"
 AS (
     SELECT * FROM (
         VALUES
@@ -277,8 +277,6 @@ def test_ctas_empty_query_creation(expected, schema, table, cols, types):
     query = get_ctas_empty_query(
         schema_name=schema, table_name=table, table_cols=cols, table_cols_types=types
     )
-    with open("output.sql", "w") as f:
-        f.write(query)
     assert query == expected
 
 
