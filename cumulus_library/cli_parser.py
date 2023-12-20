@@ -1,8 +1,6 @@
 """Manages configuration for argparse"""
 import argparse
 
-from cumulus_library.errors import CumulusLibraryError
-
 
 def add_target_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --target arg to a subparser"""
@@ -171,6 +169,7 @@ following order of preference is used to select credentials:
     add_table_builder_argument(build)
     add_study_dir_argument(build)
     add_verbose_argument(build)
+    add_data_path_argument(build)
     add_db_config(build)
     build.add_argument(
         "--statistics",

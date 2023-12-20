@@ -114,7 +114,7 @@ def test_cli_path_mapping(
         args = duckdb_args(args, tmp_path)
         cli.main(cli_args=args)
         db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
-        assert expected in db.cursor().execute("show tables").fetchone()[0]
+        assert (expected,) in db.cursor().execute("show tables").fetchall()
 
 
 @mock.patch.dict(
@@ -140,6 +140,7 @@ def test_count_builder_mapping(mock_path, tmp_path):
         cli.main(cli_args=args)
         db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
         assert [
+            ("study_python_counts_valid__lib_transactions",),
             ("study_python_counts_valid__table1",),
             ("study_python_counts_valid__table2",),
         ] == db.cursor().execute("show tables").fetchall()
@@ -194,7 +195,7 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
 @pytest.mark.parametrize(
     "build_args,export_args,expected_tables",
     [
-        (["build", "-t", "core"], ["export", "-t", "core"], 37),
+        (["build", "-t", "core"], ["export", "-t", "core"], 38),
         (
             [  # checking that a study is loaded from a child directory of a user-defined path
                 "build",
@@ -204,9 +205,9 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
                 "tests/test_data/",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
-            1,
+            2,
         ),
-        (["build", "-t", "vocab"], None, 2),
+        (["build", "-t", "vocab"], None, 3),
         (
             [  # checking that a study is loaded from the directory of a user-defined path
                 "build",
@@ -216,7 +217,7 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
                 "tests/test_data/study_valid/",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            1,
+            2,
         ),
     ],
 )

@@ -3,6 +3,7 @@
 import json
 import os
 import sys
+import warnings
 
 from pathlib import PosixPath
 from dataclasses import dataclass
@@ -57,12 +58,12 @@ class PsmBuilder(BaseTableBuilder):
 
     display_text = "Building PSM tables..."
 
-    def __init__(self, toml_config_path: str, export_path: PosixPath):
+    def __init__(self, toml_config_path: str, data_path: PosixPath):
         """Loads PSM job details from a PSM configuration file"""
         super().__init__()
         # We're stashing the toml path for error reporting later
         self.toml_path = toml_config_path
-        self.export_path = export_path
+        self.data_path = data_path
         try:
             with open(self.toml_path, encoding="UTF-8") as file:
                 toml_config = toml.load(file)
@@ -166,23 +167,15 @@ class PsmBuilder(BaseTableBuilder):
             self.config.dependent_variable,
             0,
         )
-        cohort = pandas.concat([pos, neg])
 
-        # Replace table (if it exists)
-        # TODO - replace with timestamp prepended table in future PR
-        # drop = get_drop_view_table(
-        #    f"{self.config.pos_source_table}_sampled_ids", "TABLE"
-        # )
-        # cursor.execute(drop)
+        cohort = pandas.concat([pos, neg])
         ctas_query = get_ctas_query_from_df(
             schema,
             f"{self.config.pos_source_table}_sampled_ids_{table_suffix}",
             cohort,
         )
         self.queries.append(ctas_query)
-        # TODO - replace with timestamp prepended table
-        # drop = get_drop_view_table(self.config.target_table, "TABLE")
-        # cursor.execute(drop)
+
         dataset_query = get_create_covariate_table(
             target_table=f"{self.config.target_table}_{table_suffix}",
             pos_source_table=self.config.pos_source_table,
@@ -195,6 +188,7 @@ class PsmBuilder(BaseTableBuilder):
             count_table=self.config.count_table,
         )
         self.queries.append(dataset_query)
+        print(dataset_query)
 
     def psm_plot_match(
         self,
@@ -315,7 +309,6 @@ class PsmBuilder(BaseTableBuilder):
             df = pandas.concat([df, encoded_df], axis=1)
             df = df.drop(column, axis=1)
         df = df.reset_index()
-
         try:
             psm = PsmPy(
                 df,
@@ -323,32 +316,36 @@ class PsmBuilder(BaseTableBuilder):
                 indx=self.config.primary_ref,
                 exclude=[],
             )
-            # This function populates the psm.predicted_data element, which is required
-            # for things like the knn_matched() function call
-            # TODO: create graph from this data
-            psm.logistic_ps(balance=True)
-            # This function populates the psm.df_matched element
-            # TODO: flip replacement to false after increasing sample data size
-            # TODO: create graph from this data
-            psm.knn_matched(
-                matcher="propensity_logit",
-                replacement=True,
-                caliper=None,
-                drop_unmatched=True,
-            )
-            os.makedirs(self.export_path, exist_ok=True)
-            self.psm_plot_match(
-                psm,
-                save=True,
-                filename=self.export_path
-                / f"{self.config.target_table}_{table_suffix}_propensity_match.png",
-            )
-            self.psm_effect_size_plot(
-                psm,
-                save=True,
-                filename=self.export_path
-                / f"{self.config.target_table}_{table_suffix}_effect_size.png",
-            )
+
+            # we expect psmpy to autodrop non-matching values, so we'll surpress it
+            # mentioning workarounds for this behavior.
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=UserWarning)
+                # This function populates the psm.predicted_data element, which is required
+                # for things like the knn_matched() function call
+                # TODO: create graph from this data
+                psm.logistic_ps(balance=True)
+                # This function populates the psm.df_matched element
+                # TODO: create graph from this data
+                psm.knn_matched(
+                    matcher="propensity_logit",
+                    replacement=False,
+                    caliper=None,
+                    drop_unmatched=True,
+                )
+                os.makedirs(self.data_path, exist_ok=True)
+                self.psm_plot_match(
+                    psm,
+                    save=True,
+                    filename=self.data_path
+                    / f"{self.config.target_table}_{table_suffix}_propensity_match.png",
+                )
+                self.psm_effect_size_plot(
+                    psm,
+                    save=True,
+                    filename=self.data_path
+                    / f"{self.config.target_table}_{table_suffix}_effect_size.png",
+                )
         except ZeroDivisionError:
             sys.exit(
                 "Encountered a divide by zero error during statistical graph generation. Try increasing your sample size."

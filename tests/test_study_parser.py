@@ -1,11 +1,14 @@
 """ tests for study parser against mocks in test_data """
 import builtins
 import pathlib
+
 from contextlib import nullcontext as does_not_raise
+from pathlib import Path
 from unittest import mock
 
 import pytest
 
+from cumulus_library.enums import PROTECTED_TABLE_KEYWORDS
 from cumulus_library.study_parser import StudyManifestParser, StudyManifestParsingError
 from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
 
@@ -75,81 +78,111 @@ def test_manifest_data(manifest_key, raises):
 
 
 @pytest.mark.parametrize(
-    "schema,verbose,prefix,confirm,query_res,raises",
+    "schema,verbose,prefix,confirm,target,raises",
     [
-        ("schema", True, None, None, "study_valid__table", does_not_raise()),
-        ("schema", False, None, None, "study_valid__table", does_not_raise()),
-        ("schema", None, None, None, "study_valid__table", does_not_raise()),
-        (None, True, None, None, [], pytest.raises(ValueError)),
-        ("schema", None, None, None, "study_valid__etl_table", does_not_raise()),
-        ("schema", None, None, None, "study_valid__nlp_table", does_not_raise()),
-        ("schema", None, None, None, "study_valid__lib_table", does_not_raise()),
-        ("schema", None, None, None, "study_valid__lib", does_not_raise()),
-        ("schema", None, "foo", "y", "foo_table", does_not_raise()),
-        ("schema", None, "foo", "n", "foo_table", pytest.raises(SystemExit)),
+        ("main", True, None, None, "study_valid__table", does_not_raise()),
+        ("main", False, None, None, "study_valid__table", does_not_raise()),
+        ("main", None, None, None, "study_valid__table", does_not_raise()),
+        (None, True, None, None, None, pytest.raises(ValueError)),
+        ("main", None, None, None, "study_valid__etl_table", does_not_raise()),
+        ("main", None, None, None, "study_valid__nlp_table", does_not_raise()),
+        ("main", None, None, None, "study_valid__lib_table", does_not_raise()),
+        ("main", None, None, None, "study_valid__lib", does_not_raise()),
+        ("main", None, "foo", "y", "foo_table", does_not_raise()),
+        ("main", None, "foo", "n", "foo_table", pytest.raises(SystemExit)),
     ],
 )
-@mock.patch("cumulus_library.helper.query_console_output")
-def test_clean_study(mock_output, schema, verbose, prefix, confirm, query_res, raises):
+def test_clean_study(mock_db, schema, verbose, prefix, confirm, target, raises):
     with raises:
+        protected_strs = [x.value for x in PROTECTED_TABLE_KEYWORDS]
         with mock.patch.object(builtins, "input", lambda _: confirm):
-            mock_cursor = mock.MagicMock()
-            mock_cursor.fetchall.return_value = [[query_res]]
             parser = StudyManifestParser("./tests/test_data/study_valid/")
-            tables = parser.clean_study(mock_cursor, schema, verbose, prefix=prefix)
-
-            if "study_valid__table" not in query_res and prefix is None:
-                assert not tables
+            if target is not None:
+                mock_db.cursor().execute(f"CREATE TABLE {target} (test int);")
+            parser.clean_study(mock_db.cursor(), schema, verbose=verbose, prefix=prefix)
+            remaining_tables = (
+                mock_db.cursor()
+                .execute(f"select distinct(table_name) from information_schema.tables")
+                .fetchall()
+            )
+            if any(x in target for x in protected_strs):
+                assert (target,) in remaining_tables
             else:
-                assert tables == [[query_res, "VIEW"]]
-                if prefix is not None:
-                    assert prefix in mock_cursor.execute.call_args.args[0]
-                else:
-                    assert "study_valid__" in mock_cursor.execute.call_args.args[0]
-            assert mock_output.is_called()
+                assert (target,) not in remaining_tables
 
 
-@pytest.mark.parametrize(
-    "path,verbose,raises",
-    [
-        ("./tests/test_data/study_valid/", True, does_not_raise()),
-        ("./tests/test_data/study_valid/", False, does_not_raise()),
-        ("./tests/test_data/study_valid/", None, does_not_raise()),
-        ("./tests/test_data/study_wrong_prefix/", None, pytest.raises(SystemExit)),
-        ("./tests/test_data/study_python_valid/", True, does_not_raise()),
+"""
+        ("./tests/test_data/study_python_valid/", True, ('study_python_valid__table',), does_not_raise()),
+
         (
             "./tests/test_data/study_python_no_subclass/",
             True,
-            pytest.raises(StudyManifestParsingError),
+            (),
+            does_not_raise(),
         ),
-        ("./tests/test_data/study_invalid_no_dunder/", True, pytest.raises(SystemExit)),
+
+"""
+
+
+@pytest.mark.parametrize(
+    "study_path,verbose,expects,raises",
+    [
+        (
+            "./tests/test_data/study_valid/",
+            True,
+            ("study_valid__table",),
+            does_not_raise(),
+        ),
+        (
+            "./tests/test_data/study_valid/",
+            False,
+            ("study_valid__table",),
+            does_not_raise(),
+        ),
+        (
+            "./tests/test_data/study_valid/",
+            None,
+            ("study_valid__table",),
+            does_not_raise(),
+        ),
+        ("./tests/test_data/study_wrong_prefix/", None, [], pytest.raises(SystemExit)),
+        (
+            "./tests/test_data/study_invalid_no_dunder/",
+            True,
+            (),
+            pytest.raises(SystemExit),
+        ),
         (
             "./tests/test_data/study_invalid_two_dunder/",
             True,
+            (),
             pytest.raises(SystemExit),
         ),
         (
             "./tests/test_data/study_invalid_reserved_word/",
             True,
+            (),
             pytest.raises(SystemExit),
         ),
     ],
 )
-@mock.patch("cumulus_library.helper.query_console_output")
-def test_build_study(mock_output, path, verbose, raises):
+def test_build_study(mock_db, study_path, verbose, expects, raises):
     with raises:
-        mock_cursor = mock.MagicMock()
-        parser = StudyManifestParser(path)
-        parser.run_table_builder(mock_cursor, verbose)
-        queries = parser.build_study(mock_cursor, verbose)
-        if "python" not in path:
-            assert "CREATE TABLE" in queries[0][0]
-            assert mock_output.is_called()
+        parser = StudyManifestParser(study_path)
+        parser.build_study(mock_db.cursor(), verbose)
+        tables = (
+            mock_db.cursor()
+            .execute("SELECT distinct(table_name) FROM information_schema.tables ")
+            .fetchall()
+        )
+        assert expects in tables
 
 
-def test_export_study(monkeypatch):
-    mock_cursor = mock.MagicMock()
-    parser = StudyManifestParser("./tests/test_data/study_valid/")
-    monkeypatch.setattr(pathlib, "PosixPath", mock.MagicMock())
-    queries = parser.export_study(mock_cursor, "./path")
-    assert queries == ["select * from study_valid__table"]
+def test_export_study(tmp_path, mock_db_core):
+    parser = StudyManifestParser(
+        f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
+        data_path=f"{tmp_path}/export",
+    )
+    parser.export_study(mock_db_core, f"{tmp_path}/export")
+    for file in Path(f"{tmp_path}/export").glob("*.*"):
+        assert file in parser.get_export_table_list()

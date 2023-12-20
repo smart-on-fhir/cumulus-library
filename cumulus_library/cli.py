@@ -98,7 +98,6 @@ class StudyBuilder:
     def clean_and_build_study(
         self,
         target: PosixPath,
-        export_dir: PosixPath,
         stats_build: bool,
         continue_from: str = None,
     ) -> None:
@@ -106,7 +105,6 @@ class StudyBuilder:
 
         :param target: A PosixPath to the study directory
         """
-
         studyparser = StudyManifestParser(target, self.data_path)
         try:
             if not continue_from:
@@ -140,6 +138,8 @@ class StudyBuilder:
                 data_path=self.data_path,
             )
             self.update_transactions(studyparser.get_study_prefix(), "finished")
+        except SystemExit as exit:
+            raise exit
         except Exception as e:
             self.update_transactions(studyparser.get_study_prefix(), "error")
             raise e
@@ -156,7 +156,7 @@ class StudyBuilder:
             self.cursor, self.schema_name, table_builder_name, self.verbose
         )
 
-    def clean_and_build_all(self, study_dict: Dict, export_dir: PosixPath) -> None:
+    def clean_and_build_all(self, study_dict: Dict, stats_build: bool) -> None:
         """Builds views for all studies.
 
         NOTE: By design, this method will always exclude the `template` study dir,
@@ -167,10 +167,10 @@ class StudyBuilder:
         study_dict = dict(study_dict)
         study_dict.pop("template")
         for precursor_study in ["vocab", "core"]:
-            self.clean_and_build_study(study_dict[precursor_study], export_dir)
+            self.clean_and_build_study(study_dict[precursor_study], stats_build)
             study_dict.pop(precursor_study)
         for key in study_dict:
-            self.clean_and_build_study(study_dict[key])
+            self.clean_and_build_study(study_dict[key], stats_build)
 
     ### Data exporters
     def export_study(self, target: PosixPath, data_path: PosixPath) -> None:
@@ -267,7 +267,7 @@ def run_cli(args: Dict):
     # all other actions require connecting to AWS
     else:
         db_backend = create_db_backend(args)
-        builder = StudyBuilder(db_backend, args["data_path"])
+        builder = StudyBuilder(db_backend, data_path=args.get("data_path", None))
         if args["verbose"]:
             builder.verbose = True
         print("Testing connection to database...")
@@ -293,9 +293,7 @@ def run_cli(args: Dict):
             )
         elif args["action"] == "build":
             if "all" in args["target"]:
-                builder.clean_and_build_all(
-                    study_dict, args["export_dir"], args["stats_build"]
-                )
+                builder.clean_and_build_all(study_dict, args["stats_build"])
             else:
                 for target in args["target"]:
                     if args["builder"]:
@@ -305,7 +303,6 @@ def run_cli(args: Dict):
                     else:
                         builder.clean_and_build_study(
                             study_dict[target],
-                            args["data_path"],
                             args["stats_build"],
                             continue_from=args["continue_from"],
                         )
@@ -317,13 +314,6 @@ def run_cli(args: Dict):
                 for target in args["target"]:
                     builder.export_study(study_dict[target], args["data_path"])
 
-        #         print(set(builder.cursor.execute("""SELECT table_name
-        # FROM information_schema.tables
-        # where table_name ilike '%_lib_%'
-        # or table_name ilike '%_psm_%'""").fetchall()))
-        # print(builder.cursor.execute("select * from psm_test__lib_statistics").fetchall())
-        # print(builder.cursor.execute("select * from psm_test__lib_transactions").fetchall())
-        # print(builder.cursor.execute("select * from psm_test__psm_encounter_covariate").fetchall())
         db_backend.close()
         # returning the builder for ease of unit testing
         return builder

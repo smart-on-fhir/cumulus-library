@@ -218,7 +218,7 @@ def get_ctas_empty_query(
     :param schema_name: The athena schema to create the table in
     :param table_name: The name of the athena table to create
     :param table_cols: Comma deleniated column names, i.e. ['first,second']
-    :param table_cols: Allows specifying a data type per column (default: all varchar)
+    :param table_cols_types: Allows specifying a data type per column (default: all varchar)
     """
     path = Path(__file__).parent
     if table_cols_types == []:

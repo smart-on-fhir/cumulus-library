@@ -34,8 +34,10 @@ dev = [
     "pylint",
 ]
 test = [
+    "freezegun",
+    "jmespath",
     "pytest",
-    "requests-mock"
+    "requests-mock",
 ]
 
 [project.urls]

@@ -13,6 +13,7 @@ import datetime
 import json
 import os
 import sys
+import warnings
 from pathlib import Path
 from typing import Optional, Protocol, Union
 
@@ -264,10 +265,10 @@ def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
             args["profile"],
             database,
         )
-        # if load_ndjson_dir:
-        #    sys.exit(
-        #        "Loading an ndjson dir is not supported with --db-type=athena (try duckdb)"
-        #    )
+        if load_ndjson_dir:
+            warnings.warn(
+                "Loading an ndjson dir is not supported with --db-type=athena."
+            )
     else:
         raise ValueError(f"Unexpected --db-type value '{db_type}'")
 

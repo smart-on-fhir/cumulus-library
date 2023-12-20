@@ -22,14 +22,10 @@ STATISTICS_COLS = [
 class ProtectedTableBuilder(BaseTableBuilder):
     display_text = "Creating/updating system tables..."
 
-    def prepare_queries(self, cursor: object, schema: str, study_name: str):
-        safe_timestamp = (
-            datetime.datetime.now()
-            .replace(microsecond=0)
-            .isoformat()
-            .replace(":", "_")
-            .replace("-", "_")
-        )
+    def prepare_queries(
+        self, cursor: object, schema: str, study_name: str, study_stats: dict
+    ):
+        print("hi")
         self.queries.append(
             get_ctas_empty_query(
                 schema,
@@ -40,19 +36,20 @@ class ProtectedTableBuilder(BaseTableBuilder):
                 ["varchar", "varchar", "varchar", "timestamp"],
             )
         )
-        self.queries.append(
-            get_ctas_empty_query(
-                schema,
-                f"{study_name}__{PROTECTED_TABLES.STATISTICS.value}",
-                # same redundancy note about study_name, and also view_name, applies here
-                STATISTICS_COLS,
-                [
-                    "varchar",
-                    "varchar",
-                    "varchar",
-                    "varchar",
-                    "varchar",
-                    "timestamp",
-                ],
+        if study_stats:
+            self.queries.append(
+                get_ctas_empty_query(
+                    schema,
+                    f"{study_name}__{PROTECTED_TABLES.STATISTICS.value}",
+                    # same redundancy note about study_name, and also view_name, applies here
+                    STATISTICS_COLS,
+                    [
+                        "varchar",
+                        "varchar",
+                        "varchar",
+                        "varchar",
+                        "varchar",
+                        "timestamp",
+                    ],
+                )
             )
-        )

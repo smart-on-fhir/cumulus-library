@@ -30,8 +30,6 @@ class BaseTableBuilder(ABC):
 
         :param cursor: A PEP-249 compatible cursor
         :param schema: A schema name
-        :param db_type: The db system being used (only relevant for db-specific
-          query construction)
         """
         raise NotImplementedError
 

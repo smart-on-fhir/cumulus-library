@@ -151,9 +151,12 @@ class StudyManifestParser:
         """
         Removes exports associated with this study from the ../data_export directory.
         """
-        project_path = Path(__file__).resolve().parents[1]
-        path = self.data_path / self.get_study_prefix()
+        print(self.data_path)
+        print(type(self.data_path))
+        path = Path(f"{self.data_path}/{self.get_study_prefix()}")
         if path.exists():
+            # we're just going to remove the count files - exports related to stats
+            # that aren't uploaded to the aggregator are left alone.
             for file in path.glob("*.*"):
                 file.unlink()
 
@@ -188,13 +191,13 @@ class StudyManifestParser:
                 "This will remove all historical stats tables beginning in the "
                 f"{display_prefix} study - are you sure? (y/N)"
             )
-            if confirm.lower() not in ("y", "yes"):
+            if confirm is None or confirm.lower() not in ("y", "yes"):
                 sys.exit("Table cleaning aborted")
 
         view_sql = get_show_views(schema_name, drop_prefix)
         table_sql = get_show_tables(schema_name, drop_prefix)
         view_table_list = []
-        for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:  #
+        for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
             tuple_list = cursor.execute(query_and_type[0]).fetchall()
             if (
                 f"{drop_prefix}{PROTECTED_TABLES.STATISTICS.value}",
@@ -232,7 +235,7 @@ class StudyManifestParser:
                 for word in PROTECTED_TABLE_KEYWORDS
             ):
                 view_table_list.remove(view_table)
-        # We want to only show a progress bar if we are :not: printing SQL lines
+
         if prefix:
             print("The following views/tables were selected by prefix:")
             for view_table in view_table_list:
@@ -240,6 +243,7 @@ class StudyManifestParser:
             confirm = input("Remove these tables? (y/N)")
             if confirm.lower() not in ("y", "yes"):
                 sys.exit("Table cleaning aborted")
+        # We want to only show a progress bar if we are :not: printing SQL lines
         with get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 f"Removing {display_prefix} study artifacts...",
@@ -349,7 +353,11 @@ class StudyManifestParser:
         """
         ptb = ProtectedTableBuilder()
         ptb.execute_queries(
-            cursor, schema, verbose, study_name=self._study_config.get("study_prefix")
+            cursor,
+            schema,
+            verbose,
+            study_name=self._study_config.get("study_prefix"),
+            study_stats=self._study_config.get("statistics_config"),
         )
 
     def run_table_builder(
@@ -393,7 +401,9 @@ class StudyManifestParser:
 
         :param cursor: A PEP-249 compatible cursor object
         :param schema: The name of the schema to write tables to
-        :param verbose: toggle from progress bar to query output
+        :keyword verbose: toggle from progress bar to query output
+        :keyword stats_build: If true, will run statistical sampling & table generation
+        :keyword data_path: A path to where stats output artifacts should be stored
         """
         if not stats_build:
             return
@@ -442,7 +452,6 @@ class StudyManifestParser:
                 ],
             )
             cursor.execute(insert_query)
-            # self._load_and_execute_builder(file, cursor, schema, verbose)
 
     def run_single_table_builder(
         self, cursor: DatabaseCursor, schema: str, name: str, verbose: bool = False
