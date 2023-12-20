@@ -135,7 +135,6 @@ class StudyBuilder:
                 self.schema_name,
                 verbose=self.verbose,
                 stats_build=stats_build,
-                data_path=self.data_path,
             )
             self.update_transactions(studyparser.get_study_prefix(), "finished")
         except SystemExit as exit:
@@ -378,7 +377,6 @@ def main(cli_args=None):
 
     if args.get("data_path"):
         args["data_path"] = get_abs_posix_path(args["data_path"])
-
     return run_cli(args)
 
 

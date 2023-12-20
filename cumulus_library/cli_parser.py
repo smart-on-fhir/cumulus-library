@@ -169,8 +169,8 @@ following order of preference is used to select credentials:
     add_table_builder_argument(build)
     add_study_dir_argument(build)
     add_verbose_argument(build)
-    add_data_path_argument(build)
     add_db_config(build)
+    add_data_path_argument(build)
     build.add_argument(
         "--statistics",
         action="store_true",

@@ -25,7 +25,6 @@ class ProtectedTableBuilder(BaseTableBuilder):
     def prepare_queries(
         self, cursor: object, schema: str, study_name: str, study_stats: dict
     ):
-        print("hi")
         self.queries.append(
             get_ctas_empty_query(
                 schema,

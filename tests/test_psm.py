@@ -10,16 +10,6 @@ from freezegun import freeze_time
 from cumulus_library.cli import StudyBuilder
 from cumulus_library.statistics.psm import PsmBuilder
 
-"""
-        (
-            "psm_config_no_optional.toml",
-            52,
-            266,
-            {'encounter_ref': 'Encounter/03e34b19-2889-b828-792d-2a83400c55be10', 'example_diagnosis': '1', 'code': '33737001'},
-            {'encounter_ref': 'Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f19', 'example_diagnosis': '0', 'code': '195662009'},
-        ),
-"""
-
 
 @freeze_time("2024-01-01")
 @pytest.mark.parametrize(
@@ -43,6 +33,21 @@ from cumulus_library.statistics.psm import PsmBuilder
                 "instance_count": 1,
                 "gender": "female",
                 "race": "white",
+                "code": "195662009",
+            },
+        ),
+        (
+            "psm_config_no_optional.toml",
+            52,
+            266,
+            {
+                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be10",
+                "example_diagnosis": "1",
+                "code": "33737001",
+            },
+            {
+                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f19",
+                "example_diagnosis": "0",
                 "code": "195662009",
             },
         ),

@@ -1,4 +1,5 @@
 """ tests for the cli interface to studies """
+import builtins
 import glob
 import os
 import sysconfig
@@ -110,7 +111,6 @@ def test_cli_path_mapping(
                 "study_python_valid": "study_python_valid",
             },
         }
-        sysconfig.get_path("purelib")
         args = duckdb_args(args, tmp_path)
         cli.main(cli_args=args)
         db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
@@ -171,6 +171,15 @@ def test_count_builder_mapping(mock_path, tmp_path):
             ],
             "foo",
         ),
+        (
+            [
+                "clean",
+                "-t",
+                "core",
+                "--statistics",
+            ],
+            "core__",
+        ),
     ],
 )
 def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-argument
@@ -179,12 +188,14 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
         cli_args=duckdb_args(["build", "-t", "core", "--database", "test"], tmp_path)
     )
     with does_not_raise():
-        cli.main(
-            cli_args=args + ["--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
-        )
-        db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
-        for table in db.cursor().execute("show tables").fetchall():
-            assert expected not in table
+        with mock.patch.object(builtins, "input", lambda _: "y"):
+            cli.main(
+                cli_args=args
+                + ["--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
+            )
+            db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+            for table in db.cursor().execute("show tables").fetchall():
+                assert expected not in table
 
 
 @mock.patch("builtins.open", MockVocabBsv().open)
@@ -209,12 +220,14 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
         ),
         (["build", "-t", "vocab"], None, 3),
         (
-            [  # checking that a study is loaded from the directory of a user-defined path
+            [  # checking that a study is loaded from the directory of a user-defined path.
+                # we're also validating that the CLI accpes the statistics keyword, though
                 "build",
                 "-t",
                 "study_valid",
                 "-s",
                 "tests/test_data/study_valid/",
+                "--statistics",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
             2,
@@ -251,6 +264,51 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
             csv_files = glob.glob(f"{tmp_path}/counts/{build_args[2]}/*.csv")
             for export_table in config["export_config"]["export_list"]:
                 assert any(export_table in x for x in csv_files)
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+def test_cli_stats_rebuild(tmp_path):
+    """Validates statistics build behavior
+
+    Since this is a little obtuse - we are checking:
+    - that stats builds run at all
+    - that a results table is created on the first run
+    - that a results table is :not: created on the second run
+    - that a results table is created when we explicitly ask for one with a CLI flag
+    """
+
+    cli.main(
+        cli_args=duckdb_args(
+            ["build", "-t", "core", "--database", "test"], tmp_path, stats=True
+        )
+    )
+    arg_list = [
+        "build",
+        "-s",
+        "./tests/test_data",
+        "-t",
+        "psm",
+        "--db-type",
+        "duckdb",
+        "--database",
+        f"{tmp_path}/duck.db",
+    ]
+    cli.main(cli_args=arg_list + [f"{tmp_path}/export"])
+    cli.main(cli_args=arg_list + [f"{tmp_path}/export"])
+    cli.main(cli_args=arg_list + [f"{tmp_path}/export", "--statistics"])
+    db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    expected = (
+        db.cursor()
+        .execute(
+            "SELECT table_name FROM information_schema.tables "
+            "WHERE table_name LIKE 'psm_test__psm_encounter_covariate_%'"
+        )
+        .fetchall()
+    )
+    assert len(expected) == 2
 
 
 @mock.patch.dict(

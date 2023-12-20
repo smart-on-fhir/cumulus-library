@@ -207,6 +207,7 @@ class StudyManifestParser:
                     FROM {drop_prefix}{PROTECTED_TABLES.STATISTICS.value}
                     WHERE study_name = '{display_prefix}'"""
                 ).fetchall()
+                print(protected_list)
                 for protected_tuple in protected_list:
                     if protected_tuple in tuple_list:
                         tuple_list.remove(protected_tuple)
@@ -395,7 +396,6 @@ class StudyManifestParser:
         schema: str,
         verbose: bool = False,
         stats_build: bool = False,
-        data_path: PosixPath = None,
     ) -> None:
         """Loads statistics modules from toml definitions and executes
 

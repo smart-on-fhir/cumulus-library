@@ -62,14 +62,20 @@ def modify_resource_column(
     cursor.execute(f"CREATE VIEW {table} AS SELECT * from {table}_{col}_df")
 
 
-def duckdb_args(args: list, tmp_path):
+def duckdb_args(args: list, tmp_path, stats=False):
     """Convenience function for adding duckdb args to a CLI mock"""
+    if stats:
+        ndjson_data_generator(Path(MOCK_DATA_DIR), Path(f"{tmp_path}/stats_db"), 20)
+        target = f"{tmp_path}/stats_db"
+    else:
+        target = f"{MOCK_DATA_DIR}"
+
     if args[0] == "build":
         return args + [
             "--db-type",
             "duckdb",
             "--load-ndjson-dir",
-            f"{MOCK_DATA_DIR}",
+            target,
             "--database",
             f"{tmp_path}/duck.db",
         ]

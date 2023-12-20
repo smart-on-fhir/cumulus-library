@@ -8,7 +8,7 @@ from unittest import mock
 
 import pytest
 
-from cumulus_library.enums import PROTECTED_TABLE_KEYWORDS
+from cumulus_library.enums import PROTECTED_TABLE_KEYWORDS, PROTECTED_TABLES
 from cumulus_library.study_parser import StudyManifestParser, StudyManifestParsingError
 from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
 
@@ -78,28 +78,56 @@ def test_manifest_data(manifest_key, raises):
 
 
 @pytest.mark.parametrize(
-    "schema,verbose,prefix,confirm,target,raises",
+    "schema,verbose,prefix,confirm,stats,target,raises",
     [
-        ("main", True, None, None, "study_valid__table", does_not_raise()),
-        ("main", False, None, None, "study_valid__table", does_not_raise()),
-        ("main", None, None, None, "study_valid__table", does_not_raise()),
-        (None, True, None, None, None, pytest.raises(ValueError)),
-        ("main", None, None, None, "study_valid__etl_table", does_not_raise()),
-        ("main", None, None, None, "study_valid__nlp_table", does_not_raise()),
-        ("main", None, None, None, "study_valid__lib_table", does_not_raise()),
-        ("main", None, None, None, "study_valid__lib", does_not_raise()),
-        ("main", None, "foo", "y", "foo_table", does_not_raise()),
-        ("main", None, "foo", "n", "foo_table", pytest.raises(SystemExit)),
+        ("main", True, None, None, False, "study_valid__table", does_not_raise()),
+        ("main", False, None, None, False, "study_valid__table", does_not_raise()),
+        ("main", None, None, None, False, "study_valid__table", does_not_raise()),
+        (None, True, None, None, False, None, pytest.raises(SystemExit)),
+        ("main", None, None, None, False, "study_valid__etl_table", does_not_raise()),
+        ("main", None, None, None, False, "study_valid__nlp_table", does_not_raise()),
+        ("main", None, None, None, False, "study_valid__lib_table", does_not_raise()),
+        ("main", None, None, None, False, "study_valid__lib", does_not_raise()),
+        ("main", None, "foo", "y", False, "foo_table", does_not_raise()),
+        ("main", None, "foo", "n", False, "foo_table", pytest.raises(SystemExit)),
+        ("main", True, None, "y", True, "study_valid__table", does_not_raise()),
+        (
+            "main",
+            True,
+            None,
+            "n",
+            True,
+            "study_valid__table",
+            pytest.raises(SystemExit),
+        ),
     ],
 )
-def test_clean_study(mock_db, schema, verbose, prefix, confirm, target, raises):
+def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, raises):
     with raises:
         protected_strs = [x.value for x in PROTECTED_TABLE_KEYWORDS]
         with mock.patch.object(builtins, "input", lambda _: confirm):
             parser = StudyManifestParser("./tests/test_data/study_valid/")
+            parser.run_protected_table_builder(mock_db.cursor(), schema)
+
+            # We're mocking stats tables since creating them programmatically
+            # is very slow and we're trying a lot of conditions
+            mock_db.cursor().execute(
+                f"CREATE TABLE {parser.get_study_prefix()}__"
+                f"{PROTECTED_TABLES.STATISTICS.value} "
+                "AS SELECT 'study_valid' as study_name, "
+                "'study_valid__123' AS table_name"
+            )
+            mock_db.cursor().execute("CREATE TABLE study_valid__123 (test int)")
+
             if target is not None:
                 mock_db.cursor().execute(f"CREATE TABLE {target} (test int);")
-            parser.clean_study(mock_db.cursor(), schema, verbose=verbose, prefix=prefix)
+            parser.clean_study(
+                mock_db.cursor(),
+                schema,
+                verbose=verbose,
+                prefix=prefix,
+                stats_clean=stats,
+            )
             remaining_tables = (
                 mock_db.cursor()
                 .execute(f"select distinct(table_name) from information_schema.tables")
@@ -109,19 +137,92 @@ def test_clean_study(mock_db, schema, verbose, prefix, confirm, target, raises):
                 assert (target,) in remaining_tables
             else:
                 assert (target,) not in remaining_tables
+            assert (
+                f"{parser.get_study_prefix()}__{PROTECTED_TABLES.TRANSACTIONS.value}",
+            ) in remaining_tables
+            if stats:
+                assert (
+                    f"{parser.get_study_prefix()}__{PROTECTED_TABLES.STATISTICS.value}",
+                ) not in remaining_tables
+                assert ("study_valid__123",) not in remaining_tables
+            else:
+                assert (
+                    f"{parser.get_study_prefix()}__{PROTECTED_TABLES.STATISTICS.value}",
+                ) in remaining_tables
+                assert ("study_valid__123",) in remaining_tables
 
 
-"""
-        ("./tests/test_data/study_python_valid/", True, ('study_python_valid__table',), does_not_raise()),
+@pytest.mark.parametrize(
+    "study_path,stats",
+    [
+        ("./tests/test_data/study_valid/", False),
+        ("./tests/test_data/psm/", True),
+    ],
+)
+def test_run_protected_table_builder(mock_db, study_path, stats):
+    parser = StudyManifestParser(study_path)
+    parser.run_protected_table_builder(mock_db.cursor(), "main")
+    tables = (
+        mock_db.cursor()
+        .execute("SELECT distinct(table_name) FROM information_schema.tables ")
+        .fetchall()
+    )
+    assert (
+        f"{parser.get_study_prefix()}__{PROTECTED_TABLES.TRANSACTIONS.value}",
+    ) in tables
+    if stats:
+        assert (
+            f"{parser.get_study_prefix()}__{PROTECTED_TABLES.STATISTICS.value}",
+        ) in tables
+    else:
+        assert (
+            f"{parser.get_study_prefix()}__{PROTECTED_TABLES.STATISTICS.value}",
+        ) not in tables
 
+
+@pytest.mark.parametrize(
+    "study_path,verbose,expects,raises",
+    [
+        (
+            "./tests/test_data/study_python_valid/",
+            True,
+            ("study_python_valid__table",),
+            does_not_raise(),
+        ),
+        (
+            "./tests/test_data/study_python_valid/",
+            False,
+            ("study_python_valid__table",),
+            does_not_raise(),
+        ),
+        (
+            "./tests/test_data/study_python_valid/",
+            None,
+            ("study_python_valid__table",),
+            does_not_raise(),
+        ),
         (
             "./tests/test_data/study_python_no_subclass/",
             True,
             (),
-            does_not_raise(),
+            pytest.raises(StudyManifestParsingError),
         ),
-
-"""
+    ],
+)
+def test_table_builder(mock_db, study_path, verbose, expects, raises):
+    with raises:
+        parser = StudyManifestParser(study_path)
+        parser.run_table_builder(
+            mock_db.cursor(),
+            "main",
+            verbose,
+        )
+        tables = (
+            mock_db.cursor()
+            .execute("SELECT distinct(table_name) FROM information_schema.tables ")
+            .fetchall()
+        )
+        assert expects in tables
 
 
 @pytest.mark.parametrize(
@@ -176,6 +277,45 @@ def test_build_study(mock_db, study_path, verbose, expects, raises):
             .fetchall()
         )
         assert expects in tables
+
+
+@pytest.mark.parametrize(
+    "study_path,stats,expects,raises",
+    [
+        (
+            "./tests/test_data/psm/",
+            False,
+            (f"psm_test__psm_encounter_covariate",),
+            does_not_raise(),
+        ),
+        (
+            "./tests/test_data/psm/",
+            True,
+            (f"psm_test__psm_encounter_covariate",),
+            does_not_raise(),
+        ),
+    ],
+)
+def test_run_statistics_builders(
+    tmp_path, mock_db_stats, study_path, stats, expects, raises
+):
+    with raises:
+        parser = StudyManifestParser(study_path, data_path=tmp_path)
+        parser.run_protected_table_builder(mock_db_stats.cursor(), "main")
+        parser.build_study(mock_db_stats.cursor(), "main")
+        parser.run_statistics_builders(
+            mock_db_stats.cursor(), "main", stats_build=stats
+        )
+        tables = (
+            mock_db_stats.cursor()
+            .execute("SELECT distinct(table_name) FROM information_schema.tables")
+            .fetchall()
+        )
+        print(tables)
+        if stats:
+            assert expects in tables
+        else:
+            assert expects not in tables
 
 
 def test_export_study(tmp_path, mock_db_core):
