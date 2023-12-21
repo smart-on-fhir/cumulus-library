@@ -39,8 +39,8 @@ class BaseTableBuilder(ABC):
         cursor: DatabaseCursor,
         schema: str,
         verbose: bool,
-        drop_table: bool = False,
         *args,
+        drop_table: bool = False,
         **kwargs,
     ):
         """Executes queries set up by a prepare_queries call
@@ -77,7 +77,7 @@ class BaseTableBuilder(ABC):
                 query_console_output(verbose, query, progress, task)
                 try:
                     cursor.execute(query)
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-exception-caught
                     sys.exit(e)
         self.post_execution(cursor, schema, verbose, drop_table, *args, **kwargs)
 
@@ -86,8 +86,8 @@ class BaseTableBuilder(ABC):
         cursor: DatabaseCursor,
         schema: str,
         verbose: bool,
-        drop_table: bool = False,
         *args,
+        drop_table: bool = False,
         **kwargs,
     ):
         """Hook for any additional actions to run after execute_queries"""

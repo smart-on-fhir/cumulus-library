@@ -8,7 +8,7 @@ from unittest import mock
 
 import pytest
 
-from cumulus_library.enums import PROTECTED_TABLE_KEYWORDS, PROTECTED_TABLES
+from cumulus_library.enums import ProtectedTableKeywords, ProtectedTables
 from cumulus_library.study_parser import StudyManifestParser, StudyManifestParsingError
 from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
 
@@ -104,7 +104,7 @@ def test_manifest_data(manifest_key, raises):
 )
 def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, raises):
     with raises:
-        protected_strs = [x.value for x in PROTECTED_TABLE_KEYWORDS]
+        protected_strs = [x.value for x in ProtectedTableKeywords]
         with mock.patch.object(builtins, "input", lambda _: confirm):
             parser = StudyManifestParser("./tests/test_data/study_valid/")
             parser.run_protected_table_builder(mock_db.cursor(), schema)
@@ -113,7 +113,7 @@ def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, r
             # is very slow and we're trying a lot of conditions
             mock_db.cursor().execute(
                 f"CREATE TABLE {parser.get_study_prefix()}__"
-                f"{PROTECTED_TABLES.STATISTICS.value} "
+                f"{ProtectedTables.STATISTICS.value} "
                 "AS SELECT 'study_valid' as study_name, "
                 "'study_valid__123' AS table_name"
             )
@@ -138,16 +138,16 @@ def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, r
             else:
                 assert (target,) not in remaining_tables
             assert (
-                f"{parser.get_study_prefix()}__{PROTECTED_TABLES.TRANSACTIONS.value}",
+                f"{parser.get_study_prefix()}__{ProtectedTables.TRANSACTIONS.value}",
             ) in remaining_tables
             if stats:
                 assert (
-                    f"{parser.get_study_prefix()}__{PROTECTED_TABLES.STATISTICS.value}",
+                    f"{parser.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
                 ) not in remaining_tables
                 assert ("study_valid__123",) not in remaining_tables
             else:
                 assert (
-                    f"{parser.get_study_prefix()}__{PROTECTED_TABLES.STATISTICS.value}",
+                    f"{parser.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
                 ) in remaining_tables
                 assert ("study_valid__123",) in remaining_tables
 
@@ -168,15 +168,15 @@ def test_run_protected_table_builder(mock_db, study_path, stats):
         .fetchall()
     )
     assert (
-        f"{parser.get_study_prefix()}__{PROTECTED_TABLES.TRANSACTIONS.value}",
+        f"{parser.get_study_prefix()}__{ProtectedTables.TRANSACTIONS.value}",
     ) in tables
     if stats:
         assert (
-            f"{parser.get_study_prefix()}__{PROTECTED_TABLES.STATISTICS.value}",
+            f"{parser.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
         ) in tables
     else:
         assert (
-            f"{parser.get_study_prefix()}__{PROTECTED_TABLES.STATISTICS.value}",
+            f"{parser.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
         ) not in tables
 
 

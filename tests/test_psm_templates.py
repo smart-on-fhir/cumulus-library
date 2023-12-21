@@ -53,7 +53,8 @@ def test_get_distinct_ids(
 
 
 @pytest.mark.parametrize(
-    "target,pos_source,neg_source,table_suffix,primary_ref,dep_var,join_cols_by_table,count_ref,count_table,expected,raises",
+    "target,pos_source,neg_source,table_suffix,primary_ref,dep_var,"
+    "join_cols_by_table,count_ref,count_table,expected,raises",
     [
         (
             "target",

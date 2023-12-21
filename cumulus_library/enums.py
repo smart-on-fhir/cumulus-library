@@ -2,7 +2,7 @@
 from enum import Enum
 
 
-class PROTECTED_TABLE_KEYWORDS(Enum):
+class ProtectedTableKeywords(Enum):
     """Tables with a pattern like '_{keyword}_' are not manually dropped."""
 
     ETL = "etl"
@@ -10,7 +10,7 @@ class PROTECTED_TABLE_KEYWORDS(Enum):
     NLP = "nlp"
 
 
-class PROTECTED_TABLES(Enum):
+class ProtectedTables(Enum):
     """Tables created by cumulus for persistence outside of study rebuilds"""
 
     STATISTICS = "lib_statistics"

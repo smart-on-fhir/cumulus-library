@@ -16,11 +16,10 @@ from rich.table import Table
 from cumulus_library import __version__
 from cumulus_library.cli_parser import get_parser
 from cumulus_library.databases import (
-    AthenaDatabaseBackend,
     DatabaseBackend,
     create_db_backend,
 )
-from cumulus_library.enums import PROTECTED_TABLES
+from cumulus_library.enums import ProtectedTables
 from cumulus_library.protected_table_builder import TRANSACTIONS_COLS
 from cumulus_library.study_parser import StudyManifestParser
 from cumulus_library.template_sql.templates import get_insert_into_query
@@ -42,7 +41,7 @@ class StudyBuilder:
     def update_transactions(self, prefix: str, status: str):
         self.cursor.execute(
             get_insert_into_query(
-                f"{prefix}__{PROTECTED_TABLES.TRANSACTIONS.value}",
+                f"{prefix}__{ProtectedTables.TRANSACTIONS.value}",
                 TRANSACTIONS_COLS,
                 [
                     [
@@ -137,8 +136,8 @@ class StudyBuilder:
                 stats_build=stats_build,
             )
             self.update_transactions(studyparser.get_study_prefix(), "finished")
-        except SystemExit as exit:
-            raise exit
+        except SystemExit as e:
+            raise e
         except Exception as e:
             self.update_transactions(studyparser.get_study_prefix(), "error")
             raise e
@@ -297,7 +296,7 @@ def run_cli(args: Dict):
                 for target in args["target"]:
                     if args["builder"]:
                         builder.run_single_table_builder(
-                            study_dict[target], args["builder"], args["stats_build"]
+                            study_dict[target], args["builder"]
                         )
                     else:
                         builder.clean_and_build_study(

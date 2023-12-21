@@ -12,7 +12,6 @@ import abc
 import datetime
 import json
 import os
-import sys
 import warnings
 from pathlib import Path
 from typing import Optional, Protocol, Union

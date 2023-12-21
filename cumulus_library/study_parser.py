@@ -14,7 +14,7 @@ from rich.progress import Progress, TaskID, track
 from cumulus_library import __version__
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.databases import DatabaseBackend, DatabaseCursor
-from cumulus_library.enums import PROTECTED_TABLE_KEYWORDS, PROTECTED_TABLES
+from cumulus_library.enums import ProtectedTableKeywords, ProtectedTables
 from cumulus_library.errors import StudyManifestParsingError
 from cumulus_library.helper import (
     query_console_output,
@@ -200,11 +200,11 @@ class StudyManifestParser:
         for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
             tuple_list = cursor.execute(query_and_type[0]).fetchall()
             if (
-                f"{drop_prefix}{PROTECTED_TABLES.STATISTICS.value}",
+                f"{drop_prefix}{ProtectedTables.STATISTICS.value}",
             ) in tuple_list and not stats_clean:
                 protected_list = cursor.execute(
                     f"""SELECT {(query_and_type[1]).lower()}_name 
-                    FROM {drop_prefix}{PROTECTED_TABLES.STATISTICS.value}
+                    FROM {drop_prefix}{ProtectedTables.STATISTICS.value}
                     WHERE study_name = '{display_prefix}'"""
                 ).fetchall()
                 print(protected_list)
@@ -233,7 +233,7 @@ class StudyManifestParser:
                     (f"_{word.value}_") in view_table[0]
                     or view_table[0].endswith(word.value)
                 )
-                for word in PROTECTED_TABLE_KEYWORDS
+                for word in ProtectedTableKeywords
             ):
                 view_table_list.remove(view_table)
 
@@ -260,7 +260,7 @@ class StudyManifestParser:
             )
         if stats_clean:
             drop_query = get_drop_view_table(
-                f"{drop_prefix}{PROTECTED_TABLES.STATISTICS.value}", "TABLE"
+                f"{drop_prefix}{ProtectedTables.STATISTICS.value}", "TABLE"
             )
             cursor.execute(drop_query)
 
@@ -335,7 +335,7 @@ class StudyManifestParser:
         # execute, since the subclass would otherwise hang around.
         table_builder_class = table_builder_subclasses[0]
         table_builder = table_builder_class()
-        table_builder.execute_queries(cursor, schema, verbose, drop_table)
+        table_builder.execute_queries(cursor, schema, verbose, drop_table=drop_table)
 
         # After running the executor code, we'll remove
         # it so it doesn't interfere with the next python module to
@@ -431,7 +431,7 @@ class StudyManifestParser:
             )
 
             insert_query = get_insert_into_query(
-                f"{self.get_study_prefix()}__{PROTECTED_TABLES.STATISTICS.value}",
+                f"{self.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
                 [
                     "study_name",
                     "library_version",
@@ -530,7 +530,7 @@ class StudyManifestParser:
                 )
             if any(
                 f" {self.get_study_prefix()}__{word.value}_" in create_line
-                for word in PROTECTED_TABLE_KEYWORDS
+                for word in ProtectedTableKeywords
             ):
                 self._query_error(
                     query,
@@ -538,7 +538,7 @@ class StudyManifestParser:
                     "immediately after the study prefix. Please rename this table so "
                     "that is does not begin with one of these special words "
                     "immediately after the double undescore.\n"
-                    f"Reserved words: {str(word.value for word in PROTECTED_TABLE_KEYWORDS)}",
+                    f"Reserved words: {str(word.value for word in ProtectedTableKeywords)}",
                 )
             if create_line.count("__") > 1:
                 self._query_error(
