@@ -403,7 +403,6 @@ class StudyManifestParser:
         :param schema: The name of the schema to write tables to
         :keyword verbose: toggle from progress bar to query output
         :keyword stats_build: If true, will run statistical sampling & table generation
-        :keyword data_path: A path to where stats output artifacts should be stored
         """
         if not stats_build:
             return

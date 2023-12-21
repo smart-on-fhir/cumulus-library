@@ -63,8 +63,8 @@ pos_source_table = "study__diagnosis_cohort"
 
 # neg_source_table should be the primary table your positive source was built from,
 # i.e. it should contain all members that weren't identified as part of your cohort.
-# It should be one of the base FHIR resource tables
-neg_source_table = "study__condition"
+# It should usually be one of the core FHIR resource tables.
+neg_source_table = "core__condition"
 
 # target_table should be the name of the table you're storing your PSM cohort in. It 
 # should be prefixed by 'studyname__'

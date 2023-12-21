@@ -120,16 +120,9 @@ class PsmBuilder(BaseTableBuilder):
         :param is_positive: defines the value to be used for your filtering column
         """
         df = cursor.execute(query).as_pandas()
+        df = df.sort_values(by=[self.config.primary_ref])
         df = (
-            df.sort_values(by=[self.config.primary_ref])
-            # .reset_index()
-            # .drop("index", axis=1)
-        )
-
-        df = (
-            # TODO: flip polarity of replace kwarg after increasing the size of the
-            # unit testing data
-            df.sample(n=sample_size, random_state=self.config.seed, replace=True)
+            df.sample(n=sample_size, random_state=self.config.seed, replace=False)
             .sort_values(by=[self.config.primary_ref])
             .reset_index()
             .drop("index", axis=1)
@@ -308,7 +301,6 @@ class PsmBuilder(BaseTableBuilder):
             encoded_df = pandas.get_dummies(df[column])
             df = pandas.concat([df, encoded_df], axis=1)
             df = df.drop(column, axis=1)
-        df = df.reset_index()
         try:
             psm = PsmPy(
                 df,
@@ -323,10 +315,8 @@ class PsmBuilder(BaseTableBuilder):
                 warnings.simplefilter("ignore", category=UserWarning)
                 # This function populates the psm.predicted_data element, which is required
                 # for things like the knn_matched() function call
-                # TODO: create graph from this data
                 psm.logistic_ps(balance=True)
                 # This function populates the psm.df_matched element
-                # TODO: create graph from this data
                 psm.knn_matched(
                     matcher="propensity_logit",
                     replacement=False,

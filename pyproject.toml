@@ -35,7 +35,6 @@ dev = [
 ]
 test = [
     "freezegun",
-    "jmespath",
     "pytest",
     "requests-mock",
 ]

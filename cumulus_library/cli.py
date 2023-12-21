@@ -39,6 +39,7 @@ class StudyBuilder:
         self.schema_name = db.schema_name
 
     def update_transactions(self, prefix: str, status: str):
+        """Adds a record to a study's transactions table"""
         self.cursor.execute(
             get_insert_into_query(
                 f"{prefix}__{ProtectedTables.TRANSACTIONS.value}",
@@ -69,7 +70,11 @@ class StudyBuilder:
         this can be useful for cleaning up tables if a study prefix is changed
         for some reason.
 
-        :param target: The study prefix to use for IDing tables to remove"""
+        :param target: The study prefix to use for IDing tables to remove
+        :param study_dict: The dictionary of available study targets
+        :param stats_clean: If true, removes previous stats runs
+        :keyword prefix: If True, does a search by string prefix in place of study name
+        """
         if targets is None or targets == ["all"]:
             sys.exit(
                 "Explicit targets for cleaning not provided. "
@@ -103,6 +108,8 @@ class StudyBuilder:
         """Recreates study views/tables
 
         :param target: A PosixPath to the study directory
+        :param stats_build: if True, forces creation of new stats tables
+        :keyword continue_from: Restart a run from a specific sql file (for dev only)
         """
         studyparser = StudyManifestParser(target, self.data_path)
         try:
@@ -125,6 +132,7 @@ class StudyBuilder:
                 )
             else:
                 self.update_transactions(studyparser.get_study_prefix(), "resumed")
+
             studyparser.build_study(self.cursor, self.verbose, continue_from)
             studyparser.run_counts_builders(
                 self.cursor, self.schema_name, verbose=self.verbose
@@ -136,7 +144,10 @@ class StudyBuilder:
                 stats_build=stats_build,
             )
             self.update_transactions(studyparser.get_study_prefix(), "finished")
+
         except SystemExit as e:
+            # This should be thrown prior to any database connections, so
+            # skipping logging
             raise e
         except Exception as e:
             self.update_transactions(studyparser.get_study_prefix(), "error")
@@ -148,6 +159,7 @@ class StudyBuilder:
         """Runs a single table builder
 
         :param target: A PosixPath to the study directory
+        :param table_builder_name: a builder file referenced in the study's manifest
         """
         studyparser = StudyManifestParser(target)
         studyparser.run_single_table_builder(
@@ -161,6 +173,7 @@ class StudyBuilder:
         since 99% of the time you don't need a live copy in the database.
 
         :param study_dict: A dict of PosixPaths
+        :param stats_build: if True, regen stats tables
         """
         study_dict = dict(study_dict)
         study_dict.pop("template")

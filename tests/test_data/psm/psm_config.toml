@@ -7,8 +7,8 @@ primary_ref = 'encounter_ref'
 count_ref = 'subject_ref'
 count_table = 'core__condition'
 dependent_variable = "example_diagnosis"
-pos_sample_size = 50
-neg_sample_size = 500
+pos_sample_size = 20
+neg_sample_size = 100
 seed = 1234567890
 [join_cols_by_table.core__encounter]
 join_id = "encounter_ref"

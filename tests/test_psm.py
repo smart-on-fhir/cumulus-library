@@ -17,10 +17,10 @@ from cumulus_library.statistics.psm import PsmBuilder
     [
         (
             "psm_config.toml",
-            52,
-            266,
+            28,
+            129,
             {
-                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be10",
+                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be0",
                 "example_diagnosis": "1",
                 "instance_count": 1,
                 "gender": "female",
@@ -28,7 +28,7 @@ from cumulus_library.statistics.psm import PsmBuilder
                 "code": "33737001",
             },
             {
-                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f19",
+                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f17",
                 "example_diagnosis": "0",
                 "instance_count": 1,
                 "gender": "female",
@@ -38,15 +38,15 @@ from cumulus_library.statistics.psm import PsmBuilder
         ),
         (
             "psm_config_no_optional.toml",
-            52,
-            266,
+            28,
+            129,
             {
-                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be10",
+                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be0",
                 "example_diagnosis": "1",
                 "code": "33737001",
             },
             {
-                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f19",
+                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f17",
                 "example_diagnosis": "0",
                 "code": "195662009",
             },
