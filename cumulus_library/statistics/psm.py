@@ -86,10 +86,10 @@ class PsmBuilder(BaseTableBuilder):
                 seed=toml_config.get("seed", 123),
             )
         except KeyError:
-            # TODO: add link to docsite when you have network access
             sys.exit(
                 f"PSM configuration at {toml_config_path} contains missing/invalid keys."
-                "Check the PSM documentation for an example config with more details"
+                "Check the PSM documentation for an example config with more details:\n"
+                "https://docs.smarthealthit.org/cumulus/library/statistics/propensity-score-matching.html"
             )
 
     def _get_symptoms_dict(self, path: str) -> dict:

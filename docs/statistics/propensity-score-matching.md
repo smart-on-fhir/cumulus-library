@@ -1,6 +1,7 @@
 ---
 title: Propensity Score Matching
 parent: Statistics
+grand_parent: Library
 nav_order: 1
 # audience: clinical researchers, IRB reviewers
 # type: reference
