@@ -20,10 +20,8 @@ import seaborn as sns
 
 from cumulus_library.databases import DatabaseCursor
 from cumulus_library.base_table_builder import BaseTableBuilder
-from cumulus_library.template_sql.templates import (
-    get_ctas_query_from_df,
-    get_drop_view_table,
-)
+from cumulus_library.template_sql import templates
+
 from cumulus_library.template_sql.statistics.psm_templates import (
     get_distinct_ids,
     get_create_covariate_table,
@@ -167,7 +165,7 @@ class PsmBuilder(BaseTableBuilder):
         )
 
         cohort = pandas.concat([pos, neg])
-        ctas_query = get_ctas_query_from_df(
+        ctas_query = templates.get_ctas_query_from_df(
             schema,
             f"{self.config.pos_source_table}_sampled_ids_{table_suffix}",
             cohort,
@@ -268,10 +266,11 @@ class PsmBuilder(BaseTableBuilder):
         stats_table = f"{self.config.target_table}_{table_suffix}"
         """Runs PSM statistics on generated tables"""
         cursor.execute(
-            f"""CREATE OR REPLACE VIEW {self.config.target_table} 
-            AS SELECT * FROM {stats_table}"""
+            templates.get_alias_table_query(stats_table, self.config.target_table)
         )
-        df = cursor.execute(f"SELECT * FROM {self.config.target_table}").as_pandas()
+        df = cursor.execute(
+            templates.get_select_all_query(self.config.target_table)
+        ).as_pandas()
         symptoms_dict = self._get_symptoms_dict(self.config.classification_json)
         for dependent_variable, codes in symptoms_dict.items():
             df[dependent_variable] = df["code"].apply(lambda x: 1 if x in codes else 0)
