@@ -13,7 +13,7 @@ import requests
 import requests_mock
 import toml
 
-from cumulus_library import cli
+from cumulus_library import cli, errors
 from cumulus_library.databases import DuckDatabaseBackend
 from tests.conftest import duckdb_args
 
@@ -221,7 +221,7 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
         (["build", "-t", "vocab"], None, 3),
         (
             [  # checking that a study is loaded from the directory of a user-defined path.
-                # we're also validating that the CLI accpes the statistics keyword, though
+                # we're also validating that the CLI accepts the statistics keyword, though
                 "build",
                 "-t",
                 "study_valid",
@@ -264,6 +264,50 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
             csv_files = glob.glob(f"{tmp_path}/counts/{build_args[2]}/*.csv")
             for export_table in config["export_config"]["export_list"]:
                 assert any(export_table in x for x in csv_files)
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@pytest.mark.parametrize(
+    "study,finishes,raises",
+    [
+        ("study_valid", True, does_not_raise()),
+        (
+            "study_invalid_bad_query",
+            False,
+            pytest.raises(errors.StudyManifestQueryError),
+        ),
+    ],
+)
+def test_cli_transactions(tmp_path, study, finishes, raises):
+    with raises:
+        args = duckdb_args(
+            ["build", "-t", study, "--database", "test", "-s", "tests/test_data/"],
+            f"{tmp_path}",
+        )
+        print(args[-1:])
+
+        args = args[:-1] + [
+            f"{tmp_path}/{study}_duck.db",
+        ]
+        print(args[-1:])
+        cli.main(cli_args=args)
+    db = DuckDatabaseBackend(f"{tmp_path}/{study}_duck.db")
+    print(
+        db.cursor()
+        .execute("select table_name from information_schema.tables")
+        .fetchall()
+    )
+    query = (
+        db.cursor().execute(f"SELECT * from study_valid__lib_transactions").fetchall()
+    )
+    assert query[1][2] == "started"
+    if finishes:
+        assert query[2][2] == "finished"
+    else:
+        assert query[2][2] == "error"
 
 
 @mock.patch.dict(

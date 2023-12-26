@@ -153,7 +153,7 @@ class StudyBuilder:
             # skipping logging
             raise e
         except Exception as e:
-            # self.update_transactions(studyparser.get_study_prefix(), "error")
+            self.update_transactions(studyparser.get_study_prefix(), "error")
             raise e
 
     def run_single_table_builder(
@@ -282,57 +282,56 @@ def run_cli(args: Dict):
 
     # all other actions require connecting to the database
     else:
-        db_backend = create_db_backend(args)
-        builder = StudyBuilder(db_backend, data_path=args.get("data_path"))
-        if args["verbose"]:
-            builder.verbose = True
-        print("Testing connection to database...")
-        builder.cursor.execute("SHOW DATABASES")
+        try:
+            db_backend = create_db_backend(args)
+            builder = StudyBuilder(db_backend, data_path=args.get("data_path"))
+            if args["verbose"]:
+                builder.verbose = True
+            print("Testing connection to database...")
+            builder.cursor.execute("SHOW DATABASES")
 
-        study_dict = get_study_dict(args["study_dir"])
-        if "prefix" not in args.keys():
-            if args["target"]:
-                for target in args["target"]:
-                    if target not in study_dict:
-                        sys.exit(
-                            f"{target} was not found in available studies: "
-                            f"{list(study_dict.keys())}.\n\n"
-                            "If you are trying to run a custom study, make sure "
-                            "you include `-s path/to/study/dir` as an arugment."
-                        )
-        if args["action"] == "clean":
-            builder.clean_study(
-                args["target"],
-                study_dict,
-                stats_clean=args["stats_clean"],
-                prefix=args["prefix"],
-            )
-        elif args["action"] == "build":
-            if "all" in args["target"]:
-                builder.clean_and_build_all(study_dict, args["stats_build"])
-            else:
-                for target in args["target"]:
-                    if args["builder"]:
-                        builder.run_single_table_builder(
-                            study_dict[target], args["builder"]
-                        )
-                    else:
-                        builder.clean_and_build_study(
-                            study_dict[target],
-                            stats_build=args["stats_build"],
-                            continue_from=args["continue_from"],
-                        )
+            study_dict = get_study_dict(args["study_dir"])
+            if "prefix" not in args.keys():
+                if args["target"]:
+                    for target in args["target"]:
+                        if target not in study_dict:
+                            sys.exit(
+                                f"{target} was not found in available studies: "
+                                f"{list(study_dict.keys())}.\n\n"
+                                "If you are trying to run a custom study, make sure "
+                                "you include `-s path/to/study/dir` as an arugment."
+                            )
+            if args["action"] == "clean":
+                builder.clean_study(
+                    args["target"],
+                    study_dict,
+                    stats_clean=args["stats_clean"],
+                    prefix=args["prefix"],
+                )
+            elif args["action"] == "build":
+                if "all" in args["target"]:
+                    builder.clean_and_build_all(study_dict, args["stats_build"])
+                else:
+                    for target in args["target"]:
+                        if args["builder"]:
+                            builder.run_single_table_builder(
+                                study_dict[target], args["builder"]
+                            )
+                        else:
+                            builder.clean_and_build_study(
+                                study_dict[target],
+                                stats_build=args["stats_build"],
+                                continue_from=args["continue_from"],
+                            )
 
-        elif args["action"] == "export":
-            if "all" in args["target"]:
-                builder.export_all(study_dict, args["data_path"])
-            else:
-                for target in args["target"]:
-                    builder.export_study(study_dict[target], args["data_path"])
-
-        db_backend.close()
-        # returning the builder for ease of unit testing
-        return builder
+            elif args["action"] == "export":
+                if "all" in args["target"]:
+                    builder.export_all(study_dict, args["data_path"])
+                else:
+                    for target in args["target"]:
+                        builder.export_study(study_dict[target], args["data_path"])
+        finally:
+            db_backend.close()
 
 
 def main(cli_args=None):
