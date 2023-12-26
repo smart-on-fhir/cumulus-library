@@ -3,13 +3,7 @@
 
 class CumulusLibraryError(Exception):
     """
-    Package level error
-    """
-
-
-class CumulusLibrarySchemaError(Exception):
-    """
-    Package level error
+    Generic package level error
     """
 
 
@@ -17,5 +11,13 @@ class CountsBuilderError(Exception):
     """Basic error for CountsBuilder"""
 
 
+class StudyManifestFilesystemError(Exception):
+    """Errors related to files on disk in StudyManifestParser"""
+
+
 class StudyManifestParsingError(Exception):
-    """Basic error for StudyManifestParser"""
+    """Errors related to manifest parsing in StudyManifestParser"""
+
+
+class StudyManifestQueryError(Exception):
+    """Errors related to data queries from StudyManifestParser"""

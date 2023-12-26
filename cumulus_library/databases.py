@@ -265,9 +265,7 @@ def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
             database,
         )
         if load_ndjson_dir:
-            sys.exit(
-                "Loading an ndjson dir is not supported with --db-type=athena (try duckdb)"
-            )
+            sys.exit("Loading an ndjson dir is not supported with --db-type=athena.")
     else:
         raise ValueError(f"Unexpected --db-type value '{db_type}'")
 

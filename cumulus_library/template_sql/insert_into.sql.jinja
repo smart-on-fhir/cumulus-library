@@ -11,7 +11,11 @@ VALUES
 {%- for row in dataset %}
 (
     {%- for field in row -%}
+    {%- if table_cols[loop.index0] in type_casts.keys() -%}
+    {{ type_casts[table_cols[loop.index0]] }} '{{ field }}'
+    {%- else -%}
     '{{ field }}'
+    {%- endif -%}
     {%- if not loop.last -%}
     , 
     {%- endif -%}

@@ -61,7 +61,7 @@ def test_core_tables(mock_db_core, table):
     assert len(table_rows) == len(ref_table)
 
 
-def test_core_count_missing_data(mock_db):
+def test_core_count_missing_data(tmp_path, mock_db):
     null_code_class = {
         "id": None,
         "code": None,
@@ -73,9 +73,10 @@ def test_core_count_missing_data(mock_db):
     cursor = mock_db.cursor()
     modify_resource_column(cursor, "encounter", "class", null_code_class)
 
-    builder = StudyBuilder(mock_db)
+    builder = StudyBuilder(mock_db, f"{tmp_path}/data_path/")
     builder.clean_and_build_study(
-        f"{Path(__file__).parent.parent}/cumulus_library/studies/core"
+        f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
+        stats_build=False,
     )
     table_rows = cursor.execute("SELECT * FROM core__count_encounter_month").fetchall()
     # For regenerating data if needed

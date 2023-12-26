@@ -1,9 +1,10 @@
-CREATE TABLE "{{ schema_name }}"."{{ table_name }}" AS (
+CREATE TABLE IF NOT EXISTS "{{ schema_name }}"."{{ table_name }}"
+AS (
     SELECT * FROM (
         VALUES
         (
-            {%- for col in table_cols -%}
-            cast(NULL AS varchar)
+            {%- for type in table_cols_types -%}
+            cast(NULL AS {{ type }})
             {%- if not loop.last -%}
             , 
             {%- endif -%}

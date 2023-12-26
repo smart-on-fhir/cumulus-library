@@ -4,6 +4,15 @@
 # be the same name as the folder the study definition is in.
 study_prefix = "template"
 
+# For most use cases, this should not be required, but if you need to programmatically
+# build tables, you can provide a list of files implementing BaseTableBuilder.
+# See vocab and core studies for examples of this pattern. These run before
+# any SQL execution
+# [table_builder_config]
+# file_names = [
+#     "my_table_builder.py",
+# ]
+
 # The following section describes all tables that should be generated directly
 # from SQL files.
 [sql_config]
@@ -38,10 +47,14 @@ export_list = [
 #    "count.py"
 # ]
 
-# For most use cases, this should not be required, but if you need to programmatically
-# build tables, you can provide a list of files implementing BaseTableBuilder.
-# See vocab and core studies for examples of this pattern
-# [table_builder_config]
-# file_names = [
-#     "my_table_builder.py",
+# For more specialized statistics, we provide a toml-based config entrypoint. The
+# details of these configs will vary, depending on which statistical method you're
+# invoking. For more details, see the statistics section of the docs for a list of
+# supported approaches.
+# These will run last, so all the data in your study will exist by the time these
+# are invoked.
+# [statistics_config]
+# file_names = 
+# [
+#    "psm_config.toml"
 # ]

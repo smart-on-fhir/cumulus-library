@@ -1,6 +1,7 @@
 ---
 title: Propensity Score Matching
 parent: Statistics
+grand_parent: Library
 nav_order: 1
 # audience: clinical researchers, IRB reviewers
 # type: reference
@@ -31,14 +32,9 @@ The expected workflow looks something like this:
 
 ## Configuring a PSM task
 
-You can configure a PSM task the same way that you would configure python/counts table
-infrastructure in your manifest.toml.
-
-TODO: update after this is implemented with example of usage
-
-The PSM config you are referencing above is expected to contain a number of field 
-definitions. We :strongly: recommend starting from the below template, which contains
-details on the expectations of each value.
+The PSM config you reference in your study manifest is expected to contain a number of 
+field definitions. We :strongly: recommend starting from the below template, which
+contains details on the expectations of each value.
 ```toml
 # This is a config file for generating a propensity score matching (PSM) definition. 
 
@@ -50,6 +46,10 @@ details on the expectations of each value.
 # but you do need to know a little bit about what your data looks like in the
 # database. We recommend that you only attempt to use this after you have decided
 # on the first draft of your cohort selection criteria
+
+# config_type should always be "psm" - we use this to distinguish from other
+# statistic type runs
+config_type = "psm"
 
 # classification_json should reference a file in the same directory as this config,
 # which matches a category to a set of ICD codes. As an example, you could use
@@ -64,8 +64,8 @@ pos_source_table = "study__diagnosis_cohort"
 
 # neg_source_table should be the primary table your positive source was built from,
 # i.e. it should contain all members that weren't identified as part of your cohort.
-# It should be one of the base FHIR resource tables
-neg_source_table = "study__condition"
+# It should usually be one of the core FHIR resource tables.
+neg_source_table = "core__condition"
 
 # target_table should be the name of the table you're storing your PSM cohort in. It 
 # should be prefixed by 'studyname__'

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Utility for building/retrieving data views in AWS Athena"""
 
+import datetime
 import json
 import os
 import sys
@@ -12,38 +13,17 @@ from typing import Dict, List, Optional
 from rich.console import Console
 from rich.table import Table
 
-from cumulus_library import __version__
+from cumulus_library import __version__, errors, helper
 from cumulus_library.cli_parser import get_parser
 from cumulus_library.databases import (
-    AthenaDatabaseBackend,
     DatabaseBackend,
     create_db_backend,
 )
+from cumulus_library.enums import ProtectedTables
+from cumulus_library.protected_table_builder import TRANSACTIONS_COLS
 from cumulus_library.study_parser import StudyManifestParser
+from cumulus_library.template_sql.templates import get_insert_into_query
 from cumulus_library.upload import upload_files
-
-
-# ** Don't delete! **
-# This class isn't used in the rest of the code,
-# but it is used manually as a quick & dirty alternative to the CLI.
-class CumulusEnv:  # pylint: disable=too-few-public-methods
-    """
-    Wrapper for Cumulus Environment vars.
-    Simplifies connections to StudyBuilder without requiring CLI parsing.
-    """
-
-    def __init__(self):
-        self.region = os.environ.get("CUMULUS_LIBRARY_REGION", "us-east-1")
-        self.workgroup = os.environ.get("CUMULUS_LIBRARY_WORKGROUP", "cumulus")
-        self.profile = os.environ.get("CUMULUS_LIBRARY_PROFILE")
-        self.schema_name = os.environ.get("CUMULUS_LIBRARY_DATABASE")
-
-    def get_study_builder(self):
-        """Convenience method for getting athena args from environment"""
-        db = AthenaDatabaseBackend(
-            self.region, self.workgroup, self.profile, self.schema_name
-        )
-        return StudyBuilder(db)
 
 
 class StudyBuilder:
@@ -52,31 +32,51 @@ class StudyBuilder:
     verbose = False
     schema_name = None
 
-    def __init__(self, db: DatabaseBackend):
+    def __init__(self, db: DatabaseBackend, data_path: str):
         self.db = db
+        self.data_path = data_path
         self.cursor = db.cursor()
         self.schema_name = db.schema_name
 
-    def reset_data_path(self, study: PosixPath) -> None:
-        """
-        Removes existing exports from a study's local data dir
-        """
-        project_path = Path(__file__).resolve().parents[1]
-        path = Path(f"{str(project_path)}/data_export/{study}/")
-        if path.exists():
-            for file in path.glob("*"):
-                file.unlink()
+    def update_transactions(self, prefix: str, status: str):
+        """Adds a record to a study's transactions table"""
+        self.cursor.execute(
+            get_insert_into_query(
+                f"{prefix}__{ProtectedTables.TRANSACTIONS.value}",
+                TRANSACTIONS_COLS,
+                [
+                    [
+                        prefix,
+                        __version__,
+                        status,
+                        helper.get_utc_datetime(),
+                    ]
+                ],
+                {"event_time": "TIMESTAMP"},
+            )
+        )
 
     ### Creating studies
 
-    def clean_study(self, targets: List[str], study_dict, prefix=False) -> None:
+    def clean_study(
+        self,
+        targets: List[str],
+        study_dict: Dict,
+        *,
+        stats_clean: bool,
+        prefix: bool = False,
+    ) -> None:
         """Removes study table/views from Athena.
 
         While this is usually not required, since it it done as part of a build,
         this can be useful for cleaning up tables if a study prefix is changed
         for some reason.
 
-        :param target: The study prefix to use for IDing tables to remove"""
+        :param target: The study prefix to use for IDing tables to remove
+        :param study_dict: The dictionary of available study targets
+        :param stats_clean: If true, removes previous stats runs
+        :keyword prefix: If True, does a search by string prefix in place of study name
+        """
         if targets is None or targets == ["all"]:
             sys.exit(
                 "Explicit targets for cleaning not provided. "
@@ -86,25 +86,75 @@ class StudyBuilder:
             if prefix:
                 parser = StudyManifestParser()
                 parser.clean_study(
-                    self.cursor, self.schema_name, self.verbose, prefix=target
+                    self.cursor,
+                    self.schema_name,
+                    verbose=self.verbose,
+                    stats_clean=stats_clean,
+                    prefix=target,
                 )
             else:
                 parser = StudyManifestParser(study_dict[target])
-                parser.clean_study(self.cursor, self.schema_name, self.verbose)
+                parser.clean_study(
+                    self.cursor,
+                    self.schema_name,
+                    verbose=self.verbose,
+                    stats_clean=stats_clean,
+                )
 
     def clean_and_build_study(
-        self, target: PosixPath, continue_from: str = None
+        self,
+        target: PosixPath,
+        *,
+        stats_build: bool,
+        continue_from: str = None,
     ) -> None:
         """Recreates study views/tables
 
         :param target: A PosixPath to the study directory
+        :param stats_build: if True, forces creation of new stats tables
+        :keyword continue_from: Restart a run from a specific sql file (for dev only)
         """
-        studyparser = StudyManifestParser(target)
-        if not continue_from:
-            studyparser.clean_study(self.cursor, self.schema_name, self.verbose)
-            studyparser.run_table_builder(self.cursor, self.schema_name, self.verbose)
-        studyparser.build_study(self.cursor, self.verbose, continue_from)
-        studyparser.run_counts_builder(self.cursor, self.schema_name, self.verbose)
+        studyparser = StudyManifestParser(target, self.data_path)
+        try:
+            if not continue_from:
+                studyparser.run_protected_table_builder(
+                    self.cursor, self.schema_name, verbose=self.verbose
+                )
+                self.update_transactions(studyparser.get_study_prefix(), "started")
+                cleaned_tables = studyparser.clean_study(
+                    self.cursor,
+                    self.schema_name,
+                    verbose=self.verbose,
+                    stats_clean=False,
+                )
+                # If the study hasn't been created before, force stats table generation
+                if len(cleaned_tables) == 0:
+                    stats_build = True
+                studyparser.run_table_builder(
+                    self.cursor, self.schema_name, verbose=self.verbose
+                )
+            else:
+                self.update_transactions(studyparser.get_study_prefix(), "resumed")
+
+            studyparser.build_study(self.cursor, self.verbose, continue_from)
+            studyparser.run_counts_builders(
+                self.cursor, self.schema_name, verbose=self.verbose
+            )
+            studyparser.run_statistics_builders(
+                self.cursor,
+                self.schema_name,
+                verbose=self.verbose,
+                stats_build=stats_build,
+            )
+            self.update_transactions(studyparser.get_study_prefix(), "finished")
+
+        except errors.StudyManifestFilesystemError as e:
+            # This should be thrown prior to any database connections, so
+            # skipping logging
+            raise e
+        except Exception as e:
+            self.update_transactions(studyparser.get_study_prefix(), "error")
+            raise e
 
     def run_single_table_builder(
         self, target: PosixPath, table_builder_name: str
@@ -112,27 +162,31 @@ class StudyBuilder:
         """Runs a single table builder
 
         :param target: A PosixPath to the study directory
+        :param table_builder_name: a builder file referenced in the study's manifest
         """
         studyparser = StudyManifestParser(target)
         studyparser.run_single_table_builder(
             self.cursor, self.schema_name, table_builder_name, self.verbose
         )
 
-    def clean_and_build_all(self, study_dict: Dict) -> None:
+    def clean_and_build_all(self, study_dict: Dict, stats_build: bool) -> None:
         """Builds views for all studies.
 
         NOTE: By design, this method will always exclude the `template` study dir,
         since 99% of the time you don't need a live copy in the database.
 
         :param study_dict: A dict of PosixPaths
+        :param stats_build: if True, regen stats tables
         """
         study_dict = dict(study_dict)
         study_dict.pop("template")
         for precursor_study in ["vocab", "core"]:
-            self.clean_and_build_study(study_dict[precursor_study])
+            self.clean_and_build_study(
+                study_dict[precursor_study], stats_build=stats_build
+            )
             study_dict.pop(precursor_study)
         for key in study_dict:
-            self.clean_and_build_study(study_dict[key])
+            self.clean_and_build_study(study_dict[key], stats_build=stats_build)
 
     ### Data exporters
     def export_study(self, target: PosixPath, data_path: PosixPath) -> None:
@@ -142,7 +196,7 @@ class StudyBuilder:
         """
         if data_path is None:
             sys.exit("Missing destination - please provide a path argument.")
-        studyparser = StudyManifestParser(target)
+        studyparser = StudyManifestParser(target, data_path)
         studyparser.export_study(self.db, data_path)
 
     def export_all(self, study_dict: Dict, data_path: PosixPath):
@@ -226,56 +280,58 @@ def run_cli(args: Dict):
     elif args["action"] == "upload":
         upload_files(args)
 
-    # all other actions require connecting to AWS
+    # all other actions require connecting to the database
     else:
-        db_backend = create_db_backend(args)
-        builder = StudyBuilder(db_backend)
-        if args["verbose"]:
-            builder.verbose = True
-        print("Testing connection to database...")
-        builder.cursor.execute("SHOW DATABASES")
+        try:
+            db_backend = create_db_backend(args)
+            builder = StudyBuilder(db_backend, data_path=args.get("data_path"))
+            if args["verbose"]:
+                builder.verbose = True
+            print("Testing connection to database...")
+            builder.cursor.execute("SHOW DATABASES")
 
-        study_dict = get_study_dict(args["study_dir"])
-        if "prefix" not in args.keys():
-            if args["target"]:
-                for target in args["target"]:
-                    if target not in study_dict:
-                        sys.exit(
-                            f"{target} was not found in available studies: "
-                            f"{list(study_dict.keys())}.\n\n"
-                            "If you are trying to run a custom study, make sure "
-                            "you include `-s path/to/study/dir` as an arugment."
-                        )
-        if args["action"] == "clean":
-            builder.clean_study(
-                args["target"],
-                study_dict,
-                args["prefix"],
-            )
-        elif args["action"] == "build":
-            if "all" in args["target"]:
-                builder.clean_and_build_all(study_dict)
-            else:
-                for target in args["target"]:
-                    if args["builder"]:
-                        builder.run_single_table_builder(
-                            study_dict[target], args["builder"]
-                        )
-                    else:
-                        builder.clean_and_build_study(
-                            study_dict[target], continue_from=args["continue_from"]
-                        )
+            study_dict = get_study_dict(args["study_dir"])
+            if "prefix" not in args.keys():
+                if args["target"]:
+                    for target in args["target"]:
+                        if target not in study_dict:
+                            sys.exit(
+                                f"{target} was not found in available studies: "
+                                f"{list(study_dict.keys())}.\n\n"
+                                "If you are trying to run a custom study, make sure "
+                                "you include `-s path/to/study/dir` as an arugment."
+                            )
+            if args["action"] == "clean":
+                builder.clean_study(
+                    args["target"],
+                    study_dict,
+                    stats_clean=args["stats_clean"],
+                    prefix=args["prefix"],
+                )
+            elif args["action"] == "build":
+                if "all" in args["target"]:
+                    builder.clean_and_build_all(study_dict, args["stats_build"])
+                else:
+                    for target in args["target"]:
+                        if args["builder"]:
+                            builder.run_single_table_builder(
+                                study_dict[target], args["builder"]
+                            )
+                        else:
+                            builder.clean_and_build_study(
+                                study_dict[target],
+                                stats_build=args["stats_build"],
+                                continue_from=args["continue_from"],
+                            )
 
-        elif args["action"] == "export":
-            if "all" in args["target"]:
-                builder.export_all(study_dict, args["data_path"])
-            else:
-                for target in args["target"]:
-                    builder.export_study(study_dict[target], args["data_path"])
-
-        db_backend.close()
-        # returning the builder for ease of unit testing
-        return builder
+            elif args["action"] == "export":
+                if "all" in args["target"]:
+                    builder.export_all(study_dict, args["data_path"])
+                else:
+                    for target in args["target"]:
+                        builder.export_study(study_dict[target], args["data_path"])
+        finally:
+            db_backend.close()
 
 
 def main(cli_args=None):

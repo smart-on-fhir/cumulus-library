@@ -1,4 +1,5 @@
 """ Contains classes for loading study data based on manifest.toml files """
+import datetime
 import inspect
 import importlib.util
 import sys
@@ -10,24 +11,21 @@ import toml
 
 from rich.progress import Progress, TaskID, track
 
+from cumulus_library import __version__, helper
+from cumulus_library import errors
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.databases import DatabaseBackend, DatabaseCursor
-from cumulus_library.errors import StudyManifestParsingError
-from cumulus_library.helper import (
-    query_console_output,
-    load_text,
-    parse_sql,
-    get_progress_bar,
-)
+from cumulus_library.enums import ProtectedTableKeywords, ProtectedTables
+from cumulus_library.protected_table_builder import ProtectedTableBuilder
+from cumulus_library.statistics.psm import PsmBuilder
 from cumulus_library.template_sql.templates import (
     get_show_tables,
     get_show_views,
     get_drop_view_table,
+    get_insert_into_query,
 )
 
 StrList = List[str]
-
-RESERVED_TABLE_KEYWORDS = ["etl", "nlp", "lib"]
 
 
 class StudyManifestParser:
@@ -38,21 +36,22 @@ class StudyManifestParser:
     mechanisms for IDing studies/files of interest, and for executing queries, but
     specifically it should never be in charge of instantiation a cursor itself -
     this will help to future proof against other database implementations in the
-    future, assuming those DBs have a PEP-249 cursor available (and this is why we
-    are hinting generic objects for cursors).
-
+    future.
     """
 
     _study_path = None
     _study_config = {}
 
-    def __init__(self, study_path: Optional[Path] = None):
+    def __init__(
+        self, study_path: Optional[Path] = None, data_path: Optional[Path] = None
+    ):
         """Instantiates a StudyManifestParser.
 
         :param study_path: A pathlib Path object, optional
         """
         if study_path is not None:
             self.load_study_manifest(study_path)
+        self.data_path = data_path
 
     def __repr__(self):
         return str(self._study_config)
@@ -70,13 +69,13 @@ class StudyManifestParser:
                 if not config.get("study_prefix") or not isinstance(
                     config["study_prefix"], str
                 ):
-                    raise StudyManifestParsingError(
+                    raise errors.StudyManifestParsingError(
                         f"Invalid prefix in manifest at {study_path}"
                     )
                 self._study_config = config
             self._study_path = study_path
         except FileNotFoundError:
-            raise StudyManifestParsingError(  # pylint: disable=raise-missing-from
+            raise errors.StudyManifestFilesystemError(  # pylint: disable=raise-missing-from
                 f"Missing or invalid manifest found at {study_path}"
             )
 
@@ -100,7 +99,9 @@ class StudyManifestParser:
                     sql_files = sql_files[pos:]
                     break
             else:
-                sys.exit(f"No tables matching '{continue_from}' found")
+                raise errors.StudyManifestParsingError(
+                    f"No tables matching '{continue_from}' found"
+                )
         return sql_files
 
     def get_table_builder_file_list(self) -> Optional[StrList]:
@@ -119,6 +120,14 @@ class StudyManifestParser:
         sql_config = self._study_config.get("counts_builder_config", {})
         return sql_config.get("file_names", [])
 
+    def get_statistics_file_list(self) -> Optional[StrList]:
+        """Reads the contents of the statistics_config array from the manifest
+
+        :returns: An array of statistics toml files from the manifest, or None if not found.
+        """
+        stats_config = self._study_config.get("statistics_config", {})
+        return stats_config.get("file_names", [])
+
     def get_export_table_list(self) -> Optional[StrList]:
         """Reads the contents of the export_list array from the manifest
 
@@ -128,33 +137,81 @@ class StudyManifestParser:
         export_table_list = export_config.get("export_list", [])
         for table in export_table_list:
             if not table.startswith(f"{self.get_study_prefix()}__"):
-                raise StudyManifestParsingError(
+                raise errors.StudyManifestParsingError(
                     f"{table} in export list does not start with prefix "
                     f"{self.get_study_prefix()}__ - check your manifest file."
                 )
         return export_table_list
 
-    def reset_export_dir(self) -> None:
+    def reset_counts_exports(self) -> None:
         """
         Removes exports associated with this study from the ../data_export directory.
         """
-        project_path = Path(__file__).resolve().parents[1]
-        path = Path(f"{str(project_path)}/data_export/{self.get_study_prefix()}/")
+        path = Path(f"{self.data_path}/{self.get_study_prefix()}")
         if path.exists():
-            for file in path.glob("*"):
+            # we're just going to remove the count exports - stats exports in
+            # subdirectories are left alone by this call
+            for file in path.glob("*.*"):
                 file.unlink()
 
     # SQL related functions
+
+    def get_unprotected_stats_view_table(
+        self,
+        cursor: DatabaseCursor,
+        query: str,
+        artifact_type: str,
+        drop_prefix: str,
+        display_prefix: str,
+        stats_clean: bool,
+    ):
+        """Gets all items from the database by type, less any protected items
+
+        :param cursor: An object of type DatabaseCursor
+        :param query: A query to get the raw list of items from the db
+        :param artifact_type: either 'table' or 'view'
+        :param drop_prefix: The prefix requested to drop
+        :param display_prefix: The expected study prefix
+        :param stats_clean: A boolean indicating if stats tables are being cleaned
+
+        :returns: a list of study tables to drop
+        """
+        unprotected_list = []
+        db_contents = cursor.execute(query).fetchall()
+        if (
+            f"{drop_prefix}{ProtectedTables.STATISTICS.value}",
+        ) in db_contents and not stats_clean:
+            protected_list = cursor.execute(
+                f"""SELECT {artifact_type.lower()}_name 
+                FROM {drop_prefix}{ProtectedTables.STATISTICS.value}
+                WHERE study_name = '{display_prefix}'"""
+            ).fetchall()
+            for protected_tuple in protected_list:
+                if protected_tuple in db_contents:
+                    db_contents.remove(protected_tuple)
+        for db_row_tuple in db_contents:
+            # this check handles athena reporting views as also being tables,
+            # so we don't waste time dropping things that don't exist
+            if artifact_type == "TABLE":
+                if not any(
+                    db_row_tuple[0] in iter_q_and_t for iter_q_and_t in unprotected_list
+                ):
+                    unprotected_list.append([db_row_tuple[0], artifact_type])
+            else:
+                unprotected_list.append([db_row_tuple[0], artifact_type])
+        return unprotected_list
+
     def clean_study(
         self,
         cursor: DatabaseCursor,
         schema_name: str,
+        stats_clean: bool = False,
         verbose: bool = False,
         prefix: str = None,
     ) -> List:
         """Removes tables beginning with the study prefix from the database schema
 
-        :param cursor: A PEP-249 compatible cursor object
+        :param cursor: A DatabaseCursor object
         :param schema_name: The name of the schema containing the study tables
         :verbose: toggle from progress bar to query output, optional
         :returns: list of dropped tables (for unit testing only)
@@ -168,22 +225,26 @@ class StudyManifestParser:
         else:
             drop_prefix = prefix
             display_prefix = drop_prefix
+
+        if stats_clean:
+            confirm = input(
+                "This will remove all historical stats tables beginning in the "
+                f"{display_prefix} study - are you sure? (y/N)"
+            )
+            if confirm is None or confirm.lower() not in ("y", "yes"):
+                sys.exit("Table cleaning aborted")
+
         view_sql = get_show_views(schema_name, drop_prefix)
         table_sql = get_show_tables(schema_name, drop_prefix)
-        view_table_list = []
         for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
-            cursor.execute(query_and_type[0])
-            for db_row_tuple in cursor.fetchall():
-                # this check handles athena reporting views as also being tables,
-                # so we don't waste time dropping things that don't exist
-                if query_and_type[1] == "TABLE":
-                    if not any(
-                        db_row_tuple[0] in iter_q_and_t
-                        for iter_q_and_t in view_table_list
-                    ):
-                        view_table_list.append([db_row_tuple[0], query_and_type[1]])
-                else:
-                    view_table_list.append([db_row_tuple[0], query_and_type[1]])
+            view_table_list = self.get_unprotected_stats_view_table(
+                cursor,
+                query_and_type[0],
+                query_and_type[1],
+                drop_prefix,
+                display_prefix,
+                stats_clean,
+            )
         if not view_table_list:
             return view_table_list
 
@@ -191,11 +252,14 @@ class StudyManifestParser:
         # study builder, and remove them from the list.
         for view_table in view_table_list.copy():
             if any(
-                ((f"_{word}_") in view_table[0] or view_table[0].endswith(word))
-                for word in RESERVED_TABLE_KEYWORDS
+                (
+                    (f"_{word.value}_") in view_table[0]
+                    or view_table[0].endswith(word.value)
+                )
+                for word in ProtectedTableKeywords
             ):
                 view_table_list.remove(view_table)
-        # We want to only show a progress bar if we are :not: printing SQL lines
+
         if prefix:
             print("The following views/tables were selected by prefix:")
             for view_table in view_table_list:
@@ -203,7 +267,8 @@ class StudyManifestParser:
             confirm = input("Remove these tables? (y/N)")
             if confirm.lower() not in ("y", "yes"):
                 sys.exit("Table cleaning aborted")
-        with get_progress_bar(disable=verbose) as progress:
+        # We want to only show a progress bar if we are :not: printing SQL lines
+        with helper.get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 f"Removing {display_prefix} study artifacts...",
                 total=len(view_table_list),
@@ -216,6 +281,14 @@ class StudyManifestParser:
                 progress,
                 task,
             )
+        # if we're doing a stats clean, we'll also remove the table containing the
+        # list of protected tables
+        if stats_clean:
+            drop_query = get_drop_view_table(
+                f"{drop_prefix}{ProtectedTables.STATISTICS.value}", "TABLE"
+            )
+            cursor.execute(drop_query)
+
         return view_table_list
 
     def _execute_drop_queries(
@@ -228,7 +301,7 @@ class StudyManifestParser:
     ) -> None:
         """Handler for executing drop view/table queries and displaying console output.
 
-        :param cursor: A PEP-249 compatible cursor object
+        :param cursor: A DatabaseCursor object
         :param verbose: toggle from progress bar to query output
         :param view_table_list: a list of views and tables beginning with the study prefix
         :param progress: a rich progress bar renderer
@@ -239,7 +312,7 @@ class StudyManifestParser:
                 name=view_table[0], view_or_table=view_table[1]
             )
             cursor.execute(drop_view_table)
-            query_console_output(verbose, drop_view_table, progress, task)
+            helper.query_console_output(verbose, drop_view_table, progress, task)
 
     def _load_and_execute_builder(
         self, filename, cursor, schema, verbose, drop_table=False
@@ -272,7 +345,7 @@ class StudyManifestParser:
                 table_builder_subclasses.append(cls_obj)
 
         if len(table_builder_subclasses) == 0:
-            raise StudyManifestParsingError(
+            raise errors.StudyManifestParsingError(
                 f"Error loading {self._study_path}{filename}\n"
                 "Custom builders must extend the BaseTableBuilder class."
             )
@@ -287,37 +360,121 @@ class StudyManifestParser:
         # execute, since the subclass would otherwise hang around.
         table_builder_class = table_builder_subclasses[0]
         table_builder = table_builder_class()
-        table_builder.execute_queries(cursor, schema, verbose, drop_table)
+        table_builder.execute_queries(cursor, schema, verbose, drop_table=drop_table)
 
-        # After runnning the executor code, we'll remove
-        # remove it so it doesn't interfere with the next python module to
+        # After running the executor code, we'll remove
+        # it so it doesn't interfere with the next python module to
         # execute, since the subclass would otherwise hang around.
         del sys.modules[table_builder_module.__name__]
         del table_builder_module
+
+    def run_protected_table_builder(
+        self, cursor: DatabaseCursor, schema: str, verbose: bool = False
+    ) -> None:
+        """Creates protected tables for persisting selected data across runs
+
+        :param cursor: A DatabaseCursor object
+        :param schema: The name of the schema to write tables to
+        :param verbose: toggle from progress bar to query output
+        """
+        ptb = ProtectedTableBuilder()
+        ptb.execute_queries(
+            cursor,
+            schema,
+            verbose,
+            study_name=self._study_config.get("study_prefix"),
+            study_stats=self._study_config.get("statistics_config"),
+        )
 
     def run_table_builder(
         self, cursor: DatabaseCursor, schema: str, verbose: bool = False
     ) -> None:
         """Loads modules from a manifest and executes code via BaseTableBuilder
 
-        :param cursor: A PEP-249 compatible cursor object
+        :param cursor: A DatabaseCursor object
         :param schema: The name of the schema to write tables to
         :param verbose: toggle from progress bar to query output
         """
         for file in self.get_table_builder_file_list():
             self._load_and_execute_builder(file, cursor, schema, verbose)
 
-    def run_counts_builder(
+    def run_counts_builders(
         self, cursor: DatabaseCursor, schema: str, verbose: bool = False
     ) -> None:
         """Loads counts modules from a manifest and executes code via BaseTableBuilder
 
-        :param cursor: A PEP-249 compatible cursor object
+        While a count is a form of statistics, it is treated separately from other
+        statistics because it is, by design, always going to be static against a
+        given dataset, where other statistical methods may use sampling techniques
+        or adjustable input parameters that may need to be preserved for later review.
+
+        :param cursor: A DatabaseCursor object
         :param schema: The name of the schema to write tables to
         :param verbose: toggle from progress bar to query output
         """
         for file in self.get_counts_builder_file_list():
             self._load_and_execute_builder(file, cursor, schema, verbose)
+
+    def run_statistics_builders(
+        self,
+        cursor: DatabaseCursor,
+        schema: str,
+        verbose: bool = False,
+        stats_build: bool = False,
+    ) -> None:
+        """Loads statistics modules from toml definitions and executes
+
+        :param cursor: A DatabaseCursor object
+        :param schema: The name of the schema to write tables to
+        :keyword verbose: toggle from progress bar to query output
+        :keyword stats_build: If true, will run statistical sampling & table generation
+        """
+        if not stats_build:
+            return
+        for file in self.get_statistics_file_list():
+            # This open is a bit redundant with the open inside of the PSM builder,
+            # but we're letting it slide so that builders function similarly
+            # across the board
+            safe_timestamp = helper.get_tablename_safe_iso_timestamp()
+            toml_path = Path(f"{self._study_path}/{file}")
+            with open(toml_path, encoding="UTF-8") as file:
+                config = toml.load(file)
+                config_type = config["config_type"]
+                target_table = config["target_table"]
+            if config_type == "psm":
+                builder = PsmBuilder(
+                    toml_path, self.data_path / f"{self.get_study_prefix()}/psm"
+                )
+            else:
+                raise errors.StudyManifestParsingError(
+                    f"{toml_path} references an invalid statistics type {config_type}."
+                )
+            builder.execute_queries(
+                cursor, schema, verbose, table_suffix=safe_timestamp
+            )
+
+            insert_query = get_insert_into_query(
+                f"{self.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
+                [
+                    "study_name",
+                    "library_version",
+                    "table_type",
+                    "table_name",
+                    "view_name",
+                    "created_on",
+                ],
+                [
+                    [
+                        self.get_study_prefix(),
+                        __version__,
+                        config_type,
+                        f"{target_table}_{safe_timestamp}",
+                        target_table,
+                        helper.get_utc_datetime(),
+                    ]
+                ],
+            )
+            cursor.execute(insert_query)
 
     def run_single_table_builder(
         self, cursor: DatabaseCursor, schema: str, name: str, verbose: bool = False
@@ -332,19 +489,21 @@ class StudyManifestParser:
     ) -> List:
         """Creates tables in the schema by iterating through the sql_config.file_names
 
-        :param cursor: A PEP-249 compatible cursor object
+        :param cursor: A DatabaseCursor object
         :param schema: The name of the schema to write tables to
         :param verbose: toggle from progress bar to query output, optional
         :returns: loaded queries (for unit testing only)
         """
         queries = []
         for file in self.get_sql_file_list(continue_from):
-            for query in parse_sql(load_text(f"{self._study_path}/{file}")):
+            for query in helper.parse_sql(
+                helper.load_text(f"{self._study_path}/{file}")
+            ):
                 queries.append([query, file])
         if len(queries) == 0:
             return []
         # We want to only show a progress bar if we are :not: printing SQL lines
-        with get_progress_bar(disable=verbose) as progress:
+        with helper.get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 f"Creating {self.get_study_prefix()} study in db...",
                 total=len(queries),
@@ -367,7 +526,7 @@ class StudyManifestParser:
         print("--------", file=sys.stderr)
         print(query_and_filename[0], file=sys.stderr)
         print("--------", file=sys.stderr)
-        sys.exit(exit_message)
+        raise errors.StudyManifestQueryError(exit_message)
 
     def _execute_build_queries(
         self,
@@ -379,7 +538,7 @@ class StudyManifestParser:
     ) -> None:
         """Handler for executing create table queries and displaying console output.
 
-        :param cursor: A PEP-249 compatible cursor object
+        :param cursor: A DatabaseCursor object
         :param verbose: toggle from progress bar to query output
         :param queries: a list of queries read from files in sql_config.file_names
         :param progress: a rich progress bar renderer
@@ -395,8 +554,8 @@ class StudyManifestParser:
                     "should be in the first line of the query.",
                 )
             if any(
-                f" {self.get_study_prefix()}__{word}_" in create_line
-                for word in RESERVED_TABLE_KEYWORDS
+                f" {self.get_study_prefix()}__{word.value}_" in create_line
+                for word in ProtectedTableKeywords
             ):
                 self._query_error(
                     query,
@@ -404,7 +563,7 @@ class StudyManifestParser:
                     "immediately after the study prefix. Please rename this table so "
                     "that is does not begin with one of these special words "
                     "immediately after the double undescore.\n"
-                    f"Reserved words: {str(RESERVED_TABLE_KEYWORDS)}",
+                    f"Reserved words: {str(word.value for word in ProtectedTableKeywords)}",
                 )
             if create_line.count("__") > 1:
                 self._query_error(
@@ -422,7 +581,7 @@ class StudyManifestParser:
                 )
             try:
                 cursor.execute(query[0])
-                query_console_output(verbose, query[0], progress, task)
+                helper.query_console_output(verbose, query[0], progress, task)
             except Exception as e:  # pylint: disable=broad-exception-caught
                 self._query_error(
                     query,
@@ -439,7 +598,7 @@ class StudyManifestParser:
         :param db: A database backend
         :returns: list of executed queries (for unit testing only)
         """
-        self.reset_export_dir()
+        self.reset_counts_exports()
         queries = []
         for table in track(
             self.get_export_table_list(),

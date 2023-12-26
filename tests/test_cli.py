@@ -1,4 +1,5 @@
 """ tests for the cli interface to studies """
+import builtins
 import glob
 import os
 import sysconfig
@@ -12,7 +13,7 @@ import requests
 import requests_mock
 import toml
 
-from cumulus_library import cli
+from cumulus_library import cli, errors
 from cumulus_library.databases import DuckDatabaseBackend
 from tests.conftest import duckdb_args
 
@@ -110,11 +111,10 @@ def test_cli_path_mapping(
                 "study_python_valid": "study_python_valid",
             },
         }
-        sysconfig.get_path("purelib")
         args = duckdb_args(args, tmp_path)
         cli.main(cli_args=args)
         db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
-        assert expected in db.cursor().execute("show tables").fetchone()[0]
+        assert (expected,) in db.cursor().execute("show tables").fetchall()
 
 
 @mock.patch.dict(
@@ -140,6 +140,7 @@ def test_count_builder_mapping(mock_path, tmp_path):
         cli.main(cli_args=args)
         db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
         assert [
+            ("study_python_counts_valid__lib_transactions",),
             ("study_python_counts_valid__table1",),
             ("study_python_counts_valid__table2",),
         ] == db.cursor().execute("show tables").fetchall()
@@ -170,6 +171,15 @@ def test_count_builder_mapping(mock_path, tmp_path):
             ],
             "foo",
         ),
+        (
+            [
+                "clean",
+                "-t",
+                "core",
+                "--statistics",
+            ],
+            "core__",
+        ),
     ],
 )
 def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-argument
@@ -178,12 +188,14 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
         cli_args=duckdb_args(["build", "-t", "core", "--database", "test"], tmp_path)
     )
     with does_not_raise():
-        cli.main(
-            cli_args=args + ["--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
-        )
-        db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
-        for table in db.cursor().execute("show tables").fetchall():
-            assert expected not in table
+        with mock.patch.object(builtins, "input", lambda _: "y"):
+            cli.main(
+                cli_args=args
+                + ["--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
+            )
+            db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+            for table in db.cursor().execute("show tables").fetchall():
+                assert expected not in table
 
 
 @mock.patch("builtins.open", MockVocabBsv().open)
@@ -194,7 +206,7 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
 @pytest.mark.parametrize(
     "build_args,export_args,expected_tables",
     [
-        (["build", "-t", "core"], ["export", "-t", "core"], 37),
+        (["build", "-t", "core"], ["export", "-t", "core"], 38),
         (
             [  # checking that a study is loaded from a child directory of a user-defined path
                 "build",
@@ -204,19 +216,21 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
                 "tests/test_data/",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
-            1,
+            2,
         ),
-        (["build", "-t", "vocab"], None, 2),
+        (["build", "-t", "vocab"], None, 3),
         (
-            [  # checking that a study is loaded from the directory of a user-defined path
+            [  # checking that a study is loaded from the directory of a user-defined path.
+                # we're also validating that the CLI accepts the statistics keyword, though
                 "build",
                 "-t",
                 "study_valid",
                 "-s",
                 "tests/test_data/study_valid/",
+                "--statistics",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            1,
+            2,
         ),
     ],
 )
@@ -250,6 +264,95 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
             csv_files = glob.glob(f"{tmp_path}/counts/{build_args[2]}/*.csv")
             for export_table in config["export_config"]["export_list"]:
                 assert any(export_table in x for x in csv_files)
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@pytest.mark.parametrize(
+    "study,finishes,raises",
+    [
+        ("study_valid", True, does_not_raise()),
+        (
+            "study_invalid_bad_query",
+            False,
+            pytest.raises(errors.StudyManifestQueryError),
+        ),
+    ],
+)
+def test_cli_transactions(tmp_path, study, finishes, raises):
+    with raises:
+        args = duckdb_args(
+            ["build", "-t", study, "--database", "test", "-s", "tests/test_data/"],
+            f"{tmp_path}",
+        )
+        print(args[-1:])
+
+        args = args[:-1] + [
+            f"{tmp_path}/{study}_duck.db",
+        ]
+        print(args[-1:])
+        cli.main(cli_args=args)
+    db = DuckDatabaseBackend(f"{tmp_path}/{study}_duck.db")
+    print(
+        db.cursor()
+        .execute("select table_name from information_schema.tables")
+        .fetchall()
+    )
+    query = (
+        db.cursor().execute(f"SELECT * from study_valid__lib_transactions").fetchall()
+    )
+    assert query[1][2] == "started"
+    if finishes:
+        assert query[2][2] == "finished"
+    else:
+        assert query[2][2] == "error"
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+def test_cli_stats_rebuild(tmp_path):
+    """Validates statistics build behavior
+
+    Since this is a little obtuse - we are checking:
+    - that stats builds run at all
+    - that a results table is created on the first run
+    - that a results table is :not: created on the second run
+    - that a results table is created when we explicitly ask for one with a CLI flag
+    """
+
+    cli.main(
+        cli_args=duckdb_args(
+            ["build", "-t", "core", "--database", "test"], tmp_path, stats=True
+        )
+    )
+    arg_list = [
+        "build",
+        "-s",
+        "./tests/test_data",
+        "-t",
+        "psm",
+        "--db-type",
+        "duckdb",
+        "--database",
+        f"{tmp_path}/duck.db",
+    ]
+    cli.main(cli_args=arg_list + [f"{tmp_path}/export"])
+    cli.main(cli_args=arg_list + [f"{tmp_path}/export"])
+    cli.main(cli_args=arg_list + [f"{tmp_path}/export", "--statistics"])
+    db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    expected = (
+        db.cursor()
+        .execute(
+            "SELECT table_name FROM information_schema.tables "
+            "WHERE table_name LIKE 'psm_test__psm_encounter_covariate_%'"
+        )
+        .fetchall()
+    )
+    assert len(expected) == 2
 
 
 @mock.patch.dict(

@@ -53,12 +53,14 @@ def test_get_distinct_ids(
 
 
 @pytest.mark.parametrize(
-    "target,pos_source,neg_source,primary_ref,dep_var,join_cols_by_table,count_ref,count_table,expected,raises",
+    "target,pos_source,neg_source,table_suffix,primary_ref,dep_var,"
+    "join_cols_by_table,count_ref,count_table,expected,raises",
     [
         (
             "target",
             "pos_table",
             "neg_table",
+            "2024_01_01_11_11_11",
             "subject_id",
             "has_flu",
             {},
@@ -69,7 +71,7 @@ def test_get_distinct_ids(
         sample_cohort."subject_id",
         sample_cohort."has_flu",
         neg_table.code
-    FROM "pos_table_sampled_ids" AS sample_cohort,
+    FROM "pos_table_sampled_ids_2024_01_01_11_11_11" AS sample_cohort,
         "neg_table",
     WHERE
         sample_cohort."subject_id" = "neg_table"."subject_id"
@@ -81,6 +83,7 @@ def test_get_distinct_ids(
             "target",
             "pos_table",
             "neg_table",
+            "2024_01_01_11_11_11",
             "subject_id",
             "has_flu",
             {
@@ -103,7 +106,7 @@ def test_get_distinct_ids(
         "join_table"."a",
         "join_table"."b" AS "c",
         neg_table.code
-    FROM "pos_table_sampled_ids" AS sample_cohort,
+    FROM "pos_table_sampled_ids_2024_01_01_11_11_11" AS sample_cohort,
         "neg_table",
         "join_table"
     WHERE
@@ -118,6 +121,7 @@ def test_get_distinct_ids(
             "target",
             "pos_table",
             "neg_table",
+            "2024_01_01_11_11_11",
             "subject_id",
             "has_flu",
             {},
@@ -132,6 +136,7 @@ def test_create_covariate_table(
     target,
     pos_source,
     neg_source,
+    table_suffix,
     primary_ref,
     dep_var,
     join_cols_by_table,
@@ -145,6 +150,7 @@ def test_create_covariate_table(
             target,
             pos_source,
             neg_source,
+            table_suffix,
             primary_ref,
             dep_var,
             join_cols_by_table,
