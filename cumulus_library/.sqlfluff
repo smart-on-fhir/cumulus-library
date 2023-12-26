@@ -51,6 +51,7 @@ table_name = test_table
 table_suffix = 2024_01_01_11_11_11
 target_col_prefix = prefix
 target_table = target_table
+type_casts={"b": "VARCHAR"}
 unnests = [{"source col": "g", "table_alias": "i", "row_alias":"j"}, {"source col": "k", "table_alias": "l", "row_alias":"m"},]
 view_cols = ["c","d"]
 view_name = test_view
