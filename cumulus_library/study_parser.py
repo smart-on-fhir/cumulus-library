@@ -470,7 +470,7 @@ class StudyManifestParser:
                         config_type,
                         f"{target_table}_{safe_timestamp}",
                         target_table,
-                        helper.get_utc_date(),
+                        helper.get_utc_datetime(),
                     ]
                 ],
             )

@@ -49,9 +49,10 @@ class StudyBuilder:
                         prefix,
                         __version__,
                         status,
-                        helper.get_utc_date(),
+                        helper.get_utc_datetime(),
                     ]
                 ],
+                {"event_time": "TIMESTAMP"},
             )
         )
 
@@ -152,7 +153,7 @@ class StudyBuilder:
             # skipping logging
             raise e
         except Exception as e:
-            self.update_transactions(studyparser.get_study_prefix(), "error")
+            # self.update_transactions(studyparser.get_study_prefix(), "error")
             raise e
 
     def run_single_table_builder(

@@ -69,14 +69,12 @@ def get_progress_bar(**kwargs) -> progress.Progress:
     )
 
 
-def get_utc_date() -> datetime.datetime:
-    return (
-        datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
-    )
+def get_utc_datetime() -> datetime.datetime:
+    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
 
 
 def get_tablename_safe_iso_timestamp() -> str:
     """formats a timestamp to remove sql unallowed characters in table names"""
-    iso_timestamp = get_utc_date()
+    iso_timestamp = get_utc_datetime().isoformat()
     safe_timestamp = iso_timestamp.replace(":", "_").replace("-", "_").replace("+", "_")
     return safe_timestamp

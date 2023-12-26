@@ -438,6 +438,18 @@ VALUES
         dataset=[["foo", "foo"], ["bar", "bar"]],
     )
     assert query == expected
+    expected = """INSERT INTO test_table
+("a","b")
+VALUES
+('foo',VARCHAR 'foo'),
+('bar',VARCHAR 'bar');"""
+    query = get_insert_into_query(
+        table_name="test_table",
+        table_cols=["a", "b"],
+        dataset=[["foo", "foo"], ["bar", "bar"]],
+        type_casts={"b": "VARCHAR"},
+    )
+    assert query == expected
 
 
 def test_is_table_not_empty():

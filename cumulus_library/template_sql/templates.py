@@ -269,7 +269,10 @@ def get_extension_denormalize_query(config: ExtensionConfig) -> str:
 
 
 def get_insert_into_query(
-    table_name: str, table_cols: List[str], dataset: List[List[str]]
+    table_name: str,
+    table_cols: List[str],
+    dataset: List[List[str]],
+    type_casts: Dict = {},
 ) -> str:
     """Generates an insert query for adding data to an existing athena table
 
@@ -281,7 +284,10 @@ def get_insert_into_query(
     path = Path(__file__).parent
     with open(f"{path}/insert_into.sql.jinja") as insert_into:
         return Template(insert_into.read()).render(
-            table_name=table_name, table_cols=table_cols, dataset=dataset
+            table_name=table_name,
+            table_cols=table_cols,
+            dataset=dataset,
+            type_casts=type_casts,
         )
 
 
