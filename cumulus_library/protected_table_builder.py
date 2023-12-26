@@ -6,6 +6,9 @@ from cumulus_library.template_sql.templates import (
 )
 
 TRANSACTIONS_COLS = ["study_name", "library_version", "status", "event_time"]
+TRANSACTION_COLS_TYPES = ["varchar", "varchar", "varchar", "timestamp"]
+# while it may seem redundant, study_name and view_name are included as a column for
+# ease of constructing a view of multiple transaction tables
 STATISTICS_COLS = [
     "study_name",
     "library_version",
@@ -13,6 +16,14 @@ STATISTICS_COLS = [
     "table_name",
     "view_name",
     "created_on",
+]
+STATISTICS_COLS_TYPES = [
+    "varchar",
+    "varchar",
+    "varchar",
+    "varchar",
+    "varchar",
+    "timestamp",
 ]
 
 
@@ -28,10 +39,8 @@ class ProtectedTableBuilder(BaseTableBuilder):
             get_ctas_empty_query(
                 schema,
                 f"{study_name}__{ProtectedTables.TRANSACTIONS.value}",
-                # while it may seem redundant, study name is included for ease
-                # of constructing a view of multiple transaction tables
                 TRANSACTIONS_COLS,
-                ["varchar", "varchar", "varchar", "timestamp"],
+                TRANSACTION_COLS_TYPES,
             )
         )
         if study_stats:
@@ -39,15 +48,7 @@ class ProtectedTableBuilder(BaseTableBuilder):
                 get_ctas_empty_query(
                     schema,
                     f"{study_name}__{ProtectedTables.STATISTICS.value}",
-                    # same redundancy note about study_name, and also view_name, applies here
                     STATISTICS_COLS,
-                    [
-                        "varchar",
-                        "varchar",
-                        "varchar",
-                        "varchar",
-                        "varchar",
-                        "timestamp",
-                    ],
+                    STATISTICS_COLS_TYPES,
                 )
             )

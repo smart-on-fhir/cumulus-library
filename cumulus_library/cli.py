@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """Utility for building/retrieving data views in AWS Athena"""
 
+import datetime
 import json
 import os
 import sys
 import sysconfig
 
-from datetime import datetime
 from pathlib import Path, PosixPath
 from typing import Dict, List, Optional
 
 from rich.console import Console
 from rich.table import Table
 
-from cumulus_library import __version__
+from cumulus_library import __version__, errors, helper
 from cumulus_library.cli_parser import get_parser
 from cumulus_library.databases import (
     DatabaseBackend,
@@ -49,7 +49,7 @@ class StudyBuilder:
                         prefix,
                         __version__,
                         status,
-                        datetime.now().replace(microsecond=0).isoformat(),
+                        helper.get_utc_date(),
                     ]
                 ],
             )
@@ -61,6 +61,7 @@ class StudyBuilder:
         self,
         targets: List[str],
         study_dict: Dict,
+        *,
         stats_clean: bool,
         prefix: bool = False,
     ) -> None:
@@ -102,6 +103,7 @@ class StudyBuilder:
     def clean_and_build_study(
         self,
         target: PosixPath,
+        *,
         stats_build: bool,
         continue_from: str = None,
     ) -> None:
@@ -145,7 +147,7 @@ class StudyBuilder:
             )
             self.update_transactions(studyparser.get_study_prefix(), "finished")
 
-        except SystemExit as e:
+        except errors.StudyManifestFilesystemError as e:
             # This should be thrown prior to any database connections, so
             # skipping logging
             raise e
@@ -178,10 +180,12 @@ class StudyBuilder:
         study_dict = dict(study_dict)
         study_dict.pop("template")
         for precursor_study in ["vocab", "core"]:
-            self.clean_and_build_study(study_dict[precursor_study], stats_build)
+            self.clean_and_build_study(
+                study_dict[precursor_study], stats_build=stats_build
+            )
             study_dict.pop(precursor_study)
         for key in study_dict:
-            self.clean_and_build_study(study_dict[key], stats_build)
+            self.clean_and_build_study(study_dict[key], stats_build=stats_build)
 
     ### Data exporters
     def export_study(self, target: PosixPath, data_path: PosixPath) -> None:
@@ -275,10 +279,10 @@ def run_cli(args: Dict):
     elif args["action"] == "upload":
         upload_files(args)
 
-    # all other actions require connecting to AWS
+    # all other actions require connecting to the database
     else:
         db_backend = create_db_backend(args)
-        builder = StudyBuilder(db_backend, data_path=args.get("data_path", None))
+        builder = StudyBuilder(db_backend, data_path=args.get("data_path"))
         if args["verbose"]:
             builder.verbose = True
         print("Testing connection to database...")
@@ -299,8 +303,8 @@ def run_cli(args: Dict):
             builder.clean_study(
                 args["target"],
                 study_dict,
-                args["stats_clean"],
-                args["prefix"],
+                stats_clean=args["stats_clean"],
+                prefix=args["prefix"],
             )
         elif args["action"] == "build":
             if "all" in args["target"]:
@@ -314,7 +318,7 @@ def run_cli(args: Dict):
                     else:
                         builder.clean_and_build_study(
                             study_dict[target],
-                            args["stats_build"],
+                            stats_build=args["stats_build"],
                             continue_from=args["continue_from"],
                         )
 

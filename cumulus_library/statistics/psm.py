@@ -37,6 +37,11 @@ class PsmConfig:
     These values should be read in from a toml configuration file.
     See docs/statistics/propensity-score-matching.md for an example with details about
     the expected values for these fields.
+
+    A word of caution about sampling: the assumptions around PSM analysis require
+    that any sampling should not use replacement, so do not turn on panda's dataframe
+    replacement. This will mean that very small population sizes (i.e. < 20ish)
+    may cause errors to be generated.
     """
 
     classification_json: str
@@ -122,7 +127,7 @@ class PsmBuilder(BaseTableBuilder):
         df = cursor.execute(query).as_pandas()
         df = df.sort_values(by=[self.config.primary_ref])
         df = (
-            df.sample(n=sample_size, random_state=self.config.seed, replace=False)
+            df.sample(n=sample_size, random_state=self.config.seed)
             .sort_values(by=[self.config.primary_ref])
             .reset_index()
             .drop("index", axis=1)
@@ -181,7 +186,6 @@ class PsmBuilder(BaseTableBuilder):
             count_table=self.config.count_table,
         )
         self.queries.append(dataset_query)
-        print(dataset_query)
 
     def psm_plot_match(
         self,
@@ -261,10 +265,11 @@ class PsmBuilder(BaseTableBuilder):
     def generate_psm_analysis(
         self, cursor: DatabaseCursor, schema: str, table_suffix: str
     ):
+        stats_table = f"{self.config.target_table}_{table_suffix}"
         """Runs PSM statistics on generated tables"""
         cursor.execute(
             f"""CREATE OR REPLACE VIEW {self.config.target_table} 
-            AS SELECT * FROM {self.config.target_table}_{table_suffix}"""
+            AS SELECT * FROM {stats_table}"""
         )
         df = cursor.execute(f"SELECT * FROM {self.config.target_table}").as_pandas()
         symptoms_dict = self._get_symptoms_dict(self.config.classification_json)
@@ -327,14 +332,12 @@ class PsmBuilder(BaseTableBuilder):
                 self.psm_plot_match(
                     psm,
                     save=True,
-                    filename=self.data_path
-                    / f"{self.config.target_table}_{table_suffix}_propensity_match.png",
+                    filename=self.data_path / f"{stats_table}_propensity_match.png",
                 )
                 self.psm_effect_size_plot(
                     psm,
                     save=True,
-                    filename=self.data_path
-                    / f"{self.config.target_table}_{table_suffix}_effect_size.png",
+                    filename=self.data_path / f"{stats_table}_effect_size.png",
                 )
         except ZeroDivisionError:
             sys.exit(

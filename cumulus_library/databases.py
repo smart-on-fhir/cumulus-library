@@ -12,7 +12,7 @@ import abc
 import datetime
 import json
 import os
-import warnings
+import sys
 from pathlib import Path
 from typing import Optional, Protocol, Union
 
@@ -265,9 +265,7 @@ def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
             database,
         )
         if load_ndjson_dir:
-            warnings.warn(
-                "Loading an ndjson dir is not supported with --db-type=athena."
-            )
+            sys.exit("Loading an ndjson dir is not supported with --db-type=athena.")
     else:
         raise ValueError(f"Unexpected --db-type value '{db_type}'")
 

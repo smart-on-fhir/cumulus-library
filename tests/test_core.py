@@ -76,8 +76,7 @@ def test_core_count_missing_data(tmp_path, mock_db):
     builder = StudyBuilder(mock_db, f"{tmp_path}/data_path/")
     builder.clean_and_build_study(
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
-        f"{tmp_path}/data_path/",
-        False,
+        stats_build=False,
     )
     table_rows = cursor.execute("SELECT * FROM core__count_encounter_month").fetchall()
     # For regenerating data if needed

@@ -173,7 +173,7 @@ def mock_db_core(tmp_path, mock_db):  # pylint: disable=redefined-outer-name
     """Provides a DuckDatabaseBackend with the core study ran for local testing"""
     builder = StudyBuilder(mock_db, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
-        f"{Path(__file__).parent.parent}/cumulus_library/studies/core", True
+        f"{Path(__file__).parent.parent}/cumulus_library/studies/core", stats_build=True
     )
     yield mock_db
 
@@ -191,6 +191,6 @@ def mock_db_stats(tmp_path):
     )
     builder = StudyBuilder(db, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
-        f"{Path(__file__).parent.parent}/cumulus_library/studies/core", True
+        f"{Path(__file__).parent.parent}/cumulus_library/studies/core", stats_build=True
     )
     yield db

@@ -8,8 +8,9 @@ from unittest import mock
 
 import pytest
 
+from cumulus_library import errors
 from cumulus_library.enums import ProtectedTableKeywords, ProtectedTables
-from cumulus_library.study_parser import StudyManifestParser, StudyManifestParsingError
+from cumulus_library.study_parser import StudyManifestParser
 from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
 
 
@@ -18,10 +19,13 @@ from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
     [
         ("test_data/study_valid", does_not_raise()),
         (None, does_not_raise()),
-        ("test_data/study_missing_prefix", pytest.raises(StudyManifestParsingError)),
-        ("test_data/study_wrong_type", pytest.raises(StudyManifestParsingError)),
-        ("", pytest.raises(StudyManifestParsingError)),
-        (".", pytest.raises(StudyManifestParsingError)),
+        (
+            "test_data/study_missing_prefix",
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
+        ("test_data/study_wrong_type", pytest.raises(errors.StudyManifestParsingError)),
+        ("", pytest.raises(errors.StudyManifestFilesystemError)),
+        (".", pytest.raises(errors.StudyManifestFilesystemError)),
     ],
 )
 def test_load_manifest(manifest_path, raises):
@@ -40,7 +44,7 @@ def test_load_manifest(manifest_path, raises):
         ("valid_empty_arrays", does_not_raise()),
         ("valid_null_arrays", does_not_raise()),
         ("valid_only_prefix", does_not_raise()),
-        ("invalid_bad_export_names", pytest.raises(StudyManifestParsingError)),
+        ("invalid_bad_export_names", pytest.raises(errors.StudyManifestParsingError)),
         ("invalid_none", pytest.raises(TypeError)),
     ],
 )
@@ -205,7 +209,7 @@ def test_run_protected_table_builder(mock_db, study_path, stats):
             "./tests/test_data/study_python_no_subclass/",
             True,
             (),
-            pytest.raises(StudyManifestParsingError),
+            pytest.raises(errors.StudyManifestParsingError),
         ),
     ],
 )
@@ -246,24 +250,29 @@ def test_table_builder(mock_db, study_path, verbose, expects, raises):
             ("study_valid__table",),
             does_not_raise(),
         ),
-        ("./tests/test_data/study_wrong_prefix/", None, [], pytest.raises(SystemExit)),
+        (
+            "./tests/test_data/study_wrong_prefix/",
+            None,
+            [],
+            pytest.raises(errors.StudyManifestQueryError),
+        ),
         (
             "./tests/test_data/study_invalid_no_dunder/",
             True,
             (),
-            pytest.raises(SystemExit),
+            pytest.raises(errors.StudyManifestQueryError),
         ),
         (
             "./tests/test_data/study_invalid_two_dunder/",
             True,
             (),
-            pytest.raises(SystemExit),
+            pytest.raises(errors.StudyManifestQueryError),
         ),
         (
             "./tests/test_data/study_invalid_reserved_word/",
             True,
             (),
-            pytest.raises(SystemExit),
+            pytest.raises(errors.StudyManifestQueryError),
         ),
     ],
 )

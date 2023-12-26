@@ -206,7 +206,7 @@ def get_ctas_empty_query(
     schema_name: str,
     table_name: str,
     table_cols: List[str],
-    table_cols_types: List[str] = [],
+    table_cols_types: List[str] = None,
 ) -> str:
     """Generates a create table as query for initializing an empty table
 
@@ -221,9 +221,8 @@ def get_ctas_empty_query(
     :param table_cols_types: Allows specifying a data type per column (default: all varchar)
     """
     path = Path(__file__).parent
-    if table_cols_types == []:
-        for col in table_cols:
-            table_cols_types.append("varchar")
+    if not table_cols_types:
+        table_cols_types = ["varchar"] * len(table_cols)
     with open(f"{path}/ctas_empty.sql.jinja") as ctas_empty:
         return Template(ctas_empty.read()).render(
             schema_name=schema_name,
