@@ -7,8 +7,8 @@ from cumulus_library.template_sql import templates
 
 
 def test_alias_table():
-    expected = """CREATE OR REPLACE VIEW target 
-    AS SELECT * FROM source;"""
+    expected = """CREATE OR REPLACE VIEW target
+AS SELECT * FROM source;"""
     query = templates.get_alias_table_query("source", "target")
     assert query == expected
 

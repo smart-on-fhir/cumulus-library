@@ -86,10 +86,12 @@ class ExtensionConfig(object):
         self.is_array = is_array
 
 
-def get_alias_table_query(source: str, target: str):
+def get_alias_table_query(source_table: str, target_table: str):
     """Creates a 1-1 alias of a given table"""
     with open(f"{PATH}/alias_table.sql.jinja") as alias_table:
-        return Template(alias_table.read()).render(source=source, target=target)
+        return Template(alias_table.read()).render(
+            source_table=source_table, target_table=target_table
+        )
 
 
 def get_code_system_pairs(output_table_name: str, code_system_tables: list) -> str:
@@ -305,9 +307,9 @@ def get_is_table_not_empty_query(
         )
 
 
-def get_select_all_query(target: str):
+def get_select_all_query(source_table: str):
     with open(f"{PATH}/select_all.sql.jinja") as select_all:
-        return Template(select_all.read()).render(target=target)
+        return Template(select_all.read()).render(source_table=source_table)
 
 
 def get_show_tables(schema_name: str, prefix: str) -> str:
