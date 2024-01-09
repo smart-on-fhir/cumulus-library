@@ -23,6 +23,7 @@ cc_columns = [{"name": "baz", "is_array": True}, {"name": "foobar", "is_array": 
 cc_column = 'code'
 code_system_tables = [{table_name":"hasarray","column_name":"acol","is_bare_coding":False,"is_array":True, "has_data": True},{"table_name":"noarray","column_name":"col","is_bare_coding":False,"is_array":False, "has_data": True}{"table_name":"bare","column_name":"bcol","is_bare_coding":True,"is_array":False, "has_data": True},{"table_name":"empty","column_name":"empty","is_bare_coding":False,"is_array":False, "has_data": False}]
 column_name = 'bar'
+column_names = ['foo', 'bar']
 conditions = ["1 > 0", "1 < 2"]
 count_ref = count_ref
 count_table = count_table

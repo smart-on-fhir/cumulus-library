@@ -60,7 +60,7 @@ class EncounterCodingBuilder(BaseTableBuilder):
                 progress.advance(task)
         return code_sources
 
-    def prepare_queries(self, cursor: object, schema: str):
+    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
         """Constructs queries related to condition codeableConcept
 
         :param cursor: A database cursor object

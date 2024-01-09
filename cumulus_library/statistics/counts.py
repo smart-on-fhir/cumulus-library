@@ -72,14 +72,19 @@ class CountsBuilder(BaseTableBuilder):
         :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
         :keyword fhir_resource: The type of FHIR resource to count (see
-            template_sql/templates.CountableFhirResource)
+            template_sql/templates.statistics.CountableFhirResource)
         """
         if not table_name or not source_table or not table_cols:
             raise CountsBuilderError(
                 "count_query missing required arguments. " f"output table: {table_name}"
             )
         for key in kwargs:
-            if key not in ["min_subject", "where_clauses", "fhir_resource"]:
+            if key not in [
+                "min_subject",
+                "where_clauses",
+                "fhir_resource",
+                "filter_resource",
+            ]:
                 raise CountsBuilderError(f"count_query received unexpected key: {key}")
         return counts_templates.get_count_query(
             table_name, source_table, table_cols, **kwargs
@@ -114,6 +119,7 @@ class CountsBuilder(BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="condition",
+            filter_resource="encounter",
         )
 
     def count_document(

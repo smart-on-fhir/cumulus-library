@@ -41,6 +41,51 @@ class DatabaseCursor(Protocol):
         pass
 
 
+class DatabaseParser(abc.ABC):
+    """Parses information_schema results from a database"""
+
+    def _parse_found_schema(self, expected: dict[dict[list]], schema: list[tuple]):
+        """Checks for presence of field for each column in a table
+
+        This naieve method is a first pass, ignoring complexities of differing
+        database variable types, just iterating through looking for column names.
+
+        TODO: on a per database instance, consider a more nuanced approach
+        if needed
+        """
+        output = {}
+        for column, _ in expected.items():
+            output[column] = {}
+            if col_schema := schema[column.lower()]:
+                # is this field nested?
+                if len(expected[column]) > 0:
+                    for field in expected[column]:
+                        col_schema = col_schema.split(field, 1)
+                        if len(col_schema) != 2:
+                            output[column][field] = False
+                            col_schema = col_schema[0]
+                        else:
+                            output[column][field] = True
+                            col_schema = col_schema[1]
+                # otherwise this field is a bare type
+                else:
+                    output[column] = True
+            else:
+                for field in expected[column]:
+                    output[column][field] = False
+        return output
+
+    @abc.abstractmethod
+    def validate_table_schema(
+        self, expected: dict[dict[list]], schema: list[tuple]
+    ) -> dict[bool]:
+        """Public interface for investigating if fields are in a table schema.
+
+        This method should lightly format results and pass them to
+        _parse_found_schema(), or a more bespoke table analysis function if needed.
+        """
+
+
 class DatabaseBackend(abc.ABC):
     """A generic database backend, supporting basic cursor operations"""
 
@@ -66,6 +111,10 @@ class DatabaseBackend(abc.ABC):
     @abc.abstractmethod
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
         """Returns a pandas.DataFrame version of the results from the provided SQL"""
+
+    @abc.abstractmethod
+    def parser(self) -> DatabaseParser:
+        """Returns parser object for interrogating DB schemas"""
 
     def close(self) -> None:
         """Clean up any resources necessary"""
@@ -106,6 +155,17 @@ class AthenaDatabaseBackend(DatabaseBackend):
 
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
         return self.pandas_cursor.execute(sql).as_pandas()
+
+    def parser(self) -> DatabaseParser:
+        return AthenaParser()
+
+
+class AthenaParser(DatabaseParser):
+    def validate_table_schema(
+        self, expected: dict[dict[list]], schema: list[tuple]
+    ) -> bool:
+        schema = dict(schema)
+        return self._parse_found_schema(expected, schema)
 
 
 class DuckDatabaseBackend(DatabaseBackend):
@@ -194,8 +254,26 @@ class DuckDatabaseBackend(DatabaseBackend):
         # PyAthena seems to do this correctly for us, but not DuckDB.
         return self.connection.execute(sql).df().convert_dtypes()
 
+    def parser(self) -> DatabaseParser:
+        return DuckDbParser()
+
     def close(self) -> None:
         self.connection.close()
+
+
+class DuckDbParser(DatabaseParser):
+    """Table parser for DuckDB schemas"""
+
+    def validate_table_schema(
+        self, expected: dict[dict[list]], schema: list[tuple]
+    ) -> dict:
+        """parses a information_schema.tables query response for valid columns"""
+        schema = dict(schema)
+        # since we're defaulting to athena naming conventions elsewhere,
+        # we'll lower case all the keys
+        schema = {k.lower(): v for k, v in schema.items()}
+
+        return self._parse_found_schema(expected, schema)
 
 
 def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:

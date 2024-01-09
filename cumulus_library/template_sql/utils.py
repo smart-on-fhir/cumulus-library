@@ -160,7 +160,6 @@ def _check_schema_if_exists(
         if cursor.fetchone() is None:
             return False
 
-        query = get_column_datatype_query(schema, table, base_col)
         cursor.execute(query)
         schema_str = str(cursor.fetchone()[0])
         required_fields = [coding_element]

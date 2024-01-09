@@ -1,0 +1,51 @@
+{% import 'core_utils.jinja' as utils %}
+
+CREATE TABLE core__condition AS
+WITH temp_condition AS (
+    SELECT
+        concat('Condition/', c.id) AS condition_ref,
+        {{- utils.basic_nullable_cols(
+            'condition',
+            'c',
+            ['id','category','verificationStatus','clinicalStatus'], schema) 
+        }},
+        {{- utils.depth_one_nullable_cols(
+                'condition',
+                'c',
+                [
+                    ('subject', 'reference', 'subject_ref'),
+                    ('encounter', 'reference', 'encounter_ref')
+                ], 
+                schema
+            ) 
+        }},
+        {{- utils.basic_cols(
+                'core__condition_codable_concepts_all',
+                'cca',
+                ['code','code_system','display']
+            ) 
+        }},
+        date(from_iso8601_timestamp(c.recordeddate)) AS recordeddate
+    FROM condition AS c
+    LEFT JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
+)
+
+SELECT
+    t_category_coding.category_row.code AS category_code,
+    t_category_coding.category_row.display AS category_display,
+    tc.code,
+    tc.code_system,
+    tc.display AS code_display,
+    tc.subject_ref,
+    tc.encounter_ref,
+    tc.id as condition_id,
+    tc.condition_ref,
+    tc.recordeddate,
+    date_trunc('week', date(tc.recordeddate)) AS recorded_week,
+    date_trunc('month', date(tc.recordeddate)) AS recorded_month,
+    date_trunc('year', date(tc.recordeddate)) AS recorded_year
+FROM temp_condition AS tc,
+    unnest(category) AS t_category (category_coding),
+    unnest(category_coding.coding) AS t_category_coding (category_row)
+
+WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;

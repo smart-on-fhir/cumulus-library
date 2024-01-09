@@ -1,5 +1,4 @@
 """ Contains classes for loading study data based on manifest.toml files """
-import datetime
 import inspect
 import importlib.util
 import sys
@@ -315,7 +314,7 @@ class StudyManifestParser:
             helper.query_console_output(verbose, drop_view_table, progress, task)
 
     def _load_and_execute_builder(
-        self, filename, cursor, schema, verbose, drop_table=False
+        self, filename, cursor, schema, verbose, drop_table=False, parser=None
     ) -> None:
         """Loads a table builder from a file.
 
@@ -360,7 +359,9 @@ class StudyManifestParser:
         # execute, since the subclass would otherwise hang around.
         table_builder_class = table_builder_subclasses[0]
         table_builder = table_builder_class()
-        table_builder.execute_queries(cursor, schema, verbose, drop_table=drop_table)
+        table_builder.execute_queries(
+            cursor, schema, verbose=verbose, drop_table=drop_table, parser=parser
+        )
 
         # After running the executor code, we'll remove
         # it so it doesn't interfere with the next python module to
@@ -387,7 +388,7 @@ class StudyManifestParser:
         )
 
     def run_table_builder(
-        self, cursor: DatabaseCursor, schema: str, verbose: bool = False
+        self, cursor: DatabaseCursor, schema: str, verbose: bool = False, parser=None
     ) -> None:
         """Loads modules from a manifest and executes code via BaseTableBuilder
 
@@ -396,7 +397,7 @@ class StudyManifestParser:
         :param verbose: toggle from progress bar to query output
         """
         for file in self.get_table_builder_file_list():
-            self._load_and_execute_builder(file, cursor, schema, verbose)
+            self._load_and_execute_builder(file, cursor, schema, verbose, parser=parser)
 
     def run_counts_builders(
         self, cursor: DatabaseCursor, schema: str, verbose: bool = False
@@ -477,12 +478,19 @@ class StudyManifestParser:
             cursor.execute(insert_query)
 
     def run_single_table_builder(
-        self, cursor: DatabaseCursor, schema: str, name: str, verbose: bool = False
+        self,
+        cursor: DatabaseCursor,
+        schema: str,
+        name: str,
+        verbose: bool = False,
+        parser=None,
     ):
         """targets a single table builder to run"""
         if not name.endswith(".py"):
             name = f"{name}.py"
-        self._load_and_execute_builder(name, cursor, schema, verbose, drop_table=True)
+        self._load_and_execute_builder(
+            name, cursor, schema, verbose, drop_table=True, parser=parser
+        )
 
     def build_study(
         self, cursor: DatabaseCursor, verbose: bool = False, continue_from: str = None

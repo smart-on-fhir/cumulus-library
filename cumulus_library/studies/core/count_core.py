@@ -1,9 +1,9 @@
 from typing import List
 from pathlib import Path
-from cumulus_library.statistics.counts import CountsBuilder
+import cumulus_library.statistics.counts as counts
 
 
-class CoreCountsBuilder(CountsBuilder):
+class CoreCountsBuilder(counts.CountsBuilder):
     display_text = "Creating core counts..."
 
     def count_core_patient(self):
@@ -74,15 +74,25 @@ class CoreCountsBuilder(CountsBuilder):
             "count_encounter_priority", cols, duration
         )
 
-    def prepare_queries(self, cursor=None, schema=None):
+    def count_core_condition(self, duration: str = "month"):
+        table_name = self.get_table_name("count_condition", duration=duration)
+        from_table = self.get_table_name("condition")
+        cols = [
+            ["category_code", "varchar", "cond_category_code"],
+            [f"recorded_{duration}", "date", "cond_month"],
+        ]
+        return self.count_condition(table_name, from_table, cols)
+
+    def prepare_queries(self, cursor=None, schema=None, *args, **kwargs):
         self.queries = [
-            self.count_core_patient(),
+            self.count_core_condition(),
             self.count_core_encounter(duration="month"),
             self.count_core_encounter_type(),
             self.count_core_encounter_type(duration="month"),
             self.count_core_encounter_enc_type(duration="month"),
             self.count_core_encounter_service(duration="month"),
             self.count_core_encounter_priority(duration="month"),
+            self.count_core_patient(),
         ]
 
 

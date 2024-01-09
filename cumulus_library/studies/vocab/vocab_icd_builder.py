@@ -23,7 +23,7 @@ class VocabIcdRunner(BaseTableBuilder):
             row[i] = cell
         return row
 
-    def prepare_queries(self, cursor: object, schema: str):
+    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
         """Creates queries for populating ICD vocab
 
         TODO: this would be a lot faster if we converted the bsv to parquet,

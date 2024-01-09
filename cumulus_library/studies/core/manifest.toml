@@ -2,23 +2,20 @@ study_prefix = "core"
 
 [table_builder_config]
 file_names = [
-    "builder_condition_codeableconcept.py",
+    "builder_prereq_tables.py",
+    "builder_condition.py",
     "builder_encounter_coding.py",
     "builder_core_medication.py",
     "builder_patient_extension.py",
+
 ]
 
 [sql_config]
 file_names = [
-    "version.sql",
-    "setup.sql",
-    "fhir_lookup_tables.sql",
-    "fhir_mapping_tables.sql",
     "patient.sql",
     "encounter.sql",
     "encounter_type.sql",
     "documentreference.sql",
-    "condition.sql",
     "observation.sql",
     "observation_lab.sql",
     "observation_vital_signs.sql",

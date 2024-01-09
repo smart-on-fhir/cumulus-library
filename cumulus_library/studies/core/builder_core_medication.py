@@ -25,7 +25,6 @@ class MedicationBuilder(BaseTableBuilder):
 
         table = "medicationrequest"
         base_col = "medicationcodeableconcept"
-
         with get_progress_bar(transient=True) as progress:
             task = progress.add_task(
                 "Detecting available medication sources...",
@@ -37,7 +36,7 @@ class MedicationBuilder(BaseTableBuilder):
                 schema, table, base_col, cursor
             )
             if data_types["inline"]:
-                query = get_column_datatype_query(schema, table, base_col)
+                query = get_column_datatype_query(schema, table, [base_col])
                 cursor.execute(query)
                 progress.advance(task)
                 if "userselected" not in str(cursor.fetchone()[0]):
@@ -55,7 +54,7 @@ class MedicationBuilder(BaseTableBuilder):
             if cursor.fetchone() is None:
                 return data_types, has_userselected
             query = get_column_datatype_query(
-                schema, "medicationrequest", "medicationreference"
+                schema, "medicationrequest", ["medicationreference"]
             )
             cursor.execute(query)
             progress.advance(task)
@@ -91,7 +90,7 @@ class MedicationBuilder(BaseTableBuilder):
 
             return data_types, has_userselected
 
-    def prepare_queries(self, cursor: object, schema: str) -> dict:
+    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs) -> dict:
         """Constructs queries related to condition codeableConcept
 
         :param cursor: A database cursor object
@@ -114,6 +113,14 @@ class MedicationBuilder(BaseTableBuilder):
                 get_ctas_empty_query(
                     schema,
                     "core__medication",
-                    ["id", "resourcetype", "code", "ingredient"],
+                    [
+                        "id",
+                        "encounter_ref",
+                        "patient_ref",
+                        "code",
+                        "display",
+                        "code_system",
+                        "userselected",
+                    ],
                 )
             )

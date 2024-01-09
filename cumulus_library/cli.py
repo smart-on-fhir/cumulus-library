@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Utility for building/retrieving data views in AWS Athena"""
 
-import datetime
 import json
 import os
 import sys
@@ -131,7 +130,10 @@ class StudyBuilder:
                 if len(cleaned_tables) == 0:
                     stats_build = True
                 studyparser.run_table_builder(
-                    self.cursor, self.schema_name, verbose=self.verbose
+                    self.cursor,
+                    self.schema_name,
+                    verbose=self.verbose,
+                    parser=self.db.parser(),
                 )
             else:
                 self.update_transactions(studyparser.get_study_prefix(), "resumed")
@@ -166,7 +168,11 @@ class StudyBuilder:
         """
         studyparser = StudyManifestParser(target)
         studyparser.run_single_table_builder(
-            self.cursor, self.schema_name, table_builder_name, self.verbose
+            self.cursor,
+            self.schema_name,
+            table_builder_name,
+            self.verbose,
+            parser=self.db.parser(),
         )
 
     def clean_and_build_all(self, study_dict: Dict, stats_build: bool) -> None:
@@ -282,8 +288,8 @@ def run_cli(args: Dict):
 
     # all other actions require connecting to the database
     else:
+        db_backend = create_db_backend(args)
         try:
-            db_backend = create_db_backend(args)
             builder = StudyBuilder(db_backend, data_path=args.get("data_path"))
             if args["verbose"]:
                 builder.verbose = True

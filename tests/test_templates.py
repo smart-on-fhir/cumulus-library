@@ -157,17 +157,19 @@ def test_codeable_concept_denormalize_filter_creation():
 
 
 def test_get_column_datatype_query():
-    expected = """SELECT data_type
+    expected = """SELECT
+    column_name,
+    data_type
 FROM information_schema.columns
 WHERE
     table_schema = 'schema_name'
     AND table_name = 'table_name'
-    AND LOWER(column_name) = 'column_name'"""
+    AND LOWER(column_name) IN ('foo', 'bar') --noqa: LT05"""
 
     query = templates.get_column_datatype_query(
         schema_name="schema_name",
         table_name="table_name",
-        column_name="column_name",
+        column_names=["foo", "bar"],
     )
     assert query == expected
 
