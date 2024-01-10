@@ -31,8 +31,6 @@ def is_codeable_concept_populated(
     :param cursor: a PEP-249 compliant database cursor
     :param coding_element: the place inside the code element to look for coding info.
         default: 'coding' (and :hopefully: this is always right)
-    :allow_partial: If true, codings which do not have fields expected by the library
-        will still be included, and will need to be manually coerced.
     :returns: a boolean indicating if valid data is present.
     """
     try:
@@ -77,8 +75,6 @@ def is_codeable_concept_array_populated(
     :param cursor: a PEP-249 compliant database cursor
     :param coding_element: the place inside the code element to look for coding info.
         default: 'coding' (and :hopefully: this is always right)
-    :allow_partial: If true, codings which do not have fields expected by the library
-        will still be included, and will need to be manually coerced.
     :returns: a boolean indicating if valid data is present.
     """
     try:
@@ -124,8 +120,6 @@ def is_code_populated(
     :param base_col: the place to start validation from.
         This can be a nested element, like column.object.code
     :param cursor: a PEP-249 compliant database cursor
-    :allow_partial: If true, codings which do not have fields expected by the library
-        will still be included, and will need to be manually coerced.
     :returns: a boolean indicating if valid data is present.
     """
 

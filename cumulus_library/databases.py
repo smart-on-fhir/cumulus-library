@@ -47,8 +47,23 @@ class DatabaseParser(abc.ABC):
     def _parse_found_schema(self, expected: dict[dict[list]], schema: list[tuple]):
         """Checks for presence of field for each column in a table
 
-        This naive method is a first pass, ignoring complexities of differing
-        database variable types, just iterating through looking for column names.
+        :param expected: A nested dict describing the expected data format of
+        a table. Expected format is like this:
+            {
+                "object_col":["member_a", "member_b"]
+                "primitive_col": []
+            }
+        :param schema: the results of a query from the get_column_datatype method
+        of the template_sql.templates function. It looks like this:
+            [
+                ('object_col', 'row(member_a VARCHAR, member_b DATE)'),
+                ('primitive_col', 'VARCHAR')
+            ]
+
+        The actual contents of schema are database dependent. This naive method
+        is a first pass, ignoring complexities of differing database variable
+        types, just iterating through looking for column names.
+
 
         TODO: on a per database instance, consider a more nuanced approach
         if needed
@@ -57,7 +72,7 @@ class DatabaseParser(abc.ABC):
         for column, _ in expected.items():
             output[column] = {}
             if col_schema := schema[column.lower()]:
-                # is this field nested?
+                # is this an object column?
                 if len(expected[column]) > 0:
                     for field in expected[column]:
                         col_schema = col_schema.split(field, 1)
@@ -67,7 +82,7 @@ class DatabaseParser(abc.ABC):
                         else:
                             output[column][field] = True
                             col_schema = col_schema[1]
-                # otherwise this field is a bare type
+                # otherwise this is a primitive col
                 else:
                     output[column] = True
             else:
