@@ -4,10 +4,13 @@ import glob
 import os
 import tempfile
 
+from datetime import datetime, timedelta, timezone
 from unittest import mock
 from pathlib import Path
 
-from cumulus_library import cli
+import pytest
+
+from cumulus_library import cli, databases
 
 
 @mock.patch.dict(
@@ -48,3 +51,25 @@ def test_duckdb_core_build_and_export():
             ) as f:
                 expected = f.read().strip()
             assert generated == expected, basename
+
+
+@pytest.mark.parametrize(
+    "timestamp,expected",
+    [
+        ("2021", datetime(2021, 1, 1, tzinfo=timezone.utc)),
+        ("2019-10", datetime(2019, 10, 1, tzinfo=timezone.utc)),
+        ("1923-01-23", datetime(1923, 1, 23, tzinfo=timezone.utc)),
+        (
+            "2023-01-16T07:55:25-05:00",
+            datetime(2023, 1, 16, 7, 55, 25, tzinfo=timezone(timedelta(hours=-5))),
+        ),
+    ],
+)
+def test_duckdb_from_iso8601_timestamp(timestamp, expected):
+    db = databases.DuckDatabaseBackend(":memory:")
+    parsed = (
+        db.cursor()
+        .execute(f"select from_iso8601_timestamp('{timestamp}')")
+        .fetchone()[0]
+    )
+    assert parsed, expected

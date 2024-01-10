@@ -251,6 +251,15 @@ class DuckDatabaseBackend(DatabaseBackend):
     ) -> Optional[datetime.datetime]:
         if value is None:
             return None
+
+        # handle partial dates like 1970 or 1980-12 (which spec allows)
+        if len(value) < 10:
+            pieces = value.split("-")
+            if len(pieces) == 1:
+                return datetime.datetime(int(pieces[0]), 1, 1)
+            else:
+                return datetime.datetime(int(pieces[0]), int(pieces[1]), 1)
+
         return datetime.datetime.fromisoformat(value)
 
     def cursor(self) -> duckdb.DuckDBPyConnection:
