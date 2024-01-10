@@ -169,6 +169,4 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
 )
 def test_count_query(expected, kwargs):
     query = get_count_query("test_table", "test_source", ["age", "sex"], **kwargs)
-    with open("output.sql", "w") as f:
-        f.write(query)
     assert query == expected

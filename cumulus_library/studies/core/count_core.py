@@ -1,6 +1,6 @@
 from typing import List
 from pathlib import Path
-import cumulus_library.statistics.counts as counts
+from cumulus_library.statistics import counts
 
 
 class CoreCountsBuilder(counts.CountsBuilder):

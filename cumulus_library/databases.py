@@ -47,7 +47,7 @@ class DatabaseParser(abc.ABC):
     def _parse_found_schema(self, expected: dict[dict[list]], schema: list[tuple]):
         """Checks for presence of field for each column in a table
 
-        This naieve method is a first pass, ignoring complexities of differing
+        This naive method is a first pass, ignoring complexities of differing
         database variable types, just iterating through looking for column names.
 
         TODO: on a per database instance, consider a more nuanced approach

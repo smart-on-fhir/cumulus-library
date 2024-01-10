@@ -38,7 +38,7 @@ SELECT
     tc.display AS code_display,
     tc.subject_ref,
     tc.encounter_ref,
-    tc.id as condition_id,
+    tc.id AS condition_id,
     tc.condition_ref,
     tc.recordeddate,
     date_trunc('week', date(tc.recordeddate)) AS recorded_week,

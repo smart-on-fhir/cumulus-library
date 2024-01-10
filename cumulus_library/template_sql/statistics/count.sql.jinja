@@ -62,7 +62,7 @@ CREATE TABLE {{ table_name }} AS (
         {%- elif fhir_resource=='encounter' and filter_resource %}
         WHERE s.status = 'finished'
         {%- elif fhir_resource=='observation' and filter_resource %}
-        WHERE (s.status = 'final' OR status= 'amended')
+        WHERE (s.status = 'final' OR s.status= 'amended')
         {%- endif %}
     ),
     {% endif %}
