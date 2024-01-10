@@ -5,10 +5,20 @@
 {%- endmacro -%}
 
 {%- macro secondary_resource(fhir_resource) -%}
-{%- if fhir_resource in ('condition', 'document', 'encounter', 'observation') -%}
+{%- if fhir_resource in ( 'document', 'encounter', 'observation') -%}
 {{ fhir_resource }}
+{%- elif fhir_resource == 'condition' -%}
+encounter
 {%- else -%}
 {# implicit null #}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro column_or_alias(count_col) %}
+{%- if not count_col.alias -%}
+{{ count_col.name }}
+{%- else -%}
+{{ count_col.alias }}
 {%- endif -%}
 {%- endmacro -%}
 
@@ -21,24 +31,38 @@ CREATE TABLE {{ table_name }} AS (
     {%- if filter_resource %}
     filtered_table AS (
         SELECT
-            subject_ref,
+            s.subject_ref,
             {%- if secondary %}
-            {{ secondary }}_ref,
+            s.{{ secondary }}_ref,
             {%- endif -%}
-            {% for col in table_cols %}
-            "{{ col }}"
-            {%- if not loop.last -%}
-            , 
+            {%- if fhir_resource=='condition' %}
+            cccd.display AS cond_code_display,
+            {%- endif %}
+            {#- these exceptions deal with table aliasing related to
+            single table queries, where this may be a multitable query
+            depending on context #}
+            --noqa: disable=RF03, AL02
+            {%- for col in table_cols %}
+            {%- if not col.alias %}
+            s."{{ col.name }}" 
+            {%- else %}
+            s."{{ col.name }}" AS {{ col.alias }}
             {%- endif -%}
-            {%- endfor %}
-        FROM {{ source_table }}
+            {{- comma_delineate(loop) -}}
+            {% endfor %}
+            --noqa: enable=RF03, AL02
+        FROM {{ source_table }} AS s
+        {%- if fhir_resource=='condition' %}
+        LEFT JOIN core__condition_codable_concepts_display AS cccd
+            ON s.condition_id = cccd.id
+        {%- endif -%}
         {%- if fhir_resource=='document' and filter_resource %}
-        WHERE (status = 'current')
+        WHERE (s.status = 'current')
         AND (d.docStatus IS null OR d.docStatus IN ('final', 'amended'))
         {%- elif fhir_resource=='encounter' and filter_resource %}
-        WHERE status = 'finished'
+        WHERE s.status = 'finished'
         {%- elif fhir_resource=='observation' and filter_resource %}
-        WHERE (status = 'final' OR status= 'amended')
+        WHERE (s.status = 'final' OR s.status= 'amended')
         {%- endif %}
     ),
     {% endif %}
@@ -48,8 +72,14 @@ CREATE TABLE {{ table_name }} AS (
             {%- if secondary %}
             {{ secondary }}_ref,
             {%- endif -%}
+            {%- if fhir_resource=='condition' %}
+            coalesce(cast(cond_code_display AS varchar), 'missing-or-null') AS cond_code_display,
+            {%- endif -%}
             {% for col in table_cols %}
-            coalesce(cast("{{ col }}" AS varchar), 'missing-or-null') AS "{{ col }}"
+            coalesce(
+                cast("{{ column_or_alias(col) }}" AS varchar),
+                'missing-or-null'
+            ) AS "{{ column_or_alias(col) }}"
             {{- comma_delineate(loop) }}
             {%- endfor %}
         {%- if filter_resource %}
@@ -66,16 +96,22 @@ CREATE TABLE {{ table_name }} AS (
             count(DISTINCT {{ secondary }}_ref) AS cnt_{{ secondary }},
             {%- endif -%}
             {% for col in table_cols %}
-            "{{ col }}"
+            "{{ column_or_alias(col) }}"
             {{- comma_delineate(loop) }}
             {%- endfor %}
+            {%- if fhir_resource=='condition' -%},
+            cond_code_display
+            {% endif %}
         FROM null_replacement
         GROUP BY
-            cube( 
+            cube(
                 {%- for col in table_cols %}
-                "{{ col }}"
+                "{{ column_or_alias(col) }}"
                 {{- comma_delineate(loop) }}
                 {%- endfor %}
+                {%- if fhir_resource=='condition' -%},
+                cond_code_display
+                {% endif %}
             )
     )
 
@@ -86,9 +122,12 @@ CREATE TABLE {{ table_name }} AS (
         cnt_subject
         {%- endif %} AS cnt,
         {%- for col in table_cols %}
-        "{{ col }}"
+        "{{ column_or_alias(col) }}"
         {{- comma_delineate(loop) }}
         {%- endfor %}
+        {%- if fhir_resource=='condition' %},
+        cond_code_display
+    {% endif %}
     FROM powerset
     {%- if where_clauses %}
     WHERE

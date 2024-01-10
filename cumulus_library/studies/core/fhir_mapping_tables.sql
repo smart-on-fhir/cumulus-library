@@ -40,7 +40,7 @@ CREATE TABLE core__fhir_mapping_code_system_uri AS SELECT * FROM
 
         ('CPT', 'http://www.ama-assn.org/go/cpt'),
         ('CPT', 'CPT')
-    ) AS t (code_system, uri); --noqa: AL05
+    ) AS t (code_system, uri);
 
 -- ############################################################
 -- FHIR mapping of Resource names to expected URIs
@@ -137,4 +137,4 @@ SELECT * FROM
         ('PRENC', 'PRENC'),
         ('SS', 'SS'),
         ('VR', 'VR')
-    ) AS t (expected, found)
+    ) AS t (expected, found);

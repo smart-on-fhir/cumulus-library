@@ -1,76 +1,69 @@
 """ tests for the cli interface to studies """
-# TODO: cutover to duckdb
-
-from unittest import mock
-
-import pyathena
+import duckdb
 import pytest
 
-from cumulus_library.template_sql.utils import (
-    is_codeable_concept_array_populated,
-    is_codeable_concept_populated,
-)
-
-REGION = "us-east-1"
-WORKGROUP = "test_wg"
-SCHEMA = "schema"
+from contextlib import nullcontext as does_not_raise
+from cumulus_library.template_sql import utils
 
 
-@mock.patch("pyathena.connect")
 @pytest.mark.parametrize(
-    "query_results,allow_partial,expected",
+    "table,base_col,expected,raises",
     [
-        ((("foo"), (["coding"]), ("baz")), True, True),
-        ((("foo"), (["coding"]), ("baz")), False, False),
-        ((("foo"), (["coding, code, system, display"]), ("baz")), False, True),
-        ((("foo"), (["coding"]), None), True, False),
-        ((("foo"), (["varchar"]), None), True, False),
-        ((None, (["varchar"]), None), True, False),
+        # coding
+        ("condition", "code", True, does_not_raise()),
+        # array coding
+        ("condition", "category", False, does_not_raise()),
+        # bare code
+        ("encounter", "class", False, does_not_raise()),
+        # non coding
+        ("condition", "resourcetype", False, does_not_raise()),
     ],
 )
-def test_is_codeable_concept_populated(
-    mock_pyathena,
-    query_results,
-    allow_partial,
-    expected,  # pylint: disable=unused-argument
-):
-    cursor = pyathena.connect(
-        region_name=REGION,
-        work_group=WORKGROUP,
-        schema_name=SCHEMA,
-    ).cursor()
-    cursor.fetchone.side_effect = query_results
-    res = is_codeable_concept_populated(
-        SCHEMA, "table", "base_col", cursor, allow_partial=allow_partial
-    )
-    assert res == expected
+def test_is_codeable_concept_populated(mock_db, table, base_col, expected, raises):
+    with raises:
+        res = utils.is_codeable_concept_populated(
+            "main", table, base_col, mock_db.cursor()
+        )
+        assert res == expected
 
 
-@mock.patch("pyathena.connect")
 @pytest.mark.parametrize(
-    "query_results,allow_partial,expected",
+    "table,base_col,expected,raises",
     [
-        ((("foo"), (["coding"]), ("baz")), True, True),
-        ((("foo"), (["coding"]), ("baz")), False, False),
-        ((("foo"), (["coding, code, system, display"]), ("baz")), False, True),
-        ((("foo"), (["coding"]), None), True, False),
-        ((("foo"), (["varchar"]), None), True, False),
-        ((None, (["varchar"]), None), True, False),
+        # coding
+        ("condition", "code", False, does_not_raise()),
+        # array coding
+        ("condition", "category", True, does_not_raise()),
+        # bare code
+        ("encounter", "status", False, does_not_raise()),
+        # non coding
+        ("condition", "resourcetype", False, does_not_raise()),
     ],
 )
 def test_is_codeable_concept_array_populated(
-    mock_pyathena,
-    query_results,
-    allow_partial,
-    expected,  # pylint: disable=unused-argument
+    mock_db, table, base_col, expected, raises
 ):
-    cursor = pyathena.connect(
-        region_name=REGION,
-        work_group=WORKGROUP,
-        schema_name=SCHEMA,
-    ).cursor()
-    cursor.fetchone.side_effect = query_results
-    res = is_codeable_concept_array_populated(
-        SCHEMA, "table", "base_col", cursor, allow_partial=allow_partial
-    )
-    assert res == expected
+    with raises:
+        res = utils.is_codeable_concept_array_populated(
+            "main", table, base_col, mock_db.cursor()
+        )
+        assert res == expected
+
+
+@pytest.mark.parametrize(
+    "table,base_col,expected,raises",
+    [
+        # coding
+        ("condition", "code", False, does_not_raise()),
+        # array coding
+        ("condition", "category", False, does_not_raise()),
+        # bare code
+        ("encounter", "class", True, does_not_raise()),
+        # non coding
+        ("condition", "resourcetype", False, does_not_raise()),
+    ],
+)
+def test_is_code_populated(mock_db, table, base_col, expected, raises):
+    with raises:
+        res = utils.is_code_populated("main", table, base_col, mock_db.cursor())
+        assert res == expected

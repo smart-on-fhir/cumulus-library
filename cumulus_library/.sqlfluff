@@ -15,6 +15,10 @@ ignore_comment_lines = true
 [sqlfluff:rules:capitalisation.keywords]
 capitalisation_policy = upper
 
+
+[sqlfluff:templater:jinja]
+load_macros_from_path = cumulus_library/studies/core/core_templates
+
 [sqlfluff:templater:jinja:context]
 code_systems = ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"]
 col_type_list = ["a string","b string"]
@@ -23,6 +27,7 @@ cc_columns = [{"name": "baz", "is_array": True}, {"name": "foobar", "is_array": 
 cc_column = 'code'
 code_system_tables = [{table_name":"hasarray","column_name":"acol","is_bare_coding":False,"is_array":True, "has_data": True},{"table_name":"noarray","column_name":"col","is_bare_coding":False,"is_array":False, "has_data": True}{"table_name":"bare","column_name":"bcol","is_bare_coding":True,"is_array":False, "has_data": True},{"table_name":"empty","column_name":"empty","is_bare_coding":False,"is_array":False, "has_data": False}]
 column_name = 'bar'
+column_names = ['foo', 'bar']
 conditions = ["1 > 0", "1 < 2"]
 count_ref = count_ref
 count_table = count_table
@@ -43,6 +48,7 @@ prefix = Test
 primary_ref = encounter_ref
 pos_source_table = pos_source_table
 schema_name = test_schema
+schema = {'condition': {'category': {'coding': True, 'code': True, 'display': True, 'system': True, 'userSelected': True, 'version': True, 'text': True}, 'clinicalstatus': {'coding': True, 'code': True, 'display': True, 'system': True, 'userSelected': True, 'version': True, 'text': True}, 'id': True, 'recordeddate': True, 'verificationstatus': {'coding': True, 'code': True, 'display': True, 'system': True, 'userSelected': True, 'version': True, 'text': True}, 'subject': {'reference': True, 'display': False, 'type': True}, 'encounter': {'reference': True, 'display': False, 'type': True}}}
 source_table = source_table
 source_id = source_id
 table_cols = ["a","b"]

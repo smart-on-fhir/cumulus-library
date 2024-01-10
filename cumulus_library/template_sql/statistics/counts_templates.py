@@ -1,4 +1,5 @@
 from enum import Enum
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -22,6 +23,15 @@ class CountableFhirResource(Enum):
     NONE = None
     OBSERVATION = "observation"
     PATIENT = "patient"
+    MEDICATION = "medication"
+    MEDICATIONREFERENCE = "medicationreference"
+
+
+@dataclass
+class CountColumn:
+    name: str
+    db_type: str
+    alias: str
 
 
 def get_count_query(
@@ -39,6 +49,20 @@ def get_count_query(
         raise CountsBuilderError(
             f"Tried to create counts table for invalid resource {fhir_resource}."
         )
+
+    table_col_classed = []
+    for item in table_cols:
+        # TODO: remove check after cutover
+        if isinstance(item, list):
+            table_col_classed.append(
+                CountColumn(name=item[0], db_type=item[1], alias=item[2])
+            )
+        else:
+            table_col_classed.append(
+                CountColumn(name=item, db_type="varchar", alias=None)
+            )
+    table_cols = table_col_classed
+
     with open(f"{path}/count.sql.jinja") as count_query:
         query = Template(count_query.read()).render(
             table_name=table_name,

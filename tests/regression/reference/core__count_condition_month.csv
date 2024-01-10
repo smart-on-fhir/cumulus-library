@@ -1,438 +1,438 @@
 cnt,cond_category_code,cond_month,cond_code_display
-1016,,,
-1016,encounter-diagnosis,,
-701,,,Full-time employment (finding)
-701,encounter-diagnosis,,Full-time employment (finding)
-672,,,Stress (finding)
-672,encounter-diagnosis,,Stress (finding)
-552,,,Viral sinusitis (disorder)
-552,encounter-diagnosis,,Viral sinusitis (disorder)
-503,,,Part-time employment (finding)
-503,encounter-diagnosis,,Part-time employment (finding)
-392,,,Acute viral pharyngitis (disorder)
-392,encounter-diagnosis,,Acute viral pharyngitis (disorder)
-385,,,Social isolation (finding)
-385,encounter-diagnosis,,Social isolation (finding)
-353,,,Limited social contact (finding)
-353,encounter-diagnosis,,Limited social contact (finding)
-341,,,Not in labor force (finding)
-341,encounter-diagnosis,,Not in labor force (finding)
-311,,,Acute bronchitis (disorder)
-311,encounter-diagnosis,,Acute bronchitis (disorder)
-270,,,Victim of intimate partner abuse (finding)
-270,encounter-diagnosis,,Victim of intimate partner abuse (finding)
-268,,,Reports of violence in the environment (finding)
-268,encounter-diagnosis,,Reports of violence in the environment (finding)
-156,,,Normal pregnancy
-156,encounter-diagnosis,,Normal pregnancy
-139,,2020-03-01,
-139,encounter-diagnosis,2020-03-01,
-135,,2021-03-01,
-135,encounter-diagnosis,2021-03-01,
-127,,2017-03-01,
-127,encounter-diagnosis,2017-03-01,
-126,,2021-01-01,
-126,,2018-03-01,
-126,encounter-diagnosis,2021-01-01,
-126,encounter-diagnosis,2018-03-01,
-124,,2022-04-01,
-124,encounter-diagnosis,2022-04-01,
-123,,2021-06-01,
-123,,2019-05-01,
-123,encounter-diagnosis,2021-06-01,
-123,encounter-diagnosis,2019-05-01,
-122,,2021-12-01,
-122,,2019-03-01,
-122,encounter-diagnosis,2021-12-01,
-122,encounter-diagnosis,2019-03-01,
-121,,2022-12-01,
-121,encounter-diagnosis,2022-12-01,
-120,,2021-07-01,
-120,,2020-11-01,
-120,encounter-diagnosis,2021-07-01,
-120,encounter-diagnosis,2020-11-01,
-119,,2019-02-01,
-119,encounter-diagnosis,2019-02-01,
-118,,,Streptococcal sore throat (disorder)
-118,encounter-diagnosis,,Streptococcal sore throat (disorder)
-116,,2023-01-01,
-116,,2017-08-01,
-116,,2017-07-01,
-116,encounter-diagnosis,2023-01-01,
-116,encounter-diagnosis,2017-08-01,
-116,encounter-diagnosis,2017-07-01,
-115,,2021-08-01,
-115,,2020-06-01,
-115,encounter-diagnosis,2021-08-01,
-115,encounter-diagnosis,2020-06-01,
-114,,2021-09-01,
-114,,2020-05-01,
-114,,2019-04-01,
-114,,2019-01-01,
-114,,2018-01-01,
-114,,2017-12-01,
-114,,2016-01-01,
-114,encounter-diagnosis,2021-09-01,
-114,encounter-diagnosis,2020-05-01,
-114,encounter-diagnosis,2019-04-01,
-114,encounter-diagnosis,2019-01-01,
-114,encounter-diagnosis,2018-01-01,
-114,encounter-diagnosis,2017-12-01,
-114,encounter-diagnosis,2016-01-01,
-113,,2022-05-01,
-113,,2021-05-01,
-113,,2020-12-01,
-113,,2020-08-01,
-113,,2016-02-01,
-113,encounter-diagnosis,2022-05-01,
-113,encounter-diagnosis,2021-05-01,
-113,encounter-diagnosis,2020-12-01,
-113,encounter-diagnosis,2020-08-01,
-113,encounter-diagnosis,2016-02-01,
-112,,2018-06-01,
-112,,2018-05-01,
-112,,2017-05-01,
-112,encounter-diagnosis,2018-06-01,
-112,encounter-diagnosis,2018-05-01,
-112,encounter-diagnosis,2017-05-01,
-111,,2022-08-01,
-111,,2022-06-01,
-111,,2020-07-01,
-111,encounter-diagnosis,2022-08-01,
-111,encounter-diagnosis,2022-06-01,
-111,encounter-diagnosis,2020-07-01,
-110,,2021-10-01,
-110,,2019-06-01,
-110,encounter-diagnosis,2021-10-01,
-110,encounter-diagnosis,2019-06-01,
-109,,2022-03-01,
-109,,2021-04-01,
-109,,2018-08-01,
-109,encounter-diagnosis,2022-03-01,
-109,encounter-diagnosis,2021-04-01,
-109,encounter-diagnosis,2018-08-01,
-108,,2020-10-01,
-108,,2020-01-01,
-108,encounter-diagnosis,2020-10-01,
-108,encounter-diagnosis,2020-01-01,
-107,,2022-09-01,
-107,,2016-07-01,
-107,encounter-diagnosis,2022-09-01,
-107,encounter-diagnosis,2016-07-01,
-106,,,Otitis media
-106,,2020-02-01,
-106,,2016-12-01,
-106,,2016-06-01,
-106,encounter-diagnosis,,Otitis media
-106,encounter-diagnosis,2020-02-01,
-106,encounter-diagnosis,2016-12-01,
-106,encounter-diagnosis,2016-06-01,
-105,,2022-07-01,
-105,,2019-08-01,
-105,,2018-09-01,
-105,,2017-01-01,
-105,,2016-08-01,
-105,encounter-diagnosis,2022-07-01,
-105,encounter-diagnosis,2019-08-01,
-105,encounter-diagnosis,2018-09-01,
-105,encounter-diagnosis,2017-01-01,
-105,encounter-diagnosis,2016-08-01,
-104,,2022-02-01,
-104,,2022-01-01,
-104,,2020-09-01,
-104,,2020-04-01,
-104,,2017-06-01,
-104,,2016-03-01,
-104,encounter-diagnosis,2022-02-01,
-104,encounter-diagnosis,2022-01-01,
-104,encounter-diagnosis,2020-09-01,
-104,encounter-diagnosis,2020-04-01,
-104,encounter-diagnosis,2017-06-01,
-104,encounter-diagnosis,2016-03-01,
+10687,,,
+10687,encounter-diagnosis,,
+4876,,,Full-time employment (finding)
+4876,encounter-diagnosis,,Full-time employment (finding)
+1856,,,Stress (finding)
+1856,encounter-diagnosis,,Stress (finding)
+1413,,,Part-time employment (finding)
+1413,encounter-diagnosis,,Part-time employment (finding)
+756,,,Viral sinusitis (disorder)
+756,encounter-diagnosis,,Viral sinusitis (disorder)
+681,,,Not in labor force (finding)
+681,encounter-diagnosis,,Not in labor force (finding)
+644,,,Social isolation (finding)
+644,encounter-diagnosis,,Social isolation (finding)
+602,,,Limited social contact (finding)
+602,encounter-diagnosis,,Limited social contact (finding)
+497,,,Acute viral pharyngitis (disorder)
+497,encounter-diagnosis,,Acute viral pharyngitis (disorder)
+410,,,Victim of intimate partner abuse (finding)
+410,encounter-diagnosis,,Victim of intimate partner abuse (finding)
+394,,,Reports of violence in the environment (finding)
+394,encounter-diagnosis,,Reports of violence in the environment (finding)
+355,,,Acute bronchitis (disorder)
+355,encounter-diagnosis,,Acute bronchitis (disorder)
+314,,,Normal pregnancy
+314,encounter-diagnosis,,Normal pregnancy
+155,,2020-03-01,
+155,encounter-diagnosis,2020-03-01,
+146,,2021-03-01,
+146,,2018-03-01,
+146,encounter-diagnosis,2021-03-01,
+146,encounter-diagnosis,2018-03-01,
+145,,2019-03-01,
+145,encounter-diagnosis,2019-03-01,
+141,,2021-12-01,
+141,,2021-06-01,
+141,,2021-01-01,
+141,,2019-05-01,
+141,,2017-03-01,
+141,encounter-diagnosis,2021-12-01,
+141,encounter-diagnosis,2021-06-01,
+141,encounter-diagnosis,2021-01-01,
+141,encounter-diagnosis,2019-05-01,
+141,encounter-diagnosis,2017-03-01,
+140,,2019-02-01,
+140,encounter-diagnosis,2019-02-01,
+139,,2021-08-01,
+139,,2020-11-01,
+139,encounter-diagnosis,2021-08-01,
+139,encounter-diagnosis,2020-11-01,
+138,,2022-12-01,
+138,encounter-diagnosis,2022-12-01,
+136,,2020-12-01,
+136,encounter-diagnosis,2020-12-01,
+135,,2022-04-01,
+135,encounter-diagnosis,2022-04-01,
+134,,2022-05-01,
+134,encounter-diagnosis,2022-05-01,
+133,,2021-07-01,
+133,,2020-08-01,
+133,,2020-06-01,
+133,,2017-07-01,
+133,encounter-diagnosis,2021-07-01,
+133,encounter-diagnosis,2020-08-01,
+133,encounter-diagnosis,2020-06-01,
+133,encounter-diagnosis,2017-07-01,
+132,,2020-07-01,
+132,,2020-05-01,
+132,,2019-04-01,
+132,encounter-diagnosis,2020-07-01,
+132,encounter-diagnosis,2020-05-01,
+132,encounter-diagnosis,2019-04-01,
+131,,2016-01-01,
+131,encounter-diagnosis,2016-01-01,
+130,,2021-05-01,
+130,,2020-10-01,
+130,,2019-01-01,
+130,,2017-12-01,
+130,encounter-diagnosis,2021-05-01,
+130,encounter-diagnosis,2020-10-01,
+130,encounter-diagnosis,2019-01-01,
+130,encounter-diagnosis,2017-12-01,
+129,,2023-01-01,
+129,,2021-10-01,
+129,,2021-09-01,
+129,encounter-diagnosis,2023-01-01,
+129,encounter-diagnosis,2021-10-01,
+129,encounter-diagnosis,2021-09-01,
+127,,2021-04-01,
+127,,2018-06-01,
+127,,2018-01-01,
+127,,2016-02-01,
+127,encounter-diagnosis,2021-04-01,
+127,encounter-diagnosis,2018-06-01,
+127,encounter-diagnosis,2018-01-01,
+127,encounter-diagnosis,2016-02-01,
+126,,2017-08-01,
+126,encounter-diagnosis,2017-08-01,
+125,,,Otitis media
+125,,2022-06-01,
+125,,2022-03-01,
+125,,2018-05-01,
+125,encounter-diagnosis,,Otitis media
+125,encounter-diagnosis,2022-06-01,
+125,encounter-diagnosis,2022-03-01,
+125,encounter-diagnosis,2018-05-01,
+124,,2022-08-01,
+124,,2018-08-01,
+124,,2017-05-01,
+124,encounter-diagnosis,2022-08-01,
+124,encounter-diagnosis,2018-08-01,
+124,encounter-diagnosis,2017-05-01,
+123,,2019-06-01,
+123,,2016-12-01,
+123,,2016-07-01,
+123,encounter-diagnosis,2019-06-01,
+123,encounter-diagnosis,2016-12-01,
+123,encounter-diagnosis,2016-07-01,
+122,,2022-01-01,
+122,,2019-10-01,
+122,,2018-09-01,
+122,encounter-diagnosis,2022-01-01,
+122,encounter-diagnosis,2019-10-01,
+122,encounter-diagnosis,2018-09-01,
+121,,2020-04-01,
+121,,2020-02-01,
+121,,2019-12-01,
+121,,2016-08-01,
+121,encounter-diagnosis,2020-04-01,
+121,encounter-diagnosis,2020-02-01,
+121,encounter-diagnosis,2019-12-01,
+121,encounter-diagnosis,2016-08-01,
+120,,,Streptococcal sore throat (disorder)
+120,,2022-09-01,
+120,,2019-08-01,
+120,,2017-02-01,
+120,,2016-06-01,
+120,,2016-03-01,
+120,encounter-diagnosis,,Streptococcal sore throat (disorder)
+120,encounter-diagnosis,2022-09-01,
+120,encounter-diagnosis,2019-08-01,
+120,encounter-diagnosis,2017-02-01,
+120,encounter-diagnosis,2016-06-01,
+120,encounter-diagnosis,2016-03-01,
+118,,2020-01-01,
+118,encounter-diagnosis,2020-01-01,
+117,,2017-06-01,
+117,,2017-01-01,
+117,encounter-diagnosis,2017-06-01,
+117,encounter-diagnosis,2017-01-01,
+116,,2022-07-01,
+116,,2020-09-01,
+116,encounter-diagnosis,2022-07-01,
+116,encounter-diagnosis,2020-09-01,
+115,,2022-10-01,
+115,,2022-02-01,
+115,encounter-diagnosis,2022-10-01,
+115,encounter-diagnosis,2022-02-01,
+114,,2018-11-01,
+114,encounter-diagnosis,2018-11-01,
+113,,2023-02-01,
+113,encounter-diagnosis,2023-02-01,
+112,,2019-07-01,
+112,,2018-10-01,
+112,,2016-09-01,
+112,encounter-diagnosis,2019-07-01,
+112,encounter-diagnosis,2018-10-01,
+112,encounter-diagnosis,2016-09-01,
+111,,2017-09-01,
+111,encounter-diagnosis,2017-09-01,
+110,,2019-11-01,
+110,,2016-05-01,
+110,encounter-diagnosis,2019-11-01,
+110,encounter-diagnosis,2016-05-01,
+109,,2018-12-01,
+109,encounter-diagnosis,2018-12-01,
+108,,2021-02-01,
+108,encounter-diagnosis,2021-02-01,
+107,,2022-11-01,
+107,,2018-04-01,
+107,,2017-11-01,
+107,,2017-04-01,
+107,encounter-diagnosis,2022-11-01,
+107,encounter-diagnosis,2018-04-01,
+107,encounter-diagnosis,2017-11-01,
+107,encounter-diagnosis,2017-04-01,
+106,,2016-10-01,
+106,encounter-diagnosis,2016-10-01,
+105,,2018-02-01,
+105,encounter-diagnosis,2018-02-01,
+104,,2023-03-01,
+104,,2021-11-01,
+104,,2017-10-01,
+104,encounter-diagnosis,2023-03-01,
+104,encounter-diagnosis,2021-11-01,
+104,encounter-diagnosis,2017-10-01,
 102,,,Suspected COVID-19
-102,,2022-10-01,
-102,,2019-10-01,
-102,,2017-02-01,
+102,,2016-04-01,
 102,encounter-diagnosis,,Suspected COVID-19
-102,encounter-diagnosis,2022-10-01,
-102,encounter-diagnosis,2019-10-01,
-102,encounter-diagnosis,2017-02-01,
-101,,2023-03-01,
-101,encounter-diagnosis,2023-03-01,
-100,,2018-10-01,
-100,,2017-09-01,
-100,,2016-09-01,
-100,encounter-diagnosis,2018-10-01,
-100,encounter-diagnosis,2017-09-01,
-100,encounter-diagnosis,2016-09-01,
-99,,2023-02-01,
-99,,2021-02-01,
-99,,2018-11-01,
-99,encounter-diagnosis,2023-02-01,
-99,encounter-diagnosis,2021-02-01,
-99,encounter-diagnosis,2018-11-01,
+102,encounter-diagnosis,2016-04-01,
+101,,,Severe anxiety (panic) (finding)
+101,encounter-diagnosis,,Severe anxiety (panic) (finding)
+100,,2018-07-01,
+100,encounter-diagnosis,2018-07-01,
+99,,2016-11-01,
+99,encounter-diagnosis,2016-11-01,
 98,,,COVID-19
-98,,2019-12-01,
-98,,2019-07-01,
+98,,2019-09-01,
 98,encounter-diagnosis,,COVID-19
-98,encounter-diagnosis,2019-12-01,
-98,encounter-diagnosis,2019-07-01,
-97,,2017-11-01,
-97,encounter-diagnosis,2017-11-01,
-96,,2017-04-01,
-96,,2016-05-01,
-96,encounter-diagnosis,2017-04-01,
-96,encounter-diagnosis,2016-05-01,
-95,,2018-12-01,
-95,,2018-07-01,
-95,encounter-diagnosis,2018-12-01,
-95,encounter-diagnosis,2018-07-01,
-94,,2016-10-01,
-94,encounter-diagnosis,2016-10-01,
-93,,2018-04-01,
-93,,2017-10-01,
-93,,2016-04-01,
-93,encounter-diagnosis,2018-04-01,
-93,encounter-diagnosis,2017-10-01,
-93,encounter-diagnosis,2016-04-01,
-92,,2021-11-01,
-92,,2019-11-01,
-92,encounter-diagnosis,2021-11-01,
-92,encounter-diagnosis,2019-11-01,
-91,,2018-02-01,
-91,encounter-diagnosis,2018-02-01,
+98,encounter-diagnosis,2019-09-01,
+94,,,Unhealthy alcohol drinking behavior (finding)
+94,encounter-diagnosis,,Unhealthy alcohol drinking behavior (finding)
 90,,,Fever (finding)
-90,,2022-11-01,
-90,,2019-09-01,
 90,encounter-diagnosis,,Fever (finding)
-90,encounter-diagnosis,2022-11-01,
-90,encounter-diagnosis,2019-09-01,
-86,,,Unhealthy alcohol drinking behavior (finding)
-86,encounter-diagnosis,,Unhealthy alcohol drinking behavior (finding)
-85,,,Severe anxiety (panic) (finding)
-85,encounter-diagnosis,,Severe anxiety (panic) (finding)
-83,,2016-11-01,
-83,encounter-diagnosis,2016-11-01,
+84,,,Risk activity involvement (finding)
+84,encounter-diagnosis,,Risk activity involvement (finding)
+82,,2019-03-01,Full-time employment (finding)
+82,encounter-diagnosis,2019-03-01,Full-time employment (finding)
 78,,,Body mass index 30+ - obesity (finding)
 78,encounter-diagnosis,,Body mass index 30+ - obesity (finding)
-75,,2019-03-01,Full-time employment (finding)
-75,encounter-diagnosis,2019-03-01,Full-time employment (finding)
-74,,2018-03-01,Full-time employment (finding)
-74,encounter-diagnosis,2018-03-01,Full-time employment (finding)
-73,,,Sprain of ankle
+77,,2018-03-01,Full-time employment (finding)
+77,encounter-diagnosis,2018-03-01,Full-time employment (finding)
+76,,,Sprain of ankle
+76,encounter-diagnosis,,Sprain of ankle
+75,,2020-03-01,Full-time employment (finding)
+75,encounter-diagnosis,2020-03-01,Full-time employment (finding)
 73,,,Anemia (disorder)
-73,encounter-diagnosis,,Sprain of ankle
 73,encounter-diagnosis,,Anemia (disorder)
 72,,,Cough (finding)
 72,encounter-diagnosis,,Cough (finding)
-70,,,Risk activity involvement (finding)
-70,,2020-03-01,Full-time employment (finding)
-70,encounter-diagnosis,,Risk activity involvement (finding)
-70,encounter-diagnosis,2020-03-01,Full-time employment (finding)
-69,,2021-03-01,Full-time employment (finding)
-69,encounter-diagnosis,2021-03-01,Full-time employment (finding)
-67,,2017-03-01,Full-time employment (finding)
-67,encounter-diagnosis,2017-03-01,Full-time employment (finding)
+71,,2021-03-01,Full-time employment (finding)
+71,,2017-03-01,Full-time employment (finding)
+71,encounter-diagnosis,2021-03-01,Full-time employment (finding)
+71,encounter-diagnosis,2017-03-01,Full-time employment (finding)
+68,,2021-01-01,Full-time employment (finding)
+68,encounter-diagnosis,2021-01-01,Full-time employment (finding)
+67,,2021-08-01,Full-time employment (finding)
+67,,2021-07-01,Full-time employment (finding)
+67,,2021-06-01,Full-time employment (finding)
+67,encounter-diagnosis,2021-08-01,Full-time employment (finding)
+67,encounter-diagnosis,2021-07-01,Full-time employment (finding)
+67,encounter-diagnosis,2021-06-01,Full-time employment (finding)
 66,,,Prediabetes
-66,,2021-01-01,Full-time employment (finding)
+66,,2018-08-01,Full-time employment (finding)
 66,encounter-diagnosis,,Prediabetes
-66,encounter-diagnosis,2021-01-01,Full-time employment (finding)
-64,,2021-07-01,Full-time employment (finding)
-64,,2021-06-01,Full-time employment (finding)
-64,encounter-diagnosis,2021-07-01,Full-time employment (finding)
-64,encounter-diagnosis,2021-06-01,Full-time employment (finding)
-63,,2022-04-01,Full-time employment (finding)
-63,,2018-08-01,Full-time employment (finding)
-63,encounter-diagnosis,2022-04-01,Full-time employment (finding)
-63,encounter-diagnosis,2018-08-01,Full-time employment (finding)
+66,encounter-diagnosis,2018-08-01,Full-time employment (finding)
+65,,2022-05-01,Full-time employment (finding)
+65,,2021-12-01,Full-time employment (finding)
+65,encounter-diagnosis,2022-05-01,Full-time employment (finding)
+65,encounter-diagnosis,2021-12-01,Full-time employment (finding)
+64,,2022-04-01,Full-time employment (finding)
+64,encounter-diagnosis,2022-04-01,Full-time employment (finding)
+63,,2022-03-01,Full-time employment (finding)
+63,,2020-05-01,Full-time employment (finding)
+63,,2019-01-01,Full-time employment (finding)
+63,,2018-05-01,Full-time employment (finding)
+63,,2016-02-01,Full-time employment (finding)
+63,encounter-diagnosis,2022-03-01,Full-time employment (finding)
+63,encounter-diagnosis,2020-05-01,Full-time employment (finding)
+63,encounter-diagnosis,2019-01-01,Full-time employment (finding)
+63,encounter-diagnosis,2018-05-01,Full-time employment (finding)
+63,encounter-diagnosis,2016-02-01,Full-time employment (finding)
 62,,,Essential hypertension (disorder)
+62,,2021-09-01,Full-time employment (finding)
+62,,2021-04-01,Full-time employment (finding)
+62,,2019-05-01,Full-time employment (finding)
+62,,2018-09-01,Full-time employment (finding)
 62,encounter-diagnosis,,Essential hypertension (disorder)
-61,,2021-12-01,Full-time employment (finding)
-61,encounter-diagnosis,2021-12-01,Full-time employment (finding)
-60,,2021-08-01,Full-time employment (finding)
-60,,2021-04-01,Full-time employment (finding)
-60,,2020-05-01,Full-time employment (finding)
-60,,2019-05-01,Full-time employment (finding)
-60,,2016-02-01,Full-time employment (finding)
-60,encounter-diagnosis,2021-08-01,Full-time employment (finding)
-60,encounter-diagnosis,2021-04-01,Full-time employment (finding)
-60,encounter-diagnosis,2020-05-01,Full-time employment (finding)
-60,encounter-diagnosis,2019-05-01,Full-time employment (finding)
-60,encounter-diagnosis,2016-02-01,Full-time employment (finding)
-59,,2022-05-01,Full-time employment (finding)
-59,,2022-03-01,Full-time employment (finding)
-59,,2021-02-01,Full-time employment (finding)
-59,,2019-01-01,Full-time employment (finding)
-59,,2018-09-01,Full-time employment (finding)
-59,,2018-05-01,Full-time employment (finding)
-59,encounter-diagnosis,2022-05-01,Full-time employment (finding)
-59,encounter-diagnosis,2022-03-01,Full-time employment (finding)
-59,encounter-diagnosis,2021-02-01,Full-time employment (finding)
-59,encounter-diagnosis,2019-01-01,Full-time employment (finding)
-59,encounter-diagnosis,2018-09-01,Full-time employment (finding)
-59,encounter-diagnosis,2018-05-01,Full-time employment (finding)
+62,encounter-diagnosis,2021-09-01,Full-time employment (finding)
+62,encounter-diagnosis,2021-04-01,Full-time employment (finding)
+62,encounter-diagnosis,2019-05-01,Full-time employment (finding)
+62,encounter-diagnosis,2018-09-01,Full-time employment (finding)
+61,,2020-02-01,Full-time employment (finding)
+61,encounter-diagnosis,2020-02-01,Full-time employment (finding)
+60,,2021-02-01,Full-time employment (finding)
+60,,2020-08-01,Full-time employment (finding)
+60,,2017-01-01,Full-time employment (finding)
+60,encounter-diagnosis,2021-02-01,Full-time employment (finding)
+60,encounter-diagnosis,2020-08-01,Full-time employment (finding)
+60,encounter-diagnosis,2017-01-01,Full-time employment (finding)
+59,,2022-02-01,Full-time employment (finding)
+59,,2020-09-01,Full-time employment (finding)
+59,encounter-diagnosis,2022-02-01,Full-time employment (finding)
+59,encounter-diagnosis,2020-09-01,Full-time employment (finding)
 58,,,Received higher education (finding)
+58,,2020-06-01,Full-time employment (finding)
+58,,2018-06-01,Full-time employment (finding)
+58,,2016-06-01,Full-time employment (finding)
 58,encounter-diagnosis,,Received higher education (finding)
-57,,2020-06-01,Full-time employment (finding)
-57,,2020-02-01,Full-time employment (finding)
-57,,2017-01-01,Full-time employment (finding)
-57,encounter-diagnosis,2020-06-01,Full-time employment (finding)
-57,encounter-diagnosis,2020-02-01,Full-time employment (finding)
-57,encounter-diagnosis,2017-01-01,Full-time employment (finding)
-56,,2022-02-01,Full-time employment (finding)
-56,,2021-09-01,Full-time employment (finding)
-56,,2020-08-01,Full-time employment (finding)
-56,encounter-diagnosis,2022-02-01,Full-time employment (finding)
-56,encounter-diagnosis,2021-09-01,Full-time employment (finding)
-56,encounter-diagnosis,2020-08-01,Full-time employment (finding)
-55,,2020-09-01,Full-time employment (finding)
-55,,2018-01-01,Full-time employment (finding)
-55,,2016-06-01,Full-time employment (finding)
-55,encounter-diagnosis,2020-09-01,Full-time employment (finding)
-55,encounter-diagnosis,2018-01-01,Full-time employment (finding)
-55,encounter-diagnosis,2016-06-01,Full-time employment (finding)
+58,encounter-diagnosis,2020-06-01,Full-time employment (finding)
+58,encounter-diagnosis,2018-06-01,Full-time employment (finding)
+58,encounter-diagnosis,2016-06-01,Full-time employment (finding)
+57,,2022-08-01,Full-time employment (finding)
+57,,2019-02-01,Full-time employment (finding)
+57,,2018-12-01,Full-time employment (finding)
+57,,2018-01-01,Full-time employment (finding)
+57,encounter-diagnosis,2022-08-01,Full-time employment (finding)
+57,encounter-diagnosis,2019-02-01,Full-time employment (finding)
+57,encounter-diagnosis,2018-12-01,Full-time employment (finding)
+57,encounter-diagnosis,2018-01-01,Full-time employment (finding)
+56,,2022-11-01,Full-time employment (finding)
+56,,2020-01-01,Full-time employment (finding)
+56,,2019-11-01,Full-time employment (finding)
+56,,2019-08-01,Full-time employment (finding)
+56,,2019-06-01,Full-time employment (finding)
+56,,2018-11-01,Full-time employment (finding)
+56,,2017-12-01,Full-time employment (finding)
+56,,2017-07-01,Full-time employment (finding)
+56,,2016-12-01,Full-time employment (finding)
+56,encounter-diagnosis,2022-11-01,Full-time employment (finding)
+56,encounter-diagnosis,2020-01-01,Full-time employment (finding)
+56,encounter-diagnosis,2019-11-01,Full-time employment (finding)
+56,encounter-diagnosis,2019-08-01,Full-time employment (finding)
+56,encounter-diagnosis,2019-06-01,Full-time employment (finding)
+56,encounter-diagnosis,2018-11-01,Full-time employment (finding)
+56,encounter-diagnosis,2017-12-01,Full-time employment (finding)
+56,encounter-diagnosis,2017-07-01,Full-time employment (finding)
+56,encounter-diagnosis,2016-12-01,Full-time employment (finding)
+55,,2022-12-01,Full-time employment (finding)
+55,,2021-10-01,Full-time employment (finding)
+55,,2020-10-01,Full-time employment (finding)
+55,,2017-02-01,Full-time employment (finding)
+55,,2016-01-01,Full-time employment (finding)
+55,encounter-diagnosis,2022-12-01,Full-time employment (finding)
+55,encounter-diagnosis,2021-10-01,Full-time employment (finding)
+55,encounter-diagnosis,2020-10-01,Full-time employment (finding)
+55,encounter-diagnosis,2017-02-01,Full-time employment (finding)
+55,encounter-diagnosis,2016-01-01,Full-time employment (finding)
 54,,,Metabolic syndrome X (disorder)
 54,,2022-06-01,Full-time employment (finding)
-54,,2019-11-01,Full-time employment (finding)
-54,,2018-11-01,Full-time employment (finding)
-54,,2018-06-01,Full-time employment (finding)
-54,,2017-02-01,Full-time employment (finding)
+54,,2021-05-01,Full-time employment (finding)
+54,,2019-04-01,Full-time employment (finding)
+54,,2016-07-01,Full-time employment (finding)
 54,encounter-diagnosis,,Metabolic syndrome X (disorder)
 54,encounter-diagnosis,2022-06-01,Full-time employment (finding)
-54,encounter-diagnosis,2019-11-01,Full-time employment (finding)
-54,encounter-diagnosis,2018-11-01,Full-time employment (finding)
-54,encounter-diagnosis,2018-06-01,Full-time employment (finding)
-54,encounter-diagnosis,2017-02-01,Full-time employment (finding)
+54,encounter-diagnosis,2021-05-01,Full-time employment (finding)
+54,encounter-diagnosis,2019-04-01,Full-time employment (finding)
+54,encounter-diagnosis,2016-07-01,Full-time employment (finding)
 53,,,Abnormal findings diagnostic imaging heart+coronary circulat (finding)
-53,,2022-08-01,Full-time employment (finding)
-53,,2020-01-01,Full-time employment (finding)
-53,,2019-06-01,Full-time employment (finding)
-53,,2019-02-01,Full-time employment (finding)
-53,,2017-12-01,Full-time employment (finding)
-53,,2017-07-01,Full-time employment (finding)
+53,,2022-01-01,Full-time employment (finding)
+53,,2021-11-01,Full-time employment (finding)
 53,encounter-diagnosis,,Abnormal findings diagnostic imaging heart+coronary circulat (finding)
-53,encounter-diagnosis,2022-08-01,Full-time employment (finding)
-53,encounter-diagnosis,2020-01-01,Full-time employment (finding)
-53,encounter-diagnosis,2019-06-01,Full-time employment (finding)
-53,encounter-diagnosis,2019-02-01,Full-time employment (finding)
-53,encounter-diagnosis,2017-12-01,Full-time employment (finding)
-53,encounter-diagnosis,2017-07-01,Full-time employment (finding)
+53,encounter-diagnosis,2022-01-01,Full-time employment (finding)
+53,encounter-diagnosis,2021-11-01,Full-time employment (finding)
 52,,,Ischemic heart disease (disorder)
-52,,2022-11-01,Full-time employment (finding)
-52,,2021-10-01,Full-time employment (finding)
+52,,2022-09-01,Full-time employment (finding)
 52,,2017-11-01,Full-time employment (finding)
-52,,2016-12-01,Full-time employment (finding)
-52,,2016-01-01,Full-time employment (finding)
+52,,2017-05-01,Full-time employment (finding)
 52,encounter-diagnosis,,Ischemic heart disease (disorder)
-52,encounter-diagnosis,2022-11-01,Full-time employment (finding)
-52,encounter-diagnosis,2021-10-01,Full-time employment (finding)
+52,encounter-diagnosis,2022-09-01,Full-time employment (finding)
 52,encounter-diagnosis,2017-11-01,Full-time employment (finding)
-52,encounter-diagnosis,2016-12-01,Full-time employment (finding)
-52,encounter-diagnosis,2016-01-01,Full-time employment (finding)
-51,,2022-12-01,Full-time employment (finding)
-51,,2021-05-01,Full-time employment (finding)
-51,,2018-12-01,Full-time employment (finding)
-51,encounter-diagnosis,2022-12-01,Full-time employment (finding)
-51,encounter-diagnosis,2021-05-01,Full-time employment (finding)
-51,encounter-diagnosis,2018-12-01,Full-time employment (finding)
-50,,2019-08-01,Full-time employment (finding)
-50,,2018-02-01,Full-time employment (finding)
-50,,2017-05-01,Full-time employment (finding)
-50,encounter-diagnosis,2019-08-01,Full-time employment (finding)
-50,encounter-diagnosis,2018-02-01,Full-time employment (finding)
-50,encounter-diagnosis,2017-05-01,Full-time employment (finding)
-49,,2022-09-01,Full-time employment (finding)
-49,,2022-01-01,Full-time employment (finding)
-49,,2020-10-01,Full-time employment (finding)
-49,,2019-04-01,Full-time employment (finding)
-49,,2016-08-01,Full-time employment (finding)
-49,,2016-07-01,Full-time employment (finding)
-49,encounter-diagnosis,2022-09-01,Full-time employment (finding)
-49,encounter-diagnosis,2022-01-01,Full-time employment (finding)
-49,encounter-diagnosis,2020-10-01,Full-time employment (finding)
-49,encounter-diagnosis,2019-04-01,Full-time employment (finding)
-49,encounter-diagnosis,2016-08-01,Full-time employment (finding)
-49,encounter-diagnosis,2016-07-01,Full-time employment (finding)
-48,,2023-03-01,Full-time employment (finding)
-48,,2022-07-01,Full-time employment (finding)
-48,,2021-11-01,Full-time employment (finding)
-48,,2018-10-01,Full-time employment (finding)
-48,,2018-07-01,Full-time employment (finding)
-48,,2017-10-01,Full-time employment (finding)
-48,encounter-diagnosis,2023-03-01,Full-time employment (finding)
-48,encounter-diagnosis,2022-07-01,Full-time employment (finding)
-48,encounter-diagnosis,2021-11-01,Full-time employment (finding)
-48,encounter-diagnosis,2018-10-01,Full-time employment (finding)
-48,encounter-diagnosis,2018-07-01,Full-time employment (finding)
-48,encounter-diagnosis,2017-10-01,Full-time employment (finding)
-47,,2019-07-01,Full-time employment (finding)
-47,,2016-09-01,Full-time employment (finding)
-47,encounter-diagnosis,2019-07-01,Full-time employment (finding)
-47,encounter-diagnosis,2016-09-01,Full-time employment (finding)
+52,encounter-diagnosis,2017-05-01,Full-time employment (finding)
+51,,2023-02-01,Full-time employment (finding)
+51,,2022-10-01,Full-time employment (finding)
+51,,2020-07-01,Full-time employment (finding)
+51,,2019-10-01,Full-time employment (finding)
+51,,2018-07-01,Full-time employment (finding)
+51,,2018-02-01,Full-time employment (finding)
+51,,2017-10-01,Full-time employment (finding)
+51,,2016-09-01,Full-time employment (finding)
+51,,2016-08-01,Full-time employment (finding)
+51,encounter-diagnosis,2023-02-01,Full-time employment (finding)
+51,encounter-diagnosis,2022-10-01,Full-time employment (finding)
+51,encounter-diagnosis,2020-07-01,Full-time employment (finding)
+51,encounter-diagnosis,2019-10-01,Full-time employment (finding)
+51,encounter-diagnosis,2018-07-01,Full-time employment (finding)
+51,encounter-diagnosis,2018-02-01,Full-time employment (finding)
+51,encounter-diagnosis,2017-10-01,Full-time employment (finding)
+51,encounter-diagnosis,2016-09-01,Full-time employment (finding)
+51,encounter-diagnosis,2016-08-01,Full-time employment (finding)
+50,,2022-07-01,Full-time employment (finding)
+50,,2018-10-01,Full-time employment (finding)
+50,encounter-diagnosis,2022-07-01,Full-time employment (finding)
+50,encounter-diagnosis,2018-10-01,Full-time employment (finding)
+49,,2023-03-01,Full-time employment (finding)
+49,,2019-12-01,Full-time employment (finding)
+49,,2019-07-01,Full-time employment (finding)
+49,,2016-05-01,Full-time employment (finding)
+49,,2016-03-01,Full-time employment (finding)
+49,encounter-diagnosis,2023-03-01,Full-time employment (finding)
+49,encounter-diagnosis,2019-12-01,Full-time employment (finding)
+49,encounter-diagnosis,2019-07-01,Full-time employment (finding)
+49,encounter-diagnosis,2016-05-01,Full-time employment (finding)
+49,encounter-diagnosis,2016-03-01,Full-time employment (finding)
+48,,2023-01-01,Full-time employment (finding)
+48,,2020-04-01,Full-time employment (finding)
+48,,2018-04-01,Full-time employment (finding)
+48,,2017-09-01,Full-time employment (finding)
+48,,2017-08-01,Full-time employment (finding)
+48,encounter-diagnosis,2023-01-01,Full-time employment (finding)
+48,encounter-diagnosis,2020-04-01,Full-time employment (finding)
+48,encounter-diagnosis,2018-04-01,Full-time employment (finding)
+48,encounter-diagnosis,2017-09-01,Full-time employment (finding)
+48,encounter-diagnosis,2017-08-01,Full-time employment (finding)
+47,,2020-12-01,Full-time employment (finding)
+47,encounter-diagnosis,2020-12-01,Full-time employment (finding)
+46,,,Misuses drugs (finding)
 46,,,Loss of taste (finding)
-46,,2022-10-01,Full-time employment (finding)
-46,,2016-05-01,Full-time employment (finding)
-46,,2016-03-01,Full-time employment (finding)
+46,,2020-11-01,Full-time employment (finding)
+46,,2016-11-01,Full-time employment (finding)
+46,encounter-diagnosis,,Misuses drugs (finding)
 46,encounter-diagnosis,,Loss of taste (finding)
-46,encounter-diagnosis,2022-10-01,Full-time employment (finding)
-46,encounter-diagnosis,2016-05-01,Full-time employment (finding)
-46,encounter-diagnosis,2016-03-01,Full-time employment (finding)
-45,,2020-04-01,Full-time employment (finding)
-45,,2019-12-01,Full-time employment (finding)
-45,,2019-10-01,Full-time employment (finding)
-45,encounter-diagnosis,2020-04-01,Full-time employment (finding)
-45,encounter-diagnosis,2019-12-01,Full-time employment (finding)
-45,encounter-diagnosis,2019-10-01,Full-time employment (finding)
-44,,,Misuses drugs (finding)
-44,,2023-02-01,Full-time employment (finding)
-44,,2023-01-01,Full-time employment (finding)
-44,,2020-11-01,Full-time employment (finding)
-44,,2020-07-01,Full-time employment (finding)
-44,,2017-09-01,Full-time employment (finding)
-44,,2017-08-01,Full-time employment (finding)
-44,,2017-06-01,Full-time employment (finding)
-44,encounter-diagnosis,,Misuses drugs (finding)
-44,encounter-diagnosis,2023-02-01,Full-time employment (finding)
-44,encounter-diagnosis,2023-01-01,Full-time employment (finding)
-44,encounter-diagnosis,2020-11-01,Full-time employment (finding)
-44,encounter-diagnosis,2020-07-01,Full-time employment (finding)
-44,encounter-diagnosis,2017-09-01,Full-time employment (finding)
-44,encounter-diagnosis,2017-08-01,Full-time employment (finding)
-44,encounter-diagnosis,2017-06-01,Full-time employment (finding)
-43,,,Whiplash injury to neck
+46,encounter-diagnosis,2020-11-01,Full-time employment (finding)
+46,encounter-diagnosis,2016-11-01,Full-time employment (finding)
+45,,2017-06-01,Full-time employment (finding)
+45,encounter-diagnosis,2017-06-01,Full-time employment (finding)
+44,,,Whiplash injury to neck
+44,encounter-diagnosis,,Whiplash injury to neck
 43,,,Polyp of colon
-43,,2020-12-01,Full-time employment (finding)
-43,,2018-04-01,Full-time employment (finding)
-43,encounter-diagnosis,,Whiplash injury to neck
 43,encounter-diagnosis,,Polyp of colon
-43,encounter-diagnosis,2020-12-01,Full-time employment (finding)
-43,encounter-diagnosis,2018-04-01,Full-time employment (finding)
 42,,,Has a criminal record (finding)
 42,,,Acute bacterial sinusitis (disorder)
+42,,2017-04-01,Full-time employment (finding)
 42,encounter-diagnosis,,Has a criminal record (finding)
 42,encounter-diagnosis,,Acute bacterial sinusitis (disorder)
-41,,2017-04-01,Full-time employment (finding)
-41,,2016-11-01,Full-time employment (finding)
-41,encounter-diagnosis,2017-04-01,Full-time employment (finding)
-41,encounter-diagnosis,2016-11-01,Full-time employment (finding)
+42,encounter-diagnosis,2017-04-01,Full-time employment (finding)
+41,,2016-04-01,Full-time employment (finding)
+41,encounter-diagnosis,2016-04-01,Full-time employment (finding)
 40,,,Sinusitis (disorder)
 40,,,Fatigue (finding)
+40,,2019-09-01,Full-time employment (finding)
 40,encounter-diagnosis,,Sinusitis (disorder)
 40,encounter-diagnosis,,Fatigue (finding)
+40,encounter-diagnosis,2019-09-01,Full-time employment (finding)
 39,,,Concussion with no loss of consciousness
-39,,2016-04-01,Full-time employment (finding)
+39,,2016-10-01,Full-time employment (finding)
 39,encounter-diagnosis,,Concussion with no loss of consciousness
-39,encounter-diagnosis,2016-04-01,Full-time employment (finding)
+39,encounter-diagnosis,2016-10-01,Full-time employment (finding)
+38,,,Complete miscarriage (disorder)
+38,encounter-diagnosis,,Complete miscarriage (disorder)
 37,,,Sputum finding (finding)
-37,,2016-10-01,Full-time employment (finding)
 37,encounter-diagnosis,,Sputum finding (finding)
-37,encounter-diagnosis,2016-10-01,Full-time employment (finding)
-36,,2019-09-01,Full-time employment (finding)
-36,encounter-diagnosis,2019-09-01,Full-time employment (finding)
 35,,,Hyperlipidemia
-35,,,Complete miscarriage (disorder)
 35,encounter-diagnosis,,Hyperlipidemia
-35,encounter-diagnosis,,Complete miscarriage (disorder)
 34,,2020-03-01,Stress (finding)
 34,encounter-diagnosis,2020-03-01,Stress (finding)
 32,,,Chronic sinusitis (disorder)
@@ -460,6 +460,7 @@ cnt,cond_category_code,cond_month,cond_code_display
 28,encounter-diagnosis,2021-06-01,Stress (finding)
 28,encounter-diagnosis,2021-03-01,Stress (finding)
 27,,2022-12-01,Stress (finding)
+27,,2021-10-01,Stress (finding)
 27,,2021-04-01,Stress (finding)
 27,,2021-02-01,Stress (finding)
 27,,2020-06-01,Stress (finding)
@@ -467,76 +468,81 @@ cnt,cond_category_code,cond_month,cond_code_display
 27,,2019-01-01,Stress (finding)
 27,,2017-01-01,Stress (finding)
 27,encounter-diagnosis,2022-12-01,Stress (finding)
+27,encounter-diagnosis,2021-10-01,Stress (finding)
 27,encounter-diagnosis,2021-04-01,Stress (finding)
 27,encounter-diagnosis,2021-02-01,Stress (finding)
 27,encounter-diagnosis,2020-06-01,Stress (finding)
 27,encounter-diagnosis,2019-02-01,Stress (finding)
 27,encounter-diagnosis,2019-01-01,Stress (finding)
 27,encounter-diagnosis,2017-01-01,Stress (finding)
-26,,2021-10-01,Stress (finding)
+26,,,Laceration of hand
 26,,2020-05-01,Stress (finding)
 26,,2017-03-01,Stress (finding)
-26,encounter-diagnosis,2021-10-01,Stress (finding)
+26,encounter-diagnosis,,Laceration of hand
 26,encounter-diagnosis,2020-05-01,Stress (finding)
 26,encounter-diagnosis,2017-03-01,Stress (finding)
 25,,,Laceration of thigh
-25,,,Laceration of hand
 25,,2022-11-01,Stress (finding)
 25,,2022-07-01,Stress (finding)
 25,,2021-08-01,Stress (finding)
 25,,2021-05-01,Stress (finding)
 25,,2019-12-01,Stress (finding)
 25,,2018-08-01,Stress (finding)
+25,,2017-12-01,Stress (finding)
 25,,2016-01-01,Stress (finding)
 25,encounter-diagnosis,,Laceration of thigh
-25,encounter-diagnosis,,Laceration of hand
 25,encounter-diagnosis,2022-11-01,Stress (finding)
 25,encounter-diagnosis,2022-07-01,Stress (finding)
 25,encounter-diagnosis,2021-08-01,Stress (finding)
 25,encounter-diagnosis,2021-05-01,Stress (finding)
 25,encounter-diagnosis,2019-12-01,Stress (finding)
 25,encounter-diagnosis,2018-08-01,Stress (finding)
+25,encounter-diagnosis,2017-12-01,Stress (finding)
 25,encounter-diagnosis,2016-01-01,Stress (finding)
+24,,,Sprain of wrist
+24,,,Laceration of foot
 24,,,Chronic low back pain (finding)
 24,,,Chronic kidney disease stage 3 (disorder)
 24,,2022-06-01,Stress (finding)
 24,,2022-04-01,Stress (finding)
+24,,2020-10-01,Stress (finding)
 24,,2020-04-01,Stress (finding)
-24,,2017-12-01,Stress (finding)
+24,encounter-diagnosis,,Sprain of wrist
+24,encounter-diagnosis,,Laceration of foot
 24,encounter-diagnosis,,Chronic low back pain (finding)
 24,encounter-diagnosis,,Chronic kidney disease stage 3 (disorder)
 24,encounter-diagnosis,2022-06-01,Stress (finding)
 24,encounter-diagnosis,2022-04-01,Stress (finding)
+24,encounter-diagnosis,2020-10-01,Stress (finding)
 24,encounter-diagnosis,2020-04-01,Stress (finding)
-24,encounter-diagnosis,2017-12-01,Stress (finding)
-23,,,Sprain of wrist
 23,,,Laceration of forearm
-23,,,Laceration of foot
 23,,,Fracture of clavicle
 23,,2022-10-01,Stress (finding)
+23,,2022-07-01,Part-time employment (finding)
 23,,2022-02-01,Stress (finding)
 23,,2022-01-01,Part-time employment (finding)
-23,,2020-10-01,Stress (finding)
+23,,2020-12-01,Part-time employment (finding)
 23,,2020-02-01,Stress (finding)
 23,,2019-08-01,Stress (finding)
 23,,2019-07-01,Stress (finding)
 23,,2016-10-01,Stress (finding)
 23,,2016-06-01,Stress (finding)
 23,,2016-05-01,Stress (finding)
-23,encounter-diagnosis,,Sprain of wrist
+23,,2016-03-01,Part-time employment (finding)
 23,encounter-diagnosis,,Laceration of forearm
-23,encounter-diagnosis,,Laceration of foot
 23,encounter-diagnosis,,Fracture of clavicle
 23,encounter-diagnosis,2022-10-01,Stress (finding)
+23,encounter-diagnosis,2022-07-01,Part-time employment (finding)
 23,encounter-diagnosis,2022-02-01,Stress (finding)
 23,encounter-diagnosis,2022-01-01,Part-time employment (finding)
-23,encounter-diagnosis,2020-10-01,Stress (finding)
+23,encounter-diagnosis,2020-12-01,Part-time employment (finding)
 23,encounter-diagnosis,2020-02-01,Stress (finding)
 23,encounter-diagnosis,2019-08-01,Stress (finding)
 23,encounter-diagnosis,2019-07-01,Stress (finding)
 23,encounter-diagnosis,2016-10-01,Stress (finding)
 23,encounter-diagnosis,2016-06-01,Stress (finding)
 23,encounter-diagnosis,2016-05-01,Stress (finding)
+23,encounter-diagnosis,2016-03-01,Part-time employment (finding)
 22,,,Proteinuria due to type 2 diabetes mellitus (disorder)
 22,,,Hypertriglyceridemia (disorder)
 22,,,Fracture subluxation of wrist
@@ -546,10 +552,10 @@ cnt,cond_category_code,cond_month,cond_code_display
 22,,2021-09-01,Stress (finding)
 22,,2021-07-01,Stress (finding)
 22,,2020-12-01,Stress (finding)
-22,,2020-12-01,Part-time employment (finding)
 22,,2020-08-01,Stress (finding)
 22,,2020-06-01,Part-time employment (finding)
 22,,2019-04-01,Stress (finding)
+22,,2017-07-01,Stress (finding)
 22,,2017-03-01,Part-time employment (finding)
 22,,2016-11-01,Stress (finding)
 22,encounter-diagnosis,,Proteinuria due to type 2 diabetes mellitus (disorder)
@@ -561,32 +567,27 @@ cnt,cond_category_code,cond_month,cond_code_display
 22,encounter-diagnosis,2021-09-01,Stress (finding)
 22,encounter-diagnosis,2021-07-01,Stress (finding)
 22,encounter-diagnosis,2020-12-01,Stress (finding)
-22,encounter-diagnosis,2020-12-01,Part-time employment (finding)
 22,encounter-diagnosis,2020-08-01,Stress (finding)
 22,encounter-diagnosis,2020-06-01,Part-time employment (finding)
 22,encounter-diagnosis,2019-04-01,Stress (finding)
+22,encounter-diagnosis,2017-07-01,Stress (finding)
 22,encounter-diagnosis,2017-03-01,Part-time employment (finding)
 22,encounter-diagnosis,2016-11-01,Stress (finding)
 21,,,Escherichia coli urinary tract infection
-21,,2022-07-01,Part-time employment (finding)
 21,,2022-01-01,Stress (finding)
 21,,2021-12-01,Stress (finding)
 21,,2021-06-01,Part-time employment (finding)
 21,,2018-06-01,Stress (finding)
-21,,2017-07-01,Stress (finding)
 21,,2016-08-01,Stress (finding)
-21,,2016-03-01,Part-time employment (finding)
 21,encounter-diagnosis,,Escherichia coli urinary tract infection
-21,encounter-diagnosis,2022-07-01,Part-time employment (finding)
 21,encounter-diagnosis,2022-01-01,Stress (finding)
 21,encounter-diagnosis,2021-12-01,Stress (finding)
 21,encounter-diagnosis,2021-06-01,Part-time employment (finding)
 21,encounter-diagnosis,2018-06-01,Stress (finding)
-21,encounter-diagnosis,2017-07-01,Stress (finding)
 21,encounter-diagnosis,2016-08-01,Stress (finding)
-21,encounter-diagnosis,2016-03-01,Part-time employment (finding)
 20,,,Diabetes mellitus type 2 (disorder)
 20,,2023-02-01,Part-time employment (finding)
+20,,2023-01-01,Part-time employment (finding)
 20,,2022-10-01,Part-time employment (finding)
 20,,2022-08-01,Stress (finding)
 20,,2021-01-01,Stress (finding)
@@ -594,6 +595,7 @@ cnt,cond_category_code,cond_month,cond_code_display
 20,,2020-11-01,Fever (finding)
 20,,2020-10-01,Part-time employment (finding)
 20,,2020-01-01,Part-time employment (finding)
+20,,2019-11-01,Part-time employment (finding)
 20,,2018-10-01,Stress (finding)
 20,,2018-05-01,Stress (finding)
 20,,2018-03-01,Part-time employment (finding)
@@ -601,6 +603,7 @@ cnt,cond_category_code,cond_month,cond_code_display
 20,,2016-12-01,Part-time employment (finding)
 20,encounter-diagnosis,,Diabetes mellitus type 2 (disorder)
 20,encounter-diagnosis,2023-02-01,Part-time employment (finding)
+20,encounter-diagnosis,2023-01-01,Part-time employment (finding)
 20,encounter-diagnosis,2022-10-01,Part-time employment (finding)
 20,encounter-diagnosis,2022-08-01,Stress (finding)
 20,encounter-diagnosis,2021-01-01,Stress (finding)
@@ -608,6 +611,7 @@ cnt,cond_category_code,cond_month,cond_code_display
 20,encounter-diagnosis,2020-11-01,Fever (finding)
 20,encounter-diagnosis,2020-10-01,Part-time employment (finding)
 20,encounter-diagnosis,2020-01-01,Part-time employment (finding)
+20,encounter-diagnosis,2019-11-01,Part-time employment (finding)
 20,encounter-diagnosis,2018-10-01,Stress (finding)
 20,encounter-diagnosis,2018-05-01,Stress (finding)
 20,encounter-diagnosis,2018-03-01,Part-time employment (finding)
@@ -617,20 +621,23 @@ cnt,cond_category_code,cond_month,cond_code_display
 19,,2023-03-01,Stress (finding)
 19,,2023-02-01,Stress (finding)
 19,,2023-01-01,Viral sinusitis (disorder)
-19,,2023-01-01,Part-time employment (finding)
 19,,2022-09-01,Stress (finding)
 19,,2021-11-01,Stress (finding)
+19,,2021-10-01,Part-time employment (finding)
 19,,2020-11-01,Stress (finding)
 19,,2020-11-01,Part-time employment (finding)
+19,,2020-08-01,Part-time employment (finding)
 19,,2019-12-01,Part-time employment (finding)
 19,,2019-11-01,Stress (finding)
-19,,2019-11-01,Part-time employment (finding)
 19,,2019-10-01,Stress (finding)
+19,,2019-10-01,Part-time employment (finding)
 19,,2019-08-01,Part-time employment (finding)
 19,,2019-06-01,Part-time employment (finding)
 19,,2019-04-01,Part-time employment (finding)
+19,,2019-03-01,Part-time employment (finding)
 19,,2019-02-01,Part-time employment (finding)
 19,,2018-09-01,Stress (finding)
+19,,2018-08-01,Part-time employment (finding)
 19,,2017-10-01,Stress (finding)
 19,,2017-09-01,Stress (finding)
 19,,2017-08-01,Stress (finding)
@@ -642,20 +649,23 @@ cnt,cond_category_code,cond_month,cond_code_display
 19,encounter-diagnosis,2023-03-01,Stress (finding)
 19,encounter-diagnosis,2023-02-01,Stress (finding)
 19,encounter-diagnosis,2023-01-01,Viral sinusitis (disorder)
-19,encounter-diagnosis,2023-01-01,Part-time employment (finding)
 19,encounter-diagnosis,2022-09-01,Stress (finding)
 19,encounter-diagnosis,2021-11-01,Stress (finding)
+19,encounter-diagnosis,2021-10-01,Part-time employment (finding)
 19,encounter-diagnosis,2020-11-01,Stress (finding)
 19,encounter-diagnosis,2020-11-01,Part-time employment (finding)
+19,encounter-diagnosis,2020-08-01,Part-time employment (finding)
 19,encounter-diagnosis,2019-12-01,Part-time employment (finding)
 19,encounter-diagnosis,2019-11-01,Stress (finding)
-19,encounter-diagnosis,2019-11-01,Part-time employment (finding)
 19,encounter-diagnosis,2019-10-01,Stress (finding)
+19,encounter-diagnosis,2019-10-01,Part-time employment (finding)
 19,encounter-diagnosis,2019-08-01,Part-time employment (finding)
 19,encounter-diagnosis,2019-06-01,Part-time employment (finding)
 19,encounter-diagnosis,2019-04-01,Part-time employment (finding)
+19,encounter-diagnosis,2019-03-01,Part-time employment (finding)
 19,encounter-diagnosis,2019-02-01,Part-time employment (finding)
 19,encounter-diagnosis,2018-09-01,Stress (finding)
+19,encounter-diagnosis,2018-08-01,Part-time employment (finding)
 19,encounter-diagnosis,2017-10-01,Stress (finding)
 19,encounter-diagnosis,2017-09-01,Stress (finding)
 19,encounter-diagnosis,2017-08-01,Stress (finding)
@@ -666,65 +676,62 @@ cnt,cond_category_code,cond_month,cond_code_display
 18,,,Chronic kidney disease stage 4 (disorder)
 18,,,Awaiting transplantation of kidney (situation)
 18,,2021-12-01,Part-time employment (finding)
-18,,2021-10-01,Part-time employment (finding)
 18,,2021-07-01,Part-time employment (finding)
 18,,2021-03-01,Part-time employment (finding)
 18,,2020-11-01,COVID-19
 18,,2020-09-01,Stress (finding)
-18,,2020-08-01,Part-time employment (finding)
 18,,2020-07-01,Stress (finding)
 18,,2020-01-01,Stress (finding)
-18,,2019-03-01,Part-time employment (finding)
-18,,2018-08-01,Part-time employment (finding)
 18,,2018-07-01,Stress (finding)
 18,,2016-11-01,Part-time employment (finding)
 18,,2016-07-01,Stress (finding)
 18,encounter-diagnosis,,Chronic kidney disease stage 4 (disorder)
 18,encounter-diagnosis,,Awaiting transplantation of kidney (situation)
 18,encounter-diagnosis,2021-12-01,Part-time employment (finding)
-18,encounter-diagnosis,2021-10-01,Part-time employment (finding)
 18,encounter-diagnosis,2021-07-01,Part-time employment (finding)
 18,encounter-diagnosis,2021-03-01,Part-time employment (finding)
 18,encounter-diagnosis,2020-11-01,COVID-19
 18,encounter-diagnosis,2020-09-01,Stress (finding)
-18,encounter-diagnosis,2020-08-01,Part-time employment (finding)
 18,encounter-diagnosis,2020-07-01,Stress (finding)
 18,encounter-diagnosis,2020-01-01,Stress (finding)
-18,encounter-diagnosis,2019-03-01,Part-time employment (finding)
-18,encounter-diagnosis,2018-08-01,Part-time employment (finding)
 18,encounter-diagnosis,2018-07-01,Stress (finding)
 18,encounter-diagnosis,2016-11-01,Part-time employment (finding)
 18,encounter-diagnosis,2016-07-01,Stress (finding)
 17,,,Wheezing (finding)
+17,,,Preeclampsia
 17,,,Facial laceration
 17,,,Dyspnea (finding)
 17,,,Chronic neck pain (finding)
 17,,2020-12-01,Suspected COVID-19
-17,,2019-10-01,Part-time employment (finding)
 17,,2019-09-01,Stress (finding)
 17,,2019-06-01,Stress (finding)
 17,,2019-05-01,Stress (finding)
+17,,2019-01-01,Part-time employment (finding)
 17,,2018-11-01,Stress (finding)
+17,,2018-10-01,Part-time employment (finding)
 17,,2017-08-01,Part-time employment (finding)
 17,,2017-06-01,Part-time employment (finding)
 17,,2017-02-01,Stress (finding)
 17,,2016-08-01,Part-time employment (finding)
 17,,2016-01-01,Part-time employment (finding)
 17,encounter-diagnosis,,Wheezing (finding)
+17,encounter-diagnosis,,Preeclampsia
 17,encounter-diagnosis,,Facial laceration
 17,encounter-diagnosis,,Dyspnea (finding)
 17,encounter-diagnosis,,Chronic neck pain (finding)
 17,encounter-diagnosis,2020-12-01,Suspected COVID-19
-17,encounter-diagnosis,2019-10-01,Part-time employment (finding)
 17,encounter-diagnosis,2019-09-01,Stress (finding)
 17,encounter-diagnosis,2019-06-01,Stress (finding)
 17,encounter-diagnosis,2019-05-01,Stress (finding)
+17,encounter-diagnosis,2019-01-01,Part-time employment (finding)
 17,encounter-diagnosis,2018-11-01,Stress (finding)
+17,encounter-diagnosis,2018-10-01,Part-time employment (finding)
 17,encounter-diagnosis,2017-08-01,Part-time employment (finding)
 17,encounter-diagnosis,2017-06-01,Part-time employment (finding)
 17,encounter-diagnosis,2017-02-01,Stress (finding)
 17,encounter-diagnosis,2016-08-01,Part-time employment (finding)
 17,encounter-diagnosis,2016-01-01,Part-time employment (finding)
+16,,,Pathological fracture due to osteoporosis (disorder)
 16,,2022-05-01,Stress (finding)
 16,,2022-03-01,Part-time employment (finding)
 16,,2021-05-01,Part-time employment (finding)
@@ -738,6 +745,7 @@ cnt,cond_category_code,cond_month,cond_code_display
 16,,2016-09-01,Stress (finding)
 16,,2016-04-01,Part-time employment (finding)
 16,,2016-02-01,Viral sinusitis (disorder)
+16,encounter-diagnosis,,Pathological fracture due to osteoporosis (disorder)
 16,encounter-diagnosis,2022-05-01,Stress (finding)
 16,encounter-diagnosis,2022-03-01,Part-time employment (finding)
 16,encounter-diagnosis,2021-05-01,Part-time employment (finding)
@@ -751,32 +759,38 @@ cnt,cond_category_code,cond_month,cond_code_display
 16,encounter-diagnosis,2016-09-01,Stress (finding)
 16,encounter-diagnosis,2016-04-01,Part-time employment (finding)
 16,encounter-diagnosis,2016-02-01,Viral sinusitis (disorder)
-15,,,Preeclampsia
 15,,,History of coronary artery bypass grafting (situation)
 15,,2023-01-01,Stress (finding)
 15,,2022-12-01,Part-time employment (finding)
 15,,2021-04-01,Part-time employment (finding)
 15,,2020-12-01,Fever (finding)
+15,,2020-02-01,Part-time employment (finding)
 15,,2018-12-01,Stress (finding)
-15,,2018-10-01,Part-time employment (finding)
 15,,2018-04-01,Stress (finding)
+15,,2018-02-01,Part-time employment (finding)
 15,,2018-01-01,Stress (finding)
 15,,2017-12-01,Part-time employment (finding)
+15,,2017-07-01,Part-time employment (finding)
+15,,2017-07-01,Not in labor force (finding)
+15,,2017-01-01,Part-time employment (finding)
 15,,2016-05-01,Part-time employment (finding)
 15,,2016-03-01,Stress (finding)
 15,,2016-02-01,Part-time employment (finding)
 15,,2016-01-01,Viral sinusitis (disorder)
-15,encounter-diagnosis,,Preeclampsia
 15,encounter-diagnosis,,History of coronary artery bypass grafting (situation)
 15,encounter-diagnosis,2023-01-01,Stress (finding)
 15,encounter-diagnosis,2022-12-01,Part-time employment (finding)
 15,encounter-diagnosis,2021-04-01,Part-time employment (finding)
 15,encounter-diagnosis,2020-12-01,Fever (finding)
+15,encounter-diagnosis,2020-02-01,Part-time employment (finding)
 15,encounter-diagnosis,2018-12-01,Stress (finding)
-15,encounter-diagnosis,2018-10-01,Part-time employment (finding)
 15,encounter-diagnosis,2018-04-01,Stress (finding)
+15,encounter-diagnosis,2018-02-01,Part-time employment (finding)
 15,encounter-diagnosis,2018-01-01,Stress (finding)
 15,encounter-diagnosis,2017-12-01,Part-time employment (finding)
+15,encounter-diagnosis,2017-07-01,Part-time employment (finding)
+15,encounter-diagnosis,2017-07-01,Not in labor force (finding)
+15,encounter-diagnosis,2017-01-01,Part-time employment (finding)
 15,encounter-diagnosis,2016-05-01,Part-time employment (finding)
 15,encounter-diagnosis,2016-03-01,Stress (finding)
 15,encounter-diagnosis,2016-02-01,Part-time employment (finding)
@@ -785,70 +799,66 @@ cnt,cond_category_code,cond_month,cond_code_display
 14,,,Injury of tendon of the rotator cuff of shoulder
 14,,,History of tubal ligation (situation)
 14,,,History of renal transplant (situation)
+14,,,Cystitis
+14,,,Acute allergic reaction
 14,,2022-04-01,Not in labor force (finding)
 14,,2021-11-01,Part-time employment (finding)
 14,,2020-11-01,Cough (finding)
 14,,2020-09-01,Social isolation (finding)
+14,,2020-07-01,Part-time employment (finding)
 14,,2020-05-01,Part-time employment (finding)
 14,,2020-03-01,Social isolation (finding)
 14,,2020-02-01,Social isolation (finding)
-14,,2020-02-01,Part-time employment (finding)
 14,,2019-07-01,Part-time employment (finding)
 14,,2019-06-01,Not in labor force (finding)
 14,,2019-05-01,Part-time employment (finding)
 14,,2019-01-01,Viral sinusitis (disorder)
-14,,2019-01-01,Part-time employment (finding)
+14,,2018-06-01,Part-time employment (finding)
 14,,2018-05-01,Part-time employment (finding)
 14,,2018-02-01,Stress (finding)
-14,,2018-02-01,Part-time employment (finding)
 14,,2018-01-01,Part-time employment (finding)
 14,,2017-11-01,Stress (finding)
-14,,2017-07-01,Part-time employment (finding)
-14,,2017-07-01,Not in labor force (finding)
 14,,2017-06-01,Viral sinusitis (disorder)
-14,,2017-01-01,Part-time employment (finding)
 14,encounter-diagnosis,,Sterilization requested (situation)
 14,encounter-diagnosis,,Injury of tendon of the rotator cuff of shoulder
 14,encounter-diagnosis,,History of tubal ligation (situation)
 14,encounter-diagnosis,,History of renal transplant (situation)
+14,encounter-diagnosis,,Cystitis
+14,encounter-diagnosis,,Acute allergic reaction
 14,encounter-diagnosis,2022-04-01,Not in labor force (finding)
 14,encounter-diagnosis,2021-11-01,Part-time employment (finding)
 14,encounter-diagnosis,2020-11-01,Cough (finding)
 14,encounter-diagnosis,2020-09-01,Social isolation (finding)
+14,encounter-diagnosis,2020-07-01,Part-time employment (finding)
 14,encounter-diagnosis,2020-05-01,Part-time employment (finding)
 14,encounter-diagnosis,2020-03-01,Social isolation (finding)
 14,encounter-diagnosis,2020-02-01,Social isolation (finding)
-14,encounter-diagnosis,2020-02-01,Part-time employment (finding)
 14,encounter-diagnosis,2019-07-01,Part-time employment (finding)
 14,encounter-diagnosis,2019-06-01,Not in labor force (finding)
 14,encounter-diagnosis,2019-05-01,Part-time employment (finding)
 14,encounter-diagnosis,2019-01-01,Viral sinusitis (disorder)
-14,encounter-diagnosis,2019-01-01,Part-time employment (finding)
+14,encounter-diagnosis,2018-06-01,Part-time employment (finding)
 14,encounter-diagnosis,2018-05-01,Part-time employment (finding)
 14,encounter-diagnosis,2018-02-01,Stress (finding)
-14,encounter-diagnosis,2018-02-01,Part-time employment (finding)
 14,encounter-diagnosis,2018-01-01,Part-time employment (finding)
 14,encounter-diagnosis,2017-11-01,Stress (finding)
-14,encounter-diagnosis,2017-07-01,Part-time employment (finding)
-14,encounter-diagnosis,2017-07-01,Not in labor force (finding)
 14,encounter-diagnosis,2017-06-01,Viral sinusitis (disorder)
-14,encounter-diagnosis,2017-01-01,Part-time employment (finding)
 13,,,Pneumonia (disorder)
 13,,,Osteoporosis (disorder)
 13,,,Epidermal burn of skin (disorder)
 13,,,Child attention deficit disorder
+13,,,Antepartum eclampsia
 13,,2023-03-01,Limited social contact (finding)
 13,,2022-09-01,Viral sinusitis (disorder)
+13,,2022-04-01,Part-time employment (finding)
 13,,2022-02-01,Part-time employment (finding)
 13,,2021-09-01,Not in labor force (finding)
-13,,2020-07-01,Part-time employment (finding)
 13,,2020-07-01,Acute viral pharyngitis (disorder)
 13,,2019-09-01,Part-time employment (finding)
 13,,2019-03-01,Social isolation (finding)
 13,,2018-12-01,Viral sinusitis (disorder)
 13,,2018-12-01,Part-time employment (finding)
 13,,2018-07-01,Part-time employment (finding)
-13,,2018-06-01,Part-time employment (finding)
 13,,2017-06-01,Stress (finding)
 13,,2017-02-01,Viral sinusitis (disorder)
 13,,2017-02-01,Part-time employment (finding)
@@ -856,43 +866,39 @@ cnt,cond_category_code,cond_month,cond_code_display
 13,encounter-diagnosis,,Osteoporosis (disorder)
 13,encounter-diagnosis,,Epidermal burn of skin (disorder)
 13,encounter-diagnosis,,Child attention deficit disorder
+13,encounter-diagnosis,,Antepartum eclampsia
 13,encounter-diagnosis,2023-03-01,Limited social contact (finding)
 13,encounter-diagnosis,2022-09-01,Viral sinusitis (disorder)
+13,encounter-diagnosis,2022-04-01,Part-time employment (finding)
 13,encounter-diagnosis,2022-02-01,Part-time employment (finding)
 13,encounter-diagnosis,2021-09-01,Not in labor force (finding)
-13,encounter-diagnosis,2020-07-01,Part-time employment (finding)
 13,encounter-diagnosis,2020-07-01,Acute viral pharyngitis (disorder)
 13,encounter-diagnosis,2019-09-01,Part-time employment (finding)
 13,encounter-diagnosis,2019-03-01,Social isolation (finding)
 13,encounter-diagnosis,2018-12-01,Viral sinusitis (disorder)
 13,encounter-diagnosis,2018-12-01,Part-time employment (finding)
 13,encounter-diagnosis,2018-07-01,Part-time employment (finding)
-13,encounter-diagnosis,2018-06-01,Part-time employment (finding)
 13,encounter-diagnosis,2017-06-01,Stress (finding)
 13,encounter-diagnosis,2017-02-01,Viral sinusitis (disorder)
 13,encounter-diagnosis,2017-02-01,Part-time employment (finding)
 12,,,Sore throat symptom (finding)
 12,,,Respiratory distress (finding)
-12,,,Pathological fracture due to osteoporosis (disorder)
 12,,,Muscle pain (finding)
 12,,,Joint pain (finding)
 12,,,Hypoxemia (disorder)
 12,,,Fracture of rib
-12,,,Cystitis
-12,,,Antepartum eclampsia
 12,,,Alzheimer's disease (disorder)
-12,,,Acute allergic reaction
 12,,2022-12-01,Viral sinusitis (disorder)
 12,,2022-09-01,Part-time employment (finding)
 12,,2022-08-01,Part-time employment (finding)
 12,,2022-05-01,Part-time employment (finding)
-12,,2022-04-01,Part-time employment (finding)
 12,,2021-09-01,Part-time employment (finding)
 12,,2021-08-01,Part-time employment (finding)
 12,,2021-07-01,Social isolation (finding)
 12,,2021-06-01,Social isolation (finding)
 12,,2021-05-01,Not in labor force (finding)
 12,,2021-04-01,Viral sinusitis (disorder)
+12,,2020-09-01,Part-time employment (finding)
 12,,2020-07-01,Viral sinusitis (disorder)
 12,,2020-04-01,Viral sinusitis (disorder)
 12,,2019-05-01,Limited social contact (finding)
@@ -907,26 +913,22 @@ cnt,cond_category_code,cond_month,cond_code_display
 12,,2016-04-01,Stress (finding)
 12,encounter-diagnosis,,Sore throat symptom (finding)
 12,encounter-diagnosis,,Respiratory distress (finding)
-12,encounter-diagnosis,,Pathological fracture due to osteoporosis (disorder)
 12,encounter-diagnosis,,Muscle pain (finding)
 12,encounter-diagnosis,,Joint pain (finding)
 12,encounter-diagnosis,,Hypoxemia (disorder)
 12,encounter-diagnosis,,Fracture of rib
-12,encounter-diagnosis,,Cystitis
-12,encounter-diagnosis,,Antepartum eclampsia
 12,encounter-diagnosis,,Alzheimer's disease (disorder)
-12,encounter-diagnosis,,Acute allergic reaction
 12,encounter-diagnosis,2022-12-01,Viral sinusitis (disorder)
 12,encounter-diagnosis,2022-09-01,Part-time employment (finding)
 12,encounter-diagnosis,2022-08-01,Part-time employment (finding)
 12,encounter-diagnosis,2022-05-01,Part-time employment (finding)
-12,encounter-diagnosis,2022-04-01,Part-time employment (finding)
 12,encounter-diagnosis,2021-09-01,Part-time employment (finding)
 12,encounter-diagnosis,2021-08-01,Part-time employment (finding)
 12,encounter-diagnosis,2021-07-01,Social isolation (finding)
 12,encounter-diagnosis,2021-06-01,Social isolation (finding)
 12,encounter-diagnosis,2021-05-01,Not in labor force (finding)
 12,encounter-diagnosis,2021-04-01,Viral sinusitis (disorder)
+12,encounter-diagnosis,2020-09-01,Part-time employment (finding)
 12,encounter-diagnosis,2020-07-01,Viral sinusitis (disorder)
 12,encounter-diagnosis,2020-04-01,Viral sinusitis (disorder)
 12,encounter-diagnosis,2019-05-01,Limited social contact (finding)
@@ -946,6 +948,7 @@ cnt,cond_category_code,cond_month,cond_code_display
 11,,,Chronic congestive heart failure (disorder)
 11,,,Blighted ovum
 11,,2023-01-01,Not in labor force (finding)
+11,,2021-12-01,Not in labor force (finding)
 11,,2021-08-01,Viral sinusitis (disorder)
 11,,2021-06-01,Viral sinusitis (disorder)
 11,,2021-01-01,Suspected COVID-19
@@ -954,7 +957,6 @@ cnt,cond_category_code,cond_month,cond_code_display
 11,,2020-12-01,Cough (finding)
 11,,2020-10-01,Viral sinusitis (disorder)
 11,,2020-10-01,Limited social contact (finding)
-11,,2020-09-01,Part-time employment (finding)
 11,,2020-08-01,Social isolation (finding)
 11,,2020-06-01,Viral sinusitis (disorder)
 11,,2020-05-01,Viral sinusitis (disorder)
@@ -967,9 +969,11 @@ cnt,cond_category_code,cond_month,cond_code_display
 11,,2019-03-01,Limited social contact (finding)
 11,,2018-11-01,Part-time employment (finding)
 11,,2018-09-01,Viral sinusitis (disorder)
+11,,2018-09-01,Part-time employment (finding)
 11,,2018-06-01,Not in labor force (finding)
 11,,2018-04-01,Limited social contact (finding)
 11,,2018-01-01,Limited social contact (finding)
+11,,2017-10-01,Not in labor force (finding)
 11,,2017-09-01,Limited social contact (finding)
 11,,2017-05-01,Viral sinusitis (disorder)
 11,,2017-04-01,Acute viral pharyngitis (disorder)
@@ -982,6 +986,7 @@ cnt,cond_category_code,cond_month,cond_code_display
 11,encounter-diagnosis,,Chronic congestive heart failure (disorder)
 11,encounter-diagnosis,,Blighted ovum
 11,encounter-diagnosis,2023-01-01,Not in labor force (finding)
+11,encounter-diagnosis,2021-12-01,Not in labor force (finding)
 11,encounter-diagnosis,2021-08-01,Viral sinusitis (disorder)
 11,encounter-diagnosis,2021-06-01,Viral sinusitis (disorder)
 11,encounter-diagnosis,2021-01-01,Suspected COVID-19
@@ -990,7 +995,6 @@ cnt,cond_category_code,cond_month,cond_code_display
 11,encounter-diagnosis,2020-12-01,Cough (finding)
 11,encounter-diagnosis,2020-10-01,Viral sinusitis (disorder)
 11,encounter-diagnosis,2020-10-01,Limited social contact (finding)
-11,encounter-diagnosis,2020-09-01,Part-time employment (finding)
 11,encounter-diagnosis,2020-08-01,Social isolation (finding)
 11,encounter-diagnosis,2020-06-01,Viral sinusitis (disorder)
 11,encounter-diagnosis,2020-05-01,Viral sinusitis (disorder)
@@ -1003,9 +1007,11 @@ cnt,cond_category_code,cond_month,cond_code_display
 11,encounter-diagnosis,2019-03-01,Limited social contact (finding)
 11,encounter-diagnosis,2018-11-01,Part-time employment (finding)
 11,encounter-diagnosis,2018-09-01,Viral sinusitis (disorder)
+11,encounter-diagnosis,2018-09-01,Part-time employment (finding)
 11,encounter-diagnosis,2018-06-01,Not in labor force (finding)
 11,encounter-diagnosis,2018-04-01,Limited social contact (finding)
 11,encounter-diagnosis,2018-01-01,Limited social contact (finding)
+11,encounter-diagnosis,2017-10-01,Not in labor force (finding)
 11,encounter-diagnosis,2017-09-01,Limited social contact (finding)
 11,encounter-diagnosis,2017-05-01,Viral sinusitis (disorder)
 11,encounter-diagnosis,2017-04-01,Acute viral pharyngitis (disorder)
@@ -1021,7 +1027,6 @@ cnt,cond_category_code,cond_month,cond_code_display
 10,,2022-03-01,Limited social contact (finding)
 10,,2022-03-01,Acute bronchitis (disorder)
 10,,2022-02-01,Victim of intimate partner abuse (finding)
-10,,2021-12-01,Not in labor force (finding)
 10,,2021-12-01,Limited social contact (finding)
 10,,2021-11-01,Limited social contact (finding)
 10,,2021-08-01,Social isolation (finding)
@@ -1046,12 +1051,10 @@ cnt,cond_category_code,cond_month,cond_code_display
 10,,2019-01-01,Not in labor force (finding)
 10,,2018-12-01,Limited social contact (finding)
 10,,2018-10-01,Viral sinusitis (disorder)
-10,,2018-09-01,Part-time employment (finding)
 10,,2018-08-01,Limited social contact (finding)
 10,,2018-05-01,Not in labor force (finding)
 10,,2018-01-01,Viral sinusitis (disorder)
 10,,2017-12-01,Viral sinusitis (disorder)
-10,,2017-10-01,Not in labor force (finding)
 10,,2017-08-01,Viral sinusitis (disorder)
 10,,2017-03-01,Viral sinusitis (disorder)
 10,,2017-03-01,Limited social contact (finding)
@@ -1068,7 +1071,6 @@ cnt,cond_category_code,cond_month,cond_code_display
 10,encounter-diagnosis,2022-03-01,Limited social contact (finding)
 10,encounter-diagnosis,2022-03-01,Acute bronchitis (disorder)
 10,encounter-diagnosis,2022-02-01,Victim of intimate partner abuse (finding)
-10,encounter-diagnosis,2021-12-01,Not in labor force (finding)
 10,encounter-diagnosis,2021-12-01,Limited social contact (finding)
 10,encounter-diagnosis,2021-11-01,Limited social contact (finding)
 10,encounter-diagnosis,2021-08-01,Social isolation (finding)
@@ -1093,12 +1095,10 @@ cnt,cond_category_code,cond_month,cond_code_display
 10,encounter-diagnosis,2019-01-01,Not in labor force (finding)
 10,encounter-diagnosis,2018-12-01,Limited social contact (finding)
 10,encounter-diagnosis,2018-10-01,Viral sinusitis (disorder)
-10,encounter-diagnosis,2018-09-01,Part-time employment (finding)
 10,encounter-diagnosis,2018-08-01,Limited social contact (finding)
 10,encounter-diagnosis,2018-05-01,Not in labor force (finding)
 10,encounter-diagnosis,2018-01-01,Viral sinusitis (disorder)
 10,encounter-diagnosis,2017-12-01,Viral sinusitis (disorder)
-10,encounter-diagnosis,2017-10-01,Not in labor force (finding)
 10,encounter-diagnosis,2017-08-01,Viral sinusitis (disorder)
 10,encounter-diagnosis,2017-03-01,Viral sinusitis (disorder)
 10,encounter-diagnosis,2017-03-01,Limited social contact (finding)

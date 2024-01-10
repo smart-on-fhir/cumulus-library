@@ -33,7 +33,13 @@ class ProtectedTableBuilder(BaseTableBuilder):
     display_text = "Creating/updating system tables..."
 
     def prepare_queries(
-        self, cursor: object, schema: str, study_name: str, study_stats: dict
+        self,
+        cursor: object,
+        schema: str,
+        study_name: str,
+        study_stats: dict,
+        *args,
+        **kwargs,
     ):
         self.queries.append(
             get_ctas_empty_query(

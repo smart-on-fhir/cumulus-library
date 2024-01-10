@@ -24,15 +24,18 @@ from tests.conftest import ResourceTableIdPos as idpos  # pylint: disable=unused
         ("core__count_documentreference_month"),
         ("core__count_encounter_month"),
         ("core__count_observation_lab_month"),
+        ("core__count_medicationrequest_month"),
         ("core__count_patient"),
     ],
 )
 def test_core_tables(mock_db_core, table):
     cursor = mock_db_core.cursor()
     table_rows = cursor.execute(f"SELECT * FROM {table}").fetchall()
+
     # For regenerating data if needed
     # note that, by design, count queries are returned in an arbitrary order,
     # and sorted outside of the database during export.
+
     # with open(f'./tests/test_data/core/{table}.txt','wt', encoding="UTF-8") as f:
     #     # TODO: cutover to switch/case on min python version 3.10
     #     if table.startswith('core__count'):
@@ -51,6 +54,7 @@ def test_core_tables(mock_db_core, table):
     #         sortfn = lambda x: x[idpos.PATIENT.value]
     #     for row in sorted(table_rows, key = sortfn):
     #         f.write(str(f"{row}\n"))
+
     with open(f"./tests/test_data/core/{table}.txt", "r", encoding="UTF-8") as f:
         ref_table = []
         for row in f.readlines():

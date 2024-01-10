@@ -6,7 +6,6 @@ import os
 import tempfile
 
 from enum import IntEnum
-
 from pathlib import Path
 
 import pandas

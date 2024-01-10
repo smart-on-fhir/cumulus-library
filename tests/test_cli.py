@@ -25,9 +25,8 @@ class MockVocabBsv:
 
     def open(self, *args, **kwargs):
         if str(args[0]).endswith(".bsv"):
-            print(args)
             args = (
-                PosixPath(
+                Path(
                     f"./tests/test_data/mock_bsvs/{str(args[0]).rsplit('/', maxsplit=1)[-1]}"
                 ),
                 "r",

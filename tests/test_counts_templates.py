@@ -13,17 +13,25 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     WITH
     filtered_table AS (
         SELECT
-            subject_ref,
-            "age",
-            "sex"
-        FROM test_source
+            s.subject_ref,
+            --noqa: disable=RF03, AL02
+            s."age",
+            s."sex"
+            --noqa: enable=RF03, AL02
+        FROM test_source AS s
     ),
     
     null_replacement AS (
         SELECT
             subject_ref,
-            coalesce(cast("age" AS varchar), 'missing-or-null') AS "age",
-            coalesce(cast("sex" AS varchar), 'missing-or-null') AS "sex"
+            coalesce(
+                cast("age" AS varchar),
+                'missing-or-null'
+            ) AS "age",
+            coalesce(
+                cast("sex" AS varchar),
+                'missing-or-null'
+            ) AS "sex"
         FROM filtered_table
     ),
 
@@ -56,8 +64,14 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     null_replacement AS (
         SELECT
             subject_ref,
-            coalesce(cast("age" AS varchar), 'missing-or-null') AS "age",
-            coalesce(cast("sex" AS varchar), 'missing-or-null') AS "sex"
+            coalesce(
+                cast("age" AS varchar),
+                'missing-or-null'
+            ) AS "age",
+            coalesce(
+                cast("sex" AS varchar),
+                'missing-or-null'
+            ) AS "sex"
         FROM test_source
         
     ),
@@ -95,20 +109,28 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     WITH
     filtered_table AS (
         SELECT
-            subject_ref,
-            encounter_ref,
-            "age",
-            "sex"
-        FROM test_source
-        WHERE status = 'finished'
+            s.subject_ref,
+            s.encounter_ref,
+            --noqa: disable=RF03, AL02
+            s."age",
+            s."sex"
+            --noqa: enable=RF03, AL02
+        FROM test_source AS s
+        WHERE s.status = 'finished'
     ),
     
     null_replacement AS (
         SELECT
             subject_ref,
             encounter_ref,
-            coalesce(cast("age" AS varchar), 'missing-or-null') AS "age",
-            coalesce(cast("sex" AS varchar), 'missing-or-null') AS "sex"
+            coalesce(
+                cast("age" AS varchar),
+                'missing-or-null'
+            ) AS "age",
+            coalesce(
+                cast("sex" AS varchar),
+                'missing-or-null'
+            ) AS "sex"
         FROM filtered_table
     ),
 

@@ -132,12 +132,12 @@ def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str
         )
 
 
-def get_column_datatype_query(schema_name: str, table_name: str, column_name: str):
+def get_column_datatype_query(schema_name: str, table_name: str, column_names: List):
     with open(f"{PATH}/column_datatype.sql.jinja") as column_datatype:
         return Template(column_datatype.read()).render(
             schema_name=schema_name,
             table_name=table_name,
-            column_name=column_name,
+            column_names=column_names,
         )
 
 

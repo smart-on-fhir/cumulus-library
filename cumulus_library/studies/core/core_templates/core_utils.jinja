@@ -1,0 +1,38 @@
+{%- macro comma_delineate(loop) -%}
+{%- if not loop.last -%}
+, 
+{%- endif -%}
+{%- endmacro -%}
+
+-- gets a list of columns from a known present source
+{% macro basic_cols(table, alias, targets) %}
+        {%- for col in targets %}
+        {{ alias }}.{{ col.lower() }}
+        {{- comma_delineate(loop) }}
+        {%- endfor %}
+{%- endmacro %}
+
+
+-- gets a column, if present, from a basic SQL primitive col, or a null otherwise
+{% macro basic_nullable_cols(table, alias, targets, schema) %}
+        {%- for col in targets %}
+        {%- if schema[table][col] %}
+        {{ alias }}.{{ col.lower() }}
+        {%- else %}
+        NULL AS {{ col.lower() }}
+        {%- endif %}
+        {{- comma_delineate(loop) }}
+        {%- endfor %}
+{%- endmacro %}
+
+-- gets a column, if present, from a value of an object in a col
+{% macro depth_one_nullable_cols(table, alias, targets, schema) %}
+        {%- for col in targets %}
+        {%- if schema[table][col[0]][col[1]] %}
+        {{ alias }}.{{ col[0].lower() }}.{{ col[1].lower() }} AS {{col[2]}}
+        {%- else %}
+        NULL AS {{col[2]}}
+        {%- endif %}
+        {{- comma_delineate(loop) }}
+        {%- endfor %}
+{%- endmacro %}
