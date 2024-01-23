@@ -1,21 +1,40 @@
-""" Module for generating encounter codeableConcept table"""
+from cumulus_library import base_table_builder
+from cumulus_library import databases
+from cumulus_library.studies.core.core_templates import core_templates
+from cumulus_library.template_sql import templates
 
-from cumulus_library.base_table_builder import BaseTableBuilder
+
 from cumulus_library.helper import get_progress_bar, query_console_output
-from cumulus_library.template_sql.templates import (
-    CodeableConceptConfig,
-    get_codeable_concept_denormalize_query,
-    get_is_table_not_empty_query,
-    get_ctas_empty_query,
-)
-from cumulus_library.template_sql.utils import (
-    is_codeable_concept_array_populated,
-    is_codeable_concept_populated,
-)
+from cumulus_library.template_sql import templates
+from cumulus_library.template_sql import utils
 
 
-class EncounterCodingBuilder(BaseTableBuilder):
-    display_text = "Creating encounter codeableConcept tables..."
+expected_table_cols = {
+    "encounter": {
+        "status": [],
+        "period": [
+            "start",
+            "end",
+        ],
+        "class": [
+            "code",
+            "system",
+            "display",
+            "userSelected",
+            "version",
+        ],
+        "subject": [
+            "reference",
+            "display",
+            "type",
+        ],
+        "id": [],
+    }
+}
+
+
+class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
+    display_text = "Creating Encounter tables..."
 
     def _check_data_in_fields(self, code_sources: list[dict], schema, cursor) -> dict:
         """checks if CodeableConcept fields actually have data available
@@ -50,24 +69,17 @@ class EncounterCodingBuilder(BaseTableBuilder):
             )
             for code_source in code_sources:
                 if code_source["is_array"]:
-                    code_source["has_data"] = is_codeable_concept_array_populated(
+                    code_source["has_data"] = utils.is_codeable_concept_array_populated(
                         schema, "encounter", code_source["column_name"], cursor
                     )
                 else:
-                    code_source["has_data"] = is_codeable_concept_populated(
+                    code_source["has_data"] = utils.is_codeable_concept_populated(
                         schema, "encounter", code_source["column_name"], cursor
                     )
                 progress.advance(task)
         return code_sources
 
-    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
-        """Constructs queries related to condition codeableConcept
-
-        :param cursor: A database cursor object
-        :param schema: the schema/db name, matching the cursor
-
-        """
-
+    def denormalize_codes(self, schema, cursor):
         code_sources = [
             {
                 "column_name": "type",
@@ -116,7 +128,7 @@ class EncounterCodingBuilder(BaseTableBuilder):
         code_sources = self._check_data_in_fields(code_sources, schema, cursor)
         for code_source in code_sources:
             if code_source["has_data"]:
-                config = CodeableConceptConfig(
+                config = utils.CodeableConceptConfig(
                     source_table="encounter",
                     source_id="id",
                     column_name=code_source["column_name"],
@@ -125,12 +137,33 @@ class EncounterCodingBuilder(BaseTableBuilder):
                     code_systems=code_source["code_systems"],
                     target_table=f"core__encounter_dn_{code_source['column_name']}",
                 )
-                self.queries.append(get_codeable_concept_denormalize_query(config))
+                self.queries.append(
+                    templates.get_codeable_concept_denormalize_query(config)
+                )
             else:
                 self.queries.append(
-                    get_ctas_empty_query(
+                    templates.get_ctas_empty_query(
                         schema_name=schema,
                         table_name=f"core__encounter_dn_{code_source['column_name']}",
                         table_cols=["id", "code", "code_system", "display"],
                     )
                 )
+
+    def prepare_queries(
+        self,
+        cursor: object,
+        schema: str,
+        *args,
+        parser: databases.DatabaseParser = None,
+        **kwargs,
+    ):
+        self.denormalize_codes(
+            schema,
+            cursor,
+        )
+        validated_schema = core_templates.validate_schema(
+            cursor, schema, expected_table_cols, parser
+        )
+        self.queries.append(
+            core_templates.get_core_template("encounter", validated_schema)
+        )

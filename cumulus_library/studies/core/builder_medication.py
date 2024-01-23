@@ -9,10 +9,11 @@ from cumulus_library.template_sql.templates import (
     get_ctas_empty_query,
 )
 from cumulus_library.template_sql.utils import is_codeable_concept_populated
+from cumulus_library.studies.core.core_templates import core_templates
 
 
 class MedicationBuilder(BaseTableBuilder):
-    display_text = "Creating core medication table..."
+    display_text = "Creating Medication table..."
 
     def _check_data_in_fields(self, cursor, schema: str):
         """Validates whether either observed medication source is present"""
@@ -106,6 +107,7 @@ class MedicationBuilder(BaseTableBuilder):
             or medication_datasources["by_external_ref"]
         ):
             self.queries.append(
+                # core_templates.get_core_template()
                 get_core_medication_query(medication_datasources, has_userselected)
             )
         else:

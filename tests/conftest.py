@@ -41,7 +41,9 @@ class ResourceTableIdPos(IntEnum):
     CONDITION = 7
     DOCUMENTREFERENCE = 11
     ENCOUNTER = 20
-    OBSERVATION = 14
+    MEDICATION = 1
+    MEDICATIONREQUEST = 1
+    OBSERVATION = 1
     PATIENT = 4
 
 

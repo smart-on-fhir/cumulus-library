@@ -8,8 +8,105 @@ simply. This includes, but is not limited, to:
     - Data with deep missing elements
     - Data which may or may not be in an array depending on context
 """
+from dataclasses import dataclass
+
 import duckdb
+from typing import List
+
+from cumulus_library.helper import get_progress_bar, query_console_output
 from cumulus_library.template_sql import templates
+from cumulus_library import databases
+
+
+@dataclass
+class CodeableConceptConfig:
+    """Holds parameters for generating codableconcept tables.
+
+    :param column_name: the column containing the codeableConcept you want to extract.
+    :param is_array: whether the codeableConcept is 0...1 or 0..* in the FHIR spec
+    :param source_table: the table to extract extensions from
+    :param target_table: the name of the table to create
+    :param source_id: the id field to use in the new table (default: 'id')
+    :param filter_priority: If true, will use code systems to select a single code,
+      in preference order, for use as a display value.
+    :param code_systems: a list of systems, in preference order, for selecting data
+      for filtering. This should not be set if filter_priority is false.
+    """
+
+    column_name: str
+    is_array: bool
+    source_table: str = None
+    target_table: str = None
+    source_id: str = "id"
+    filter_priority: bool = False
+    code_systems: list = None
+
+
+def _check_data_in_fields(
+    schema,
+    cursor,
+    code_sources: List[templates.CodeableConceptConfig],
+) -> dict:
+    """checks if CodeableConcept fields actually have data available
+
+    CodeableConcept fields are mostly optional in the FHIR spec, and may be arrays
+    or single objects. Additionally, the null representation can be inconsistent,
+    depending on how the data is provided from an EHR and how the ETL manages
+    schema inference (wide, but not deep). We :could: try to find the data and
+    just catch an error, but that would mask configuration errors/unexpected
+    data patterns. So, instead, we are doing the following fussy operation:
+
+    For each column we want to check for data:
+    - Check to see if there is any data in a codeableConcept field
+    - Check to see if the codeableConcept field contains a coding element
+    - Check if that coding element contains non-null data
+
+    The way we do this is slightly different depending on if the field is an
+    array or not (generally requiring one extra level of unnesting).
+
+    """
+
+    with get_progress_bar(transient=True) as progress:
+        task = progress.add_task(
+            "Detecting available encounter codeableConcepts...",
+            # Each column in code_sources requires at most 3 queries to
+            # detect valid data is in the DB
+            total=len(code_sources),
+        )
+        for code_source in code_sources:
+            if code_source.is_array:
+                code_source.has_data = is_codeable_concept_array_populated(
+                    schema, code_source.source_table, code_source.column_name, cursor
+                )
+            else:
+                code_source.has_data = is_codeable_concept_populated(
+                    schema, code_source.source_table, code_source.column_name, cursor
+                )
+            progress.advance(task)
+    return code_sources
+
+
+def denormalize_codes(
+    schema: str,
+    cursor: databases.DatabaseCursor,
+    code_sources: List[templates.CodeableConceptConfig],
+):
+    queries = []
+    code_sources = _check_data_in_fields(schema, cursor, code_sources)
+    for code_source in code_sources:
+        if code_source.has_data:
+            queries.append(
+                templates.get_codeable_concept_denormalize_query(code_source)
+            )
+        else:
+            queries.append(
+                templates.get_ctas_empty_query(
+                    schema_name=schema,
+                    table_name=code_source.target_table,
+                    table_cols=["id", "code", "code_system", "display"],
+                )
+            )
+    return queries
 
 
 def is_codeable_concept_populated(

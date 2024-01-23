@@ -18,13 +18,13 @@ class CountableFhirResource(Enum):
     """
 
     CONDITION = "condition"
-    DOCUMENT = "document"
+    DOCUMENTREFERENCE = "documentreference"
     ENCOUNTER = "encounter"
     NONE = None
     OBSERVATION = "observation"
     PATIENT = "patient"
     MEDICATION = "medication"
-    MEDICATIONREFERENCE = "medicationreference"
+    MEDICATIONQUEST = "medicationrequest"
 
 
 @dataclass

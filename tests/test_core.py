@@ -18,8 +18,9 @@ from tests.conftest import ResourceTableIdPos as idpos  # pylint: disable=unused
         ("core__condition"),
         ("core__documentreference"),
         ("core__encounter"),
+        ("core__medication"),
+        ("core__medicationrequest"),
         ("core__observation"),
-        ("core__patient"),
         ("core__count_condition_month"),
         ("core__count_documentreference_month"),
         ("core__count_encounter_month"),
@@ -36,8 +37,8 @@ def test_core_tables(mock_db_core, table):
     # note that, by design, count queries are returned in an arbitrary order,
     # and sorted outside of the database during export.
 
+    # TODO: rework after moving id to first column
     # with open(f'./tests/test_data/core/{table}.txt','wt', encoding="UTF-8") as f:
-    #     # TODO: cutover to switch/case on min python version 3.10
     #     if table.startswith('core__count'):
     #         sortfn = lambda x: int(x[0])
     #     # non-counts tables are sorted by the primary FHIR resource key
@@ -48,6 +49,10 @@ def test_core_tables(mock_db_core, table):
     #         sortfn = lambda x: x[idpos.DOCUMENTREFERENCE.value]
     #     elif table == 'core__encounter':
     #         sortfn = lambda x: x[idpos.ENCOUNTER.value]
+    #     elif table == 'core__medication':
+    #         sortfn = lambda x: x[idpos.MEDICATION.value]
+    #     elif table == 'core__medicationrequest':
+    #         sortfn = lambda x: x[idpos.MEDICATIONREQUEST.value]
     #     elif table == 'core__observation':
     #         sortfn = lambda x: x[idpos.OBSERVATION.value]
     #     elif table == 'core__patient':
@@ -86,9 +91,13 @@ def test_core_count_missing_data(tmp_path, mock_db):
     # For regenerating data if needed
     # note that, by design, count queries are returned in an arbitrary order,
     # and sorted outside of the database during export.
-    # with open(f'./tests/test_data/core/core__count_encounter_month_missing_data.txt','wt', encoding="UTF-8") as f:
-    #    for row in sorted(table_rows, key = lambda x: int(x[0])):
-    #        f.write(str(f"{row}\n"))
+    # with open(
+    #     f"./tests/test_data/core/core__count_encounter_month_missing_data.txt",
+    #     "wt",
+    #     encoding="UTF-8",
+    # ) as f:
+    #     for row in sorted(table_rows, key=lambda x: int(x[0])):
+    #         f.write(str(f"{row}\n"))
     with open(
         "./tests/test_data/core/core__count_encounter_month_missing_data.txt",
         "r",

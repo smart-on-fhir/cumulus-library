@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 
 from jinja2 import Template
 from pandas import DataFrame
-
+from cumulus_library import databases
 
 PATH = Path(__file__).parent
 
@@ -34,10 +34,10 @@ class CodeableConceptConfig:
     def __init__(
         self,
         source_table: str,
-        source_id: str,
         column_name: str,
         is_array: bool,
         target_table: str,
+        source_id: str = "id",
         filter_priority: Optional[bool] = False,
         code_systems: Optional[list] = None,
     ):
@@ -84,6 +84,9 @@ class ExtensionConfig(object):
         self.fhir_extension = fhir_extension
         self.ext_systems = ext_systems
         self.is_array = is_array
+
+
+# TODO: Consolidate to a generic template reader
 
 
 def get_alias_table_query(source_table: str, target_table: str):
@@ -144,7 +147,9 @@ def get_column_datatype_query(schema_name: str, table_name: str, column_names: L
 def get_core_medication_query(
     medication_datasources: dict, has_userselected: Optional[bool] = False
 ):
-    with open(f"{PATH}/core_medication.sql.jinja") as core_medication:
+    with open(
+        f"/Users/mgarber/code/cumulus-library/cumulus_library/studies/core/core_templates/medication.sql.jinja"
+    ) as core_medication:
         return Template(core_medication.read()).render(
             medication_datasources=medication_datasources,
             has_userselected=has_userselected,

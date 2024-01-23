@@ -1,0 +1,59 @@
+{% import 'core_utils.jinja' as utils %}
+CREATE TABLE core__medicationrequest AS
+WITH temp_mr AS (
+    SELECT 
+        {{- utils.basic_cols(
+                'medicationrequest',
+                'mr',
+                ['id', 'status', 'intent']
+            ) 
+        }},
+        {{- utils.date_cols_from_str(
+                'medicationrequest',
+                'mr',
+                ['authoredon'],
+                schema
+            ) 
+        }},
+        {{- utils.truncate_date_cols(
+                'medicationrequest',
+                'mr',
+                [
+                    ('authoredon', 'month')
+                ],
+                schema
+            ) 
+        }},
+        {{- utils.nullable_cols(
+                'medicationrequest',
+                'mr',
+                [
+                    'display',
+                    ('subject', 'reference', 'subject_ref')
+                ],
+                schema
+        )-}},
+        mrc.code AS category_code,
+        mrc.code_system AS category_code_system,
+        cm.code AS rx_code,
+        cm.code_system AS rx_code_system,
+        cm.display AS rx_display
+    FROM medicationrequest as mr
+    INNER JOIN core__medication AS cm ON mr.id = cm.id
+    LEFT JOIN core__medicationrequest_dn_category mrc on mrc.id = mr.id
+    WHERE cm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
+)
+
+SELECT
+    id,
+    status,
+    intent,
+    authoredon,
+    authoredon_month,
+    category_code,
+    category_code_system,
+    rx_code_system,
+    rx_code,
+    rx_display,
+    subject_ref
+FROM temp_mr

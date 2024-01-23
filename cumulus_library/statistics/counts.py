@@ -122,7 +122,7 @@ class CountsBuilder(BaseTableBuilder):
             filter_resource="encounter",
         )
 
-    def count_document(
+    def count_documentreference(
         self,
         table_name: str,
         source_table: str,
@@ -130,7 +130,7 @@ class CountsBuilder(BaseTableBuilder):
         where_clauses: Union[list, None] = None,
         min_subject: int = 10,
     ) -> str:
-        """wrapper method for constructing document counts tables
+        """wrapper method for constructing documentreference counts tables
 
         :param table_name: The name of the table to create. Must start with study prefix
         :param source_table: The table to create counts data from
@@ -145,7 +145,8 @@ class CountsBuilder(BaseTableBuilder):
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="document",
+            fhir_resource="documentreference",
+            filter_resource="encounter",
         )
 
     def count_encounter(
@@ -172,6 +173,32 @@ class CountsBuilder(BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="encounter",
+        )
+
+    def count_medicationrequest(
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: list,
+        where_clauses: Union[list, None] = None,
+        min_subject: int = 10,
+    ) -> str:
+        """wrapper method for constructing medicationrequests counts tables
+
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :param where_clauses: An array of where clauses to use for filtering the data
+        :param min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        """
+        return self.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            where_clauses=where_clauses,
+            min_subject=min_subject,
+            fhir_resource="medicationrequest",
         )
 
     def count_observation(

@@ -1,0 +1,52 @@
+{% import 'core_utils.jinja' as utils %}
+CREATE TABLE core__documentreference AS
+WITH temp_documentreference AS (
+    SELECT DISTINCT
+        {{- utils.basic_cols(
+                'documentreference',
+                'dr',
+                [
+                    'id',
+                ]
+            ) 
+        }},
+        {{- utils.nullable_cols(
+                'documentreference',
+                'dr',
+                [
+                    'type',
+                    'status',
+                    'docstatus',
+                    'context',                
+                    ('subject', 'reference', 'subject_ref'),
+                    ('context', 'period', 'start', 'author_date')
+                ], 
+                schema
+            ) 
+        }}
+    FROM documentreference AS dr
+)
+
+SELECT DISTINCT
+    type_coding.type_row AS doc_type,
+    coalesce(type_coding.type_row.code, 'None') AS doc_type_code,
+    CASE
+        WHEN
+            type_coding.type_row.display IS NOT NULL
+            THEN replace(type_coding.type_row.display, ',', '')
+        ELSE type_row.code
+    END AS doc_type_display,
+    tdr.status,
+    tdr.docstatus,
+    context_encounter.encounter.reference AS encounter_ref,
+    date_trunc('day', date(from_iso8601_timestamp(tdr.author_date))) AS author_date,
+    date_trunc('week', date(from_iso8601_timestamp(tdr.author_date))) AS author_week,
+    date_trunc('month', date(from_iso8601_timestamp(tdr.author_date))) AS author_month,
+    date_trunc('year', date(from_iso8601_timestamp(tdr.author_date))) AS author_year,
+    tdr.subject_ref,
+    tdr.id as doc_id,
+    concat('DocumentReference/', tdr.id) AS doc_ref
+FROM temp_documentreference AS tdr,
+    unnest(context.encounter) AS context_encounter (encounter), --noqa
+    unnest(type.coding) AS type_coding (type_row)
+WHERE date(from_iso8601_timestamp(tdr.author_date)) BETWEEN date('2016-06-01') AND current_date;

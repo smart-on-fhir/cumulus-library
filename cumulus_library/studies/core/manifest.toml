@@ -4,22 +4,18 @@ study_prefix = "core"
 file_names = [
     "builder_prereq_tables.py",
     "builder_condition.py",
-    "builder_encounter_coding.py",
-    "builder_core_medication.py",
-    "builder_patient_extension.py",
-
+    "builder_patient.py",
+    "builder_encounter.py",
+    "builder_documentreference.py",
+    "builder_medication.py",
+    "builder_medicationrequest.py",
+    "builder_observation.py"
 ]
 
 [sql_config]
 file_names = [
-    "patient.sql",
-    "encounter.sql",
     "encounter_type.sql",
-    "documentreference.sql",
-    "observation.sql",
-    "observation_lab.sql",
-    "observation_vital_signs.sql",
-    "medication_request.sql",
+    "observation_type.sql",
     "study_period.sql",
 ]
 

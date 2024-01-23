@@ -2,6 +2,7 @@
 -- # Encounter.Type, Encounter.serviceType, Encounter.Priority
 --
 -- use is OPTIONAL
+-- MHG 2024-01-18 - this table may now be largely redundant with the core__encounter table
 
 CREATE TABLE core__encounter_type AS
 
