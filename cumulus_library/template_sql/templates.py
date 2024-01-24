@@ -77,18 +77,6 @@ def get_column_datatype_query(schema_name: str, table_name: str, column_names: L
         )
 
 
-def get_core_medication_query(
-    medication_datasources: dict, has_userselected: Optional[bool] = False
-):
-    with open(
-        f"/Users/mgarber/code/cumulus-library/cumulus_library/studies/core/core_templates/medication.sql.jinja"
-    ) as core_medication:
-        return Template(core_medication.read()).render(
-            medication_datasources=medication_datasources,
-            has_userselected=has_userselected,
-        )
-
-
 def get_create_view_query(
     view_name: str, dataset: List[List[str]], view_cols: List[str]
 ) -> str:

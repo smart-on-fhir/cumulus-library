@@ -2,10 +2,6 @@ from cumulus_library import base_table_builder
 from cumulus_library import databases
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import templates
-
-
-from cumulus_library.helper import get_progress_bar, query_console_output
-from cumulus_library.template_sql import templates
 from cumulus_library.template_sql import utils
 
 
@@ -35,49 +31,6 @@ expected_table_cols = {
 
 class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Creating Encounter tables..."
-
-    def _check_data_in_fields(self, code_sources: list[dict], schema, cursor) -> dict:
-        """checks if CodeableConcept fields actually have data available
-
-        CodeableConcept fields are mostly optional in the FHIR spec, and may be arrays
-        or single objects. Additionally, the null representation can be inconsistent,
-        depending on how the data is provided from an EHR and how the ETL manages
-        schema inference (wide, but not deep). We :could: try to find the data and
-        just catch an error, but that would mask configuration errors/unexpected
-        data patterns. So, instead, we are doing the following fussy operation:
-
-        For each column we want to check for data:
-        - Check to see if there is any data in a codeableConcept field
-        - Check to see if the codeableConcept field contains a coding element
-        - Check if that coding element contains non-null data
-
-        The way we do this is slightly different depending on if the field is an
-        array or not (generally requiring one extra level of unnesting).
-
-        """
-        # TODO: consider moving to a utility library if we have another case like
-        # this one - it would probably involve splitting this into two paths, one
-        # for array encodings and one for non-array encodings.
-        # See builder_core_medication for a non-array example
-
-        with get_progress_bar(transient=True) as progress:
-            task = progress.add_task(
-                "Detecting available encounter codeableConcepts...",
-                # Each column in code_sources requires at most 3 queries to
-                # detect valid data is in the DB
-                total=len(code_sources),
-            )
-            for code_source in code_sources:
-                if code_source["is_array"]:
-                    code_source["has_data"] = utils.is_codeable_concept_array_populated(
-                        schema, "encounter", code_source["column_name"], cursor
-                    )
-                else:
-                    code_source["has_data"] = utils.is_codeable_concept_populated(
-                        schema, "encounter", code_source["column_name"], cursor
-                    )
-                progress.advance(task)
-        return code_sources
 
     def denormalize_codes(self, schema, cursor):
         code_sources = [
@@ -125,10 +78,10 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                 "has_data": False,
             },
         ]
-        code_sources = self._check_data_in_fields(code_sources, schema, cursor)
+        code_configs = []
         for code_source in code_sources:
-            if code_source["has_data"]:
-                config = utils.CodeableConceptConfig(
+            code_configs.append(
+                utils.CodeableConceptConfig(
                     source_table="encounter",
                     source_id="id",
                     column_name=code_source["column_name"],
@@ -137,17 +90,8 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                     code_systems=code_source["code_systems"],
                     target_table=f"core__encounter_dn_{code_source['column_name']}",
                 )
-                self.queries.append(
-                    templates.get_codeable_concept_denormalize_query(config)
-                )
-            else:
-                self.queries.append(
-                    templates.get_ctas_empty_query(
-                        schema_name=schema,
-                        table_name=f"core__encounter_dn_{code_source['column_name']}",
-                        table_cols=["id", "code", "code_system", "display"],
-                    )
-                )
+            )
+        self.queries += utils.denormalize_codes(schema, cursor, code_configs)
 
     def prepare_queries(
         self,
@@ -167,3 +111,4 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
         self.queries.append(
             core_templates.get_core_template("encounter", validated_schema)
         )
+        self.write_queries()

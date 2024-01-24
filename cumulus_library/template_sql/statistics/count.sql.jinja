@@ -14,7 +14,7 @@ encounter_ref
 
 {%- macro tertiary_resource(fhir_resource) -%}
 {%- if fhir_resource == 'documentreference' -%}
-doc_id
+doc_ref
 {%- elif fhir_resource == 'observation'-%}
 observation_ref
 {%- else -%}

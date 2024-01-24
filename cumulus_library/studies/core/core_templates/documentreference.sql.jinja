@@ -28,37 +28,35 @@ WITH temp_documentreference AS (
                 'documentreference',
                 'dr',
                 [
-                    ('author_date', 'day'),
-                    ('author_date', 'week'),
-                    ('author_date', 'month'),
-                    ('author_date', 'year'),
+                    ('context', 'period', 'start', 'author_day', 'day'),
+                    ('context', 'period', 'start', 'author_week', 'week'),
+                    ('context', 'period', 'start', 'author_month', 'month'),
+                    ('context', 'period', 'start', 'author_year', 'year'),
                 ],
                 schema
             ) 
         }},
+        cdrt.code,
+        cdrt.code_system,
+        cdrt.display,
     FROM documentreference AS dr
+    LEFT JOIN core__documentreference_dn_type AS cdrt ON cdrt.id = dr.id
 )
 
 SELECT DISTINCT
-    type_coding.type_row AS doc_type,
-    coalesce(type_coding.type_row.code, 'None') AS doc_type_code,
-    CASE
-        WHEN
-            type_coding.type_row.display IS NOT NULL
-            THEN replace(type_coding.type_row.display, ',', '')
-        ELSE type_row.code
-    END AS doc_type_display,
+    tdr.id,
+    tdr.code AS doc_type_code,
+    tdr.code_system AS doc_type_code_system,
+    tdr.display AS doc_type_display,
     tdr.status,
     tdr.docstatus,
     context_encounter.encounter.reference AS encounter_ref,
-    author_day AS author_date,
+    author_day as author_date,
     author_week,
     author_month,
     author_year,
     tdr.subject_ref,
-    tdr.id as doc_id,
     concat('DocumentReference/', tdr.id) AS doc_ref
 FROM temp_documentreference AS tdr,
     unnest(context.encounter) AS context_encounter (encounter), --noqa
-    unnest(type.coding) AS type_coding (type_row)
-WHERE author_day BETWEEN date('2016-06-01') AND current_date;
+WHERE author_date BETWEEN date('2016-06-01') AND current_date;

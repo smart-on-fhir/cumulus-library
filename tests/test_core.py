@@ -11,6 +11,19 @@ from cumulus_library.cli import StudyBuilder
 from tests.conftest import modify_resource_column
 from tests.conftest import ResourceTableIdPos as idpos  # pylint: disable=unused-import
 
+# ("core__condition"),
+# ("core__documentreference"),
+# ("core__encounter"),
+# ("core__medication"),
+# ("core__medicationrequest"),
+# ("core__observation"),
+# ("core__count_condition_month"),
+# ("core__count_documentreference_month"),
+# ("core__count_encounter_month"),
+# ("core__count_observation_lab_month"),
+# ("core__count_medicationrequest_month"),
+# ("core__count_patient"),
+
 
 @pytest.mark.parametrize(
     "table",
@@ -64,6 +77,8 @@ def test_core_tables(mock_db_core, table):
         ref_table = []
         for row in f.readlines():
             ref_table.append(eval(row))  # pylint: disable=eval-used
+    print(ref_table[0])
+    print(table_rows[0])
     for row in ref_table:
         assert row in table_rows
 
