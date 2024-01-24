@@ -5,7 +5,9 @@ from typing import Dict, List, Optional
 
 from jinja2 import Template
 from pandas import DataFrame
+
 from cumulus_library import databases
+from cumulus_library.template_sql import utils
 
 PATH = Path(__file__).parent
 
@@ -15,75 +17,6 @@ class TableView(Enum):
 
     TABLE = "TABLE"
     VIEW = "VIEW"
-
-
-class CodeableConceptConfig:
-    """Convenience class for holding parameters for generating codableconcept tables.
-
-    :param source_table: the table to extract extensions from
-    :param source_id: the id field to use in the new table
-    :param column_name: the column containing the codeableConcept you want to extract.
-    :param is_array: whether the codeableConcept is 0...1 or 0..* in the FHIR spec
-    :param target_table: the name of the table to create
-    :param filter_priority: If true, will use code systems to select a single code,
-      in preference order, for use as a display value.
-    :param code_systems: a list of systems, in preference order, for selecting data
-      for filtering. This should not be set if filter_priority is false.
-    """
-
-    def __init__(
-        self,
-        source_table: str,
-        column_name: str,
-        is_array: bool,
-        target_table: str,
-        source_id: str = "id",
-        filter_priority: Optional[bool] = False,
-        code_systems: Optional[list] = None,
-    ):
-        if not filter_priority and code_systems != None:
-            raise Exception(
-                "CodeableConceptConfig cannot have non-default value assigned to "
-                "code_systems unless filter_priority is true."
-            )
-        self.source_table = source_table
-        self.source_id = source_id
-        self.column_name = column_name
-        self.is_array = is_array
-        self.target_table = target_table
-        self.filter_priority = filter_priority
-        self.code_systems = code_systems
-
-
-class ExtensionConfig(object):
-    """convenience class for holding parameters for generating extension tables.
-
-    :param source_table: the table to extract extensions from
-    :param source_id: the id column to treat as a foreign key
-    :param target_table: the name of the table to create
-    :param target_col_prefix: the string to prepend code/display column names with
-    :param fhir_extension: the URL of the FHIR resource to select
-    :param code_systems: a list of codes, in preference order, to use to select data
-    :param is_array: a boolean indicating if the targeted field is an array type
-    """
-
-    def __init__(
-        self,
-        source_table: str,
-        source_id: str,
-        target_table: str,
-        target_col_prefix: str,
-        fhir_extension: str,
-        ext_systems: List[str],
-        is_array: bool = False,
-    ):
-        self.source_table = source_table
-        self.source_id = source_id
-        self.target_table = target_table
-        self.target_col_prefix = target_col_prefix
-        self.fhir_extension = fhir_extension
-        self.ext_systems = ext_systems
-        self.is_array = is_array
 
 
 # TODO: Consolidate to a generic template reader
@@ -105,7 +38,7 @@ def get_code_system_pairs(output_table_name: str, code_system_tables: list) -> s
         )
 
 
-def get_codeable_concept_denormalize_query(config: CodeableConceptConfig) -> str:
+def get_codeable_concept_denormalize_query(config: utils.CodeableConceptConfig) -> str:
     """extracts codeable concepts from a specified table.
 
     This function is targeted at arbitrary codeableConcept elements - see
@@ -250,7 +183,7 @@ def get_drop_view_table(name: str, view_or_table: str) -> str:
             )
 
 
-def get_extension_denormalize_query(config: ExtensionConfig) -> str:
+def get_extension_denormalize_query(config: utils.ExtensionConfig) -> str:
     """extracts target extension from a table into a denormalized table
 
     This function is targeted at a complex extension element that is at the root

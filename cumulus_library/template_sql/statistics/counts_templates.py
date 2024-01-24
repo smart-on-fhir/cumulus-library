@@ -24,7 +24,7 @@ class CountableFhirResource(Enum):
     OBSERVATION = "observation"
     PATIENT = "patient"
     MEDICATION = "medication"
-    MEDICATIONQUEST = "medicationrequest"
+    MEDICATIONREQUEST = "medicationrequest"
 
 
 @dataclass

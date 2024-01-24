@@ -23,7 +23,19 @@ WITH temp_documentreference AS (
                 ], 
                 schema
             ) 
-        }}
+        }},
+        {{- utils.truncate_date_cols(
+                'documentreference',
+                'dr',
+                [
+                    ('author_date', 'day'),
+                    ('author_date', 'week'),
+                    ('author_date', 'month'),
+                    ('author_date', 'year'),
+                ],
+                schema
+            ) 
+        }},
     FROM documentreference AS dr
 )
 
@@ -39,14 +51,14 @@ SELECT DISTINCT
     tdr.status,
     tdr.docstatus,
     context_encounter.encounter.reference AS encounter_ref,
-    date_trunc('day', date(from_iso8601_timestamp(tdr.author_date))) AS author_date,
-    date_trunc('week', date(from_iso8601_timestamp(tdr.author_date))) AS author_week,
-    date_trunc('month', date(from_iso8601_timestamp(tdr.author_date))) AS author_month,
-    date_trunc('year', date(from_iso8601_timestamp(tdr.author_date))) AS author_year,
+    author_day AS author_date,
+    author_week,
+    author_month,
+    author_year,
     tdr.subject_ref,
     tdr.id as doc_id,
     concat('DocumentReference/', tdr.id) AS doc_ref
 FROM temp_documentreference AS tdr,
     unnest(context.encounter) AS context_encounter (encounter), --noqa
     unnest(type.coding) AS type_coding (type_row)
-WHERE date(from_iso8601_timestamp(tdr.author_date)) BETWEEN date('2016-06-01') AND current_date;
+WHERE author_day BETWEEN date('2016-06-01') AND current_date;

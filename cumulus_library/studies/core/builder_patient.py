@@ -1,9 +1,6 @@
 """ Module for extracting US core extensions from patient records"""
 from cumulus_library.base_table_builder import BaseTableBuilder
-from cumulus_library.template_sql.templates import (
-    get_extension_denormalize_query,
-    ExtensionConfig,
-)
+from cumulus_library.template_sql import templates, utils
 from cumulus_library import databases
 from cumulus_library.studies.core.core_templates import core_templates
 
@@ -46,7 +43,7 @@ class PatientBuilder(BaseTableBuilder):
         ]
 
         for extension in extension_types:
-            config = ExtensionConfig(
+            config = utils.ExtensionConfig(
                 "patient",
                 "id",
                 f"core__patient_ext_{extension['name']}",
@@ -55,7 +52,7 @@ class PatientBuilder(BaseTableBuilder):
                 ["ombCategory", "detailed", "text"],
                 is_array=True,
             )
-            self.queries.append(get_extension_denormalize_query(config))
+            self.queries.append(templates.get_extension_denormalize_query(config))
         validated_schema = core_templates.validate_schema(
             cursor, schema, expected_table_cols, parser
         )

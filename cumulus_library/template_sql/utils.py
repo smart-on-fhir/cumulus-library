@@ -42,10 +42,32 @@ class CodeableConceptConfig:
     code_systems: list = None
 
 
+@dataclass
+class ExtensionConfig(object):
+    """convenience class for holding parameters for generating extension tables.
+
+    :param source_table: the table to extract extensions from
+    :param source_id: the id column to treat as a foreign key
+    :param target_table: the name of the table to create
+    :param target_col_prefix: the string to prepend code/display column names with
+    :param fhir_extension: the URL of the FHIR resource to select
+    :param code_systems: a list of codes, in preference order, to use to select data
+    :param is_array: a boolean indicating if the targeted field is an array type
+    """
+
+    source_table: str
+    source_id: str
+    target_table: str
+    target_col_prefix: str
+    fhir_extension: str
+    ext_systems: List[str]
+    is_array: bool = False
+
+
 def _check_data_in_fields(
     schema,
     cursor,
-    code_sources: List[templates.CodeableConceptConfig],
+    code_sources: List[CodeableConceptConfig],
 ) -> dict:
     """checks if CodeableConcept fields actually have data available
 
@@ -89,7 +111,7 @@ def _check_data_in_fields(
 def denormalize_codes(
     schema: str,
     cursor: databases.DatabaseCursor,
-    code_sources: List[templates.CodeableConceptConfig],
+    code_sources: List[CodeableConceptConfig],
 ):
     queries = []
     code_sources = _check_data_in_fields(schema, cursor, code_sources)

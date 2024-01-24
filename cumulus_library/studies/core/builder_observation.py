@@ -30,8 +30,8 @@ expected_table_cols = {
     }
 }
 
-# TODO: upgrade to 3.10+, use kw_only flag to subclass for generating source/target
 
+# TODO: upgrade to 3.10+, use kw_only flag to subclass a dataclass for generating source/target
 code_sources = [
     CCC(column_name="category", is_array=True, filter_priority=False),
     CCC(column_name="code", is_array=False, filter_priority=False),
@@ -66,4 +66,3 @@ class ObservationBuilder(base_table_builder.BaseTableBuilder):
         self.queries.append(
             core_templates.get_core_template("observation", validated_schema)
         )
-        self.write_queries()

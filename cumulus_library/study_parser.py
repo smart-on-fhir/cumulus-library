@@ -637,7 +637,9 @@ class StudyManifestParser:
             dataframe = dataframe.sort_values(
                 by=list(dataframe.columns), ascending=False, na_position="first"
             )
-            dataframe.to_csv(f"{path}/{table}.csv", index=False, quoting=csv.QUOTE_ALL)
+            dataframe.to_csv(
+                f"{path}/{table}.csv", index=False, quoting=csv.QUOTE_MINIMAL
+            )
             dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
             queries.append(query)
         return queries
