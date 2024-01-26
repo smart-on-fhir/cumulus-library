@@ -2,6 +2,7 @@
 
 Note: This module assumes that you have already run builder_medication,
 as it leverages the core__medication table for data population"""
+
 from cumulus_library import base_table_builder
 from cumulus_library.template_sql import templates, utils
 from cumulus_library import databases

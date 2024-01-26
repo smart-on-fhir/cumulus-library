@@ -1,4 +1,5 @@
 """ Contains classes for loading study data based on manifest.toml files """
+
 import csv
 import inspect
 import importlib.util

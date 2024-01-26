@@ -1,4 +1,5 @@
 """ Collection of jinja template getters for common SQL queries """
+
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional

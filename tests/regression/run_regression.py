@@ -13,6 +13,7 @@ the scope of the test suite.
 This is primarily meant to be run in CI, where we handle the auth via github's
 trusted OIDC token AWS endpoint. See .github/workflows/ci.yaml for more info on
 this approach."""
+
 import os
 import sys
 

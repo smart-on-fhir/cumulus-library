@@ -1,4 +1,5 @@
 """Class for generating counts tables from templates"""
+
 import sys
 
 from pathlib import Path

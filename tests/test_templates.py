@@ -1,4 +1,5 @@
 """ tests for jinja sql templates """
+
 import pytest
 
 from pandas import DataFrame

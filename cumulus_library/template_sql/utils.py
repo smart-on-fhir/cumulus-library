@@ -8,6 +8,7 @@ simply. This includes, but is not limited, to:
     - Data with deep missing elements
     - Data which may or may not be in an array depending on context
 """
+
 from dataclasses import dataclass
 
 import duckdb

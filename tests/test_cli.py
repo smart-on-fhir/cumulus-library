@@ -1,4 +1,5 @@
 """ tests for the cli interface to studies """
+
 import builtins
 import glob
 import os
