@@ -26,16 +26,16 @@ WITH temp_observation AS (
                 schema
             ) 
         }},
-        odc.code as observation_code,
-        odc.code_system as observation_code_system,
-        odcat.code as category_code,
-        odcat.code_system as category_code_system,
-        odi.code as interpretation_code,
-        odi.code_system as interpretation_code_system,
-        odi.display as interpretation_display,
-        odvcc.code as valuecodeableconcept_code,
-        odvcc.code_system as valuecodeableconcept_code_system,
-        odvcc.display as valuecodeableconcept_display,
+        odc.code AS observation_code,
+        odc.code_system AS observation_code_system,
+        odcat.code AS category_code,
+        odcat.code_system AS category_code_system,
+        odi.code AS interpretation_code,
+        odi.code_system AS interpretation_code_system,
+        odi.display AS interpretation_display,
+        odvcc.code AS valuecodeableconcept_code,
+        odvcc.code_system AS valuecodeableconcept_code_system,
+        odvcc.display AS valuecodeableconcept_display,
         o.component,
         o.referencerange,
         o.valuequantity,
@@ -72,4 +72,7 @@ SELECT
     encounter_ref,
     concat('Observation/', id) AS observation_ref
 FROM temp_observation
-WHERE effectivedatetime_day BETWEEN date(from_iso8601_timestamp('2016-06-01')) AND current_date;
+WHERE
+    effectivedatetime_day BETWEEN date(
+        from_iso8601_timestamp('2016-06-01')
+    ) AND current_date;

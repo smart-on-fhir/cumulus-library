@@ -5,7 +5,7 @@
 {%- endmacro -%}
 
 {%- macro secondary_resource(fhir_resource) -%}
-{%- if fhir_resource in ('encounter', 'condition', 'documentreference', 'observation')-%}
+{%- if fhir_resource in ('encounter', 'condition', 'documentreference', 'observation') -%}
 encounter_ref
 {%- else -%}
 {# implicit null #}
@@ -50,7 +50,7 @@ CREATE TABLE {{ table_name }} AS (
             {%- if tertiary %}
             s.{{ tertiary }},
             {%- endif -%}
-            {%- if fhir_resource=='condition' %}
+            {%- if fhir_resource == 'condition' %}
             cccd.display AS cond_code_display,
             {%- elif fhir_resource in ('documentreference', 'observation') %}
             e.enc_class_display,
@@ -85,12 +85,12 @@ CREATE TABLE {{ table_name }} AS (
         {%- endif -%}
 
         {#- resource specific filtering conditions -#}
-        {%- if fhir_resource=='documentreference' and filter_resource %}
+        {%- if fhir_resource == 'documentreference' and filter_resource %}
         WHERE (s.status = 'current')
         AND (s.docStatus IS null OR s.docStatus IN ('final', 'amended'))
-        {%- elif fhir_resource=='encounter' and filter_resource %}
+        {%- elif fhir_resource == 'encounter' and filter_resource %}
         WHERE s.status = 'finished'
-        {%- elif fhir_resource=='observation' and filter_resource %}
+        {%- elif fhir_resource == 'observation' and filter_resource %}
         WHERE (s.status = 'final' OR s.status= 'amended')
         {%- endif %}
     ),
@@ -104,7 +104,7 @@ CREATE TABLE {{ table_name }} AS (
             {%- if tertiary %}
             {{ tertiary }},
             {%- endif -%}
-            {%- if fhir_resource=='condition' %}
+            {%- if fhir_resource == 'condition' %}
             coalesce(
                 cast(cond_code_display AS varchar), 
                 '{{ missing_null }}'
@@ -117,7 +117,7 @@ CREATE TABLE {{ table_name }} AS (
             {%- endif -%}
             {% for col in table_cols %}
             coalesce(
-                cast({{ column_or_alias(col) }} AS varchar), 
+                cast({{ column_or_alias(col) }} AS varchar),
                 '{{ missing_null }}'
             ) AS {{ column_or_alias(col) }}
             {{- comma_delineate(loop) }}
@@ -136,13 +136,13 @@ CREATE TABLE {{ table_name }} AS (
             count(DISTINCT {{ secondary }}) AS cnt_{{ secondary }},
             {%- endif -%}
             {%- if tertiary -%}
-            count(DISTINCT {{tertiary}}) AS cnt_{{tertiary}},
+            count(DISTINCT {{ tertiary }}) AS cnt_{{ tertiary }},
             {%- endif -%}
             {% for col in table_cols %}
             "{{ column_or_alias(col) }}"
             {{- comma_delineate(loop) }}
             {%- endfor %}
-            {%- if fhir_resource=='condition' -%},
+            {%- if fhir_resource == 'condition' -%},
             cond_code_display
             {%- elif fhir_resource in ('documentreference', 'observation' ) -%},
             enc_class_display
@@ -154,7 +154,7 @@ CREATE TABLE {{ table_name }} AS (
                 "{{ column_or_alias(col) }}"
                 {{- comma_delineate(loop) }}
                 {%- endfor %}
-                {%- if fhir_resource=='condition' -%},
+                {%- if fhir_resource == 'condition' -%},
                 cond_code_display
                 {%- elif fhir_resource in ('documentreference', 'observation' ) -%},
                 enc_class_display
@@ -174,11 +174,11 @@ CREATE TABLE {{ table_name }} AS (
         "{{ column_or_alias(col) }}"
         {{- comma_delineate(loop) }}
         {%- endfor %}
-        {%- if fhir_resource=='condition' %},
+        {%- if fhir_resource == 'condition' %},
         cond_code_display
         {%- elif fhir_resource in ('documentreference', 'observation' ) %},
         enc_class_display
-        {% endif %} 
+        {% endif %}
     FROM powerset
     {%- if where_clauses %}
     WHERE

@@ -1,3 +1,13 @@
 /scratch/
 # This is a common destination for debugging sql generation
 output.sql
+
+# These files have an error which is related to getting a two level deep
+# date column, which is likely a Sqlfluff error
+documentreference.sql.jinja
+encounter.sql.jinja
+
+# This file has namespace collisions with vars in other sqlfluff templates.
+# Ignoring for now - could be addressed with an in-folder .sqlfluff config
+# or by a refactor of variable names
+count.sql.jinja

@@ -1,4 +1,5 @@
 {% import 'core_utils.jinja' as utils %}
+
 CREATE TABLE core__medicationrequest AS
 WITH temp_mr AS (
     SELECT 
@@ -32,15 +33,15 @@ WITH temp_mr AS (
                     ('subject', 'reference', 'subject_ref')
                 ],
                 schema
-        )-}},
-        mrc.code AS category_code,
-        mrc.code_system AS category_code_system,
+        ) -}},
         cm.code AS rx_code,
         cm.code_system AS rx_code_system,
-        cm.display AS rx_display
-    FROM medicationrequest as mr
+        cm.display AS rx_display,
+        mrc.code AS category_code,
+        mrc.code_system AS category_code_system
+    FROM medicationrequest AS mr
     INNER JOIN core__medication AS cm ON mr.id = cm.id
-    LEFT JOIN core__medicationrequest_dn_category mrc on mrc.id = mr.id
+    LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
     WHERE cm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
 )
 
