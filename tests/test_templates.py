@@ -1,9 +1,10 @@
 """ tests for jinja sql templates """
+
 import pytest
 
 from pandas import DataFrame
 
-from cumulus_library.template_sql import templates
+from cumulus_library.template_sql import templates, utils
 
 
 def test_alias_table():
@@ -51,7 +52,7 @@ def test_codeable_concept_denormalize_all_creation():
     FROM union_table
 );
 """
-    config = templates.CodeableConceptConfig(
+    config = utils.CodeableConceptConfig(
         source_table="source",
         source_id="id",
         column_name="code_col",
@@ -139,7 +140,7 @@ def test_codeable_concept_denormalize_filter_creation():
 );
 """
 
-    config = templates.CodeableConceptConfig(
+    config = utils.CodeableConceptConfig(
         source_table="source",
         source_id="id",
         column_name="code_col",
@@ -172,57 +173,6 @@ WHERE
         column_names=["foo", "bar"],
     )
     assert query == expected
-
-
-# for this one, since the query output is very long and likely to change
-# since it's a study table, we're going to do targeted comparisons around the
-# polymorphism and not validate the whole thing
-
-
-# omitting the double false case since we don't call thison that condition
-@pytest.mark.parametrize(
-    "medication_datasources,contains,omits",
-    [
-        (
-            {
-                "by_contained_ref": True,
-                "by_external_ref": False,
-            },
-            ["LIKE '#%'", "contained_medication"],
-            ["LIKE 'Medication/%'", "UNION", "external_medication"],
-        ),
-        (
-            {
-                "by_contained_ref": False,
-                "by_external_ref": True,
-            },
-            ["LIKE 'Medication/%'", "external_medication"],
-            ["LIKE '#%'", "UNION", "contained_medication"],
-        ),
-        (
-            {
-                "by_contained_ref": True,
-                "by_external_ref": True,
-            },
-            [
-                "LIKE '#%'",
-                "LIKE 'Medication/%'",
-                "UNION",
-                "contained_medication",
-                "external_medication",
-            ],
-            [],
-        ),
-    ],
-)
-def test_core_medication_query(medication_datasources, contains, omits):
-    query = templates.get_core_medication_query(
-        medication_datasources=medication_datasources
-    )
-    for item in contains:
-        assert item in query
-    for item in omits:
-        assert item not in query
 
 
 def test_create_view_query_creation():
@@ -387,7 +337,7 @@ def test_extension_denormalize_creation():
     )
     WHERE available_priority = 1
 );"""
-    config = templates.ExtensionConfig(
+    config = utils.ExtensionConfig(
         "source_table",
         "source_id",
         "target_table",
@@ -397,7 +347,7 @@ def test_extension_denormalize_creation():
     )
     query = templates.get_extension_denormalize_query(config)
     assert query == expected
-    config = templates.ExtensionConfig(
+    config = utils.ExtensionConfig(
         "source_table",
         "source_id",
         "target_table",

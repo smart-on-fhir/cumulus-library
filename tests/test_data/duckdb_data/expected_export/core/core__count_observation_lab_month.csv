@@ -1,15 +1,15 @@
-cnt,lab_month,lab_code,lab_result_display,enc_class_code
+cnt,lab_month,lab_code,lab_result_display,enc_class_display
 20,,,,
-20,,,,AMB
+20,,,,ambulatory
 10,,,Urine smell ammoniacal (finding),
-10,,,Urine smell ammoniacal (finding),AMB
+10,,,Urine smell ammoniacal (finding),ambulatory
 10,,,Brown color (qualifier value),
-10,,,Brown color (qualifier value),AMB
+10,,,Brown color (qualifier value),ambulatory
 10,,5778-6,,
-10,,5778-6,,AMB
+10,,5778-6,,ambulatory
 10,,5778-6,Brown color (qualifier value),
-10,,5778-6,Brown color (qualifier value),AMB
+10,,5778-6,Brown color (qualifier value),ambulatory
 10,,34533-0,,
-10,,34533-0,,AMB
+10,,34533-0,,ambulatory
 10,,34533-0,Urine smell ammoniacal (finding),
-10,,34533-0,Urine smell ammoniacal (finding),AMB
+10,,34533-0,Urine smell ammoniacal (finding),ambulatory

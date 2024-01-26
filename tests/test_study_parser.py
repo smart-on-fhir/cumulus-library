@@ -1,4 +1,5 @@
 """ tests for study parser against mocks in test_data """
+
 import builtins
 import pathlib
 

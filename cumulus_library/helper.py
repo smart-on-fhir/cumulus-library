@@ -1,4 +1,5 @@
 """ Collection of small commonly used utility functions """
+
 import datetime
 import os
 import json

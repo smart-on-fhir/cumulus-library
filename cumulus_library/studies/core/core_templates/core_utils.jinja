@@ -1,38 +1,125 @@
+{#- A collection of macros for constructing common safe column selects
+
+    For layout, is is generally assumed that these are being invoked from within
+    a WITH TABLE AS(...) statement, so they will always assume two levels of
+    indentation.
+-#}
+
+{#- gets a list of columns from a known present source -#}
+{% macro basic_cols(table, alias, targets) %}
+        {%- for col in targets %}
+        {{ alias }}.{{ col }}
+        {{- comma_delineate(loop) }}
+        {%- endfor %}
+{%- endmacro %}
+
+{#- gets a list of columns from a potentially null source.
+
+targets is an array expecting a data type of the following:
+    string: refers to a vanilla SQL primitive column
+    tuple(col, object, col_alias): refers to a one level nested SQL object
+    tuple(col, object, , child, col_alias): refers to a two level nested SQL object
+
+-#}
+{% macro nullable_cols(table, alias, targets, schema) %}
+        {%- for col in targets %}
+        {#- depth one nested column-#}
+        {%- if col is not string and col|length ==3%}
+        {%- if schema[table][col[0]][col[1]] %}
+        {{ alias }}.{{ col[0] }}.{{ col[1] }} AS {{col[2].lower()}}
+        {%- else %}
+        NULL AS {{col[2]}}
+        {%- endif %}
+        {#- depth two nested column -#}
+        {%- elif col is not string and col|length ==4%}
+        {%- if schema[table][col[0]][col[2]] %}
+        {{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }} AS {{col[3].lower()}}
+        {%- else %}
+        NULL AS {{col[3].lower()}}
+        {%- endif %}
+        {#- SQL primitive column column-#}
+        {%- elif schema[table][col] %}
+        {{ alias }}.{{ col }}
+        {%- else %}
+        NULL AS {{ col }}
+        {%- endif %}        
+        {{- comma_delineate(loop) }}
+        {%- endfor %}
+{%- endmacro %}
+
+{#- creates a date from a from an ISO formatted date str 
+targets is an array expecting a data type of the following:
+    string: refers to a vanilla SQL primitive column
+    tuple(col, object, col_alias): refers to a one level nested SQL object
+    tuple(col, object, child, col_alias): refers to a two level nested SQL obj
+-#}
+{% macro date_cols_from_str(table, alias, targets, schema) %}
+        {%- for col in targets %}
+        {#- depth one nested column-#}
+        {%- if col is not string and col|length ==3%}
+        {%- if schema[table][col[0]][col[1]] %}
+        date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }})) AS {{ col[2] }}
+        {%- else %}
+        cast(NULL AS date) AS {{ col[1].lower() }}
+        {% endif %}
+        {#- depth two nested column -#}
+        {%- elif col is not string and col|length ==4%}
+        {%- if schema[table][col[0]][col[2]] %}
+        date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2].lower() }})) AS {{col[3]}}
+        {%- else %}
+        cast(NULL AS date) AS {{ col[3].lower() }}
+        {%- endif %}
+        {#- SQL primitive column column-#}
+        {%- elif schema[table][col] %}
+        date(from_iso8601_timestamp({{ alias }}.{{ col }})) AS {{ col }}
+        {%- else %}
+        cast(NULL AS date) AS {{ col.lower() }}
+        {%- endif %}    
+        {{- comma_delineate(loop) }}
+        {%- endfor %}
+{%- endmacro %}
+
+{#- creates a truncated date from an iso formatted date of the specified period
+
+targets is assumed to be a list of tuples of one of the following format:
+(colName, period) - bare date col, named 'colname_period'
+(colName, object, alias, period) - one level nested date, names 'alias'
+(colName, object, child, alias, period) - two level nested date, names 'alias'
+ -#}
+{% macro truncate_date_cols(table, alias, targets, schema) %}
+        {%- for col in targets %}
+        {%- if col is not string and col|length ==4%}
+        {%- if schema[table][col[0]][col[1]] %}
+        date_trunc('{{ col[3] }}', date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}))) 
+            AS {{ col[2] }}
+        {%- else %}
+        cast(NULL AS date) AS {{col[2]}}
+        {% endif %}
+        {#- depth two nested column -#}
+        {%- elif col is not string and col|length ==5%}
+        {%- if schema[table][col[0]][col[2]] %}
+        date_trunc('{{ col[4] }}', date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{col[2]}}))) 
+            AS {{ col[3] }}
+        {%- else %}
+        cast(NULL AS date) AS {{col[3]}}
+        {%- endif %}
+        {#- SQL primitive column column-#}
+        {%- elif schema[table][col[0]] %}
+        date_trunc('{{ col[1] }}', date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}))) 
+            AS {{ col[0] }}_{{ col[1] }}
+        {%- else %}
+        cast(NULL AS date) AS {{ col[0] }}_{{ col[1] }}
+        {%- endif %}    
+        {{- comma_delineate(loop) }}
+        {%- endfor %}
+{%- endmacro %}
+
+{#- convenience function for looping over items
+
+TODO: this should move to some kind of global jinja utils location -#}
 {%- macro comma_delineate(loop) -%}
 {%- if not loop.last -%}
 , 
 {%- endif -%}
 {%- endmacro -%}
 
--- gets a list of columns from a known present source
-{% macro basic_cols(table, alias, targets) %}
-        {%- for col in targets %}
-        {{ alias }}.{{ col.lower() }}
-        {{- comma_delineate(loop) }}
-        {%- endfor %}
-{%- endmacro %}
-
-
--- gets a column, if present, from a basic SQL primitive col, or a null otherwise
-{% macro basic_nullable_cols(table, alias, targets, schema) %}
-        {%- for col in targets %}
-        {%- if schema[table][col] %}
-        {{ alias }}.{{ col.lower() }}
-        {%- else %}
-        NULL AS {{ col.lower() }}
-        {%- endif %}
-        {{- comma_delineate(loop) }}
-        {%- endfor %}
-{%- endmacro %}
-
--- gets a column, if present, from a value of an object in a col
-{% macro depth_one_nullable_cols(table, alias, targets, schema) %}
-        {%- for col in targets %}
-        {%- if schema[table][col[0]][col[1]] %}
-        {{ alias }}.{{ col[0].lower() }}.{{ col[1].lower() }} AS {{col[2]}}
-        {%- else %}
-        NULL AS {{col[2]}}
-        {%- endif %}
-        {{- comma_delineate(loop) }}
-        {%- endfor %}
-{%- endmacro %}

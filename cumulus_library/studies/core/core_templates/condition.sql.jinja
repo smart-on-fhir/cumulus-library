@@ -3,29 +3,60 @@
 CREATE TABLE core__condition AS
 WITH temp_condition AS (
     SELECT
-        concat('Condition/', c.id) AS condition_ref,
-        {{- utils.basic_nullable_cols(
-            'condition',
-            'c',
-            ['id','category','verificationStatus','clinicalStatus'], schema) 
-        }},
-        {{- utils.depth_one_nullable_cols(
+         {{- 
+            utils.basic_cols(
                 'condition',
                 'c',
                 [
+                    'id',
+                ]
+            ) 
+        }},
+        {{- 
+            utils.nullable_cols(
+                'condition',
+                'c',
+                [
+                    'category',
+                    'verificationStatus',
+                    'clinicalStatus',
                     ('subject', 'reference', 'subject_ref'),
                     ('encounter', 'reference', 'encounter_ref')
                 ], 
                 schema
             ) 
         }},
-        {{- utils.basic_cols(
+        {{- 
+            utils.basic_cols(
                 'core__condition_codable_concepts_all',
                 'cca',
-                ['code','code_system','display']
+                [
+                    'code',
+                    'code_system',
+                    'display'
+                ]
             ) 
         }},
-        date(from_iso8601_timestamp(c.recordeddate)) AS recordeddate
+        {{- 
+            utils.date_cols_from_str(
+                'condition',
+                'c',
+                ['recordeddate'],
+                schema
+            ) 
+        }},
+        {{- 
+            utils.truncate_date_cols(
+                'condition',
+                'c',
+                [
+                    ('recordeddate', 'week'),
+                    ('recordeddate', 'month'),
+                    ('recordeddate', 'year'),
+                ],
+                schema
+            ) 
+        }}
     FROM condition AS c
     LEFT JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
 )
@@ -39,11 +70,11 @@ SELECT
     tc.subject_ref,
     tc.encounter_ref,
     tc.id AS condition_id,
-    tc.condition_ref,
+    concat('Condition/', tc.id) AS condition_ref,
     tc.recordeddate,
-    date_trunc('week', date(tc.recordeddate)) AS recorded_week,
-    date_trunc('month', date(tc.recordeddate)) AS recorded_month,
-    date_trunc('year', date(tc.recordeddate)) AS recorded_year
+    tc.recordeddate_week AS recorded_week,
+    tc.recordeddate_month AS recorded_month,
+    tc.recordeddate_year AS recorded_year
 FROM temp_condition AS tc,
     unnest(category) AS t_category (category_coding),
     unnest(category_coding.coding) AS t_category_coding (category_row)

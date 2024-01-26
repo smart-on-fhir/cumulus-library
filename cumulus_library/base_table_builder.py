@@ -1,4 +1,5 @@
 """ abstract base for python-based study executors """
+
 import re
 import sys
 
@@ -57,8 +58,16 @@ class BaseTableBuilder(ABC):
                 # Get the first non-whitespace word after create table
                 table_name = re.search(
                     '(?i)(?<=create table )(([a-zA-Z0-9_".-]+))', query
-                )  # [0]
+                )
+
                 if table_name:
+                    if table_name[0] == "IF":
+                        # Edge case - if we're doing an empty conditional CTAS creation,
+                        # we need to run a slightly different regex
+                        table_name = re.search(
+                            '(?i)(?<=not exists )(([a-zA-Z0-9_".-]+))', query
+                        )
+
                     table_name = table_name[0]
                     # if it contains a schema, remove it (usually it won't, but some CTAS
                     # forms may)

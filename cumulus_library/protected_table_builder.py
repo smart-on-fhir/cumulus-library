@@ -1,4 +1,5 @@
 """ Builder for creating tables for tracking state/logging changes"""
+
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.enums import ProtectedTables
 from cumulus_library.template_sql.templates import (

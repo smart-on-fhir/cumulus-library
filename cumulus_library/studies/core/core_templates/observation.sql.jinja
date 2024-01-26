@@ -1,0 +1,78 @@
+{% import 'core_utils.jinja' as utils %}
+
+CREATE TABLE core__observation AS
+WITH temp_observation AS (
+    SELECT
+        {{- utils.basic_cols(
+                'observation',
+                'o',
+                [
+                    'id',
+                    'status'
+                ]
+            ) 
+        }},
+        {{- utils.truncate_date_cols(
+                'observation',
+                'o',
+                [
+                    
+                    ('effectivedatetime', 'day'),
+                    ('effectivedatetime', 'week'),
+                    ('effectivedatetime', 'month'),
+                    ('effectivedatetime', 'year'),
+
+                ],
+                schema
+            ) 
+        }},
+        odc.code AS observation_code,
+        odc.code_system AS observation_code_system,
+        odcat.code AS category_code,
+        odcat.code_system AS category_code_system,
+        odi.code AS interpretation_code,
+        odi.code_system AS interpretation_code_system,
+        odi.display AS interpretation_display,
+        odvcc.code AS valuecodeableconcept_code,
+        odvcc.code_system AS valuecodeableconcept_code_system,
+        odvcc.display AS valuecodeableconcept_display,
+        o.component,
+        o.referencerange,
+        o.valuequantity,
+        o.subject.reference AS subject_ref,
+        o.encounter.reference AS encounter_ref
+    FROM observation AS o
+    LEFT JOIN core__observation_dn_category AS odcat ON o.id = odcat.id
+    LEFT JOIN core__observation_dn_code AS odc ON o.id = odc.id
+    LEFT JOIN core__observation_dn_interpretation AS odi ON o.id = odi.id
+    LEFT JOIN core__observation_dn_valuecodeableconcept AS odvcc ON o.id = odvcc.id
+)
+
+SELECT
+    id,
+    category_code,
+    category_code_system,
+    component,
+    status,
+    observation_code,
+    observation_code_system,
+    interpretation_code,
+    interpretation_code_system,
+    interpretation_display,
+    referencerange,
+    valuequantity,
+    valuecodeableconcept_code,
+    valuecodeableconcept_code_system,
+    valuecodeableconcept_display,
+    effectivedatetime_day AS obs_date,
+    effectivedatetime_week AS obs_week,
+    effectivedatetime_month AS obs_month,
+    effectivedatetime_year AS obs_year,
+    subject_ref,
+    encounter_ref,
+    concat('Observation/', id) AS observation_ref
+FROM temp_observation
+WHERE
+    effectivedatetime_day BETWEEN date(
+        from_iso8601_timestamp('2016-06-01')
+    ) AND current_date;

@@ -1,7 +1,7 @@
 from cumulus_library import base_table_builder
 from cumulus_library import databases
 from cumulus_library.studies.core.core_templates import core_templates
-from cumulus_library.template_sql import templates
+from cumulus_library.template_sql import templates, utils
 
 
 expected_table_cols = {
@@ -42,8 +42,10 @@ expected_table_cols = {
 
 
 class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
+    display_text = "Creating Condition tables..."
+
     def denormalize_codes(self):
-        preferred_config = templates.CodeableConceptConfig(
+        preferred_config = utils.CodeableConceptConfig(
             source_table="condition",
             source_id="id",
             column_name="code",
@@ -60,7 +62,7 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
             templates.get_codeable_concept_denormalize_query(preferred_config)
         )
 
-        all_config = templates.CodeableConceptConfig(
+        all_config = utils.CodeableConceptConfig(
             source_table="condition",
             source_id="id",
             column_name="code",
@@ -72,14 +74,6 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
             templates.get_codeable_concept_denormalize_query(all_config)
         )
 
-    def validate_schema(self, cursor: object, schema: str, expected_table_cols, parser):
-        validated_schema = {}
-        for table, cols in expected_table_cols.items():
-            query = templates.get_column_datatype_query(schema, table, cols.keys())
-            table_schema = cursor.execute(query).fetchall()
-            validated_schema[table] = parser.validate_table_schema(cols, table_schema)
-        return validated_schema
-
     def prepare_queries(
         self,
         cursor: object,
@@ -89,7 +83,7 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
         **kwargs,
     ):
         self.denormalize_codes()
-        validated_schema = self.validate_schema(
+        validated_schema = core_templates.validate_schema(
             cursor, schema, expected_table_cols, parser
         )
         self.queries.append(

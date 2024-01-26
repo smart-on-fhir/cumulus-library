@@ -17,11 +17,11 @@ WITH documented_encounter AS (
         ce.encounter_ref,
         ce.status,
         cd.doc_ref,
-        date_diff('day', ce.start_date, cd.author_date) AS diff_enc_note_days,
+        date_diff('day', ce.start_date, date(cd.author_date)) AS diff_enc_note_days,
         coalesce(ce.enc_class_code, 'None') AS enc_class_code,
         coalesce(ce.enc_class_display, 'None') AS enc_class_display,
-        coalesce(cd.doc_type.code, 'None') AS doc_type_code,
-        coalesce(cd.doc_type.display, cd.doc_type.code) AS doc_type_display
+        coalesce(cd.doc_type_code, 'None') AS doc_type_code,
+        coalesce(cd.doc_type_display, 'None') AS doc_type_display
     FROM
         core__patient AS cp,
         core__encounter AS ce,

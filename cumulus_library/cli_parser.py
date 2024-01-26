@@ -1,4 +1,5 @@
 """Manages configuration for argparse"""
+
 import argparse
 
 

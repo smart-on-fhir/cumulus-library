@@ -1,17 +1,35 @@
--- ############################################################
--- FHIR Patient
--- http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient
-
+{% import 'core_utils.jinja' as utils %}
 CREATE TABLE core__patient AS
 WITH temp_patient AS (
     SELECT DISTINCT
-        p.gender,
+        {{- utils.basic_cols(
+                'patient',
+                'p',
+                [
+                    'id'
+                ]
+            ) 
+        }},
+        {{- utils.nullable_cols(
+                'patient',
+                'p',
+                [
+                    'gender', 'address'
+                ],
+                schema
+            ) 
+        }},
+        {{- utils.date_cols_from_str(
+                'patient',
+                'p',
+                [
+                    'birthdate'
+                ],
+                schema
+            ) 
+        }},
         er.race_display,
-        ee.ethnicity_display,
-        p.address,
-        p.id AS subject_id,
-        date(concat(substr(p.birthdate, 1, 4), '-01-01')) AS birthdate,
-        concat('Patient/', p.id) AS subject_ref
+        ee.ethnicity_display
     FROM
         patient AS p
     LEFT JOIN core__patient_ext_race AS er ON p.id = er.id
@@ -21,15 +39,14 @@ WITH temp_patient AS (
 SELECT DISTINCT
     tp.gender,
     tp.birthdate,
-    date_diff('year', tp.birthdate, current_date) AS age,
     CASE
         WHEN
             t_address.addr_row.postalcode IS NOT NULL
             THEN substr(t_address.addr_row.postalcode, 1, 3)
         ELSE 'None'
     END AS postalcode3,
-    tp.subject_id,
-    tp.subject_ref,
+    tp.id AS subject_id,
+    concat('Patient/', tp.id) AS subject_ref,
     coalesce(tp.race_display, 'unknown') AS race_display,
     coalesce(tp.ethnicity_display, 'unknown') AS ethnicity_display
 FROM

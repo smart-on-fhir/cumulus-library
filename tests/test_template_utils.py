@@ -1,4 +1,5 @@
 """ tests for the cli interface to studies """
+
 import duckdb
 import pytest
 

@@ -1,0 +1,63 @@
+{% import 'core_utils.jinja' as utils %}
+-- noqa: PRS
+CREATE TABLE core__documentreference AS
+WITH temp_documentreference AS (
+    SELECT DISTINCT
+        {{- utils.basic_cols(
+                'documentreference',
+                'dr',
+                [
+                    'id',
+                ]
+            ) 
+        }},
+        {{- utils.nullable_cols(
+                'documentreference',
+                'dr',
+                [
+                    'type',
+                    'status',
+                    'docstatus',
+                    'context',                
+                    ('subject', 'reference', 'subject_ref'),
+                    ('context', 'period', 'start', 'author_date')
+                ], 
+                schema
+            ) 
+        }},
+        {{- utils.truncate_date_cols(
+                'documentreference',
+                'dr',
+                [
+                    ('context', 'period', 'start', 'author_day', 'day'),
+                    ('context', 'period', 'start', 'author_week', 'week'),
+                    ('context', 'period', 'start', 'author_month', 'month'),
+                    ('context', 'period', 'start', 'author_year', 'year'),
+                ],
+                schema
+            ) 
+        }},
+        cdrt.code,
+        cdrt.code_system,
+        cdrt.display
+    FROM documentreference AS dr
+    LEFT JOIN core__documentreference_dn_type AS cdrt ON dr.id = cdrt.id
+)
+
+SELECT DISTINCT
+    tdr.id,
+    tdr.code AS doc_type_code,
+    tdr.code_system AS doc_type_code_system,
+    tdr.display AS doc_type_display,
+    tdr.status,
+    tdr.docstatus,
+    context_encounter.encounter.reference AS encounter_ref,
+    tdr.author_day AS author_date,
+    tdr.author_week,
+    tdr.author_month,
+    tdr.author_year,
+    tdr.subject_ref,
+    concat('DocumentReference/', tdr.id) AS doc_ref
+FROM temp_documentreference AS tdr,
+    unnest(context.encounter) AS context_encounter (encounter) --noqa
+WHERE date(tdr.author_day) BETWEEN date('2016-06-01') AND current_date;

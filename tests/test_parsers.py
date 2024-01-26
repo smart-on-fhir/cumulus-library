@@ -1,4 +1,5 @@
 """Test for FHIR resource parsers"""
+
 from contextlib import nullcontext as does_not_raise
 import json
 

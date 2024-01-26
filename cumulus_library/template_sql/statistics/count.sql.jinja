@@ -5,14 +5,23 @@
 {%- endmacro -%}
 
 {%- macro secondary_resource(fhir_resource) -%}
-{%- if fhir_resource in ( 'document', 'encounter', 'observation') -%}
-{{ fhir_resource }}
-{%- elif fhir_resource == 'condition' -%}
-encounter
+{%- if fhir_resource in ('encounter', 'condition', 'documentreference', 'observation') -%}
+encounter_ref
 {%- else -%}
 {# implicit null #}
 {%- endif -%}
 {%- endmacro -%}
+
+{%- macro tertiary_resource(fhir_resource) -%}
+{%- if fhir_resource == 'documentreference' -%}
+doc_ref
+{%- elif fhir_resource == 'observation'-%}
+observation_ref
+{%- else -%}
+{# implicit null #}
+{%- endif -%}
+{%- endmacro -%}
+
 
 {%- macro column_or_alias(count_col) %}
 {%- if not count_col.alias -%}
@@ -23,9 +32,12 @@ encounter
 {%- endmacro -%}
 
 {%- set secondary = secondary_resource(fhir_resource) -%}
+{%- set tertiary = tertiary_resource(fhir_resource) -%}
 
--- noqa: disable=LT02{# LT02 is a indentation rule that overfires in the where
-clause construction; it simultaneously asks for indentation of 4 and 8 spaces. #}
+{%- set missing_null = 'cumulus__missing-or-null' -%}
+{#- LT02 is a indentation rule that overfires in the where
+clause construction; it simultaneously asks for indentation of 4 and 8 spaces. -#}
+-- noqa: disable=LT02
 CREATE TABLE {{ table_name }} AS (
     WITH 
     {%- if filter_resource %}
@@ -33,10 +45,15 @@ CREATE TABLE {{ table_name }} AS (
         SELECT
             s.subject_ref,
             {%- if secondary %}
-            s.{{ secondary }}_ref,
+            s.{{ secondary }},
             {%- endif -%}
-            {%- if fhir_resource=='condition' %}
+            {%- if tertiary %}
+            s.{{ tertiary }},
+            {%- endif -%}
+            {%- if fhir_resource == 'condition' %}
             cccd.display AS cond_code_display,
+            {%- elif fhir_resource in ('documentreference', 'observation') %}
+            e.enc_class_display,
             {%- endif %}
             {#- these exceptions deal with table aliasing related to
             single table queries, where this may be a multitable query
@@ -52,16 +69,28 @@ CREATE TABLE {{ table_name }} AS (
             {% endfor %}
             --noqa: enable=RF03, AL02
         FROM {{ source_table }} AS s
+
+        {#- joining tables for fussy count conditions tables
+
+            TODO: think about if we really want to do this. We should maybe just
+            add them to the core tables if they are always going to be used?
+
+         -#}
         {%- if fhir_resource=='condition' %}
         LEFT JOIN core__condition_codable_concepts_display AS cccd
             ON s.condition_id = cccd.id
+        {%- elif fhir_resource in ('documentreference', 'observation') %}
+        INNER JOIN core__encounter AS e
+            ON s.encounter_ref = e.encounter_ref
         {%- endif -%}
-        {%- if fhir_resource=='document' and filter_resource %}
+
+        {#- resource specific filtering conditions -#}
+        {%- if fhir_resource == 'documentreference' and filter_resource %}
         WHERE (s.status = 'current')
-        AND (d.docStatus IS null OR d.docStatus IN ('final', 'amended'))
-        {%- elif fhir_resource=='encounter' and filter_resource %}
+        AND (s.docStatus IS null OR s.docStatus IN ('final', 'amended'))
+        {%- elif fhir_resource == 'encounter' and filter_resource %}
         WHERE s.status = 'finished'
-        {%- elif fhir_resource=='observation' and filter_resource %}
+        {%- elif fhir_resource == 'observation' and filter_resource %}
         WHERE (s.status = 'final' OR s.status= 'amended')
         {%- endif %}
     ),
@@ -70,16 +99,27 @@ CREATE TABLE {{ table_name }} AS (
         SELECT
             subject_ref,
             {%- if secondary %}
-            {{ secondary }}_ref,
+            {{ secondary }},
             {%- endif -%}
-            {%- if fhir_resource=='condition' %}
-            coalesce(cast(cond_code_display AS varchar), 'missing-or-null') AS cond_code_display,
+            {%- if tertiary %}
+            {{ tertiary }},
+            {%- endif -%}
+            {%- if fhir_resource == 'condition' %}
+            coalesce(
+                cast(cond_code_display AS varchar), 
+                '{{ missing_null }}'
+            ) AS cond_code_display,
+            {%- elif fhir_resource in ('documentreference', 'observation' )%}
+            coalesce(
+                cast(enc_class_display AS varchar), 
+                '{{ missing_null }}'
+            ) AS enc_class_display,
             {%- endif -%}
             {% for col in table_cols %}
             coalesce(
-                cast("{{ column_or_alias(col) }}" AS varchar),
-                'missing-or-null'
-            ) AS "{{ column_or_alias(col) }}"
+                cast({{ column_or_alias(col) }} AS varchar),
+                '{{ missing_null }}'
+            ) AS {{ column_or_alias(col) }}
             {{- comma_delineate(loop) }}
             {%- endfor %}
         {%- if filter_resource %}
@@ -93,14 +133,19 @@ CREATE TABLE {{ table_name }} AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
             {%- if secondary %}
-            count(DISTINCT {{ secondary }}_ref) AS cnt_{{ secondary }},
+            count(DISTINCT {{ secondary }}) AS cnt_{{ secondary }},
+            {%- endif -%}
+            {%- if tertiary -%}
+            count(DISTINCT {{ tertiary }}) AS cnt_{{ tertiary }},
             {%- endif -%}
             {% for col in table_cols %}
             "{{ column_or_alias(col) }}"
             {{- comma_delineate(loop) }}
             {%- endfor %}
-            {%- if fhir_resource=='condition' -%},
+            {%- if fhir_resource == 'condition' -%},
             cond_code_display
+            {%- elif fhir_resource in ('documentreference', 'observation' ) -%},
+            enc_class_display
             {% endif %}
         FROM null_replacement
         GROUP BY
@@ -109,14 +154,18 @@ CREATE TABLE {{ table_name }} AS (
                 "{{ column_or_alias(col) }}"
                 {{- comma_delineate(loop) }}
                 {%- endfor %}
-                {%- if fhir_resource=='condition' -%},
+                {%- if fhir_resource == 'condition' -%},
                 cond_code_display
+                {%- elif fhir_resource in ('documentreference', 'observation' ) -%},
+                enc_class_display
                 {% endif %}
             )
     )
 
     SELECT
-        {%- if secondary %}
+        {%- if tertiary %}
+        cnt_{{ tertiary }}
+        {%- elif secondary %}
         cnt_{{ secondary }}
         {%- else %}
         cnt_subject
@@ -125,9 +174,11 @@ CREATE TABLE {{ table_name }} AS (
         "{{ column_or_alias(col) }}"
         {{- comma_delineate(loop) }}
         {%- endfor %}
-        {%- if fhir_resource=='condition' %},
+        {%- if fhir_resource == 'condition' %},
         cond_code_display
-    {% endif %}
+        {%- elif fhir_resource in ('documentreference', 'observation' ) %},
+        enc_class_display
+        {% endif %}
     FROM powerset
     {%- if where_clauses %}
     WHERE

@@ -30,7 +30,6 @@ class CodeDetectionBuilder(BaseTableBuilder):
                         code_source["table_name"],
                         code_source["column_name"],
                         cursor,
-                        allow_partial=False,
                     )
                 elif code_source["is_bare_coding"]:
                     code_source["has_data"] = is_code_populated(
@@ -38,7 +37,6 @@ class CodeDetectionBuilder(BaseTableBuilder):
                         code_source["table_name"],
                         code_source["column_name"],
                         cursor,
-                        allow_partial=False,
                     )
                 else:
                     code_source["has_data"] = is_codeable_concept_populated(
@@ -46,12 +44,11 @@ class CodeDetectionBuilder(BaseTableBuilder):
                         code_source["table_name"],
                         code_source["column_name"],
                         cursor,
-                        allow_partial=False,
                     )
                 progress.advance(task)
         return code_sources
 
-    def prepare_queries(self, cursor: object, schema: str):
+    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
         """Constructs queries related to condition codeableConcept
 
         :param cursor: A database cursor object

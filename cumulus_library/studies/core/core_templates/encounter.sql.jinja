@@ -1,0 +1,116 @@
+{% import 'core_utils.jinja' as utils %}
+{#- Unlike some of the other core templates, in order to get easier access
+to the nested dates in the period, we'll do the preliminary querying in
+two steps.
+
+TODO: profile speed vs a single step, consider extending date col methods
+to traverse nested elements if performance is impacted-#}
+CREATE TABLE core__encounter AS
+WITH temp_encounter_nullable AS (
+    SELECT DISTINCT
+        {{- utils.basic_cols(
+                'encounter',
+                'e',
+                [
+                    'id'
+                ], 
+            ) 
+        }},
+        {{- utils.nullable_cols(
+                'encounter',
+                'e',
+                [
+                    'status',
+                    'class', 
+                    ('subject', 'reference', 'subject_ref'),
+                    'period',
+                ], 
+                schema
+            ) 
+        }},
+        {{- utils.date_cols_from_str(
+                'encounter',
+                'e',
+                [
+                    ('period', 'start', 'period_start'),
+                ],
+                schema
+            ) 
+        }},
+        {{- utils.truncate_date_cols(
+                'encounter',
+                'e',
+                [
+                    ('period','end', 'period_end_day', 'day'),
+                    ('period', 'start', 'period_start_day', 'day'),
+                    ('period', 'start', 'period_start_week', 'week'),
+                    ('period', 'start', 'period_start_month', 'month'),
+                    ('period', 'start', 'period_start_year', 'year'),
+                ],
+                schema
+            ) 
+        }}
+    FROM encounter AS e
+),
+
+temp_encounter AS (
+    SELECT DISTINCT
+        e.id,
+        e.status,
+        e.class,
+        e.subject_ref,
+        e.period_start,
+        e.period_start_day,
+        e.period_end_day,
+        e.period_start_week,
+        e.period_start_month,
+        e.period_start_year,
+        edt.code AS type_code,
+        edt.code_system AS type_code_system,
+        eds.code AS sevicetype_code,
+        eds.code_system AS sevicetype_code_system,
+        edp.code AS priority_code,
+        edp.code_system AS priority_code_system,
+        edr.code AS reasoncode_code,
+        edr.code_system AS reasoncode_code_system
+
+    FROM temp_encounter_nullable AS e
+    LEFT JOIN core__encounter_dn_priority AS edt ON e.id = edt.id
+    LEFT JOIN core__encounter_dn_servicetype AS eds ON e.id = eds.id
+    LEFT JOIN core__encounter_dn_priority AS edp ON e.id = edp.id
+    LEFT JOIN core__encounter_dn_reasoncode AS edr ON e.id = edr.id
+)
+
+SELECT DISTINCT
+    e.class AS enc_class,
+    ac.code AS enc_class_code,
+    ac.display AS enc_class_display,
+    e.status,
+    e.type_code,
+    e.type_code_system,
+    e.sevicetype_code,
+    e.sevicetype_code_system,
+    e.priority_code,
+    e.priority_code_system,
+    e.reasoncode_code,
+    e.reasoncode_code_system,
+    date_diff('year', date(p.birthdate), e.period_start_day) AS age_at_visit,
+    e.period_start_day AS start_date,
+    coalesce(e.period_end_day, e.period_start_day) AS end_date,
+    e.period_start_week AS start_week,
+    e.period_start_month AS start_month,
+    e.period_start_year AS start_year,
+    e.subject_ref,
+    concat('Encounter/', e.id) AS encounter_ref,
+    e.id AS encounter_id,
+    p.gender,
+    p.race_display,
+    p.ethnicity_display,
+    p.postalcode3
+FROM temp_encounter AS e
+LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
+    ON e.class.code = eac.found
+LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
+INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref
+WHERE
+    e.period_start BETWEEN date('2016-06-01') AND current_date;

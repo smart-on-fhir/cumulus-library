@@ -39,9 +39,11 @@ class ResourceTableIdPos(IntEnum):
     """Primary ID column per FHIR resource table used in counts"""
 
     CONDITION = 7
-    DOCUMENTREFERENCE = 11
+    DOCUMENTREFERENCE = 1
     ENCOUNTER = 20
-    OBSERVATION = 14
+    MEDICATION = 1
+    MEDICATIONREQUEST = 1
+    OBSERVATION = 1
     PATIENT = 4
 
 
