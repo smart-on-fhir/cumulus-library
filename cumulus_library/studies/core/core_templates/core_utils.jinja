@@ -79,22 +79,6 @@ targets is an array expecting a data type of the following:
         {%- endfor %}
 {%- endmacro %}
 
-{#- creates a date from a list of columns that may contain a partial date str -#}
-{% macro partial_date_cols(table, alias, targets, schema) %}
-        {%- for col in targets %}
-        {%- if schema[table][col] %}
-        CASE length({{ alias }}.{{ col }})
-        WHEN 4 THEN CAST(concat({{ alias }}.{{ col }},'-01-01') AS date)
-        WHEN 7 THEN CAST(concat({{ alias }}.{{ col }},'-01') AS date)
-        ELSE cast({{ alias }}.{{ col }} AS date)
-        END AS {{ col }}
-        {%- else %}
-        cast(NULL AS date) AS {{ col }}
-        {%- endif %}    
-        {{- comma_delineate(loop) }}
-        {%- endfor %}
-{%- endmacro %}
-
 {#- creates a truncated date from an iso formatted date of the specified period
 
 targets is assumed to be a list of tuples of one of the following format:

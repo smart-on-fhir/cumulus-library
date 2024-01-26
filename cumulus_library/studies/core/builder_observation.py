@@ -66,4 +66,3 @@ class ObservationBuilder(base_table_builder.BaseTableBuilder):
         self.queries.append(
             core_templates.get_core_template("observation", validated_schema)
         )
-        self.write_queries()

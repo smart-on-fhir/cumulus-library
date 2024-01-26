@@ -1,327 +1,36 @@
-cnt,age,gender,race_display,ethnicity_display
-1144,,,,
-1040,,,,not hispanic or latino
-1021,,,white,
-930,,,white,not hispanic or latino
-578,,female,,
-566,,male,,
-527,,female,white,
-524,,female,,not hispanic or latino
-516,,male,,not hispanic or latino
-494,,male,white,
-479,,female,white,not hispanic or latino
-451,,male,white,not hispanic or latino
-104,,,,hispanic or latino
-91,,,white,hispanic or latino
-65,,,black or african american,
-54,,,black or african american,not hispanic or latino
-54,,female,,hispanic or latino
-50,,male,,hispanic or latino
-48,,female,white,hispanic or latino
-43,,male,white,hispanic or latino
-43,,male,black or african american,
-36,,male,black or african american,not hispanic or latino
-22,,female,black or african american,
-22,17,,,
-21,75,,,
-21,75,,,not hispanic or latino
-21,75,,white,
-21,75,,white,not hispanic or latino
-21,47,,,
-21,47,,,not hispanic or latino
-21,12,,,
-20,,,asian,
-20,3,,,
-20,23,,,
-20,17,,,not hispanic or latino
-19,,,asian,not hispanic or latino
-19,49,,,
-19,47,,white,
-19,47,,white,not hispanic or latino
-19,41,,,
-19,41,,,not hispanic or latino
-19,3,,,not hispanic or latino
-19,22,,,
-19,21,,,
-19,21,,,not hispanic or latino
-19,15,,,
-18,,female,black or african american,not hispanic or latino
-18,63,,,
-18,63,,,not hispanic or latino
-18,49,,,not hispanic or latino
-18,33,,,
-18,23,,,not hispanic or latino
-18,17,,white,
-18,12,,,not hispanic or latino
-18,12,,white,
-18,11,,,
-18,11,,white,
-17,66,,,
-17,66,,,not hispanic or latino
-17,64,,,
-17,63,,white,
-17,63,,white,not hispanic or latino
-17,54,,,
-17,54,,white,
-17,33,,white,
-17,21,,white,
-17,21,,white,not hispanic or latino
-17,15,,,not hispanic or latino
-17,15,,white,
-17,11,,,not hispanic or latino
-17,11,,white,not hispanic or latino
-16,89,,,
-16,89,,,not hispanic or latino
-16,89,,white,
-16,89,,white,not hispanic or latino
-16,76,,,
-16,62,,,
-16,62,,,not hispanic or latino
-16,54,,,not hispanic or latino
-16,54,,white,not hispanic or latino
-16,5,,,
-16,49,,white,
-16,47,male,,
-16,47,male,,not hispanic or latino
-16,41,,white,
-16,41,,white,not hispanic or latino
-16,34,,,
-16,33,,,not hispanic or latino
-16,25,,,
-16,25,,,not hispanic or latino
-16,25,,white,
-16,25,,white,not hispanic or latino
-16,23,,white,
-16,17,,white,not hispanic or latino
-16,12,,white,not hispanic or latino
-15,,,unknown,
-15,,,unknown,not hispanic or latino
-15,66,,white,
-15,66,,white,not hispanic or latino
-15,59,,,
-15,52,,,
-15,5,,,not hispanic or latino
-15,49,,white,not hispanic or latino
-15,47,male,white,
-15,47,male,white,not hispanic or latino
-15,44,,,
-15,4,,,
-15,34,,white,
-15,33,,white,not hispanic or latino
-15,3,,white,
-15,26,,,
-15,26,,white,
-15,23,,white,not hispanic or latino
-15,22,,white,
-15,15,,white,not hispanic or latino
-14,,,native hawaiian or other pacific islander,
-14,76,,white,
-14,76,female,,
-14,76,female,white,
-14,64,,white,
-14,6,,,
-14,6,,white,
-14,59,,,not hispanic or latino
-14,52,,white,
-14,5,,white,
-14,4,,white,
-14,38,,,
-14,34,,,not hispanic or latino
-14,3,,white,not hispanic or latino
-14,28,,,
-14,28,,white,
-14,26,,,not hispanic or latino
-14,26,,white,not hispanic or latino
-14,22,,,not hispanic or latino
-13,,,native hawaiian or other pacific islander,not hispanic or latino
-13,9,,,
-13,83,,,
-13,83,,,not hispanic or latino
-13,83,,white,
-13,83,,white,not hispanic or latino
-13,76,,,not hispanic or latino
-13,76,,white,not hispanic or latino
-13,76,female,,not hispanic or latino
-13,76,female,white,not hispanic or latino
-13,68,,,
-13,64,,,not hispanic or latino
-13,60,,,
-13,59,,white,
-13,52,,,not hispanic or latino
-13,51,,,
-13,5,,white,not hispanic or latino
-13,42,,,
-13,4,,,not hispanic or latino
-13,34,,white,not hispanic or latino
-13,31,,,
-13,28,,,not hispanic or latino
-13,28,,white,not hispanic or latino
-13,2,,,
-13,19,,,
-13,19,,,not hispanic or latino
-13,17,female,,
-13,17,female,,not hispanic or latino
-13,16,,,
-12,,female,asian,
-12,9,,,not hispanic or latino
-12,9,,white,
-12,83,male,,
-12,83,male,,not hispanic or latino
-12,83,male,white,
-12,83,male,white,not hispanic or latino
-12,7,,,
-12,7,,,not hispanic or latino
-12,68,,,not hispanic or latino
-12,67,,,
-12,65,,,
-12,65,,,not hispanic or latino
-12,65,,white,
-12,65,,white,not hispanic or latino
-12,64,,white,not hispanic or latino
-12,62,,white,
-12,62,,white,not hispanic or latino
-12,60,,,not hispanic or latino
-12,6,,,not hispanic or latino
-12,6,,white,not hispanic or latino
-12,59,,white,not hispanic or latino
-12,53,,,
-12,53,,,not hispanic or latino
-12,53,,white,
-12,53,,white,not hispanic or latino
-12,52,,white,not hispanic or latino
-12,51,,,not hispanic or latino
-12,51,,white,
-12,45,,,
-12,44,,,not hispanic or latino
-12,44,,white,
-12,43,,,
-12,43,,white,
-12,42,,white,
-12,4,,white,not hispanic or latino
-12,39,,,
-12,38,,white,
-12,37,,,
-12,32,,,
-12,32,,,not hispanic or latino
-12,31,,white,
-12,3,male,,
-12,3,male,,not hispanic or latino
-12,20,,,
-12,20,,,not hispanic or latino
-12,2,,white,
-12,13,,,
-12,12,male,,
-12,10,,,
-12,10,,,not hispanic or latino
-11,,,black or african american,hispanic or latino
-11,,female,asian,not hispanic or latino
-11,9,,white,not hispanic or latino
-11,89,female,,
-11,89,female,,not hispanic or latino
-11,89,female,white,
-11,89,female,white,not hispanic or latino
-11,8,,,
-11,8,,,not hispanic or latino
-11,79,,,
-11,79,,white,
-11,78,,,
-11,75,male,,
-11,75,male,,not hispanic or latino
-11,75,male,white,
-11,75,male,white,not hispanic or latino
-11,7,,white,
-11,7,,white,not hispanic or latino
-11,69,,,
-11,68,,white,
-11,67,,white,
-11,64,female,,
-11,56,,,
-11,51,,white,not hispanic or latino
-11,49,male,,
-11,49,male,,not hispanic or latino
-11,48,,,
-11,48,,white,
-11,46,,,
-11,46,,,not hispanic or latino
-11,46,,white,
-11,46,,white,not hispanic or latino
-11,45,,,not hispanic or latino
-11,42,,,not hispanic or latino
-11,41,female,,
-11,41,female,,not hispanic or latino
-11,39,,white,
-11,38,,,not hispanic or latino
-11,37,,white,
-11,36,,,
-11,31,,,not hispanic or latino
-11,30,,,
-11,30,,,not hispanic or latino
-11,23,male,,
-11,23,male,,not hispanic or latino
-11,21,female,,
-11,21,female,,not hispanic or latino
-11,19,,white,
-11,19,,white,not hispanic or latino
-11,17,female,white,
-11,17,female,white,not hispanic or latino
-11,16,,,not hispanic or latino
-11,16,,white,
-11,14,,,
-11,13,,,not hispanic or latino
-11,13,,white,
-11,13,,white,not hispanic or latino
-11,12,male,,not hispanic or latino
-10,,male,unknown,
-10,,male,unknown,not hispanic or latino
-10,8,,white,
-10,8,,white,not hispanic or latino
-10,79,,,not hispanic or latino
-10,79,,white,not hispanic or latino
-10,75,female,,
-10,75,female,,not hispanic or latino
-10,75,female,white,
-10,75,female,white,not hispanic or latino
-10,70,,,
-10,70,,,not hispanic or latino
-10,70,,white,
-10,70,,white,not hispanic or latino
-10,69,,,not hispanic or latino
-10,69,,white,
-10,68,,white,not hispanic or latino
-10,67,,,not hispanic or latino
-10,66,male,,
-10,66,male,,not hispanic or latino
-10,58,,,
-10,58,,white,
-10,57,,,
-10,56,,,not hispanic or latino
-10,52,female,,
-10,44,,white,not hispanic or latino
-10,43,,,not hispanic or latino
-10,43,,white,not hispanic or latino
-10,42,,white,not hispanic or latino
-10,41,female,white,
-10,41,female,white,not hispanic or latino
-10,40,,,
-10,37,,,not hispanic or latino
-10,36,,white,
-10,34,female,,
-10,31,,white,not hispanic or latino
-10,30,,white,
-10,30,,white,not hispanic or latino
-10,27,,,
-10,27,,white,
-10,22,,white,not hispanic or latino
-10,22,female,,
-10,21,female,white,
-10,21,female,white,not hispanic or latino
-10,2,,,not hispanic or latino
-10,18,,,
-10,18,,,not hispanic or latino
-10,16,,white,not hispanic or latino
-10,15,male,,
-10,12,male,white,
-10,11,male,,
-10,11,male,,not hispanic or latino
-10,11,male,white,
-10,11,male,white,not hispanic or latino
+cnt,gender,race_display,ethnicity_display
+1144,,,
+1040,,,not hispanic or latino
+1021,,white,
+930,,white,not hispanic or latino
+578,female,,
+566,male,,
+527,female,white,
+524,female,,not hispanic or latino
+516,male,,not hispanic or latino
+494,male,white,
+479,female,white,not hispanic or latino
+451,male,white,not hispanic or latino
+104,,,hispanic or latino
+91,,white,hispanic or latino
+65,,black or african american,
+54,,black or african american,not hispanic or latino
+54,female,,hispanic or latino
+50,male,,hispanic or latino
+48,female,white,hispanic or latino
+43,male,white,hispanic or latino
+43,male,black or african american,
+36,male,black or african american,not hispanic or latino
+22,female,black or african american,
+20,,asian,
+19,,asian,not hispanic or latino
+18,female,black or african american,not hispanic or latino
+15,,unknown,
+15,,unknown,not hispanic or latino
+14,,native hawaiian or other pacific islander,
+13,,native hawaiian or other pacific islander,not hispanic or latino
+12,female,asian,
+11,,black or african american,hispanic or latino
+11,female,asian,not hispanic or latino
+10,male,unknown,
+10,male,unknown,not hispanic or latino

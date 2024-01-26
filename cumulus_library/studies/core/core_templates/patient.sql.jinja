@@ -19,7 +19,7 @@ WITH temp_patient AS (
                 schema
             ) 
         }},
-        {{- utils.partial_date_cols(
+        {{- utils.date_cols_from_str(
                 'patient',
                 'p',
                 [
