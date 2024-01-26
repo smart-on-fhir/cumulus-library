@@ -1,4 +1,5 @@
 {% import 'core_utils.jinja' as utils %}
+-- noqa: PRS
 CREATE TABLE core__documentreference AS
 WITH temp_documentreference AS (
     SELECT DISTINCT
@@ -38,9 +39,9 @@ WITH temp_documentreference AS (
         }},
         cdrt.code,
         cdrt.code_system,
-        cdrt.display,
+        cdrt.display
     FROM documentreference AS dr
-    LEFT JOIN core__documentreference_dn_type AS cdrt ON cdrt.id = dr.id
+    LEFT JOIN core__documentreference_dn_type AS cdrt ON dr.id = cdrt.id
 )
 
 SELECT DISTINCT
@@ -51,12 +52,12 @@ SELECT DISTINCT
     tdr.status,
     tdr.docstatus,
     context_encounter.encounter.reference AS encounter_ref,
-    author_day as author_date,
-    author_week,
-    author_month,
-    author_year,
+    tdr.author_day AS author_date,
+    tdr.author_week,
+    tdr.author_month,
+    tdr.author_year,
     tdr.subject_ref,
     concat('DocumentReference/', tdr.id) AS doc_ref
 FROM temp_documentreference AS tdr,
-    unnest(context.encounter) AS context_encounter (encounter), --noqa
-WHERE author_date BETWEEN date('2016-06-01') AND current_date;
+    unnest(context.encounter) AS context_encounter (encounter) --noqa
+WHERE date(tdr.author_day) BETWEEN date('2016-06-01') AND current_date;

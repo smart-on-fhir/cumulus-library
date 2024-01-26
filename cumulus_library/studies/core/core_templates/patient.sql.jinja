@@ -2,19 +2,31 @@
 CREATE TABLE core__patient AS
 WITH temp_patient AS (
     SELECT DISTINCT
+        {{- utils.basic_cols(
+                'patient',
+                'p',
+                [
+                    'id'
+                ]
+            ) 
+        }},
         {{- utils.nullable_cols(
-            'patient',
-            'p',
-            [
-                'id', 'gender', 'address'
-            ], schema) 
+                'patient',
+                'p',
+                [
+                    'gender', 'address'
+                ],
+                schema
+            ) 
         }},
         {{- utils.partial_date_cols(
-            'patient',
-            'p',
-            [
-                'birthdate'
-            ], schema) 
+                'patient',
+                'p',
+                [
+                    'birthdate'
+                ],
+                schema
+            ) 
         }},
         er.race_display,
         ee.ethnicity_display

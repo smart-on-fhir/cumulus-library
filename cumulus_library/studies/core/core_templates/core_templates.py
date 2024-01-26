@@ -9,7 +9,7 @@ PATH = pathlib.Path(__file__).parent
 
 
 def get_core_template(
-    target_table: str, schema: dict[dict[bool]] = {}, config: dict = {}
+    target_table: str, schema: dict[dict[bool]] = None, config: dict = None
 ) -> str:
     """Extracts code system details as a standalone table"""
     with open(f"{PATH}/{target_table}.sql.jinja") as file:

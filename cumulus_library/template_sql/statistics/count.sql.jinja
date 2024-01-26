@@ -117,7 +117,7 @@ CREATE TABLE {{ table_name }} AS (
             {%- endif -%}
             {% for col in table_cols %}
             coalesce(
-                {{ column_or_alias(col) }}, 
+                cast({{ column_or_alias(col) }} AS varchar), 
                 '{{ missing_null }}'
             ) AS {{ column_or_alias(col) }}
             {{- comma_delineate(loop) }}

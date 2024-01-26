@@ -1,13 +1,13 @@
-cnt,age,gender,race_display,ethnicity_display
-50,,,,
-47,,,white,
-45,,,,not hispanic or latino
-43,,,white,not hispanic or latino
-29,,female,,
-28,,female,white,
-27,,female,,not hispanic or latino
-26,,female,white,not hispanic or latino
-21,,male,,
-19,,male,white,
-18,,male,,not hispanic or latino
-17,,male,white,not hispanic or latino
+cnt,gender,race_display,ethnicity_display
+50,,,
+47,,white,
+45,,,not hispanic or latino
+43,,white,not hispanic or latino
+29,female,,
+28,female,white,
+27,female,,not hispanic or latino
+26,female,white,not hispanic or latino
+21,male,,
+19,male,white,
+18,male,,not hispanic or latino
+17,male,white,not hispanic or latino

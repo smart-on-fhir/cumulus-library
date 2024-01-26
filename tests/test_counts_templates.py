@@ -25,13 +25,13 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
         SELECT
             subject_ref,
             coalesce(
-                cast("age" AS varchar),
-                'missing-or-null'
-            ) AS "age",
+                cast(age AS varchar), 
+                'cumulus__missing-or-null'
+            ) AS age,
             coalesce(
-                cast("sex" AS varchar),
-                'missing-or-null'
-            ) AS "sex"
+                cast(sex AS varchar), 
+                'cumulus__missing-or-null'
+            ) AS sex
         FROM filtered_table
     ),
 
@@ -51,7 +51,7 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     SELECT
         cnt_subject AS cnt,
         "age",
-        "sex"
+        "sex" 
     FROM powerset
     WHERE 
         cnt_subject >= 10
@@ -65,13 +65,13 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
         SELECT
             subject_ref,
             coalesce(
-                cast("age" AS varchar),
-                'missing-or-null'
-            ) AS "age",
+                cast(age AS varchar), 
+                'cumulus__missing-or-null'
+            ) AS age,
             coalesce(
-                cast("sex" AS varchar),
-                'missing-or-null'
-            ) AS "sex"
+                cast(sex AS varchar), 
+                'cumulus__missing-or-null'
+            ) AS sex
         FROM test_source
         
     ),
@@ -92,7 +92,7 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     SELECT
         cnt_subject AS cnt,
         "age",
-        "sex"
+        "sex" 
     FROM powerset
     WHERE 
         cnt_subject >= 5
@@ -124,20 +124,20 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
             subject_ref,
             encounter_ref,
             coalesce(
-                cast("age" AS varchar),
-                'missing-or-null'
-            ) AS "age",
+                cast(age AS varchar), 
+                'cumulus__missing-or-null'
+            ) AS age,
             coalesce(
-                cast("sex" AS varchar),
-                'missing-or-null'
-            ) AS "sex"
+                cast(sex AS varchar), 
+                'cumulus__missing-or-null'
+            ) AS sex
         FROM filtered_table
     ),
 
     powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject,
-            count(DISTINCT encounter_ref) AS cnt_encounter,
+            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
             "age",
             "sex"
         FROM null_replacement
@@ -149,9 +149,9 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     )
 
     SELECT
-        cnt_encounter AS cnt,
+        cnt_encounter_ref AS cnt,
         "age",
-        "sex"
+        "sex" 
     FROM powerset
     WHERE
         age > 10
@@ -169,4 +169,6 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
 )
 def test_count_query(expected, kwargs):
     query = get_count_query("test_table", "test_source", ["age", "sex"], **kwargs)
+    with open("output.sql", "w") as f:
+        f.write(query)
     assert query == expected

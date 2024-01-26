@@ -49,7 +49,7 @@ WITH temp_encounter_nullable AS (
                 ],
                 schema
             ) 
-        }},
+        }}
     FROM encounter AS e
 ),
 
@@ -96,7 +96,7 @@ SELECT DISTINCT
     e.reasoncode_code_system,
     date_diff('year', date(p.birthdate), e.period_start_day) AS age_at_visit,
     e.period_start_day AS start_date,
-    e.period_end_day AS end_date,
+    COALESCE(e.period_end_day, e.period_start_day) AS end_date,
     e.period_start_week AS start_week,
     e.period_start_month AS start_month,
     e.period_start_year AS start_year,
@@ -112,5 +112,5 @@ LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
     ON e.class.code = eac.found
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
 INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref
---WHERE
---    e.period_start BETWEEN date('2016-06-01') AND current_date;
+WHERE
+    e.period_start BETWEEN date('2016-06-01') AND current_date;

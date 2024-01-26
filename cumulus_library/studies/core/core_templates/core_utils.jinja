@@ -5,16 +5,10 @@
     indentation.
 -#}
 
-{%- macro comma_delineate(loop) -%}
-{%- if not loop.last -%}
-, 
-{%- endif -%}
-{%- endmacro -%}
-
 {#- gets a list of columns from a known present source -#}
 {% macro basic_cols(table, alias, targets) %}
         {%- for col in targets %}
-        {{ alias }}.{{ col.lower() }}
+        {{ alias }}.{{ col }}
         {{- comma_delineate(loop) }}
         {%- endfor %}
 {%- endmacro %}
@@ -32,22 +26,22 @@ targets is an array expecting a data type of the following:
         {#- depth one nested column-#}
         {%- if col is not string and col|length ==3%}
         {%- if schema[table][col[0]][col[1]] %}
-        {{ alias }}.{{ col[0].lower() }}.{{ col[1].lower() }} AS {{col[2]}}
+        {{ alias }}.{{ col[0] }}.{{ col[1] }} AS {{col[2].lower()}}
         {%- else %}
         NULL AS {{col[2]}}
         {%- endif %}
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==4%}
         {%- if schema[table][col[0]][col[2]] %}
-        {{ alias }}.{{ col[0].lower() }}.{{ col[1].lower() }}.{{ col[2].lower() }} AS {{col[3]}}
+        {{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }} AS {{col[3].lower()}}
         {%- else %}
-        NULL AS {{col[3]}}
+        NULL AS {{col[3].lower()}}
         {%- endif %}
         {#- SQL primitive column column-#}
         {%- elif schema[table][col] %}
-        {{ alias }}.{{ col.lower() }}
+        {{ alias }}.{{ col }}
         {%- else %}
-        NULL AS {{ col.lower() }}
+        NULL AS {{ col }}
         {%- endif %}        
         {{- comma_delineate(loop) }}
         {%- endfor %}
@@ -57,29 +51,29 @@ targets is an array expecting a data type of the following:
 targets is an array expecting a data type of the following:
     string: refers to a vanilla SQL primitive column
     tuple(col, object, col_alias): refers to a one level nested SQL object
-    tuple(col, object, , child, col_alias): refers to a two level nested SQL obj
+    tuple(col, object, child, col_alias): refers to a two level nested SQL obj
 -#}
 {% macro date_cols_from_str(table, alias, targets, schema) %}
         {%- for col in targets %}
         {#- depth one nested column-#}
         {%- if col is not string and col|length ==3%}
         {%- if schema[table][col[0]][col[1]] %}
-        date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1].lower() }})) AS {{ col[2].lower() }}
+        date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }})) AS {{ col[2] }}
         {%- else %}
-        NULL AS {{col[1]}}
+        cast(NULL AS date) AS {{col[1]}}
         {% endif %}
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==4%}
         {%- if schema[table][col[0]][col[2]] %}
-        date(from_iso8601_timestamp({{ alias }}.{{ col[0].lower() }}.{{ col[1].lower() }}.{{ col[2].lower() }})) AS {{col[3]}}
+        date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }})) AS {{col[3]}}
         {%- else %}
-        NULL AS {{col[3]}}
+        cast(NULL AS date) AS {{col[3]}}
         {%- endif %}
         {#- SQL primitive column column-#}
         {%- elif schema[table][col] %}
-        date(from_iso8601_timestamp({{ alias }}.{{ col.lower() }})) AS {{ col.lower() }}
+        date(from_iso8601_timestamp({{ alias }}.{{ col }})) AS {{ col }}
         {%- else %}
-        cast(NULL AS date) AS {{ col.lower() }}
+        cast(NULL AS date) AS {{ col }}
         {%- endif %}    
         {{- comma_delineate(loop) }}
         {%- endfor %}
@@ -89,13 +83,13 @@ targets is an array expecting a data type of the following:
 {% macro partial_date_cols(table, alias, targets, schema) %}
         {%- for col in targets %}
         {%- if schema[table][col] %}
-        CASE length({{ alias }}.{{ col.lower() }})
-        WHEN 4 THEN CAST(concat({{ alias }}.{{ col.lower() }},'-01-01') AS date)
-        WHEN 7 THEN CAST(concat({{ alias }}.{{ col.lower() }},'-01') AS date)
-        ELSE cast({{ alias }}.{{ col.lower() }} AS date)
-        END AS {{ col.lower() }}
+        CASE length({{ alias }}.{{ col }})
+        WHEN 4 THEN CAST(concat({{ alias }}.{{ col }},'-01-01') AS date)
+        WHEN 7 THEN CAST(concat({{ alias }}.{{ col }},'-01') AS date)
+        ELSE cast({{ alias }}.{{ col }} AS date)
+        END AS {{ col }}
         {%- else %}
-        cast(NULL AS date) AS {{ col.lower() }}
+        cast(NULL AS date) AS {{ col }}
         {%- endif %}    
         {{- comma_delineate(loop) }}
         {%- endfor %}
@@ -113,26 +107,35 @@ targets is assumed to be a list of tuples of one of the following format:
         {%- if col is not string and col|length ==4%}
         {%- if schema[table][col[0]][col[1]] %}
         date_trunc('{{ col[3] }}', date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}))) 
-            AS {{ col[2].lower() }}
+            AS {{ col[2] }}
         {%- else %}
-        NULL AS {{col[2].lower()}}
+        cast(NULL AS date) AS {{col[2]}}
         {% endif %}
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==5%}
         {%- if schema[table][col[0]][col[2]] %}
         date_trunc('{{ col[4] }}', date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{col[2]}}))) 
-            AS {{ col[3].lower() }}
+            AS {{ col[3] }}
         {%- else %}
-        NULL AS {{col[3].lower()}}
+        cast(NULL AS date) AS {{col[3]}}
         {%- endif %}
         {#- SQL primitive column column-#}
         {%- elif schema[table][col[0]] %}
         date_trunc('{{ col[1] }}', date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}))) 
-            AS {{ col[0].lower() }}_{{ col[1].lower() }}
+            AS {{ col[0] }}_{{ col[1] }}
         {%- else %}
-        cast(NULL AS date) AS {{ col[0].lower() }}_{{ col[1].lower() }}
+        cast(NULL AS date) AS {{ col[0] }}_{{ col[1] }}
         {%- endif %}    
         {{- comma_delineate(loop) }}
         {%- endfor %}
 {%- endmacro %}
+
+{#- convenience function for looping over items
+
+TODO: this should move to some kind of global jinja utils location -#}
+{%- macro comma_delineate(loop) -%}
+{%- if not loop.last -%}
+, 
+{%- endif -%}
+{%- endmacro -%}
 

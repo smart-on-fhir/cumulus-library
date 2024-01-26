@@ -111,4 +111,3 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
         self.queries.append(
             core_templates.get_core_template("encounter", validated_schema)
         )
-        self.write_queries()

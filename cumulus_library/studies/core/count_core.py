@@ -109,7 +109,7 @@ class CoreCountsBuilder(counts.CountsBuilder):
 
     def prepare_queries(self, cursor=None, schema=None, *args, **kwargs):
         self.queries = [
-            self.count_core_condition(),
+            self.count_core_condition(duration="month"),
             self.count_core_documentreference(duration="month"),
             self.count_core_encounter(duration="month"),
             self.count_core_encounter_type(),

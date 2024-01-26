@@ -6,14 +6,17 @@ WITH temp_observation AS (
         {{- utils.basic_cols(
                 'observation',
                 'o',
-                ['id','status', 'effectivedatetime']
+                [
+                    'id',
+                    'status'
+                ]
             ) 
         }},
-        --{{ schema }}
         {{- utils.truncate_date_cols(
                 'observation',
                 'o',
                 [
+                    
                     ('effectivedatetime', 'day'),
                     ('effectivedatetime', 'week'),
                     ('effectivedatetime', 'month'),
@@ -37,7 +40,7 @@ WITH temp_observation AS (
         o.referencerange,
         o.valuequantity,
         o.subject.reference AS subject_ref,
-        o.encounter.reference AS encounter_ref,
+        o.encounter.reference AS encounter_ref
     FROM observation AS o
     LEFT JOIN core__observation_dn_category AS odcat ON o.id = odcat.id
     LEFT JOIN core__observation_dn_code AS odc ON o.id = odc.id
@@ -69,4 +72,4 @@ SELECT
     encounter_ref,
     concat('Observation/', id) AS observation_ref
 FROM temp_observation
-WHERE effectivedatetime BETWEEN date(from_iso8601_timestamp('2016-06-01')) AND current_date;
+WHERE effectivedatetime_day BETWEEN date(from_iso8601_timestamp('2016-06-01')) AND current_date;

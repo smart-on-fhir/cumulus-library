@@ -205,7 +205,7 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
 @pytest.mark.parametrize(
     "build_args,export_args,expected_tables",
     [
-        (["build", "-t", "core"], ["export", "-t", "core"], 38),
+        (["build", "-t", "core"], ["export", "-t", "core"], 44),
         (
             [  # checking that a study is loaded from a child directory of a user-defined path
                 "build",
