@@ -7,7 +7,7 @@ import pytest
 
 from freezegun import freeze_time
 
-from cumulus_library.cli import StudyBuilder
+from cumulus_library.cli import StudyRunner
 from cumulus_library.statistics.psm import PsmBuilder
 
 
@@ -62,7 +62,7 @@ def test_psm_create(
     expected_first_record,
     expected_last_record,
 ):
-    builder = StudyBuilder(mock_db_stats, data_path=Path(tmp_path))
+    builder = StudyRunner(mock_db_stats, data_path=Path(tmp_path))
     psm = PsmBuilder(
         f"{Path(__file__).parent}/test_data/psm/{toml_def}", Path(tmp_path)
     )

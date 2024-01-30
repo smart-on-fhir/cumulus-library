@@ -12,7 +12,7 @@ import pandas
 import pytest
 import numpy
 
-from cumulus_library.cli import StudyBuilder
+from cumulus_library.cli import StudyRunner
 from cumulus_library.databases import create_db_backend, DatabaseCursor
 
 MOCK_DATA_DIR = f"{Path(__file__).parent}/test_data/duckdb_data"
@@ -172,7 +172,7 @@ def mock_db(tmp_path):
 @pytest.fixture
 def mock_db_core(tmp_path, mock_db):  # pylint: disable=redefined-outer-name
     """Provides a DuckDatabaseBackend with the core study ran for local testing"""
-    builder = StudyBuilder(mock_db, data_path=f"{tmp_path}/data_path")
+    builder = StudyRunner(mock_db, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core", stats_build=True
     )
@@ -190,7 +190,7 @@ def mock_db_stats(tmp_path):
             "load_ndjson_dir": f"{tmp_path}/mock_data",
         }
     )
-    builder = StudyBuilder(db, data_path=f"{tmp_path}/data_path")
+    builder = StudyRunner(db, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core", stats_build=True
     )

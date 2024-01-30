@@ -229,4 +229,11 @@ following order of preference is used to select credentials:
         help="Run pre-fetch and prepare upload, but log output instead of sending.",
     )
 
+    # Generate a study's template-driven sql
+    generate = actions.add_parser(
+        "generate-sql", help="Generates a study's template-driven sql for reference"
+    )
+    add_target_argument(generate)
+    add_study_dir_argument(generate)
+    add_db_config(generate)
     return parser
