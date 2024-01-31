@@ -119,14 +119,10 @@ class BaseTableBuilder(ABC):
         commented_queries.pop()
         self.queries = commented_queries
 
-    def write_queries(
-        self, filename: str = "output.sql", dir_path: pathlib.Path = None
-    ):
+    def write_queries(self, path: pathlib.Path = pathlib.Path.cwd() / "output.sql"):
+        path.parents[0].mkdir(parents=True, exist_ok=True)
         """writes all queries constructed by prepare_queries to disk"""
-        if dir_path:
-            dir_path.mkdir(exist_ok=True)
-            filename = dir_path / filename
-        with open(filename, "w", encoding="utf-8") as file:
+        with open(path, "w", encoding="utf-8") as file:
             for query in self.queries:
                 file.write(query)
                 file.write("\n")

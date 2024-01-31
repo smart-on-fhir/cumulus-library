@@ -297,7 +297,6 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict:
 
 def run_cli(args: Dict):
     """Controls which library tasks are run based on CLI arguments"""
-    print(args)
     if args["action"] == "create":
         create_template(args["create_dir"])
 
@@ -308,11 +307,11 @@ def run_cli(args: Dict):
     else:
         db_backend = databases.create_db_backend(args)
         try:
-            builder = StudyRunner(db_backend, data_path=args.get("data_path"))
-            if "verbose" in args and args["verbose"]:
-                builder.verbose = True
+            runner = StudyRunner(db_backend, data_path=args.get("data_path"))
+            if args.get("verbose"):
+                runner.verbose = True
             print("Testing connection to database...")
-            builder.cursor.execute("SHOW DATABASES")
+            runner.cursor.execute("SHOW DATABASES")
 
             study_dict = get_study_dict(args["study_dir"])
             if "prefix" not in args.keys():
@@ -326,7 +325,7 @@ def run_cli(args: Dict):
                                 "you include `-s path/to/study/dir` as an arugment."
                             )
             if args["action"] == "clean":
-                builder.clean_study(
+                runner.clean_study(
                     args["target"],
                     study_dict,
                     stats_clean=args["stats_clean"],
@@ -334,15 +333,15 @@ def run_cli(args: Dict):
                 )
             elif args["action"] == "build":
                 if "all" in args["target"]:
-                    builder.clean_and_build_all(study_dict, args["stats_build"])
+                    runner.clean_and_build_all(study_dict, args["stats_build"])
                 else:
                     for target in args["target"]:
                         if args["builder"]:
-                            builder.run_single_table_builder(
+                            runner.run_single_table_builder(
                                 study_dict[target], args["builder"]
                             )
                         else:
-                            builder.clean_and_build_study(
+                            runner.clean_and_build_study(
                                 study_dict[target],
                                 stats_build=args["stats_build"],
                                 continue_from=args["continue_from"],
@@ -350,18 +349,18 @@ def run_cli(args: Dict):
 
             elif args["action"] == "export":
                 if "all" in args["target"]:
-                    builder.export_all(study_dict, args["data_path"])
+                    runner.export_all(study_dict, args["data_path"])
                 else:
                     for target in args["target"]:
-                        builder.export_study(study_dict[target], args["data_path"])
+                        runner.export_study(study_dict[target], args["data_path"])
 
             elif args["action"] == "generate-sql":
                 if "all" in args["target"]:
                     for target in study_dict.keys():
-                        builder.generate_all_sql(study_dict[target])
+                        runner.generate_all_sql(study_dict[target])
                 else:
                     for target in args["target"]:
-                        builder.generate_study_sql(study_dict[target])
+                        runner.generate_study_sql(study_dict[target])
         finally:
             db_backend.close()
 

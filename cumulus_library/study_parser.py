@@ -322,7 +322,7 @@ class StudyManifestParser:
         verbose: bool = False,
         drop_table: bool = False,
         parser: databases.DatabaseParser = None,
-        generate_sql: bool = False,
+        write_reference_sql: bool = False,
         doc_str: str = None,
     ) -> None:
         """Loads a table builder from a file.
@@ -371,12 +371,12 @@ class StudyManifestParser:
         # execute, since the subclass would otherwise hang around.
         table_builder_class = table_builder_subclasses[0]
         table_builder = table_builder_class()
-        if generate_sql:
+        if write_reference_sql:
             table_builder.prepare_queries(cursor, schema, parser=parser)
             table_builder.comment_queries(doc_str=doc_str)
+            new_filename = pathlib.Path(f"{filename}").stem + ".sql"
             table_builder.write_queries(
-                filename=f"{filename.split('.')[0]}.sql",
-                dir_path=pathlib.Path(f"{self._study_path}/reference_sql"),
+                path=pathlib.Path(f"{self._study_path}/reference_sql/" + new_filename)
             )
         else:
             table_builder.execute_queries(
@@ -525,7 +525,7 @@ class StudyManifestParser:
         parser: databases.DatabaseParser = None,
         **kwargs,
     ) -> None:
-        """Loads modules from a manifest and executes code via BaseTableBuilder
+        """Generates reference SQL from all BaseTableBuilder-derived classes in the manifest
 
         :param cursor: A DatabaseCursor object
         :param schema: The name of the schema to write tables to
@@ -544,7 +544,12 @@ class StudyManifestParser:
         )
         for file in all_generators:
             self._load_and_execute_builder(
-                file, cursor, schema, parser=parser, generate_sql=True, doc_str=doc_str
+                file,
+                cursor,
+                schema,
+                parser=parser,
+                write_reference_sql=True,
+                doc_str=doc_str,
             )
 
     def build_study(
