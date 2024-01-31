@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import toml
 
-from cumulus_library.cli import StudyBuilder
+from cumulus_library.cli import StudyRunner
 from cumulus_library.studies.core.core_templates import core_templates
 from tests.conftest import modify_resource_column
 from tests.conftest import ResourceTableIdPos as idpos  # pylint: disable=unused-import
@@ -85,7 +85,7 @@ def test_core_count_missing_data(tmp_path, mock_db):
     cursor = mock_db.cursor()
     modify_resource_column(cursor, "encounter", "class", null_code_class)
 
-    builder = StudyBuilder(mock_db, f"{tmp_path}/data_path/")
+    builder = StudyRunner(mock_db, f"{tmp_path}/data_path/")
     builder.clean_and_build_study(
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
         stats_build=False,

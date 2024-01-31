@@ -1,5 +1,6 @@
 """ abstract base for python-based study executors """
 
+import pathlib
 import re
 import sys
 
@@ -102,20 +103,26 @@ class BaseTableBuilder(ABC):
         """Hook for any additional actions to run after execute_queries"""
         pass
 
-    def comment_queries(self):
+    def comment_queries(self, doc_str=None):
         """Convenience method for annotating outputs of template generators to disk"""
         commented_queries = ["-- noqa: disable=all"]
+        if doc_str:
+            commented_queries.append(doc_str)
+            commented_queries.append(
+                "\n-- ###########################################################\n"
+            )
         for query in self.queries:
             commented_queries.append(query)
             commented_queries.append(
-                "\n-- ###########################################################"
+                "\n-- ###########################################################\n"
             )
         commented_queries.pop()
         self.queries = commented_queries
 
-    def write_queries(self, filename: str = "output.sql"):
+    def write_queries(self, path: pathlib.Path = pathlib.Path.cwd() / "output.sql"):
+        path.parents[0].mkdir(parents=True, exist_ok=True)
         """writes all queries constructed by prepare_queries to disk"""
-        with open(filename, "w", encoding="utf-8") as file:
+        with open(path, "w", encoding="utf-8") as file:
             for query in self.queries:
                 file.write(query)
                 file.write("\n")
