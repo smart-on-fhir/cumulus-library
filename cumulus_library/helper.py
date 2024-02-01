@@ -48,15 +48,19 @@ def list_coding(code_display: dict, system=None) -> List[dict]:
     return as_list
 
 
-def query_console_output(
-    verbose: bool, query: str, progress_bar: progress.Progress, task: progress.Task
+def query_console_progress(
+    verbose: bool, progress_bar: progress.Progress, task: progress.Task
 ):
-    """Convenience function for determining output type"""
+    """Convenience function for updating progress bar"""
+    if not verbose:
+        progress_bar.advance(task)
+
+
+def query_console_verbose(verbose: bool, query: str):
+    """Convenience function for printing verbose queries"""
     if verbose:
         print()
         print(query)
-    else:
-        progress_bar.advance(task)
 
 
 def get_progress_bar(**kwargs) -> progress.Progress:

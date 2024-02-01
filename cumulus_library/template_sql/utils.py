@@ -14,7 +14,7 @@ from dataclasses import dataclass
 import duckdb
 from typing import List
 
-from cumulus_library.helper import get_progress_bar, query_console_output
+from cumulus_library import helper
 from cumulus_library.template_sql import templates
 from cumulus_library import databases
 
@@ -89,7 +89,7 @@ def _check_data_in_fields(
 
     """
 
-    with get_progress_bar(transient=True) as progress:
+    with helper.get_progress_bar(transient=True) as progress:
         task = progress.add_task(
             "Detecting available encounter codeableConcepts...",
             # Each column in code_sources requires at most 3 queries to

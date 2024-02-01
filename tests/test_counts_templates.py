@@ -26,20 +26,25 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
             subject_ref,
             coalesce(
                 cast(age AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS age,
             coalesce(
                 cast(sex AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS sex
         FROM filtered_table
     ),
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            "age",
-            "sex"
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+                "age",
+                "sex",
+            concat_ws(
+                '-',
+                COALESCE("age",''),
+                COALESCE("sex",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
@@ -49,12 +54,12 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     )
 
     SELECT
-        cnt_subject AS cnt,
-        "age",
-        "sex"
-    FROM powerset
+        p.cnt_subject_ref AS cnt,
+        p."age",
+        p."sex"
+    FROM powerset AS p
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );""",
             {},
         ),
@@ -66,11 +71,11 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
             subject_ref,
             coalesce(
                 cast(age AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS age,
             coalesce(
                 cast(sex AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS sex
         FROM test_source
         
@@ -78,9 +83,14 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            "age",
-            "sex"
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+                "age",
+                "sex",
+            concat_ws(
+                '-',
+                COALESCE("age",''),
+                COALESCE("sex",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
@@ -90,12 +100,12 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     )
 
     SELECT
-        cnt_subject AS cnt,
-        "age",
-        "sex"
-    FROM powerset
+        p.cnt_subject_ref AS cnt,
+        p."age",
+        p."sex"
+    FROM powerset AS p
     WHERE 
-        cnt_subject >= 5
+        cnt_subject_ref >= 5
 );""",
             {
                 "filter_resource": False,
@@ -125,21 +135,42 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
             encounter_ref,
             coalesce(
                 cast(age AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS age,
             coalesce(
                 cast(sex AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS sex
         FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+                "age",
+                "sex",
+            concat_ws(
+                '-',
+                COALESCE("age",''),
+                COALESCE("sex",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+                "age",
+                "sex"
+            )
     ),
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
-            "age",
-            "sex"
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+                "age",
+                "sex",
+            concat_ws(
+                '-',
+                COALESCE("age",''),
+                COALESCE("sex",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
@@ -149,10 +180,11 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     )
 
     SELECT
-        cnt_encounter_ref AS cnt,
-        "age",
-        "sex"
-    FROM powerset
+        s.cnt_encounter_ref AS cnt,
+        p."age",
+        p."sex"
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE
         age > 10
         AND sex ==  'F'
@@ -169,4 +201,7 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
 )
 def test_count_query(expected, kwargs):
     query = get_count_query("test_table", "test_source", ["age", "sex"], **kwargs)
+    # Snippet for getting updated template output
+    # with open("output.sql", "w") as f:
+    #     f.write(query)
     assert query == expected

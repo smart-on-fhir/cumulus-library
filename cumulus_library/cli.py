@@ -356,7 +356,7 @@ def run_cli(args: Dict):
 
             elif args["action"] == "generate-sql":
                 if "all" in args["target"]:
-                    for target in study_dict.keys():
+                    for target in study_dict.keys():  # pylint: disable= C0206, C0201
                         runner.generate_all_sql(study_dict[target])
                 else:
                     for target in args["target"]:

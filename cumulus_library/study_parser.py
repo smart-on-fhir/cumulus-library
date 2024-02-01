@@ -311,8 +311,9 @@ class StudyManifestParser:
             drop_view_table = templates.get_drop_view_table(
                 name=view_table[0], view_or_table=view_table[1]
             )
+            helper.query_console_verbose(verbose, drop_view_table)
             cursor.execute(drop_view_table)
-            helper.query_console_output(verbose, drop_view_table, progress, task)
+            helper.query_console_progress(verbose, progress, task)
 
     def _load_and_execute_builder(
         self,
@@ -523,7 +524,7 @@ class StudyManifestParser:
         cursor: databases.DatabaseCursor,
         schema: str,
         parser: databases.DatabaseParser = None,
-        **kwargs,
+        verbose: bool = False,
     ) -> None:
         """Generates reference SQL from all BaseTableBuilder-derived classes in the manifest
 
@@ -550,6 +551,7 @@ class StudyManifestParser:
                 parser=parser,
                 write_reference_sql=True,
                 doc_str=doc_str,
+                verbose=verbose,
             )
 
     def build_study(
@@ -651,8 +653,9 @@ class StudyManifestParser:
                     "start with a string like `study_prefix__`.",
                 )
             try:
+                helper.query_console_verbose(verbose, query[0])
                 cursor.execute(query[0])
-                helper.query_console_output(verbose, query[0], progress, task)
+                helper.query_console_progress(verbose, progress, task)
             except Exception as e:  # pylint: disable=broad-exception-caught
                 self._query_error(
                     query,

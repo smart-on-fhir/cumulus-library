@@ -216,6 +216,21 @@ class DuckDatabaseBackend(DatabaseBackend):
             None,
             duckdb.typing.TIMESTAMP,
         )
+        self.connection.create_function(
+            # This is in support of the md5 function - duckdb's implementation of
+            # md5 just takes a string (very reasonable!), but trino's implementation
+            # takes a varbinary type (which duckdb does not support), so we have to
+            # run a string through a UTF8 conversion in production environments.
+            # For duckdb's purposes, we'll just return the argument passed with no
+            # modifications.
+            # NOTE: currently we do not have a use case beyond experimentation where
+            # this provides a benefit. Until we do, it is not required to support this
+            # in other DatabaseBackend implementations.
+            "to_utf8",
+            self._compat_to_utf8,
+            None,
+            duckdb.typing.VARCHAR,
+        )
 
     def insert_tables(self, tables: dict[str, pyarrow.Table]) -> None:
         """Ingests all ndjson data from a folder tree (often the output folder of Cumulus ETL)"""
@@ -244,6 +259,10 @@ class DuckDatabaseBackend(DatabaseBackend):
             return value
         else:
             raise ValueError("Unexpected date() argument:", type(value), value)
+
+    @staticmethod
+    def _compat_to_utf8(value: str) -> Optional[datetime.date]:
+        return value
 
     @staticmethod
     def _compat_from_iso8601_timestamp(

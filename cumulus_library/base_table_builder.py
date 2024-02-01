@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import final
 
 from cumulus_library.databases import DatabaseCursor
-from cumulus_library.helper import get_progress_bar, query_console_output
+from cumulus_library import helper
 
 
 class BaseTableBuilder(ABC):
@@ -77,18 +77,20 @@ class BaseTableBuilder(ABC):
                     table_names.append(table_name)
             for table_name in table_names:
                 cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
-        with get_progress_bar(disable=verbose) as progress:
+        with helper.get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 self.display_text,
                 total=len(self.queries),
                 visible=not verbose,
             )
             for query in self.queries:
-                query_console_output(verbose, query, progress, task)
                 try:
+                    helper.query_console_verbose(verbose, query)
                     cursor.execute(query)
+                    helper.query_console_progress(verbose, progress, task)
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     sys.exit(e)
+
         self.post_execution(cursor, schema, verbose, drop_table, *args, **kwargs)
 
     def post_execution(
@@ -120,8 +122,8 @@ class BaseTableBuilder(ABC):
         self.queries = commented_queries
 
     def write_queries(self, path: pathlib.Path = pathlib.Path.cwd() / "output.sql"):
-        path.parents[0].mkdir(parents=True, exist_ok=True)
         """writes all queries constructed by prepare_queries to disk"""
+        path.parents[0].mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as file:
             for query in self.queries:
                 file.write(query)

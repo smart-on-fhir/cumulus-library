@@ -3,20 +3,21 @@
 -- Its format is tied to the specific database it was run against, and it may not
 -- be correct for all databases. Use the CLI's build option to derive the best SQL
 -- for your dataset.
+
+-- ###########################################################
+
 CREATE TABLE core__count_condition_month AS (
     WITH
     filtered_table AS (
         SELECT
             s.subject_ref,
             s.encounter_ref,
-            cccd.display AS cond_code_display,
             --noqa: disable=RF03, AL02
             s."category_code" AS cond_category_code,
-            s."recorded_month" AS cond_month
+            s."recorded_month" AS cond_month,
+            s."code_display"
             --noqa: enable=RF03, AL02
         FROM core__condition AS s
-        LEFT JOIN core__condition_codable_concepts_display AS cccd
-            ON s.condition_id = cccd.id
     ),
     
     null_replacement AS (
@@ -24,44 +25,70 @@ CREATE TABLE core__count_condition_month AS (
             subject_ref,
             encounter_ref,
             coalesce(
-                cast(cond_code_display AS varchar), 
-                'cumulus__missing-or-null'
-            ) AS cond_code_display,
-            coalesce(
                 cast(cond_category_code AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS cond_category_code,
             coalesce(
                 cast(cond_month AS varchar),
-                'cumulus__missing-or-null'
-            ) AS cond_month
+                'cumulus__none'
+            ) AS cond_month,
+            coalesce(
+                cast(code_display AS varchar),
+                'cumulus__none'
+            ) AS code_display
         FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            "cond_category_code",
+            "cond_month",
+            "code_display",
+            concat_ws(
+                '-',
+                COALESCE("cond_category_code",''),
+                COALESCE("cond_month",''),
+                COALESCE("code_display",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+            "cond_category_code",
+            "cond_month",
+            "code_display"
+            )
     ),
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
             "cond_category_code",
             "cond_month",
-            cond_code_display
+            "code_display",
+            concat_ws(
+                '-',
+                COALESCE("cond_category_code",''),
+                COALESCE("cond_month",''),
+                COALESCE("code_display",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "cond_category_code",
-                "cond_month",
-                cond_code_display
+            "cond_category_code",
+            "cond_month",
+            "code_display"
             )
     )
 
     SELECT
-        cnt_encounter_ref AS cnt,
-        "cond_category_code",
-        "cond_month",
-        cond_code_display
-    FROM powerset
+        s.cnt_encounter_ref AS cnt,
+        p."cond_category_code",
+        p."cond_month",
+        p."code_display"
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -71,7 +98,6 @@ CREATE TABLE core__count_documentreference_month AS (
     filtered_table AS (
         SELECT
             s.subject_ref,
-            s.encounter_ref,
             s.doc_ref,
             e.enc_class_display,
             --noqa: disable=RF03, AL02
@@ -88,50 +114,78 @@ CREATE TABLE core__count_documentreference_month AS (
     null_replacement AS (
         SELECT
             subject_ref,
-            encounter_ref,
             doc_ref,
             coalesce(
                 cast(enc_class_display AS varchar), 
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_class_display,
             coalesce(
                 cast(doc_type_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS doc_type_display,
             coalesce(
                 cast(author_month AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS author_month
         FROM filtered_table
     ),
-
-    powerset AS (
+    secondary_powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,count(DISTINCT doc_ref) AS cnt_doc_ref,
+            count(DISTINCT doc_ref) AS cnt_doc_ref,
+            "doc_type_display",
+            "author_month",
+            enc_class_display
+            ,
+            concat_ws(
+                '-',
+                COALESCE("doc_type_display",''),
+                COALESCE("author_month",''),
+                COALESCE(enc_class_display,'')
+                
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
             "doc_type_display",
             "author_month",
             enc_class_display
             
+            )
+    ),
+
+    powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "doc_type_display",
+            "author_month",
+            enc_class_display
+            ,
+            concat_ws(
+                '-',
+                COALESCE("doc_type_display",''),
+                COALESCE("author_month",''),
+                COALESCE(enc_class_display,'')
+                
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "doc_type_display",
-                "author_month",
-                enc_class_display
-                
+            "doc_type_display",
+            "author_month",
+            enc_class_display
+            
             )
     )
 
     SELECT
-        cnt_doc_ref AS cnt,
-        "doc_type_display",
-        "author_month",
-        enc_class_display
-        
-    FROM powerset
+        s.cnt_doc_ref AS cnt,
+        p."doc_type_display",
+        p."author_month",
+        p.enc_class_display
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -160,64 +214,102 @@ CREATE TABLE core__count_encounter_month AS (
             encounter_ref,
             coalesce(
                 cast(start_month AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS start_month,
             coalesce(
                 cast(enc_class_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_class_display,
             coalesce(
                 cast(age_at_visit AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS age_at_visit,
             coalesce(
                 cast(gender AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS gender,
             coalesce(
                 cast(race_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS race_display,
             coalesce(
                 cast(ethnicity_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS ethnicity_display
         FROM filtered_table
     ),
-
-    powerset AS (
+    secondary_powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
             count(DISTINCT encounter_ref) AS cnt_encounter_ref,
             "start_month",
             "enc_class_display",
             "age_at_visit",
             "gender",
             "race_display",
-            "ethnicity_display"
+            "ethnicity_display",
+            concat_ws(
+                '-',
+                COALESCE("start_month",''),
+                COALESCE("enc_class_display",''),
+                COALESCE("age_at_visit",''),
+                COALESCE("gender",''),
+                COALESCE("race_display",''),
+                COALESCE("ethnicity_display",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "start_month",
-                "enc_class_display",
-                "age_at_visit",
-                "gender",
-                "race_display",
-                "ethnicity_display"
+            "start_month",
+            "enc_class_display",
+            "age_at_visit",
+            "gender",
+            "race_display",
+            "ethnicity_display"
+            )
+    ),
+
+    powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "start_month",
+            "enc_class_display",
+            "age_at_visit",
+            "gender",
+            "race_display",
+            "ethnicity_display",
+            concat_ws(
+                '-',
+                COALESCE("start_month",''),
+                COALESCE("enc_class_display",''),
+                COALESCE("age_at_visit",''),
+                COALESCE("gender",''),
+                COALESCE("race_display",''),
+                COALESCE("ethnicity_display",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+            "start_month",
+            "enc_class_display",
+            "age_at_visit",
+            "gender",
+            "race_display",
+            "ethnicity_display"
             )
     )
 
     SELECT
-        cnt_encounter_ref AS cnt,
-        "start_month",
-        "enc_class_display",
-        "age_at_visit",
-        "gender",
-        "race_display",
-        "ethnicity_display"
-    FROM powerset
+        s.cnt_encounter_ref AS cnt,
+        p."start_month",
+        p."enc_class_display",
+        p."age_at_visit",
+        p."gender",
+        p."race_display",
+        p."ethnicity_display"
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -244,50 +336,80 @@ CREATE TABLE core__count_encounter_type AS (
             encounter_ref,
             coalesce(
                 cast(enc_class_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_class_display,
             coalesce(
                 cast(enc_type_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_type_display,
             coalesce(
                 cast(enc_service_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_service_display,
             coalesce(
                 cast(enc_priority_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_priority_display
         FROM filtered_table
     ),
-
-    powerset AS (
+    secondary_powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
             count(DISTINCT encounter_ref) AS cnt_encounter_ref,
             "enc_class_display",
             "enc_type_display",
             "enc_service_display",
-            "enc_priority_display"
+            "enc_priority_display",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_type_display",''),
+                COALESCE("enc_service_display",''),
+                COALESCE("enc_priority_display",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "enc_class_display",
-                "enc_type_display",
-                "enc_service_display",
-                "enc_priority_display"
+            "enc_class_display",
+            "enc_type_display",
+            "enc_service_display",
+            "enc_priority_display"
+            )
+    ),
+
+    powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "enc_class_display",
+            "enc_type_display",
+            "enc_service_display",
+            "enc_priority_display",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_type_display",''),
+                COALESCE("enc_service_display",''),
+                COALESCE("enc_priority_display",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+            "enc_class_display",
+            "enc_type_display",
+            "enc_service_display",
+            "enc_priority_display"
             )
     )
 
     SELECT
-        cnt_encounter_ref AS cnt,
-        "enc_class_display",
-        "enc_type_display",
-        "enc_service_display",
-        "enc_priority_display"
-    FROM powerset
+        s.cnt_encounter_ref AS cnt,
+        p."enc_class_display",
+        p."enc_type_display",
+        p."enc_service_display",
+        p."enc_priority_display"
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -315,57 +437,91 @@ CREATE TABLE core__count_encounter_type_month AS (
             encounter_ref,
             coalesce(
                 cast(enc_class_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_class_display,
             coalesce(
                 cast(enc_type_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_type_display,
             coalesce(
                 cast(enc_service_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_service_display,
             coalesce(
                 cast(enc_priority_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_priority_display,
             coalesce(
                 cast(start_month AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS start_month
         FROM filtered_table
     ),
-
-    powerset AS (
+    secondary_powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
             count(DISTINCT encounter_ref) AS cnt_encounter_ref,
             "enc_class_display",
             "enc_type_display",
             "enc_service_display",
             "enc_priority_display",
-            "start_month"
+            "start_month",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_type_display",''),
+                COALESCE("enc_service_display",''),
+                COALESCE("enc_priority_display",''),
+                COALESCE("start_month",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "enc_class_display",
-                "enc_type_display",
-                "enc_service_display",
-                "enc_priority_display",
-                "start_month"
+            "enc_class_display",
+            "enc_type_display",
+            "enc_service_display",
+            "enc_priority_display",
+            "start_month"
+            )
+    ),
+
+    powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "enc_class_display",
+            "enc_type_display",
+            "enc_service_display",
+            "enc_priority_display",
+            "start_month",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_type_display",''),
+                COALESCE("enc_service_display",''),
+                COALESCE("enc_priority_display",''),
+                COALESCE("start_month",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+            "enc_class_display",
+            "enc_type_display",
+            "enc_service_display",
+            "enc_priority_display",
+            "start_month"
             )
     )
 
     SELECT
-        cnt_encounter_ref AS cnt,
-        "enc_class_display",
-        "enc_type_display",
-        "enc_service_display",
-        "enc_priority_display",
-        "start_month"
-    FROM powerset
+        s.cnt_encounter_ref AS cnt,
+        p."enc_class_display",
+        p."enc_type_display",
+        p."enc_service_display",
+        p."enc_priority_display",
+        p."start_month"
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -391,43 +547,69 @@ CREATE TABLE core__count_encounter_enc_type_month AS (
             encounter_ref,
             coalesce(
                 cast(enc_class_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_class_display,
             coalesce(
                 cast(enc_type_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_type_display,
             coalesce(
                 cast(start_month AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS start_month
         FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            "enc_class_display",
+            "enc_type_display",
+            "start_month",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_type_display",''),
+                COALESCE("start_month",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+            "enc_class_display",
+            "enc_type_display",
+            "start_month"
+            )
     ),
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
             "enc_class_display",
             "enc_type_display",
-            "start_month"
+            "start_month",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_type_display",''),
+                COALESCE("start_month",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "enc_class_display",
-                "enc_type_display",
-                "start_month"
+            "enc_class_display",
+            "enc_type_display",
+            "start_month"
             )
     )
 
     SELECT
-        cnt_encounter_ref AS cnt,
-        "enc_class_display",
-        "enc_type_display",
-        "start_month"
-    FROM powerset
+        s.cnt_encounter_ref AS cnt,
+        p."enc_class_display",
+        p."enc_type_display",
+        p."start_month"
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -453,43 +635,69 @@ CREATE TABLE core__count_encounter_service_month AS (
             encounter_ref,
             coalesce(
                 cast(enc_class_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_class_display,
             coalesce(
                 cast(enc_service_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_service_display,
             coalesce(
                 cast(start_month AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS start_month
         FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            "enc_class_display",
+            "enc_service_display",
+            "start_month",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_service_display",''),
+                COALESCE("start_month",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+            "enc_class_display",
+            "enc_service_display",
+            "start_month"
+            )
     ),
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
             "enc_class_display",
             "enc_service_display",
-            "start_month"
+            "start_month",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_service_display",''),
+                COALESCE("start_month",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "enc_class_display",
-                "enc_service_display",
-                "start_month"
+            "enc_class_display",
+            "enc_service_display",
+            "start_month"
             )
     )
 
     SELECT
-        cnt_encounter_ref AS cnt,
-        "enc_class_display",
-        "enc_service_display",
-        "start_month"
-    FROM powerset
+        s.cnt_encounter_ref AS cnt,
+        p."enc_class_display",
+        p."enc_service_display",
+        p."start_month"
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -515,43 +723,69 @@ CREATE TABLE core__count_encounter_priority_month AS (
             encounter_ref,
             coalesce(
                 cast(enc_class_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_class_display,
             coalesce(
                 cast(enc_priority_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_priority_display,
             coalesce(
                 cast(start_month AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS start_month
         FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            "enc_class_display",
+            "enc_priority_display",
+            "start_month",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_priority_display",''),
+                COALESCE("start_month",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+            "enc_class_display",
+            "enc_priority_display",
+            "start_month"
+            )
     ),
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
             "enc_class_display",
             "enc_priority_display",
-            "start_month"
+            "start_month",
+            concat_ws(
+                '-',
+                COALESCE("enc_class_display",''),
+                COALESCE("enc_priority_display",''),
+                COALESCE("start_month",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "enc_class_display",
-                "enc_priority_display",
-                "start_month"
+            "enc_class_display",
+            "enc_priority_display",
+            "start_month"
             )
     )
 
     SELECT
-        cnt_encounter_ref AS cnt,
-        "enc_class_display",
-        "enc_priority_display",
-        "start_month"
-    FROM powerset
+        s.cnt_encounter_ref AS cnt,
+        p."enc_class_display",
+        p."enc_priority_display",
+        p."start_month"
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -575,49 +809,56 @@ CREATE TABLE core__count_medicationrequest_month AS (
             subject_ref,
             coalesce(
                 cast(status AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS status,
             coalesce(
                 cast(intent AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS intent,
             coalesce(
                 cast(authoredon_month AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS authoredon_month,
             coalesce(
                 cast(rx_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS rx_display
         FROM filtered_table
     ),
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "status",
+            "intent",
+            "authoredon_month",
+            "rx_display",
+            concat_ws(
+                '-',
+                COALESCE("status",''),
+                COALESCE("intent",''),
+                COALESCE("authoredon_month",''),
+                COALESCE("rx_display",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
             "status",
             "intent",
             "authoredon_month",
             "rx_display"
-        FROM null_replacement
-        GROUP BY
-            cube(
-                "status",
-                "intent",
-                "authoredon_month",
-                "rx_display"
             )
     )
 
     SELECT
-        cnt_subject AS cnt,
-        "status",
-        "intent",
-        "authoredon_month",
-        "rx_display"
-    FROM powerset
+        p.cnt_subject_ref AS cnt,
+        p."status",
+        p."intent",
+        p."authoredon_month",
+        p."rx_display"
+    FROM powerset AS p
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -627,7 +868,6 @@ CREATE TABLE core__count_observation_lab_month AS (
     filtered_table AS (
         SELECT
             s.subject_ref,
-            s.encounter_ref,
             s.observation_ref,
             e.enc_class_display,
             --noqa: disable=RF03, AL02
@@ -644,57 +884,89 @@ CREATE TABLE core__count_observation_lab_month AS (
     null_replacement AS (
         SELECT
             subject_ref,
-            encounter_ref,
             observation_ref,
             coalesce(
                 cast(enc_class_display AS varchar), 
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS enc_class_display,
             coalesce(
                 cast(lab_month AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS lab_month,
             coalesce(
                 cast(lab_code AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS lab_code,
             coalesce(
                 cast(lab_result_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS lab_result_display
         FROM filtered_table
     ),
-
-    powerset AS (
+    secondary_powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,count(DISTINCT observation_ref) AS cnt_observation_ref,
+            count(DISTINCT observation_ref) AS cnt_observation_ref,
+            "lab_month",
+            "lab_code",
+            "lab_result_display",
+            enc_class_display
+            ,
+            concat_ws(
+                '-',
+                COALESCE("lab_month",''),
+                COALESCE("lab_code",''),
+                COALESCE("lab_result_display",''),
+                COALESCE(enc_class_display,'')
+                
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
             "lab_month",
             "lab_code",
             "lab_result_display",
             enc_class_display
             
+            )
+    ),
+
+    powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "lab_month",
+            "lab_code",
+            "lab_result_display",
+            enc_class_display
+            ,
+            concat_ws(
+                '-',
+                COALESCE("lab_month",''),
+                COALESCE("lab_code",''),
+                COALESCE("lab_result_display",''),
+                COALESCE(enc_class_display,'')
+                
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "lab_month",
-                "lab_code",
-                "lab_result_display",
-                enc_class_display
-                
+            "lab_month",
+            "lab_code",
+            "lab_result_display",
+            enc_class_display
+            
             )
     )
 
     SELECT
-        cnt_observation_ref AS cnt,
-        "lab_month",
-        "lab_code",
-        "lab_result_display",
-        enc_class_display
-        
-    FROM powerset
+        s.cnt_observation_ref AS cnt,
+        p."lab_month",
+        p."lab_code",
+        p."lab_result_display",
+        p.enc_class_display
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -717,40 +989,46 @@ CREATE TABLE core__count_patient AS (
             subject_ref,
             coalesce(
                 cast(gender AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS gender,
             coalesce(
                 cast(race_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS race_display,
             coalesce(
                 cast(ethnicity_display AS varchar),
-                'cumulus__missing-or-null'
+                'cumulus__none'
             ) AS ethnicity_display
         FROM filtered_table
     ),
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject,
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
             "gender",
             "race_display",
-            "ethnicity_display"
+            "ethnicity_display",
+            concat_ws(
+                '-',
+                COALESCE("gender",''),
+                COALESCE("race_display",''),
+                COALESCE("ethnicity_display",'')
+            ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                "gender",
-                "race_display",
-                "ethnicity_display"
+            "gender",
+            "race_display",
+            "ethnicity_display"
             )
     )
 
     SELECT
-        cnt_subject AS cnt,
-        "gender",
-        "race_display",
-        "ethnicity_display"
-    FROM powerset
+        p.cnt_subject_ref AS cnt,
+        p."gender",
+        p."race_display",
+        p."ethnicity_display"
+    FROM powerset AS p
     WHERE 
-        cnt_subject >= 10
+        cnt_subject_ref >= 10
 );
