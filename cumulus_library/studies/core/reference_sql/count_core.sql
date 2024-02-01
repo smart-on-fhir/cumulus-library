@@ -15,7 +15,7 @@ CREATE TABLE core__count_condition_month AS (
             --noqa: disable=RF03, AL02
             s."category_code" AS cond_category_code,
             s."recorded_month" AS cond_month,
-            s."code_display"
+            s."code_display" AS cond_code_display
             --noqa: enable=RF03, AL02
         FROM core__condition AS s
     ),
@@ -33,9 +33,9 @@ CREATE TABLE core__count_condition_month AS (
                 'cumulus__none'
             ) AS cond_month,
             coalesce(
-                cast(code_display AS varchar),
+                cast(cond_code_display AS varchar),
                 'cumulus__none'
-            ) AS code_display
+            ) AS cond_code_display
         FROM filtered_table
     ),
     secondary_powerset AS (
@@ -43,19 +43,19 @@ CREATE TABLE core__count_condition_month AS (
             count(DISTINCT encounter_ref) AS cnt_encounter_ref,
             "cond_category_code",
             "cond_month",
-            "code_display",
+            "cond_code_display",
             concat_ws(
                 '-',
                 COALESCE("cond_category_code",''),
                 COALESCE("cond_month",''),
-                COALESCE("code_display",'')
+                COALESCE("cond_code_display",'')
             ) AS id
         FROM null_replacement
         GROUP BY
             cube(
             "cond_category_code",
             "cond_month",
-            "code_display"
+            "cond_code_display"
             )
     ),
 
@@ -64,19 +64,19 @@ CREATE TABLE core__count_condition_month AS (
             count(DISTINCT subject_ref) AS cnt_subject_ref,
             "cond_category_code",
             "cond_month",
-            "code_display",
+            "cond_code_display",
             concat_ws(
                 '-',
                 COALESCE("cond_category_code",''),
                 COALESCE("cond_month",''),
-                COALESCE("code_display",'')
+                COALESCE("cond_code_display",'')
             ) AS id
         FROM null_replacement
         GROUP BY
             cube(
             "cond_category_code",
             "cond_month",
-            "code_display"
+            "cond_code_display"
             )
     )
 
@@ -84,7 +84,7 @@ CREATE TABLE core__count_condition_month AS (
         s.cnt_encounter_ref AS cnt,
         p."cond_category_code",
         p."cond_month",
-        p."code_display"
+        p."cond_code_display"
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 

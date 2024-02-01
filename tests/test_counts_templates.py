@@ -38,8 +38,8 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject_ref,
-                "age",
-                "sex",
+            "age",
+            "sex",
             concat_ws(
                 '-',
                 COALESCE("age",''),
@@ -48,8 +48,8 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
         FROM null_replacement
         GROUP BY
             cube(
-                "age",
-                "sex"
+            "age",
+            "sex"
             )
     )
 
@@ -84,8 +84,8 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject_ref,
-                "age",
-                "sex",
+            "age",
+            "sex",
             concat_ws(
                 '-',
                 COALESCE("age",''),
@@ -94,8 +94,8 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
         FROM null_replacement
         GROUP BY
             cube(
-                "age",
-                "sex"
+            "age",
+            "sex"
             )
     )
 
@@ -146,8 +146,8 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
     secondary_powerset AS (
         SELECT
             count(DISTINCT encounter_ref) AS cnt_encounter_ref,
-                "age",
-                "sex",
+            "age",
+            "sex",
             concat_ws(
                 '-',
                 COALESCE("age",''),
@@ -156,16 +156,16 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
         FROM null_replacement
         GROUP BY
             cube(
-                "age",
-                "sex"
+            "age",
+            "sex"
             )
     ),
 
     powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject_ref,
-                "age",
-                "sex",
+            "age",
+            "sex",
             concat_ws(
                 '-',
                 COALESCE("age",''),
@@ -174,8 +174,8 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
         FROM null_replacement
         GROUP BY
             cube(
-                "age",
-                "sex"
+            "age",
+            "sex"
             )
     )
 
@@ -202,6 +202,6 @@ from cumulus_library.template_sql.statistics.counts_templates import get_count_q
 def test_count_query(expected, kwargs):
     query = get_count_query("test_table", "test_source", ["age", "sex"], **kwargs)
     # Snippet for getting updated template output
-    # with open("output.sql", "w") as f:
-    #     f.write(query)
+    with open("output.sql", "w") as f:
+        f.write(query)
     assert query == expected
