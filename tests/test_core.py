@@ -13,6 +13,15 @@ from tests.conftest import modify_resource_column
 from tests.conftest import ResourceTableIdPos as idpos  # pylint: disable=unused-import
 
 
+def get_sorted_table_data(cursor, table):
+    num_cols = cursor.execute(
+        "SELECT count(*) FROM information_schema.columns " f"WHERE table_name='{table}'"
+    ).fetchone()[0]
+    return cursor.execute(
+        f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols)))}"
+    ).fetchall()
+
+
 @pytest.mark.parametrize(
     "table",
     [
@@ -32,11 +41,11 @@ from tests.conftest import ResourceTableIdPos as idpos  # pylint: disable=unused
 )
 def test_core_tables(mock_db_core, table):
     cursor = mock_db_core.cursor()
-    table_rows = cursor.execute(f"SELECT * FROM {table}").fetchall()
+    # The schema check is to ensure we have a consistent order for the data in
+    # these files, mostly for making git history simpler in case of minor changes
+    table_rows = get_sorted_table_data(cursor, table)
 
     # For regenerating data if needed
-    # note that, by design, count queries are returned in an arbitrary order,
-    # and sorted outside of the database during export.
 
     # TODO: rework after moving id to first column
     # with open(f'./tests/test_data/core/{table}.txt','wt', encoding="UTF-8") as f:
@@ -69,7 +78,6 @@ def test_core_tables(mock_db_core, table):
         assert row in table_rows
     for row in table_rows:
         assert row in ref_table
-
     assert len(table_rows) == len(ref_table)
 
 
@@ -90,7 +98,7 @@ def test_core_count_missing_data(tmp_path, mock_db):
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
         stats_build=False,
     )
-    table_rows = cursor.execute("SELECT * FROM core__count_encounter_month").fetchall()
+    table_rows = get_sorted_table_data(cursor, "core__count_encounter_month")
     # For regenerating data if needed
     # note that, by design, count queries are returned in an arbitrary order,
     # and sorted outside of the database during export.
@@ -111,7 +119,6 @@ def test_core_count_missing_data(tmp_path, mock_db):
             ref_table.append(eval(row))  # pylint: disable=eval-used
     for row in ref_table:
         assert row in table_rows
-
     assert len(table_rows) == len(ref_table)
 
 

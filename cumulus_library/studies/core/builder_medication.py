@@ -1,13 +1,11 @@
 """ Module for generating core medication table"""
 
-from cumulus_library.base_table_builder import BaseTableBuilder
-from cumulus_library.helper import get_progress_bar, query_console_output
-from cumulus_library.template_sql import templates
-from cumulus_library.template_sql.utils import is_codeable_concept_populated
+from cumulus_library import base_table_builder, helper
+from cumulus_library.template_sql import templates, utils
 from cumulus_library.studies.core.core_templates import core_templates
 
 
-class MedicationBuilder(BaseTableBuilder):
+class MedicationBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Creating Medication table..."
 
     def _check_data_in_fields(self, cursor, schema: str):
@@ -27,14 +25,14 @@ class MedicationBuilder(BaseTableBuilder):
 
         table = "medicationrequest"
         base_col = "medicationcodeableconcept"
-        with get_progress_bar(transient=True) as progress:
+        with helper.get_progress_bar(transient=True) as progress:
             task = progress.add_task(
                 "Detecting available medication sources...",
                 total=7,
             )
 
             # inline medications from FHIR medication
-            data_types["inline"] = is_codeable_concept_populated(
+            data_types["inline"] = utils.is_codeable_concept_populated(
                 schema, table, base_col, cursor
             )
             if data_types["inline"]:

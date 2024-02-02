@@ -355,12 +355,8 @@ def run_cli(args: Dict):
                         runner.export_study(study_dict[target], args["data_path"])
 
             elif args["action"] == "generate-sql":
-                if "all" in args["target"]:
-                    for target in study_dict.keys():
-                        runner.generate_all_sql(study_dict[target])
-                else:
-                    for target in args["target"]:
-                        runner.generate_study_sql(study_dict[target])
+                for target in args["target"]:
+                    runner.generate_study_sql(study_dict[target])
         finally:
             db_backend.close()
 

@@ -7,7 +7,6 @@ import pathlib
 import sqlparse
 
 from cumulus_library import base_table_builder
-from cumulus_library.helper import get_progress_bar, query_console_output
 
 
 class CorePrereqTableBuilder(base_table_builder.BaseTableBuilder):

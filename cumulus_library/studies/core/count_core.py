@@ -12,6 +12,7 @@ class CoreCountsBuilder(counts.CountsBuilder):
         cols = [
             ["category_code", "varchar", "cond_category_code"],
             [f"recorded_{duration}", "date", "cond_month"],
+            ["code_display", "varchar", "cond_code_display"],
         ]
         return self.count_condition(table_name, from_table, cols)
 

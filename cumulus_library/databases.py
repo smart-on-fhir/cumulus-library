@@ -216,6 +216,26 @@ class DuckDatabaseBackend(DatabaseBackend):
             None,
             duckdb.typing.TIMESTAMP,
         )
+        self.connection.create_function(
+            # When trying to calculate an MD5 hash in Trino/Athena, the implementation
+            # expects to recieve a varbinary type, so if you're hashing a string,
+            # you would invoke it like `SELECT md5(to_utf8(string_col)) from table`.
+            #
+            # DuckDB's md5() function accepts a varchar instead, and does not have a
+            # to_utf() function or varbinary type, so we patch this with a UDF that
+            # just provides back the original string. As a result, these functions
+            # have different signatures, but for cases like this where you're
+            # conforming an argument to another function, it provides appropriate
+            # function mocking
+            #
+            # NOTE: currently we do not have a use case beyond experimentation where
+            # using MD5 hashes provide a benefit. Until we do, it is not required to
+            # support this in other DatabaseBackend implementations.
+            "to_utf8",
+            self._compat_to_utf8,
+            None,
+            duckdb.typing.VARCHAR,
+        )
 
     def insert_tables(self, tables: dict[str, pyarrow.Table]) -> None:
         """Ingests all ndjson data from a folder tree (often the output folder of Cumulus ETL)"""
@@ -244,6 +264,11 @@ class DuckDatabaseBackend(DatabaseBackend):
             return value
         else:
             raise ValueError("Unexpected date() argument:", type(value), value)
+
+    @staticmethod
+    def _compat_to_utf8(value: Optional[str]) -> Optional[datetime.date]:
+        """See the create_function() call for to_utf8 for more background"""
+        return value
 
     @staticmethod
     def _compat_from_iso8601_timestamp(

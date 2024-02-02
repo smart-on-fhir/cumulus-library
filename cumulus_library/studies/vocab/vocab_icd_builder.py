@@ -1,18 +1,13 @@
 """ Module for directly loading ICD bsvs into athena tables """
 
 import csv
+import pathlib
 
-from pathlib import Path
-
-from cumulus_library.base_table_builder import BaseTableBuilder
-from cumulus_library.helper import query_console_output, get_progress_bar
-from cumulus_library.template_sql.templates import (
-    get_ctas_query,
-    get_insert_into_query,
-)
+from cumulus_library import base_table_builder
+from cumulus_library.template_sql import templates
 
 
-class VocabIcdRunner(BaseTableBuilder):
+class VocabIcdRunner(base_table_builder.BaseTableBuilder):
     display_text = "Creating ICD vocab..."
     partition_size = 1200
 
@@ -36,7 +31,7 @@ class VocabIcdRunner(BaseTableBuilder):
 
         table_name = "vocab__icd"
         icd_files = ["ICD10CM_2023AA", "ICD10PCS_2023AA", "ICD9CM_2023AA"]
-        path = Path(__file__).parent
+        path = pathlib.Path(__file__).parent
 
         headers = ["CUI", "TTY", "CODE", "SAB", "STR"]
         header_types = [f"{x} string" for x in headers]
@@ -54,7 +49,7 @@ class VocabIcdRunner(BaseTableBuilder):
                 if not created:
                     row = self.clean_row(next(reader), filename)
                     self.queries.append(
-                        get_ctas_query(
+                        templates.get_ctas_query(
                             schema_name=schema,
                             table_name=table_name,
                             dataset=[row],
@@ -68,7 +63,7 @@ class VocabIcdRunner(BaseTableBuilder):
                     rows_processed += 1
                     if rows_processed == self.partition_size:
                         self.queries.append(
-                            get_insert_into_query(
+                            templates.get_insert_into_query(
                                 table_name=table_name,
                                 table_cols=headers,
                                 dataset=dataset,
@@ -78,7 +73,7 @@ class VocabIcdRunner(BaseTableBuilder):
                         rows_processed = 0
                 if rows_processed > 0:
                     self.queries.append(
-                        get_insert_into_query(
+                        templates.get_insert_into_query(
                             table_name=table_name, table_cols=headers, dataset=dataset
                         )
                     )

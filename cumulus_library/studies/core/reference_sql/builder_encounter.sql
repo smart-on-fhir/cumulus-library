@@ -3,6 +3,9 @@
 -- Its format is tied to the specific database it was run against, and it may not
 -- be correct for all databases. Use the CLI's build option to derive the best SQL
 -- for your dataset.
+
+-- ###########################################################
+
 CREATE TABLE core__encounter_dn_type AS (
     WITH
 

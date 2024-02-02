@@ -117,7 +117,7 @@ styling.
   - All your tables **must** start with a string like `my_study__`. 
   - Relatedly, **`__` is a reserved character string**. Your table names should have
   exactly one of these. We :might: add other use cases for these in the future,
-  but as of this writing we don't plan to. C
+  but as of this writing we don't plan to.
   - We have **three reserved post-study prefrix substrings: `etl_`,  `nlp_`, and 
   `lib_`** so that we don't drop tables created by other processes. These are fine
   to use elsewhere; `my_study__nlp_counts` would cause an error, but 
