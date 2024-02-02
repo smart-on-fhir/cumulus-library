@@ -19,7 +19,7 @@ def get_sorted_table_data(cursor, table):
     ).fetchone()[0]
     return cursor.execute(
         f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols)))}"
-    )
+    ).fetchall()
 
 
 @pytest.mark.parametrize(
@@ -43,12 +43,7 @@ def test_core_tables(mock_db_core, table):
     cursor = mock_db_core.cursor()
     # The schema check is to ensure we have a consistent order for the data in
     # these files, mostly for making git history simpler in case of minor changes
-    num_cols = cursor.execute(
-        "select count(*) from information_schema.columns " f"where table_name='{table}'"
-    ).fetchone()[0]
-    table_rows = cursor.execute(
-        f"SELECT * FROM {table} ORDER BY {','.join(map(str, range(1,num_cols)))}"
-    ).fetchall()
+    table_rows = get_sorted_table_data(cursor, table)
 
     # For regenerating data if needed
 
@@ -103,14 +98,7 @@ def test_core_count_missing_data(tmp_path, mock_db):
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
         stats_build=False,
     )
-    num_cols = cursor.execute(
-        "select count(*) from information_schema.columns "
-        f"where table_name='core__count_encounter_month'"
-    ).fetchone()[0]
-    table_rows = cursor.execute(
-        "SELECT * FROM core__count_encounter_month ORDER BY "
-        f"{','.join(map(str, range(1,num_cols)))}"
-    ).fetchall()
+    table_rows = get_sorted_table_data(cursor, "core__count_encounter_month")
     # For regenerating data if needed
     # note that, by design, count queries are returned in an arbitrary order,
     # and sorted outside of the database during export.
