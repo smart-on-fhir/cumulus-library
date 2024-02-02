@@ -4,6 +4,8 @@
 {%- endif -%}
 {%- endmacro -%}
 
+{#- TODO: move secondary/tertiary resource declaration upstream to
+statistics/counts.py level -#}
 {%- macro secondary_resource(fhir_resource) -%}
 {%- if fhir_resource in ('encounter', 'condition') -%}
 encounter_ref
@@ -22,6 +24,9 @@ infrastructure for future/moving resource specific logic to template generator -
 {#- implicit null -#}
 {%- endmacro -%}
 
+{#- TODO: refactor out resource-specific joined columns in the following
+two methods to be handled upstream with some kind of join declaration
+logic at the statistics/counts.py level -#}
 {%- macro cols_delineated_list(table_cols, fhir_resource)-%}
             {% for col in table_cols %}
             "{{ column_or_alias(col) }}"

@@ -35,18 +35,6 @@ ID_PATHS = {
 }
 
 
-class ResourceTableIdPos(IntEnum):
-    """Primary ID column per FHIR resource table used in counts"""
-
-    CONDITION = 7
-    DOCUMENTREFERENCE = 1
-    ENCOUNTER = 20
-    MEDICATION = 1
-    MEDICATIONREQUEST = 1
-    OBSERVATION = 1
-    PATIENT = 4
-
-
 def modify_resource_column(
     cursor: DatabaseCursor, table: str, col: str, replacement_val
 ):

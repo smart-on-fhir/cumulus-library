@@ -267,6 +267,7 @@ WITH temp_patient AS (
 )
 
 SELECT DISTINCT
+    tp.id AS id,
     tp.gender,
     tp.birthdate,
     CASE
@@ -275,7 +276,6 @@ SELECT DISTINCT
             THEN substr(t_address.addr_row.postalcode, 1, 3)
         ELSE 'None'
     END AS postalcode3,
-    tp.id AS subject_id,
     concat('Patient/', tp.id) AS subject_ref,
     coalesce(tp.race_display, 'unknown') AS race_display,
     coalesce(tp.ethnicity_display, 'unknown') AS ethnicity_display

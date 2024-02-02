@@ -7,6 +7,7 @@
 CREATE TABLE core__encounter_type AS
 
 SELECT DISTINCT
+    e.id,
     e.enc_class_code,
     e.enc_class_display,
     coalesce(cet.code_system, 'None') AS enc_type_system,
@@ -29,13 +30,12 @@ SELECT DISTINCT
     e.start_year,
     e.subject_ref,
     e.encounter_ref,
-    e.encounter_id,
     e.gender,
     e.race_display,
     e.ethnicity_display,
     e.postalcode3
 FROM core__encounter AS e
-LEFT JOIN core__encounter_dn_type AS cet ON e.encounter_id = cet.id
-LEFT JOIN core__encounter_dn_servicetype AS ces ON e.encounter_id = ces.id
-LEFT JOIN core__encounter_dn_priority AS cep ON e.encounter_id = cep.id
-LEFT JOIN core__encounter_dn_reasoncode AS cer ON e.encounter_id = cer.id;
+LEFT JOIN core__encounter_dn_type AS cet ON e.id = cet.id
+LEFT JOIN core__encounter_dn_servicetype AS ces ON e.id = ces.id
+LEFT JOIN core__encounter_dn_priority AS cep ON e.id = cep.id
+LEFT JOIN core__encounter_dn_reasoncode AS cer ON e.id = cer.id;

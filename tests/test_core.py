@@ -10,7 +10,6 @@ import toml
 from cumulus_library.cli import StudyRunner
 from cumulus_library.studies.core.core_templates import core_templates
 from tests.conftest import modify_resource_column
-from tests.conftest import ResourceTableIdPos as idpos  # pylint: disable=unused-import
 
 
 def get_sorted_table_data(cursor, table):
@@ -28,12 +27,15 @@ def get_sorted_table_data(cursor, table):
         ("core__condition"),
         ("core__documentreference"),
         ("core__encounter"),
+        ("core__encounter_type"),
         ("core__medication"),
         ("core__medicationrequest"),
         ("core__observation"),
+        ("core__observation_lab"),
         ("core__count_condition_month"),
         ("core__count_documentreference_month"),
         ("core__count_encounter_month"),
+        ("core__count_encounter_type_month"),
         ("core__count_observation_lab_month"),
         ("core__count_medicationrequest_month"),
         ("core__count_patient"),
@@ -41,33 +43,14 @@ def get_sorted_table_data(cursor, table):
 )
 def test_core_tables(mock_db_core, table):
     cursor = mock_db_core.cursor()
+
     # The schema check is to ensure we have a consistent order for the data in
     # these files, mostly for making git history simpler in case of minor changes
     table_rows = get_sorted_table_data(cursor, table)
 
     # For regenerating data if needed
-
-    # TODO: rework after moving id to first column
     # with open(f'./tests/test_data/core/{table}.txt','wt', encoding="UTF-8") as f:
-    #     if table.startswith('core__count'):
-    #         sortfn = lambda x: int(x[0])
-    #     # non-counts tables are sorted by the primary FHIR resource key
-    #     # TODO: the primary key should be first in these tables
-    #     elif table == 'core__condition':
-    #         sortfn = lambda x: x[idpos.CONDITION.value]
-    #     elif table == 'core__documentreference':
-    #         sortfn = lambda x: x[idpos.DOCUMENTREFERENCE.value]
-    #     elif table == 'core__encounter':
-    #         sortfn = lambda x: x[idpos.ENCOUNTER.value]
-    #     elif table == 'core__medication':
-    #         sortfn = lambda x: x[idpos.MEDICATION.value]
-    #     elif table == 'core__medicationrequest':
-    #         sortfn = lambda x: x[idpos.MEDICATIONREQUEST.value]
-    #     elif table == 'core__observation':
-    #         sortfn = lambda x: x[idpos.OBSERVATION.value]
-    #     elif table == 'core__patient':
-    #         sortfn = lambda x: x[idpos.PATIENT.value]
-    #     for row in sorted(table_rows, key = sortfn):
+    #     for row in table_rows:
     #         f.write(str(f"{row}\n"))
 
     with open(f"./tests/test_data/core/{table}.txt", "r", encoding="UTF-8") as f:
@@ -100,14 +83,12 @@ def test_core_count_missing_data(tmp_path, mock_db):
     )
     table_rows = get_sorted_table_data(cursor, "core__count_encounter_month")
     # For regenerating data if needed
-    # note that, by design, count queries are returned in an arbitrary order,
-    # and sorted outside of the database during export.
     # with open(
     #     f"./tests/test_data/core/core__count_encounter_month_missing_data.txt",
     #     "wt",
     #     encoding="UTF-8",
     # ) as f:
-    #     for row in sorted(table_rows, key=lambda x: int(x[0])):
+    #     for row in table_rows:
     #         f.write(str(f"{row}\n"))
     with open(
         "./tests/test_data/core/core__count_encounter_month_missing_data.txt",
