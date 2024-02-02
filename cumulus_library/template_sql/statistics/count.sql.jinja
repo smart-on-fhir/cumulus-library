@@ -22,7 +22,7 @@ infrastructure for future/moving resource specific logic to template generator -
 {#- implicit null -#}
 {%- endmacro -%}
 
-{%- macro cols_delenated_list(table_cols, fhir_resource)-%}
+{%- macro cols_delineated_list(table_cols, fhir_resource)-%}
             {% for col in table_cols %}
             "{{ column_or_alias(col) }}"
             {{- comma_delineate(loop) }}
@@ -145,7 +145,7 @@ CREATE TABLE {{ table_name }} AS (
     tertiary_powerset AS(
         SELECT
             count(DISTINCT {{tertiary}}) AS cnt_{{tertiary}},
-            {{-cols_delenated_list(table_cols, fhir_resource)}},
+            {{-cols_delineated_list(table_cols, fhir_resource)}},
             concat_ws(
                 '-',
                 {{-cols_coalesced_list(table_cols, fhir_resource)}}
@@ -153,7 +153,7 @@ CREATE TABLE {{ table_name }} AS (
         FROM null_replacement
         GROUP BY
             cube(
-                {{-cols_delenated_list(table_cols, fhir_resource)}}
+                {{-cols_delineated_list(table_cols, fhir_resource)}}
             )
 
     ),
@@ -162,7 +162,7 @@ CREATE TABLE {{ table_name }} AS (
     secondary_powerset AS (
         SELECT
             count(DISTINCT {{secondary}}) AS cnt_{{secondary}},
-            {{-cols_delenated_list(table_cols, fhir_resource)}},
+            {{-cols_delineated_list(table_cols, fhir_resource)}},
             concat_ws(
                 '-',
                 {{-cols_coalesced_list(table_cols, fhir_resource)}}
@@ -170,7 +170,7 @@ CREATE TABLE {{ table_name }} AS (
         FROM null_replacement
         GROUP BY
             cube(
-                {{-cols_delenated_list(table_cols, fhir_resource)}}
+                {{-cols_delineated_list(table_cols, fhir_resource)}}
             )
     ),
     {%- endif %}
@@ -178,7 +178,7 @@ CREATE TABLE {{ table_name }} AS (
     powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject_ref,
-            {{-cols_delenated_list(table_cols, fhir_resource)}},
+            {{-cols_delineated_list(table_cols, fhir_resource)}},
             concat_ws(
                 '-',
                 {{-cols_coalesced_list(table_cols, fhir_resource)}}
@@ -186,7 +186,7 @@ CREATE TABLE {{ table_name }} AS (
         FROM null_replacement
         GROUP BY
             cube(
-                {{-cols_delenated_list(table_cols, fhir_resource)}}
+                {{-cols_delineated_list(table_cols, fhir_resource)}}
             )
     )
 

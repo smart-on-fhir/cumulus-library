@@ -217,15 +217,20 @@ class DuckDatabaseBackend(DatabaseBackend):
             duckdb.typing.TIMESTAMP,
         )
         self.connection.create_function(
-            # This is in support of the md5 function - duckdb's implementation of
-            # md5 just takes a string (very reasonable!), but trino's implementation
-            # takes a varbinary type (which duckdb does not support), so we have to
-            # run a string through a UTF8 conversion in production environments.
-            # For duckdb's purposes, we'll just return the argument passed with no
-            # modifications.
+            # When trying to calculate an MD5 hash in Trino/Athena, the implementation
+            # expects to recieve a varbinary type, so if you're hashing a string,
+            # you would invoke it like `SELECT md5(to_utf8(string_col)) from table`.
+            #
+            # DuckDB's md5() function accepts a varchar instead, and does not have a
+            # to_utf() function or varbinary type, so we patch this with a UDF that
+            # just provides back the original string. As a result, these functions
+            # have different signatures, but for cases like this where you're
+            # conforming an argument to another function, it provides appropriate
+            # function mocking
+            #
             # NOTE: currently we do not have a use case beyond experimentation where
-            # this provides a benefit. Until we do, it is not required to support this
-            # in other DatabaseBackend implementations.
+            # using MD5 hashes provide a benefit. Until we do, it is not required to
+            # support this in other DatabaseBackend implementations.
             "to_utf8",
             self._compat_to_utf8,
             None,
@@ -261,7 +266,8 @@ class DuckDatabaseBackend(DatabaseBackend):
             raise ValueError("Unexpected date() argument:", type(value), value)
 
     @staticmethod
-    def _compat_to_utf8(value: str) -> Optional[datetime.date]:
+    def _compat_to_utf8(value: Optional[str]) -> Optional[datetime.date]:
+        """See the create_function() call for to_utf8 for more background"""
         return value
 
     @staticmethod

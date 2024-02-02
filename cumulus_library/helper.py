@@ -3,7 +3,10 @@
 import datetime
 import os
 import json
+
+from contextlib import contextmanager
 from typing import List
+
 from rich import progress
 
 
@@ -48,19 +51,17 @@ def list_coding(code_display: dict, system=None) -> List[dict]:
     return as_list
 
 
-def query_console_progress(
-    verbose: bool, progress_bar: progress.Progress, task: progress.Task
+@contextmanager
+def query_console_output(
+    verbose: bool, query: str, progress_bar: progress.Progress, task: progress.Task
 ):
-    """Convenience function for updating progress bar"""
-    if not verbose:
-        progress_bar.advance(task)
-
-
-def query_console_verbose(verbose: bool, query: str):
-    """Convenience function for printing verbose queries"""
+    """Convenience context manager for handling console output"""
     if verbose:
         print()
         print(query)
+    yield
+    if not verbose:
+        progress_bar.advance(task)
 
 
 def get_progress_bar(**kwargs) -> progress.Progress:

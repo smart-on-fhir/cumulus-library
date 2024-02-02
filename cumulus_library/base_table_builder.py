@@ -85,9 +85,8 @@ class BaseTableBuilder(ABC):
             )
             for query in self.queries:
                 try:
-                    helper.query_console_verbose(verbose, query)
-                    cursor.execute(query)
-                    helper.query_console_progress(verbose, progress, task)
+                    with helper.query_console_output(verbose, query, progress, task):
+                        cursor.execute(query)
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     sys.exit(e)
 

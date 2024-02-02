@@ -13,6 +13,15 @@ from tests.conftest import modify_resource_column
 from tests.conftest import ResourceTableIdPos as idpos  # pylint: disable=unused-import
 
 
+def get_sorted_table_data(cursor, table):
+    num_cols = cursor.execute(
+        "SELECT count(*) FROM information_schema.columns " f"WHERE table_name='{table}'"
+    ).fetchone()[0]
+    return cursor.execute(
+        f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols)))}"
+    )
+
+
 @pytest.mark.parametrize(
     "table",
     [

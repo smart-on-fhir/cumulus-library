@@ -311,9 +311,10 @@ class StudyManifestParser:
             drop_view_table = templates.get_drop_view_table(
                 name=view_table[0], view_or_table=view_table[1]
             )
-            helper.query_console_verbose(verbose, drop_view_table)
-            cursor.execute(drop_view_table)
-            helper.query_console_progress(verbose, progress, task)
+            with helper.query_console_output(
+                verbose, drop_view_table, progress, task
+            ) as v:
+                cursor.execute(drop_view_table)
 
     def _load_and_execute_builder(
         self,
@@ -653,9 +654,10 @@ class StudyManifestParser:
                     "start with a string like `study_prefix__`.",
                 )
             try:
-                helper.query_console_verbose(verbose, query[0])
-                cursor.execute(query[0])
-                helper.query_console_progress(verbose, progress, task)
+                with helper.query_console_output(
+                    verbose, query[0], progress, task
+                ) as v:
+                    cursor.execute(query[0])
             except Exception as e:  # pylint: disable=broad-exception-caught
                 self._query_error(
                     query,
