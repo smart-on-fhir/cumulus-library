@@ -165,6 +165,7 @@ WITH temp_condition AS (
 )
 
 SELECT
+    tc.id,
     t_category_coding.category_row.code AS category_code,
     t_category_coding.category_row.display AS category_display,
     tc.code,
@@ -172,7 +173,6 @@ SELECT
     tc.display AS code_display,
     tc.subject_ref,
     tc.encounter_ref,
-    tc.id AS condition_id,
     concat('Condition/', tc.id) AS condition_ref,
     tc.recordeddate,
     tc.recordeddate_week AS recorded_week,

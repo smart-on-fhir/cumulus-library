@@ -285,6 +285,7 @@ temp_encounter AS (
 )
 
 SELECT DISTINCT
+    e.id,
     e.class AS enc_class,
     ac.code AS enc_class_code,
     ac.display AS enc_class_display,
@@ -305,7 +306,6 @@ SELECT DISTINCT
     e.period_start_year AS start_year,
     e.subject_ref,
     concat('Encounter/', e.id) AS encounter_ref,
-    e.id AS encounter_id,
     p.gender,
     p.race_display,
     p.ethnicity_display,
