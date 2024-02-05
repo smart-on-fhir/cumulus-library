@@ -1,7 +1,7 @@
 from cumulus_library import base_table_builder
 from cumulus_library import databases
 from cumulus_library.studies.core.core_templates import core_templates
-from cumulus_library.template_sql import templates, utils
+from cumulus_library.template_sql import sql_utils
 
 
 expected_table_cols = {
@@ -28,11 +28,11 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
         parser: databases.DatabaseParser = None,
         **kwargs,
     ):
-        self.queries += utils.denormalize_codes(
+        self.queries += sql_utils.denormalize_codes(
             schema,
             cursor,
             [
-                utils.CodeableConceptConfig(
+                sql_utils.CodeableConceptConfig(
                     source_table="documentreference",
                     source_id="id",
                     column_name="type",

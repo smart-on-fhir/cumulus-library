@@ -14,12 +14,12 @@ from dataclasses import dataclass
 import duckdb
 from typing import List
 
-from cumulus_library import helper
-from cumulus_library.template_sql import templates
+from cumulus_library import base_utils
+from cumulus_library.template_sql import base_templates
 from cumulus_library import databases
 
 
-@dataclass
+@dataclass(kw_only=True)
 class CodeableConceptConfig:
     """Holds parameters for generating codableconcept tables.
 
@@ -89,7 +89,7 @@ def _check_data_in_fields(
 
     """
 
-    with helper.get_progress_bar(transient=True) as progress:
+    with base_utils.get_progress_bar(transient=True) as progress:
         task = progress.add_task(
             "Detecting available encounter codeableConcepts...",
             # Each column in code_sources requires at most 3 queries to
@@ -119,11 +119,11 @@ def denormalize_codes(
     for code_source in code_sources:
         if code_source.has_data:
             queries.append(
-                templates.get_codeable_concept_denormalize_query(code_source)
+                base_templates.get_codeable_concept_denormalize_query(code_source)
             )
         else:
             queries.append(
-                templates.get_ctas_empty_query(
+                base_templates.get_ctas_empty_query(
                     schema_name=schema,
                     table_name=code_source.target_table,
                     table_cols=["id", "code", "code_system", "display"],
@@ -157,7 +157,7 @@ def is_codeable_concept_populated(
         if not _check_schema_if_exists(schema, table, base_col, cursor, coding_element):
             return False
 
-        query = templates.get_is_table_not_empty_query(
+        query = base_templates.get_is_table_not_empty_query(
             table,
             "t1.row1",
             [
@@ -200,7 +200,7 @@ def is_codeable_concept_array_populated(
     try:
         if not _check_schema_if_exists(schema, table, base_col, cursor, coding_element):
             return False
-        query = templates.get_is_table_not_empty_query(
+        query = base_templates.get_is_table_not_empty_query(
             table,
             "t2.row2",
             [
@@ -247,7 +247,7 @@ def is_code_populated(
         schema, table, base_col, cursor, "coding", check_missing=True
     ):
         return False
-    query = templates.get_is_table_not_empty_query(
+    query = base_templates.get_is_table_not_empty_query(
         table,
         base_col,
     )
@@ -267,12 +267,12 @@ def _check_schema_if_exists(
 ) -> bool:
     """Validation check for a column existing, and having the expected schema"""
     try:
-        query = templates.get_is_table_not_empty_query(table, base_col)
+        query = base_templates.get_is_table_not_empty_query(table, base_col)
         cursor.execute(query)
         if cursor.fetchone() is None:
             return False
 
-        query = templates.get_column_datatype_query(schema, table, [base_col])
+        query = base_templates.get_column_datatype_query(schema, table, [base_col])
         cursor.execute(query)
         schema_str = str(cursor.fetchone()[1])
         if check_missing:

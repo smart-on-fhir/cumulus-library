@@ -1,11 +1,11 @@
 """ Module for extracting US core extensions from patient records"""
 
+from dataclasses import dataclass
+
 from cumulus_library import base_table_builder
-from cumulus_library.template_sql import templates, utils
+from cumulus_library.template_sql import sql_utils
 from cumulus_library import databases
 from cumulus_library.studies.core.core_templates import core_templates
-
-CCC = utils.CodeableConceptConfig
 
 expected_table_cols = {
     "observation": {
@@ -32,16 +32,12 @@ expected_table_cols = {
 }
 
 
-# TODO: upgrade to 3.10+, use kw_only flag to subclass a dataclass for generating source/target
-code_sources = [
-    CCC(column_name="category", is_array=True, filter_priority=False),
-    CCC(column_name="code", is_array=False, filter_priority=False),
-    CCC(column_name="interpretation", is_array=True, filter_priority=False),
-    CCC(column_name="valuecodeableconcept", is_array=False, filter_priority=False),
-]
-for source in code_sources:
-    source.source_table = "observation"
-    source.target_table = f"core__observation_dn_{source.column_name}"
+@dataclass(kw_only=True)
+class ObsConfig(sql_utils.CodeableConceptConfig):
+    source_table: str = "observation"
+
+    def __post_init__(self):
+        self.target_table = f"core__observation_dn_{self.column_name}"
 
 
 class ObservationBuilder(base_table_builder.BaseTableBuilder):
@@ -60,7 +56,20 @@ class ObservationBuilder(base_table_builder.BaseTableBuilder):
         :param cursor: A database cursor object
         :param schema: the schema/db name, matching the cursor
         """
-        self.queries += utils.denormalize_codes(schema, cursor, code_sources)
+        code_sources = [
+            ObsConfig(column_name="category", is_array=True, filter_priority=False),
+            ObsConfig(column_name="code", is_array=False, filter_priority=False),
+            ObsConfig(
+                column_name="interpretation", is_array=True, filter_priority=False
+            ),
+            ObsConfig(
+                column_name="valuecodeableconcept",
+                is_array=False,
+                filter_priority=False,
+            ),
+        ]
+
+        self.queries += sql_utils.denormalize_codes(schema, cursor, code_sources)
         validated_schema = core_templates.validate_schema(
             cursor, schema, expected_table_cols, parser
         )

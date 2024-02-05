@@ -2,10 +2,10 @@
 
 import json
 import os
+import pathlib
 import sys
 import warnings
 
-from pathlib import PosixPath
 from dataclasses import dataclass
 
 import pandas
@@ -18,14 +18,10 @@ from psmpy.functions import cohenD
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from cumulus_library.databases import DatabaseCursor
-from cumulus_library.base_table_builder import BaseTableBuilder
-from cumulus_library.template_sql import templates
-
-from cumulus_library.template_sql.statistics.psm_templates import (
-    get_distinct_ids,
-    get_create_covariate_table,
-)
+from cumulus_library import databases
+from cumulus_library import base_table_builder
+from cumulus_library.template_sql import base_templates
+from cumulus_library.template_sql.statistics import psm_templates
 
 
 @dataclass
@@ -56,12 +52,12 @@ class PsmConfig:
     seed: int
 
 
-class PsmBuilder(BaseTableBuilder):
+class PsmBuilder(base_table_builder.BaseTableBuilder):
     """TableBuilder for creating PSM tables"""
 
     display_text = "Building PSM tables..."
 
-    def __init__(self, toml_config_path: str, data_path: PosixPath):
+    def __init__(self, toml_config_path: str, data_path: pathlib.Path):
         """Loads PSM job details from a PSM configuration file"""
         super().__init__()
         # We're stashing the toml path for error reporting later
@@ -75,7 +71,7 @@ class PsmBuilder(BaseTableBuilder):
             sys.exit(f"PSM configuration not found at {self.toml_path}")
         try:
             self.config = PsmConfig(
-                classification_json=f"{PosixPath(self.toml_path).parent}/{toml_config['classification_json']}",
+                classification_json=f"{pathlib.Path(self.toml_path).parent}/{toml_config['classification_json']}",
                 pos_source_table=toml_config["pos_source_table"],
                 neg_source_table=toml_config["neg_source_table"],
                 target_table=toml_config["target_table"],
@@ -103,7 +99,7 @@ class PsmBuilder(BaseTableBuilder):
 
     def _get_sampled_ids(
         self,
-        cursor: DatabaseCursor,
+        cursor: databases.DatabaseCursor,
         schema: str,
         query: str,
         sample_size: int,
@@ -135,12 +131,14 @@ class PsmBuilder(BaseTableBuilder):
         return df
 
     def _create_covariate_table(
-        self, cursor: DatabaseCursor, schema: str, table_suffix: str
+        self, cursor: databases.DatabaseCursor, schema: str, table_suffix: str
     ):
         """Creates a covariate table from the loaded toml config"""
         # checks for primary & link ref being the same
         source_refs = list({self.config.primary_ref, self.config.count_ref} - {None})
-        pos_query = get_distinct_ids(source_refs, self.config.pos_source_table)
+        pos_query = psm_templates.get_distinct_ids(
+            source_refs, self.config.pos_source_table
+        )
         pos = self._get_sampled_ids(
             cursor,
             schema,
@@ -149,7 +147,7 @@ class PsmBuilder(BaseTableBuilder):
             self.config.dependent_variable,
             1,
         )
-        neg_query = get_distinct_ids(
+        neg_query = psm_templates.get_distinct_ids(
             source_refs,
             self.config.neg_source_table,
             join_id=self.config.primary_ref,
@@ -165,14 +163,14 @@ class PsmBuilder(BaseTableBuilder):
         )
 
         cohort = pandas.concat([pos, neg])
-        ctas_query = templates.get_ctas_query_from_df(
+        ctas_query = base_templates.get_ctas_query_from_df(
             schema,
             f"{self.config.pos_source_table}_sampled_ids_{table_suffix}",
             cohort,
         )
         self.queries.append(ctas_query)
 
-        dataset_query = get_create_covariate_table(
+        dataset_query = psm_templates.get_create_covariate_table(
             target_table=f"{self.config.target_table}_{table_suffix}",
             pos_source_table=self.config.pos_source_table,
             neg_source_table=self.config.neg_source_table,
@@ -261,15 +259,15 @@ class PsmBuilder(BaseTableBuilder):
             sns_plot.figure.savefig(filename, dpi=250, bbox_inches="tight")
 
     def generate_psm_analysis(
-        self, cursor: DatabaseCursor, schema: str, table_suffix: str
+        self, cursor: databases.DatabaseCursor, schema: str, table_suffix: str
     ):
         stats_table = f"{self.config.target_table}_{table_suffix}"
         """Runs PSM statistics on generated tables"""
         cursor.execute(
-            templates.get_alias_table_query(stats_table, self.config.target_table)
+            base_templates.get_alias_table_query(stats_table, self.config.target_table)
         )
         df = cursor.execute(
-            templates.get_select_all_query(self.config.target_table)
+            base_templates.get_select_all_query(self.config.target_table)
         ).as_pandas()
         symptoms_dict = self._get_symptoms_dict(self.config.classification_json)
         for dependent_variable, codes in symptoms_dict.items():

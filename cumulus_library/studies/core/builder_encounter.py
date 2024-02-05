@@ -1,8 +1,7 @@
 from cumulus_library import base_table_builder
 from cumulus_library import databases
 from cumulus_library.studies.core.core_templates import core_templates
-from cumulus_library.template_sql import templates
-from cumulus_library.template_sql import utils
+from cumulus_library.template_sql import sql_utils
 
 
 expected_table_cols = {
@@ -81,7 +80,7 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
         code_configs = []
         for code_source in code_sources:
             code_configs.append(
-                utils.CodeableConceptConfig(
+                sql_utils.CodeableConceptConfig(
                     source_table="encounter",
                     source_id="id",
                     column_name=code_source["column_name"],
@@ -91,7 +90,7 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                     target_table=f"core__encounter_dn_{code_source['column_name']}",
                 )
             )
-        self.queries += utils.denormalize_codes(schema, cursor, code_configs)
+        self.queries += sql_utils.denormalize_codes(schema, cursor, code_configs)
 
     def prepare_queries(
         self,

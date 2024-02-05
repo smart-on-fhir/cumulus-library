@@ -3,8 +3,8 @@ from typing import List
 
 from fhirclient.models.coding import Coding
 
-from cumulus_library.helper import load_json
-from cumulus_library.template_sql.templates import get_create_view_query
+from cumulus_library import base_utils
+from cumulus_library.template_sql import base_templates
 
 
 def get_include_coding(valueset_json) -> List[Coding]:
@@ -20,7 +20,7 @@ def get_include_coding(valueset_json) -> List[Coding]:
     :param valueset_json: ValueSet file, expecially those provided by NLM/ONC/VSAC
     :return: list of codeable concepts (system, code, display) to include
     """
-    valueset = load_json(valueset_json)
+    valueset = base_utils.load_json(valueset_json)
     parsed = []
 
     for include in valueset["compose"]["include"]:
@@ -42,7 +42,7 @@ def create_view_sql(view_name: str, concept_list: List[Coding]) -> str:
     content = []
     for concept in concept_list:
         content.append([concept.system, concept.code, concept.display])
-    return get_create_view_query(
+    return base_templates.get_create_view_query(
         view_name=view_name, dataset=content, view_cols=["system", "code", "display"]
     )
 

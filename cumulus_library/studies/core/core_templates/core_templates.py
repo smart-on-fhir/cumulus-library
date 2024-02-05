@@ -3,7 +3,7 @@ import typing
 
 import jinja2
 
-from cumulus_library.template_sql import templates
+from cumulus_library.template_sql import base_templates
 
 PATH = pathlib.Path(__file__).parent
 
@@ -22,7 +22,7 @@ def get_core_template(
 def validate_schema(cursor: object, schema: str, expected_table_cols, parser):
     validated_schema = {}
     for table, cols in expected_table_cols.items():
-        query = templates.get_column_datatype_query(schema, table, cols.keys())
+        query = base_templates.get_column_datatype_query(schema, table, cols.keys())
         table_schema = cursor.execute(query).fetchall()
         validated_schema[table] = parser.validate_table_schema(cols, table_schema)
     return validated_schema

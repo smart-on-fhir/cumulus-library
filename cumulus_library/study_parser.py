@@ -12,8 +12,9 @@ import toml
 
 from rich.progress import Progress, TaskID, track
 
-from cumulus_library import __version__, helper
 from cumulus_library import (
+    __version__,
+    base_utils,
     base_table_builder,
     databases,
     enums,
@@ -21,7 +22,7 @@ from cumulus_library import (
     protected_table_builder,
 )
 from cumulus_library.statistics import psm
-from cumulus_library.template_sql import templates
+from cumulus_library.template_sql import base_templates
 
 StrList = List[str]
 
@@ -234,8 +235,8 @@ class StudyManifestParser:
             if confirm is None or confirm.lower() not in ("y", "yes"):
                 sys.exit("Table cleaning aborted")
 
-        view_sql = templates.get_show_views(schema_name, drop_prefix)
-        table_sql = templates.get_show_tables(schema_name, drop_prefix)
+        view_sql = base_templates.get_show_views(schema_name, drop_prefix)
+        table_sql = base_templates.get_show_tables(schema_name, drop_prefix)
         for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
             view_table_list = self.get_unprotected_stats_view_table(
                 cursor,
@@ -268,7 +269,7 @@ class StudyManifestParser:
             if confirm.lower() not in ("y", "yes"):
                 sys.exit("Table cleaning aborted")
         # We want to only show a progress bar if we are :not: printing SQL lines
-        with helper.get_progress_bar(disable=verbose) as progress:
+        with base_utils.get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 f"Removing {display_prefix} study artifacts...",
                 total=len(view_table_list),
@@ -284,7 +285,7 @@ class StudyManifestParser:
         # if we're doing a stats clean, we'll also remove the table containing the
         # list of protected tables
         if stats_clean:
-            drop_query = templates.get_drop_view_table(
+            drop_query = base_templates.get_drop_view_table(
                 f"{drop_prefix}{enums.ProtectedTables.STATISTICS.value}", "TABLE"
             )
             cursor.execute(drop_query)
@@ -308,10 +309,12 @@ class StudyManifestParser:
         :param task: a TaskID for a given progress bar
         """
         for view_table in view_table_list:
-            drop_view_table = templates.get_drop_view_table(
+            drop_view_table = base_templates.get_drop_view_table(
                 name=view_table[0], view_or_table=view_table[1]
             )
-            with helper.query_console_output(verbose, drop_view_table, progress, task):
+            with base_utils.query_console_output(
+                verbose, drop_view_table, progress, task
+            ):
                 cursor.execute(drop_view_table)
 
     def _load_and_execute_builder(
@@ -462,7 +465,7 @@ class StudyManifestParser:
             # This open is a bit redundant with the open inside of the PSM builder,
             # but we're letting it slide so that builders function similarly
             # across the board
-            safe_timestamp = helper.get_tablename_safe_iso_timestamp()
+            safe_timestamp = base_utils.get_tablename_safe_iso_timestamp()
             toml_path = pathlib.Path(f"{self._study_path}/{file}")
             with open(toml_path, encoding="UTF-8") as file:
                 config = toml.load(file)
@@ -480,7 +483,7 @@ class StudyManifestParser:
                 cursor, schema, verbose, table_suffix=safe_timestamp
             )
 
-            insert_query = templates.get_insert_into_query(
+            insert_query = base_templates.get_insert_into_query(
                 f"{self.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}",
                 [
                     "study_name",
@@ -497,7 +500,7 @@ class StudyManifestParser:
                         config_type,
                         f"{target_table}_{safe_timestamp}",
                         target_table,
-                        helper.get_utc_datetime(),
+                        base_utils.get_utc_datetime(),
                     ]
                 ],
             )
@@ -568,14 +571,14 @@ class StudyManifestParser:
         """
         queries = []
         for file in self.get_sql_file_list(continue_from):
-            for query in helper.parse_sql(
-                helper.load_text(f"{self._study_path}/{file}")
+            for query in base_utils.parse_sql(
+                base_utils.load_text(f"{self._study_path}/{file}")
             ):
                 queries.append([query, file])
         if len(queries) == 0:
             return []
         # We want to only show a progress bar if we are :not: printing SQL lines
-        with helper.get_progress_bar(disable=verbose) as progress:
+        with base_utils.get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 f"Creating {self.get_study_prefix()} study in db...",
                 total=len(queries),
@@ -652,7 +655,7 @@ class StudyManifestParser:
                     "start with a string like `study_prefix__`.",
                 )
             try:
-                with helper.query_console_output(verbose, query[0], progress, task):
+                with base_utils.query_console_output(verbose, query[0], progress, task):
                     cursor.execute(query[0])
             except Exception as e:  # pylint: disable=broad-exception-caught
                 self._query_error(

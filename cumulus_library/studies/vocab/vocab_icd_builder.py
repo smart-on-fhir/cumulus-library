@@ -4,7 +4,7 @@ import csv
 import pathlib
 
 from cumulus_library import base_table_builder
-from cumulus_library.template_sql import templates
+from cumulus_library.template_sql import base_templates
 
 
 class VocabIcdRunner(base_table_builder.BaseTableBuilder):
@@ -49,7 +49,7 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
                 if not created:
                     row = self.clean_row(next(reader), filename)
                     self.queries.append(
-                        templates.get_ctas_query(
+                        base_templates.get_ctas_query(
                             schema_name=schema,
                             table_name=table_name,
                             dataset=[row],
@@ -63,7 +63,7 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
                     rows_processed += 1
                     if rows_processed == self.partition_size:
                         self.queries.append(
-                            templates.get_insert_into_query(
+                            base_templates.get_insert_into_query(
                                 table_name=table_name,
                                 table_cols=headers,
                                 dataset=dataset,
@@ -73,7 +73,7 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
                         rows_processed = 0
                 if rows_processed > 0:
                     self.queries.append(
-                        templates.get_insert_into_query(
+                        base_templates.get_insert_into_query(
                             table_name=table_name, table_cols=headers, dataset=dataset
                         )
                     )
