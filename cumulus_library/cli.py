@@ -18,12 +18,12 @@ from cumulus_library import (
     databases,
     enums,
     errors,
-    helper,
+    base_utils,
     protected_table_builder,
     study_parser,
     upload,
 )
-from cumulus_library.template_sql import templates
+from cumulus_library.template_sql import base_templates
 
 
 class StudyRunner:
@@ -41,7 +41,7 @@ class StudyRunner:
     def update_transactions(self, prefix: str, status: str):
         """Adds a record to a study's transactions table"""
         self.cursor.execute(
-            templates.get_insert_into_query(
+            base_templates.get_insert_into_query(
                 f"{prefix}__{enums.ProtectedTables.TRANSACTIONS.value}",
                 protected_table_builder.TRANSACTIONS_COLS,
                 [
@@ -49,7 +49,7 @@ class StudyRunner:
                         prefix,
                         __version__,
                         status,
-                        helper.get_utc_datetime(),
+                        base_utils.get_utc_datetime(),
                     ]
                 ],
                 {"event_time": "TIMESTAMP"},

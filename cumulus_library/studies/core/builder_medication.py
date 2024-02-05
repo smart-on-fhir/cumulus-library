@@ -1,7 +1,7 @@
 """ Module for generating core medication table"""
 
-from cumulus_library import base_table_builder, helper
-from cumulus_library.template_sql import templates, utils
+from cumulus_library import base_table_builder, base_utils
+from cumulus_library.template_sql import base_templates, sql_utils
 from cumulus_library.studies.core.core_templates import core_templates
 
 
@@ -25,18 +25,20 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
 
         table = "medicationrequest"
         base_col = "medicationcodeableconcept"
-        with helper.get_progress_bar(transient=True) as progress:
+        with base_utils.get_progress_bar(transient=True) as progress:
             task = progress.add_task(
                 "Detecting available medication sources...",
                 total=7,
             )
 
             # inline medications from FHIR medication
-            data_types["inline"] = utils.is_codeable_concept_populated(
+            data_types["inline"] = sql_utils.is_codeable_concept_populated(
                 schema, table, base_col, cursor
             )
             if data_types["inline"]:
-                query = templates.get_column_datatype_query(schema, table, [base_col])
+                query = base_templates.get_column_datatype_query(
+                    schema, table, [base_col]
+                )
                 cursor.execute(query)
                 progress.advance(task)
                 if "userselected" not in str(cursor.fetchone()[0]):
@@ -46,21 +48,21 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
             else:
                 has_userselected = False
             # Validating presence of FHIR medication requests
-            query = templates.get_is_table_not_empty_query(
+            query = base_templates.get_is_table_not_empty_query(
                 "medicationrequest", "medicationreference"
             )
             cursor.execute(query)
             progress.advance(task)
             if cursor.fetchone() is None:
                 return data_types, has_userselected
-            query = templates.get_column_datatype_query(
+            query = base_templates.get_column_datatype_query(
                 schema, "medicationrequest", ["medicationreference"]
             )
             cursor.execute(query)
             progress.advance(task)
             if "reference" not in cursor.fetchone()[0]:
                 return data_types, has_userselected
-            query = templates.get_is_table_not_empty_query(
+            query = base_templates.get_is_table_not_empty_query(
                 "medicationrequest", "medicationreference.reference"
             )
             cursor.execute(query)
@@ -69,7 +71,7 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
                 return data_types, has_userselected
 
             # checking med ref contents for our two linkage cases
-            query = templates.get_is_table_not_empty_query(
+            query = base_templates.get_is_table_not_empty_query(
                 "medicationrequest",
                 "medicationreference.reference",
                 conditions=["medicationreference.reference LIKE '#%'"],
@@ -78,7 +80,7 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
             progress.advance(task)
             if cursor.fetchone() is not None:
                 data_types["by_contained_ref"] = True
-            query = templates.get_is_table_not_empty_query(
+            query = base_templates.get_is_table_not_empty_query(
                 "medicationrequest",
                 "medicationreference.reference",
                 conditions=["medicationreference.reference LIKE 'Medication/%'"],
@@ -116,7 +118,7 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
             )
         else:
             self.queries.append(
-                templates.get_ctas_empty_query(
+                base_templates.get_ctas_empty_query(
                     schema,
                     "core__medication",
                     [

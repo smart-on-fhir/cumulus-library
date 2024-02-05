@@ -1,7 +1,7 @@
 from cumulus_library import base_table_builder
 from cumulus_library import databases
 from cumulus_library.studies.core.core_templates import core_templates
-from cumulus_library.template_sql import templates, utils
+from cumulus_library.template_sql import base_templates, sql_utils
 
 
 expected_table_cols = {
@@ -45,7 +45,7 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Creating Condition tables..."
 
     def denormalize_codes(self):
-        preferred_config = utils.CodeableConceptConfig(
+        preferred_config = sql_utils.CodeableConceptConfig(
             source_table="condition",
             source_id="id",
             column_name="code",
@@ -59,10 +59,10 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
             ],
         )
         self.queries.append(
-            templates.get_codeable_concept_denormalize_query(preferred_config)
+            base_templates.get_codeable_concept_denormalize_query(preferred_config)
         )
 
-        all_config = utils.CodeableConceptConfig(
+        all_config = sql_utils.CodeableConceptConfig(
             source_table="condition",
             source_id="id",
             column_name="code",
@@ -71,7 +71,7 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
             filter_priority=False,
         )
         self.queries.append(
-            templates.get_codeable_concept_denormalize_query(all_config)
+            base_templates.get_codeable_concept_denormalize_query(all_config)
         )
 
     def prepare_queries(

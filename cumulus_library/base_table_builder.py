@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import final
 
 from cumulus_library.databases import DatabaseCursor
-from cumulus_library import helper
+from cumulus_library import base_utils
 
 
 class BaseTableBuilder(ABC):
@@ -77,7 +77,7 @@ class BaseTableBuilder(ABC):
                     table_names.append(table_name)
             for table_name in table_names:
                 cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
-        with helper.get_progress_bar(disable=verbose) as progress:
+        with base_utils.get_progress_bar(disable=verbose) as progress:
             task = progress.add_task(
                 self.display_text,
                 total=len(self.queries),
@@ -85,7 +85,9 @@ class BaseTableBuilder(ABC):
             )
             for query in self.queries:
                 try:
-                    with helper.query_console_output(verbose, query, progress, task):
+                    with base_utils.query_console_output(
+                        verbose, query, progress, task
+                    ):
                         cursor.execute(query)
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     sys.exit(e)

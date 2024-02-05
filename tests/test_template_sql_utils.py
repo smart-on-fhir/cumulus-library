@@ -4,7 +4,7 @@ import duckdb
 import pytest
 
 from contextlib import nullcontext as does_not_raise
-from cumulus_library.template_sql import utils
+from cumulus_library.template_sql import sql_utils
 
 
 @pytest.mark.parametrize(
@@ -22,7 +22,7 @@ from cumulus_library.template_sql import utils
 )
 def test_is_codeable_concept_populated(mock_db, table, base_col, expected, raises):
     with raises:
-        res = utils.is_codeable_concept_populated(
+        res = sql_utils.is_codeable_concept_populated(
             "main", table, base_col, mock_db.cursor()
         )
         assert res == expected
@@ -45,7 +45,7 @@ def test_is_codeable_concept_array_populated(
     mock_db, table, base_col, expected, raises
 ):
     with raises:
-        res = utils.is_codeable_concept_array_populated(
+        res = sql_utils.is_codeable_concept_array_populated(
             "main", table, base_col, mock_db.cursor()
         )
         assert res == expected
@@ -66,5 +66,5 @@ def test_is_codeable_concept_array_populated(
 )
 def test_is_code_populated(mock_db, table, base_col, expected, raises):
     with raises:
-        res = utils.is_code_populated("main", table, base_col, mock_db.cursor())
+        res = sql_utils.is_code_populated("main", table, base_col, mock_db.cursor())
         assert res == expected

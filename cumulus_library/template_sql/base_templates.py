@@ -8,7 +8,7 @@ from jinja2 import Template
 from pandas import DataFrame
 
 from cumulus_library import databases
-from cumulus_library.template_sql import utils
+from cumulus_library.template_sql import sql_utils
 
 PATH = Path(__file__).parent
 
@@ -39,7 +39,9 @@ def get_code_system_pairs(output_table_name: str, code_system_tables: list) -> s
         )
 
 
-def get_codeable_concept_denormalize_query(config: utils.CodeableConceptConfig) -> str:
+def get_codeable_concept_denormalize_query(
+    config: sql_utils.CodeableConceptConfig,
+) -> str:
     """extracts codeable concepts from a specified table.
 
     This function is targeted at arbitrary codeableConcept elements - see
@@ -172,7 +174,7 @@ def get_drop_view_table(name: str, view_or_table: str) -> str:
             )
 
 
-def get_extension_denormalize_query(config: utils.ExtensionConfig) -> str:
+def get_extension_denormalize_query(config: sql_utils.ExtensionConfig) -> str:
     """extracts target extension from a table into a denormalized table
 
     This function is targeted at a complex extension element that is at the root

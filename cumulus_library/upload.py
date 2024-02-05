@@ -9,7 +9,7 @@ import requests
 from pandas import read_parquet
 from rich.progress import Progress, TaskID
 
-from cumulus_library.helper import get_progress_bar
+from cumulus_library import base_utils
 
 
 def upload_data(
@@ -91,7 +91,7 @@ def upload_files(args: dict):
     except StopIteration:
         version = "0"
     num_uploads = len(file_paths)
-    with get_progress_bar() as progress:
+    with base_utils.get_progress_bar() as progress:
         file_upload_progress = progress.add_task("Uploading", total=num_uploads)
         for file_path in file_paths:
             upload_data(progress, file_upload_progress, file_path, version, args)

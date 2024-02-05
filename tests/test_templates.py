@@ -4,19 +4,19 @@ import pytest
 
 from pandas import DataFrame
 
-from cumulus_library.template_sql import templates, utils
+from cumulus_library.template_sql import base_templates, sql_utils
 
 
 def test_alias_table():
     expected = """CREATE OR REPLACE VIEW target
 AS SELECT * FROM source;"""
-    query = templates.get_alias_table_query("source", "target")
+    query = base_templates.get_alias_table_query("source", "target")
     assert query == expected
 
 
 def test_select_all():
     expected = """SELECT * FROM source;"""
-    query = templates.get_select_all_query("source")
+    query = base_templates.get_select_all_query("source")
     assert query == expected
 
 
@@ -52,14 +52,14 @@ def test_codeable_concept_denormalize_all_creation():
     FROM union_table
 );
 """
-    config = utils.CodeableConceptConfig(
+    config = sql_utils.CodeableConceptConfig(
         source_table="source",
         source_id="id",
         column_name="code_col",
         target_table="target__concepts",
         is_array=True,
     )
-    query = templates.get_codeable_concept_denormalize_query(config)
+    query = base_templates.get_codeable_concept_denormalize_query(config)
     assert query == expected
 
 
@@ -140,7 +140,7 @@ def test_codeable_concept_denormalize_filter_creation():
 );
 """
 
-    config = utils.CodeableConceptConfig(
+    config = sql_utils.CodeableConceptConfig(
         source_table="source",
         source_id="id",
         column_name="code_col",
@@ -152,7 +152,7 @@ def test_codeable_concept_denormalize_filter_creation():
             "http://hl7.org/fhir/sid/icd-10-cm",
         ],
     )
-    query = templates.get_codeable_concept_denormalize_query(config)
+    query = base_templates.get_codeable_concept_denormalize_query(config)
 
     assert query == expected
 
@@ -167,7 +167,7 @@ WHERE
     AND table_name = 'table_name'
     AND LOWER(column_name) IN ('foo', 'bar') --noqa: LT05"""
 
-    query = templates.get_column_datatype_query(
+    query = base_templates.get_column_datatype_query(
         schema_name="schema_name",
         table_name="table_name",
         column_names=["foo", "bar"],
@@ -185,7 +185,7 @@ def test_create_view_query_creation():
         AS t
         ("a","b")
 );"""
-    query = templates.get_create_view_query(
+    query = base_templates.get_create_view_query(
         view_name="test_view",
         dataset=[["foo", "foo"], ["bar", "bar"]],
         view_cols=["a", "b"],
@@ -227,7 +227,7 @@ AS (
     ],
 )
 def test_ctas_empty_query_creation(expected, schema, table, cols, types):
-    query = templates.get_ctas_empty_query(
+    query = base_templates.get_ctas_empty_query(
         schema_name=schema, table_name=table, table_cols=cols, table_cols_types=types
     )
     assert query == expected
@@ -242,14 +242,14 @@ def test_ctas_query_creation():
     )
         AS t ("a","b")
 );"""
-    query = templates.get_ctas_query(
+    query = base_templates.get_ctas_query(
         schema_name="test_schema",
         table_name="test_table",
         dataset=[["foo", "foo"], ["bar", "bar"]],
         table_cols=["a", "b"],
     )
     assert query == expected
-    query = templates.get_ctas_query_from_df(
+    query = base_templates.get_ctas_query_from_df(
         schema_name="test_schema",
         table_name="test_table",
         df=DataFrame({"a": ["foo", "bar"], "b": ["foo", "bar"]}),
@@ -337,7 +337,7 @@ def test_extension_denormalize_creation():
     )
     WHERE available_priority = 1
 );"""
-    config = utils.ExtensionConfig(
+    config = sql_utils.ExtensionConfig(
         "source_table",
         "source_id",
         "target_table",
@@ -345,9 +345,9 @@ def test_extension_denormalize_creation():
         "fhir_extension",
         ["omb", "text"],
     )
-    query = templates.get_extension_denormalize_query(config)
+    query = base_templates.get_extension_denormalize_query(config)
     assert query == expected
-    config = utils.ExtensionConfig(
+    config = sql_utils.ExtensionConfig(
         "source_table",
         "source_id",
         "target_table",
@@ -356,7 +356,7 @@ def test_extension_denormalize_creation():
         ["omb", "text"],
         is_array=True,
     )
-    query = templates.get_extension_denormalize_query(config)
+    query = base_templates.get_extension_denormalize_query(config)
     array_sql = """LOWER(
                 ARRAY_JOIN(
                     ARRAY_SORT(
@@ -385,7 +385,7 @@ def test_insert_into_query_creation():
 VALUES
 ('foo','foo'),
 ('bar','bar');"""
-    query = templates.get_insert_into_query(
+    query = base_templates.get_insert_into_query(
         table_name="test_table",
         table_cols=["a", "b"],
         dataset=[["foo", "foo"], ["bar", "bar"]],
@@ -396,7 +396,7 @@ VALUES
 VALUES
 ('foo',VARCHAR 'foo'),
 ('bar',VARCHAR 'bar');"""
-    query = templates.get_insert_into_query(
+    query = base_templates.get_insert_into_query(
         table_name="test_table",
         table_cols=["a", "b"],
         dataset=[["foo", "foo"], ["bar", "bar"]],
@@ -413,7 +413,7 @@ FROM
 WHERE
     field_name IS NOT NULL
 LIMIT 1;"""
-    query = templates.get_is_table_not_empty_query(
+    query = base_templates.get_is_table_not_empty_query(
         source_table="table_name", field="field_name"
     )
     assert query == expected
@@ -427,7 +427,7 @@ FROM
 WHERE
     field_name IS NOT NULL
 LIMIT 1;"""
-    query = templates.get_is_table_not_empty_query(
+    query = base_templates.get_is_table_not_empty_query(
         source_table="table_name",
         field="field_name",
         unnests=[
@@ -447,7 +447,7 @@ WHERE
     AND field_name IS NOT NULL --noqa: LT02
 LIMIT 1;"""
 
-    query = templates.get_is_table_not_empty_query(
+    query = base_templates.get_is_table_not_empty_query(
         source_table="table_name",
         field="field_name",
         conditions=["field_name LIKE 's%'", "field_name IS NOT NULL"],
@@ -497,7 +497,7 @@ FROM (
     )
 )
     AS t (table_name, column_name, code, display, system)"""
-    query = templates.get_code_system_pairs(
+    query = base_templates.get_code_system_pairs(
         "output_table",
         [
             {
