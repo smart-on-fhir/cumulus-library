@@ -2,7 +2,6 @@
 
 import builtins
 import pathlib
-
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest import mock
@@ -135,7 +134,7 @@ def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, r
             )
             remaining_tables = (
                 mock_db.cursor()
-                .execute(f"select distinct(table_name) from information_schema.tables")
+                .execute("select distinct(table_name) from information_schema.tables")
                 .fetchall()
             )
             if any(x in target for x in protected_strs):
@@ -295,13 +294,13 @@ def test_build_study(mock_db, study_path, verbose, expects, raises):
         (
             "./tests/test_data/psm/",
             False,
-            (f"psm_test__psm_encounter_covariate",),
+            ("psm_test__psm_encounter_covariate",),
             does_not_raise(),
         ),
         (
             "./tests/test_data/psm/",
             True,
-            (f"psm_test__psm_encounter_covariate",),
+            ("psm_test__psm_encounter_covariate",),
             does_not_raise(),
         ),
     ],

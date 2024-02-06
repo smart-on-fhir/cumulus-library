@@ -3,12 +3,11 @@
 import pathlib
 import re
 import sys
-
 from abc import ABC, abstractmethod
 from typing import final
 
-from cumulus_library.databases import DatabaseCursor
 from cumulus_library import base_utils
+from cumulus_library.databases import DatabaseCursor
 
 
 class BaseTableBuilder(ABC):
@@ -70,8 +69,8 @@ class BaseTableBuilder(ABC):
                         )
 
                     table_name = table_name[0]
-                    # if it contains a schema, remove it (usually it won't, but some CTAS
-                    # forms may)
+                    # if it contains a schema, remove it (usually it won't, but some
+                    # CTAS forms may)
                     if "." in table_name:
                         table_name = table_name.split(".")[1].replace('"', "")
                     table_names.append(table_name)
@@ -94,7 +93,7 @@ class BaseTableBuilder(ABC):
 
         self.post_execution(cursor, schema, verbose, drop_table, *args, **kwargs)
 
-    def post_execution(
+    def post_execution(  # noqa: B027 - this looks like, but is not, an abstract method
         self,
         cursor: DatabaseCursor,
         schema: str,
@@ -122,7 +121,9 @@ class BaseTableBuilder(ABC):
         commented_queries.pop()
         self.queries = commented_queries
 
-    def write_queries(self, path: pathlib.Path = pathlib.Path.cwd() / "output.sql"):
+    def write_queries(self, path: pathlib.Path | None = None):
+        if path is None:
+            path = pathlib.Path.cwd() / "output.sql"
         """writes all queries constructed by prepare_queries to disk"""
         path.parents[0].mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as file:

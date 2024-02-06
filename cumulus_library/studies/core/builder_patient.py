@@ -1,16 +1,15 @@
 """ Module for extracting US core extensions from patient records"""
 
-from cumulus_library.base_table_builder import BaseTableBuilder
-from cumulus_library.template_sql import base_templates, sql_utils
 from cumulus_library import databases
+from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.studies.core.core_templates import core_templates
+from cumulus_library.template_sql import base_templates, sql_utils
 
 expected_table_cols = {
     "patient": {
         "id": [],
         "gender": [],
         "address": [],
-        "id": [],
         "birthdate": [],
     }
 }

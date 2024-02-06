@@ -34,12 +34,11 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
         path = pathlib.Path(__file__).parent
 
         headers = ["CUI", "TTY", "CODE", "SAB", "STR"]
-        header_types = [f"{x} string" for x in headers]
         rows_processed = 0
         dataset = []
         created = False
         for filename in icd_files:
-            with open(f"{path}/{filename}.bsv", "r") as file:
+            with open(f"{path}/{filename}.bsv") as file:
                 # For the first row in the dataset, we want to coerce types from
                 # varchar(len(item)) athena default to to an unrestricted varchar, so
                 # we'll create a table with one row - this make the recast faster, and

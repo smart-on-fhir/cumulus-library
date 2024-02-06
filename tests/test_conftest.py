@@ -1,8 +1,7 @@
 import json
-
 from pathlib import Path
 
-from tests.conftest import ndjson_data_generator, MOCK_DATA_DIR, ID_PATHS
+from tests.conftest import ID_PATHS, MOCK_DATA_DIR, ndjson_data_generator
 
 
 def test_ndjson_data_generator(tmp_path):
@@ -15,17 +14,17 @@ def test_ndjson_data_generator(tmp_path):
         for filepath in [f for f in Path(target / key).iterdir()]:
             with open(filepath) as f:
                 first_new = json.loads(next(f))
-                for line in f:
-                    pass
-                last_new = json.loads(line)
+                *_, last_new = f
+                last_new = json.loads(last_new)
             with open(f"{Path(MOCK_DATA_DIR)}/{key}/{filepath.name}") as f:
                 first_line = next(f)
                 first_ref = json.loads(first_line)
                 # handling patient file of length 1:
-                line = first_line
-                for line in f:
-                    pass
-                last_ref = json.loads(line)
+                try:
+                    *_, last_ref = f
+                    last_ref = json.loads(last_ref)
+                except Exception:
+                    last_ref = first_ref
             for source in [[first_new, first_ref, 0], [last_new, last_ref, iters - 1]]:
                 for id_path in ID_PATHS[key]:
                     new_test = source[0]

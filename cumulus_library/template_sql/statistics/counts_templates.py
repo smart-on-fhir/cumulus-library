@@ -1,7 +1,6 @@
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 from jinja2 import Template
 
@@ -39,9 +38,9 @@ def get_count_query(
     source_table: str,
     table_cols: list,
     min_subject: int = 10,
-    where_clauses: Optional[list] = None,
-    fhir_resource: Optional[str] = None,
-    filter_resource: Optional[bool] = True,
+    where_clauses: list | None = None,
+    fhir_resource: str | None = None,
+    filter_resource: bool | None = True,
 ) -> str:
     """Generates count tables for generating study outputs"""
     path = Path(__file__).parent

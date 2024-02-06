@@ -1,20 +1,18 @@
 """Class for generating counts tables from templates"""
 
 import sys
-
 from pathlib import Path
-from typing import Union
 
 from cumulus_library.base_table_builder import BaseTableBuilder
+from cumulus_library.errors import CountsBuilderError
 from cumulus_library.study_parser import StudyManifestParser
 from cumulus_library.template_sql.statistics import counts_templates
-from cumulus_library.errors import CountsBuilderError
 
 
 class CountsBuilder(BaseTableBuilder):
     """Extends BaseTableBuilder for counts-related use cases"""
 
-    def __init__(self, study_prefix: str = None):
+    def __init__(self, study_prefix: str | None = None):
         if study_prefix is None:
             # This slightly wonky approach will give us the path of the
             # directory of a class extending the CountsBuilder
@@ -44,7 +42,7 @@ class CountsBuilder(BaseTableBuilder):
             return f"{self.study_prefix}__{table_name}"
 
     def get_where_clauses(
-        self, clause: Union[list, str, None] = None, min_subject: int = 10
+        self, clause: list | str | None = None, min_subject: int = 10
     ) -> str:
         """Convenience method for constructing arbitrary where clauses.
 
@@ -101,7 +99,7 @@ class CountsBuilder(BaseTableBuilder):
         table_name: str,
         source_table: str,
         table_cols: list,
-        where_clauses: Union[list, None] = None,
+        where_clauses: list | None = None,
         min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing condition counts tables
@@ -128,7 +126,7 @@ class CountsBuilder(BaseTableBuilder):
         table_name: str,
         source_table: str,
         table_cols: list,
-        where_clauses: Union[list, None] = None,
+        where_clauses: list | None = None,
         min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing documentreference counts tables
@@ -155,7 +153,7 @@ class CountsBuilder(BaseTableBuilder):
         table_name: str,
         source_table: str,
         table_cols: list,
-        where_clauses: Union[list, None] = None,
+        where_clauses: list | None = None,
         min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing encounter counts tables
@@ -181,7 +179,7 @@ class CountsBuilder(BaseTableBuilder):
         table_name: str,
         source_table: str,
         table_cols: list,
-        where_clauses: Union[list, None] = None,
+        where_clauses: list | None = None,
         min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing medicationrequests counts tables
@@ -207,7 +205,7 @@ class CountsBuilder(BaseTableBuilder):
         table_name: str,
         source_table: str,
         table_cols: list,
-        where_clauses: Union[list, None] = None,
+        where_clauses: list | None = None,
         min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing observation counts tables
@@ -233,7 +231,7 @@ class CountsBuilder(BaseTableBuilder):
         table_name: str,
         source_table: str,
         table_cols: list,
-        where_clauses: Union[list, None] = None,
+        where_clauses: list | None = None,
         min_subject: int = 10,
     ) -> str:
         """wrapper method for constructing patient counts tables
@@ -266,7 +264,7 @@ class CountsBuilder(BaseTableBuilder):
         self.comment_queries()
         self.write_queries(filename=filepath)
 
-    def prepare_queries(self, cursor: object = None, schema: str = None):
+    def prepare_queries(self, cursor: object | None = None, schema: str | None = None):
         """Stub implementing abstract base class
 
         This should be overridden in any count generator. See studies/core/count_core.py

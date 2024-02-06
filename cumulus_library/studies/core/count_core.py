@@ -1,5 +1,5 @@
-from typing import List
 from pathlib import Path
+
 from cumulus_library.statistics import counts
 
 
@@ -25,7 +25,7 @@ class CoreCountsBuilder(counts.CountsBuilder):
         ]
         return self.count_documentreference(table_name, from_table, cols)
 
-    def count_core_encounter(self, duration: str = None):
+    def count_core_encounter(self, duration: str | None = None):
         table_name = self.get_table_name("count_encounter", duration=duration)
         from_table = self.get_table_name("encounter")
 
@@ -41,7 +41,7 @@ class CoreCountsBuilder(counts.CountsBuilder):
         return self.count_encounter(table_name, from_table, cols)
 
     def _count_core_encounter_type(
-        self, table_name: str, cols: list, duration: str = None
+        self, table_name: str, cols: list, duration: str | None = None
     ):
         """
         Encounter Type information is for every visit, and therefore this
@@ -61,7 +61,7 @@ class CoreCountsBuilder(counts.CountsBuilder):
         return self.count_encounter(table_name, from_table, cols)
 
     # TODO: consider renaming function and table to `count_core_encounter_all_types`
-    def count_core_encounter_type(self, duration: str = None):
+    def count_core_encounter_type(self, duration: str | None = None):
         cols = [
             "enc_class_display",
             "enc_type_display",

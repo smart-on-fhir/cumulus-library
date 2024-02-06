@@ -12,11 +12,9 @@ simply. This includes, but is not limited, to:
 from dataclasses import dataclass
 
 import duckdb
-from typing import List
 
-from cumulus_library import base_utils
+from cumulus_library import base_utils, databases
 from cumulus_library.template_sql import base_templates
-from cumulus_library import databases
 
 
 @dataclass(kw_only=True)
@@ -44,7 +42,7 @@ class CodeableConceptConfig:
 
 
 @dataclass
-class ExtensionConfig(object):
+class ExtensionConfig:
     """convenience class for holding parameters for generating extension tables.
 
     :param source_table: the table to extract extensions from
@@ -61,14 +59,14 @@ class ExtensionConfig(object):
     target_table: str
     target_col_prefix: str
     fhir_extension: str
-    ext_systems: List[str]
+    ext_systems: list[str]
     is_array: bool = False
 
 
 def _check_data_in_fields(
     schema,
     cursor,
-    code_sources: List[CodeableConceptConfig],
+    code_sources: list[CodeableConceptConfig],
 ) -> dict:
     """checks if CodeableConcept fields actually have data available
 
@@ -112,7 +110,7 @@ def _check_data_in_fields(
 def denormalize_codes(
     schema: str,
     cursor: databases.DatabaseCursor,
-    code_sources: List[CodeableConceptConfig],
+    code_sources: list[CodeableConceptConfig],
 ):
     queries = []
     code_sources = _check_data_in_fields(schema, cursor, code_sources)
@@ -284,7 +282,7 @@ def _check_schema_if_exists(
             if coding_element in schema_str:
                 return False
         else:
-            required_fields = [coding_element] + ["code", "system", "display"]
+            required_fields = [coding_element, "code", "system", "display"]
             if any(x not in schema_str for x in required_fields):
                 return False
         return True

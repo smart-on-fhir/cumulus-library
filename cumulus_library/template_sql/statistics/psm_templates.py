@@ -1,17 +1,17 @@
 """ Collection of jinja template getters for common SQL queries """
 
-from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from jinja2 import Template
-from pandas import DataFrame
 
 from cumulus_library.errors import CumulusLibraryError
 
 
 def get_distinct_ids(
-    columns: list[str], source_table: str, join_id: str = None, filter_table: str = None
+    columns: list[str],
+    source_table: str,
+    join_id: str | None = None,
+    filter_table: str | None = None,
 ) -> str:
     """Gets distinct ids from a table, optionally filtering by ids in another table
 
@@ -23,12 +23,14 @@ def get_distinct_ids(
 
     :param columns: a list of ids to request
     :param source_table: the table to retrieve ids from
-    :param join_id: the id column to use for joining. Expected to exist in both source and filter tables
+    :param join_id: the id column to use for joining. Expected to exist in both
+      source and filter tables
     :param filter_table: a table containing ids you want to exclude
     """
     if (join_id and not filter_table) or (not join_id and filter_table):
         raise CumulusLibraryError(
-            "psm_templates.get_distinct_ids expects all optional parameters to be defined if supplied"
+            "psm_templates.get_distinct_ids expects all optional parameters ",
+            "to be defined if supplied",
         )
 
     path = Path(__file__).parent
@@ -49,8 +51,8 @@ def get_create_covariate_table(
     primary_ref: str,
     dependent_variable: str,
     join_cols_by_table: dict,
-    count_ref: str = None,
-    count_table: str = None,
+    count_ref: str | None = None,
+    count_table: str | None = None,
 ) -> str:
     """Gets a query to create a covariate table for PSM analysis
 
@@ -68,7 +70,8 @@ def get_create_covariate_table(
     """
     if (count_ref and not count_table) or (not count_ref and count_table):
         raise CumulusLibraryError(
-            "psm_templates.get_create_covariate_table expects all count parameters to be defined if supplied"
+            "psm_templates.get_create_covariate_table expects all count parameters ",
+            "to be defined if supplied",
         )
 
     path = Path(__file__).parent

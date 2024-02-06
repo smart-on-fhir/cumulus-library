@@ -1,39 +1,40 @@
 """ Module for generating encounter codeableConcept table"""
 
-from cumulus_library import base_table_builder, helper
-from cumulus_library.template_sql import templates, utils
-
+from cumulus_library import base_table_builder, base_utils
 from cumulus_library.studies.discovery import code_definitions
+from cumulus_library.template_sql import base_templates, sql_utils
 
 
-class CodeDetectionBuilder(BaseTableBuilder):
+class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Selecting unique code systems..."
 
     def _check_codes_in_fields(self, code_sources: list[dict], schema, cursor) -> dict:
         """checks if Coding/CodeableConcept fields are present and populated"""
 
-        with helper.get_progress_bar() as progress:
+        with base_utils.get_progress_bar() as progress:
             task = progress.add_task(
                 "Discovering available coding systems...",
                 total=len(code_sources),
             )
             for code_source in code_sources:
                 if code_source["is_array"]:
-                    code_source["has_data"] = utils.is_codeable_concept_array_populated(
+                    code_source[
+                        "has_data"
+                    ] = sql_utils.is_codeable_concept_array_populated(
                         schema,
                         code_source["table_name"],
                         code_source["column_name"],
                         cursor,
                     )
                 elif code_source["is_bare_coding"]:
-                    code_source["has_data"] = utils.is_code_populated(
+                    code_source["has_data"] = sql_utils.is_code_populated(
                         schema,
                         code_source["table_name"],
                         code_source["column_name"],
                         cursor,
                     )
                 else:
-                    code_source["has_data"] = utils.is_codeable_concept_populated(
+                    code_source["has_data"] = sql_utils.is_codeable_concept_populated(
                         schema,
                         code_source["table_name"],
                         code_source["column_name"],
@@ -57,7 +58,7 @@ class CodeDetectionBuilder(BaseTableBuilder):
             ):
                 raise KeyError(
                     "Expected table_name and column_name keys in "
-                    f"{str(code_definition)}"
+                    f"{code_definition!s}"
                 )
             code_source = {
                 "is_bare_coding": False,
@@ -69,5 +70,7 @@ class CodeDetectionBuilder(BaseTableBuilder):
             code_sources.append(code_source)
 
         code_sources = self._check_codes_in_fields(code_sources, schema, cursor)
-        query = templates.get_code_system_pairs("discovery__code_sources", code_sources)
+        query = base_templates.get_code_system_pairs(
+            "discovery__code_sources", code_sources
+        )
         self.queries.append(query)

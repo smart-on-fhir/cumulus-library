@@ -47,10 +47,10 @@ jobs:
       - name: Run sqlfluff on jinja templates
         run: |
           sqlfluff lint
-      - name: Run black
+      - name: Run ruff
         if: success() || failure() # still run black if above checks fails
         run: |
-          black --check --verbose .
+          ruff
   regression:
     runs-on: ubuntu-22.04
     permissions:

@@ -14,7 +14,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Protocol, Union
+from typing import Protocol
 
 import cumulus_fhir_support
 import duckdb
@@ -31,13 +31,13 @@ class DatabaseCursor(Protocol):
     def execute(self, sql: str) -> None:
         pass
 
-    def fetchone(self) -> Optional[list]:
+    def fetchone(self) -> list | None:
         pass
 
-    def fetchmany(self, size: Optional[int]) -> Optional[list[list]]:
+    def fetchmany(self, size: int | None) -> list[list] | None:
         pass
 
-    def fetchall(self) -> Optional[list[list]]:
+    def fetchall(self) -> list[list] | None:
         pass
 
 
@@ -131,6 +131,7 @@ class DatabaseBackend(abc.ABC):
     def parser(self) -> DatabaseParser:
         """Returns parser object for interrogating DB schemas"""
 
+    @abc.abstractmethod
     def close(self) -> None:
         """Clean up any resources necessary"""
 
@@ -174,6 +175,9 @@ class AthenaDatabaseBackend(DatabaseBackend):
     def parser(self) -> DatabaseParser:
         return AthenaParser()
 
+    def close(self) -> None:
+        return self.connection.close()
+
 
 class AthenaParser(DatabaseParser):
     def validate_table_schema(
@@ -190,7 +194,7 @@ class DuckDatabaseBackend(DatabaseBackend):
         super().__init__("main")
         self.connection = duckdb.connect(db_file)
         # Aliasing Athena's as_pandas to duckDB's df cast
-        setattr(duckdb.DuckDBPyConnection, "as_pandas", duckdb.DuckDBPyConnection.df)
+        duckdb.DuckDBPyConnection.as_pandas = duckdb.DuckDBPyConnection.df
 
         # Paper over some syntax differences between Athena and DuckDB
         self.connection.create_function(
@@ -238,22 +242,24 @@ class DuckDatabaseBackend(DatabaseBackend):
         )
 
     def insert_tables(self, tables: dict[str, pyarrow.Table]) -> None:
-        """Ingests all ndjson data from a folder tree (often the output folder of Cumulus ETL)"""
+        """Ingests all ndjson data from a folder tree.
+
+        This is often the output folder of Cumulus ETL"""
         for name, table in tables.items():
             self.connection.register(name, table)
 
     @staticmethod
     def _compat_array_join(
-        value: Optional[list[Optional[str]]], delimiter: str
-    ) -> Optional[str]:
+        value: list[str | None] | None, delimiter: str
+    ) -> str | None:
         if value is None:
             return None
         return delimiter.join(v for v in value if v is not None)
 
     @staticmethod
     def _compat_date(
-        value: Union[str, datetime.datetime, datetime.date, None]
-    ) -> Optional[datetime.date]:
+        value: str | datetime.datetime | datetime.date | None,
+    ) -> datetime.date | None:
         if value is None:
             return None
         elif isinstance(value, str):
@@ -266,14 +272,14 @@ class DuckDatabaseBackend(DatabaseBackend):
             raise ValueError("Unexpected date() argument:", type(value), value)
 
     @staticmethod
-    def _compat_to_utf8(value: Optional[str]) -> Optional[datetime.date]:
+    def _compat_to_utf8(value: str | None) -> datetime.date | None:
         """See the create_function() call for to_utf8 for more background"""
         return value
 
     @staticmethod
     def _compat_from_iso8601_timestamp(
-        value: Optional[str],
-    ) -> Optional[datetime.datetime]:
+        value: str | None,
+    ) -> datetime.datetime | None:
         if value is None:
             return None
 
@@ -329,12 +335,13 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
     """Loads a directory tree of raw ndjson into schema-ful tables.
 
     :param path: a directory path
-    :returns: dictionary of table names (like 'documentreference') to table data (with schema)
+    :returns: dictionary of table names (like 'documentreference') to table
+      data (with schema)
     """
     all_tables = {}
 
-    # Manually specify the list of resources because we want to create each table even if the
-    # folder does not exist.
+    # Manually specify the list of resources because we want to create each table
+    # even if the folder does not exist.
     resources = [
         "AllergyIntolerance",
         "Condition",
@@ -364,7 +371,7 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
         # Read all ndjson directly into memory
         rows = []
         for filename in filenames:
-            with open(filename, "r", encoding="utf8") as f:
+            with open(filename, encoding="utf8") as f:
                 for line in f:
                     rows.append(json.loads(line))
 

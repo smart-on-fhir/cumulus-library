@@ -2,12 +2,10 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from jinja2 import Template
 from pandas import DataFrame
 
-from cumulus_library import databases
 from cumulus_library.template_sql import sql_utils
 
 PATH = Path(__file__).parent
@@ -71,7 +69,7 @@ def get_codeable_concept_denormalize_query(
         )
 
 
-def get_column_datatype_query(schema_name: str, table_name: str, column_names: List):
+def get_column_datatype_query(schema_name: str, table_name: str, column_names: list):
     with open(f"{PATH}/column_datatype.sql.jinja") as column_datatype:
         return Template(column_datatype.read()).render(
             schema_name=schema_name,
@@ -81,7 +79,7 @@ def get_column_datatype_query(schema_name: str, table_name: str, column_names: L
 
 
 def get_create_view_query(
-    view_name: str, dataset: List[List[str]], view_cols: List[str]
+    view_name: str, dataset: list[list[str]], view_cols: list[str]
 ) -> str:
     """Generates a create view as query for inserting static data into athena
 
@@ -98,7 +96,7 @@ def get_create_view_query(
 
 
 def get_ctas_query(
-    schema_name: str, table_name: str, dataset: List[List[str]], table_cols: List[str]
+    schema_name: str, table_name: str, dataset: list[list[str]], table_cols: list[str]
 ) -> str:
     """Generates a create table as query for inserting static data into athena
 
@@ -139,8 +137,8 @@ def get_ctas_query_from_df(schema_name: str, table_name: str, df: DataFrame) -> 
 def get_ctas_empty_query(
     schema_name: str,
     table_name: str,
-    table_cols: List[str],
-    table_cols_types: List[str] = None,
+    table_cols: list[str],
+    table_cols_types: list[str] | None = None,
 ) -> str:
     """Generates a create table as query for initializing an empty table
 
@@ -152,7 +150,8 @@ def get_ctas_empty_query(
     :param schema_name: The athena schema to create the table in
     :param table_name: The name of the athena table to create
     :param table_cols: Comma deleniated column names, i.e. ['first,second']
-    :param table_cols_types: Allows specifying a data type per column (default: all varchar)
+    :param table_cols_types: Allows specifying a data type per column
+      (default: all varchar)
     """
     if not table_cols_types:
         table_cols_types = ["varchar"] * len(table_cols)
@@ -201,9 +200,9 @@ def get_extension_denormalize_query(config: sql_utils.ExtensionConfig) -> str:
 
 def get_insert_into_query(
     table_name: str,
-    table_cols: List[str],
-    dataset: List[List[str]],
-    type_casts: Dict = {},
+    table_cols: list[str],
+    dataset: list[list[str]],
+    type_casts: dict | None = None,
 ) -> str:
     """Generates an insert query for adding data to an existing athena table
 
@@ -212,6 +211,8 @@ def get_insert_into_query(
     :param table_cols: Comma deleniated column names, i.e. ['first','second']
     :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
     """
+    if type_casts is None:
+        type_casts = {}
     with open(f"{PATH}/insert_into.sql.jinja") as insert_into:
         return Template(insert_into.read()).render(
             table_name=table_name,
@@ -224,9 +225,13 @@ def get_insert_into_query(
 def get_is_table_not_empty_query(
     source_table: str,
     field: str,
-    unnests: Optional[list[dict]] = [],
-    conditions: Optional[list[str]] = [],
+    unnests: list[dict] | None = None,
+    conditions: list[str] | None = None,
 ):
+    if unnests is None:
+        unnests = []
+    if conditions is None:
+        conditions = []
     with open(f"{PATH}/is_table_not_empty.sql.jinja") as is_table_not_empty:
         return Template(is_table_not_empty.read()).render(
             source_table=source_table,

@@ -7,18 +7,15 @@ import pathlib
 import sys
 import sysconfig
 
-
-from typing import Dict, List, Optional
-
 import rich
 
 from cumulus_library import (
     __version__,
+    base_utils,
     cli_parser,
     databases,
     enums,
     errors,
-    base_utils,
     protected_table_builder,
     study_parser,
     upload,
@@ -60,8 +57,8 @@ class StudyRunner:
 
     def clean_study(
         self,
-        targets: List[str],
-        study_dict: Dict,
+        targets: list[str],
+        study_dict: dict,
         *,
         stats_clean: bool,
         prefix: bool = False,
@@ -106,7 +103,7 @@ class StudyRunner:
         target: pathlib.Path,
         *,
         stats_build: bool,
-        continue_from: str = None,
+        continue_from: str | None = None,
     ) -> None:
         """Recreates study views/tables
 
@@ -176,7 +173,7 @@ class StudyRunner:
             parser=self.db.parser(),
         )
 
-    def clean_and_build_all(self, study_dict: Dict, stats_build: bool) -> None:
+    def clean_and_build_all(self, study_dict: dict, stats_build: bool) -> None:
         """Builds views for all studies.
 
         NOTE: By design, this method will always exclude the `template` study dir,
@@ -206,7 +203,7 @@ class StudyRunner:
         studyparser = study_parser.StudyManifestParser(target, data_path)
         studyparser.export_study(self.db, data_path)
 
-    def export_all(self, study_dict: Dict, data_path: pathlib.Path):
+    def export_all(self, study_dict: dict, data_path: pathlib.Path):
         """Exports all defined count tables to disk"""
         for key in study_dict.keys():
             self.export_study(study_dict[key], data_path)
@@ -254,7 +251,7 @@ def create_template(path: str) -> None:
         dest_path.write_bytes(source_path.read_bytes())
 
 
-def get_study_dict(alt_dir_paths: List) -> Optional[Dict[str, pathlib.Path]]:
+def get_study_dict(alt_dir_paths: list) -> dict[str, pathlib.Path] | None:
     """Gets valid study targets from ./studies/, and any pip installed studies
 
     :returns: A list of Path objects
@@ -264,11 +261,12 @@ def get_study_dict(alt_dir_paths: List) -> Optional[Dict[str, pathlib.Path]]:
 
     # first, we'll get any installed public studies
     with open(
-        pathlib.Path(cli_path, "./module_allowlist.json"), "r", encoding="utf-8"
+        pathlib.Path(cli_path, "./module_allowlist.json"), encoding="utf-8"
     ) as study_allowlist_json:
         study_allowlist = json.load(study_allowlist_json)["allowlist"]
-    site_packages_dir = sysconfig.get_path("purelib")
+    site_packages_dir = "".join(sysconfig.get_path("purelib"))
     for study, subdir in study_allowlist.items():
+        print(site_packages_dir)
         study_path = pathlib.Path(site_packages_dir, subdir)
         if study_path.exists():
             manifest_studies[study] = study_path
@@ -295,7 +293,7 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict:
     return manifest_paths
 
 
-def run_cli(args: Dict):
+def run_cli(args: dict):
     """Controls which library tasks are run based on CLI arguments"""
     if args["action"] == "create":
         create_template(args["create_dir"])
@@ -312,7 +310,6 @@ def run_cli(args: Dict):
                 runner.verbose = True
             print("Testing connection to database...")
             runner.cursor.execute("SHOW DATABASES")
-
             study_dict = get_study_dict(args["study_dir"])
             if "prefix" not in args.keys():
                 if args["target"]:

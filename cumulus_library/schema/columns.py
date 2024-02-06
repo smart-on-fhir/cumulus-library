@@ -1,10 +1,15 @@
 # pylint: disable=W,C,R
-from enum import Enum, EnumMeta
-from cumulus_library.schema.typesystem import Datatypes, Coding, Vocab
-from cumulus_library.schema.valueset import Gender, Race, Ethnicity
-from cumulus_library.schema.valueset import DurationUnits
-from cumulus_library.schema.valueset import EncounterCode
-from cumulus_library.schema.valueset import ObservationInterpretationDetection
+from enum import Enum
+
+from cumulus_library.schema.typesystem import Datatypes, Vocab
+from cumulus_library.schema.valueset import (
+    DurationUnits,
+    EncounterCode,
+    Ethnicity,
+    Gender,
+    ObservationInterpretationDetection,
+    Race,
+)
 
 
 class ColumnEnum(Enum):

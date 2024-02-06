@@ -1,8 +1,8 @@
 """ Module for generating core medication table"""
 
 from cumulus_library import base_table_builder, base_utils
-from cumulus_library.template_sql import base_templates, sql_utils
 from cumulus_library.studies.core.core_templates import core_templates
+from cumulus_library.template_sql import base_templates, sql_utils
 
 
 class MedicationBuilder(base_table_builder.BaseTableBuilder):

@@ -6,8 +6,8 @@ import pytest
 
 from cumulus_library.errors import CumulusLibraryError
 from cumulus_library.template_sql.statistics.psm_templates import (
-    get_distinct_ids,
     get_create_covariate_table,
+    get_distinct_ids,
 )
 
 

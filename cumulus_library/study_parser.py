@@ -1,21 +1,18 @@
 """ Contains classes for loading study data based on manifest.toml files """
 
 import csv
-import inspect
 import importlib.util
+import inspect
 import pathlib
 import sys
 
-from typing import List, Optional
-
 import toml
-
 from rich.progress import Progress, TaskID, track
 
 from cumulus_library import (
     __version__,
-    base_utils,
     base_table_builder,
+    base_utils,
     databases,
     enums,
     errors,
@@ -23,8 +20,6 @@ from cumulus_library import (
 )
 from cumulus_library.statistics import psm
 from cumulus_library.template_sql import base_templates
-
-StrList = List[str]
 
 
 class StudyManifestParser:
@@ -38,18 +33,17 @@ class StudyManifestParser:
     future.
     """
 
-    _study_path = None
-    _study_config = {}
-
     def __init__(
         self,
-        study_path: Optional[pathlib.Path] = None,
-        data_path: Optional[pathlib.Path] = None,
+        study_path: pathlib.Path | None = None,
+        data_path: pathlib.Path | None = None,
     ):
         """Instantiates a StudyManifestParser.
 
         :param study_path: A pathlib Path object, optional
         """
+        self._study_path = None
+        self._study_config = {}
         if study_path is not None:
             self.load_study_manifest(study_path)
         self.data_path = data_path
@@ -75,19 +69,19 @@ class StudyManifestParser:
                     )
                 self._study_config = config
             self._study_path = study_path
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             raise errors.StudyManifestFilesystemError(  # pylint: disable=raise-missing-from
                 f"Missing or invalid manifest found at {study_path}"
-            )
+            ) from e
 
-    def get_study_prefix(self) -> Optional[str]:
+    def get_study_prefix(self) -> str | None:
         """Reads the name of a study prefix from the in-memory study config
 
         :returns: A string of the prefix in the manifest, or None if not found
         """
         return self._study_config.get("study_prefix")
 
-    def get_sql_file_list(self, continue_from: str = None) -> Optional[StrList]:
+    def get_sql_file_list(self, continue_from: str | None = None) -> list[str] | None:
         """Reads the contents of the sql_config array from the manifest
 
         :returns: An array of sql files from the manifest, or None if not found.
@@ -105,7 +99,7 @@ class StudyManifestParser:
                 )
         return sql_files
 
-    def get_table_builder_file_list(self) -> Optional[StrList]:
+    def get_table_builder_file_list(self) -> list[str] | None:
         """Reads the contents of the table_builder_config array from the manifest
 
         :returns: An array of sql files from the manifest, or None if not found.
@@ -113,7 +107,7 @@ class StudyManifestParser:
         sql_config = self._study_config.get("table_builder_config", {})
         return sql_config.get("file_names", [])
 
-    def get_counts_builder_file_list(self) -> Optional[StrList]:
+    def get_counts_builder_file_list(self) -> list[str] | None:
         """Reads the contents of the counts_builder_config array from the manifest
 
         :returns: An array of sql files from the manifest, or None if not found.
@@ -121,15 +115,16 @@ class StudyManifestParser:
         sql_config = self._study_config.get("counts_builder_config", {})
         return sql_config.get("file_names", [])
 
-    def get_statistics_file_list(self) -> Optional[StrList]:
+    def get_statistics_file_list(self) -> list[str] | None:
         """Reads the contents of the statistics_config array from the manifest
 
-        :returns: An array of statistics toml files from the manifest, or None if not found.
+        :returns: An array of statistics toml files from the manifest,
+          or None if not found.
         """
         stats_config = self._study_config.get("statistics_config", {})
         return stats_config.get("file_names", [])
 
-    def get_export_table_list(self) -> Optional[StrList]:
+    def get_export_table_list(self) -> list[str] | None:
         """Reads the contents of the export_list array from the manifest
 
         :returns: An array of tables to export from the manifest, or None if not found.
@@ -208,8 +203,8 @@ class StudyManifestParser:
         schema_name: str,
         stats_clean: bool = False,
         verbose: bool = False,
-        prefix: str = None,
-    ) -> List:
+        prefix: str | None = None,
+    ) -> list:
         """Removes tables beginning with the study prefix from the database schema
 
         :param cursor: A DatabaseCursor object
@@ -296,7 +291,7 @@ class StudyManifestParser:
         self,
         cursor: databases.DatabaseCursor,
         verbose: bool,
-        view_table_list: List,
+        view_table_list: list,
         progress: Progress,
         task: TaskID,
     ) -> None:
@@ -304,7 +299,8 @@ class StudyManifestParser:
 
         :param cursor: A DatabaseCursor object
         :param verbose: toggle from progress bar to query output
-        :param view_table_list: a list of views and tables beginning with the study prefix
+        :param view_table_list: a list of views and tables beginning with
+          the study prefix
         :param progress: a rich progress bar renderer
         :param task: a TaskID for a given progress bar
         """
@@ -326,7 +322,7 @@ class StudyManifestParser:
         drop_table: bool = False,
         parser: databases.DatabaseParser = None,
         write_reference_sql: bool = False,
-        doc_str: str = None,
+        doc_str: str | None = None,
     ) -> None:
         """Loads a table builder from a file.
 
@@ -336,7 +332,7 @@ class StudyManifestParser:
 
         As with eating an ortolan, you may wish to cover your head with a cloth.
         Per an article on the subject: "Tradition dictates that this is to shield
-        – from God’s eyes – the shame of such a decadent and disgraceful act."
+        - from God's eyes - the shame of such a decadent and disgraceful act."
 
         """
         spec = importlib.util.spec_from_file_location(
@@ -528,7 +524,7 @@ class StudyManifestParser:
         parser: databases.DatabaseParser = None,
         verbose: bool = False,
     ) -> None:
-        """Generates reference SQL from all BaseTableBuilder-derived classes in the manifest
+        """Generates reference SQL from builders listed in the manifest
 
         :param cursor: A DatabaseCursor object
         :param schema: The name of the schema to write tables to
@@ -540,10 +536,10 @@ class StudyManifestParser:
             + self.get_statistics_file_list()
         )
         doc_str = (
-            "-- This sql was autogenerated as a reference example using the library CLI.\n"
-            "-- Its format is tied to the specific database it was run against, and it may not\n"
-            "-- be correct for all databases. Use the CLI's build option to derive the best SQL\n"
-            "-- for your dataset."
+            "-- This sql was autogenerated as a reference example using the library\n"
+            "-- CLI.Its format is tied to the specific database it was run against,\n"
+            "-- and it may not be correct for all databases. Use the CLI's build \n"
+            "-- option to derive the best SQL for your dataset."
         )
         for file in all_generators:
             self._load_and_execute_builder(
@@ -560,8 +556,8 @@ class StudyManifestParser:
         self,
         cursor: databases.DatabaseCursor,
         verbose: bool = False,
-        continue_from: str = None,
-    ) -> List:
+        continue_from: str | None = None,
+    ) -> list:
         """Creates tables in the schema by iterating through the sql_config.file_names
 
         :param cursor: A DatabaseCursor object
@@ -593,9 +589,10 @@ class StudyManifestParser:
             )
         return queries
 
-    def _query_error(self, query_and_filename: List, exit_message: str) -> None:
+    def _query_error(self, query_and_filename: list, exit_message: str) -> None:
         print(
-            f"An error occured executing the following query in {query_and_filename[1]}:",
+            "An error occured executing the following query in ",
+            f"{query_and_filename[1]}:",
             file=sys.stderr,
         )
         print("--------", file=sys.stderr)
@@ -637,8 +634,8 @@ class StudyManifestParser:
                     "This query contains a table name which contains a reserved word "
                     "immediately after the study prefix. Please rename this table so "
                     "that is does not begin with one of these special words "
-                    "immediately after the double undescore.\n"
-                    f"Reserved words: {str(word.value for word in enums.ProtectedTableKeywords)}",
+                    "immediately after the double undescore.\n Reserved words: "
+                    f"{(word.value for word in enums.ProtectedTableKeywords)}",
                 )
             if create_line.count("__") > 1:
                 self._query_error(
@@ -669,7 +666,7 @@ class StudyManifestParser:
 
     def export_study(
         self, db: databases.DatabaseBackend, data_path: pathlib.Path
-    ) -> List:
+    ) -> list:
         """Exports csvs/parquet extracts of tables listed in export_list
 
         :param db: A database backend
@@ -683,7 +680,7 @@ class StudyManifestParser:
         ):
             query = f"select * from {table}"
             dataframe = db.execute_as_pandas(query)
-            path = pathlib.Path(f"{str(data_path)}/{self.get_study_prefix()}/")
+            path = pathlib.Path(f"{data_path}/{self.get_study_prefix()}/")
             path.mkdir(parents=True, exist_ok=True)
             dataframe = dataframe.sort_values(
                 by=list(dataframe.columns), ascending=False, na_position="first"

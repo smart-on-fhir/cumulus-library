@@ -1,7 +1,6 @@
 """unit tests for counts generation"""
 
-import datetime  # pylint: disable=unused-import
-
+import datetime  # noqa: F401
 from pathlib import Path
 
 import pytest
@@ -14,7 +13,7 @@ from tests.conftest import modify_resource_column
 
 def get_sorted_table_data(cursor, table):
     num_cols = cursor.execute(
-        "SELECT count(*) FROM information_schema.columns " f"WHERE table_name='{table}'"
+        f"SELECT count(*) FROM information_schema.columns WHERE table_name='{table}'"
     ).fetchone()[0]
     return cursor.execute(
         f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols)))}"
@@ -53,7 +52,7 @@ def test_core_tables(mock_db_core, table):
     #     for row in table_rows:
     #         f.write(str(f"{row}\n"))
 
-    with open(f"./tests/test_data/core/{table}.txt", "r", encoding="UTF-8") as f:
+    with open(f"./tests/test_data/core/{table}.txt", encoding="UTF-8") as f:
         ref_table = []
         for row in f.readlines():
             ref_table.append(eval(row))  # pylint: disable=eval-used
@@ -92,7 +91,6 @@ def test_core_count_missing_data(tmp_path, mock_db):
     #         f.write(str(f"{row}\n"))
     with open(
         "./tests/test_data/core/core__count_encounter_month_missing_data.txt",
-        "r",
         encoding="UTF-8",
     ) as f:
         ref_table = []

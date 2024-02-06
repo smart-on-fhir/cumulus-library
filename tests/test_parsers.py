@@ -1,12 +1,10 @@
 """Test for FHIR resource parsers"""
 
-from contextlib import nullcontext as does_not_raise
 import json
-
+from contextlib import nullcontext as does_not_raise
 from unittest.mock import mock_open, patch
 
 import pytest
-
 from fhirclient.models.coding import Coding
 
 from cumulus_library.parsers import fhir_valueset
