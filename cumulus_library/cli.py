@@ -264,9 +264,8 @@ def get_study_dict(alt_dir_paths: list) -> dict[str, pathlib.Path] | None:
         pathlib.Path(cli_path, "./module_allowlist.json"), encoding="utf-8"
     ) as study_allowlist_json:
         study_allowlist = json.load(study_allowlist_json)["allowlist"]
-    site_packages_dir = "".join(sysconfig.get_path("purelib"))
+    site_packages_dir = sysconfig.get_path("purelib")
     for study, subdir in study_allowlist.items():
-        print(site_packages_dir)
         study_path = pathlib.Path(site_packages_dir, subdir)
         if study_path.exists():
             manifest_studies[study] = study_path

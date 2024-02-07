@@ -211,8 +211,7 @@ def get_insert_into_query(
     :param table_cols: Comma deleniated column names, i.e. ['first','second']
     :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
     """
-    if type_casts is None:
-        type_casts = {}
+    type_casts = type_casts or {}
     with open(f"{PATH}/insert_into.sql.jinja") as insert_into:
         return Template(insert_into.read()).render(
             table_name=table_name,
@@ -228,10 +227,8 @@ def get_is_table_not_empty_query(
     unnests: list[dict] | None = None,
     conditions: list[str] | None = None,
 ):
-    if unnests is None:
-        unnests = []
-    if conditions is None:
-        conditions = []
+    unnests = unnests or []
+    conditions = conditions or []
     with open(f"{PATH}/is_table_not_empty.sql.jinja") as is_table_not_empty:
         return Template(is_table_not_empty.read()).render(
             source_table=source_table,

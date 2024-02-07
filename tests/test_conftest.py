@@ -23,7 +23,7 @@ def test_ndjson_data_generator(tmp_path):
                 try:
                     *_, last_ref = f
                     last_ref = json.loads(last_ref)
-                except Exception:
+                except ValueError:
                     last_ref = first_ref
             for source in [[first_new, first_ref, 0], [last_new, last_ref, iters - 1]]:
                 for id_path in ID_PATHS[key]:

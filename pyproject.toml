@@ -58,7 +58,8 @@ include = [".sqlfluff"]
 [tool.ruff]
 target-version = "py310"
 
-lint.select = [
+[tool.ruff.lint]
+select = [
     "A",  # prevent using keywords that clobber python builtins
     "B",  # bugbear: security warnings
     "E",  # pycodestyle
@@ -69,9 +70,11 @@ lint.select = [
     "RUF",  # the ruff developer's own rules
     "UP",  # alert you when better syntax is available in your python version
 ]
-lint.ignore = [
+ignore = [
     "ISC001"  # Recommended ingore from `ruff format`
 ]
 
 [tool.ruff.lint.per-file-ignores]
+# ./cumulus_library/schema needs general revisiting, deferring on style maintenance
+# until that occurs
 "cumulus_library/schema/valueset.py" = ["E501"]

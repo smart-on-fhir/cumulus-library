@@ -122,9 +122,10 @@ class BaseTableBuilder(ABC):
         self.queries = commented_queries
 
     def write_queries(self, path: pathlib.Path | None = None):
+        """writes all queries constructed by prepare_queries to disk"""
         if path is None:
             path = pathlib.Path.cwd() / "output.sql"
-        """writes all queries constructed by prepare_queries to disk"""
+
         path.parents[0].mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as file:
             for query in self.queries:

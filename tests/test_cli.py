@@ -28,7 +28,7 @@ class MockVocabBsv:
             args = (
                 Path(
                     "./tests/test_data/mock_bsvs/",
-                    f"{str(args[0]).rsplit('/', maxsplit=1)[-1]}",
+                    str(args[0]).rsplit("/", maxsplit=1)[-1],
                 ),
                 "r",
             )
@@ -102,10 +102,7 @@ def test_cli_early_exit(args):
 )
 def test_cli_path_mapping(mock_load_json, mock_path, tmp_path, args, raises, expected):  # pylint: disable=unused-argument
     with raises:
-        mock_path.return_value = (
-            f"{Path(__file__).resolve().parents[0]}",
-            "/test_data/",
-        )
+        mock_path.return_value = f"{Path(__file__).resolve().parents[0]}/test_data/"
         mock_load_json.return_value = {
             "__desc__": "",
             "allowlist": {
@@ -124,7 +121,7 @@ def test_cli_path_mapping(mock_load_json, mock_path, tmp_path, args, raises, exp
 )
 @mock.patch("sysconfig.get_path")
 def test_count_builder_mapping(mock_path, tmp_path):
-    mock_path.return_value = (f"{Path(__file__).resolve().parents[0]}", "/test_data/")
+    mock_path.return_value = f"{Path(__file__).resolve().parents[0]}/test_data/"
     with does_not_raise():
         args = duckdb_args(
             [
@@ -220,7 +217,7 @@ def test_generate_sql(mock_path, tmp_path):
     ],
 )
 def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-argument
-    mock_path.return_value = (f"{Path(__file__).resolve().parents[0]}", "/test_data/")
+    mock_path.return_value = f"{Path(__file__).resolve().parents[0]}/test_data/"
     cli.main(
         cli_args=duckdb_args(["build", "-t", "core", "--database", "test"], tmp_path)
     )

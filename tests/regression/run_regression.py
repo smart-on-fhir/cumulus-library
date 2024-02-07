@@ -58,7 +58,7 @@ for filename in references:
             diffs.append(
                 [
                     filename,
-                    ("Rows differ between reference and export:\n", f"{compared}"),
+                    f"Rows differ between reference and export:\n {compared}",
                 ]
             )
 if len(diffs) > 0:

@@ -8,6 +8,30 @@ from cumulus_library.template_sql import base_templates, sql_utils
 class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Selecting unique code systems..."
 
+    def _check_coding_against_db(code_source, schema, cursor):
+        """selects the appropriate DB query to run"""
+
+        if code_source["is_array"]:
+            return sql_utils.is_codeable_concept_array_populated(
+                schema,
+                code_source["table_name"],
+                code_source["column_name"],
+                cursor,
+            )
+        elif code_source["is_bare_coding"]:
+            return sql_utils.is_code_populated(
+                schema,
+                code_source["table_name"],
+                code_source["column_name"],
+                cursor,
+            )
+        return sql_utils.is_codeable_concept_populated(
+            schema,
+            code_source["table_name"],
+            code_source["column_name"],
+            cursor,
+        )
+
     def _check_codes_in_fields(self, code_sources: list[dict], schema, cursor) -> dict:
         """checks if Coding/CodeableConcept fields are present and populated"""
 
@@ -17,29 +41,9 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
                 total=len(code_sources),
             )
             for code_source in code_sources:
-                if code_source["is_array"]:
-                    code_source[
-                        "has_data"
-                    ] = sql_utils.is_codeable_concept_array_populated(
-                        schema,
-                        code_source["table_name"],
-                        code_source["column_name"],
-                        cursor,
-                    )
-                elif code_source["is_bare_coding"]:
-                    code_source["has_data"] = sql_utils.is_code_populated(
-                        schema,
-                        code_source["table_name"],
-                        code_source["column_name"],
-                        cursor,
-                    )
-                else:
-                    code_source["has_data"] = sql_utils.is_codeable_concept_populated(
-                        schema,
-                        code_source["table_name"],
-                        code_source["column_name"],
-                        cursor,
-                    )
+                code_source["has_data"] = self._check_coding_against_db(
+                    code_source, schema, cursor
+                )
                 progress.advance(task)
         return code_sources
 
