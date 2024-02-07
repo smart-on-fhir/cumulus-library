@@ -1,7 +1,6 @@
 """ tests for jinja sql templates """
 
 import pytest
-
 from pandas import DataFrame
 
 from cumulus_library.template_sql import base_templates, sql_utils

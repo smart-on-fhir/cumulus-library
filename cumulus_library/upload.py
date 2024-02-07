@@ -1,11 +1,9 @@
 """ Handles pushing data to the aggregator"""
 
 import sys
-
 from pathlib import Path
 
 import requests
-
 from pandas import read_parquet
 from rich.progress import Progress, TaskID
 

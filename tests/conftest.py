@@ -2,18 +2,14 @@
 
 import copy
 import json
-import os
-import tempfile
-
-from enum import IntEnum
 from pathlib import Path
 
+import numpy
 import pandas
 import pytest
-import numpy
 
 from cumulus_library.cli import StudyRunner
-from cumulus_library.databases import create_db_backend, DatabaseCursor
+from cumulus_library.databases import DatabaseCursor, create_db_backend
 
 MOCK_DATA_DIR = f"{Path(__file__).parent}/test_data/duckdb_data"
 ID_PATHS = {
@@ -60,7 +56,8 @@ def duckdb_args(args: list, tmp_path, stats=False):
         target = f"{MOCK_DATA_DIR}"
 
     if args[0] == "build":
-        return args + [
+        return [
+            *args,
             "--db-type",
             "duckdb",
             "--load-ndjson-dir",
@@ -69,14 +66,15 @@ def duckdb_args(args: list, tmp_path, stats=False):
             f"{tmp_path}/duck.db",
         ]
     elif args[0] == "export":
-        return args + [
+        return [
+            *args,
             "--db-type",
             "duckdb",
             "--database",
             f"{tmp_path}/duck.db",
             f"{tmp_path}/counts",
         ]
-    return args + ["--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
+    return [*args, "--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
 
 
 def ndjson_data_generator(source_dir: Path, target_dir: Path, iterations: int):
@@ -121,7 +119,7 @@ def ndjson_data_generator(source_dir: Path, target_dir: Path, iterations: int):
                             # panda's deep copy is not recursive, so we have to do it
                             # again for nested objects
                             df[id_path[0]] = df[id_path[0]].map(
-                                lambda x: update_nested_obj(
+                                lambda x, i=i, id_path=id_path: update_nested_obj(
                                     id_path[1:], copy.deepcopy(x), i
                                 )
                             )

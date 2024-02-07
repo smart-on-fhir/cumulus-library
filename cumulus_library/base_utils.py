@@ -1,11 +1,9 @@
 """ Collection of small commonly used utility functions """
 
 import datetime
-import os
 import json
-
+import os
 from contextlib import contextmanager
-from typing import List
 
 from rich import progress
 
@@ -15,16 +13,16 @@ def filepath(filename: str) -> str:
 
 
 def load_text(path: str) -> str:
-    with open(path, "r", encoding="UTF-8") as fp:
+    with open(path, encoding="UTF-8") as fp:
         return fp.read()
 
 
 def load_json(path: str) -> dict:
-    with open(path, "r", encoding="UTF-8") as fp:
+    with open(path, encoding="UTF-8") as fp:
         return json.load(fp)
 
 
-def parse_sql(sql_text: str) -> List[str]:
+def parse_sql(sql_text: str) -> list[str]:
     commands = []
 
     for statement in sql_text.split(";"):
@@ -36,11 +34,11 @@ def parse_sql(sql_text: str) -> List[str]:
     return filter_strip(commands)
 
 
-def filter_strip(commands) -> List[str]:
+def filter_strip(commands) -> list[str]:
     return list(filter(None, [c.strip() for c in commands]))
 
 
-def list_coding(code_display: dict, system=None) -> List[dict]:
+def list_coding(code_display: dict, system=None) -> list[dict]:
     as_list = []
     for code, display in code_display.items():
         if system:

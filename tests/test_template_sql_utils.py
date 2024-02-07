@@ -1,9 +1,9 @@
 """ tests for the cli interface to studies """
 
-import duckdb
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 
-from contextlib import nullcontext as does_not_raise
 from cumulus_library.template_sql import sql_utils
 
 

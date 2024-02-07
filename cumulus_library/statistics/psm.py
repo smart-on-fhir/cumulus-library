@@ -5,21 +5,18 @@ import os
 import pathlib
 import sys
 import warnings
-
 from dataclasses import dataclass
 
+import matplotlib.pyplot as plt
 import pandas
+import seaborn as sns
 import toml
-
 from psmpy import PsmPy
 
 # these imports are mimicing PsmPy imports for re-implemented functions
 from psmpy.functions import cohenD
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-from cumulus_library import databases
-from cumulus_library import base_table_builder
+from cumulus_library import base_table_builder, databases
 from cumulus_library.template_sql import base_templates
 from cumulus_library.template_sql.statistics import psm_templates
 
@@ -86,7 +83,7 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
             )
         except KeyError:
             sys.exit(
-                f"PSM configuration at {toml_config_path} contains missing/invalid keys."
+                f"PSM configuration {toml_config_path} contains missing/invalid keys."
                 "Check the PSM documentation for an example config with more details:\n"
                 "https://docs.smarthealthit.org/cumulus/library/statistics/propensity-score-matching.html"
             )
@@ -190,8 +187,8 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         Title="Side by side matched controls",
         Ylabel="Number of patients",
         Xlabel="propensity logit",
-        names=["positive_cohort", "negative_cohort"],
-        colors=["#E69F00", "#56B4E9"],
+        names=["positive_cohort", "negative_cohort"],  # noqa: B006
+        colors=["#E69F00", "#56B4E9"],  # noqa: B006
         save=True,
         filename="propensity_match.png",
     ):
@@ -214,13 +211,13 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         plt.xlabel(Xlabel)
         plt.ylabel(Ylabel)
         plt.title(Title)
-        if save == True:
+        if save:
             plt.savefig(filename, dpi=250)
 
     def psm_effect_size_plot(
         self,
         psm,
-        title="Standardized Mean differences accross covariates before and after matching",
+        title="Standardized Mean differences accross covariates before and after matching",  # noqa: E501
         before_color="#FCB754",
         after_color="#3EC8FB",
         save=False,
@@ -233,8 +230,8 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         and passing in the psm object instead of assuming a call from inside
         the PsmPy class.
         """
-        df_preds_after = psm.df_matched[[psm.treatment] + psm.xvars]
-        df_preds_b4 = psm.data[[psm.treatment] + psm.xvars]
+        df_preds_after = psm.df_matched[[psm.treatment] + psm.xvars]  # noqa: RUF005
+        df_preds_b4 = psm.data[[psm.treatment] + psm.xvars]  # noqa: RUF005
         df_preds_after_float = df_preds_after.astype(float)
         df_preds_b4_float = df_preds_b4.astype(float)
 
@@ -255,7 +252,7 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
             orient="h",
         )
         sns_plot.set(title=title)
-        if save == True:
+        if save:
             sns_plot.figure.savefig(filename, dpi=250, bbox_inches="tight")
 
     def generate_psm_analysis(
@@ -271,7 +268,9 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         ).as_pandas()
         symptoms_dict = self._get_symptoms_dict(self.config.classification_json)
         for dependent_variable, codes in symptoms_dict.items():
-            df[dependent_variable] = df["code"].apply(lambda x: 1 if x in codes else 0)
+            df[dependent_variable] = df["code"].apply(
+                lambda x, codes=codes: 1 if x in codes else 0
+            )
         df = df.drop(columns="code")
         # instance_count present but unused for PSM if table contains a count_ref input
         # (it's intended for manual review)
@@ -315,8 +314,8 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
             # mentioning workarounds for this behavior.
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=UserWarning)
-                # This function populates the psm.predicted_data element, which is required
-                # for things like the knn_matched() function call
+                # This function populates the psm.predicted_data element, which is
+                # required for things like the knn_matched() function call
                 psm.logistic_ps(balance=True)
                 # This function populates the psm.df_matched element
                 psm.knn_matched(
@@ -338,11 +337,13 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
                 )
         except ZeroDivisionError:
             sys.exit(
-                "Encountered a divide by zero error during statistical graph generation. Try increasing your sample size."
+                "Encountered a divide by zero error during statistical graph "
+                "generation. Try increasing your sample size."
             )
         except ValueError:
             sys.exit(
-                "Encountered a value error during KNN matching. Try increasing your sample size."
+                "Encountered a value error during KNN matching. Try increasing "
+                "your sample size."
             )
 
     def prepare_queries(self, cursor: object, schema: str, table_suffix: str):
@@ -354,7 +355,7 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         schema: str,
         verbose: bool,
         drop_table: bool = False,
-        table_suffix: str = None,
+        table_suffix: str | None = None,
     ):
         # super().execute_queries(cursor, schema, verbose, drop_table)
         self.generate_psm_analysis(cursor, schema, table_suffix)

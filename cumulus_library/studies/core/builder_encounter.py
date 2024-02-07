@@ -1,8 +1,6 @@
-from cumulus_library import base_table_builder
-from cumulus_library import databases
+from cumulus_library import base_table_builder, databases
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import sql_utils
-
 
 expected_table_cols = {
     "encounter": {

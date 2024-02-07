@@ -29,10 +29,10 @@ def add_study_dir_argument(parser: argparse.ArgumentParser) -> None:
         action="append",
         help=(
             "Optionally add one or more directories to look for study definitions in. "
-            "Default is in project directory and CUMULUS_LIBRARY_STUDY_DIR, if present, "
-            "followed by any supplied paths. Target, and all its subdirectories, "
-            "are checked for manifests. Overriding studies with the same namespace "
-            "supersede earlier ones."
+            "Default is in project directory and CUMULUS_LIBRARY_STUDY_DIR, "
+            "if present, followed by any supplied paths. Target, and all its "
+            "subdirectories, are checked for manifests. Overriding studies with the"
+            " same namespace supersede earlier ones."
         ),
     )
 
@@ -87,10 +87,14 @@ def add_db_config(parser: argparse.ArgumentParser) -> None:
     )
     group.add_argument(
         "--database",
-        # In Athena, we use this as the schema_name (which is also called a Database in their UX).
+        # In Athena, we use this as the schema_name (which is also called a Database
+        # in their UX).
+        #
         # In DuckDB, we use this as the path to the filename to store tables.
-        # Since we started as an Athena-centric codebase, we mostly keep referring to this as
-        # name "schema_name". But to the user, both uses are still conceptually a "database".
+        #
+        # Since we started as an Athena-centric codebase, we mostly keep referring to
+        # this as name "schema_name". But to the user, both uses are still conceptually
+        # a "database".
         dest="schema_name",
         help="Database name (for Athena) or file (for DuckDB)",
     )

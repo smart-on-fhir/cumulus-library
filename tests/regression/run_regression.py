@@ -16,7 +16,6 @@ this approach."""
 
 import os
 import sys
-
 from pathlib import Path
 
 from pandas import read_parquet
@@ -32,8 +31,8 @@ if references != exports:
     export_missing = exports - references
     sys.exit(
         "❌ Found differences in files present: ❌\n"
-        f"Files present in reference not in export: {str(ref_missing)}\n"
-        f"Files present in export not in reference: {str(export_missing)}"
+        f"Files present in reference not in export: {ref_missing!s}\n"
+        f"Files present in export not in reference: {export_missing!s}"
     )
 diffs = []
 for filename in references:
@@ -59,7 +58,7 @@ for filename in references:
             diffs.append(
                 [
                     filename,
-                    ("Rows differ between reference and export:\n" f"{compared}"),
+                    f"Rows differ between reference and export:\n {compared}",
                 ]
             )
 if len(diffs) > 0:
