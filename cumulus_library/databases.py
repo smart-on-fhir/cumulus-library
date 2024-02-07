@@ -44,7 +44,7 @@ class DatabaseCursor(Protocol):
 class DatabaseParser(abc.ABC):
     """Parses information_schema results from a database"""
 
-    def _parse_found_schema(self, expected: dict[dict[list]], schema: list[tuple]):
+    def _parse_found_schema(self, expected: dict[dict[list]], schema: list[list]):
         """Checks for presence of field for each column in a table
 
         :param expected: A nested dict describing the expected data format of
