@@ -42,6 +42,7 @@ def test_codeable_concept_denormalize_all_creation():
             code,
             display
         FROM system_code_col_0
+        
     )
     SELECT
         id,
@@ -110,6 +111,7 @@ def test_codeable_concept_denormalize_filter_creation():
             code,
             display
         FROM system_code_col_1
+        
     ),
 
     partitioned_table AS (
@@ -152,7 +154,6 @@ def test_codeable_concept_denormalize_filter_creation():
         ],
     )
     query = base_templates.get_codeable_concept_denormalize_query(config)
-
     assert query == expected
 
 
@@ -310,6 +311,7 @@ def test_extension_denormalize_creation():
             prefix_code,
             prefix_display
         FROM system_text
+        
         ORDER BY id, priority
     )
 

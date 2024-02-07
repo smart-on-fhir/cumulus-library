@@ -1,3 +1,4 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
 CREATE TABLE {{ target_table }} AS (
     WITH
     {%- for system in ext_systems %}
@@ -29,9 +30,7 @@ CREATE TABLE {{ target_table }} AS (
             {{ target_col_prefix }}_code,
             {{ target_col_prefix }}_display
         FROM system_{{ system }}
-        {%- if not loop.last %}
-        UNION 
-        {%- endif -%}
+        {{ syntax.union_delineate(loop) }}
         {%- endfor %}
         ORDER BY id, priority
     )

@@ -4,11 +4,8 @@ from contextlib import nullcontext as does_not_raise
 
 import pytest
 
-from cumulus_library.errors import CumulusLibraryError
-from cumulus_library.template_sql.statistics.psm_templates import (
-    get_create_covariate_table,
-    get_distinct_ids,
-)
+from cumulus_library import errors
+from cumulus_library.statistics.statistics_templates import psm_templates
 
 
 @pytest.mark.parametrize(
@@ -41,14 +38,23 @@ WHERE
 FROM source""",
             does_not_raise(),
         ),
-        (["a", "b"], "source", "ref_id", None, "", pytest.raises(CumulusLibraryError)),
+        (
+            ["a", "b"],
+            "source",
+            "ref_id",
+            None,
+            "",
+            pytest.raises(errors.CumulusLibraryError),
+        ),
     ],
 )
 def test_get_distinct_ids(
     columns, source_table, join_id, filter_table, expected, raises
 ):
     with raises:
-        query = get_distinct_ids(columns, source_table, join_id, filter_table)
+        query = psm_templates.get_distinct_ids(
+            columns, source_table, join_id, filter_table
+        )
         assert query == expected
 
 
@@ -128,7 +134,7 @@ def test_get_distinct_ids(
             "join_table",
             None,
             "",
-            pytest.raises(CumulusLibraryError),
+            pytest.raises(errors.CumulusLibraryError),
         ),
     ],
 )
@@ -146,7 +152,7 @@ def test_create_covariate_table(
     raises,
 ):
     with raises:
-        query = get_create_covariate_table(
+        query = psm_templates.get_create_covariate_table(
             target,
             pos_source,
             neg_source,

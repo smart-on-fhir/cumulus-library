@@ -1,3 +1,4 @@
+{% import 'syntax.sql.jinja' as syntax %}
 {#- A collection of macros for constructing common safe column selects
 
     For layout, is is generally assumed that these are being invoked from within
@@ -9,7 +10,7 @@
 {% macro basic_cols(table, alias, targets) %}
         {%- for col in targets %}
         {{ alias }}.{{ col }}
-        {{- comma_delineate(loop) }}
+        {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
 {%- endmacro %}
 
@@ -43,7 +44,7 @@ targets is an array expecting a data type of the following:
         {%- else %}
         NULL AS {{ col }}
         {%- endif %}        
-        {{- comma_delineate(loop) }}
+        {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
 {%- endmacro %}
 
@@ -75,7 +76,7 @@ targets is an array expecting a data type of the following:
         {%- else %}
         cast(NULL AS date) AS {{ col.lower() }}
         {%- endif %}    
-        {{- comma_delineate(loop) }}
+        {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
 {%- endmacro %}
 
@@ -110,16 +111,7 @@ targets is assumed to be a list of tuples of one of the following format:
         {%- else %}
         cast(NULL AS date) AS {{ col[0] }}_{{ col[1] }}
         {%- endif %}    
-        {{- comma_delineate(loop) }}
+        {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
 {%- endmacro %}
-
-{#- convenience function for looping over items
-
-TODO: this should move to some kind of global jinja utils location -#}
-{%- macro comma_delineate(loop) -%}
-{%- if not loop.last -%}
-, 
-{%- endif -%}
-{%- endmacro -%}
 

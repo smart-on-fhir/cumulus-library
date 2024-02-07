@@ -1,9 +1,4 @@
-{%- macro comma_delineate(loop) -%}
-{%- if not loop.last -%}
-, 
-{%- endif -%}
-{%- endmacro -%}
-
+{%- import 'syntax.sql.jinja' as syntax -%}
 {#- TODO: move secondary/tertiary resource declaration upstream to
 statistics/counts.py level -#}
 {%- macro secondary_resource(fhir_resource) -%}
@@ -30,7 +25,7 @@ logic at the statistics/counts.py level -#}
 {%- macro cols_delineated_list(table_cols, fhir_resource)-%}
             {% for col in table_cols %}
             "{{ column_or_alias(col) }}"
-            {{- comma_delineate(loop) }}
+            {{- syntax.comma_delineate(loop) }}
             {%- endfor %}
             {%- if fhir_resource in ('documentreference', 'observation' ) -%},
             enc_class_display
@@ -42,7 +37,7 @@ which will drop nulls, resulting in potentially non-unique keys -#}
 {%- macro cols_coalesced_list(table_cols, fhir_resource)-%}
                 {% for col in table_cols %}
                 COALESCE("{{ column_or_alias(col) }}",'')
-                {{- comma_delineate(loop) }}
+                {{- syntax.comma_delineate(loop) }}
                 {%- endfor %}
                 {%- if fhir_resource in ('documentreference', 'observation' ) -%},
                 COALESCE(enc_class_display,'')
@@ -90,7 +85,7 @@ CREATE TABLE {{ table_name }} AS (
             {%- else %}
             s."{{ col.name }}" AS {{ col.alias }}
             {%- endif -%}
-            {{- comma_delineate(loop) -}}
+            {{- syntax.comma_delineate(loop) -}}
             {% endfor %}
             --noqa: enable=RF03, AL02
         FROM {{ source_table }} AS s
@@ -137,7 +132,7 @@ CREATE TABLE {{ table_name }} AS (
                 cast({{ column_or_alias(col) }} AS varchar),
                 '{{ missing_null }}'
             ) AS {{ column_or_alias(col) }}
-            {{- comma_delineate(loop) }}
+            {{- syntax.comma_delineate(loop) }}
             {%- endfor -%}
         {%- if filter_resource %}
         FROM filtered_table
@@ -205,7 +200,7 @@ CREATE TABLE {{ table_name }} AS (
         {%- endif %}
         {%- for col in table_cols %}
         p."{{ column_or_alias(col) }}"
-        {{- comma_delineate(loop) }}
+        {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
         {%- if fhir_resource in ('documentreference', 'observation' ) -%},
         p.enc_class_display

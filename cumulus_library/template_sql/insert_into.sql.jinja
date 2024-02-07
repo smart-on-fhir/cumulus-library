@@ -1,10 +1,9 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
 INSERT INTO {{ table_name }}
 (
     {%- for col in table_cols -%}
     "{{ col }}"
-    {%- if not loop.last -%}
-    , 
-    {%- endif -%}
+    {{- syntax.comma_delineate(loop) }}
     {%- endfor -%}
 )
 VALUES
@@ -16,12 +15,8 @@ VALUES
     {%- else -%}
     '{{ field }}'
     {%- endif -%}
-    {%- if not loop.last -%}
-    , 
-    {%- endif -%}
+    {{- syntax.comma_delineate(loop) }}
     {%- endfor -%}
 )
-{%- if not loop.last -%}
-, 
-{%- endif -%}
+{{- syntax.comma_delineate(loop) }}
 {%- endfor %};

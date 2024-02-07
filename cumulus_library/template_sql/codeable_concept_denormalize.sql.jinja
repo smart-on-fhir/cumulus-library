@@ -1,3 +1,4 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
 CREATE TABLE {{ target_table }} AS (
     WITH
     {%- for system in code_systems %}
@@ -37,9 +38,7 @@ CREATE TABLE {{ target_table }} AS (
             code,
             display
         FROM system_{{ column_name }}_{{ loop.index0 }}
-        {%- if not loop.last %}
-        UNION 
-        {%- endif -%}
+        {{syntax.union_delineate(loop)}}
         {%- endfor %}
     )
     {%- if filter_priority -%},
