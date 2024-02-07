@@ -181,7 +181,7 @@ class AthenaDatabaseBackend(DatabaseBackend):
 
 class AthenaParser(DatabaseParser):
     def validate_table_schema(
-        self, expected: dict[dict[list]], schema: list[tuple]
+        self, expected: dict[dict[list]], schema: list[list]
     ) -> bool:
         schema = dict(schema)
         return self._parse_found_schema(expected, schema)
