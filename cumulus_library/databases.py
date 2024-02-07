@@ -44,7 +44,9 @@ class DatabaseCursor(Protocol):
 class DatabaseParser(abc.ABC):
     """Parses information_schema results from a database"""
 
-    def _parse_found_schema(self, expected: dict[dict[list]], schema: list[list]):
+    def _parse_found_schema(
+        self, expected: dict[dict[list]], schema: dict[list]
+    ) -> dict:
         """Checks for presence of field for each column in a table
 
         :param expected: A nested dict describing the expected data format of
@@ -64,36 +66,33 @@ class DatabaseParser(abc.ABC):
         is a first pass, ignoring complexities of differing database variable
         types, just iterating through looking for column names.
 
-
-        TODO: on a per database instance, consider a more nuanced approach
-        if needed
+        TODO: on a per database instance, consider a more nuanced approach if needed
+              (compared to just checking if the schema contains the field name)
         """
         output = {}
-        for column, _ in expected.items():
-            output[column] = {}
-            if col_schema := schema[column.lower()]:
-                # is this an object column?
-                if len(expected[column]) > 0:
-                    for field in expected[column]:
-                        col_schema = col_schema.split(field, 1)
-                        if len(col_schema) != 2:
-                            output[column][field] = False
-                            col_schema = col_schema[0]
-                        else:
-                            output[column][field] = True
-                            col_schema = col_schema[1]
-                # otherwise this is a primitive col
-                else:
-                    output[column] = True
+
+        for column, fields in expected.items():
+            column_lower = column.lower()
+
+            # is this an object column? (like: "subject": ["reference"])
+            if fields:
+                col_schema = schema.get(column_lower, "").lower()
+                output[column] = {
+                    # TODO: make this check more robust
+                    field: field.lower() in col_schema
+                    for field in fields
+                }
+
+            # otherwise this is a primitive col (like: "recordedDate": None)
             else:
-                for field in expected[column]:
-                    output[column][field] = False
+                output[column] = column_lower in schema
+
         return output
 
     @abc.abstractmethod
     def validate_table_schema(
-        self, expected: dict[dict[list]], schema: list[tuple]
-    ) -> dict[bool]:
+        self, expected: dict[str, list[str]], schema: list[tuple]
+    ) -> dict:
         """Public interface for investigating if fields are in a table schema.
 
         This method should lightly format results and pass them to
@@ -182,7 +181,7 @@ class AthenaDatabaseBackend(DatabaseBackend):
 class AthenaParser(DatabaseParser):
     def validate_table_schema(
         self, expected: dict[dict[list]], schema: list[list]
-    ) -> bool:
+    ) -> dict:
         schema = dict(schema)
         return self._parse_found_schema(expected, schema)
 
@@ -291,6 +290,8 @@ class DuckDatabaseBackend(DatabaseBackend):
             else:
                 return datetime.datetime(int(pieces[0]), int(pieces[1]), 1)
 
+        # TODO: return timezone-aware datetimes, like Athena does
+        #       (this currently generates naive datetimes, in UTC local time)
         return datetime.datetime.fromisoformat(value)
 
     def cursor(self) -> duckdb.DuckDBPyConnection:

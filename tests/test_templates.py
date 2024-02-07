@@ -168,8 +168,8 @@ WHERE
 
     query = base_templates.get_column_datatype_query(
         schema_name="schema_name",
-        table_name="table_name",
-        column_names=["foo", "bar"],
+        table_name="TABLE_NAME",
+        column_names=["foo", "BAR"],
     )
     assert query == expected
 
