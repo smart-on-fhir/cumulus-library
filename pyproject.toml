@@ -71,7 +71,9 @@ select = [
     "UP",  # alert you when better syntax is available in your python version
 ]
 ignore = [
-    "ISC001"  # Recommended ingore from `ruff format`
+# Recommended ingore from `ruff format` due to in-project conflicts with check.
+# It's expected that this will be fixed in the coming months.
+    "ISC001"
 ]
 
 [tool.ruff.lint.per-file-ignores]

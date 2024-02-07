@@ -5,7 +5,7 @@
 To use the same dev environment as us, you'll want to run these commands:
 ```sh
 pip install .[dev]
-pre-commit install
+pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
 
 This will install dependencies & build tools,
