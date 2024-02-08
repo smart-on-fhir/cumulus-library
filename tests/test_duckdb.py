@@ -1,15 +1,17 @@
 """ tests for duckdb backend support """
 
 import glob
+import json
 import os
 import tempfile
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
 import pytest
 
 from cumulus_library import cli, databases
+from cumulus_library.template_sql import base_templates
 
 
 @mock.patch.dict(
@@ -55,12 +57,12 @@ def test_duckdb_core_build_and_export():
 @pytest.mark.parametrize(
     "timestamp,expected",
     [
-        ("2021", datetime(2021, 1, 1, tzinfo=timezone.utc)),
-        ("2019-10", datetime(2019, 10, 1, tzinfo=timezone.utc)),
-        ("1923-01-23", datetime(1923, 1, 23, tzinfo=timezone.utc)),
+        ("2021", datetime(2021, 1, 1)),
+        ("2019-10", datetime(2019, 10, 1)),
+        ("1923-01-23", datetime(1923, 1, 23)),
         (
             "2023-01-16T07:55:25-05:00",
-            datetime(2023, 1, 16, 7, 55, 25, tzinfo=timezone(timedelta(hours=-5))),
+            datetime(2023, 1, 16, 12, 55, 25),
         ),
     ],
 )
@@ -71,4 +73,57 @@ def test_duckdb_from_iso8601_timestamp(timestamp, expected):
         .execute(f"select from_iso8601_timestamp('{timestamp}')")
         .fetchone()[0]
     )
-    assert parsed, expected
+    assert parsed == expected
+
+
+def test_duckdb_table_schema():
+    """Verify we can detect schemas correctly, even for nested camel case fields"""
+    db = databases.DuckDatabaseBackend(":memory:")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.mkdir(f"{tmpdir}/observation")
+        with open(f"{tmpdir}/observation/test.ndjson", "w", encoding="utf8") as ndjson:
+            json.dump(
+                {
+                    "id": "test",
+                    "component": [{"dataAbsentReason": {"text": "Dunno"}}],
+                    "valueBoolean": False,
+                },
+                ndjson,
+            )
+
+        db.insert_tables(databases.read_ndjson_dir(tmpdir))
+
+        # Look for a mix of camel-cased and lower-cased fields. Both should work.
+        target_schema = {
+            "bodySite": [],
+            "CoMpOnEnT": ["dataabsentreason", "valueQuantity"],
+            "not_a_real_field": [],
+            "valueboolean": [],
+        }
+
+        # Query database for what exists right now as a schema
+        query = base_templates.get_column_datatype_query(
+            # Use a mixed-case table name
+            db.schema_name,
+            "Observation",
+            list(target_schema.keys()),
+        )
+        actual_schema = db.cursor().execute(query).fetchall()
+
+        # Validate that schema against what we were looking for
+        validated_schema = db.parser().validate_table_schema(
+            target_schema, actual_schema
+        )
+        # Note the all mixed-case results.
+        # These are guaranteed to be the same case as the expected/target schema.
+        expected_schema = {
+            "bodySite": True,  # real toplevel fields are guaranteed to be in schema
+            "CoMpOnEnT": {
+                "dataabsentreason": True,
+                "valueQuantity": False,
+            },
+            "not_a_real_field": False,
+            "valueboolean": True,
+        }
+        assert validated_schema == expected_schema

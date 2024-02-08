@@ -4,5 +4,5 @@ SELECT
 FROM information_schema.columns
 WHERE
     table_schema = '{{ schema_name }}'
-    AND table_name = '{{ table_name }}'
-    AND LOWER(column_name) IN ('{{ column_names|join("', '") }}') --noqa: LT05
+    AND table_name = '{{ table_name|lower }}'
+    AND LOWER(column_name) IN ('{{ column_names|join("', '")|lower }}') --noqa: LT05
