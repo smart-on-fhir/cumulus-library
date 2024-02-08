@@ -38,7 +38,7 @@ CREATE TABLE {{ target_table }} AS (
             code,
             display
         FROM system_{{ column_name }}_{{ loop.index0 }}
-        {{syntax.union_delineate(loop)}}
+        {{ syntax.union_delineate(loop) }}
         {%- endfor %}
     )
     {%- if filter_priority -%},
