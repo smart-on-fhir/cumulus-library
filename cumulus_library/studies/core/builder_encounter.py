@@ -40,9 +40,13 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                     "http://terminology.hl7.org/CodeSystem/v2-0004",
                     "urn:oid:2.16.840.1.113883.4.642.3.248",
                     "http://snomed.info/sct",
-                    "https://fhir.cerner.com/96976f07-eccb-424c-9825-e0d0b887148b/codeSet/71",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.10",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.2",
+                    # Cerner specific systems
+                    "https://fhir.cerner.com/%/codeSet/71",
+                    # EPIC specific systems
+                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.10110",
+                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.18875",
+                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.30",
+                    "urn:oid:1.2.840.114350.1.13.71.2.7.2.808267",
                 ],
                 "has_data": False,
             },
@@ -52,10 +56,12 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                 "filter_priority": True,
                 "code_systems": [
                     "http://terminology.hl7.org/CodeSystem/service-type",
-                    "urn:oid:2.16.840.1.113883.4.642.3.518",
                     "http://snomed.info/sct",
-                    "https://fhir.cerner.com/96976f07-eccb-424c-9825-e0d0b887148b/codeSet/34",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.10",
+                    # Cerner specific systems
+                    "https://fhir.cerner.com/%/codeSet/34",
+                    # EPIC specific systems
+                    "urn:oid:2.16.840.1.113883.4.642.3.518",
+                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.18886",
                 ],
                 "has_data": False,
             },
@@ -66,8 +72,10 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                 "code_systems": [
                     "http://terminology.hl7.org/CodeSystem/v3-ActPriority",
                     "http://snomed.info/sct",
-                    "https://fhir.cerner.com/96976f07-eccb-424c-9825-e0d0b887148b/codeSet/3",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.10",
+                    # Cerner specific systems
+                    "https://fhir.cerner.com/%/codeSet/3",
+                    # EPIC specific systems
+                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.410",
                 ],
                 "has_data": False,
             },
@@ -80,8 +88,10 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                     "http://snomed.info/sct",
                     "http://hl7.org/fhir/sid/icd-10-cm",
                     "http://hl7.org/fhir/sid/icd-9-cm",
-                    "https://fhir.cerner.com/96976f07-eccb-424c-9825-e0d0b887148b/nomenclature",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.2",
+                    # Cerner specific systems
+                    "https://fhir.cerner.com/%/nomenclature",
+                    # EPIC specific systems
+                    "urn:oid:1.2.840.114350.1.13.71.2.7.2.728286",
                 ],
                 "has_data": False,
             },
