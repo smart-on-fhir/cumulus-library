@@ -55,10 +55,11 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
                 "http://hl7.org/fhir/sid/icd-10-cm",
                 "http://hl7.org/fhir/sid/icd-9-cm",
                 "http://hl7.org/fhir/sid/icd-9-cm/diagnosis",
-                "http://terminology.hl7.org/CodeSystem/data-absent-reason",
                 # EPIC specific systems
                 "urn:oid:1.2.840.114350.1.13.71.2.7.2.728286",
                 "urn:oid:1.2.840.114350.1.13.71.2.7.4.698084.10375",
+                # Spec allowed code of last resort
+                "http://terminology.hl7.org/CodeSystem/data-absent-reason",
             ],
         )
         self.queries.append(
