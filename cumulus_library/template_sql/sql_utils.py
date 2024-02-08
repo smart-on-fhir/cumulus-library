@@ -28,8 +28,9 @@ class CodeableConceptConfig:
     :param source_id: the id field to use in the new table (default: 'id')
     :param filter_priority: If true, will use code systems to select a single code,
       in preference order, for use as a display value.
-    :param code_systems: a list of systems, in preference order, for selecting data
-      for filtering. This should not be set if filter_priority is false.
+    :param code_systems: a list of strings matching the start of the systems field,
+      in preference order, for selecting data for filtering. This should not be set
+      if filter_priority is false.
     """
 
     column_name: str
@@ -50,7 +51,7 @@ class ExtensionConfig:
     :param target_table: the name of the table to create
     :param target_col_prefix: the string to prepend code/display column names with
     :param fhir_extension: the URL of the FHIR resource to select
-    :param code_systems: a list of codes, in preference order, to use to select data
+    :param ext_systems: a list of codes, in preference order, to use to select data
     :param is_array: a boolean indicating if the targeted field is an array type
     """
 

@@ -21,7 +21,7 @@ CREATE TABLE {{ target_table }} AS (
         {%- endif %}
         {%- if filter_priority %}
         WHERE
-            u.codeable_concept.system = '{{ system }}'
+            u.codeable_concept.system LIKE '{{ system }}%'
         {%- endif %}
     ), --noqa: LT07
     {%- endfor %}

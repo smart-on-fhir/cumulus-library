@@ -8,7 +8,7 @@ from cumulus_library.template_sql import base_templates, sql_utils
 class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Selecting unique code systems..."
 
-    def _check_coding_against_db(code_source, schema, cursor):
+    def _check_coding_against_db(self, code_source, schema, cursor):
         """selects the appropriate DB query to run"""
 
         if code_source["is_array"]:

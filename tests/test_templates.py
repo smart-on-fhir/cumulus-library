@@ -77,7 +77,7 @@ def test_codeable_concept_denormalize_filter_creation():
             source AS s,
             UNNEST(s.code_col.coding) AS u (codeable_concept)
         WHERE
-            u.codeable_concept.system = 'http://snomed.info/sct'
+            u.codeable_concept.system LIKE 'http://snomed.info/sct%'
     ), --noqa: LT07
 
     system_code_col_1 AS (
@@ -91,7 +91,7 @@ def test_codeable_concept_denormalize_filter_creation():
             source AS s,
             UNNEST(s.code_col.coding) AS u (codeable_concept)
         WHERE
-            u.codeable_concept.system = 'http://hl7.org/fhir/sid/icd-10-cm'
+            u.codeable_concept.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm%'
     ), --noqa: LT07
 
     union_table AS (
