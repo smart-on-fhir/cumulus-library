@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from jinja2 import Template
-
 from cumulus_library.errors import CountsBuilderError
+from cumulus_library.template_sql import base_templates
 
 
 class CountableFhirResource(Enum):
@@ -62,15 +61,16 @@ def get_count_query(
             )
     table_cols = table_col_classed
 
-    with open(f"{path}/count.sql.jinja") as count_query:
-        query = Template(count_query.read()).render(
-            table_name=table_name,
-            source_table=source_table,
-            table_cols=table_cols,
-            min_subject=min_subject,
-            where_clauses=where_clauses,
-            fhir_resource=fhir_resource,
-            filter_resource=filter_resource,
-        )
-        # workaround for conflicting sqlfluff enforcement
-        return query.replace("-- noqa: disable=LT02\n", "")
+    query = base_templates.get_base_template(
+        "count",
+        path,
+        table_name=table_name,
+        source_table=source_table,
+        table_cols=table_cols,
+        min_subject=min_subject,
+        where_clauses=where_clauses,
+        fhir_resource=fhir_resource,
+        filter_resource=filter_resource,
+    )
+    # workaround for conflicting sqlfluff enforcement
+    return query.replace("-- noqa: disable=LT02\n", "")

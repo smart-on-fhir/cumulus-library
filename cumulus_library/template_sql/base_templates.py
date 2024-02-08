@@ -1,40 +1,62 @@
 """ Collection of jinja template getters for common SQL queries """
 
-from enum import Enum
-from pathlib import Path
+import enum
+import pathlib
 
-from jinja2 import Template
-from pandas import DataFrame
+import jinja2
+import pandas
 
 from cumulus_library.template_sql import sql_utils
 
-PATH = Path(__file__).parent
 
-
-class TableView(Enum):
+class TableView(enum.Enum):
     """Convenience enum for building drop queries"""
 
     TABLE = "TABLE"
     VIEW = "VIEW"
 
 
-# TODO: Consolidate to a generic template reader
+def get_base_template(
+    filename_stem: str, path: pathlib.Path | None = None, **kwargs: dict
+) -> str:
+    """Abstract renderer for jinja templates
+
+    You can use this renderer directly, but if you are designing a function
+    that you expect to be commonly used, it's recommended to create a context
+    specific loader function instead.
+
+    This function will autoload macros in cumulus_library/template_sql/shared_macros,
+    as well as any macros in a folder provided by path
+    """
+    base_path = pathlib.Path(__file__).parent
+    with open(f"{path or base_path}/{filename_stem}.sql.jinja") as file:
+        template = file.read()
+        macro_paths = [base_path / "shared_macros"]
+        if path:
+            macro_paths.append(path)
+        loader = jinja2.FileSystemLoader(macro_paths)
+        env = jinja2.Environment(loader=loader).from_string(template)
+        return env.render(**kwargs)
+
+
+# All remaining functions are context-specific calls aimed at providing
+# guidance around table creation for commonly used SQL functions
 
 
 def get_alias_table_query(source_table: str, target_table: str):
-    """Creates a 1-1 alias of a given table"""
-    with open(f"{PATH}/alias_table.sql.jinja") as alias_table:
-        return Template(alias_table.read()).render(
-            source_table=source_table, target_table=target_table
-        )
+    """Creates a view of source_table named target_table"""
+    return get_base_template(
+        "alias_table", source_table=source_table, target_table=target_table
+    )
 
 
 def get_code_system_pairs(output_table_name: str, code_system_tables: list) -> str:
     """Extracts code system details as a standalone table"""
-    with open(f"{PATH}/code_system_pairs.sql.jinja") as code_system_pairs:
-        return Template(code_system_pairs.read()).render(
-            output_table_name=output_table_name, code_system_tables=code_system_tables
-        )
+    return get_base_template(
+        "code_system_pairs",
+        output_table_name=output_table_name,
+        code_system_tables=code_system_tables,
+    )
 
 
 def get_codeable_concept_denormalize_query(
@@ -56,26 +78,26 @@ def get_codeable_concept_denormalize_query(
     # for loop will do a single pass. This implicitly means that we're not
     # filtering, so this parameter will be otherwise ignored
     config.code_systems = config.code_systems or ["all"]
-
-    with open(f"{PATH}/codeable_concept_denormalize.sql.jinja") as codable_concept:
-        return Template(codable_concept.read()).render(
-            source_table=config.source_table,
-            source_id=config.source_id,
-            column_name=config.column_name,
-            is_array=config.is_array,
-            target_table=config.target_table,
-            filter_priority=config.filter_priority,
-            code_systems=config.code_systems,
-        )
+    return get_base_template(
+        "codeable_concept_denormalize",
+        source_table=config.source_table,
+        source_id=config.source_id,
+        column_name=config.column_name,
+        is_array=config.is_array,
+        target_table=config.target_table,
+        filter_priority=config.filter_priority,
+        code_systems=config.code_systems,
+    )
 
 
 def get_column_datatype_query(schema_name: str, table_name: str, column_names: list):
-    with open(f"{PATH}/column_datatype.sql.jinja") as column_datatype:
-        return Template(column_datatype.read()).render(
-            schema_name=schema_name,
-            table_name=table_name,
-            column_names=column_names,
-        )
+    """Gets the in-database data representation of a given column"""
+    return get_base_template(
+        "column_datatype",
+        schema_name=schema_name,
+        table_name=table_name,
+        column_names=column_names,
+    )
 
 
 def get_create_view_query(
@@ -87,12 +109,12 @@ def get_create_view_query(
     :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
     :param table_cols: Comma deleniated column names, i.e. ['first,second']
     """
-    with open(f"{PATH}/create_view_as.sql.jinja") as cvas:
-        return Template(cvas.read()).render(
-            view_name=view_name,
-            dataset=dataset,
-            view_cols=view_cols,
-        )
+    return get_base_template(
+        "create_view_as",
+        view_name=view_name,
+        dataset=dataset,
+        view_cols=view_cols,
+    )
 
 
 def get_ctas_query(
@@ -110,27 +132,31 @@ def get_ctas_query(
     :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
     :param table_cols: Comma deleniated column names, i.e. ['first,second']
     """
-    with open(f"{PATH}/ctas.sql.jinja") as ctas:
-        return Template(ctas.read()).render(
-            schema_name=schema_name,
-            table_name=table_name,
-            dataset=dataset,
-            table_cols=table_cols,
-        )
+    return get_base_template(
+        "ctas",
+        schema_name=schema_name,
+        table_name=table_name,
+        dataset=dataset,
+        table_cols=table_cols,
+    )
 
 
-def get_ctas_query_from_df(schema_name: str, table_name: str, df: DataFrame) -> str:
+def get_ctas_query_from_df(
+    schema_name: str, table_name: str, df: pandas.DataFrame
+) -> str:
     """Generates a create table as query from a dataframe
-
-    This is a convenience wrapper for get_ctas_query.
 
     :param schema_name: The athena schema to create the table in
     :param table_name: The name of the athena table to create
     :param df: A pandas dataframe
     """
     split_dict = df.to_dict(orient="split")
-    return get_ctas_query(
-        schema_name, table_name, split_dict["data"], split_dict["columns"]
+    return get_base_template(
+        "ctas",
+        schema_name=schema_name,
+        table_name=table_name,
+        dataset=split_dict["data"],
+        table_cols=split_dict["columns"],
     )
 
 
@@ -155,22 +181,21 @@ def get_ctas_empty_query(
     """
     if not table_cols_types:
         table_cols_types = ["varchar"] * len(table_cols)
-    with open(f"{PATH}/ctas_empty.sql.jinja") as ctas_empty:
-        return Template(ctas_empty.read()).render(
-            schema_name=schema_name,
-            table_name=table_name,
-            table_cols=table_cols,
-            table_cols_types=table_cols_types,
-        )
+    return get_base_template(
+        "ctas_empty",
+        schema_name=schema_name,
+        table_name=table_name,
+        table_cols=table_cols,
+        table_cols_types=table_cols_types,
+    )
 
 
 def get_drop_view_table(name: str, view_or_table: str) -> str:
     """Generates a drop table if exists query"""
     if view_or_table in [e.value for e in TableView]:
-        with open(f"{PATH}/drop_view_table.sql.jinja") as drop_view_table:
-            return Template(drop_view_table.read()).render(
-                view_or_table_name=name, view_or_table=view_or_table
-            )
+        return get_base_template(
+            "drop_view_table", view_or_table_name=name, view_or_table=view_or_table
+        )
 
 
 def get_extension_denormalize_query(config: sql_utils.ExtensionConfig) -> str:
@@ -186,16 +211,16 @@ def get_extension_denormalize_query(config: sql_utils.ExtensionConfig) -> str:
 
     :param config: An instance of ExtensionConfig.
     """
-    with open(f"{PATH}/extension_denormalize.sql.jinja") as extension_denormalize:
-        return Template(extension_denormalize.read()).render(
-            source_table=config.source_table,
-            source_id=config.source_id,
-            target_table=config.target_table,
-            target_col_prefix=config.target_col_prefix,
-            fhir_extension=config.fhir_extension,
-            ext_systems=config.ext_systems,
-            is_array=config.is_array,
-        )
+    return get_base_template(
+        "extension_denormalize",
+        source_table=config.source_table,
+        source_id=config.source_id,
+        target_table=config.target_table,
+        target_col_prefix=config.target_col_prefix,
+        fhir_extension=config.fhir_extension,
+        ext_systems=config.ext_systems,
+        is_array=config.is_array,
+    )
 
 
 def get_insert_into_query(
@@ -212,13 +237,13 @@ def get_insert_into_query(
     :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
     """
     type_casts = type_casts or {}
-    with open(f"{PATH}/insert_into.sql.jinja") as insert_into:
-        return Template(insert_into.read()).render(
-            table_name=table_name,
-            table_cols=table_cols,
-            dataset=dataset,
-            type_casts=type_casts,
-        )
+    return get_base_template(
+        "insert_into",
+        table_name=table_name,
+        table_cols=table_cols,
+        dataset=dataset,
+        type_casts=type_casts,
+    )
 
 
 def get_is_table_not_empty_query(
@@ -229,18 +254,20 @@ def get_is_table_not_empty_query(
 ):
     unnests = unnests or []
     conditions = conditions or []
-    with open(f"{PATH}/is_table_not_empty.sql.jinja") as is_table_not_empty:
-        return Template(is_table_not_empty.read()).render(
-            source_table=source_table,
-            field=field,
-            unnests=unnests,
-            conditions=conditions,
-        )
+    return get_base_template(
+        "is_table_not_empty",
+        source_table=source_table,
+        field=field,
+        unnests=unnests,
+        conditions=conditions,
+    )
 
 
 def get_select_all_query(source_table: str):
-    with open(f"{PATH}/select_all.sql.jinja") as select_all:
-        return Template(select_all.read()).render(source_table=source_table)
+    return get_base_template(
+        "select_all",
+        source_table=source_table,
+    )
 
 
 def get_show_tables(schema_name: str, prefix: str) -> str:
@@ -252,10 +279,7 @@ def get_show_tables(schema_name: str, prefix: str) -> str:
     :param schema_name: The athena schema to query
     :param table_name: The prefix to filter by. Jinja template auto adds '__'.
     """
-    with open(f"{PATH}/show_tables.sql.jinja") as show_tables:
-        return Template(show_tables.read()).render(
-            schema_name=schema_name, prefix=prefix
-        )
+    return get_base_template("show_tables", schema_name=schema_name, prefix=prefix)
 
 
 def get_show_views(schema_name: str, prefix: str) -> str:
@@ -267,7 +291,4 @@ def get_show_views(schema_name: str, prefix: str) -> str:
     :param schema_name: The athena schema to query
     :param table_name: The prefix to filter by. Jinja template auto adds '__'.
     """
-    with open(f"{PATH}/show_views.sql.jinja") as show_tables:
-        return Template(show_tables.read()).render(
-            schema_name=schema_name, prefix=prefix
-        )
+    return get_base_template("show_views", schema_name=schema_name, prefix=prefix)

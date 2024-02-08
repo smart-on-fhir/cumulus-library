@@ -5,8 +5,8 @@ from pathlib import Path
 
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.errors import CountsBuilderError
+from cumulus_library.statistics.statistics_templates import counts_templates
 from cumulus_library.study_parser import StudyManifestParser
-from cumulus_library.template_sql.statistics import counts_templates
 
 
 class CountsBuilder(BaseTableBuilder):
@@ -71,7 +71,7 @@ class CountsBuilder(BaseTableBuilder):
         :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
         :keyword fhir_resource: The type of FHIR resource to count (see
-            template_sql/templates.statistics.CountableFhirResource)
+            statistics/statistics_templates/count_templates.CountableFhirResource)
         """
         if not table_name or not source_table or not table_cols:
             raise CountsBuilderError(

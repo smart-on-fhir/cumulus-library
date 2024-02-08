@@ -1,3 +1,4 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
 CREATE TABLE "{{ schema_name }}"."{{ table_name }}" AS (
     SELECT * FROM (
         VALUES
@@ -5,22 +6,16 @@ CREATE TABLE "{{ schema_name }}"."{{ table_name }}" AS (
         (
             {%- for field in row -%}
             cast('{{ field }}' AS varchar)
-            {%- if not loop.last -%}
-            , 
-            {%- endif -%}
+            {{- syntax.comma_delineate(loop) }}
             {%- endfor -%}
         )
-        {%- if not loop.last -%}
-        , 
-        {%- endif -%}
+        {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
     )
         AS t (
             {%- for col in table_cols -%}
             "{{ col }}"
-            {%- if not loop.last -%}
-            , 
-            {%- endif -%}
+            {{- syntax.comma_delineate(loop) }}
             {%- endfor -%}
         )
 );

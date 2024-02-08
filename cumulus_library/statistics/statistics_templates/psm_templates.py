@@ -2,9 +2,8 @@
 
 from pathlib import Path
 
-from jinja2 import Template
-
 from cumulus_library.errors import CumulusLibraryError
+from cumulus_library.template_sql import base_templates
 
 
 def get_distinct_ids(
@@ -33,14 +32,14 @@ def get_distinct_ids(
             "to be defined if supplied",
         )
 
-    path = Path(__file__).parent
-    with open(f"{path}/psm_distinct_ids.sql.jinja") as distinct_ids:
-        return Template(distinct_ids.read()).render(
-            columns=columns,
-            source_table=source_table,
-            join_id=join_id,
-            filter_table=filter_table,
-        )
+    return base_templates.get_base_template(
+        "psm_distinct_ids",
+        Path(__file__).parent,
+        columns=columns,
+        source_table=source_table,
+        join_id=join_id,
+        filter_table=filter_table,
+    )
 
 
 def get_create_covariate_table(
@@ -74,16 +73,16 @@ def get_create_covariate_table(
             "to be defined if supplied",
         )
 
-    path = Path(__file__).parent
-    with open(f"{path}/psm_create_covariate_table.sql.jinja") as create_covariate_table:
-        return Template(create_covariate_table.read()).render(
-            target_table=target_table,
-            pos_source_table=pos_source_table,
-            neg_source_table=neg_source_table,
-            table_suffix=table_suffix,
-            primary_ref=primary_ref,
-            dependent_variable=dependent_variable,
-            count_ref=count_ref,
-            count_table=count_table,
-            join_cols_by_table=join_cols_by_table,
-        )
+    return base_templates.get_base_template(
+        "psm_create_covariate_table",
+        Path(__file__).parent,
+        target_table=target_table,
+        pos_source_table=pos_source_table,
+        neg_source_table=neg_source_table,
+        table_suffix=table_suffix,
+        primary_ref=primary_ref,
+        dependent_variable=dependent_variable,
+        count_ref=count_ref,
+        count_table=count_table,
+        join_cols_by_table=join_cols_by_table,
+    )

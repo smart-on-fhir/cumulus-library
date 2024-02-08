@@ -1,3 +1,4 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
 CREATE TABLE IF NOT EXISTS "{{ schema_name }}"."{{ table_name }}"
 AS (
     SELECT * FROM (
@@ -5,18 +6,14 @@ AS (
         (
             {%- for type in table_cols_types -%}
             cast(NULL AS {{ type }})
-            {%- if not loop.last -%}
-            , 
-            {%- endif -%}
+            {{- syntax.comma_delineate(loop) }}
             {%- endfor -%}
         )
     )
         AS t (
             {%- for col in table_cols -%}
             "{{ col }}"
-            {%- if not loop.last -%}
-            , 
-            {%- endif -%}
+            {{- syntax.comma_delineate(loop) }}
             {%- endfor -%}
         )
 );
