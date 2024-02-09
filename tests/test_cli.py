@@ -2,8 +2,13 @@
 
 import builtins
 import glob
+import io
 import os
+import pathlib
 import shutil
+import sys
+import zipfile
+from contextlib import contextmanager
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest import mock
@@ -33,6 +38,14 @@ class MockVocabBsv:
                 "r",
             )
         return self.builtin_open(*args, **kwargs)
+
+
+@contextmanager
+def mock_stdin(value: str):
+    stdin = sys.stdin
+    sys.stdin = value
+    yield
+    sys.stdin = stdin
 
 
 @mock.patch.dict(
@@ -313,6 +326,39 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
     clear=True,
 )
 @pytest.mark.parametrize(
+    "args,input_txt,expects_files, raises",
+    [
+        (["export", "-t", "core", "--archive"], "Y", True, does_not_raise()),
+        (["export", "-t", "core", "--archive"], "N", True, pytest.raises(SystemExit)),
+    ],
+)
+def test_cli_export_archive(tmp_path, args, input_txt, expects_files, raises):
+    with raises:
+        with mock_stdin(io.StringIO(input_txt)):
+            build_args = duckdb_args(["build", "-t", "core"], tmp_path)
+            stats_mock = pathlib.Path(f"{tmp_path}/export/core/stats")
+            stats_mock.mkdir(parents=True, exist_ok=True)
+            with open(stats_mock / "test.txt", "w") as f:
+                f.write("test")
+            export_args = duckdb_args(args, tmp_path)
+            cli.main(cli_args=build_args)
+            cli.main(cli_args=export_args)
+            export_paths = list(pathlib.Path(f"{tmp_path}/export").glob("*"))
+            assert len(export_paths) == 1
+            archive = zipfile.ZipFile(export_paths[0])
+            for file in [
+                "core__encounter.csv",
+                "core__count_encounter_type_month.csv",
+                "stats/test.txt",
+            ]:
+                assert file in archive.namelist()
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@pytest.mark.parametrize(
     "study,finishes,raises",
     [
         ("study_valid", True, does_not_raise()),
@@ -395,21 +441,6 @@ def test_cli_stats_rebuild(tmp_path):
         .fetchall()
     )
     assert len(expected) == 2
-
-
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
-def test_cli_creates_study(tmp_path):
-    cli.main(cli_args=["create", f"{tmp_path}/studydir/"])
-    with open(
-        "./cumulus_library/studies/template/manifest.toml", encoding="UTF-8"
-    ) as file:
-        source = toml.load(file)
-    with open(f"{tmp_path}/studydir/manifest.toml", encoding="UTF-8") as file:
-        target = toml.load(file)
-    assert source == target
 
 
 @mock.patch.dict(

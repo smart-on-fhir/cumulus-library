@@ -1,10 +1,13 @@
 """ Contains classes for loading study data based on manifest.toml files """
 
 import csv
+import datetime
 import importlib.util
 import inspect
 import pathlib
+import shutil
 import sys
+import zipfile
 
 import toml
 from rich.progress import Progress, TaskID, track
@@ -665,22 +668,36 @@ class StudyManifestParser:
     # Database exporting functions
 
     def export_study(
-        self, db: databases.DatabaseBackend, data_path: pathlib.Path
-    ) -> list:
+        self,
+        db: databases.DatabaseBackend,
+        schema_name: str,
+        data_path: pathlib.Path,
+        archive: bool,
+    ) -> None:
         """Exports csvs/parquet extracts of tables listed in export_list
-
         :param db: A database backend
-        :returns: list of executed queries (for unit testing only)
+        :param schema_name: the schema/database to target
+        :param data_path: the path to the place on disk to save data
+        :param archive: If true, get all study data and zip with timestamp
         """
+        table_list = []
+        path = pathlib.Path(f"{data_path}/{self.get_study_prefix()}/")
         self.reset_counts_exports()
-        queries = []
+        if archive:
+            table_query = base_templates.get_show_tables(
+                schema_name, f"{self.get_study_prefix()}__"
+            )
+            result = db.cursor().execute(table_query).fetchall()
+            for row in result:
+                table_list.append(row[0])
+        else:
+            table_list = self.get_export_table_list()
         for table in track(
-            self.get_export_table_list(),
-            description=f"Exporting {self.get_study_prefix()} counts...",
+            table_list,
+            description=f"Exporting {self.get_study_prefix()} data...",
         ):
-            query = f"select * from {table}"
+            query = f"SELECT * FROM {table}"
             dataframe = db.execute_as_pandas(query)
-            path = pathlib.Path(f"{data_path}/{self.get_study_prefix()}/")
             path.mkdir(parents=True, exist_ok=True)
             dataframe = dataframe.sort_values(
                 by=list(dataframe.columns), ascending=False, na_position="first"
@@ -688,6 +705,21 @@ class StudyManifestParser:
             dataframe.to_csv(
                 f"{path}/{table}.csv", index=False, quoting=csv.QUOTE_MINIMAL
             )
-            dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
-            queries.append(query)
-        return queries
+            if not archive:
+                dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
+        if archive:
+            file_list = [file for file in path.glob("**/*") if file.is_file()]
+            timestamp = (
+                datetime.datetime.now(datetime.timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
+            with zipfile.ZipFile(
+                f"{data_path}/{self.get_study_prefix()}_{timestamp}.zip",
+                "w",
+                zipfile.ZIP_DEFLATED,
+            ) as f:
+                for file in file_list:
+                    f.write(file, file.relative_to(path))
+                    file.unlink()
+                shutil.rmtree(path)

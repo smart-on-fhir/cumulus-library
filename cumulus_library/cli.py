@@ -193,7 +193,9 @@ class StudyRunner:
             self.clean_and_build_study(study_dict[key], stats_build=stats_build)
 
     ### Data exporters
-    def export_study(self, target: pathlib.Path, data_path: pathlib.Path) -> None:
+    def export_study(
+        self, target: pathlib.Path, data_path: pathlib.Path, archive: bool
+    ) -> None:
         """Exports aggregates defined in a manifest
 
         :param target: A path to the study directory
@@ -201,12 +203,12 @@ class StudyRunner:
         if data_path is None:
             sys.exit("Missing destination - please provide a path argument.")
         studyparser = study_parser.StudyManifestParser(target, data_path)
-        studyparser.export_study(self.db, data_path)
+        studyparser.export_study(self.db, self.schema_name, data_path, archive)
 
-    def export_all(self, study_dict: dict, data_path: pathlib.Path):
+    def export_all(self, study_dict: dict, data_path: pathlib.Path, archive: bool):
         """Exports all defined count tables to disk"""
         for key in study_dict.keys():
-            self.export_study(study_dict[key], data_path)
+            self.export_study(study_dict[key], data_path, archive)
 
     def generate_study_sql(
         self,
@@ -294,6 +296,7 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict:
 
 def run_cli(args: dict):
     """Controls which library tasks are run based on CLI arguments"""
+    console = rich.console.Console()
     if args["action"] == "create":
         create_template(args["create_dir"])
 
@@ -307,7 +310,7 @@ def run_cli(args: dict):
             runner = StudyRunner(db_backend, data_path=args.get("data_path"))
             if args.get("verbose"):
                 runner.verbose = True
-            print("Testing connection to database...")
+            console.print("[italic] Connecting to database...")
             runner.cursor.execute("SHOW DATABASES")
             study_dict = get_study_dict(args["study_dir"])
             if "prefix" not in args.keys():
@@ -344,11 +347,28 @@ def run_cli(args: dict):
                             )
 
             elif args["action"] == "export":
+                if args["archive"]:
+                    warning_text = (
+                        "🚨[bold red] This will export all study tables [/bold red]🚨"
+                        "\n\nDepending on your study definition, this data may contain "
+                        "data that would be characterized as a [italic]limited data "
+                        "set[/italic], primarily dates, on a per patient level.\n\n"
+                        "[bold]By doing this, you are assuming the responsibility for "
+                        "meeting your organization's security requirements for "
+                        "storing this data in a secure manager.[/bold]\n\n"
+                        "Type Y to proceed, or any other value to quit.\n"
+                    )
+                    console.print(warning_text)
+                    response = input()
+                    if response.lower() != "y":
+                        sys.exit()
                 if "all" in args["target"]:
-                    runner.export_all(study_dict, args["data_path"])
+                    runner.export_all(study_dict, args["data_path"], args["archive"])
                 else:
                     for target in args["target"]:
-                        runner.export_study(study_dict[target], args["data_path"])
+                        runner.export_study(
+                            study_dict[target], args["data_path"], args["archive"]
+                        )
 
             elif args["action"] == "generate-sql":
                 for target in args["target"]:
