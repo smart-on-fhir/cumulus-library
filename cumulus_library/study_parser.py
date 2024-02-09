@@ -673,12 +673,13 @@ class StudyManifestParser:
         schema_name: str,
         data_path: pathlib.Path,
         archive: bool,
-    ) -> None:
+    ) -> list:
         """Exports csvs/parquet extracts of tables listed in export_list
         :param db: A database backend
         :param schema_name: the schema/database to target
         :param data_path: the path to the place on disk to save data
         :param archive: If true, get all study data and zip with timestamp
+        :returns: a list of queries, (only for unit tests)
         """
         table_list = []
         path = pathlib.Path(f"{data_path}/{self.get_study_prefix()}/")
@@ -692,6 +693,7 @@ class StudyManifestParser:
                 table_list.append(row[0])
         else:
             table_list = self.get_export_table_list()
+        queries = []
         for table in track(
             table_list,
             description=f"Exporting {self.get_study_prefix()} data...",
@@ -707,6 +709,7 @@ class StudyManifestParser:
             )
             if not archive:
                 dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
+            queries.append(queries)
         if archive:
             file_list = [file for file in path.glob("**/*") if file.is_file()]
             timestamp = (
@@ -723,3 +726,4 @@ class StudyManifestParser:
                     f.write(file, file.relative_to(path))
                     file.unlink()
                 shutil.rmtree(path)
+        return queries

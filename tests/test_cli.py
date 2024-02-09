@@ -316,7 +316,7 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
 
             with open(f"{manifest_dir}/manifest.toml", encoding="UTF-8") as file:
                 config = toml.load(file)
-            csv_files = glob.glob(f"{tmp_path}/counts/{build_args[2]}/*.csv")
+            csv_files = glob.glob(f"{tmp_path}/export/{build_args[2]}/*.csv")
             for export_table in config["export_config"]["export_list"]:
                 assert any(export_table in x for x in csv_files)
 
