@@ -127,21 +127,6 @@ following order of preference is used to select credentials:
         dest="action",
     )
 
-    # Study creation
-
-    create = actions.add_parser(
-        "create", help="Create a study instance from a template"
-    )
-    create.add_argument(
-        "create_dir",
-        default="./",
-        nargs="?",
-        help=(
-            "The the directory the study will be created in. Default is "
-            "the current directory."
-        ),
-    )
-
     # Database cleaning
 
     clean = actions.add_parser(
@@ -204,7 +189,11 @@ following order of preference is used to select credentials:
     add_data_path_argument(export)
     add_verbose_argument(export)
     add_db_config(export)
-
+    export.add_argument(
+        "--archive",
+        action="store_true",
+        help="Generates archive of :all: study tables, ignoring manifest export list.",
+    )
     # Aggregator upload
 
     upload = actions.add_parser(

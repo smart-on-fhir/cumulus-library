@@ -72,7 +72,7 @@ def duckdb_args(args: list, tmp_path, stats=False):
             "duckdb",
             "--database",
             f"{tmp_path}/duck.db",
-            f"{tmp_path}/counts",
+            f"{tmp_path}/export",
         ]
     return [*args, "--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
 

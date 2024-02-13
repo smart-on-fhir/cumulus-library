@@ -665,22 +665,37 @@ class StudyManifestParser:
     # Database exporting functions
 
     def export_study(
-        self, db: databases.DatabaseBackend, data_path: pathlib.Path
+        self,
+        db: databases.DatabaseBackend,
+        schema_name: str,
+        data_path: pathlib.Path,
+        archive: bool,
     ) -> list:
         """Exports csvs/parquet extracts of tables listed in export_list
-
         :param db: A database backend
-        :returns: list of executed queries (for unit testing only)
+        :param schema_name: the schema/database to target
+        :param data_path: the path to the place on disk to save data
+        :param archive: If true, get all study data and zip with timestamp
+        :returns: a list of queries, (only for unit tests)
         """
         self.reset_counts_exports()
+        if archive:
+            table_query = base_templates.get_show_tables(
+                schema_name, f"{self.get_study_prefix()}__"
+            )
+            result = db.cursor().execute(table_query).fetchall()
+            table_list = [row[0] for row in result]
+        else:
+            table_list = self.get_export_table_list()
+
         queries = []
+        path = pathlib.Path(f"{data_path}/{self.get_study_prefix()}/")
         for table in track(
-            self.get_export_table_list(),
-            description=f"Exporting {self.get_study_prefix()} counts...",
+            table_list,
+            description=f"Exporting {self.get_study_prefix()} data...",
         ):
-            query = f"select * from {table}"
+            query = f"SELECT * FROM {table}"
             dataframe = db.execute_as_pandas(query)
-            path = pathlib.Path(f"{data_path}/{self.get_study_prefix()}/")
             path.mkdir(parents=True, exist_ok=True)
             dataframe = dataframe.sort_values(
                 by=list(dataframe.columns), ascending=False, na_position="first"
@@ -689,5 +704,7 @@ class StudyManifestParser:
                 f"{path}/{table}.csv", index=False, quoting=csv.QUOTE_MINIMAL
             )
             dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
-            queries.append(query)
+            queries.append(queries)
+        if archive:
+            base_utils.zip_dir(path, data_path, self.get_study_prefix())
         return queries
