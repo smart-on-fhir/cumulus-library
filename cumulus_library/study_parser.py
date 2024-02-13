@@ -689,8 +689,7 @@ class StudyManifestParser:
                 schema_name, f"{self.get_study_prefix()}__"
             )
             result = db.cursor().execute(table_query).fetchall()
-            for row in result:
-                table_list.append(row[0])
+            table_list = [row[0] for row in result]
         else:
             table_list = self.get_export_table_list()
         queries = []
@@ -707,8 +706,7 @@ class StudyManifestParser:
             dataframe.to_csv(
                 f"{path}/{table}.csv", index=False, quoting=csv.QUOTE_MINIMAL
             )
-            if not archive:
-                dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
+            dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
             queries.append(queries)
         if archive:
             file_list = [file for file in path.glob("**/*") if file.is_file()]
