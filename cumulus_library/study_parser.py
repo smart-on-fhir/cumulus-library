@@ -1,13 +1,10 @@
 """ Contains classes for loading study data based on manifest.toml files """
 
 import csv
-import datetime
 import importlib.util
 import inspect
 import pathlib
-import shutil
 import sys
-import zipfile
 
 import toml
 from rich.progress import Progress, TaskID, track
@@ -681,8 +678,6 @@ class StudyManifestParser:
         :param archive: If true, get all study data and zip with timestamp
         :returns: a list of queries, (only for unit tests)
         """
-        table_list = []
-        path = pathlib.Path(f"{data_path}/{self.get_study_prefix()}/")
         self.reset_counts_exports()
         if archive:
             table_query = base_templates.get_show_tables(
@@ -692,7 +687,9 @@ class StudyManifestParser:
             table_list = [row[0] for row in result]
         else:
             table_list = self.get_export_table_list()
+
         queries = []
+        path = pathlib.Path(f"{data_path}/{self.get_study_prefix()}/")
         for table in track(
             table_list,
             description=f"Exporting {self.get_study_prefix()} data...",
@@ -709,19 +706,5 @@ class StudyManifestParser:
             dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
             queries.append(queries)
         if archive:
-            file_list = [file for file in path.glob("**/*") if file.is_file()]
-            timestamp = (
-                datetime.datetime.now(datetime.timezone.utc)
-                .isoformat()
-                .replace("+00:00", "Z")
-            )
-            with zipfile.ZipFile(
-                f"{data_path}/{self.get_study_prefix()}_{timestamp}.zip",
-                "w",
-                zipfile.ZIP_DEFLATED,
-            ) as f:
-                for file in file_list:
-                    f.write(file, file.relative_to(path))
-                    file.unlink()
-                shutil.rmtree(path)
+            base_utils.zip_dir(path, data_path, self.get_study_prefix())
         return queries

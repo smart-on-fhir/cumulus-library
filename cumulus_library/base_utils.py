@@ -3,6 +3,8 @@
 import datetime
 import json
 import os
+import shutil
+import zipfile
 from contextlib import contextmanager
 
 from rich import progress
@@ -82,3 +84,18 @@ def get_tablename_safe_iso_timestamp() -> str:
     iso_timestamp = get_utc_datetime().isoformat()
     safe_timestamp = iso_timestamp.replace(":", "_").replace("-", "_").replace("+", "_")
     return safe_timestamp
+
+
+def zip_dir(read_path, write_path, archive_name):
+    """Moves a directory to an archive"""
+    file_list = [file for file in read_path.glob("**/*") if file.is_file()]
+    timestamp = get_utc_datetime().isoformat().replace("+00:00", "Z")
+    with zipfile.ZipFile(
+        f"{write_path}/{archive_name}_{timestamp}.zip",
+        "w",
+        zipfile.ZIP_DEFLATED,
+    ) as f:
+        for file in file_list:
+            f.write(file, file.relative_to(read_path))
+            file.unlink()
+        shutil.rmtree(read_path)
