@@ -599,11 +599,11 @@ class StudyManifestParser:
         table_df = df[df["Table"] == name].drop("Table", axis=1)
         table_df = table_df.assign(Description="")
         writer = pytablewriter.MarkdownTableWriter(dataframe=table_df)
-        writer.table_name = name
+        writer.table_name = f"{name}\n"
         writer.set_indent_level(2)
         writer.stream = file
         writer.write_table()
-        file.write("\n")
+        file.write("\n\n")
 
     def build_study(
         self,

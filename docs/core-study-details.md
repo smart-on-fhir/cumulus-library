@@ -29,7 +29,9 @@ for more information.
 
 ## core count tables
 
+
 ### core__count_condition_month
+
 |      Column      | Type  |Description|
 |------------------|-------|-----------|
 |cnt               |bigint |count      |
@@ -37,7 +39,9 @@ for more information.
 |cond_month        |varchar|Month condition recorded|
 |cond_code_display |varchar|Condition code|
 
+
 ### core__count_documentreference_month
+
 |     Column      | Type  |Description|
 |-----------------|-------|-----------|
 |cnt              |bigint |Count      |
@@ -45,7 +49,9 @@ for more information.
 |author_month     |varchar|Month document was authored|
 |enc_class_display|varchar|Encounter Code (Healthcare Setting)|
 
+
 ### core__count_encounter_enc_type_month
+
 |     Column      | Type  |Description|
 |-----------------|-------|-----------|
 |cnt              |bigint |Count      |
@@ -53,7 +59,9 @@ for more information.
 |enc_type_display |varchar|Encounter Type|
 |start_month      |varchar|Month encounter recorded|
 
+
 ### core__count_encounter_month
+
 |     Column      | Type  |Description|
 |-----------------|-------|-----------|
 |cnt              |bigint |Count      |
@@ -64,7 +72,9 @@ for more information.
 |race_display     |varchar|Patient reported race|
 |ethnicity_display|varchar|Patient reported ethnicity|
 
+
 ### core__count_encounter_priority_month
+
 |       Column       | Type  |Description|
 |--------------------|-------|-----------|
 |cnt                 |bigint |Count      |
@@ -72,7 +82,9 @@ for more information.
 |enc_priority_display|varchar|Encounter Priority|
 |start_month         |varchar|Month encounter recorded|
 
+
 ### core__count_encounter_service_month
+
 |      Column       | Type  |Description|
 |-------------------|-------|-----------|
 |cnt                |bigint |Count      |
@@ -80,7 +92,9 @@ for more information.
 |enc_service_display|varchar|Encounter Service|
 |start_month        |varchar|Month encounter recorded|
 
+
 ### core__count_encounter_type
+
 |       Column       | Type  |Description|
 |--------------------|-------|-----------|
 |cnt                 |bigint |Count      |
@@ -89,7 +103,9 @@ for more information.
 |enc_service_display |varchar|Encounter Service|
 |enc_priority_display|varchar|Encounter Priority|
 
+
 ### core__count_encounter_type_month
+
 |       Column       | Type  |Description|
 |--------------------|-------|-----------|
 |cnt                 |bigint |Count      |
@@ -99,7 +115,9 @@ for more information.
 |enc_priority_display|varchar|Encounter Priority|
 |start_month         |varchar|Month encounter recorded|
 
+
 ### core__count_medicationrequest_month
+
 |     Column     | Type  |Description|
 |----------------|-------|-----------|
 |cnt             |bigint |Count      |
@@ -108,7 +126,9 @@ for more information.
 |authoredon_month|varchar|Month medication request issued|
 |rx_display      |varchar|Medication Name|
 
+
 ### core__count_observation_lab_month
+
 |      Column      | Type  |Description|
 |------------------|-------|-----------|
 |cnt               |bigint |Count      |
@@ -117,7 +137,9 @@ for more information.
 |lab_result_display|varchar|Lab result display text|
 |enc_class_display |varchar|Encounter Code (Healthcare Setting)|
 
+
 ### core__count_patient
+
 |     Column      | Type  |Description|
 |-----------------|-------|-----------|
 |cnt              |bigint |Count      |
@@ -127,7 +149,9 @@ for more information.
 
 ## core base tables
 
+
 ### core__condition
+
 |     Column     | Type  |Description|
 |----------------|-------|-----------|
 |id              |varchar|           |
@@ -144,15 +168,19 @@ for more information.
 |recorded_month  |date   |           |
 |recorded_year   |date   |           |
 
+
 ### core__condition_codable_concepts_all
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
 |code       |varchar|           |
 |code_system|varchar|           |
 |display    |varchar|           |
+
 
 ### core__condition_codable_concepts_display
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
@@ -160,7 +188,9 @@ for more information.
 |code_system|varchar|           |
 |display    |varchar|           |
 
+
 ### core__documentreference
+
 |       Column       | Type  |Description|
 |--------------------|-------|-----------|
 |id                  |varchar|           |
@@ -177,7 +207,9 @@ for more information.
 |subject_ref         |varchar|           |
 |doc_ref             |varchar|           |
 
+
 ### core__documentreference_dn_type
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
@@ -185,7 +217,9 @@ for more information.
 |code_system|varchar|           |
 |display    |varchar|           |
 
+
 ### core__ed_note
+
 |  Column   |   Type    |Description|
 |-----------|-----------|-----------|
 |from_system|varchar(3) |           |
@@ -195,7 +229,9 @@ for more information.
 |code       |varchar(7) |           |
 |display    |varchar(33)|           |
 
+
 ### core__encounter
+
 |        Column        |   Type    |Description|
 |----------------------|-----------|-----------|
 |id                    |varchar    |           |
@@ -223,31 +259,39 @@ for more information.
 |ethnicity_display     |varchar    |           |
 |postalcode3           |varchar    |           |
 
+
 ### core__encounter_dn_priority
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
 |code       |varchar|           |
 |code_system|varchar|           |
 |display    |varchar|           |
+
 
 ### core__encounter_dn_reasoncode
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
 |code       |varchar|           |
 |code_system|varchar|           |
 |display    |varchar|           |
+
 
 ### core__encounter_dn_servicetype
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
 |code       |varchar|           |
 |code_system|varchar|           |
 |display    |varchar|           |
+
 
 ### core__encounter_dn_type
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
@@ -255,7 +299,9 @@ for more information.
 |code_system|varchar|           |
 |display    |varchar|           |
 
+
 ### core__encounter_type
+
 |        Column        |   Type    |Description|
 |----------------------|-----------|-----------|
 |id                    |varchar    |           |
@@ -286,31 +332,41 @@ for more information.
 |ethnicity_display     |varchar    |           |
 |postalcode3           |varchar    |           |
 
+
 ### core__fhir_act_encounter_code_v3
+
 |Column |   Type    |Description|
 |-------|-----------|-----------|
 |code   |varchar(6) |           |
 |display|varchar(21)|           |
 
+
 ### core__fhir_mapping_code_system_uri
+
 |  Column   |   Type    |Description|
 |-----------|-----------|-----------|
 |code_system|varchar(6) |           |
 |uri        |varchar(37)|           |
 
+
 ### core__fhir_mapping_expected_act_encounter_code_v3
+
 | Column |   Type   |Description|
 |--------|----------|-----------|
 |expected|varchar(5)|           |
 |found   |varchar(5)|           |
 
+
 ### core__fhir_mapping_resource_uri
+
 | Column |   Type    |Description|
 |--------|-----------|-----------|
 |resource|varchar(25)|           |
 |uri     |varchar(73)|           |
 
+
 ### core__lib_transactions
+
 |    Column     |    Type    |Description|
 |---------------|------------|-----------|
 |study_name     |varchar     |           |
@@ -318,7 +374,9 @@ for more information.
 |status         |varchar     |           |
 |event_time     |timestamp(3)|           |
 
+
 ### core__medication
+
 |   Column    | Type  |Description|
 |-------------|-------|-----------|
 |id           |varchar|           |
@@ -329,7 +387,9 @@ for more information.
 |code_system  |varchar|           |
 |userselected |boolean|           |
 
+
 ### core__medicationrequest
+
 |       Column       | Type  |Description|
 |--------------------|-------|-----------|
 |id                  |varchar|           |
@@ -344,7 +404,9 @@ for more information.
 |rx_display          |varchar|           |
 |subject_ref         |varchar|           |
 
+
 ### core__medicationrequest_dn_category
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
@@ -352,18 +414,24 @@ for more information.
 |code_system|varchar|           |
 |display    |varchar|           |
 
+
 ### core__meta_date
+
 | Column |Type|Description|
 |--------|----|-----------|
 |min_date|date|           |
 |max_date|date|           |
 
+
 ### core__meta_version
+
 |       Column       | Type  |Description|
 |--------------------|-------|-----------|
 |data_package_version|integer|           |
 
+
 ### core__observation
+
 |             Column             | Type  |Description|
 |--------------------------------|-------|-----------|
 |id                              |varchar|           |
@@ -386,31 +454,39 @@ for more information.
 |encounter_ref                   |varchar|           |
 |observation_ref                 |varchar|           |
 
+
 ### core__observation_dn_category
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
 |code       |varchar|           |
 |code_system|varchar|           |
 |display    |varchar|           |
+
 
 ### core__observation_dn_code
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
 |code       |varchar|           |
 |code_system|varchar|           |
 |display    |varchar|           |
+
 
 ### core__observation_dn_interpretation
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
 |code       |varchar|           |
 |code_system|varchar|           |
 |display    |varchar|           |
+
 
 ### core__observation_dn_valuecodeableconcept
+
 |  Column   | Type  |Description|
 |-----------|-------|-----------|
 |id         |varchar|           |
@@ -418,7 +494,9 @@ for more information.
 |code_system|varchar|           |
 |display    |varchar|           |
 
+
 ### core__observation_lab
+
 |        Column        | Type  |Description|
 |----------------------|-------|-----------|
 |id                    |varchar|           |
@@ -438,7 +516,9 @@ for more information.
 |encounter_ref         |varchar|           |
 |observation_ref       |varchar|           |
 
+
 ### core__observation_vital_signs
+
 |             Column             | Type  |Description|
 |--------------------------------|-------|-----------|
 |id                              |varchar|           |
@@ -461,7 +541,9 @@ for more information.
 |encounter_ref                   |varchar|           |
 |observation_ref                 |varchar|           |
 
+
 ### core__patient
+
 |     Column      | Type  |Description|
 |-----------------|-------|-----------|
 |id               |varchar|           |
@@ -472,7 +554,9 @@ for more information.
 |race_display     |varchar|           |
 |ethnicity_display|varchar|           |
 
+
 ### core__patient_ext_ethnicity
+
 |     Column      |   Type    |Description|
 |-----------------|-----------|-----------|
 |id               |varchar    |           |
@@ -480,7 +564,9 @@ for more information.
 |ethnicity_code   |varchar    |           |
 |ethnicity_display|varchar    |           |
 
+
 ### core__patient_ext_race
+
 |   Column   |   Type    |Description|
 |------------|-----------|-----------|
 |id          |varchar    |           |
@@ -488,7 +574,9 @@ for more information.
 |race_code   |varchar    |           |
 |race_display|varchar    |           |
 
+
 ### core__study_period
+
 |      Column      |   Type    |Description|
 |------------------|-----------|-----------|
 |start_date        |date       |           |
