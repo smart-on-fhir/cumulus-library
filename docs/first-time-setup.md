@@ -10,8 +10,8 @@ nav_order: 1
 
 ## Installation
 
-As a prerequisite, you'll need a copy of python 3.9 or later installed on
-your system, and you'll need access to an account with access to AWS cloud services.
+As a prerequisite, you'll need a copy of python 3.10 or later installed on
+your system, and you'll need access to an AWS cloud services account.
 
 You can install directly from pypi by running `pip install cumulus-library`.
 
@@ -20,24 +20,25 @@ services. See the [AWS setup guide](./aws-setup.md) for more information on this
 
 ## Command line usage
 
-Installing adds a `cumulus-library` command for interacting with athena.
+Installing adds a `cumulus-library` command for interacting with Athena.
 It provides several actions for users:
 
 - `create` will create a manifest file for you so you can start working on
-authoring queires (more information on this in 
+authoring queries (more information on this in 
 [Creating studies](./creating-studies.md)).
 - `build` will create new study tables, replacing previously created versions
 (more information on this in [Creating studies](./creating-studies.md)).
 - `clean` will remove studies from Athena, in case you no longer need them
 - `export` will output the data in the tables to both a `.csv` and
 `.parquet` file. The former is intended for human review, while the latter is
-more compressed and should be preferred (if supported) for use when transmitting
-data/loading data into analytics packages.
-- `upload` will send data you exported to the cumulus aggregator
+more compressed and should be preferred (if supported) for use when
+loading data into analytics packages.
+- `upload` will send data you exported to the
+[Cumulus Aggregator](https://docs.smarthealthit.org/cumulus/aggregator/)
 
 By default, all available studies will be used by build and export, but you can use
 or `--target` to specify a specific study to be run. You can use it multiple
-times to configure several studies in order. The `vocab`, in particular, can take a
+times to configure several studies in order. The `vocab` study, in particular, can take a
 bit of time to generate, so we recommend using targets after your initial configuration.
 
 Several pip installable studies will automatically be added to the list of available
@@ -58,11 +59,11 @@ deploy in Amazon's US-East zone.
 - Now we'll build the tables we'll need to run the template study. The `vocab`
 study creates mappings of system codes to strings, and the `core` study creates
 tables for commonly used base FHIR resources like `Patient` and `Observation`
-using that vocab. To do this, run the following command:
+using those `vocab` mappings. To do this, run the following command:
 ```bash
 cumulus-library build --target vocab --target core
 ```
-This usually takes around five minutes, but once it's done, you won't need build
+This usually takes around five minutes, but once it's done, you won't need to build
 `vocab` again unless there's a coding system addition, and you'll only need to build
 `core` again if data changes.
 You should see some progress bars like this while the tables are being created:
@@ -71,7 +72,8 @@ Uploading vocab__icd data... ━━━━━━━━━━━━━━━━━
 Creating vocab study in db... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
 Creating core study in db... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
 ```
-- Now, we'll build the template study. Run a very similar command to target `template`:
+- Now, we'll build the built-in example `template` study.
+Run a very similar command, but targeting `template` this time:
 ```bash
 cumulus-library build --target template
 ```
@@ -82,7 +84,7 @@ download designated study artifacts. To do the latter, run the following command
 cumulus-library export --target template ./path/to/my/data/dir/
 ```
 And this will download some example count aggregates to the `data_export` directory
-inside of this repository. There's only a few bins, but this will give you an idea
+inside of this repository. There's only a few tables, but this will give you an idea
 of what kind of output to expect. Here's the first few lines:
 ```
 cnt,influenza_lab_code,influenza_result_display,influenza_test_month

@@ -19,28 +19,30 @@ sections.
 
 ## Why would I even need to think about this?
 
-There are three main reasons why you would need to use python to generate sql:
+There are three main reasons why you would need to use Python to generate SQL:
 - You would like to make use of the 
 [helper class we've built](#generating-counts-tables)
-for ease of creating count tables in a structured manual.
+for ease of creating count tables in a structured manner.
 - You have a dataset you'd like to 
 [load into a table from a static file](#adding-a-static-dataset),
 separate from the ETL tables.
 - The gnarly one: you are working against the raw FHIR resource tables, and are 
 trying to access 
 [nested data](#querying-nested-data) in Athena. 
-  - We infer datatypes in the ETL based on the presence of data once we get past 
-  the top level elements, and so the structure may vary depending on the
-  implementation, either at the EHR level or at the FHIR interface level.
+  - This is gnarly because while the ETL provides a full SQL schema for your own data,
+  it does not guarantee a schema for data that you don't have at your site.
+  And if you want your study to run at multiple sites with different EHRs,
+  you need to be careful when accessing deep FHIR fields.
+  For example, your EHR might populate `Condition.evidence.code` and you can safely
+  write SQL that uses it. But a different site's EHR may not provide that field at all,
+  and thus that column may not be defined in the SQL table schema at that other site.
 
-
-We've got examples of all three of these cases in this repo, and we'll reference
-those as examples as we go.
+You'll see examples of all three cases in this guide.
 
 ## Utilities
 
 There are two main bits of infrastructure we use for programmatic tables:
-The TableBuilder class, and the collection of template SQL.
+The `TableBuilder` class, and the collection of template SQL.
 
 ### Working with TableBuilders
 
@@ -63,7 +65,7 @@ queries are being executed.
 
 You can either extend this class directly (like `builder_*.py` files in 
 `cumulus_library/studies/core`) or create a specific class to add reusable functions
-for a repeated use case (like in `cumulus_library/schema/counts.py`).
+for a repeated use case (like in `cumulus_library/statistics/counts.py`).
 
 TableBuilder SQL generally should go through a template SQL generator, so that
 your SQL has been validated. If you're just working on counts, you don't need
@@ -77,27 +79,27 @@ we've got enough wrappers that you shouldn't need to worry about this
 level of detail.
 
 For validating SQL, we are using 
-[Jinja templates](https://jinja.palletsprojects.com/en/3.1.x/)
+[Jinja templates](https://jinja.palletsprojects.com/)
 to create validated SQL in a repeatable manner. We don't expect you to write these
 templates - instead, using the 
-[template function library](../cumulus_library/template_sql/templates.py)
-you can provide a series of arguments to these templates that will allow you to
+[template function library](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/template_sql/base_templates.py)
+you can provide arguments to these templates that will allow you to
 generate standard types of SQL tables, as well as using templates targeted for
 bespoke operations. 
 
 When you're thinking about a query that you'd need to create, first check the
-template function library to see if something already exists. Basic CRUD
-should be covered, as well as unnestings for some common FHIR objects.
+template function library to see if something already exists. Basic creation and inspection
+queries should be covered, as well as unnestings for some common FHIR objects.
 
 ## Use cases
 
 ### Generating counts tables
 A thing we do over and over as part of studies is generate powerset counts tables
 against a filtered resource to get data about a certain kind of clinical population.
-Since this is so common we created a class just for this, and we're using it in all
+Since this is so common, we created a class just for this, and we're using it in all
 studies the Cumulus team is directly authoring.
 
-The [CountsBuilder class](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/schema/counts.py) 
+The [CountsBuilder class](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/statistics/counts.py)
 provides a number of convenience methods that are available for use (this covers
 mechanics of generation). You can see examples of usage in the 
 [Core counts builder](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/core/count_core.py)
@@ -119,7 +121,7 @@ As a convenience, if you include a `if __name__ == "__main__":` clause like you
 see in `count_core.py`, you can invoke the builder's output by invoking it with
 python, which is a nice way to get example SQL output for inclusion in github.
 This is where the 
-[count core sql output](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/core/count_core.sql)
+[count core sql output](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/studies/core/reference_sql/count_core.sql)
 originated from.
 
 Add your count generator file to the `counts_builder_config` section of your
@@ -127,20 +129,16 @@ Add your count generator file to the `counts_builder_config` section of your
 
 ### Adding a static dataset
 
-*NOTE* - we have an
-[open issue](https://github.com/smart-on-fhir/cumulus-library/issues/58)
-to develop a faster methodology for adding new datasets.
-
 Occasionally you will have a dataset from a third party that is useful for working
 with your dataset. In the vocab study (requiring a license to use), we 
 [add coding system data](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/vocab/vocab_icd_builder.py)
-from flat files to athena. If you need to do this, you should extend the base
-TableBuilder class, and your `prepare_queries` function should do the following,
+from flat files to Athena. If you need to do this, you should extend the base
+`TableBuilder` class, and your `prepare_queries` function should do the following,
 leveraging the
-[template function library](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/template_sql/templates.py):
-- Use the `get_ctas_query` function to get a CREATE TABLE AS statement to 
-instantiate your table in athena
-- Since athena SQL queries are limited in size to 262144 bytes, if you have
+[template function library](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/template_sql/base_templates.py):
+- Use the `get_ctas_query` function to get a `CREATE TABLE AS` statement to 
+instantiate your table in Athena
+- Since Athena SQL queries are limited in size to 262144 bytes, if you have
 a large dataset, break it up into smaller chunks
 - Use the `get_insert_into` function to add the data from each table to
 the chunk you just created.
@@ -148,6 +146,11 @@ the chunk you just created.
 Add the dataset uploader to the `table_builder_config` section of your
 `manifest.toml` to include it in your build - this will make this data
 available for downstream queries
+
+{: .note }
+We have an
+[open issue](https://github.com/smart-on-fhir/cumulus-library/issues/58)
+to develop an easier methodology for adding new datasets.
 
 ### Querying nested data
 
@@ -164,9 +167,9 @@ This means you may have differing schemas in Athena from one site's data to anot
 may differ). In order to handle this, you need to create a standard output
 representation that accounts for all the different permutations you have, and
 conform data to match that. The 
-[encounter coding](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/core/builder_encounter_coding.py)
+[encounter](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/studies/core/builder_encounter.py)
 and
-[condition codeableConcept](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/core/builder_condition_codeableconcept.py)
+[condition](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/studies/core/builder_condition.py)
 builders both jump through hoops to try and get this data into flat tables for
 downstream use.
 
@@ -186,8 +189,8 @@ template function to invoke that template
 - Create a distinct table that has an ID for joining back to the original
 - Perform this join as appropriate to create a table with unnested data
 
-You may find it useful to use the `--builder [filename]` sub argument of the cli
-build command to run just your builder for iteration. The
+You may find it useful to use the `--builder [filename]` sub argument of the CLI
+`build` command to run just your builder for iteration. The
 [Sample bulk FHIR datasets](https://github.com/smart-on-fhir/sample-bulk-fhir-datasets)
 can provide an additional testbed database above and beyond whatever you produce
 in house.

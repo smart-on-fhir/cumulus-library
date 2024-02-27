@@ -249,8 +249,8 @@ class StudyManifestParser:
         for view_table in view_table_list.copy():
             if any(
                 (
-                    (f"_{word.value}_") in view_table[0]
-                    or view_table[0].endswith(word.value)
+                    f"__{word.value}_" in view_table[0]
+                    or view_table[0].endswith(f"__{word.value}")
                 )
                 for word in enums.ProtectedTableKeywords
             ):

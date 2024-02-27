@@ -19,7 +19,7 @@ you'll be working on study development. `cumulus-library` will look in each
 subdirectory of that folder for manifest files, so you can run several studies
 at once. 
 
-If you're not doing this, you can always add the `--study_dir path/to/dir` argument
+If you're not doing this, you can always add the `--study-dir path/to/dir` argument
 to any build/export call to tell it where to look for your work.
 
 ## Creating a new study
@@ -33,16 +33,16 @@ cumulus-library create ./path/to/your/study/dir
 We'll create that folder if it doesn't already exist. 
 
 2. Fork the [
-Cumulus library template repo](https://github.com/smart-on-fhir/cumulus-library-template),
+Cumulus Library template repo](https://github.com/smart-on-fhir/cumulus-library-template),
 renaming your fork, and cloning it directly from github.
 
 We recommend you use a name relevant to your study (we'll use `my_study` for this
-document). The folder name is the same thing you will use as a target with 
-`cumulus_library` to run your study's queries.
+document). This folder name is what you will pass as a `--target` to 
+`cumulus-library` when you run your study's queries.
 
-Once you've made a new study, the `manifest.toml` file is the place you let cumulus
-library know how you want your study to be run against the remote database. The
-template manifest has comments describing all the possible configuration parameters
+Once you've made a new study,
+the `manifest.toml` file is where you can change your study's configuration.
+The initial manifest has comments describing all the possible configuration parameters
 you can supply, but for most studies you'll have something that looks like this:
 
 ```
@@ -66,16 +66,17 @@ Talking about what these three sections do:
   study creates. We'll autocheck this to make sure in several places - this helps
   to guarantee another researcher doesn't have a study artifact that collides
   with yours.
-  - `sql_config.file_names` is a list of sql files, in order, that your study should
-  create. We recommend having one sql file per topic. They should all be in the same
-  location as your manifest file.
-  - `export_config.export_list` defines a list of tables to write to csv/parquet when
-  data is exported. Cumulus is designed with the idea of shipping around aggregate
+  - `sql_config.file_names` is the list of sql files that your study will run (in order).
+  We recommend having one sql file per topic. They should all be in the same
+  folder as your manifest file.
+  - `export_config.export_list` is the list of tables that will be downloaded
+  when `cumulus-library export` is run.
+  Cumulus is designed with the idea of shipping around aggregate
   counts to reduce exposure of limited datasets, and so we recommend only exporting
-  count tables.
+  "count" tables.
 
 There are other hooks you can use in the manifest for more advanced control over
-how you can generate sql. See [Creating SQL with python](creating-sql-with-python.md)
+how you can generate SQL. See [Creating SQL with python](creating-sql-with-python.md)
 for more information.
 
 We recommend creating a git repo per study, to help version your study data, which
@@ -88,18 +89,25 @@ Most users have a workflow that looks like this:
   - Write queries in the [AWS Athena console](https://aws.amazon.com/athena/) while
   you are exploring the data
     - We recommend trying to keep your studies pointed at the `core` tables. The
-    base FHIR resource named tables contain a lot of nested data that can be tricky
-    to write cross-EHR queries against, and so you'll save yourself some headaches
-    if everything you need is available via those resources. If it isn't, make sure
-    you look at the [Creating SQL with python](creating-sql-with-python.md) guide
-    for information about safely extracting datasets from those tables.
+    raw FHIR resource tables contain a lot of nested data that can be tricky
+    to write cross-EHR queries against.
+    For example, an EHR may store Medication information in the `medication` or
+    the `medicationrequest` raw resource tables,
+    but the `core__medication` hides that complexity and is always available,
+    regardless of the specific EHR approach.
+    If you _do_ need some data that is not available in the `core` tables,
+    make sure you look at the
+    [Creating SQL with python](creating-sql-with-python.md)
+    guide for help to safely extract datasets from the raw resource tables.
   - Move queries to a file as you finalize them
   - Build your study with the CLI to make sure your queries load correctly.
 
+#### sqlfluff
+
 We use [sqlfluff](https://github.com/sqlfluff/sqlfluff) to help maintain a consistent
-style across many different SQL query authors. We recommend using sqlfluff as you
-are developing your queries to ensure your sql is matching the style of other
-authors. We copy over our sqlfluff rules when you use `cumulus-library` to create
+style across many different SQL query authors. We recommend using `sqlfluff` as you
+are developing your queries to ensure your SQL is matching the style of other
+authors. We copy over our `sqlfluff` rules when you use `cumulus-library` to create
 a study, so no additional configuration should be needed.
 
 There are two commands you will want to run inside your study's directory:
@@ -107,49 +115,48 @@ There are two commands you will want to run inside your study's directory:
   - `sqlfluff fix` will try to make your autocorrect your queries to match the
   expected style
 
-In order to both make your queries parsable to other humans, and to have sqlfluff
+In order to both make your queries parsable to other humans, and to have `sqlfluff`
 be maximally helpful, we have a few requirements and some suggestions for query
 styling.
 
-**Hard Requirements**
+#### Hard Requirements
   For all of these, Cumulus Library will notify you if you write a query that breaks
   one of these rules when you build your study.
   - All your tables **must** start with a string like `my_study__`. 
-  - Relatedly, **`__` is a reserved character string**. Your table names should have
-  exactly one of these. We :might: add other use cases for these in the future,
-  but as of this writing we don't plan to.
-  - We have **three reserved post-study prefrix substrings: `etl_`,  `nlp_`, and 
-  `lib_`** so that we don't drop tables created by other processes. These are fine
-  to use elsewhere; `my_study__nlp_counts` would cause an error, but 
-  `my_study__counts_nlp` would be fine.
+  - Relatedly, `__` (two underscores) **is a reserved character string**.
+  Your table names should have exactly one of these.
+  - We have **three reserved table prefixes:** `etl_`,  `nlp_`, and `lib_`.
+  These are fine to use elsewhere in the table name, just not at the beginning.
+  For example, `my_study__nlp_counts` would cause an error, 
+  but `my_study__counts_nlp` would be fine.
 
-**Requirements for accepting PRs**
+#### Requirements for accepting PRs
  - **Count tables must use the CUBE function** to create powersets of data. See the
-  [CUBE section of groupby](https://prestodb.io/docs/current/sql/select.html#group-by-clause)
-  for more information about this `groupby` type. The core and template projects
-  provide an example of its usage.
+  [CUBE section of the Presto docs](https://prestodb.io/docs/current/sql/select.html#group-by-clause)
+  for more information about this `GROUP BY` type.
+  The `core` and `template` projects contain examples.
   - For PHI reverse identification protection, **exclude rows from count tables if
-  they have a small number of members**, i.e. less than 10.
+  they have a small number of members**, e.g. less than 10.
 
-**Recommended**
+#### Recommended
   - You may want to select a SQL style guide as a reference. Mozilla provides a
   [SQL style guide](https://docs.telemetry.mozilla.org/concepts/sql_style.html),
-  which our sqlfluff config enforces. If you have a different style you'd like
+  which our `sqlfluff` config enforces. If you have a different style you'd like
   to use, you can update the `.sqlfluff` config to allow this. For example,
   [Gitlab's data team](https://about.gitlab.com/handbook/business-technology/data-team/platform/sql-style-guide/)
-  has a style guide that is more centered around DBT, but is more perscriptive
+  has a style guide that is more centered around DBT, but is more prescriptive
   around formatting.
   - Don't implicitly reference columns tables. Either use the full table name,
   or give the table an alias, and use that any time you are referencing a column.
-  - Don't use the * wildcard in your final tables. Explicitly list the columns
-  with table name/alias - sqlfluff has a hard time inferring what's going on otherwise.
-  - We are currently asking for all caps for sql keywords like SELECT and 4 space
-  nesting for queries. `sqlfluff fix` will apply this for you, but it may be easier
-  to find other problems if you lightly adhere to this from the start.
+  - Don't use the `*` wildcard in your final tables. Explicitly list the columns
+  with table name/alias - `sqlfluff` has a hard time inferring what's going on otherwise.
+  - We are currently asking for all caps for SQL keywords like `SELECT` and four-space
+  indentation for queries. `sqlfluff fix` will apply this for you, but it may be easier
+  to find other problems if you adhere to this from the start.
   - Agggregate count tables should have the first word after the study prefix be
-  `count`, and otherwise the word `count` should not be used.
+  `count_`, and otherwise the word `count` should not be used.
 
-**Metadata tables**
+#### Metadata tables
   - Creating a table called `my_study__meta_date` with two columns, `min date` and
   `max date`, and populating it with the start and end date of your study, will
   allow other Cumulus tools to detect study date ranges, and otherwise bakes the
@@ -160,9 +167,9 @@ styling.
   CREATE TABLE my_study__meta_version AS
   SELECT 1 AS data_package_version;
   ```
-  allows you to signal versions for use in segregating data upstream, like in the
-  Cumulus aggregator - just increment it when you will need third parties to rerun
-  your study from scratch due to a change in your counts output. If this is not
+  allows you to signal versions for use in segregating data downstream, like in the
+  Cumulus Aggregator. Increment it when your counts output changes format,
+  and thus third parties need to rerun your study from scratch. If this is not
   set, the version will implicitly be set to zero.
 
 ## Testing studies
@@ -225,4 +232,4 @@ via the [discussion forum](https://github.com/smart-on-fhir/cumulus/discussions)
 we can talk more about what makes sense for your use case.
 
 If you write a paper using the Cumulus library, please 
-[cite the project](https://smarthealthit.org/cumulus-a-universal-sidecar-for-a-smart-learning-healthcare-system/)
+[cite the project](https://smarthealthit.org/cumulus/)

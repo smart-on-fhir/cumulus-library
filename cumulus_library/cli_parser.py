@@ -22,7 +22,7 @@ def add_table_builder_argument(parser: argparse.ArgumentParser) -> None:
 
 
 def add_study_dir_argument(parser: argparse.ArgumentParser) -> None:
-    """Adds --study_dir arg to a subparser"""
+    """Adds --study-dir arg to a subparser"""
     parser.add_argument(
         "-s",
         "--study-dir",

@@ -28,23 +28,22 @@ before each export run.
 
 ## Uploading data to Cumulus Aggregator
 
-As part of the Cumulus framework, we have a 
-[middleware application](https://github.com/smart-on-fhir/cumulus-aggregator/) 
-configured to receive and combine datasets from multiple organizations, which can
-then be loaded into the [dashboard](https://github.com/smart-on-fhir/cumulus-app) 
-for SME analysis. As of this writing these are not open source, but are intended
-to be in the near term.
+As part of the Cumulus framework, we have a middleware application called
+[Cumulus Aggregator](https://docs.smarthealthit.org/cumulus/aggregator/) 
+configured to receive and combine datasets from multiple organizations,
+which can then be loaded into the dashboard for SME analysis.
+(As of this writing, that dashboard is not yet available as open source.)
 
 We recommend configuring the following environment variables for using this script:
 
 - `CUMULUS_AGGREGATOR_USER`
 - `CUMULUS_AGGREGATOR_ID`
 
-The administrator of your aggregator can help you with generating the values for
+The administrator of your Aggregator instance can help you with generating the values for
 these variables; reach out to them for more details.
 
 With these configured, running `cumulus-library upload` will send any exported
-data up to the defined aggregator instance. If you are doing something slightly
+data up to the defined Aggregator instance. If you are doing something slightly
 more complex than participating in one clinical study with the main Cumulus project,
 using the `--help` flag will give you some additional configuration options that
 may help with your use case.

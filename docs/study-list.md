@@ -14,7 +14,8 @@ The following studies are available to install via pip - check the repository
 for more details and any associated publications.
 
 ### 2023
-[Covid symptoms] - (https://github.com/smart-on-fhir/cumulus-library-covid)
+- [Covid symptoms](https://github.com/smart-on-fhir/cumulus-library-covid)
+- [Suicidality length of stay](https://github.com/smart-on-fhir/cumulus-library-suicidality-los)
 
 ## Third party studies
 
