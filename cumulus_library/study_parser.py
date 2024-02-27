@@ -575,11 +575,12 @@ class StudyManifestParser:
 
         tables = [x[0] for x in cursor.execute(query).fetchall()]
         query = base_templates.get_column_datatype_query(
-            schema_name=schema, table_name=tables, include_table_names=True
+            schema_name=schema, table_names=tables, include_table_names=True
         )
         study_df = pandas.DataFrame(
             cursor.execute(query).fetchall(), columns=["Table", "Column", "Type"]
         )
+        print(self._study_path)
         with open(
             self._study_path / f"{self.get_study_prefix()}_generated.md", "w"
         ) as f:
