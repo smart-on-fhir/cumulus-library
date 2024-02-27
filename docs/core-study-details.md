@@ -42,58 +42,64 @@ Examples:
 ## Core study exportable counts tables
 
 ### count_core_condition_icd10_month
-| Variable  |   Description |
-| --------  |   --------    |
-| cnt   |   Count   |
-| cond_month    |   Month condition recorded    |
-| cond_code_display |   Condition code  |
-| enc_class_code    |   Encounter Code (Healthcare Setting) |
+
+| Variable          | Description                         |
+|:------------------|:------------------------------------|
+| cnt               | Count                               |
+| cond_month        | Month condition recorded            |
+| cond_code_display | Condition code                      |
+| enc_class_code    | Encounter Code (Healthcare Setting) |
 
 
 ### count_core_documentreference_month
-| Variable  |   Description |
-| --------  |   --------    |
-| cnt   |   Count   |
-| author_month  |   Month document was authored |
-| enc_class_code    |   Encounter Code (Healthcare Setting) |
-| doc_type_display  |   Type of Document (display)  |
+
+| Variable         | Description                         |
+|:-----------------|:------------------------------------|
+| cnt              | Count                               |
+| author_month     | Month document was authored         |
+| enc_class_code   | Encounter Code (Healthcare Setting) |
+| doc_type_display | Type of Document (display)          |
 
 
 ### count_core_encounter_day
-| Variable  |   Description |
-| --------  |   --------    |
-| cnt   |   Count   |
-| enc_class_code    |   Encounter Code (Healthcare Setting) |
-| start_date    |   Day patient encounter started   |
+
+| Variable       | Description                         |
+|:---------------|:------------------------------------|
+| cnt            | Count                               |
+| enc_class_code | Encounter Code (Healthcare Setting) |
+| start_date     | Day patient encounter started       |
 
 
 ### count_core_encounter_month
-| Variable  |   Description |
-| --------  |   --------    |
-| cnt   |   Count   |
-| enc_class_code    |   Encounter Code (Healthcare Setting) |
-| start_month   |   Month patient encounter started |
-| age_at_visit  |   Patient Age at Encounter    |
-| gender    |   Biological sex at birth |
-| race_display  |   Patient reported race   |
-| postalcode3   |   Patient 3 digit zip |
+
+| Variable       | Description                         |
+|:---------------|:------------------------------------|
+| cnt            | Count                               |
+| enc_class_code | Encounter Code (Healthcare Setting) |
+| start_month    | Month patient encounter started     |
+| age_at_visit   | Patient Age at Encounter            |
+| gender         | Biological sex at birth             |
+| race_display   | Patient reported race               |
+| postalcode3    | Patient 3 digit zip                 |
 
 
 ### count_core_observation_lab_month
-| Variable  |   Description |
-| --------  |   --------    |
-| cnt   |   Count   |
-| lab_month |   Month of lab result |
-| lab_code  |   Laboratory Code |
-| lab_result_display    |   Laboratory result   |
-| enc_class_code    |   Encounter Code (Healthcare Setting) |
+
+| Variable           | Description                         |
+|:-------------------|:------------------------------------|
+| cnt                | Count                               |
+| lab_month          | Month of lab result                 |
+| lab_code           | Laboratory Code                     |
+| lab_result_display | Laboratory result                   |
+| enc_class_code     | Encounter Code (Healthcare Setting) |
 
 
 ### count_core_patient
-| Variable  |   Description |
-| --------  |   --------    |
-| cnt   |   Count   |
-| gender    |   Biological sex at birth |
-| age   |   Age in years calculated since DOB   |
-| race_display  |   Patient reported race   |
-| postalcode3   |   Patient 3 digit zip |
+
+| Variable     | Description                       |
+|:-------------|:----------------------------------|
+| cnt          | Count                             |
+| gender       | Biological sex at birth           |
+| age          | Age in years calculated since DOB |
+| race_display | Patient reported race             |
+| postalcode3  | Patient 3 digit zip               |

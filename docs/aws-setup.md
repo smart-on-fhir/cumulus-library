@@ -14,7 +14,7 @@ Cumulus library executes queries against an
 for creating such a datastore is available for testing purposes if you don't
 already have one.
 
-The cloudformation template in the sample database's Cloudformation template should
+The sample database's CloudFormation template should
 have the appropriate permissions set for all the services. If you need to configure
 an IAM policy manually, you will need to ensure the AWS profile you are using has
 the following permissions:
@@ -52,4 +52,8 @@ to specify where your database information lives:
 - `CUMULUS_LIBRARY_DATABASE` : The name of the database Athena will use (`cumulus_library_sample_db` if using the sample DB)
 - `CUMULUS_LIBRARY_WORKGROUP` : the Athena workgroup to execute queries in (`cumulus_library_sample_db` if using the sample DB)
 
-Configuring environment variables on your system is out of scope of this document, but several guides are available elsewhere. [This guide](https://www.twilio.com/blog/2017/01/how-to-set-environment-variables.html), for example, covers Mac, Windows, and Linux. And, as a plus, it has a picture of an adorable puppy at the top of it.
+Configuring environment variables on your system is out of scope of this document,
+but several guides are available elsewhere.
+[This guide](https://www.twilio.com/blog/how-to-set-environment-variables-html),
+for example, covers Mac, Windows, and Linux.
+And, as a plus, it has a picture of an adorable puppy at the top of it.
