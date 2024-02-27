@@ -53,6 +53,12 @@ query being executed looks like, you can use the `generate-sql` command
 in the Cumulus library CLI to write out example queries. They will go into
 a folder inside your study called `reference_sql`.
 
+To document your study strucuture, you can use the `generate-md` command
+to create markdown tables you can copy into your study docs. Note that,
+as of this writing, you'll need to supply a description for each field by
+hand. This output will be generated inside your study, in a file named
+`{study name}_generated.md`.
+
 ### Working with TableBuilders
 
 We have a base
@@ -94,9 +100,9 @@ templates - instead, using the
 [template function library](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/template_sql/base_templates.py)
 you can provide arguments to these templates that will allow you to
 generate standard types of SQL tables, as well as using templates targeted for
-bespoke operations. But you :can: write study specific templates if you have
+bespoke operations. But you _can_ write study specific templates if you have
 a complex use case. The Core study has 
-[study specific templates](https://github.com/smart-on-fhir/cumulus-library)
+[study specific templates](https://github.com/smart-on-fhir/cumulus-library/tree/main/cumulus_library/studies/core/core_templates)
 to generate flat tables from nested FHIR tables, as an example.
 
 When you're thinking about a query that you'd need to create, first check the

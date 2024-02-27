@@ -580,7 +580,6 @@ class StudyManifestParser:
         study_df = pandas.DataFrame(
             cursor.execute(query).fetchall(), columns=["Table", "Column", "Type"]
         )
-        print(self._study_path)
         with open(
             self._study_path / f"{self.get_study_prefix()}_generated.md", "w"
         ) as f:

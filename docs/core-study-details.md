@@ -10,11 +10,18 @@ nav_order: 5
 
 The core study aims to provide the following features:
 
-- **FHIR US Core V4 Profile data** - For resources that are supported by Cumulus, we attempt to extract all required/extensible fields from a FHIR dataset, if present
-- **Flattened FHIR resources** - The core study provided flattened tables from nested FHIR resources, making queries easier to construct without having to worry about the nuances of conditional unnesting against potentially missing data
-- **Summary Exports** - The core study will provide some basic count data across the entire cohort that you've processed via ETL, which can be useful as a verification step for validating the integrity of the data you're extracting from your EHR system
+- **FHIR US Core V4 Profile data** - For resources that are supported by Cumulus, 
+we attempt to extract all required/extensible fields from a FHIR dataset, if present
+- **Flattened FHIR resources** - The core study provided flattened tables from nested
+FHIR resources, making queries easier to construct without having to worry about the
+nuances of conditional unnesting against potentially missing data
+- **Summary Exports** - The core study will provide some basic count data across the
+entire cohort that you've processed via ETL, which can be useful as a verification step
+for validating the integrity of the data you're extracting from your EHR system
 
-If you are authoring a study, and are focused only on clinical analysis (i.e. you aren't working on data quality/data governance issues), we :strongly: recommend you use the core study as the starting point for your own work. See 
+If you are authoring a study, and are focused only on clinical analysis (i.e. you
+aren't working on data quality/data governance issues), we **strongly** recommend you
+use the core study as the starting point for your own work. See 
 [Creating Studies](./creating-studies.md)
 for more information.
 

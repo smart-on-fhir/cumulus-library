@@ -41,7 +41,6 @@ what each section does:
 # to clean up queries, so it should be unique. Name your tables in the following
 # format: [study_prefix]__[table_name]. It should probably, but not necessarily,
 # be the same name as the folder the study definition is in.
->>>>>>> 1e357f9 (v2.0 docs update)
 study_prefix = "my_study"
 
 # For most use cases, this should not be required, but if you need to programmatically
@@ -136,7 +135,7 @@ Most users have a workflow that looks like this:
 
 We use [sqlfluff](https://github.com/sqlfluff/sqlfluff) to help maintain a consistent
 style across many different SQL query authors. We recommend using sqlfluff as you
-are developing your queries to ensure your sql is matching the style of other
+are developing your queries to ensure your SQL is matching the style of other
 authors, but it is not required. You can copy our
 [sqlfluff config](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/.sqlfluff)
 into your study if you'd like to use the same style we are.
