@@ -55,6 +55,7 @@ source_id = source_id
 table_cols = ["a","b"]
 table_cols_types = ["varchar", "varchar"]
 table_name = test_table
+table_names = ["test_table"]
 table_suffix = 2024_01_01_11_11_11
 target_col_prefix = prefix
 target_table = target_table

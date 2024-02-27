@@ -164,13 +164,28 @@ def test_get_column_datatype_query():
 FROM information_schema.columns
 WHERE
     table_schema = 'schema_name'
-    AND table_name = 'table_name'
-    AND LOWER(column_name) IN ('foo', 'bar') --noqa: LT05"""
+    AND table_name IN ('table_name')"""
 
     query = base_templates.get_column_datatype_query(
         schema_name="schema_name",
-        table_name="TABLE_NAME",
+        table_names="TABLE_NAME",
+    )
+    assert query == expected
+    expected = """SELECT
+    table_name,
+    column_name,
+    data_type
+FROM information_schema.columns
+WHERE
+    table_schema = 'schema_name'
+    AND table_name IN ('table_name')
+AND LOWER(column_name) IN ('foo', 'bar') --noqa: LT05"""
+
+    query = base_templates.get_column_datatype_query(
+        schema_name="schema_name",
+        table_names="TABLE_NAME",
         column_names=["foo", "BAR"],
+        include_table_names=True,
     )
     assert query == expected
 
