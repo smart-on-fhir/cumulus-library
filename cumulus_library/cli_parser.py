@@ -229,4 +229,15 @@ following order of preference is used to select credentials:
     add_target_argument(generate)
     add_study_dir_argument(generate)
     add_db_config(generate)
+
+    # Generate markdown tables for documentation
+    markdown = actions.add_parser(
+        "generate-md", help="Generates markdown tables for study documentation"
+    )
+    add_target_argument(markdown)
+    add_study_dir_argument(markdown)
+    add_data_path_argument(markdown)
+    add_db_config(markdown)
+    add_verbose_argument(markdown)
+
     return parser

@@ -10,7 +10,9 @@ nav_order: 4
 
 Before jumping into this doc, take a look at 
 [Creating Studies](creating-studies.md).
-If you're just working with `core` tables related to the US Core FHIR profiles, you 
+If you're just working with the
+[Core study tables](core-study-details.md)
+related to the US Core FHIR profiles, you 
 may not be interested in this, or only need to look at the 
 [Working with TableBuilders](#working-with-tablebuilders)
 and the
@@ -22,7 +24,9 @@ sections.
 There are three main reasons why you would need to use Python to generate SQL:
 - You would like to make use of the 
 [helper class we've built](#generating-counts-tables)
-for ease of creating count tables in a structured manner.
+for ease of creating count tables in a structured manner, or one of the
+[statistics packages](statistics.md) we provide for automating common numerical
+tasks.
 - You have a dataset you'd like to 
 [load into a table from a static file](#adding-a-static-dataset),
 separate from the ETL tables.
@@ -43,6 +47,11 @@ You'll see examples of all three cases in this guide.
 
 There are two main bits of infrastructure we use for programmatic tables:
 The `TableBuilder` class, and the collection of template SQL.
+
+If you include a table builder in your study, and you want to see what the
+query being executed looks like, you can use the `generate-sql` command
+in the Cumulus library CLI to write out example queries. They will go into
+a folder inside your study called `reference_sql`.
 
 ### Working with TableBuilders
 
@@ -85,7 +94,10 @@ templates - instead, using the
 [template function library](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/template_sql/base_templates.py)
 you can provide arguments to these templates that will allow you to
 generate standard types of SQL tables, as well as using templates targeted for
-bespoke operations. 
+bespoke operations. But you :can: write study specific templates if you have
+a complex use case. The Core study has 
+[study specific templates](https://github.com/smart-on-fhir/cumulus-library)
+to generate flat tables from nested FHIR tables, as an example.
 
 When you're thinking about a query that you'd need to create, first check the
 template function library to see if something already exists. Basic creation and inspection
@@ -96,7 +108,7 @@ queries should be covered, as well as unnestings for some common FHIR objects.
 ### Generating counts tables
 A thing we do over and over as part of studies is generate powerset counts tables
 against a filtered resource to get data about a certain kind of clinical population.
-Since this is so common, we created a class just for this, and we're using it in all
+Since this is so common we created a class just for this, and we're using it in 
 studies the Cumulus team is directly authoring.
 
 The [CountsBuilder class](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/statistics/counts.py)
@@ -116,13 +128,6 @@ for filtering, or can change the minimum bin size used to include data
 - The `count_*` functions pass through to `get_count_query` - if you have a use
 case we're not covering, you can use this interface directly. We'd love to hear
 about it - we'd consider covering it and/or take PRs for new features
-
-As a convenience, if you include a `if __name__ == "__main__":` clause like you
-see in `count_core.py`, you can invoke the builder's output by invoking it with
-python, which is a nice way to get example SQL output for inclusion in github.
-This is where the 
-[count core sql output](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/studies/core/reference_sql/count_core.sql)
-originated from.
 
 Add your count generator file to the `counts_builder_config` section of your
 `manifest.toml` to include it in your build invocations.

@@ -5,7 +5,10 @@ import importlib.util
 import inspect
 import pathlib
 import sys
+import typing
 
+import pandas
+import pytablewriter
 import toml
 from rich.progress import Progress, TaskID, track
 
@@ -551,6 +554,56 @@ class StudyManifestParser:
                 doc_str=doc_str,
                 verbose=verbose,
             )
+
+    def run_generate_markdown(
+        self,
+        cursor: databases.DatabaseCursor,
+        schema: str,
+        parser: databases.DatabaseParser = None,
+        verbose: bool = False,
+    ) -> None:
+        """Generates reference SQL from builders listed in the manifest
+
+        :param cursor: A DatabaseCursor object
+        :param schema: The name of the schema to write tables to
+        :param verbose: toggle from progress bar to query output
+        """
+
+        query = base_templates.get_show_tables(
+            schema_name=schema, prefix=f"{self.get_study_prefix()}__"
+        )
+
+        tables = [x[0] for x in cursor.execute(query).fetchall()]
+        query = base_templates.get_column_datatype_query(
+            schema_name=schema, table_name=tables, include_table_names=True
+        )
+        study_df = pandas.DataFrame(
+            cursor.execute(query).fetchall(), columns=["Table", "Column", "Type"]
+        )
+        with open(
+            self._study_path / f"{self.get_study_prefix()}_generated.md", "w"
+        ) as f:
+            table_list = sorted(study_df["Table"].unique())
+            count_tables = [t for t in table_list if "__count_" in t]
+            base_tables = [t for t in table_list if "__count_" not in t]
+            if len(count_tables) > 0:
+                f.write(f"## {self.get_study_prefix()} count tables\n\n")
+                for table in count_tables:
+                    self._write_md_table(table, study_df, f)
+            if len(base_tables) > 0:
+                f.write(f"## {self.get_study_prefix()} base tables\n\n")
+                for table in base_tables:
+                    self._write_md_table(table, study_df, f)
+
+    def _write_md_table(self, name: str, df: pandas.DataFrame, file: typing.IO):
+        table_df = df[df["Table"] == name].drop("Table", axis=1)
+        table_df = table_df.assign(Description="")
+        writer = pytablewriter.MarkdownTableWriter(dataframe=table_df)
+        writer.table_name = name
+        writer.set_indent_level(2)
+        writer.stream = file
+        writer.write_table()
+        file.write("\n")
 
     def build_study(
         self,

@@ -11,6 +11,7 @@ dependencies = [
     "psmpy <1, >=0.3.13",
     "pyarrow >= 11.0",
     "pyathena >= 2.23",
+    "pytablewriter >= 1.2",
     "requests >= 2.28",
     "rich >= 13.2",
     "sqlfluff >= 2.3.4",
