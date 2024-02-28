@@ -226,6 +226,22 @@ class StudyRunner:
             parser=self.db.parser(),
         )
 
+    def generate_study_markdown(
+        self,
+        target: pathlib.Path,
+    ) -> None:
+        """Materializes study sql from templates
+
+        :param target: A path to the study directory
+        """
+        studyparser = study_parser.StudyManifestParser(target)
+        studyparser.run_generate_markdown(
+            self.cursor,
+            self.schema_name,
+            verbose=self.verbose,
+            parser=self.db.parser(),
+        )
+
 
 def get_abs_posix_path(path: str) -> pathlib.Path:
     """Convenience method for handling abs vs rel paths"""
@@ -373,6 +389,10 @@ def run_cli(args: dict):
             elif args["action"] == "generate-sql":
                 for target in args["target"]:
                     runner.generate_study_sql(study_dict[target])
+
+            elif args["action"] == "generate-md":
+                for target in args["target"]:
+                    runner.generate_study_markdown(study_dict[target])
         finally:
             db_backend.close()
 

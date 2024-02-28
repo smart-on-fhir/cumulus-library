@@ -24,64 +24,90 @@ to any build/export call to tell it where to look for your work.
 
 ## Creating a new study
 
-There are two ways to get started with a new study:
+If you're authoring a study, you just need to do two things to get started:
 
-1. Use `cumulus-library` to create a manifest for you. You can do this with by running:
-```bash
-cumulus-library create ./path/to/your/study/dir
-```
-We'll create that folder if it doesn't already exist. 
+- Make a new directory inside the directory you're keeping studies in. The name of this
+directory will be the name you use to run it using the `cumulus-library` cli command.
+In this document, we're calling this directory `my_study` as an example.
+- Make a new file, `manifest.toml`. A
+[toml file](https://toml.io/en/)
+is a config file format - you don't need to worry too much about the details of this 
+format, as we'll show you in this document how the library uses these files to run your
+study. You can copy the following template as an example, which has comments describing
+what each section does:
 
-2. Fork the [
-Cumulus Library template repo](https://github.com/smart-on-fhir/cumulus-library-template),
-renaming your fork, and cloning it directly from github.
-
-We recommend you use a name relevant to your study (we'll use `my_study` for this
-document). This folder name is what you will pass as a `--target` to 
-`cumulus-library` when you run your study's queries.
-
-Once you've made a new study,
-the `manifest.toml` file is where you can change your study's configuration.
-The initial manifest has comments describing all the possible configuration parameters
-you can supply, but for most studies you'll have something that looks like this:
-
-```
+```toml
+# 'study_prefix' should be a string at the start of each table. We'll use this
+# to clean up queries, so it should be unique. Name your tables in the following
+# format: [study_prefix]__[table_name]. It should probably, but not necessarily,
+# be the same name as the folder the study definition is in.
 study_prefix = "my_study"
 
+# For most use cases, this should not be required, but if you need to programmatically
+# build tables, you can provide a list of files implementing BaseTableBuilder.
+# See vocab and core studies for examples of this pattern. These run before
+# any SQL execution
+# [table_builder_config]
+# file_names = [
+#     "my_table_builder.py",
+# ]
+
+# The following section describes all tables that should be generated directly
+# from SQL files.
 [sql_config]
+# 'file_names' defines a list of sql files to execute, in order, in this folder.
+# Recommended order: Any ancillary config (like a list of condition codes),
+# tables/view selecting subsets of data from FHIR data, tables/views creating 
+# summary statistics.
 file_names = [
-    "my_setup.sql",
-    "my_cross_tables.sql",
-    "my_counts.sql",
+    "setup.sql",
+    "lab_observations.sql",
+    "counts.sql",
+    "date_range.sql"
 ]
 
+
+# The following section defines parameters related to exporting study data from
+# your athena database
 [export_config]
+# The following tables will be output to disk when an export is run. In most cases,
+# only count tables should be output in this way.
 export_list = [
-    "my_study__counts_month",
+    "template__count_influenza_test_month",
 ]
+
+# For generating counts table in a more standardized manner, we have a class in the 
+# main library you can extend that will handle most of the logic of assembling 
+# queries for you. We use this pattern for generating the core tables, as well
+# other studies authored inside BCH. These will always be run after any other
+# SQL queries have been generated
+# [counts_builder_config]
+# file_names = [
+#    "count.py"
+# ]
+
+# For more specialized statistics, we provide a toml-based config entrypoint. The
+# details of these configs will vary, depending on which statistical method you're
+# invoking. For more details, see the statistics section of the docs for a list of
+# supported approaches.
+# These will run last, so all the data in your study will exist by the time these
+# are invoked.
+# [statistics_config]
+# file_names = 
+# [
+#    "psm_config.toml"
+# ]
+
 ```
 
-Talking about what these three sections do:
-  - `study_prefix` is the expected prefix you will be adding to all tables your
-  study creates. We'll autocheck this to make sure in several places - this helps
-  to guarantee another researcher doesn't have a study artifact that collides
-  with yours.
-  - `sql_config.file_names` is the list of sql files that your study will run (in order).
-  We recommend having one sql file per topic. They should all be in the same
-  folder as your manifest file.
-  - `export_config.export_list` is the list of tables that will be downloaded
-  when `cumulus-library export` is run.
-  Cumulus is designed with the idea of shipping around aggregate
-  counts to reduce exposure of limited datasets, and so we recommend only exporting
-  "count" tables.
-
 There are other hooks you can use in the manifest for more advanced control over
-how you can generate SQL. See [Creating SQL with python](creating-sql-with-python.md)
+how you can generate sql - these are commented out in the above template, and you can
+delete them if you don't need them. See 
+[Creating SQL with python](creating-sql-with-python.md)
 for more information.
 
-We recommend creating a git repo per study, to help version your study data, which
-you can do in the same directory as the manifest file. If you've forked your study from
-the template, you've already checked this step off.
+If you're familiar with git workflows, we recommend creating a git repo for your study, to
+help version your study in case of changes.
 
 ### Writing SQL queries
 
@@ -95,6 +121,9 @@ Most users have a workflow that looks like this:
     the `medicationrequest` raw resource tables,
     but the `core__medication` hides that complexity and is always available,
     regardless of the specific EHR approach.
+    You can look at the
+    [Core study documentation](core-study-details.md) 
+    for details about that study's contents.
     If you _do_ need some data that is not available in the `core` tables,
     make sure you look at the
     [Creating SQL with python](creating-sql-with-python.md)
@@ -102,15 +131,46 @@ Most users have a workflow that looks like this:
   - Move queries to a file as you finalize them
   - Build your study with the CLI to make sure your queries load correctly.
 
+__Important detail on FHIR arrays__: When we flatten a FHIR element that
+is specified as being potentially an array (like many instances of 
+CodeableConcept, for example), we create a seperate table from that
+field. It can be joined back to the table it was extracted from by the
+id field present in both tables.
+
+However - in your study design, you will need to handle cases where
+multiple items may exist in these tables. It is common for multiple
+code systems to be used for a single record.
+
+As an example, the Condition resource has a base level CodeableConcept
+that _should_ contain a SNOMED code, but often has only an ICD9/10 code,
+or a EHR vendor specific code. We handle this case in two ways:
+  - The __core__condition_codable_concepts_display__ table contains one
+  record per resource, where we specify a priority order and take the
+  first valid code we find, which is ok for cases where you aren't
+  very concerned about a specific coding and are just looking to get
+  an idea of what data you have
+  - The __core__condition_codable_concepts_all__ table contains
+  every code for every system found. This is useful when you are specifically
+  looking for data associated with a given clinical coding system, but
+  if you are not careful, you can cause a condition to be counted twice
+  by not specifying a coding system when joining this table with the
+  base condition table.
+
+Your approach to handling this is going to be dictated by the specific
+clinical context you're working with. In cases where we don't specify
+two table types for an array resource, you should assume that we are
+following the second pattern and account for that in your queries.
+
 #### sqlfluff
 
 We use [sqlfluff](https://github.com/sqlfluff/sqlfluff) to help maintain a consistent
-style across many different SQL query authors. We recommend using `sqlfluff` as you
+style across many different SQL query authors. We recommend using sqlfluff as you
 are developing your queries to ensure your SQL is matching the style of other
-authors. We copy over our `sqlfluff` rules when you use `cumulus-library` to create
-a study, so no additional configuration should be needed.
+authors, but it is not required. You can copy our
+[sqlfluff config](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/.sqlfluff)
+into your study if you'd like to use the same style we are.
 
-There are two commands you will want to run inside your study's directory:
+There are two commands you can run inside your study's directory to check formatting:
   - `sqlfluff lint` will show you any variations from the expected styling rules
   - `sqlfluff fix` will try to make your autocorrect your queries to match the
   expected style
@@ -130,11 +190,12 @@ styling.
   For example, `my_study__nlp_counts` would cause an error, 
   but `my_study__counts_nlp` would be fine.
 
+
 #### Requirements for accepting PRs
- - **Count tables must use the CUBE function** to create powersets of data. See the
-  [CUBE section of the Presto docs](https://prestodb.io/docs/current/sql/select.html#group-by-clause)
-  for more information about this `GROUP BY` type.
-  The `core` and `template` projects contain examples.
+ - **Count tables must use the CUBE operator** to create powersets of data. See the
+  [Trino docs](https://trino.io/docs/current/sql/select.html#cube)
+  for more information about its syntax. The core study, and other studies produced
+  by the core Cumulus team, provide examples of its usage.
   - For PHI reverse identification protection, **exclude rows from count tables if
   they have a small number of members**, e.g. less than 10.
 
@@ -223,7 +284,7 @@ Not only is this faster than talking to Athena,
 but you can edit the local ndjson to add interest edge cases that you want your
 SQL to be able to handle.
 
-We use this feature in some of our studies to even add automated unit tests.
+We use this feature in the library and our studies for automated unit testing.
 
 ## Sharing studies
 
@@ -233,3 +294,11 @@ we can talk more about what makes sense for your use case.
 
 If you write a paper using the Cumulus library, please 
 [cite the project](https://smarthealthit.org/cumulus/)
+
+## Snapshotting/archiving studies
+
+If you need to freeze a study at a specific point in time (like if you're working
+on a publication), you can create an archive of that study using the `archive`
+command in the Cumulus library CLI. Just be aware that this archive may contain
+sensitive data, and so make sure your store the archive someplace that complies
+with your organization's security policies.

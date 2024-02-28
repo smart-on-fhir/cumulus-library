@@ -90,13 +90,21 @@ def get_codeable_concept_denormalize_query(
     )
 
 
-def get_column_datatype_query(schema_name: str, table_name: str, column_names: list):
+def get_column_datatype_query(
+    schema_name: str,
+    table_names: str | list,
+    column_names: list | None = None,
+    include_table_names: bool | None = False,
+):
     """Gets the in-database data representation of a given column"""
+    if isinstance(table_names, str):
+        table_names = [table_names]
     return get_base_template(
         "column_datatype",
         schema_name=schema_name,
-        table_name=table_name,
+        table_names=table_names,
         column_names=column_names,
+        include_table_names=include_table_names,
     )
 
 
