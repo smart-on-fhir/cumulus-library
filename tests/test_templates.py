@@ -174,7 +174,7 @@ WHERE
     expected = """SELECT
     column_name,
     data_type,
-    table_name
+    table_name --noqa: LT02
 FROM information_schema.columns
 WHERE
     table_schema = 'schema_name'
