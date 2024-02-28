@@ -578,7 +578,7 @@ class StudyManifestParser:
             schema_name=schema, table_names=tables, include_table_names=True
         )
         study_df = pandas.DataFrame(
-            cursor.execute(query).fetchall(), columns=["Table", "Column", "Type"]
+            cursor.execute(query).fetchall(), columns=["Column", "Type", "Table"]
         )
         with open(
             self._study_path / f"{self.get_study_prefix()}_generated.md", "w"

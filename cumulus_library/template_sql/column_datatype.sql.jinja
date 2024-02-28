@@ -1,13 +1,13 @@
 SELECT
-    {%- if include_table_names %}
-    table_name,
-    {%- endif %}
     column_name,
     data_type
+    {%- if include_table_names -%},
+    table_name
+    {%- endif %}
 FROM information_schema.columns
 WHERE
     table_schema = '{{ schema_name }}'
     AND table_name IN ('{{ table_names|join("', '")|lower }}')
 {%- if column_names %}
-AND LOWER(column_name) IN ('{{ column_names|join("', '")|lower }}') --noqa: LT05
+    AND LOWER(column_name) IN ('{{ column_names|join("', '")|lower }}') --noqa: LT02,LT05
 {%- endif %}

@@ -172,14 +172,14 @@ WHERE
     )
     assert query == expected
     expected = """SELECT
-    table_name,
     column_name,
-    data_type
+    data_type,
+    table_name
 FROM information_schema.columns
 WHERE
     table_schema = 'schema_name'
     AND table_name IN ('table_name')
-AND LOWER(column_name) IN ('foo', 'bar') --noqa: LT05"""
+    AND LOWER(column_name) IN ('foo', 'bar') --noqa: LT02,LT05"""
 
     query = base_templates.get_column_datatype_query(
         schema_name="schema_name",

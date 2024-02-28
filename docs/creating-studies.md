@@ -131,6 +131,36 @@ Most users have a workflow that looks like this:
   - Move queries to a file as you finalize them
   - Build your study with the CLI to make sure your queries load correctly.
 
+__Important detail on FHIR arrays__: When we flatten a FHIR element that
+is specified as being potentially an array (like many instances of 
+CodeableConcept, for example), we create a seperate table from that
+field. It can be joined back to the table it was extracted from by the
+id field present in both tables.
+
+However - in your study design, you will need to handle cases where
+multiple items may exist in these tables. It is common for multiple
+code systems to be used for a single record.
+
+As an example, the Condition resource has a base level CodeableConcept
+that _should_ contain a SNOMED code, but often has only an ICD9/10 code,
+or a EHR vendor specific code. We handle this case in two ways:
+  - The __core__condition_codable_concepts_display__ table contains one
+  record per resource, where we specify a priority order and take the
+  first valid code we find, which is ok for cases where you aren't
+  very concerned about a specific coding and are just looking to get
+  an idea of what data you have
+  - The __core__condition_codable_concepts_all__ table contains
+  every code for every system found. This is useful when you are specifically
+  looking for data associated with a given clinical coding system, but
+  if you are not careful, you can cause a condition to be counted twice
+  by not specifying a coding system when joining this table with the
+  base condition table.
+
+Your approach to handling this is going to be dictated by the specific
+clinical context you're working with. In cases where we don't specify
+two table types for an array resource, you should assume that we are
+following the second pattern and account for that in your queries.
+
 #### sqlfluff
 
 We use [sqlfluff](https://github.com/sqlfluff/sqlfluff) to help maintain a consistent
