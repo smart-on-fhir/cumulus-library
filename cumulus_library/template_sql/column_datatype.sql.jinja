@@ -2,7 +2,7 @@ SELECT
     column_name,
     data_type
     {%- if include_table_names -%},
-    table_name
+    table_name --noqa: LT02
     {%- endif %}
 FROM information_schema.columns
 WHERE
