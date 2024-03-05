@@ -156,7 +156,7 @@ class StudyRunner:
             self.update_transactions(studyparser.get_study_prefix(), "error")
             raise e
 
-    def run_single_table_builder(
+    def run_matching_table_builder(
         self, target: pathlib.Path, table_builder_name: str
     ) -> None:
         """Runs a single table builder
@@ -165,7 +165,7 @@ class StudyRunner:
         :param table_builder_name: a builder file referenced in the study's manifest
         """
         studyparser = study_parser.StudyManifestParser(target)
-        studyparser.run_single_table_builder(
+        studyparser.run_matching_table_builder(
             self.cursor,
             self.schema_name,
             table_builder_name,
@@ -211,17 +211,18 @@ class StudyRunner:
             self.export_study(study_dict[key], data_path, archive)
 
     def generate_study_sql(
-        self,
-        target: pathlib.Path,
+        self, target: pathlib.Path, builder: str | None = None
     ) -> None:
         """Materializes study sql from templates
 
         :param target: A path to the study directory
+        :param builder: Specify a single builder to generate sql from
         """
         studyparser = study_parser.StudyManifestParser(target)
         studyparser.run_generate_sql(
-            self.cursor,
-            self.schema_name,
+            cursor=self.cursor,
+            schema=self.schema_name,
+            builder=builder,
             verbose=self.verbose,
             parser=self.db.parser(),
         )
@@ -352,7 +353,7 @@ def run_cli(args: dict):
                 else:
                     for target in args["target"]:
                         if args["builder"]:
-                            runner.run_single_table_builder(
+                            runner.run_matching_table_builder(
                                 study_dict[target], args["builder"]
                             )
                         else:
@@ -388,7 +389,7 @@ def run_cli(args: dict):
 
             elif args["action"] == "generate-sql":
                 for target in args["target"]:
-                    runner.generate_study_sql(study_dict[target])
+                    runner.generate_study_sql(study_dict[target], args["builder"])
 
             elif args["action"] == "generate-md":
                 for target in args["target"]:

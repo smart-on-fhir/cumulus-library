@@ -11,15 +11,18 @@ WITH temp_documentreference AS (
                 ]
             ) 
         }},
+        {#- TODO: validate usage of author vs spec language of period -#}
         {{- utils.nullable_cols(
                 'documentreference',
                 'dr',
                 [
                     'type',
                     'status',
+                    'date',
                     'docstatus',
                     'context',                
                     ('subject', 'reference', 'subject_ref'),
+                    ('context', 'encounter', 'encounter_ref'),
                     ('context', 'period', 'start', 'author_date')
                 ], 
                 schema
@@ -37,26 +40,34 @@ WITH temp_documentreference AS (
                 schema
             ) 
         }},
-        cdrt.code,
-        cdrt.code_system,
-        cdrt.display
+        cdrt.code as doc_type_code,
+        cdrt.code_system as doc_type_code_system,
+        cdrt.display as doc_type_display,
+        cdrc.code as doc_category_code,
+        cdrf.code as doc_format_code
     FROM documentreference AS dr
     LEFT JOIN core__documentreference_dn_type AS cdrt ON dr.id = cdrt.id
+    LEFT JOIN core__documentreference_dn_category AS cdrc ON dr.id = cdrc.id
+    LEFT JOIN core__documentreference_dn_format AS cdrf ON dr.id = cdrf.id
+
 )
 
 SELECT DISTINCT
     tdr.id,
-    tdr.code AS doc_type_code,
-    tdr.code_system AS doc_type_code_system,
-    tdr.display AS doc_type_display,
     tdr.status,
+    tdr.doc_type_code,
+    tdr.doc_type_code_system,
+    tdr.doc_type_display,
+    tdr.doc_category_code,
     tdr.docstatus,
-    context_encounter.encounter.reference AS encounter_ref,
+    tdr."date",
     tdr.author_day AS author_date,
     tdr.author_week,
     tdr.author_month,
     tdr.author_year,
+    tdr.doc_format_code,
     tdr.subject_ref,
+    coalesce(tdr.encounter_ref, context_encounter.encounter.reference) as encounter_ref,
     concat('DocumentReference/', tdr.id) AS doc_ref
 FROM temp_documentreference AS tdr,
     unnest(context.encounter) AS context_encounter (encounter) --noqa

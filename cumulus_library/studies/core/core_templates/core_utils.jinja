@@ -29,20 +29,25 @@ targets is an array expecting a data type of the following:
         {%- if schema[table][col[0]][col[1]] %}
         {{ alias }}.{{ col[0] }}.{{ col[1] }} AS {{col[2].lower()}}
         {%- else %}
-        NULL AS {{col[2]}}
+        cast(NULL as varchar) AS {{ col[2].lower() }}
         {%- endif %}
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==4%}
         {%- if schema[table][col[0]][col[2]] %}
         {{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }} AS {{col[3].lower()}}
         {%- else %}
-        NULL AS {{col[3].lower()}}
+        cast(NULL as varchar) AS {{ col[3].lower()}}
         {%- endif %}
         {#- SQL primitive column column-#}
         {%- elif schema[table][col] %}
         {{ alias }}.{{ col }}
         {%- else %}
-        NULL AS {{ col }}
+        {#- workaround for docref date-#}
+        {%- if col == "date"%}
+        cast(NULL as timestamp) AS "{{ col.lower() }}"
+        {%- else %}
+        cast(NULL as varchar) AS {{ col.lower() }}
+        {%- endif %}
         {%- endif %}        
         {{- syntax.comma_delineate(loop) }}
         {%- endfor %}

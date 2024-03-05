@@ -149,24 +149,25 @@ for more information.
 
 ## core base tables
 
-
 ### core__condition
 
-|     Column     | Type  |Description|
-|----------------|-------|-----------|
-|id              |varchar|           |
-|category_code   |varchar|           |
-|category_display|varchar|           |
-|code            |varchar|           |
-|code_system     |varchar|           |
-|code_display    |varchar|           |
-|subject_ref     |varchar|           |
-|encounter_ref   |varchar|           |
-|condition_ref   |varchar|           |
-|recordeddate    |date   |           |
-|recorded_week   |date   |           |
-|recorded_month  |date   |           |
-|recorded_year   |date   |           |
+|        Column         | Type  |Description|
+|-----------------------|-------|-----------|
+|id                     |varchar|           |
+|category_code          |varchar|           |
+|category_display       |varchar|           |
+|code                   |varchar|           |
+|code_system            |varchar|           |
+|code_display           |varchar|           |
+|subject_ref            |varchar|           |
+|encounter_ref          |varchar|           |
+|condition_ref          |varchar|           |
+|recordeddate           |date   |           |
+|recorded_week          |date   |           |
+|recorded_month         |date   |           |
+|recorded_year          |date   |           |
+|clinicalstatus_code    |varchar|           |
+|verificationstatus_code|varchar|           |
 
 
 ### core__condition_codable_concepts_all
@@ -191,21 +192,44 @@ for more information.
 
 ### core__documentreference
 
-|       Column       | Type  |Description|
-|--------------------|-------|-----------|
-|id                  |varchar|           |
-|doc_type_code       |varchar|           |
-|doc_type_code_system|varchar|           |
-|doc_type_display    |varchar|           |
-|status              |varchar|           |
-|docstatus           |varchar|           |
-|encounter_ref       |varchar|           |
-|author_date         |date   |           |
-|author_week         |date   |           |
-|author_month        |date   |           |
-|author_year         |date   |           |
-|subject_ref         |varchar|           |
-|doc_ref             |varchar|           |
+|       Column       |    Type    |Description|
+|--------------------|------------|-----------|
+|id                  |varchar     |           |
+|status              |varchar     |           |
+|doc_type_code       |varchar     |           |
+|doc_type_code_system|varchar     |           |
+|doc_type_display    |varchar     |           |
+|doc_category_code   |varchar     |           |
+|docstatus           |varchar     |           |
+|date                |timestamp(3)|           |
+|author_date         |date        |           |
+|author_week         |date        |           |
+|author_month        |date        |           |
+|author_year         |date        |           |
+|doc_format_code     |varchar     |           |
+|subject_ref         |varchar     |           |
+|encounter_ref       |varchar     |           |
+|doc_ref             |varchar     |           |
+
+
+### core__documentreference_dn_category
+
+|  Column   | Type  |Description|
+|-----------|-------|-----------|
+|id         |varchar|           |
+|code       |varchar|           |
+|code_system|varchar|           |
+|display    |varchar|           |
+
+
+### core__documentreference_dn_format
+
+|  Column   | Type  |Description|
+|-----------|-------|-----------|
+|id         |varchar|           |
+|code       |varchar|           |
+|code_system|varchar|           |
+|display    |varchar|           |
 
 
 ### core__documentreference_dn_type
@@ -232,32 +256,54 @@ for more information.
 
 ### core__encounter
 
-|        Column        |   Type    |Description|
-|----------------------|-----------|-----------|
-|id                    |varchar    |           |
-|enc_class_code        |varchar(6) |           |
-|enc_class_display     |varchar(21)|           |
-|status                |varchar    |           |
-|type_code             |varchar    |           |
-|type_code_system      |varchar    |           |
-|sevicetype_code       |varchar    |           |
-|sevicetype_code_system|varchar    |           |
-|priority_code         |varchar    |           |
-|priority_code_system  |varchar    |           |
-|reasoncode_code       |varchar    |           |
-|reasoncode_code_system|varchar    |           |
-|age_at_visit          |bigint     |           |
-|start_date            |date       |           |
-|end_date              |date       |           |
-|start_week            |date       |           |
-|start_month           |date       |           |
-|start_year            |date       |           |
-|subject_ref           |varchar    |           |
-|encounter_ref         |varchar    |           |
-|gender                |varchar    |           |
-|race_display          |varchar    |           |
-|ethnicity_display     |varchar    |           |
-|postalcode3           |varchar    |           |
+|             Column             |   Type    |Description|
+|--------------------------------|-----------|-----------|
+|id                              |varchar    |           |
+|status                          |varchar    |           |
+|enc_class_code                  |varchar(6) |           |
+|enc_class_display               |varchar(21)|           |
+|type_code                       |varchar    |           |
+|type_code_system                |varchar    |           |
+|sevicetype_code                 |varchar    |           |
+|sevicetype_code_system          |varchar    |           |
+|priority_code                   |varchar    |           |
+|priority_code_system            |varchar    |           |
+|reasoncode_code                 |varchar    |           |
+|reasoncode_code_system          |varchar    |           |
+|dischargedisposition_code       |varchar    |           |
+|dischargedisposition_code_system|varchar    |           |
+|age_at_visit                    |bigint     |           |
+|start_date                      |date       |           |
+|end_date                        |date       |           |
+|start_week                      |date       |           |
+|start_month                     |date       |           |
+|start_year                      |date       |           |
+|subject_ref                     |varchar    |           |
+|encounter_ref                   |varchar    |           |
+|gender                          |varchar    |           |
+|race_display                    |varchar    |           |
+|ethnicity_display               |varchar    |           |
+|postalcode3                     |varchar    |           |
+
+
+### core__encounter_dn_dischargedisposition
+
+|  Column   | Type  |Description|
+|-----------|-------|-----------|
+|id         |varchar|           |
+|code       |varchar|           |
+|code_system|varchar|           |
+|display    |varchar|           |
+
+
+### core__encounter_dn_hospitalization.dischargedisposition
+
+|  Column   | Type  |Description|
+|-----------|-------|-----------|
+|id         |varchar|           |
+|code       |varchar|           |
+|code_system|varchar|           |
+|display    |varchar|           |
 
 
 ### core__encounter_dn_priority
@@ -443,13 +489,22 @@ for more information.
 |interpretation_code             |varchar|           |
 |interpretation_code_system      |varchar|           |
 |interpretation_display          |varchar|           |
-|valuecodeableconcept_code       |varchar|           |
-|valuecodeableconcept_code_system|varchar|           |
-|valuecodeableconcept_display    |varchar|           |
 |obs_date                        |date   |           |
 |obs_week                        |date   |           |
 |obs_month                       |date   |           |
 |obs_year                        |date   |           |
+|valuecodeableconcept_code       |varchar|           |
+|valuecodeableconcept_code_system|varchar|           |
+|valuecodeableconcept_display    |varchar|           |
+|valuequantity_value             |double |           |
+|valuequantity_comparator        |varchar|           |
+|valuequantity_unit              |varchar|           |
+|valuequantity_system            |varchar|           |
+|valuequantity_code              |varchar|           |
+|valuestring                     |varchar|           |
+|dataabsentreason_code           |varchar|           |
+|dataabsentreason_code_system    |varchar|           |
+|dataabsentreason_display        |varchar|           |
 |subject_ref                     |varchar|           |
 |encounter_ref                   |varchar|           |
 |observation_ref                 |varchar|           |
@@ -466,6 +521,16 @@ for more information.
 
 
 ### core__observation_dn_code
+
+|  Column   | Type  |Description|
+|-----------|-------|-----------|
+|id         |varchar|           |
+|code       |varchar|           |
+|code_system|varchar|           |
+|display    |varchar|           |
+
+
+### core__observation_dn_dataabsentreason
 
 |  Column   | Type  |Description|
 |-----------|-------|-----------|

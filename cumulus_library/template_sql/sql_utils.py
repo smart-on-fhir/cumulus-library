@@ -40,6 +40,7 @@ class CodeableConceptConfig:
     source_id: str = "id"
     filter_priority: bool = False
     code_systems: list = None
+    has_data: bool = False
 
 
 @dataclass
@@ -268,6 +269,7 @@ def _check_schema_if_exists(
     try:
         query = base_templates.get_is_table_not_empty_query(table, base_col)
         cursor.execute(query)
+
         if cursor.fetchone() is None:
             return False
 

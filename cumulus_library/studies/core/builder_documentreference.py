@@ -10,12 +10,13 @@ expected_table_cols = {
         "docstatus": [],
         "subject": ["reference"],
         "context": ["period", "start"],
+        "category": [],
     }
 }
 
 
 class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
-    display_text = "Creating DocumentReference table..."
+    display_text = "Creating DocumentReference tables..."
 
     def prepare_queries(
         self,
@@ -35,7 +36,31 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                     column_name="type",
                     is_array=False,
                     target_table="core__documentreference_dn_type",
-                )
+                ),
+                # TODO: The spec allows any value for category, but it's unclear what
+                # the value for the systems would be. For the time being, we select the
+                # spec valid code (which is a set of one value).
+                # It may be worth confirming the values in this field with either the
+                # quality or discovery studies on an ongoing basis to find other valid
+                # values
+                sql_utils.CodeableConceptConfig(
+                    source_table="documentreference",
+                    source_id="id",
+                    column_name="category",
+                    is_array=True,
+                    filter_priority=True,
+                    target_table="core__documentreference_dn_category",
+                    code_systems=[
+                        "http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-category"
+                    ],
+                ),
+                sql_utils.CodeableConceptConfig(
+                    source_table="documentreference",
+                    source_id="id",
+                    column_name="content.format",
+                    is_array=False,
+                    target_table="core__documentreference_dn_format",
+                ),
             ],
         )
         validated_schema = core_templates.validate_schema(

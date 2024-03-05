@@ -48,7 +48,7 @@ def test_core_tables(mock_db_core, table):
     table_rows = get_sorted_table_data(cursor, table)
 
     # For regenerating data if needed
-    # with open(f'./tests/test_data/core/{table}.txt','wt', encoding="UTF-8") as f:
+    # with open(f"./tests/test_data/core/{table}.txt", "wt", encoding="UTF-8") as f:
     #     for row in table_rows:
     #         f.write(str(f"{row}\n"))
 

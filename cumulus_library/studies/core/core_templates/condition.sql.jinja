@@ -18,10 +18,8 @@ WITH temp_condition AS (
                 'c',
                 [
                     'category',
-                    'verificationStatus',
-                    'clinicalStatus',
                     ('subject', 'reference', 'subject_ref'),
-                    ('encounter', 'reference', 'encounter_ref')
+                    ('encounter', 'reference', 'encounter_ref'),
                 ], 
                 schema
             ) 
@@ -56,7 +54,9 @@ WITH temp_condition AS (
                 ],
                 schema
             ) 
-        }}
+        }},
+    c.verificationStatus,
+    c.clinicalStatus
     FROM condition AS c
     LEFT JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
 )
@@ -74,9 +74,13 @@ SELECT
     tc.recordeddate,
     tc.recordeddate_week AS recorded_week,
     tc.recordeddate_month AS recorded_month,
-    tc.recordeddate_year AS recorded_year
+    tc.recordeddate_year AS recorded_year,
+    t_clinicalstatus_coding.clinicalstatus_row.code as clinicalstatus_code,
+    t_verificationstatus_coding.verificationstatus_row.code as verificationstatus_code
 FROM temp_condition AS tc,
     unnest(category) AS t_category (category_coding),
-    unnest(category_coding.coding) AS t_category_coding (category_row)
+    unnest(category_coding.coding) AS t_category_coding (category_row),
+    unnest(clinicalstatus.coding) AS t_clinicalstatus_coding(clinicalstatus_row),
+    unnest(verificationstatus.coding) AS t_verificationstatus_coding(verificationstatus_row)
 
 WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
