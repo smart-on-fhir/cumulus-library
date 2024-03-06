@@ -13,3 +13,5 @@ repos:
     rev: 2.3.4
     hooks:
       - id: sqlfluff-lint
+        types: []
+        types_or: [sql,jinja]
