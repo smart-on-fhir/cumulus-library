@@ -142,7 +142,7 @@ class StudyManifestParser:
                 )
         return export_table_list
 
-    def get_all_generators(self) -> list:
+    def get_all_generators(self) -> list[str]:
         """Convenience method for getting files that generate sql queries"""
         return (
             self.get_table_builder_file_list()

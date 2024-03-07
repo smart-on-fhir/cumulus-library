@@ -37,12 +37,13 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                     is_array=False,
                     target_table="core__documentreference_dn_type",
                 ),
-                # TODO: The spec allows any value for category, but it's unclear what
-                # the value for the systems would be. For the time being, we select the
-                # spec valid code (which is a set of one value).
+                # TODO: The US core profile allows an extensible code for category, but
+                # it's unclear what the possible extended codes would be. For the time
+                # being, we select the spec's preferred code system (which is a set of
+                # one value, 'clinical-note').
                 # It may be worth confirming the values in this field with either the
-                # quality or discovery studies on an ongoing basis to find other valid
-                # values
+                # quality or discovery studies on an ongoing basis to find other uses
+                # for this field.
                 sql_utils.CodeableConceptConfig(
                     source_table="documentreference",
                     source_id="id",
