@@ -12,16 +12,28 @@ WITH temp_observation AS (
                 ]
             ) 
         }},
+        {{- utils.nullable_cols(
+                'observation',
+                'o',
+                [
+                    'valuestring',
+                    ('valuequantity', 'value', 'valuequantity_value'),
+                    ('valuequantity', 'comparator', 'valuequantity_comparator'),
+                    ('valuequantity', 'unit', 'valuequantity_unit'),
+                    ('valuequantity', 'system', 'valuequantity_system'),
+                    ('valuequantity', 'code', 'valuequantity_code'),
+                ],
+                schema
+            ) 
+        }},
         {{- utils.truncate_date_cols(
                 'observation',
                 'o',
                 [
-                    
                     ('effectivedatetime', 'day'),
                     ('effectivedatetime', 'week'),
                     ('effectivedatetime', 'month'),
                     ('effectivedatetime', 'year'),
-
                 ],
                 schema
             ) 
@@ -36,6 +48,9 @@ WITH temp_observation AS (
         odvcc.code AS valuecodeableconcept_code,
         odvcc.code_system AS valuecodeableconcept_code_system,
         odvcc.display AS valuecodeableconcept_display,
+        odda.code AS dataabsentreason_code,
+        odda.code_system AS dataabsentreason_code_system,
+        odda.display AS dataabsentreason_display,
         o.referencerange,
         o.valuequantity,
         o.subject.reference AS subject_ref,
@@ -45,6 +60,7 @@ WITH temp_observation AS (
     LEFT JOIN core__observation_dn_code AS odc ON o.id = odc.id
     LEFT JOIN core__observation_dn_interpretation AS odi ON o.id = odi.id
     LEFT JOIN core__observation_dn_valuecodeableconcept AS odvcc ON o.id = odvcc.id
+    LEFT JOIN core__observation_dn_dataabsentreason AS odda ON o.id = odda.id
 )
 
 SELECT
@@ -57,13 +73,22 @@ SELECT
     interpretation_code,
     interpretation_code_system,
     interpretation_display,
-    valuecodeableconcept_code,
-    valuecodeableconcept_code_system,
-    valuecodeableconcept_display,
     effectivedatetime_day AS obs_date,
     effectivedatetime_week AS obs_week,
     effectivedatetime_month AS obs_month,
     effectivedatetime_year AS obs_year,
+    valuecodeableconcept_code,
+    valuecodeableconcept_code_system,
+    valuecodeableconcept_display,
+    valuequantity_value,
+    valuequantity_comparator,
+    valuequantity_unit,
+    valuequantity_system,
+    valuequantity_code,
+    valuestring,
+    dataabsentreason_code,
+    dataabsentreason_code_system,
+    dataabsentreason_display,
     subject_ref,
     encounter_ref,
     concat('Observation/', id) AS observation_ref

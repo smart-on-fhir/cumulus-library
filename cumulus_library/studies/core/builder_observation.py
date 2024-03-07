@@ -25,6 +25,7 @@ expected_table_cols = {
         "effectivedatetime": [],
         "valuequantity": ["value", "comparator", "unit", "system", "code"],
         "valuecodeableconcept": ["coding", "code", "display", "system"],
+        "valuestring": [],
         "subject": ["reference"],
         "encounter": ["reference"],
     }
@@ -63,6 +64,11 @@ class ObservationBuilder(base_table_builder.BaseTableBuilder):
             ),
             ObsConfig(
                 column_name="valuecodeableconcept",
+                is_array=False,
+                filter_priority=False,
+            ),
+            ObsConfig(
+                column_name="dataabsentreason",
                 is_array=False,
                 filter_priority=False,
             ),

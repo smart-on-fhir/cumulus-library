@@ -223,12 +223,13 @@ following order of preference is used to select credentials:
     )
 
     # Generate a study's template-driven sql
-    generate = actions.add_parser(
+    sql = actions.add_parser(
         "generate-sql", help="Generates a study's template-driven sql for reference"
     )
-    add_target_argument(generate)
-    add_study_dir_argument(generate)
-    add_db_config(generate)
+    add_target_argument(sql)
+    add_study_dir_argument(sql)
+    add_db_config(sql)
+    add_table_builder_argument(sql)
 
     # Generate markdown tables for documentation
     markdown = actions.add_parser(
