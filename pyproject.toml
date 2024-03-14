@@ -14,7 +14,7 @@ dependencies = [
     "pytablewriter >= 1.2",
     "requests >= 2.28",
     "rich >= 13.2",
-    "sqlfluff >= 2.3.4",
+    "sqlfluff  >= 3",
     "sqlparse >0.4",
     "toml >= 0.10"
 ]
