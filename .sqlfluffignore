@@ -1,4 +1,5 @@
 /scratch/
+reference_sql/
 # This is a common destination for debugging sql generation
 output.sql
 
