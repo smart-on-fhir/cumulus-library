@@ -6,10 +6,10 @@
 
 -- ###########################################################
 
-CREATE TABLE core__documentreference_dn_format AS (
+CREATE TABLE core__documentreference_dn_type AS (
     WITH
 
-    system_content_0 AS (
+    system_type_0 AS (
         SELECT DISTINCT
             s.id AS id,
             u.codeable_concept.code AS code,
@@ -17,8 +17,7 @@ CREATE TABLE core__documentreference_dn_format AS (
             u.codeable_concept.system AS code_system
         FROM
             documentreference AS s,
-            UNNEST(s.content) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (codeable_concept)
     ), --noqa: LT07
 
     union_table AS (
@@ -27,7 +26,7 @@ CREATE TABLE core__documentreference_dn_format AS (
             code_system,
             code,
             display
-        FROM system_content_0
+        FROM system_type_0
         
     )
     SELECT
@@ -38,6 +37,75 @@ CREATE TABLE core__documentreference_dn_format AS (
     FROM union_table
 );
 
+
+-- ###########################################################
+
+CREATE TABLE core__documentreference_dn_category AS (
+    WITH
+
+    system_category_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            '0' AS priority,
+            u.codeable_concept.code AS code,
+            u.codeable_concept.display AS display,
+            u.codeable_concept.system AS code_system
+        FROM
+            documentreference AS s,
+            UNNEST(s.category) AS cc (cc_row),
+            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+        WHERE
+            u.codeable_concept.system LIKE 'http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-category'
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            priority,
+            code_system,
+            code,
+            display
+        FROM system_category_0
+        
+    ),
+
+    partitioned_table AS (
+        SELECT
+            id,
+            code,
+            code_system,
+            display,
+            priority,
+            ROW_NUMBER()
+                OVER (
+                    PARTITION BY id
+                    ORDER BY priority ASC
+                ) AS available_priority
+        FROM union_table
+        GROUP BY id, priority, code_system, code, display
+        ORDER BY priority ASC
+    )
+
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM partitioned_table
+    WHERE available_priority = 1
+);
+
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "main"."core__documentreference_dn_format"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+    )
+        AS t ("id","code","code_system","display")
+);
 
 -- ###########################################################
 

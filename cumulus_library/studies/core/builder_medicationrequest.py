@@ -5,7 +5,7 @@ as it leverages the core__medication table for data population"""
 
 from cumulus_library import base_table_builder, databases
 from cumulus_library.studies.core.core_templates import core_templates
-from cumulus_library.template_sql import base_templates, sql_utils
+from cumulus_library.template_sql import sql_utils
 
 expected_table_cols = {
     "medicationrequest": {
@@ -13,27 +13,18 @@ expected_table_cols = {
         "status": [],
         "intent": [],
         "authoredon": [],
+        "reportedboolean": [],
         "category": ["code", "system", "display"],
+        "medicationcodeableconcept": ["code", "system", "display"],
         "subject": ["reference"],
+        "encounter": ["reference"],
+        "dosageinstruction": ["text"],
     }
 }
 
 
 class MedicationRequestBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Creating MedicationRequest tables..."
-
-    def denormalize_codes(self):
-        preferred_config = sql_utils.CodeableConceptConfig(
-            source_table="medicationrequest",
-            source_id="id",
-            column_name="category",
-            is_array=True,
-            target_table="core__medicationrequest_dn_category",
-            filter_priority=False,
-        )
-        self.queries.append(
-            base_templates.get_codeable_concept_denormalize_query(preferred_config)
-        )
 
     def prepare_queries(
         self,
@@ -48,7 +39,23 @@ class MedicationRequestBuilder(base_table_builder.BaseTableBuilder):
         :param cursor: A database cursor object
         :param schema: the schema/db name, matching the cursor
         """
-        self.denormalize_codes()
+        code_sources = [
+            sql_utils.CodeableConceptConfig(
+                source_table="medicationrequest",
+                source_id="id",
+                column_name="category",
+                is_array=True,
+                target_table="core__medicationrequest_dn_category",
+            ),
+            sql_utils.CodeableConceptConfig(
+                source_table="medicationrequest",
+                source_id="id",
+                column_name="medicationcodeableconcept",
+                is_array=False,
+                target_table="core__medicationrequest_dn_medication",
+            ),
+        ]
+        self.queries += sql_utils.denormalize_codes(schema, cursor, code_sources)
         validated_schema = core_templates.validate_schema(
             cursor, schema, expected_table_cols, parser
         )

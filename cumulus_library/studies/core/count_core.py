@@ -93,7 +93,7 @@ class CoreCountsBuilder(counts.CountsBuilder):
     def count_core_medicationrequest(self, duration: str = "month"):
         table_name = self.get_table_name("count_medicationrequest", duration=duration)
         from_table = self.get_table_name("medicationrequest")
-        cols = ["status", "intent", f"authoredon_{duration}", "rx_display"]
+        cols = ["status", "intent", f"authoredon_{duration}", "medication_display"]
         return self.count_medicationrequest(table_name, from_table, cols)
 
     def count_core_observation_lab(self, duration: str = "month"):

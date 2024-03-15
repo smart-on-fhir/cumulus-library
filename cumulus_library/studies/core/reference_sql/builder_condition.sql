@@ -248,8 +248,8 @@ WITH temp_condition AS (
             AS recordeddate_month,
         date_trunc('year', date(from_iso8601_timestamp(c."recordeddate")))
             AS recordeddate_year,
-    c.verificationStatus,
-    c.clinicalStatus
+        c.verificationstatus,
+        c.clinicalstatus
     FROM condition AS c
     LEFT JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
 )
@@ -268,12 +268,13 @@ SELECT
     tc.recordeddate_week AS recorded_week,
     tc.recordeddate_month AS recorded_month,
     tc.recordeddate_year AS recorded_year,
-    t_clinicalstatus_coding.clinicalstatus_row.code as clinicalstatus_code,
-    t_verificationstatus_coding.verificationstatus_row.code as verificationstatus_code
+    t_clinicalstatus_coding.clinicalstatus_row.code AS clinicalstatus_code,
+    t_verificationstatus_coding.verificationstatus_row.code AS verificationstatus_code
 FROM temp_condition AS tc,
     unnest(category) AS t_category (category_coding),
     unnest(category_coding.coding) AS t_category_coding (category_row),
-    unnest(clinicalstatus.coding) AS t_clinicalstatus_coding(clinicalstatus_row),
-    unnest(verificationstatus.coding) AS t_verificationstatus_coding(verificationstatus_row)
+    unnest(clinicalstatus.coding) AS t_clinicalstatus_coding (clinicalstatus_row),
+    unnest(verificationstatus.coding)
+        AS t_verificationstatus_coding (verificationstatus_row)
 
 WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;

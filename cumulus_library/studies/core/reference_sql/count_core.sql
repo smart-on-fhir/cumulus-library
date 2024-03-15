@@ -799,7 +799,7 @@ CREATE TABLE core__count_medicationrequest_month AS (
             s."status",
             s."intent",
             s."authoredon_month",
-            s."rx_display"
+            s."medication_display"
             --noqa: enable=RF03, AL02
         FROM core__medicationrequest AS s
     ),
@@ -820,9 +820,9 @@ CREATE TABLE core__count_medicationrequest_month AS (
                 'cumulus__none'
             ) AS authoredon_month,
             coalesce(
-                cast(rx_display AS varchar),
+                cast(medication_display AS varchar),
                 'cumulus__none'
-            ) AS rx_display
+            ) AS medication_display
         FROM filtered_table
     ),
 
@@ -832,13 +832,13 @@ CREATE TABLE core__count_medicationrequest_month AS (
             "status",
             "intent",
             "authoredon_month",
-            "rx_display",
+            "medication_display",
             concat_ws(
                 '-',
                 COALESCE("status",''),
                 COALESCE("intent",''),
                 COALESCE("authoredon_month",''),
-                COALESCE("rx_display",'')
+                COALESCE("medication_display",'')
             ) AS id
         FROM null_replacement
         GROUP BY
@@ -846,7 +846,7 @@ CREATE TABLE core__count_medicationrequest_month AS (
             "status",
             "intent",
             "authoredon_month",
-            "rx_display"
+            "medication_display"
             )
     )
 
@@ -855,7 +855,7 @@ CREATE TABLE core__count_medicationrequest_month AS (
         p."status",
         p."intent",
         p."authoredon_month",
-        p."rx_display"
+        p."medication_display"
     FROM powerset AS p
     WHERE 
         cnt_subject_ref >= 10

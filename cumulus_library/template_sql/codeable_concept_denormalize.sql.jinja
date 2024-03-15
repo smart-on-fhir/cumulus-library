@@ -9,8 +9,8 @@ CREATE TABLE {{ target_table }} AS (
             {%- if filter_priority %}
             '{{ loop.index0 }}' AS priority,
             {%- endif %}
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             {{ source_table }} AS s,

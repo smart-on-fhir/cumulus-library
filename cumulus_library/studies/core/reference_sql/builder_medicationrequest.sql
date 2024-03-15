@@ -41,6 +41,40 @@ CREATE TABLE core__medicationrequest_dn_category AS (
 
 -- ###########################################################
 
+CREATE TABLE core__medicationrequest_dn_medication AS (
+    WITH
+
+    system_medicationcodeableconcept_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            u.codeable_concept.code AS code,
+            u.codeable_concept.display AS display,
+            u.codeable_concept.system AS code_system
+        FROM
+            medicationrequest AS s,
+            UNNEST(s.medicationcodeableconcept.coding) AS u (codeable_concept)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            code_system,
+            code,
+            display
+        FROM system_medicationcodeableconcept_0
+        
+    )
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM union_table
+);
+
+
+-- ###########################################################
+
 
 
 CREATE TABLE core__medicationrequest AS
@@ -53,28 +87,35 @@ WITH temp_mr AS (
         date_trunc('month', date(from_iso8601_timestamp(mr."authoredon")))
             AS authoredon_month,
         cast(NULL as varchar) AS display,
+        mr.reportedboolean,
         mr.subject.reference AS subject_ref,
-        cm.code AS rx_code,
-        cm.code_system AS rx_code_system,
-        cm.display AS rx_display,
+        mr.encounter.reference AS encounter_ref,
         mrc.code AS category_code,
-        mrc.code_system AS category_code_system
+        mrc.code_system AS category_code_system,
+        mrm.code as medication_code,
+        mrm.code_system AS medication_code_system,
+        mrm.display AS medication_display,
+        mr.dosageinstruction
     FROM medicationrequest AS mr
-    INNER JOIN core__medication AS cm ON mr.id = cm.id
     LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
-    WHERE cm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
+    LEFT JOIN core__medicationrequest_dn_medication AS mrm ON mr.id = mrm.id
+    WHERE mrm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
 )
 
 SELECT
     id,
     status,
     intent,
-    authoredon,
-    authoredon_month,
     category_code,
     category_code_system,
-    rx_code_system,
-    rx_code,
-    rx_display,
-    subject_ref
-FROM temp_mr
+    reportedboolean,
+    medication_code_system,
+    medication_code,
+    medication_display,
+    authoredon,
+    authoredon_month,
+    dose_row.dose_col.text AS doseageinstruction_text,
+    subject_ref,
+    encounter_ref
+FROM temp_mr,
+UNNEST(dosageinstruction) as dose_row(dose_col)

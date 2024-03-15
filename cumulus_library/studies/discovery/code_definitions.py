@@ -38,16 +38,33 @@ code_list = [
         "column_name": "priority",
     },
     {"table_name": "encounter", "column_name": "reasoncode", "is_array": True},
+    {
+        "table_name": "encounter",
+        "column_name": "hospitalization.dischargedisposition",
+    },
     # Medication
     {
         "table_name": "medication",
-        "column_name": "code",
+        "column_name": "codecodeableconcept ",
+    },
+    {
+        "table_name": "medication",
+        "column_name": "medicationcode",
     },
     # Observation
     {"table_name": "observation", "column_name": "category", "is_array": True},
     {
         "table_name": "observation",
         "column_name": "code",
+    },
+    {"table_name": "observation", "column_name": "interpretation", "is_array": True},
+    {
+        "table_name": "observation",
+        "column_name": "valuecodeableconcept",
+    },
+    {
+        "table_name": "observation",
+        "column_name": "dataabsentreason",
     },
     # Patient
     {

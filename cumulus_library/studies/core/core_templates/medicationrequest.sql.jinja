@@ -6,7 +6,11 @@ WITH temp_mr AS (
         {{- utils.basic_cols(
                 'medicationrequest',
                 'mr',
-                ['id', 'status', 'intent']
+                [
+                    'id', 
+                    'status', 
+                    'intent',
+                ]
             ) 
         }},
         {{- utils.date_cols_from_str(
@@ -20,41 +24,49 @@ WITH temp_mr AS (
                 'medicationrequest',
                 'mr',
                 [
-                    ('authoredon', 'month')
+                    ('authoredon', 'month'),
                 ],
                 schema
             ) 
         }},
         {{- utils.nullable_cols(
                 'medicationrequest',
+
                 'mr',
                 [
                     'display',
-                    ('subject', 'reference', 'subject_ref')
+                    'reportedboolean',
+                    'dosageinstruction',
+                    ('subject', 'reference', 'subject_ref'),
+                    ('encounter', 'reference', 'encounter_ref'),
                 ],
                 schema
         ) -}},
-        cm.code AS rx_code,
-        cm.code_system AS rx_code_system,
-        cm.display AS rx_display,
         mrc.code AS category_code,
-        mrc.code_system AS category_code_system
+        mrc.code_system AS category_code_system,
+        mrm.code AS medication_code,
+        mrm.code_system AS medication_code_system,
+        mrm.display AS medication_display
     FROM medicationrequest AS mr
-    INNER JOIN core__medication AS cm ON mr.id = cm.id
     LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
-    WHERE cm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
+    LEFT JOIN core__medicationrequest_dn_medication AS mrm ON mr.id = mrm.id
+    WHERE mrm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
 )
 
 SELECT
-    id,
-    status,
-    intent,
-    authoredon,
-    authoredon_month,
-    category_code,
-    category_code_system,
-    rx_code_system,
-    rx_code,
-    rx_display,
-    subject_ref
-FROM temp_mr
+    mr.id,
+    mr.status,
+    mr.intent,
+    mr.category_code,
+    mr.category_code_system,
+    mr.reportedboolean,
+    mr.medication_code_system,
+    mr.medication_code,
+    mr.medication_display,
+    mr.authoredon,
+    mr.authoredon_month,
+    dose_row.dose_col.text AS doseageinstruction_text,
+    mr.subject_ref,
+    mr.encounter_ref
+FROM temp_mr AS mr,
+    UNNEST(dosageinstruction) AS dose_row (dose_col)

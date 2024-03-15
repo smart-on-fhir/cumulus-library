@@ -121,7 +121,7 @@ CREATE TABLE core__medication AS (
 
     mre_ref_id AS (
         SELECT DISTINCT
-            mr.id AS id,
+            mr.id,
             mr.encounter,
             mr.subject,
             substring(mr.medicationreference.reference, 12) AS medication_id
@@ -148,7 +148,7 @@ CREATE TABLE core__medication AS (
             mmn.id,
             mmn.encounter.reference AS encounter_ref,
             mmn.subject.reference AS patient_ref,
-            t.r.code AS code,
+            t.r.code,
             mmn.code.text AS display,
             t.r.system AS code_system,
             FALSE AS userselected

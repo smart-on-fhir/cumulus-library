@@ -26,8 +26,8 @@ def test_codeable_concept_denormalize_all_creation():
     system_code_col_0 AS (
         SELECT DISTINCT
             s.id AS id,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             source AS s,
@@ -71,8 +71,8 @@ def test_codeable_concept_denormalize_filter_creation():
         SELECT DISTINCT
             s.id AS id,
             '0' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             source AS s,
@@ -85,8 +85,8 @@ def test_codeable_concept_denormalize_filter_creation():
         SELECT DISTINCT
             s.id AS id,
             '1' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             source AS s,
