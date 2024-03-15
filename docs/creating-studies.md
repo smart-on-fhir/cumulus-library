@@ -218,8 +218,8 @@ styling.
   `count_`, and otherwise the word `count` should not be used.
 
 #### Metadata tables
-  - Creating a table called `my_study__meta_date` with two columns, `min date` and
-  `max date`, and populating it with the start and end date of your study, will
+  - Creating a table called `my_study__meta_date` with two `DATE` columns, `min_date`
+  and `max_date`, and populating it with the start and end date of your study, will
   allow other Cumulus tools to detect study date ranges, and otherwise bakes the
   study date range into your SQL for future reference.
   - Creating a `my_study__meta_version` with one column, `data_package_version`, and

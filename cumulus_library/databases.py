@@ -290,6 +290,9 @@ class DuckDatabaseBackend(DatabaseBackend):
             else:
                 return datetime.datetime(int(pieces[0]), int(pieces[1]), 1)
 
+        # Until we depend on Python 3.11+, manually handle Z
+        value = value.replace("Z", "+00:00")
+
         # TODO: return timezone-aware datetimes, like Athena does
         #       (this currently generates naive datetimes, in UTC local time)
         return datetime.datetime.fromisoformat(value)
