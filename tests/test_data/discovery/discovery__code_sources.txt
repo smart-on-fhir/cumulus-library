@@ -1,0 +1,30 @@
+condition,category,,,
+condition,code,10509002,Acute bronchitis (disorder),http://snomed.info/sct
+condition,code,160903007,Full-time employment (finding),http://snomed.info/sct
+condition,code,195662009,Acute viral pharyngitis (disorder),http://snomed.info/sct
+condition,code,33737001,Fracture of rib,http://snomed.info/sct
+condition,code,368581000119106,Neuropathy due to type 2 diabetes mellitus (disorder),http://snomed.info/sct
+condition,code,422650009,Social isolation (finding),http://snomed.info/sct
+condition,code,424393004,Reports of violence in the environment (finding),http://snomed.info/sct
+condition,code,44465007,Sprain of ankle,http://snomed.info/sct
+condition,code,444814009,Viral sinusitis (disorder),http://snomed.info/sct
+condition,code,73595000,Stress (finding),http://snomed.info/sct
+condition,code,741062008,Not in labor force (finding),http://snomed.info/sct
+documentreference,category,,,
+documentreference,type,,,
+encounter,class,AMB,None,http://terminology.hl7.org/CodeSystem/v3-ActCode
+encounter,class,EMER,None,http://terminology.hl7.org/CodeSystem/v3-ActCode
+encounter,hospitalization.dischargedisposition,,,
+encounter,priority,,,
+encounter,reasoncode,,,
+encounter,servicetype,,,
+encounter,type,,,
+medication,codecodeableconcept ,,,
+medication,medicationcode,,,
+observation,category,,,
+observation,code,34533-0,Odor of Urine,http://loinc.org
+observation,code,5778-6,Color of Urine,http://loinc.org
+observation,dataabsentreason,,,
+observation,interpretation,,,
+observation,valuecodeableconcept,,,
+patient,maritalstatus,,,

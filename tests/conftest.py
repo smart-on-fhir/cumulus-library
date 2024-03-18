@@ -31,6 +31,15 @@ ID_PATHS = {
 }
 
 
+def get_sorted_table_data(cursor, table):
+    num_cols = cursor.execute(
+        f"SELECT count(*) FROM information_schema.columns WHERE table_name='{table}'"
+    ).fetchone()[0]
+    return cursor.execute(
+        f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols)))}"
+    ).fetchall()
+
+
 def modify_resource_column(
     cursor: DatabaseCursor, table: str, col: str, replacement_val
 ):

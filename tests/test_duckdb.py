@@ -18,40 +18,36 @@ from cumulus_library.template_sql import base_templates
     os.environ,
     clear=True,
 )
-def test_duckdb_core_build_and_export():
+def test_duckdb_core_build_and_export(tmp_path):
     data_dir = f"{Path(__file__).parent}/test_data/duckdb_data"
+    cli.main(
+        [
+            "build",
+            "--target=core",
+            "--db-type=duckdb",
+            f"--database={tmp_path}/duck.db",
+            f"--load-ndjson-dir={data_dir}",
+        ]
+    )
+    cli.main(
+        [
+            "export",
+            "--target=core",
+            "--db-type=duckdb",
+            f"--database={tmp_path}/duck.db",
+            f"{tmp_path}/counts",
+        ]
+    )
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        cli.main(
-            [
-                "build",
-                "--target=core",
-                "--db-type=duckdb",
-                f"--database={tmpdir}/duck.db",
-                f"--load-ndjson-dir={data_dir}",
-            ]
-        )
-        cli.main(
-            [
-                "export",
-                "--target=core",
-                "--db-type=duckdb",
-                f"--database={tmpdir}/duck.db",
-                f"{tmpdir}/counts",
-            ]
-        )
-
-        # Now check each csv file - we'll assume the parquest are alright
-        csv_files = glob.glob(f"{tmpdir}/counts/core/*.csv")
-        for csv_file in csv_files:
-            basename = Path(csv_file).name
-            with open(csv_file, encoding="utf8") as f:
-                generated = f.read().strip()
-            with open(
-                f"{data_dir}/expected_export/core/{basename}", encoding="utf8"
-            ) as f:
-                expected = f.read().strip()
-            assert generated == expected, basename
+    # Now check each csv file - we'll assume the parquest are alright
+    csv_files = glob.glob(f"{tmp_path}/counts/core/*.csv")
+    for csv_file in csv_files:
+        basename = Path(csv_file).name
+        with open(csv_file, encoding="utf8") as f:
+            generated = f.read().strip()
+        with open(f"{data_dir}/expected_export/core/{basename}", encoding="utf8") as f:
+            expected = f.read().strip()
+        assert generated == expected, basename
 
 
 @pytest.mark.parametrize(

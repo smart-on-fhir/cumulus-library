@@ -8,63 +8,39 @@ from cumulus_library.template_sql import sql_utils
 
 
 @pytest.mark.parametrize(
-    "table,base_col,expected,raises",
+    "table,hierarchy,expected,returns,raises",
     [
         # coding
-        ("condition", "code", True, does_not_raise()),
+        ("condition", [("code", dict), ("coding", list)], None, True, does_not_raise()),
         # array coding
-        ("condition", "category", False, does_not_raise()),
+        (
+            "condition",
+            [("category", list), ("coding", list)],
+            None,
+            True,
+            does_not_raise(),
+        ),
         # bare code
-        ("encounter", "class", False, does_not_raise()),
+        (
+            "encounter",
+            [("class", dict)],
+            ["code", "system", "display"],
+            True,
+            does_not_raise(),
+        ),
         # non coding
-        ("condition", "resourcetype", False, does_not_raise()),
+        ("encounter", [("period", dict)], None, False, does_not_raise()),
+        # non coding with specific expected fields
+        ("encounter", [("period", dict)], ["start", "end"], True, does_not_raise()),
     ],
 )
-def test_is_codeable_concept_populated(mock_db, table, base_col, expected, raises):
+def test_is_field_populated(mock_db, table, hierarchy, expected, returns, raises):
     with raises:
-        res = sql_utils.is_codeable_concept_populated(
-            "main", table, base_col, mock_db.cursor()
+        res = sql_utils.is_field_populated(
+            schema="main",
+            source_table=table,
+            hierarchy=hierarchy,
+            expected=expected,
+            cursor=mock_db.cursor(),
         )
-        assert res == expected
-
-
-@pytest.mark.parametrize(
-    "table,base_col,expected,raises",
-    [
-        # coding
-        ("condition", "code", False, does_not_raise()),
-        # array coding
-        ("condition", "category", True, does_not_raise()),
-        # bare code
-        ("encounter", "status", False, does_not_raise()),
-        # non coding
-        ("condition", "resourcetype", False, does_not_raise()),
-    ],
-)
-def test_is_codeable_concept_array_populated(
-    mock_db, table, base_col, expected, raises
-):
-    with raises:
-        res = sql_utils.is_codeable_concept_array_populated(
-            "main", table, base_col, mock_db.cursor()
-        )
-        assert res == expected
-
-
-@pytest.mark.parametrize(
-    "table,base_col,expected,raises",
-    [
-        # coding
-        ("condition", "code", False, does_not_raise()),
-        # array coding
-        ("condition", "category", False, does_not_raise()),
-        # bare code
-        ("encounter", "class", True, does_not_raise()),
-        # non coding
-        ("condition", "resourcetype", False, does_not_raise()),
-    ],
-)
-def test_is_code_populated(mock_db, table, base_col, expected, raises):
-    with raises:
-        res = sql_utils.is_code_populated("main", table, base_col, mock_db.cursor())
-        assert res == expected
+        assert res == returns

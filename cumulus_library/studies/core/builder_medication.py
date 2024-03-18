@@ -24,20 +24,23 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
         }
 
         table = "medicationrequest"
-        base_col = "medicationcodeableconcept"
+        inline_col = "medicationcodeableconcept"
         with base_utils.get_progress_bar(transient=True) as progress:
             task = progress.add_task(
                 "Detecting available medication sources...",
-                total=7,
+                total=3,
             )
 
             # inline medications from FHIR medication
-            data_types["inline"] = sql_utils.is_codeable_concept_populated(
-                schema, table, base_col, cursor
+            data_types["inline"] = sql_utils.is_field_populated(
+                schema=schema,
+                source_table=table,
+                hierarchy=[(inline_col, dict), ("coding", list)],
+                cursor=cursor,
             )
             if data_types["inline"]:
                 query = base_templates.get_column_datatype_query(
-                    schema, table, [base_col]
+                    schema, table, [inline_col]
                 )
                 cursor.execute(query)
                 progress.advance(task)
@@ -47,27 +50,15 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
                     has_userselected = True
             else:
                 has_userselected = False
+            progress.advance(task)
             # Validating presence of FHIR medication requests
-            query = base_templates.get_is_table_not_empty_query(
-                "medicationrequest", "medicationreference"
-            )
-            cursor.execute(query)
-            progress.advance(task)
-            if cursor.fetchone() is None:
-                return data_types, has_userselected
-            query = base_templates.get_column_datatype_query(
-                schema, "medicationrequest", ["medicationreference"]
-            )
-            cursor.execute(query)
-            progress.advance(task)
-            if "reference" not in cursor.fetchone()[0]:
-                return data_types, has_userselected
-            query = base_templates.get_is_table_not_empty_query(
-                "medicationrequest", "medicationreference.reference"
-            )
-            cursor.execute(query)
-            progress.advance(task)
-            if cursor.fetchone() is None:
+            if not sql_utils.is_field_populated(
+                schema=schema,
+                source_table=table,
+                hierarchy=[("medicationreference", dict), ("reference", dict)],
+                expected=["reference"],
+                cursor=cursor,
+            ):
                 return data_types, has_userselected
 
             # checking med ref contents for our two linkage cases

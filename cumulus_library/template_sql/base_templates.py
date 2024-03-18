@@ -90,6 +90,37 @@ def get_codeable_concept_denormalize_query(
     )
 
 
+def get_coding_denormalize_query(
+    config: sql_utils.CodingConfig,
+) -> str:
+    """extracts codings from a specified table.
+
+    This function reimplements get_codeable_concept_denormalize_query targeted
+    at a bare coding element
+
+    TODO: this is temporary and this should be replaced by a generic DN
+    query.
+
+    :param config: a CodingConfig
+    """
+
+    # If we get a None for code systems, we want one dummy value so the jinja
+    # for loop will do a single pass. This implicitly means that we're not
+    # filtering, so this parameter will be otherwise ignored
+    config.code_systems = config.code_systems or ["all"]
+    return get_base_template(
+        "coding_denormalize",
+        source_table=config.source_table,
+        source_id=config.source_id,
+        column_name=config.column_name,
+        parent_field=config.parent_field,
+        is_array=config.is_array,
+        target_table=config.target_table,
+        filter_priority=config.filter_priority,
+        code_systems=config.code_systems,
+    )
+
+
 def get_column_datatype_query(
     schema_name: str,
     table_names: str | list,

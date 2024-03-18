@@ -55,7 +55,9 @@ class MedicationRequestBuilder(base_table_builder.BaseTableBuilder):
                 target_table="core__medicationrequest_dn_medication",
             ),
         ]
-        self.queries += sql_utils.denormalize_codes(schema, cursor, code_sources)
+        self.queries += sql_utils.denormalize_complex_objects(
+            schema, cursor, code_sources
+        )
         validated_schema = core_templates.validate_schema(
             cursor, schema, expected_table_cols, parser
         )

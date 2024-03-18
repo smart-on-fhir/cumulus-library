@@ -1,0 +1,74 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+CREATE TABLE {{ target_table }} AS (
+    WITH
+    {%- for system in code_systems %}
+
+    system_{{ column_name }}_{{ loop.index0 }} AS (
+        SELECT DISTINCT
+            s.{{ source_id }} AS id,
+            {%- if filter_priority %}
+            '{{ loop.index0 }}' AS priority,
+            {%- endif %}
+            u.parent_col.{{ column_name }}.code,
+            u.parent_col.{{ column_name }}.display,
+            u.parent_col.{{ column_name }}.system AS code_system
+        FROM
+            {{ source_table }} AS s,
+            UNNEST(s.{{ parent_field }}) AS u (parent_col)
+        {%- if filter_priority %}
+        WHERE
+            u.parent_col.{{ column_name }}.system LIKE '{{ system }}'
+        {%- endif %}
+    ), --noqa: LT07
+    {%- endfor %}
+
+    union_table AS (
+        {%- for system in code_systems %}
+        SELECT
+            id,
+            {%- if filter_priority %}
+            priority,
+            {%- endif %}
+            code_system,
+            code,
+            display
+        FROM system_{{ column_name }}_{{ loop.index0 }}
+        {{ syntax.union_delineate(loop) }}
+        {%- endfor %}
+    )
+    {%- if filter_priority -%},
+
+    partitioned_table AS (
+        SELECT
+            id,
+            code,
+            code_system,
+            display,
+            priority,
+            ROW_NUMBER()
+                OVER (
+                    PARTITION BY id
+                    ORDER BY priority ASC
+                ) AS available_priority
+        FROM union_table
+        GROUP BY id, priority, code_system, code, display
+        ORDER BY priority ASC
+    )
+
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM partitioned_table
+    WHERE available_priority = 1
+);
+{% else %}
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM union_table
+);
+{% endif %}

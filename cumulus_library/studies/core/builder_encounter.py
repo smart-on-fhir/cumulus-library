@@ -109,7 +109,9 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                 filter_priority=False,
             ),
         ]
-        self.queries += sql_utils.denormalize_codes(schema, cursor, code_configs)
+        self.queries += sql_utils.denormalize_complex_objects(
+            schema, cursor, code_configs
+        )
 
     def prepare_queries(
         self,

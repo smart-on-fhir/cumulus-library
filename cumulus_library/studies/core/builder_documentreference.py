@@ -26,7 +26,7 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
         parser: databases.DatabaseParser = None,
         **kwargs,
     ):
-        self.queries += sql_utils.denormalize_codes(
+        self.queries = sql_utils.denormalize_complex_objects(
             schema,
             cursor,
             [
@@ -55,10 +55,11 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                         "http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-category"
                     ],
                 ),
-                sql_utils.CodeableConceptConfig(
+                sql_utils.CodingConfig(
                     source_table="documentreference",
                     source_id="id",
-                    column_name="content.format",
+                    column_name="format",
+                    parent_field="content",
                     is_array=False,
                     target_table="core__documentreference_dn_format",
                 ),

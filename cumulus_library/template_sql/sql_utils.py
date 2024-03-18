@@ -8,17 +8,31 @@ simply. This includes, but is not limited, to:
     - Data with deep missing elements
     - Data which may or may not be in an array depending on context
 """
-
-from dataclasses import dataclass
-
-import duckdb
+import abc
+from dataclasses import dataclass, field
 
 from cumulus_library import base_utils, databases
 from cumulus_library.template_sql import base_templates
 
+# TODO: this should be reworked as part of an evenutal typesystem refactor/FHIRClient
+# cutover, possibly tied to a database parser update
+
+CODING = ["code", "system", "display"]
+
 
 @dataclass(kw_only=True)
-class CodeableConceptConfig:
+class ComplexObjectConfig(abc.ABC):
+    """ABC for handling table detection/denormalization of objects in SQL"""
+
+    source_table: str = None
+    source_id: str = "id"
+    target_table: str = None
+    is_array: bool = False
+    has_data: bool = False
+
+
+@dataclass(kw_only=True)
+class CodeableConceptConfig(ComplexObjectConfig):
     """Holds parameters for generating codableconcept tables.
 
     :param column_name: the column containing the codeableConcept you want to extract.
@@ -34,17 +48,22 @@ class CodeableConceptConfig:
     """
 
     column_name: str
-    is_array: bool
-    source_table: str = None
-    target_table: str = None
-    source_id: str = "id"
     filter_priority: bool = False
     code_systems: list = None
-    has_data: bool = False
+    expected: list = field(default_factory=lambda: ["code", "system", "display"])
 
 
-@dataclass
-class ExtensionConfig:
+@dataclass(kw_only=True)
+class CodingConfig(ComplexObjectConfig):
+    parent_field: str
+    column_name: str
+    filter_priority: bool = False
+    code_systems: list = None
+    expected: list = field(default_factory=lambda: ["code", "system", "display"])
+
+
+@dataclass(kw_only=True)
+class ExtensionConfig(ComplexObjectConfig):
     """convenience class for holding parameters for generating extension tables.
 
     :param source_table: the table to extract extensions from
@@ -56,13 +75,9 @@ class ExtensionConfig:
     :param is_array: a boolean indicating if the targeted field is an array type
     """
 
-    source_table: str
-    source_id: str
-    target_table: str
     target_col_prefix: str
     fhir_extension: str
     ext_systems: list[str]
-    is_array: bool = False
 
 
 def _check_data_in_fields(
@@ -97,162 +112,115 @@ def _check_data_in_fields(
             total=len(code_sources),
         )
         for code_source in code_sources:
-            if code_source.is_array:
-                code_source.has_data = is_codeable_concept_array_populated(
-                    schema, code_source.source_table, code_source.column_name, cursor
-                )
-            else:
-                code_source.has_data = is_codeable_concept_populated(
-                    schema, code_source.source_table, code_source.column_name, cursor
-                )
+            code_source.has_data = is_field_populated(
+                schema=schema,
+                cursor=cursor,
+                source_table=code_source.source_table,
+                hierarchy=(("category", list), ("coding", list)),
+                expected=code_source.expected,
+            )
             progress.advance(task)
     return code_sources
 
 
-def denormalize_codes(
+def denormalize_complex_objects(
     schema: str,
     cursor: databases.DatabaseCursor,
-    code_sources: list[CodeableConceptConfig],
+    code_sources: list[ComplexObjectConfig],
 ):
     queries = []
     code_sources = _check_data_in_fields(schema, cursor, code_sources)
     for code_source in code_sources:
-        if code_source.has_data:
-            queries.append(
-                base_templates.get_codeable_concept_denormalize_query(code_source)
-            )
-        else:
-            queries.append(
-                base_templates.get_ctas_empty_query(
-                    schema_name=schema,
-                    table_name=code_source.target_table,
-                    table_cols=["id", "code", "code_system", "display"],
-                )
-            )
+        # TODO: This method of pairing classed config objects to
+        # specific queries should be considered temporary. This should be
+        # replaced at some point by a more generic table schema traversal/
+        # generic jinja template approach.
+        match code_source:
+            case CodeableConceptConfig():
+                if code_source.has_data:
+                    queries.append(
+                        base_templates.get_codeable_concept_denormalize_query(
+                            code_source
+                        )
+                    )
+                else:
+                    queries.append(
+                        base_templates.get_ctas_empty_query(
+                            schema_name=schema,
+                            table_name=code_source.target_table,
+                            table_cols=["id", "code", "code_system", "display"],
+                        )
+                    )
+            case CodingConfig():
+                if code_source.has_data:
+                    queries.append(
+                        base_templates.get_coding_denormalize_query(code_source)
+                    )
+                else:
+                    queries.append(
+                        base_templates.get_ctas_empty_query(
+                            schema_name=schema,
+                            table_name=code_source.target_table,
+                            table_cols=["id", "code", "code_system", "display"],
+                        )
+                    )
+
     return queries
 
 
-def is_codeable_concept_populated(
+def is_field_populated(
+    *,
     schema: str,
-    table: str,
-    base_col: str,
     cursor,
-    coding_element="coding",
+    source_table: str,
+    hierarchy: list[tuple],
+    expected: list | None = None,
 ) -> bool:
-    """Check db to see if codeableconcept data exists.
-
-    Will execute several exploratory queries to see if the column in question
-    can be queried naively.
+    """Traverses a complex field and determines if it exists and has data
 
     :param schema: The schema/database name
-    :param table: The table to query against
-    :param base_col: the place to start validation from.
-        This can be a nested element, like column.object.code
     :param cursor: a PEP-249 compliant database cursor
-    :param coding_element: the place inside the code element to look for coding info.
-        default: 'coding' (and :hopefully: this is always right)
+    :param source_table: The table to query against
+    :param hierarchy: a list of tuples defining the FHIR path to the element.
+        Each tuple should be of the form ('element_name', dict | list), where
+        a dict is a bare nested object and a list is an array object
+    :param expected: a list of elements that should be present in the field.
+        If none, we assume it is a CodeableConcept.
     :returns: a boolean indicating if valid data is present.
     """
-    try:
-        if not _check_schema_if_exists(schema, table, base_col, cursor, coding_element):
-            return False
-
-        query = base_templates.get_is_table_not_empty_query(
-            table,
-            "t1.row1",
-            [
-                {
-                    "source_col": f"{base_col}.coding",
-                    "table_alias": "t1",
-                    "row_alias": "row1",
-                }
-            ],
-        )
-        cursor.execute(query)
-        if cursor.fetchone() is None:
-            return False
-        return True
-    except duckdb.duckdb.BinderException:
-        return False
-
-
-def is_codeable_concept_array_populated(
-    schema: str,
-    table: str,
-    base_col: str,
-    cursor,
-    coding_element="coding",
-) -> bool:
-    """Check db to see if an array of codeableconcept data exists.
-
-    Will execute several exploratory queries to see if the column in question
-    can be queried naively. Will advance the associated progress's task by 3 steps.
-
-    :param schema: The schema/database name
-    :param table: The table to query against
-    :param base_col: the place to start validation from.
-        This can be a nested element, like column.object.code
-    :param cursor: a PEP-249 compliant database cursor
-    :param coding_element: the place inside the code element to look for coding info.
-        default: 'coding' (and :hopefully: this is always right)
-    :returns: a boolean indicating if valid data is present.
-    """
-    try:
-        if not _check_schema_if_exists(schema, table, base_col, cursor, coding_element):
-            return False
-        query = base_templates.get_is_table_not_empty_query(
-            table,
-            "t2.row2",
-            [
-                {
-                    "source_col": base_col,
-                    "table_alias": "t1",
-                    "row_alias": "row1",
-                },
-                {
-                    "source_col": "row1.coding",
-                    "table_alias": "t2",
-                    "row_alias": "row2",
-                },
-            ],
-        )
-        cursor.execute(query)
-        if cursor.fetchone() is None:
-            return False
-        return True
-    except duckdb.duckdb.BinderException:
-        return False
-
-
-def is_code_populated(
-    schema: str,
-    table: str,
-    base_col: str,
-    cursor,
-) -> bool:
-    """Check db to see if a bare code exists and is populated.
-
-    Will execute several exploratory queries to see if the column in question
-    can be queried naively.
-
-    :param schema: The schema/database name
-    :param table: The table to query against
-    :param base_col: the place to start validation from.
-        This can be a nested element, like column.object.code
-    :param cursor: a PEP-249 compliant database cursor
-    :returns: a boolean indicating if valid data is present.
-    """
-
     if not _check_schema_if_exists(
-        schema, table, base_col, cursor, "coding", check_missing=True
+        schema=schema,
+        cursor=cursor,
+        table=source_table,
+        base_col=hierarchy[0][0],
+        target_field=hierarchy[-1][0],
+        expected=expected,
     ):
         return False
+    unnests = []
+    source_field = []
+    last_table_alias = None
+    last_row_alias = None
+    for element in hierarchy:
+        if element[1] == list:
+            unnests.append(
+                {
+                    "source_col": ".".join([*source_field, element[0]]),
+                    "table_alias": f"{element[0]}_table",
+                    "row_alias": f"{element[0]}_row",
+                },
+            )
+            source_field.append(f"{element[0]}_row")
+            last_table_alias = f"{element[0]}_table"
+            last_row_alias = f"{element[0]}_row"
+            source_field = [last_table_alias, last_row_alias]
+        elif element[1] == dict:
+            source_field.append(element[0])
     query = base_templates.get_is_table_not_empty_query(
-        table,
-        base_col,
+        source_table=source_table, field=".".join(source_field), unnests=unnests
     )
-    cursor.execute(query)
-    if cursor.fetchone() is None:
+    res = cursor.execute(query).fetchall()
+    if len(res) == 0:
         return False
     return True
 
@@ -262,32 +230,24 @@ def _check_schema_if_exists(
     table: str,
     base_col: str,
     cursor,
-    coding_element: str,
+    target_field: str,
+    expected=None,
     check_missing: bool = False,
 ) -> bool:
     """Validation check for a column existing, and having the expected schema"""
     try:
         query = base_templates.get_is_table_not_empty_query(table, base_col)
         cursor.execute(query)
-
         if cursor.fetchone() is None:
             return False
 
         query = base_templates.get_column_datatype_query(schema, table, [base_col])
         cursor.execute(query)
         schema_str = str(cursor.fetchone()[1])
-        if check_missing:
-            # This check is for a bare coding, so we're looking for an exclusion of the
-            # coding element, but still the things that are in a code
-            required_fields = ["code", "system", "display"]
-            if any(x not in schema_str for x in required_fields):
-                return False
-            if coding_element in schema_str:
-                return False
-        else:
-            required_fields = [coding_element, "code", "system", "display"]
-            if any(x not in schema_str for x in required_fields):
-                return False
+        if expected is None:
+            expected = [target_field, *CODING]
+        if any(x not in schema_str.lower() for x in expected):
+            return False
         return True
 
     except Exception:
