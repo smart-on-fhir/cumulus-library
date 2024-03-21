@@ -98,14 +98,37 @@ CREATE TABLE core__documentreference_dn_category AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__documentreference_dn_format"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+CREATE TABLE core__documentreference_dn_format AS (
+    WITH
+
+    system_format_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            u.parent_col.format.code,
+            u.parent_col.format.display,
+            u.parent_col.format.system AS code_system
+        FROM
+            documentreference AS s,
+            UNNEST(s.content) AS u (parent_col)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            code_system,
+            code,
+            display
+        FROM system_format_0
+        
     )
-        AS t ("id","code","code_system","display")
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM union_table
 );
+
 
 -- ###########################################################
 

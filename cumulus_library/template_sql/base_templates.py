@@ -74,6 +74,7 @@ def get_codeable_concept_denormalize_query(
     :param config: a CodableConeptConfig
     """
 
+    assert len(config.column_hierarchy) <= 2
     # If we get a None for code systems, we want one dummy value so the jinja
     # for loop will do a single pass. This implicitly means that we're not
     # filtering, so this parameter will be otherwise ignored
@@ -86,7 +87,7 @@ def get_codeable_concept_denormalize_query(
         parent_field=None
         if len(config.column_hierarchy) == 1
         else config.column_hierarchy[0][0],
-        is_array=True if config.column_hierarchy[0][1] == list else False,
+        is_array=(config.column_hierarchy[0][1] == list),
         target_table=config.target_table,
         filter_priority=config.filter_priority,
         code_systems=config.code_systems,
@@ -107,6 +108,7 @@ def get_coding_denormalize_query(
     :param config: a CodingConfig
     """
 
+    assert len(config.column_hierarchy) == 2
     # If we get a None for code systems, we want one dummy value so the jinja
     # for loop will do a single pass. This implicitly means that we're not
     # filtering, so this parameter will be otherwise ignored

@@ -59,8 +59,6 @@ def test_codeable_concept_denormalize_all_creation():
         target_table="target__concepts",
     )
     query = base_templates.get_codeable_concept_denormalize_query(config)
-    with open("output.sql", "w") as f:
-        f.write(query)
     assert query == expected
 
 

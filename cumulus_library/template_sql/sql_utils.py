@@ -234,7 +234,6 @@ def _check_schema_if_exists(
     cursor: databases.DatabaseCursor,
     source_table: str,
     source_col: str,
-    target_field: str,
     expected=None,
 ) -> bool:
     """Validation check for a column existing, and having the expected schema
@@ -243,9 +242,7 @@ def _check_schema_if_exists(
     :param cursor: a PEP-249 compliant database cursor
     :param source_table: The table to query against
     :param source_col: The column to check the schema against
-    :param target_field: The name of the nested value to check for inside the
-        schema of source_col
-    :param expected: a list of elements that should be present in target_field.
+    :param expected: a list of elements that should be present in source_col.
         If none, we assume it is a CodeableConcept.
     :returns: a boolean indicating if the schema was found.
     """

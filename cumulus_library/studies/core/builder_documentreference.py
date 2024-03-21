@@ -56,7 +56,7 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                 sql_utils.CodingConfig(
                     source_table="documentreference",
                     source_id="id",
-                    column_hierarchy=[("format", dict), ("content", dict)],
+                    column_hierarchy=[("content", list), ("format", dict)],
                     target_table="core__documentreference_dn_format",
                 ),
             ],
