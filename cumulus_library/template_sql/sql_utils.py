@@ -210,7 +210,6 @@ def is_field_populated(
                     "row_alias": f"{element[0]}_row",
                 },
             )
-            source_field.append(f"{element[0]}_row")
             last_table_alias = f"{element[0]}_table"
             last_row_alias = f"{element[0]}_row"
             source_field = [last_table_alias, last_row_alias]
