@@ -22,8 +22,8 @@ CODEABLE_CONCEPT = ["coding", "code", "system", "display"]
 
 
 @dataclass(kw_only=True)
-class FhirObjectDNConfig(abc.ABC):
-    """ABC for handling table detection/denormalization of objects in SQL"""
+class BaseConfig(abc.ABC):
+    """Abstract ase class for handling table detection/denormalization"""
 
     source_table: str = None
     source_id: str = "id"
@@ -32,7 +32,7 @@ class FhirObjectDNConfig(abc.ABC):
 
 
 @dataclass(kw_only=True)
-class CodeableConceptConfig(FhirObjectDNConfig):
+class CodeableConceptConfig(BaseConfig):
     """Holds parameters for generating codableconcept tables.
 
     :param column_name: the column containing the codeableConcept you want to extract.
@@ -54,7 +54,7 @@ class CodeableConceptConfig(FhirObjectDNConfig):
 
 
 @dataclass(kw_only=True)
-class CodingConfig(FhirObjectDNConfig):
+class CodingConfig(BaseConfig):
     column_hierarchy: list[tuple]
     filter_priority: bool = False
     code_systems: list = None
@@ -62,7 +62,7 @@ class CodingConfig(FhirObjectDNConfig):
 
 
 @dataclass(kw_only=True)
-class ExtensionConfig(FhirObjectDNConfig):
+class ExtensionConfig(BaseConfig):
     """convenience class for holding parameters for generating extension tables.
 
     :param source_table: the table to extract extensions from
@@ -126,7 +126,7 @@ def _check_data_in_fields(
 def denormalize_complex_objects(
     schema: str,
     cursor: databases.DatabaseCursor,
-    code_sources: list[FhirObjectDNConfig],
+    code_sources: list[BaseConfig],
 ):
     queries = []
     code_sources = _check_data_in_fields(schema, cursor, code_sources)
