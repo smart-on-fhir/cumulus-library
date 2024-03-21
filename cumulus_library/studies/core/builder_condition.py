@@ -46,8 +46,7 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
         preferred_config = sql_utils.CodeableConceptConfig(
             source_table="condition",
             source_id="id",
-            column_name="code",
-            is_array=False,
+            column_hierarchy=[("code", dict)],
             target_table="core__condition_codable_concepts_display",
             filter_priority=True,
             code_systems=[
@@ -69,8 +68,7 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
         all_config = sql_utils.CodeableConceptConfig(
             source_table="condition",
             source_id="id",
-            column_name="code",
-            is_array=False,
+            column_hierarchy=[("code", dict)],
             target_table="core__condition_codable_concepts_all",
             filter_priority=False,
         )

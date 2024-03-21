@@ -13,12 +13,23 @@ CREATE TABLE {{ target_table }} AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
+        {#- Temp workaround - to be reworked by generic DN -#}
+        {%- if parent_field != None %}
+            {{ source_table }} AS s,
+        {%- if is_array %}
+            UNNEST(s.{{ parent_field }}) AS parent (parent_row),
+            UNNEST(parent.parent_row.{{ column_name }}.coding) AS u (codeable_concept)
+        {%- else %}
+            UNNEST(s.{{ parent_field }}.{{ column_name }}.coding) AS u (codeable_concept)
+        {%- endif %}
+        {%- else %}
             {{ source_table }} AS s,
         {%- if is_array %}
             UNNEST(s.{{ column_name }}) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         {%- else %}
             UNNEST(s.{{ column_name }}.coding) AS u (codeable_concept)
+        {%- endif %}
         {%- endif %}
         {%- if filter_priority %}
         WHERE

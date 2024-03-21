@@ -33,8 +33,7 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                 sql_utils.CodeableConceptConfig(
                     source_table="documentreference",
                     source_id="id",
-                    column_name="type",
-                    is_array=False,
+                    column_hierarchy=[("type", dict)],
                     target_table="core__documentreference_dn_type",
                 ),
                 # TODO: The US core profile allows an extensible code for category, but
@@ -47,8 +46,7 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                 sql_utils.CodeableConceptConfig(
                     source_table="documentreference",
                     source_id="id",
-                    column_name="category",
-                    is_array=True,
+                    column_hierarchy=[("category", list)],
                     filter_priority=True,
                     target_table="core__documentreference_dn_category",
                     code_systems=[
@@ -58,9 +56,7 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                 sql_utils.CodingConfig(
                     source_table="documentreference",
                     source_id="id",
-                    column_name="format",
-                    parent_field="content",
-                    is_array=False,
+                    column_hierarchy=[("format", dict), ("content", dict)],
                     target_table="core__documentreference_dn_format",
                 ),
             ],

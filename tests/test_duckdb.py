@@ -19,6 +19,7 @@ from cumulus_library.template_sql import base_templates
     clear=True,
 )
 def test_duckdb_core_build_and_export(tmp_path):
+    print(tmp_path)
     data_dir = f"{Path(__file__).parent}/test_data/duckdb_data"
     cli.main(
         [

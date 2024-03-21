@@ -18,21 +18,21 @@ from cumulus_library.template_sql import base_templates
 # cutover, possibly tied to a database parser update
 
 CODING = ["code", "system", "display"]
+CODEABLE_CONCEPT = ["coding", "code", "system", "display"]
 
 
 @dataclass(kw_only=True)
-class ComplexObjectConfig(abc.ABC):
+class FhirObjectDNConfig(abc.ABC):
     """ABC for handling table detection/denormalization of objects in SQL"""
 
     source_table: str = None
     source_id: str = "id"
     target_table: str = None
-    is_array: bool = False
     has_data: bool = False
 
 
 @dataclass(kw_only=True)
-class CodeableConceptConfig(ComplexObjectConfig):
+class CodeableConceptConfig(FhirObjectDNConfig):
     """Holds parameters for generating codableconcept tables.
 
     :param column_name: the column containing the codeableConcept you want to extract.
@@ -47,23 +47,22 @@ class CodeableConceptConfig(ComplexObjectConfig):
       if filter_priority is false.
     """
 
-    column_name: str
+    column_hierarchy: list[tuple]
     filter_priority: bool = False
     code_systems: list = None
-    expected: list = field(default_factory=lambda: ["code", "system", "display"])
+    expected: list = field(default_factory=lambda: CODEABLE_CONCEPT)
 
 
 @dataclass(kw_only=True)
-class CodingConfig(ComplexObjectConfig):
-    parent_field: str
-    column_name: str
+class CodingConfig(FhirObjectDNConfig):
+    column_hierarchy: list[tuple]
     filter_priority: bool = False
     code_systems: list = None
-    expected: list = field(default_factory=lambda: ["code", "system", "display"])
+    expected: list = field(default_factory=lambda: CODING)
 
 
 @dataclass(kw_only=True)
-class ExtensionConfig(ComplexObjectConfig):
+class ExtensionConfig(FhirObjectDNConfig):
     """convenience class for holding parameters for generating extension tables.
 
     :param source_table: the table to extract extensions from
@@ -78,11 +77,12 @@ class ExtensionConfig(ComplexObjectConfig):
     target_col_prefix: str
     fhir_extension: str
     ext_systems: list[str]
+    is_array: bool = False
 
 
 def _check_data_in_fields(
-    schema,
-    cursor,
+    schema: str,
+    cursor: databases.DatabaseCursor,
     code_sources: list[CodeableConceptConfig],
 ) -> dict:
     """checks if CodeableConcept fields actually have data available
@@ -116,7 +116,7 @@ def _check_data_in_fields(
                 schema=schema,
                 cursor=cursor,
                 source_table=code_source.source_table,
-                hierarchy=(("category", list), ("coding", list)),
+                hierarchy=code_source.column_hierarchy,
                 expected=code_source.expected,
             )
             progress.advance(task)
@@ -126,7 +126,7 @@ def _check_data_in_fields(
 def denormalize_complex_objects(
     schema: str,
     cursor: databases.DatabaseCursor,
-    code_sources: list[ComplexObjectConfig],
+    code_sources: list[FhirObjectDNConfig],
 ):
     queries = []
     code_sources = _check_data_in_fields(schema, cursor, code_sources)
@@ -171,7 +171,7 @@ def denormalize_complex_objects(
 def is_field_populated(
     *,
     schema: str,
-    cursor,
+    cursor: databases.DatabaseCursor,
     source_table: str,
     hierarchy: list[tuple],
     expected: list | None = None,
@@ -191,8 +191,8 @@ def is_field_populated(
     if not _check_schema_if_exists(
         schema=schema,
         cursor=cursor,
-        table=source_table,
-        base_col=hierarchy[0][0],
+        source_table=source_table,
+        source_col=hierarchy[0][0],
         target_field=hierarchy[-1][0],
         expected=expected,
     ):
@@ -216,6 +216,11 @@ def is_field_populated(
             source_field = [last_table_alias, last_row_alias]
         elif element[1] == dict:
             source_field.append(element[0])
+        else:
+            raise ValueError(
+                "sql_utils.is_field_populated: Unexpected type "
+                f"{element[1]} for field {element[0]}"
+            )
     query = base_templates.get_is_table_not_empty_query(
         source_table=source_table, field=".".join(source_field), unnests=unnests
     )
@@ -227,25 +232,42 @@ def is_field_populated(
 
 def _check_schema_if_exists(
     schema: str,
-    table: str,
-    base_col: str,
-    cursor,
+    cursor: databases.DatabaseCursor,
+    source_table: str,
+    source_col: str,
     target_field: str,
     expected=None,
-    check_missing: bool = False,
 ) -> bool:
-    """Validation check for a column existing, and having the expected schema"""
+    """Validation check for a column existing, and having the expected schema
+
+    :param schema: The schema/database name
+    :param cursor: a PEP-249 compliant database cursor
+    :param source_table: The table to query against
+    :param source_col: The column to check the schema against
+    :param target_field: The name of the nested value to check for inside the
+        schema of source_col
+    :param expected: a list of elements that should be present in target_field.
+        If none, we assume it is a CodeableConcept.
+    :returns: a boolean indicating if the schema was found.
+    """
     try:
-        query = base_templates.get_is_table_not_empty_query(table, base_col)
+        query = base_templates.get_is_table_not_empty_query(source_table, source_col)
         cursor.execute(query)
         if cursor.fetchone() is None:
             return False
 
-        query = base_templates.get_column_datatype_query(schema, table, [base_col])
+        query = base_templates.get_column_datatype_query(
+            schema, source_table, [source_col]
+        )
         cursor.execute(query)
         schema_str = str(cursor.fetchone()[1])
         if expected is None:
-            expected = [target_field, *CODING]
+            expected = CODEABLE_CONCEPT
+        # TODO: this naievely checks a column for:
+        #   - containing the target field
+        #   - containing the expected elements
+        # but it does not check the elements are actually associated with that field.
+        # This should be revisited once we've got better database parsing logic in place
         if any(x not in schema_str.lower() for x in expected):
             return False
         return True

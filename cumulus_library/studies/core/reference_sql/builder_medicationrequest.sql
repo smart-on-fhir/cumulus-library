@@ -12,11 +12,12 @@ CREATE TABLE core__medicationrequest_dn_category AS (
     system_category_0 AS (
         SELECT DISTINCT
             s.id AS id,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-            medicationrequest AS s,
+        
+           medicationrequest AS s,
             UNNEST(s.category) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
     ), --noqa: LT07
@@ -41,37 +42,14 @@ CREATE TABLE core__medicationrequest_dn_category AS (
 
 -- ###########################################################
 
-CREATE TABLE core__medicationrequest_dn_medication AS (
-    WITH
-
-    system_medicationcodeableconcept_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
-            u.codeable_concept.system AS code_system
-        FROM
-            medicationrequest AS s,
-            UNNEST(s.medicationcodeableconcept.coding) AS u (codeable_concept)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            code_system,
-            code,
-            display
-        FROM system_medicationcodeableconcept_0
-        
+CREATE TABLE IF NOT EXISTS "main"."core__medicationrequest_dn_medication"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
     )
-    SELECT
-        id,
-        code,
-        code_system,
-        display
-    FROM union_table
+        AS t ("id","code","code_system","display")
 );
-
 
 -- ###########################################################
 
@@ -88,14 +66,14 @@ WITH temp_mr AS (
             AS authoredon_month,
         cast(NULL as varchar) AS display,
         mr.reportedboolean,
+        mr.dosageinstruction,
         mr.subject.reference AS subject_ref,
         mr.encounter.reference AS encounter_ref,
         mrc.code AS category_code,
         mrc.code_system AS category_code_system,
-        mrm.code as medication_code,
+        mrm.code AS medication_code,
         mrm.code_system AS medication_code_system,
-        mrm.display AS medication_display,
-        mr.dosageinstruction
+        mrm.display AS medication_display
     FROM medicationrequest AS mr
     LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
     LEFT JOIN core__medicationrequest_dn_medication AS mrm ON mr.id = mrm.id
@@ -103,19 +81,19 @@ WITH temp_mr AS (
 )
 
 SELECT
-    id,
-    status,
-    intent,
-    category_code,
-    category_code_system,
-    reportedboolean,
-    medication_code_system,
-    medication_code,
-    medication_display,
-    authoredon,
-    authoredon_month,
+    mr.id,
+    mr.status,
+    mr.intent,
+    mr.category_code,
+    mr.category_code_system,
+    mr.reportedboolean,
+    mr.medication_code_system,
+    mr.medication_code,
+    mr.medication_display,
+    mr.authoredon,
+    mr.authoredon_month,
     dose_row.dose_col.text AS doseageinstruction_text,
-    subject_ref,
-    encounter_ref
-FROM temp_mr,
-UNNEST(dosageinstruction) as dose_row(dose_col)
+    mr.subject_ref,
+    mr.encounter_ref
+FROM temp_mr AS mr,
+    UNNEST(dosageinstruction) AS dose_row (dose_col)

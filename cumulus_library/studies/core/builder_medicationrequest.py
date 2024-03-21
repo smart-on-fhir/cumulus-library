@@ -43,15 +43,13 @@ class MedicationRequestBuilder(base_table_builder.BaseTableBuilder):
             sql_utils.CodeableConceptConfig(
                 source_table="medicationrequest",
                 source_id="id",
-                column_name="category",
-                is_array=True,
+                column_hierarchy=[("category", list)],
                 target_table="core__medicationrequest_dn_category",
             ),
             sql_utils.CodeableConceptConfig(
                 source_table="medicationrequest",
                 source_id="id",
-                column_name="medicationcodeableconcept",
-                is_array=False,
+                column_hierarchy=[("medicationcodeableconcept", dict)],
                 target_table="core__medicationrequest_dn_medication",
             ),
         ]

@@ -55,11 +55,12 @@ def test_codeable_concept_denormalize_all_creation():
     config = sql_utils.CodeableConceptConfig(
         source_table="source",
         source_id="id",
-        column_name="code_col",
+        column_hierarchy=[("code_col", list)],
         target_table="target__concepts",
-        is_array=True,
     )
     query = base_templates.get_codeable_concept_denormalize_query(config)
+    with open("output.sql", "w") as f:
+        f.write(query)
     assert query == expected
 
 
@@ -144,9 +145,8 @@ def test_codeable_concept_denormalize_filter_creation():
     config = sql_utils.CodeableConceptConfig(
         source_table="source",
         source_id="id",
-        column_name="code_col",
+        column_hierarchy=[("code_col", dict)],
         target_table="target__concepts",
-        is_array=False,
         filter_priority=True,
         code_systems=[
             "http://snomed.info/sct",
