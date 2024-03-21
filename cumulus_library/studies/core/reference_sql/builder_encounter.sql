@@ -17,8 +17,7 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -33,8 +32,7 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -49,8 +47,7 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -65,8 +62,7 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -81,8 +77,7 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -97,8 +92,7 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -113,8 +107,7 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -129,8 +122,7 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -145,8 +137,7 @@ CREATE TABLE core__encounter_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.type) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -290,8 +281,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.reasoncode) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -306,8 +296,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.reasoncode) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -322,8 +311,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.reasoncode) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -338,8 +326,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.reasoncode) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -354,8 +341,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.reasoncode) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -370,8 +356,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.reasoncode) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
@@ -468,8 +453,7 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           encounter AS s,
+            encounter AS s,
             UNNEST(s.hospitalization.dischargedisposition.coding) AS u (codeable_concept)
     ), --noqa: LT07
 

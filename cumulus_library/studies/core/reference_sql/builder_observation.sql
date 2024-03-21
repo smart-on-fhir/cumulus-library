@@ -16,8 +16,7 @@ CREATE TABLE core__observation_dn_category AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           observation AS s,
+            observation AS s,
             UNNEST(s.category) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
     ), --noqa: LT07
@@ -52,8 +51,7 @@ CREATE TABLE core__observation_dn_code AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           observation AS s,
+            observation AS s,
             UNNEST(s.code.coding) AS u (codeable_concept)
     ), --noqa: LT07
 
@@ -98,8 +96,7 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           observation AS s,
+            observation AS s,
             UNNEST(s.valuecodeableconcept.coding) AS u (codeable_concept)
     ), --noqa: LT07
 

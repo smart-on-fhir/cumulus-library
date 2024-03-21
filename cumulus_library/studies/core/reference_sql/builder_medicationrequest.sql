@@ -16,8 +16,7 @@ CREATE TABLE core__medicationrequest_dn_category AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           medicationrequest AS s,
+            medicationrequest AS s,
             UNNEST(s.category) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
     ), --noqa: LT07
@@ -42,14 +41,37 @@ CREATE TABLE core__medicationrequest_dn_category AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__medicationrequest_dn_medication"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+CREATE TABLE core__medicationrequest_dn_medication AS (
+    WITH
+
+    system_medicationcodeableconcept_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
+            u.codeable_concept.system AS code_system
+        FROM
+            medicationrequest AS s,
+            UNNEST(s.medicationcodeableconcept.coding) AS u (codeable_concept)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            code_system,
+            code,
+            display
+        FROM system_medicationcodeableconcept_0
+        
     )
-        AS t ("id","code","code_system","display")
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM union_table
 );
+
 
 -- ###########################################################
 

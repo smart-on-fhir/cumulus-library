@@ -16,8 +16,7 @@ CREATE TABLE core__documentreference_dn_type AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           documentreference AS s,
+            documentreference AS s,
             UNNEST(s.type.coding) AS u (codeable_concept)
     ), --noqa: LT07
 
@@ -52,8 +51,7 @@ CREATE TABLE core__documentreference_dn_category AS (
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-        
-           documentreference AS s,
+            documentreference AS s,
             UNNEST(s.category) AS cc (cc_row),
             UNNEST(cc.cc_row.coding) AS u (codeable_concept)
         WHERE
