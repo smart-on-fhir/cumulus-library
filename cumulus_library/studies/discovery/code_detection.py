@@ -15,8 +15,8 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
             return sql_utils.is_field_populated(
                 schema=schema,
                 source_table=code_source["table_name"],
-                hierarchy=[(code_source["column_name"], list), ("coding", list)],
-                expected=[code_source["column_name"], *sql_utils.CODING],
+                hierarchy=[(code_source["column_name"], list)],
+                expected=sql_utils.CODEABLE_CONCEPT,
                 cursor=cursor,
             )
         elif code_source["is_bare_coding"]:
@@ -30,8 +30,8 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
         return sql_utils.is_field_populated(
             schema=schema,
             source_table=code_source["table_name"],
-            hierarchy=[(code_source["column_name"], dict), ("coding", list)],
-            expected=[code_source["column_name"], *sql_utils.CODING],
+            hierarchy=[(code_source["column_name"], dict)],
+            expected=sql_utils.CODEABLE_CONCEPT,
             cursor=cursor,
         )
 

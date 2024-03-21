@@ -44,13 +44,13 @@ def test_discovery(tmp_path):
     table_rows = conftest.get_sorted_table_data(cursor, "discovery__code_sources")
 
     # For regenerating test data
-    with open(
-        f"{pathlib.Path(__file__).resolve().parents[0]}"
-        "/test_data/discovery/discovery__code_sources.txt",
-        "w",
-    ) as f:
-        for row in table_rows:
-            f.write(f"{','.join(str(x) for x in row)}\n")
+    # with open(
+    #     f"{pathlib.Path(__file__).resolve().parents[0]}"
+    #     "/test_data/discovery/discovery__code_sources.txt",
+    #     "w",
+    # ) as f:
+    #     for row in table_rows:
+    #         f.write(f"{','.join(str(x) for x in row)}\n")
 
     with open(
         f"{pathlib.Path(__file__).resolve().parents[0]}"
