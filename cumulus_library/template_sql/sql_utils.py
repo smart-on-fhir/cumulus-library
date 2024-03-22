@@ -35,14 +35,14 @@ class BaseConfig(abc.ABC):
 class CodeableConceptConfig(BaseConfig):
     """Holds parameters for generating codableconcept tables.
 
-    :param column_name: the column containing the codeableConcept you want to extract.
-    :param is_array: whether the codeableConcept is 0...1 or 0..* in the FHIR spec
-    :param source_table: the table to extract extensions from
-    :param target_table: the name of the table to create
-    :param source_id: the id field to use in the new table (default: 'id')
-    :param filter_priority: If true, will use code systems to select a single code,
+    :keyword column_name: the column containing the codeableConcept you want to extract.
+    :keyword is_array: whether the codeableConcept is 0...1 or 0..* in the FHIR spec
+    :keyword source_table: the table to extract extensions from
+    :keyword target_table: the name of the table to create
+    :keyword source_id: the id field to use in the new table (default: 'id')
+    :keyword filter_priority: If true, will use code systems to select a single code,
       in preference order, for use as a display value.
-    :param code_systems: a list of strings matching the start of the systems field,
+    :keyword code_systems: a list of strings matching the start of the systems field,
       in preference order, for selecting data for filtering. This should not be set
       if filter_priority is false.
     """
@@ -65,13 +65,13 @@ class CodingConfig(BaseConfig):
 class ExtensionConfig(BaseConfig):
     """convenience class for holding parameters for generating extension tables.
 
-    :param source_table: the table to extract extensions from
-    :param source_id: the id column to treat as a foreign key
-    :param target_table: the name of the table to create
-    :param target_col_prefix: the string to prepend code/display column names with
-    :param fhir_extension: the URL of the FHIR resource to select
-    :param ext_systems: a list of codes, in preference order, to use to select data
-    :param is_array: a boolean indicating if the targeted field is an array type
+    :keyword source_table: the table to extract extensions from
+    :keyword source_id: the id column to treat as a foreign key
+    :keyword target_table: the name of the table to create
+    :keyword target_col_prefix: the string to prepend code/display column names with
+    :keyword fhir_extension: the URL of the FHIR resource to select
+    :keyword ext_systems: a list of codes, in preference order, to use to select data
+    :keyword is_array: a boolean indicating if the targeted field is an array type
     """
 
     target_col_prefix: str
@@ -178,13 +178,13 @@ def is_field_populated(
 ) -> bool:
     """Traverses a complex field and determines if it exists and has data
 
-    :param schema: The schema/database name
-    :param cursor: a PEP-249 compliant database cursor
-    :param source_table: The table to query against
-    :param hierarchy: a list of tuples defining the FHIR path to the element.
+    :keyword schema: The schema/database name
+    :keyword cursor: a PEP-249 compliant database cursor
+    :keyword source_table: The table to query against
+    :keyword hierarchy: a list of tuples defining the FHIR path to the element.
         Each tuple should be of the form ('element_name', dict | list), where
         a dict is a bare nested object and a list is an array object
-    :param expected: a list of elements that should be present in the field.
+    :keyword expected: a list of elements that should be present in the field.
         If none, we assume it is a CodeableConcept.
     :returns: a boolean indicating if valid data is present.
     """
@@ -193,8 +193,8 @@ def is_field_populated(
         cursor=cursor,
         source_table=source_table,
         source_col=hierarchy[0][0],
-        target_field=hierarchy[-1][0],
         expected=expected,
+        nested_field=hierarchy[-1][0] if len(hierarchy) > 1 else None,
     ):
         return False
     unnests = []
@@ -230,19 +230,21 @@ def is_field_populated(
 
 
 def _check_schema_if_exists(
+    *,
     schema: str,
     cursor: databases.DatabaseCursor,
     source_table: str,
     source_col: str,
-    expected=None,
+    expected: str | None = None,
+    nested_field: str | None = None,
 ) -> bool:
     """Validation check for a column existing, and having the expected schema
 
-    :param schema: The schema/database name
-    :param cursor: a PEP-249 compliant database cursor
-    :param source_table: The table to query against
-    :param source_col: The column to check the schema against
-    :param expected: a list of elements that should be present in source_col.
+    :keyword schema: The schema/database name
+    :keyword cursor: a PEP-249 compliant database cursor
+    :keyword source_table: The table to query against
+    :keyword source_col: The column to check the schema against
+    :keyword expected: a list of elements that should be present in source_col.
         If none, we assume it is a CodeableConcept.
     :returns: a boolean indicating if the schema was found.
     """
@@ -264,6 +266,8 @@ def _check_schema_if_exists(
         #   - containing the expected elements
         # but it does not check the elements are actually associated with that field.
         # This should be revisited once we've got better database parsing logic in place
+        if nested_field:
+            expected = [nested_field, *expected]
         if any(x not in schema_str.lower() for x in expected):
             return False
         return True
