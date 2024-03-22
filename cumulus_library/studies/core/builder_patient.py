@@ -44,12 +44,12 @@ class PatientBuilder(BaseTableBuilder):
 
         for extension in extension_types:
             config = sql_utils.ExtensionConfig(
-                "patient",
-                "id",
-                f"core__patient_ext_{extension['name']}",
-                extension["name"],
-                extension["fhirpath"],
-                ["ombCategory", "detailed", "text"],
+                source_table="patient",
+                source_id="id",
+                target_table=f"core__patient_ext_{extension['name']}",
+                target_col_prefix=extension["name"],
+                fhir_extension=extension["fhirpath"],
+                ext_systems=["ombCategory", "detailed", "text"],
                 is_array=True,
             )
             self.queries.append(base_templates.get_extension_denormalize_query(config))

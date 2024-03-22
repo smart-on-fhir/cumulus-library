@@ -35,7 +35,7 @@ class EncConfig(sql_utils.CodeableConceptConfig):
     source_table: str = "encounter"
 
     def __post_init__(self):
-        self.target_table = f"core__encounter_dn_{self.column_name.split('.')[-1]}"
+        self.target_table = f"core__encounter_dn_{self.column_hierarchy[-1][0]}"
 
 
 class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
@@ -44,8 +44,7 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
     def denormalize_codes(self, schema, cursor):
         code_configs = [
             EncConfig(
-                column_name="type",
-                is_array=True,
+                column_hierarchy=[("type", list)],
                 filter_priority=True,
                 code_systems=[
                     "http://terminology.hl7.org/CodeSystem/encounter-type",
@@ -62,8 +61,7 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                 ],
             ),
             EncConfig(
-                column_name="servicetype",
-                is_array=False,
+                column_hierarchy=[("servicetype", dict)],
                 filter_priority=True,
                 code_systems=[
                     "http://terminology.hl7.org/CodeSystem/service-type",
@@ -76,8 +74,7 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                 ],
             ),
             EncConfig(
-                column_name="priority",
-                is_array=False,
+                column_hierarchy=[("priority", dict)],
                 filter_priority=True,
                 code_systems=[
                     "http://terminology.hl7.org/CodeSystem/v3-ActPriority",
@@ -89,8 +86,7 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                 ],
             ),
             EncConfig(
-                column_name="reasoncode",
-                is_array=True,
+                column_hierarchy=[("reasoncode", list)],
                 filter_priority=True,
                 code_systems=[
                     "http://terminology.hl7.org/CodeSystem/v3-ActPriority",
@@ -104,12 +100,16 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                 ],
             ),
             EncConfig(
-                column_name="hospitalization.dischargedisposition",
-                is_array=False,
+                column_hierarchy=[
+                    ("hospitalization", dict),
+                    ("dischargedisposition", dict),
+                ],
                 filter_priority=False,
             ),
         ]
-        self.queries += sql_utils.denormalize_codes(schema, cursor, code_configs)
+        self.queries += sql_utils.denormalize_complex_objects(
+            schema, cursor, code_configs
+        )
 
     def prepare_queries(
         self,

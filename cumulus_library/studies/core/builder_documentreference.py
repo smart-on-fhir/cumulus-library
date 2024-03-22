@@ -26,15 +26,14 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
         parser: databases.DatabaseParser = None,
         **kwargs,
     ):
-        self.queries += sql_utils.denormalize_codes(
+        self.queries = sql_utils.denormalize_complex_objects(
             schema,
             cursor,
             [
                 sql_utils.CodeableConceptConfig(
                     source_table="documentreference",
                     source_id="id",
-                    column_name="type",
-                    is_array=False,
+                    column_hierarchy=[("type", dict)],
                     target_table="core__documentreference_dn_type",
                 ),
                 # TODO: The US core profile allows an extensible code for category, but
@@ -47,19 +46,17 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                 sql_utils.CodeableConceptConfig(
                     source_table="documentreference",
                     source_id="id",
-                    column_name="category",
-                    is_array=True,
+                    column_hierarchy=[("category", list)],
                     filter_priority=True,
                     target_table="core__documentreference_dn_category",
                     code_systems=[
                         "http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-category"
                     ],
                 ),
-                sql_utils.CodeableConceptConfig(
+                sql_utils.CodingConfig(
                     source_table="documentreference",
                     source_id="id",
-                    column_name="content.format",
-                    is_array=False,
+                    column_hierarchy=[("content", list), ("format", dict)],
                     target_table="core__documentreference_dn_format",
                 ),
             ],

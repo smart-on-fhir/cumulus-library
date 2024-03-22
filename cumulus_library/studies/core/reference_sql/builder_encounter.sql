@@ -13,8 +13,8 @@ CREATE TABLE core__encounter_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             '0' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -28,8 +28,8 @@ CREATE TABLE core__encounter_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             '1' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -43,8 +43,8 @@ CREATE TABLE core__encounter_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             '2' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -58,8 +58,8 @@ CREATE TABLE core__encounter_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             '3' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -73,8 +73,8 @@ CREATE TABLE core__encounter_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             '4' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -88,8 +88,8 @@ CREATE TABLE core__encounter_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             '5' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -103,8 +103,8 @@ CREATE TABLE core__encounter_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             '6' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -118,8 +118,8 @@ CREATE TABLE core__encounter_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             '7' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -133,8 +133,8 @@ CREATE TABLE core__encounter_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             '8' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -277,8 +277,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
         SELECT DISTINCT
             s.id AS id,
             '0' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -292,8 +292,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
         SELECT DISTINCT
             s.id AS id,
             '1' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -307,8 +307,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
         SELECT DISTINCT
             s.id AS id,
             '2' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -322,8 +322,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
         SELECT DISTINCT
             s.id AS id,
             '3' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -337,8 +337,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
         SELECT DISTINCT
             s.id AS id,
             '4' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -352,8 +352,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
         SELECT DISTINCT
             s.id AS id,
             '5' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             encounter AS s,
@@ -443,14 +443,37 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__encounter_dn_dischargedisposition"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+CREATE TABLE core__encounter_dn_dischargedisposition AS (
+    WITH
+
+    system_dischargedisposition_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
+            u.codeable_concept.system AS code_system
+        FROM
+            encounter AS s,
+            UNNEST(s.hospitalization.dischargedisposition.coding) AS u (codeable_concept)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            code_system,
+            code,
+            display
+        FROM system_dischargedisposition_0
+        
     )
-        AS t ("id","code","code_system","display")
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM union_table
 );
+
 
 -- ###########################################################
 

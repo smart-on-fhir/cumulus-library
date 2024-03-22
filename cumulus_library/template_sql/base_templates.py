@@ -74,6 +74,7 @@ def get_codeable_concept_denormalize_query(
     :param config: a CodableConeptConfig
     """
 
+    assert len(config.column_hierarchy) <= 2
     # If we get a None for code systems, we want one dummy value so the jinja
     # for loop will do a single pass. This implicitly means that we're not
     # filtering, so this parameter will be otherwise ignored
@@ -82,8 +83,42 @@ def get_codeable_concept_denormalize_query(
         "codeable_concept_denormalize",
         source_table=config.source_table,
         source_id=config.source_id,
-        column_name=config.column_name,
-        is_array=config.is_array,
+        column_name=config.column_hierarchy[-1][0],
+        parent_field=None
+        if len(config.column_hierarchy) == 1
+        else config.column_hierarchy[0][0],
+        is_array=(config.column_hierarchy[0][1] == list),
+        target_table=config.target_table,
+        filter_priority=config.filter_priority,
+        code_systems=config.code_systems,
+    )
+
+
+def get_coding_denormalize_query(
+    config: sql_utils.CodingConfig,
+) -> str:
+    """extracts codings from a specified table.
+
+    This function reimplements get_codeable_concept_denormalize_query targeted
+    at a bare coding element
+
+    TODO: this is temporary and this should be replaced by a generic DN
+    query.
+
+    :param config: a CodingConfig
+    """
+
+    assert len(config.column_hierarchy) == 2
+    # If we get a None for code systems, we want one dummy value so the jinja
+    # for loop will do a single pass. This implicitly means that we're not
+    # filtering, so this parameter will be otherwise ignored
+    config.code_systems = config.code_systems or ["all"]
+    return get_base_template(
+        "coding_denormalize",
+        source_table=config.source_table,
+        source_id=config.source_id,
+        column_name=config.column_hierarchy[1][0],
+        parent_field=config.column_hierarchy[0][0],
         target_table=config.target_table,
         filter_priority=config.filter_priority,
         code_systems=config.code_systems,

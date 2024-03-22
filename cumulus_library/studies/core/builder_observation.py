@@ -37,7 +37,7 @@ class ObsConfig(sql_utils.CodeableConceptConfig):
     source_table: str = "observation"
 
     def __post_init__(self):
-        self.target_table = f"core__observation_dn_{self.column_name}"
+        self.target_table = f"core__observation_dn_{self.column_hierarchy[-1][0]}"
 
 
 class ObservationBuilder(base_table_builder.BaseTableBuilder):
@@ -57,24 +57,24 @@ class ObservationBuilder(base_table_builder.BaseTableBuilder):
         :param schema: the schema/db name, matching the cursor
         """
         code_sources = [
-            ObsConfig(column_name="category", is_array=True, filter_priority=False),
-            ObsConfig(column_name="code", is_array=False, filter_priority=False),
+            ObsConfig(column_hierarchy=[("category", list)], filter_priority=False),
+            ObsConfig(column_hierarchy=[("code", dict)], filter_priority=False),
             ObsConfig(
-                column_name="interpretation", is_array=True, filter_priority=False
+                column_hierarchy=[("interpretation", list)], filter_priority=False
             ),
             ObsConfig(
-                column_name="valuecodeableconcept",
-                is_array=False,
+                column_hierarchy=[("valuecodeableconcept", dict)],
                 filter_priority=False,
             ),
             ObsConfig(
-                column_name="dataabsentreason",
-                is_array=False,
+                column_hierarchy=[("dataabsentreason", dict)],
                 filter_priority=False,
             ),
         ]
 
-        self.queries += sql_utils.denormalize_codes(schema, cursor, code_sources)
+        self.queries += sql_utils.denormalize_complex_objects(
+            schema, cursor, code_sources
+        )
         validated_schema = core_templates.validate_schema(
             cursor, schema, expected_table_cols, parser
         )

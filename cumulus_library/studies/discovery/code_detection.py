@@ -12,24 +12,27 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
         """selects the appropriate DB query to run"""
 
         if code_source["is_array"]:
-            return sql_utils.is_codeable_concept_array_populated(
-                schema,
-                code_source["table_name"],
-                code_source["column_name"],
-                cursor,
+            return sql_utils.is_field_populated(
+                schema=schema,
+                source_table=code_source["table_name"],
+                hierarchy=[(code_source["column_name"], list)],
+                expected=sql_utils.CODEABLE_CONCEPT,
+                cursor=cursor,
             )
         elif code_source["is_bare_coding"]:
-            return sql_utils.is_code_populated(
-                schema,
-                code_source["table_name"],
-                code_source["column_name"],
-                cursor,
+            return sql_utils.is_field_populated(
+                schema=schema,
+                source_table=code_source["table_name"],
+                hierarchy=[(code_source["column_name"], dict)],
+                expected=sql_utils.CODING,
+                cursor=cursor,
             )
-        return sql_utils.is_codeable_concept_populated(
-            schema,
-            code_source["table_name"],
-            code_source["column_name"],
-            cursor,
+        return sql_utils.is_field_populated(
+            schema=schema,
+            source_table=code_source["table_name"],
+            hierarchy=[(code_source["column_name"], dict)],
+            expected=sql_utils.CODEABLE_CONCEPT,
+            cursor=cursor,
         )
 
     def _check_codes_in_fields(self, code_sources: list[dict], schema, cursor) -> dict:
@@ -72,7 +75,6 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
             for key in code_definition.keys():
                 code_source[key] = code_definition[key]
             code_sources.append(code_source)
-
         code_sources = self._check_codes_in_fields(code_sources, schema, cursor)
         query = base_templates.get_code_system_pairs(
             "discovery__code_sources", code_sources

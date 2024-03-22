@@ -6,18 +6,9 @@ from pathlib import Path
 import pytest
 import toml
 
-from cumulus_library.cli import StudyRunner
+from cumulus_library import cli
 from cumulus_library.studies.core.core_templates import core_templates
-from tests.conftest import modify_resource_column
-
-
-def get_sorted_table_data(cursor, table):
-    num_cols = cursor.execute(
-        f"SELECT count(*) FROM information_schema.columns WHERE table_name='{table}'"
-    ).fetchone()[0]
-    return cursor.execute(
-        f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols)))}"
-    ).fetchall()
+from tests import conftest
 
 
 @pytest.mark.parametrize(
@@ -45,7 +36,7 @@ def test_core_tables(mock_db_core, table):
 
     # The schema check is to ensure we have a consistent order for the data in
     # these files, mostly for making git history simpler in case of minor changes
-    table_rows = get_sorted_table_data(cursor, table)
+    table_rows = conftest.get_sorted_table_data(cursor, table)
 
     # For regenerating data if needed
     # with open(f"./tests/test_data/core/{table}.txt", "wt", encoding="UTF-8") as f:
@@ -73,14 +64,14 @@ def test_core_count_missing_data(tmp_path, mock_db):
         "version": None,
     }
     cursor = mock_db.cursor()
-    modify_resource_column(cursor, "encounter", "class", null_code_class)
+    conftest.modify_resource_column(cursor, "encounter", "class", null_code_class)
 
-    builder = StudyRunner(mock_db, f"{tmp_path}/data_path/")
+    builder = cli.StudyRunner(mock_db, f"{tmp_path}/data_path/")
     builder.clean_and_build_study(
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
         stats_build=False,
     )
-    table_rows = get_sorted_table_data(cursor, "core__count_encounter_month")
+    table_rows = conftest.get_sorted_table_data(cursor, "core__count_encounter_month")
     # For regenerating data if needed
     # with open(
     #     f"./tests/test_data/core/core__count_encounter_month_missing_data.txt",

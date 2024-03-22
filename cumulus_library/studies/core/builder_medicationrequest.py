@@ -43,19 +43,19 @@ class MedicationRequestBuilder(base_table_builder.BaseTableBuilder):
             sql_utils.CodeableConceptConfig(
                 source_table="medicationrequest",
                 source_id="id",
-                column_name="category",
-                is_array=True,
+                column_hierarchy=[("category", list)],
                 target_table="core__medicationrequest_dn_category",
             ),
             sql_utils.CodeableConceptConfig(
                 source_table="medicationrequest",
                 source_id="id",
-                column_name="medicationcodeableconcept",
-                is_array=False,
+                column_hierarchy=[("medicationcodeableconcept", dict)],
                 target_table="core__medicationrequest_dn_medication",
             ),
         ]
-        self.queries += sql_utils.denormalize_codes(schema, cursor, code_sources)
+        self.queries += sql_utils.denormalize_complex_objects(
+            schema, cursor, code_sources
+        )
         validated_schema = core_templates.validate_schema(
             cursor, schema, expected_table_cols, parser
         )

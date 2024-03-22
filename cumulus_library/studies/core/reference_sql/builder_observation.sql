@@ -12,8 +12,8 @@ CREATE TABLE core__observation_dn_category AS (
     system_category_0 AS (
         SELECT DISTINCT
             s.id AS id,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             observation AS s,
@@ -47,8 +47,8 @@ CREATE TABLE core__observation_dn_code AS (
     system_code_0 AS (
         SELECT DISTINCT
             s.id AS id,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             observation AS s,
@@ -92,8 +92,8 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
     system_valuecodeableconcept_0 AS (
         SELECT DISTINCT
             s.id AS id,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             observation AS s,

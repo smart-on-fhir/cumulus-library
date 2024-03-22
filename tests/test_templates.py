@@ -55,9 +55,8 @@ def test_codeable_concept_denormalize_all_creation():
     config = sql_utils.CodeableConceptConfig(
         source_table="source",
         source_id="id",
-        column_name="code_col",
+        column_hierarchy=[("code_col", list)],
         target_table="target__concepts",
-        is_array=True,
     )
     query = base_templates.get_codeable_concept_denormalize_query(config)
     assert query == expected
@@ -144,9 +143,8 @@ def test_codeable_concept_denormalize_filter_creation():
     config = sql_utils.CodeableConceptConfig(
         source_table="source",
         source_id="id",
-        column_name="code_col",
+        column_hierarchy=[("code_col", dict)],
         target_table="target__concepts",
-        is_array=False,
         filter_priority=True,
         code_systems=[
             "http://snomed.info/sct",
@@ -354,22 +352,22 @@ def test_extension_denormalize_creation():
     WHERE available_priority = 1
 );"""
     config = sql_utils.ExtensionConfig(
-        "source_table",
-        "source_id",
-        "target_table",
-        "prefix",
-        "fhir_extension",
-        ["omb", "text"],
+        source_table="source_table",
+        source_id="source_id",
+        target_table="target_table",
+        target_col_prefix="prefix",
+        fhir_extension="fhir_extension",
+        ext_systems=["omb", "text"],
     )
     query = base_templates.get_extension_denormalize_query(config)
     assert query == expected
     config = sql_utils.ExtensionConfig(
-        "source_table",
-        "source_id",
-        "target_table",
-        "prefix",
-        "fhir_extension",
-        ["omb", "text"],
+        source_table="source_table",
+        source_id="source_id",
+        target_table="target_table",
+        target_col_prefix="prefix",
+        fhir_extension="fhir_extension",
+        ext_systems=["omb", "text"],
         is_array=True,
     )
     query = base_templates.get_extension_denormalize_query(config)
@@ -503,13 +501,11 @@ UNION
 SELECT *
 FROM (
     VALUES (
-        (
-            'empty',
-            'empty',
-            '',
-            '',
-            ''
-        )
+        'empty',
+        'empty',
+        '',
+        '',
+        ''
     )
 )
     AS t (table_name, column_name, code, display, system)"""

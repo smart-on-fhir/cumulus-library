@@ -13,8 +13,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         SELECT DISTINCT
             s.id AS id,
             '0' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
@@ -27,8 +27,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         SELECT DISTINCT
             s.id AS id,
             '1' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
@@ -41,8 +41,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         SELECT DISTINCT
             s.id AS id,
             '2' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
@@ -55,8 +55,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         SELECT DISTINCT
             s.id AS id,
             '3' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
@@ -69,8 +69,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         SELECT DISTINCT
             s.id AS id,
             '4' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
@@ -83,8 +83,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         SELECT DISTINCT
             s.id AS id,
             '5' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
@@ -97,8 +97,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         SELECT DISTINCT
             s.id AS id,
             '6' AS priority,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,
@@ -201,8 +201,8 @@ CREATE TABLE core__condition_codable_concepts_all AS (
     system_code_0 AS (
         SELECT DISTINCT
             s.id AS id,
-            u.codeable_concept.code AS code,
-            u.codeable_concept.display AS display,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
             condition AS s,

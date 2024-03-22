@@ -531,14 +531,14 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
     with raises:
         with requests_mock.Mocker() as r:
             if login_error:
-                r.post("https://aggregator.smartcumulus.org/upload/", status_code=401)
+                r.post("https://upload.url.test/upload/", status_code=401)
             else:
                 r.post(
-                    "https://aggregator.smartcumulus.org/upload/",
-                    json={"url": "https://presigned.url.org", "fields": {"a": "b"}},
+                    "https://upload.url.test/upload/",
+                    json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
                 )
-            r.post("https://presigned.url.org", status_code=status)
-            cli.main(cli_args=args)
+            r.post("https://presigned.url.test", status_code=status)
+            cli.main(cli_args=[*args, "--url", "https://upload.url.test/upload/"])
 
 
 @pytest.mark.parametrize(
