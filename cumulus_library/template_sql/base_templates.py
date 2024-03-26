@@ -50,15 +50,6 @@ def get_alias_table_query(source_table: str, target_table: str):
     )
 
 
-def get_code_system_pairs(output_table_name: str, code_system_tables: list) -> str:
-    """Extracts code system details as a standalone table"""
-    return get_base_template(
-        "code_system_pairs",
-        output_table_name=output_table_name,
-        code_system_tables=code_system_tables,
-    )
-
-
 def get_codeable_concept_denormalize_query(
     config: sql_utils.CodeableConceptConfig,
 ) -> str:

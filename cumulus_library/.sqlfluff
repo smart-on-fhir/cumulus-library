@@ -33,28 +33,25 @@ code_system_tables =
     [
         {
             table_name":"hasarray",
-            "column_name":"acol",
+            "column_hierarchy":["acol","bcol"],
             "is_bare_coding":False,
-            "is_array":True, 
             "has_data": True
         },
         {
             "table_name":"noarray",
-            "column_name":"col",
+            "column_hierarchy":["acol.bcol"],
             "is_bare_coding":False,
-            "is_array":False, 
             "has_data": True
         },
         {
             "table_name":"bare",
-            "column_name":"bcol",
+            "column_hierarchy":["bcol"],
             "is_bare_coding":True,
-            "is_array":False, 
             "has_data": True
         },
         {
             "table_name":"empty",
-            "column_name":"empty",
+            "column_hierarchy":["empty"],
             "is_bare_coding":False,
             "is_array":False,
             "has_data": False
@@ -63,6 +60,7 @@ code_system_tables =
 column_name = 'bar'
 column_names = ['foo', 'bar']
 conditions = ["1 > 0", "1 < 2"]
+column_hierarchy = [('a', list),('b',dict)]
 config = 
     {
         "medication_datasources" : {
@@ -86,6 +84,7 @@ filter_resource = True
 fhir_extension = condition
 fhir_resource = patient
 id = 'id'
+is_bare_coding = False
 join_cols_by_table = 
     { 
         "join_table": { 

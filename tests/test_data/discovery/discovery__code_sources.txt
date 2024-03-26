@@ -15,7 +15,7 @@ documentreference,type,34111-5,Emergency department note,http://loinc.org
 documentreference,type,51847-2,Evaluation + Plan note,http://loinc.org
 encounter,class,AMB,None,http://terminology.hl7.org/CodeSystem/v3-ActCode
 encounter,class,EMER,None,http://terminology.hl7.org/CodeSystem/v3-ActCode
-encounter,hospitalization.dischargedisposition,,,
+encounter,hospitalization.dischargedisposition,01,Discharged to home care or self care (routine discharge),http://www.nubc.org/patient-discharge
 encounter,priority,,,
 encounter,reasoncode,10509002,Acute bronchitis (disorder),http://snomed.info/sct
 encounter,reasoncode,161665007,History of renal transplant (situation),http://snomed.info/sct
@@ -42,7 +42,7 @@ encounter,type,448337001,Telemedicine consultation with patient,http://snomed.in
 encounter,type,50849002,Emergency room admission (procedure),http://snomed.info/sct
 encounter,type,698314001,Consultation for treatment,http://snomed.info/sct
 encounter,type,702927004,Urgent care clinic (environment),http://snomed.info/sct
-medication,codecodeableconcept ,,,
+medication,codecodeableconcept,,,
 medication,medicationcode,,,
 observation,category,laboratory,Laboratory,http://terminology.hl7.org/CodeSystem/observation-category
 observation,code,34533-0,Odor of Urine,http://loinc.org
