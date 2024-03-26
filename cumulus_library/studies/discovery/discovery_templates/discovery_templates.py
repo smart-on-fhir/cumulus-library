@@ -6,13 +6,14 @@ from cumulus_library.template_sql import base_templates
 def get_code_system_pairs(output_table_name: str, code_system_tables: list) -> str:
     """Extracts code system details as a standalone table"""
 
-    # Since it's easier to wrangle data before SQL, the follow block does
+    # Since it's easier to wrangle data before SQL, this code block does
     # the following: given a datastructure like:
     #     [('a',list),('b', dict),('c', dict),('d', list), ('e', dict)]
     # Since data access in sql by nested dicts is just joining operators,
     # it will flatten columns together by combining dicts up to the next
     # list instance, i.e. when the next unnest would be needed:
-    #     [('a',list),('b'.c.d', list), ('e', dict)]
+    #     [('a',list),('b.c.d', list), ('e', dict)]
+    # It also creates a display name along the way
     for table in code_system_tables:
         unnest_layer = ""
         squashed_hierarchy = []

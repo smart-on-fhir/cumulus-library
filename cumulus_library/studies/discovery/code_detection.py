@@ -16,9 +16,7 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
             schema=schema,
             source_table=code_source["table_name"],
             hierarchy=code_source["column_hierarchy"],
-            expected=code_source["encoding"]
-            if "encoding" in code_source.keys()
-            else sql_utils.CODING,
+            expected=sql_utils.CODING,
             cursor=cursor,
         )
 
@@ -46,11 +44,9 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
         """
 
         code_sources = []
+        required_keys = {"table_name", "column_hierarchy"}
         for code_definition in code_definitions.code_list:
-            if any(
-                x not in code_definition.keys()
-                for x in ["table_name", "column_hierarchy"]
-            ):
+            if not required_keys.issubset(code_definition):
                 raise KeyError(
                     "Expected table_name and column_hierarchy keys in "
                     f"{code_definition!s}"
