@@ -33,27 +33,22 @@ code_system_tables =
     [
         {
             table_name":"hasarray",
-            "column_hierarchy":["acol","bcol"],
-            "is_bare_coding":False,
+            "column_hierarchy":[("acol",list),("bcol",dict)],
             "has_data": True
         },
         {
             "table_name":"noarray",
-            "column_hierarchy":["acol.bcol"],
-            "is_bare_coding":False,
+            "column_hierarchy":[("acol.bcol", list)],
             "has_data": True
         },
         {
             "table_name":"bare",
-            "column_hierarchy":["bcol"],
-            "is_bare_coding":True,
+            "column_hierarchy":[("bcol", dict)],
             "has_data": True
         },
         {
             "table_name":"empty",
-            "column_hierarchy":["empty"],
-            "is_bare_coding":False,
-            "is_array":False,
+            "column_hierarchy":[("empty",dict],
             "has_data": False
         }
     ]
@@ -84,7 +79,6 @@ filter_resource = True
 fhir_extension = condition
 fhir_resource = patient
 id = 'id'
-is_bare_coding = False
 join_cols_by_table = 
     { 
         "join_table": { 
