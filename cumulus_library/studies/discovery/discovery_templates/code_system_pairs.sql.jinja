@@ -1,0 +1,52 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+
+{%- macro get_source_col(column_hierarchy) -%}
+{%- if column_hierarchy|length >1 or column_hierarchy[0][1].__name__ == 'list' -%}
+table_{{ column_hierarchy|length }}.col_{{ column_hierarchy|length }}
+{%- else -%}
+{{ column_hierarchy[0][0] }}
+{%- endif %}
+{%- endmacro -%}
+{#- Implementation note: since iterating/combining complex objects in jinja is a fool's
+errand, this query assumes that the table_hierarchy has been preproccessed before
+this template is called.
+
+discovery_templates.py is combining all dict types with the next deepest list in the
+hierarchy, since those should be accessed with . seperators rather than being unnested.
+
+So we can make the assumption here that the elements of the hierarchy are arrays, and
+only the deepest element in that should be of a variable type.-#}
+CREATE TABLE {{ output_table_name }} AS
+{%- for table in code_system_tables %}
+{%- if table.has_data %}
+SELECT DISTINCT
+    '{{ table.table_name }}' AS table_name,
+    '{{ table.column_display_name }}' AS column_name,
+    {{ get_source_col(table.column_hierarchy) }}.code,
+    {{ get_source_col(table.column_hierarchy) }}.display,
+    {{ get_source_col(table.column_hierarchy) }}.system
+FROM {{ table.table_name }}
+{%- if table.column_hierarchy|length >1 or table.column_hierarchy[0][1].__name__ == 'list' -%},
+UNNEST({{ table.column_hierarchy[0][0] }}) AS table_1 (col_1)
+{%- endif %}
+{%- for index in range(1,table.column_hierarchy|length) %}
+{%- if table.column_hierarchy[index][1].__name__ == 'list' -%},
+UNNEST(col_{{ index }}.{{ table.column_hierarchy[index][0].split('.')[0] }}) as table_{{ index +1 }} (col_{{ index +1 }})
+{%- endif %}
+{%- endfor %}
+{%- else %}
+SELECT *
+FROM (
+    VALUES (
+        '{{ table.table_name }}',
+        '{{ table.column_display_name }}',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+{%- endif %}
+
+{{ syntax.union_delineate(loop) }}
+{% endfor %}

@@ -2,7 +2,8 @@
 
 from cumulus_library import base_table_builder, base_utils
 from cumulus_library.studies.discovery import code_definitions
-from cumulus_library.template_sql import base_templates, sql_utils
+from cumulus_library.studies.discovery.discovery_templates import discovery_templates
+from cumulus_library.template_sql import sql_utils
 
 
 class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
@@ -11,27 +12,11 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
     def _check_coding_against_db(self, code_source, schema, cursor):
         """selects the appropriate DB query to run"""
 
-        if code_source["is_array"]:
-            return sql_utils.is_field_populated(
-                schema=schema,
-                source_table=code_source["table_name"],
-                hierarchy=[(code_source["column_name"], list)],
-                expected=sql_utils.CODEABLE_CONCEPT,
-                cursor=cursor,
-            )
-        elif code_source["is_bare_coding"]:
-            return sql_utils.is_field_populated(
-                schema=schema,
-                source_table=code_source["table_name"],
-                hierarchy=[(code_source["column_name"], dict)],
-                expected=sql_utils.CODING,
-                cursor=cursor,
-            )
         return sql_utils.is_field_populated(
             schema=schema,
             source_table=code_source["table_name"],
-            hierarchy=[(code_source["column_name"], dict)],
-            expected=sql_utils.CODEABLE_CONCEPT,
+            hierarchy=code_source["column_hierarchy"],
+            expected=sql_utils.CODING,
             cursor=cursor,
         )
 
@@ -59,24 +44,21 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
         """
 
         code_sources = []
+        required_keys = {"table_name", "column_hierarchy"}
         for code_definition in code_definitions.code_list:
-            if any(
-                x not in code_definition.keys() for x in ["table_name", "column_name"]
-            ):
+            if not required_keys.issubset(code_definition):
                 raise KeyError(
-                    "Expected table_name and column_name keys in "
+                    "Expected table_name and column_hierarchy keys in "
                     f"{code_definition!s}"
                 )
             code_source = {
-                "is_bare_coding": False,
-                "is_array": False,
                 "has_data": False,
             }
             for key in code_definition.keys():
                 code_source[key] = code_definition[key]
             code_sources.append(code_source)
         code_sources = self._check_codes_in_fields(code_sources, schema, cursor)
-        query = base_templates.get_code_system_pairs(
+        query = discovery_templates.get_code_system_pairs(
             "discovery__code_sources", code_sources
         )
         self.queries.append(query)

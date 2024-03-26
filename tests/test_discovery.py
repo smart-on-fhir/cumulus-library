@@ -3,6 +3,7 @@ import pathlib
 from unittest import mock
 
 from cumulus_library import cli, databases
+from cumulus_library.studies.discovery.discovery_templates import discovery_templates
 from tests import conftest
 
 
@@ -62,3 +63,80 @@ def test_discovery(tmp_path):
                 if ref_row[pos] == "None":
                     ref_row[pos] = None
             assert tuple(ref_row) in table_rows
+
+
+def test_get_code_system_pairs():
+    expected = """CREATE TABLE output_table AS
+SELECT DISTINCT
+    'arrays' AS table_name,
+    'acol' AS column_name,
+    table_2.col_2.code,
+    table_2.col_2.display,
+    table_2.col_2.system
+FROM arrays,
+UNNEST(acol) AS table_1 (col_1),
+UNNEST(col_1.coding) as table_2 (col_2)
+
+UNION
+
+SELECT DISTINCT
+    'dictarray' AS table_name,
+    'col' AS column_name,
+    table_1.col_1.code,
+    table_1.col_1.display,
+    table_1.col_1.system
+FROM dictarray,
+UNNEST(col.coding) AS table_1 (col_1)
+
+UNION
+
+SELECT DISTINCT
+    'bare' AS table_name,
+    'bcol' AS column_name,
+    bcol.coding.code,
+    bcol.coding.display,
+    bcol.coding.system
+FROM bare
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'empty',
+        'empty',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+
+"""
+    query = discovery_templates.get_code_system_pairs(
+        "output_table",
+        [
+            {
+                "table_name": "arrays",
+                "column_hierarchy": [("acol", list), ("coding", list)],
+                "has_data": True,
+            },
+            {
+                "table_name": "dictarray",
+                "column_hierarchy": [("col", dict), ("coding", list)],
+                "has_data": True,
+            },
+            {
+                "table_name": "bare",
+                "column_hierarchy": [("bcol", dict), ("coding", dict)],
+                "has_data": True,
+            },
+            {
+                "table_name": "empty",
+                "column_hierarchy": [("empty", dict), ("coding", dict)],
+                "has_data": False,
+            },
+        ],
+    )
+    assert query == expected

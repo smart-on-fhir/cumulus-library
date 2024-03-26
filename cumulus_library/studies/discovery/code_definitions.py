@@ -1,74 +1,87 @@
 # A collection of codes & codeableConcepts to extract available codes from.
-# Two optional booleans are available for use:
-#   - is_array: the field in question is an array of CodeableConcepts
-#   - is_bare_coding: the field in question is a Coding not wrapped in concepts
-#   - otherwise, it is assumed to be a 0..1 or 1..1 CodeableConcept
-# TODO: if another state is needed, move to an Enum
+
 
 code_list = [
     # Condition
-    {"table_name": "condition", "column_name": "category", "is_array": True},
     {
         "table_name": "condition",
-        "column_name": "code",
+        "column_hierarchy": [("category", list), ("coding", list)],
+    },
+    {
+        "table_name": "condition",
+        "column_hierarchy": [("code", dict), ("coding", list)],
     },
     # DocumentReference
     {
         "table_name": "documentreference",
-        "column_name": "type",
+        "column_hierarchy": [("type", dict), ("coding", list)],
     },
-    {"table_name": "documentreference", "column_name": "category", "is_array": True},
+    {
+        "table_name": "documentreference",
+        "column_hierarchy": [("category", list), ("coding", list)],
+    },
     # Encounter
     {
         "table_name": "encounter",
-        "column_name": "class",
-        "is_bare_coding": True,
+        "column_hierarchy": [("class", dict)],
     },
     {
         "table_name": "encounter",
-        "column_name": "type",
-        "is_array": True,
+        "column_hierarchy": [("type", list), ("coding", list)],
     },
     {
         "table_name": "encounter",
-        "column_name": "servicetype",
+        "column_hierarchy": [("servicetype", dict), ("coding", list)],
     },
     {
         "table_name": "encounter",
-        "column_name": "priority",
+        "column_hierarchy": [("priority", dict), ("coding", list)],
     },
-    {"table_name": "encounter", "column_name": "reasoncode", "is_array": True},
     {
         "table_name": "encounter",
-        "column_name": "hospitalization.dischargedisposition",
+        "column_hierarchy": [("reasoncode", list), ("coding", list)],
+    },
+    {
+        "table_name": "encounter",
+        "column_hierarchy": [
+            ("hospitalization", dict),
+            ("dischargedisposition", dict),
+            ("coding", list),
+        ],
     },
     # Medication
     {
         "table_name": "medication",
-        "column_name": "codecodeableconcept ",
+        "column_hierarchy": [("codecodeableconcept", dict), ("coding", list)],
     },
     {
         "table_name": "medication",
-        "column_name": "medicationcode",
+        "column_hierarchy": [("medicationcode", dict), ("coding", list)],
     },
     # Observation
-    {"table_name": "observation", "column_name": "category", "is_array": True},
     {
         "table_name": "observation",
-        "column_name": "code",
-    },
-    {"table_name": "observation", "column_name": "interpretation", "is_array": True},
-    {
-        "table_name": "observation",
-        "column_name": "valuecodeableconcept",
+        "column_hierarchy": [("category", list), ("coding", list)],
     },
     {
         "table_name": "observation",
-        "column_name": "dataabsentreason",
+        "column_hierarchy": [("code", dict), ("coding", list)],
+    },
+    {
+        "table_name": "observation",
+        "column_hierarchy": [("interpretation", list), ("coding", list)],
+    },
+    {
+        "table_name": "observation",
+        "column_hierarchy": [("valuecodeableconcept", dict), ("coding", list)],
+    },
+    {
+        "table_name": "observation",
+        "column_hierarchy": [("dataabsentreason", dict), ("coding", list)],
     },
     # Patient
     {
         "table_name": "patient",
-        "column_name": "maritalstatus",
+        "column_hierarchy": [("maritalstatus", dict), ("coding", list)],
     },
 ]
