@@ -1,0 +1,68 @@
+
+{#- returns a SELECT containing a list of complete encounters
+
+There will be two columns:
+- id (varchar)
+- is_complete (bool)
+
+If completion is not enabled, it will return an empty table.
+If a row is not completion-tracked,
+it will not be in the returned table.
+
+Thus, you can legacy-allow any encounter that isn't represented
+in this table.
+-#}
+{%- macro complete_encounters(schema) -%}
+{%- set check_completion = (
+    schema['etl__completion']['group_name']
+    and schema['etl__completion_encounters']['group_name']
+) -%}
+{%- if check_completion -%}
+(
+    WITH
+    -- Start by grabbing group names and exports times for each Encounter.
+    temp_completion_times AS (
+        SELECT
+            ece.encounter_id,
+            -- note that we don't chop the export time down to a DATE,
+            -- as is typical in the core study
+            min(from_iso8601_timestamp(ece.export_time)) AS earliest_export
+        FROM etl__completion_encounters AS ece
+        GROUP BY ece.encounter_id
+    ),
+
+    -- Then examine all tables that are at least as recently loaded as the
+    -- Encounter. (This is meant to detect Conditions that maybe aren't
+    -- loaded into Athena yet for the Encounter.)
+    -- Make sure that we have all the tables we care about.
+    temp_completed_tables AS (
+        SELECT
+            ece.encounter_id,
+            (
+                BOOL_OR(ec.table_name = 'condition')
+                AND BOOL_OR(ec.table_name = 'documentreference')
+                AND BOOL_OR(ec.table_name = 'medicationrequest')
+                AND BOOL_OR(ec.table_name = 'observation')
+            ) AS is_complete
+        FROM etl__completion_encounters AS ece
+        INNER JOIN temp_completion_times AS tct ON tct.encounter_id = ece.encounter_id
+        INNER JOIN etl__completion AS ec ON ec.group_name = ece.group_name
+        WHERE tct.earliest_export <= from_iso8601_timestamp(ec.export_time)
+        GROUP BY ece.encounter_id
+    )
+
+    -- Left join back with main completion_encounters table,
+    -- to catch rows that are completion-tracked but not in
+    -- temp_completed_tables.
+    SELECT
+        ece.encounter_id AS id,
+        (is_complete IS NOT NULL AND is_complete) AS is_complete
+    FROM etl__completion_encounters AS ece
+    LEFT JOIN temp_completed_tables AS tct ON tct.encounter_id = ece.encounter_id
+)
+{%- else -%}
+{#- make an empty table, so that missing entries are treated as legacy rows
+   that aren't completion-tracked -#}
+(SELECT cast('' AS varchar) AS id, FALSE AS is_complete WHERE 1=0)
+{%- endif -%}
+{%- endmacro -%}

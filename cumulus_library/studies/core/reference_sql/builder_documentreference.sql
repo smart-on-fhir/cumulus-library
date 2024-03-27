@@ -144,7 +144,6 @@ WITH temp_documentreference AS (
         dr.docStatus,
         dr.context,
         dr.subject.reference AS subject_ref,
-        cast(NULL as varchar) AS encounter_ref,
         dr.context.period.start AS author_date,
         date_trunc('day', date(from_iso8601_timestamp(dr."context"."period"."start")))
             AS author_day,
@@ -163,6 +162,17 @@ WITH temp_documentreference AS (
     LEFT JOIN core__documentreference_dn_type AS cdrt ON dr.id = cdrt.id
     LEFT JOIN core__documentreference_dn_category AS cdrc ON dr.id = cdrc.id
     LEFT JOIN core__documentreference_dn_format AS cdrf ON dr.id = cdrf.id
+),
+
+temp_encounters AS (
+    SELECT
+        tdr.id,
+
+
+        context_encounter.encounter.reference AS encounter_ref
+    FROM temp_documentreference AS tdr,
+         unnest(context.encounter) AS context_encounter (encounter) --noqa
+
 
 )
 
@@ -181,8 +191,8 @@ SELECT DISTINCT
     tdr.author_year,
     tdr.format_code,
     tdr.subject_ref,
-    coalesce(tdr.encounter_ref, context_encounter.encounter.reference) as encounter_ref,
+    te.encounter_ref,
     concat('DocumentReference/', tdr.id) AS documentreference_ref
-FROM temp_documentreference AS tdr,
-    unnest(context.encounter) AS context_encounter (encounter) --noqa
+FROM temp_documentreference AS tdr
+LEFT JOIN temp_encounters AS te ON tdr.id = te.id
 WHERE date(tdr.author_day) BETWEEN date('2016-06-01') AND current_date;

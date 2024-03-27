@@ -48,6 +48,17 @@ Additionally, there are fields that are useful to informatics analysis that are 
 from EHRs, but are not guaranteed to be populated, so consult with your research partners if
 you are authoring a study using some of these data elements.
 
+## Completion tracking
+
+If not all the resources for a given encounter are loaded into the database yet,
+that encounter is considered "incomplete" and may be left out of the core tables.
+
+You can see which encounters were ignored as incomplete by examining the
+`core__incomplete_encounters` table which holds the ID of all incomplete encounters.
+
+Usually, you can resolve this by running the ETL process again for the encounters,
+making sure to include all associated resources.
+
 ## core count tables
 
 

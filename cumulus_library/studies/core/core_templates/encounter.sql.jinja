@@ -1,4 +1,5 @@
 {% import 'core_utils.jinja' as utils %}
+{% import 'completion_utils.jinja' as completion_utils %}
 {#- Unlike some of the other core templates, in order to get easier access
 to the nested dates in the period, we'll do the preliminary querying in
 two steps.
@@ -6,7 +7,11 @@ two steps.
 TODO: profile speed vs a single step, consider extending date col methods
 to traverse nested elements if performance is impacted-#}
 CREATE TABLE core__encounter AS
-WITH temp_encounter_nullable AS (
+WITH
+
+temp_encounter_completion AS {{ completion_utils.complete_encounters(schema) }},
+
+temp_encounter_nullable AS (
     SELECT DISTINCT
         {{- utils.basic_cols(
                 'encounter',
@@ -51,6 +56,12 @@ WITH temp_encounter_nullable AS (
             ) 
         }}
     FROM encounter AS e
+    LEFT JOIN temp_encounter_completion AS tec ON tec.id = e.id
+    WHERE (
+        -- NULL completion just means it's a row that isn't completion-tracked
+        -- (likely a legacy row), so allow it in.
+        tec.is_complete IS NULL OR tec.is_complete
+    )
 ),
 
 temp_encounter AS (

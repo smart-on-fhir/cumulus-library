@@ -24,7 +24,13 @@ expected_table_cols = {
             "type",
         ],
         "id": [],
-    }
+    },
+    "etl__completion": {
+        "group_name": [],
+    },
+    "etl__completion_encounters": {
+        "group_name": [],
+    },
 }
 
 
@@ -126,6 +132,7 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
         validated_schema = core_templates.validate_schema(
             cursor, schema, expected_table_cols, parser
         )
-        self.queries.append(
-            core_templates.get_core_template("encounter", validated_schema)
-        )
+        self.queries += [
+            core_templates.get_core_template("encounter", validated_schema),
+            core_templates.get_core_template("incomplete_encounter", validated_schema),
+        ]

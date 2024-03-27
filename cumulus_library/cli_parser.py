@@ -76,8 +76,13 @@ def add_aws_config(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def add_db_config(parser: argparse.ArgumentParser) -> None:
-    """Adds arguments related to database backends to a subparser"""
+def add_db_config(parser: argparse.ArgumentParser, input_mode: bool = False) -> None:
+    """
+    Adds arguments related to database backends to a subparser
+
+    Pass input_mode=True if the subparser is for a command that operates on input
+    (e.g. a build operation) rather than output tables (e.g. a clean operation)
+    """
     group = parser.add_argument_group("Database config")
     group.add_argument(
         "--db-type",
@@ -98,6 +103,13 @@ def add_db_config(parser: argparse.ArgumentParser) -> None:
         dest="schema_name",
         help="Database name (for Athena) or file (for DuckDB)",
     )
+
+    if input_mode:
+        group.add_argument(
+            "--load-ndjson-dir",
+            help="Load ndjson files from this folder",
+            metavar="DIR",
+        )
 
     # Backend-specific config:
     add_aws_config(parser)
@@ -159,7 +171,7 @@ following order of preference is used to select credentials:
     add_table_builder_argument(build)
     add_study_dir_argument(build)
     add_verbose_argument(build)
-    add_db_config(build)
+    add_db_config(build, input_mode=True)
     add_data_path_argument(build)
     build.add_argument(
         "--statistics",
@@ -169,9 +181,6 @@ following order of preference is used to select credentials:
             "Stats are created by default when study is initially run"
         ),
         dest="stats_build",
-    )
-    build.add_argument(
-        "--load-ndjson-dir", help="Load ndjson files from this folder", metavar="DIR"
     )
     build.add_argument(
         "--continue",
@@ -228,7 +237,7 @@ following order of preference is used to select credentials:
     )
     add_target_argument(sql)
     add_study_dir_argument(sql)
-    add_db_config(sql)
+    add_db_config(sql, input_mode=True)
     add_table_builder_argument(sql)
 
     # Generate markdown tables for documentation
