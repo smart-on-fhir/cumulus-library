@@ -6,7 +6,46 @@ two steps.
 TODO: profile speed vs a single step, consider extending date col methods
 to traverse nested elements if performance is impacted-#}
 CREATE TABLE core__encounter AS
-WITH temp_encounter_nullable AS (
+WITH
+
+-- ** This next block of SQL is designed to discover which Encounters are fully loaded/available. **
+-- Starting with grabbing group names and exports times for each Encounter.
+loaded_encounters AS (
+    SELECT
+        completion_enc.encounter_id,
+        completion.export_time,
+        completion.group_name
+    FROM etl__completion_encounters AS completion_enc
+    INNER JOIN etl__completion AS completion
+    ON completion_enc.group_name = completion.group_name
+    WHERE completion.table_name = 'encounter'
+),
+-- Then grab all tables that are at least as recently loaded as the Encounter.
+-- (This is meant to detect Conditions that maybe aren't loaded into Athena yet for the Encounter.)
+loaded_tables AS (
+    SELECT
+        loaded_enc.id,
+        ARRAY_AGG(completion.table_name) AS tables -- may have duplicates, that's OK
+    FROM loaded_encounters AS loaded_enc
+    INNER JOIN etl__completion AS completion
+    ON loaded_enc.group_name = completion.group_name
+    WHERE completion.export_time >= loaded_enc.export_time
+    GROUP BY loaded_enc.id
+),
+-- And finally, grab just the Encounter ids for which we have actually loaded all the
+-- tables that the core study references.
+complete_encounter_ids AS (
+    SELECT id
+    FROM loaded_tables
+    WHERE (
+        array_position(tables, 'condition') > 0
+        AND array_position(tables, 'documentreference') > 0
+        AND array_position(tables, 'medicationrequest') > 0
+        AND array_position(tables, 'observation') > 0
+    )
+),
+
+temp_encounter_nullable AS (
     SELECT DISTINCT
         {{- utils.basic_cols(
                 'encounter',
@@ -51,6 +90,8 @@ WITH temp_encounter_nullable AS (
             ) 
         }}
     FROM encounter AS e
+    INNER JOIN complete_encounter_ids
+    ON complete_encounter_ids.encounter_id = e.id
 ),
 
 temp_encounter AS (

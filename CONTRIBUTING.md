@@ -9,4 +9,10 @@ pre-commit install
 ```
 
 This will install dependencies & build tools,
-as well as set up a `black` auto-formatter commit hook.
+as well as set up an auto-formatter commit hook.
+
+## Adding new resources
+
+Things to keep in mind:
+- If the new resource links to Encounter,
+  add it to the completion checking done in the Encounter code.
