@@ -22,7 +22,6 @@ WITH temp_documentreference AS (
                     'docstatus',
                     'context',                
                     ('subject', 'reference', 'subject_ref'),
-                    ('context', 'encounter', 'encounter_ref'),
                     ('context', 'period', 'start', 'author_date')
                 ], 
                 schema
@@ -49,7 +48,23 @@ WITH temp_documentreference AS (
     LEFT JOIN core__documentreference_dn_type AS cdrt ON dr.id = cdrt.id
     LEFT JOIN core__documentreference_dn_category AS cdrc ON dr.id = cdrc.id
     LEFT JOIN core__documentreference_dn_format AS cdrf ON dr.id = cdrf.id
+),
 
+temp_encounters AS (
+    SELECT
+        tdr.id,
+
+{% if schema["documentreference"]["context"]["encounter"] %}
+        context_encounter.encounter.reference AS encounter_ref
+    FROM temp_documentreference AS tdr,
+         unnest(context.encounter) AS context_encounter (encounter) --noqa
+
+{% else %}
+        '' AS encounter_ref
+    FROM temp_documentreference AS tdr
+    WHERE 1=0 -- forces an empty table
+
+{% endif %}
 )
 
 SELECT DISTINCT
@@ -67,8 +82,8 @@ SELECT DISTINCT
     tdr.author_year,
     tdr.doc_format_code,
     tdr.subject_ref,
-    coalesce(tdr.encounter_ref, context_encounter.encounter.reference) as encounter_ref,
+    te.encounter_ref,
     concat('DocumentReference/', tdr.id) AS doc_ref
-FROM temp_documentreference AS tdr,
-    unnest(context.encounter) AS context_encounter (encounter) --noqa
+FROM temp_documentreference AS tdr
+LEFT JOIN temp_encounters AS te ON tdr.id = te.id
 WHERE date(tdr.author_day) BETWEEN date('2016-06-01') AND current_date;

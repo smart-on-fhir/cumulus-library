@@ -34,24 +34,33 @@ WITH temp_patient AS (
         patient AS p
     LEFT JOIN core__patient_ext_race AS er ON p.id = er.id
     LEFT JOIN core__patient_ext_ethnicity AS ee ON p.id = ee.id
+),
+
+-- Grab a single address to use for this patient, if present
+temp_address AS (
+    SELECT
+        tp.id,
+        {# TODO: consider 'use' field to prefer a home address #}
+        {# complications: no postalcode on home address or only other 'use' values present #}
+        {# for now, just grab one arbitrarily (but reproducibly) #}
+        substr(max(t_address.addr_row.postalcode), 1, 3) AS postalcode3
+    FROM
+        temp_patient AS tp,
+        unnest(tp.address) AS t_address (addr_row)
+    GROUP BY tp.id
 )
 
 SELECT DISTINCT
     tp.id,
     tp.gender,
     tp.birthdate,
-    CASE
-        WHEN
-            t_address.addr_row.postalcode IS NOT NULL
-            THEN substr(t_address.addr_row.postalcode, 1, 3)
-        ELSE 'None'
-    END AS postalcode3,
+    coalesce(ta.postalcode3, 'cumulus__none') AS postalcode3,
     concat('Patient/', tp.id) AS subject_ref,
     coalesce(tp.race_display, 'unknown') AS race_display,
     coalesce(tp.ethnicity_display, 'unknown') AS ethnicity_display
 FROM
-    temp_patient AS tp,
-    unnest(tp.address) AS t_address (addr_row)
+    temp_patient AS tp
+LEFT JOIN temp_address AS ta ON tp.id = ta.id
 
 WHERE
     tp.birthdate IS NOT NULL

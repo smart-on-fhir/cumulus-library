@@ -8,7 +8,7 @@ import toml
 
 from cumulus_library import cli
 from cumulus_library.studies.core.core_templates import core_templates
-from tests import conftest
+from tests import conftest, testbed_utils
 
 
 @pytest.mark.parametrize(
@@ -159,3 +159,72 @@ def test_core_medication_query(medication_datasources, contains, omits):
         assert item in query
     for item in omits:
         assert item not in query
+
+
+# Patient schemas aren't fully pre-examined yet (we currently assume extensions exist).
+# So we expect this to fail at the moment.
+@pytest.mark.xfail
+def test_core_empty_database(tmp_path):
+    """Verify that we can still generate core tables with no data filled in"""
+    testbed = testbed_utils.LocalTestbed(tmp_path, with_patient=False)
+    testbed.build()
+
+
+def test_core_tiny_database(tmp_path):
+    """Verify that we can generate core tables with some minimal data filled in"""
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    testbed.add_encounter("EncA")
+    con = testbed.build()
+    patients = con.sql("SELECT id FROM core__patient").fetchall()
+    assert {e[0] for e in patients} == {"A"}
+    encounters = con.sql("SELECT id FROM core__encounter").fetchall()
+    assert {e[0] for e in encounters} == {"EncA"}
+
+
+def test_core_multiple_patient_addresses(tmp_path):
+    """Verify that a patient with multiple addresses resolves to a single entry"""
+    testbed = testbed_utils.LocalTestbed(tmp_path, with_patient=False)
+    testbed.add_patient("None")
+    testbed.add_patient(
+        "Multi",
+        address=[
+            {"city": "Boston"},  # null postal code - should not be picked up
+            {"postalCode": "12345"},
+            {"postalCode": "00000"},
+        ],
+    )
+    con = testbed.build()
+    patients = con.sql("SELECT id, postalcode3 FROM core__patient").fetchall()
+    assert {("None", "cumulus__none"), ("Multi", "123")} == set(patients)
+
+
+def test_core_multiple_doc_encounters(tmp_path):
+    """Verify that a DocRef with multiple encounters resolves to multiple entries"""
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    testbed.add_encounter("A")
+    testbed.add_encounter("B")
+    testbed.add_document_reference("NoEnc")
+    testbed.add_document_reference(
+        "OneEnc",
+        context={
+            "encounter": [
+                {"reference": "Encounter/A"},
+            ],
+        },
+    )
+    testbed.add_document_reference(
+        "TwoEnc",
+        context={
+            "encounter": [{"reference": "Encounter/A"}, {"reference": "Encounter/B"}],
+        },
+    )
+    con = testbed.build()
+    docs = con.sql("SELECT id, encounter_ref FROM core__documentreference").fetchall()
+    # We should see one row per encounter, including null encounters
+    expected = {
+        ("NoEnc", None),
+        ("OneEnc", "Encounter/A"),
+        ("TwoEnc", "Encounter/A"),
+        ("TwoEnc", "Encounter/B"),
+    }
+    assert expected == set(docs)
