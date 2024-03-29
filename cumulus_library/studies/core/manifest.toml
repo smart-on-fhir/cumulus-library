@@ -14,7 +14,6 @@ file_names = [
 
 [sql_config]
 file_names = [
-    "encounter_type.sql",
     "observation_type.sql",
     "study_period.sql",
 ]
@@ -28,10 +27,10 @@ file_names = [
 export_list = [
     "core__count_patient",
     "core__count_encounter_month",
+    "core__count_encounter_all_types",
+    "core__count_encounter_all_types_month",
     "core__count_encounter_service_month",
     "core__count_encounter_priority_month",
-    'core__count_encounter_enc_type_month',
-    "core__count_encounter_type",
     "core__count_encounter_type_month",
     "core__count_documentreference_month",
     "core__count_observation_lab_month",

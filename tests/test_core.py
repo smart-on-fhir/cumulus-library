@@ -17,15 +17,15 @@ from tests import conftest, testbed_utils
         ("core__condition"),
         ("core__documentreference"),
         ("core__encounter"),
-        ("core__encounter_type"),
         ("core__medication"),
         ("core__medicationrequest"),
         ("core__observation"),
         ("core__observation_lab"),
+        ("core__patient"),
         ("core__count_condition_month"),
         ("core__count_documentreference_month"),
         ("core__count_encounter_month"),
-        ("core__count_encounter_type_month"),
+        ("core__count_encounter_all_types_month"),
         ("core__count_observation_lab_month"),
         ("core__count_medicationrequest_month"),
         ("core__count_patient"),
@@ -36,22 +36,24 @@ def test_core_tables(mock_db_core, table):
 
     # The schema check is to ensure we have a consistent order for the data in
     # these files, mostly for making git history simpler in case of minor changes
-    table_rows = conftest.get_sorted_table_data(cursor, table)
-
+    table_rows, cols = conftest.get_sorted_table_data(cursor, table)
     # For regenerating data if needed
     # with open(f"./tests/test_data/core/{table}.txt", "wt", encoding="UTF-8") as f:
     #     for row in table_rows:
     #         f.write(str(f"{row}\n"))
-
     with open(f"./tests/test_data/core/{table}.txt", encoding="UTF-8") as f:
         ref_table = []
         for row in f.readlines():
             ref_table.append(eval(row))  # pylint: disable=eval-used
-    for row in ref_table:
-        assert row in table_rows
-    for row in table_rows:
-        assert row in ref_table
-    assert len(table_rows) == len(ref_table)
+    try:
+        for row in ref_table:
+            assert row in table_rows
+        for row in table_rows:
+            assert row in ref_table
+        assert len(table_rows) == len(ref_table)
+    except Exception as e:
+        conftest.debug_diff_tables(cols, table_rows, ref_table, pos=0)
+        raise e
 
 
 def test_core_count_missing_data(tmp_path, mock_db):
@@ -71,7 +73,9 @@ def test_core_count_missing_data(tmp_path, mock_db):
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
         stats_build=False,
     )
-    table_rows = conftest.get_sorted_table_data(cursor, "core__count_encounter_month")
+    table_rows, cols = conftest.get_sorted_table_data(
+        cursor, "core__count_encounter_month"
+    )
     # For regenerating data if needed
     # with open(
     #     f"./tests/test_data/core/core__count_encounter_month_missing_data.txt",
@@ -87,8 +91,14 @@ def test_core_count_missing_data(tmp_path, mock_db):
         ref_table = []
         for row in f.readlines():
             ref_table.append(eval(row))  # pylint: disable=eval-used
-    for row in ref_table:
-        assert row in table_rows
+    try:
+        for row in ref_table:
+            assert row in table_rows
+        for row in table_rows:
+            assert row in ref_table
+    except Exception as e:
+        conftest.debug_diff_tables(cols, table_rows, ref_table, pos=0)
+        raise e
     assert len(table_rows) == len(ref_table)
 
 
@@ -194,7 +204,7 @@ def test_core_multiple_patient_addresses(tmp_path):
         ],
     )
     con = testbed.build()
-    patients = con.sql("SELECT id, postalcode3 FROM core__patient").fetchall()
+    patients = con.sql("SELECT id, postalCode_3 FROM core__patient").fetchall()
     assert {("None", "cumulus__none"), ("Multi", "123")} == set(patients)
 
 

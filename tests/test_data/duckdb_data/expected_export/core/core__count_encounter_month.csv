@@ -1,4 +1,4 @@
-cnt,start_month,enc_class_display,age_at_visit,gender,race_display,ethnicity_display
+cnt,period_start_month,class_display,age_at_visit,gender,race_display,ethnicity_display
 50,,,,,,
 47,,,,,white,
 46,,ambulatory,,,,

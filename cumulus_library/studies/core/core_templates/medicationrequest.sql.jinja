@@ -16,7 +16,7 @@ WITH temp_mr AS (
         {{- utils.date_cols_from_str(
                 'medicationrequest',
                 'mr',
-                ['authoredon'],
+                ['authoredOn'],
                 schema
             ) 
         }},
@@ -24,7 +24,7 @@ WITH temp_mr AS (
                 'medicationrequest',
                 'mr',
                 [
-                    ('authoredon', 'month'),
+                    ('authoredOn', 'month'),
                 ],
                 schema
             ) 
@@ -35,8 +35,8 @@ WITH temp_mr AS (
                 'mr',
                 [
                     'display',
-                    'reportedboolean',
-                    'dosageinstruction',
+                    'reportedBoolean',
+                    'dosageInstruction',
                     ('subject', 'reference', 'subject_ref'),
                     ('encounter', 'reference', 'encounter_ref'),
                 ],
@@ -59,14 +59,14 @@ SELECT
     mr.intent,
     mr.category_code,
     mr.category_code_system,
-    mr.reportedboolean,
+    mr.reportedBoolean,
     mr.medication_code_system,
     mr.medication_code,
     mr.medication_display,
-    mr.authoredon,
-    mr.authoredon_month,
-    dose_row.dose_col.text AS doseageinstruction_text,
+    mr.authoredOn,
+    mr.authoredOn_month,
+    dose_row.dose_col.text AS dosageInstruction_text,
     mr.subject_ref,
     mr.encounter_ref
 FROM temp_mr AS mr,
-    UNNEST(dosageinstruction) AS dose_row (dose_col)
+    UNNEST(dosageInstruction) AS dose_row (dose_col)

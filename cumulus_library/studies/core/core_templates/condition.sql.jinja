@@ -39,7 +39,7 @@ WITH temp_condition AS (
             utils.date_cols_from_str(
                 'condition',
                 'c',
-                ['recordeddate'],
+                ['recordedDate'],
                 schema
             ) 
         }},
@@ -48,15 +48,15 @@ WITH temp_condition AS (
                 'condition',
                 'c',
                 [
-                    ('recordeddate', 'week'),
-                    ('recordeddate', 'month'),
-                    ('recordeddate', 'year'),
+                    ('recordedDate', 'week'),
+                    ('recordedDate', 'month'),
+                    ('recordedDate', 'year'),
                 ],
                 schema
             ) 
         }},
-        c.verificationstatus,
-        c.clinicalstatus
+        c.verificationStatus,
+        c.clinicalStatus
     FROM condition AS c
     LEFT JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
 )
@@ -71,17 +71,17 @@ SELECT
     tc.subject_ref,
     tc.encounter_ref,
     concat('Condition/', tc.id) AS condition_ref,
-    tc.recordeddate,
-    tc.recordeddate_week AS recorded_week,
-    tc.recordeddate_month AS recorded_month,
-    tc.recordeddate_year AS recorded_year,
-    t_clinicalstatus_coding.clinicalstatus_row.code AS clinicalstatus_code,
-    t_verificationstatus_coding.verificationstatus_row.code AS verificationstatus_code
+    tc.recordedDate,
+    tc.recordedDate_week,
+    tc.recordedDate_month,
+    tc.recordedDate_year,
+    t_clinicalStatus_coding.clinicalStatus_row.code AS clinicalStatus_code,
+    t_verificationStatus_coding.verificationStatus_row.code AS verificationStatus_code
 FROM temp_condition AS tc,
     unnest(category) AS t_category (category_coding),
     unnest(category_coding.coding) AS t_category_coding (category_row),
-    unnest(clinicalstatus.coding) AS t_clinicalstatus_coding (clinicalstatus_row),
-    unnest(verificationstatus.coding)
-        AS t_verificationstatus_coding (verificationstatus_row)
+    unnest(clinicalStatus.coding) AS t_clinicalStatus_coding (clinicalStatus_row),
+    unnest(verificationStatus.coding)
+        AS t_verificationStatus_coding (verificationStatus_row)
 
-WHERE tc.recordeddate BETWEEN date('2016-01-01') AND current_date;
+WHERE tc.recordedDate BETWEEN date('2016-01-01') AND current_date;

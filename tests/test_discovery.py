@@ -42,7 +42,7 @@ def test_discovery(tmp_path):
     )
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     cursor = db.cursor()
-    table_rows = conftest.get_sorted_table_data(cursor, "discovery__code_sources")
+    table_rows, cols = conftest.get_sorted_table_data(cursor, "discovery__code_sources")
 
     # For regenerating test data
     # with open(
@@ -57,12 +57,16 @@ def test_discovery(tmp_path):
         f"{pathlib.Path(__file__).resolve().parents[0]}"
         "/test_data/discovery/discovery__code_sources.txt",
     ) as ref:
-        for row in ref:
-            ref_row = row.rstrip().split(",")
-            for pos in range(0, len(ref_row)):
-                if ref_row[pos] == "None":
-                    ref_row[pos] = None
-            assert tuple(ref_row) in table_rows
+        try:
+            for row in ref:
+                ref_row = row.rstrip().split(",")
+                for pos in range(0, len(ref_row)):
+                    if ref_row[pos] == "None":
+                        ref_row[pos] = None
+                assert tuple(ref_row) in table_rows
+        except Exception as e:
+            conftest.debug_diff_tables(cols, table_rows, ref, pos=0)
+            raise e
 
 
 def test_get_code_system_pairs():

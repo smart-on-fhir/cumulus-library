@@ -67,54 +67,64 @@ temp_encounter AS (
         e.period_start_year,
         edt.code AS type_code,
         edt.code_system AS type_code_system,
-        eds.code AS sevicetype_code,
-        eds.code_system AS sevicetype_code_system,
+        edt.display AS type_display,
+        eds.code AS seviceType_code,
+        eds.code_system AS seviceType_code_system,
+        eds.display AS serviceType_display,
         edp.code AS priority_code,
         edp.code_system AS priority_code_system,
-        edr.code AS reasoncode_code,
-        edr.code_system AS reasoncode_code_system,
-        edd.code AS dischargedisposition_code,
-        edd.code_system AS dischargedisposition_code_system
+        edp.display AS priority_display,
+        edr.code AS reasonCode_code,
+        edr.code_system AS reasonCode_code_system,
+        edr.display AS reasonCode_display,
+        edd.code AS dischargeDisposition_code,
+        edd.code_system AS dischargeDisposition_code_system,
+        edd.display AS dischargeDisposition_display
 
     FROM temp_encounter_nullable AS e
     LEFT JOIN core__encounter_dn_priority AS edt ON e.id = edt.id
     LEFT JOIN core__encounter_dn_servicetype AS eds ON e.id = eds.id
     LEFT JOIN core__encounter_dn_priority AS edp ON e.id = edp.id
-    LEFT JOIN core__encounter_dn_reasoncode AS edr ON e.id = edr.id
-    LEFT JOIN core__encounter_dn_dischargedisposition AS edd ON e.id = edd.id
+    LEFT JOIN core__encounter_dn_reasonCode AS edr ON e.id = edr.id
+    LEFT JOIN core__encounter_dn_dischargeDisposition AS edd ON e.id = edd.id
 )
 
 SELECT DISTINCT
     e.id,
     e.status,
-    ac.code AS enc_class_code,
-    ac.display AS enc_class_display,
+    ac.code AS class_code,
+    ac.display AS class_display,
     e.type_code,
     e.type_code_system,
-    e.sevicetype_code,
-    e.sevicetype_code_system,
+    e.type_display,
+    e.seviceType_code,
+    e.seviceType_code_system,
+    e.serviceType_display,
     e.priority_code,
     e.priority_code_system,
-    e.reasoncode_code,
-    e.reasoncode_code_system,
-    e.dischargedisposition_code,
-    e.dischargedisposition_code_system,
+    e.priority_display,
+    e.reasonCode_code,
+    e.reasonCode_code_system,
+    e.reasonCode_display,
+    e.dischargeDisposition_code,
+    e.dischargeDisposition_code_system,
+    e.dischargeDisposition_display,
     date_diff('year', date(p.birthdate), e.period_start_day) AS age_at_visit,
-    e.period_start_day AS start_date,
-    coalesce(e.period_end_day, e.period_start_day) AS end_date,
-    e.period_start_week AS start_week,
-    e.period_start_month AS start_month,
-    e.period_start_year AS start_year,
-    e.subject_ref,
-    concat('Encounter/', e.id) AS encounter_ref,
     p.gender,
     p.race_display,
     p.ethnicity_display,
-    p.postalcode3
+    p.postalcode_3,
+    e.period_start_day,
+    coalesce(e.period_end_day, e.period_start_day) AS period_end_day,
+    e.period_start_week AS period_start_week,
+    e.period_start_month AS period_start_month,
+    e.period_start_year AS period_start_year,
+    e.subject_ref,
+    concat('Encounter/', e.id) AS encounter_ref
 FROM temp_encounter AS e
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
     ON e.class.code = eac.found
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
 INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref
 WHERE
-    e.period_start BETWEEN date('2016-06-01') AND current_date;
+    e.period_start_day BETWEEN date('2016-06-01') AND current_date;

@@ -7,9 +7,12 @@ from pathlib import Path
 import numpy
 import pandas
 import pytest
+from rich import console, table
 
 from cumulus_library.cli import StudyRunner
 from cumulus_library.databases import DatabaseCursor, create_db_backend
+
+# Useful constants
 
 MOCK_DATA_DIR = f"{Path(__file__).parent}/test_data/duckdb_data"
 ID_PATHS = {
@@ -30,14 +33,19 @@ ID_PATHS = {
     "patient": [["id"]],
 }
 
+# Utility functions
+
 
 def get_sorted_table_data(cursor, table):
     num_cols = cursor.execute(
         f"SELECT count(*) FROM information_schema.columns WHERE table_name='{table}'"
     ).fetchone()[0]
-    return cursor.execute(
+    if num_cols == 0:
+        return [], []
+    data = cursor.execute(
         f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols)))}"
     ).fetchall()
+    return data, cursor.description
 
 
 def modify_resource_column(
@@ -149,6 +157,52 @@ def ndjson_data_generator(source_dir: Path, target_dir: Path, iterations: int):
             with open(write_path, "w", encoding="UTF-8") as f:
                 for row in out_dict:
                     f.write(json.dumps(row, default=str) + "\n")
+
+
+# Debugging aids
+
+
+def debug_table_schema(cursor, table):
+    table_schema = cursor.execute(
+        "select column_name, data_type from information_schema.columns "
+        f"where table_name='{table}'"
+    ).fetchall()
+    for line in table_schema:
+        print(line)
+
+
+def debug_table_head(cursor, table, rows=3, cols="*"):
+    if isinstance(cols, list):
+        cols = ",".join(cols)
+    table_schema = cursor.execute(f"select {cols} from {table} limit {rows}").fetchall()
+    col_names = []
+    for field in cursor.description:
+        col_names.append(field[0])
+    for line in table_schema:
+        print(line)
+    print()
+
+
+def debug_diff_tables(cols, found, ref, pos=0):
+    cols = cols if len(cols) > 0 else []
+    found = found[pos] if len(found) > pos else []
+    ref = ref[pos] if len(ref) > pos else []
+    max_size = max(len(found), len(ref))
+    diff_table = table.Table(title=f"Row {pos} delta")
+    diff_table.add_column("DB Column")
+    diff_table.add_column("Found in DB")
+    diff_table.add_column("Reference")
+    for i in range(0, max_size):
+        diff_table.add_row(
+            cols[i][0] if cols and i < len(cols) else "**None**",
+            str(found[i]) if i < len(found) else "**None**",
+            str(ref[i]) if i < len(ref) else "**None**",
+        )
+    output = console.Console()
+    output.print(diff_table)
+
+
+# Database fixtures
 
 
 @pytest.fixture

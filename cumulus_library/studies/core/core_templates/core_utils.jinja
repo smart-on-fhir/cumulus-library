@@ -71,7 +71,7 @@ targets is an array expecting a data type of the following:
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==4%}
         {%- if schema[table][col[0]][col[2]] %}
-        date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2].lower() }})) AS {{col[3]}}
+        date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }})) AS {{col[3]}}
         {%- else %}
         cast(NULL AS date) AS {{ col[3].lower() }}
         {%- endif %}

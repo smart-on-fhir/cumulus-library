@@ -23,7 +23,7 @@ expected_table_cols = {
             "text",
         ],
         "id": [],
-        "recordeddate": [],
+        "recordedDate": [],
         "verificationstatus": [
             "coding",
             "code",

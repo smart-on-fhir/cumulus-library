@@ -141,7 +141,7 @@ WITH temp_documentreference AS (
         dr.type,
         dr.status,
         cast(NULL as timestamp) AS "date",
-        dr.docstatus,
+        dr.docStatus,
         dr.context,
         dr.subject.reference AS subject_ref,
         cast(NULL as varchar) AS encounter_ref,
@@ -154,11 +154,11 @@ WITH temp_documentreference AS (
             AS author_month,
         date_trunc('year', date(from_iso8601_timestamp(dr."context"."period"."start")))
             AS author_year,
-        cdrt.code as doc_type_code,
-        cdrt.code_system as doc_type_code_system,
-        cdrt.display as doc_type_display,
-        cdrc.code as doc_category_code,
-        cdrf.code as doc_format_code
+        cdrt.code as type_code,
+        cdrt.code_system as type_code_system,
+        cdrt.display as type_display,
+        cdrc.code as category_code,
+        cdrf.code as format_code
     FROM documentreference AS dr
     LEFT JOIN core__documentreference_dn_type AS cdrt ON dr.id = cdrt.id
     LEFT JOIN core__documentreference_dn_category AS cdrc ON dr.id = cdrc.id
@@ -169,20 +169,20 @@ WITH temp_documentreference AS (
 SELECT DISTINCT
     tdr.id,
     tdr.status,
-    tdr.doc_type_code,
-    tdr.doc_type_code_system,
-    tdr.doc_type_display,
-    tdr.doc_category_code,
-    tdr.docstatus,
+    tdr.type_code,
+    tdr.type_code_system,
+    tdr.type_display,
+    tdr.category_code,
+    tdr.docStatus,
     tdr."date",
-    tdr.author_day AS author_date,
+    tdr.author_day,
     tdr.author_week,
     tdr.author_month,
     tdr.author_year,
-    tdr.doc_format_code,
+    tdr.format_code,
     tdr.subject_ref,
     coalesce(tdr.encounter_ref, context_encounter.encounter.reference) as encounter_ref,
-    concat('DocumentReference/', tdr.id) AS doc_ref
+    concat('DocumentReference/', tdr.id) AS documentreference_ref
 FROM temp_documentreference AS tdr,
     unnest(context.encounter) AS context_encounter (encounter) --noqa
 WHERE date(tdr.author_day) BETWEEN date('2016-06-01') AND current_date;

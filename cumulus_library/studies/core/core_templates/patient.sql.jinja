@@ -23,7 +23,7 @@ WITH temp_patient AS (
                 'patient',
                 'p',
                 [
-                    'birthdate'
+                    'birthDate'
                 ],
                 schema
             ) 
@@ -53,8 +53,8 @@ temp_address AS (
 SELECT DISTINCT
     tp.id,
     tp.gender,
-    tp.birthdate,
-    coalesce(ta.postalcode3, 'cumulus__none') AS postalcode3,
+    tp.birthDate,
+    coalesce(ta.postalcode3, 'cumulus__none') AS postalCode_3,
     concat('Patient/', tp.id) AS subject_ref,
     coalesce(tp.race_display, 'unknown') AS race_display,
     coalesce(tp.ethnicity_display, 'unknown') AS ethnicity_display
@@ -63,5 +63,5 @@ FROM
 LEFT JOIN temp_address AS ta ON tp.id = ta.id
 
 WHERE
-    tp.birthdate IS NOT NULL
+    tp.birthDate IS NOT NULL
     AND tp.gender IS NOT NULL;
