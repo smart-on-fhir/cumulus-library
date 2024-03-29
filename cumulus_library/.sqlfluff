@@ -33,36 +33,29 @@ code_system_tables =
     [
         {
             table_name":"hasarray",
-            "column_name":"acol",
-            "is_bare_coding":False,
-            "is_array":True, 
+            "column_hierarchy":[("acol",list),("bcol",dict)],
             "has_data": True
         },
         {
             "table_name":"noarray",
-            "column_name":"col",
-            "is_bare_coding":False,
-            "is_array":False, 
+            "column_hierarchy":[("acol.bcol", list)],
             "has_data": True
         },
         {
             "table_name":"bare",
-            "column_name":"bcol",
-            "is_bare_coding":True,
-            "is_array":False, 
+            "column_hierarchy":[("bcol", dict)],
             "has_data": True
         },
         {
             "table_name":"empty",
-            "column_name":"empty",
-            "is_bare_coding":False,
-            "is_array":False,
+            "column_hierarchy":[("empty",dict],
             "has_data": False
         }
     ]
 column_name = 'bar'
 column_names = ['foo', 'bar']
 conditions = ["1 > 0", "1 < 2"]
+column_hierarchy = [('a', list),('b',dict)]
 config = 
     {
         "medication_datasources" : {

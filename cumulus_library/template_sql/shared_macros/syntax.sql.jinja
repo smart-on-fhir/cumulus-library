@@ -6,6 +6,12 @@
 {%- endif -%}
 {%- endmacro -%}
 
+{%- macro period_delineate(loop) -%}
+{%- if not loop.last -%}
+.
+{%- endif -%}
+{%- endmacro -%}
+
 {%- macro union_delineate(loop) -%}
 {%- if not loop.last -%}
 UNION
