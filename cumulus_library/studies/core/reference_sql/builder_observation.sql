@@ -138,20 +138,20 @@ WITH temp_observation AS (
     SELECT
         o.id,
         o.status,
-        o.valuestring,
-        o.valuequantity.value AS valuequantity_value,
-        o.valuequantity.comparator AS valuequantity_comparator,
-        o.valuequantity.unit AS valuequantity_unit,
-        o.valuequantity.system AS valuequantity_system,
-        o.valuequantity.code AS valuequantity_code,
-        date_trunc('day', date(from_iso8601_timestamp(o."effectivedatetime")))
-            AS effectivedatetime_day,
-        date_trunc('week', date(from_iso8601_timestamp(o."effectivedatetime")))
-            AS effectivedatetime_week,
-        date_trunc('month', date(from_iso8601_timestamp(o."effectivedatetime")))
-            AS effectivedatetime_month,
-        date_trunc('year', date(from_iso8601_timestamp(o."effectivedatetime")))
-            AS effectivedatetime_year,
+        o.valueString,
+        o.valueQuantity.value AS valuequantity_value,
+        o.valueQuantity.comparator AS valuequantity_comparator,
+        o.valueQuantity.unit AS valuequantity_unit,
+        o.valueQuantity.system AS valuequantity_system,
+        o.valueQuantity.code AS valuequantity_code,
+        date_trunc('day', date(from_iso8601_timestamp(o."effectiveDateTime")))
+            AS effectiveDateTime_day,
+        date_trunc('week', date(from_iso8601_timestamp(o."effectiveDateTime")))
+            AS effectiveDateTime_week,
+        date_trunc('month', date(from_iso8601_timestamp(o."effectiveDateTime")))
+            AS effectiveDateTime_month,
+        date_trunc('year', date(from_iso8601_timestamp(o."effectiveDateTime")))
+            AS effectiveDateTime_year,
         odc.code AS observation_code,
         odc.code_system AS observation_code_system,
         odcat.code AS category_code,
@@ -159,14 +159,14 @@ WITH temp_observation AS (
         odi.code AS interpretation_code,
         odi.code_system AS interpretation_code_system,
         odi.display AS interpretation_display,
-        odvcc.code AS valuecodeableconcept_code,
-        odvcc.code_system AS valuecodeableconcept_code_system,
-        odvcc.display AS valuecodeableconcept_display,
-        odda.code AS dataabsentreason_code,
-        odda.code_system AS dataabsentreason_code_system,
-        odda.display AS dataabsentreason_display,
+        odvcc.code AS valueCodeableConcept_code,
+        odvcc.code_system AS valueCodeableConcept_code_system,
+        odvcc.display AS valueCodeableConcept_display,
+        odda.code AS dataAbsentReason_code,
+        odda.code_system AS dataAbsentReason_code_system,
+        odda.display AS dataAbsentReason_display,
         o.referencerange,
-        o.valuequantity,
+        o.valueQuantity,
         o.subject.reference AS subject_ref,
         o.encounter.reference AS encounter_ref
     FROM observation AS o
@@ -187,27 +187,27 @@ SELECT
     interpretation_code,
     interpretation_code_system,
     interpretation_display,
-    effectivedatetime_day AS obs_date,
-    effectivedatetime_week AS obs_week,
-    effectivedatetime_month AS obs_month,
-    effectivedatetime_year AS obs_year,
-    valuecodeableconcept_code,
-    valuecodeableconcept_code_system,
-    valuecodeableconcept_display,
-    valuequantity_value,
-    valuequantity_comparator,
-    valuequantity_unit,
-    valuequantity_system,
-    valuequantity_code,
-    valuestring,
-    dataabsentreason_code,
-    dataabsentreason_code_system,
-    dataabsentreason_display,
+    effectiveDateTime_day,
+    effectiveDateTime_week,
+    effectiveDateTime_month,
+    effectiveDateTime_year,
+    valueCodeableConcept_code,
+    valueCodeableConcept_code_system,
+    valueCodeableConcept_display,
+    valueQuantity_value,
+    valueQuantity_comparator,
+    valueQuantity_unit,
+    valueQuantity_system,
+    valueQuantity_code,
+    valueString,
+    dataAbsentReason_code,
+    dataAbsentReason_code_system,
+    dataAbsentReason_display,
     subject_ref,
     encounter_ref,
     concat('Observation/', id) AS observation_ref
 FROM temp_observation
 WHERE
-    effectivedatetime_day BETWEEN date(
+    effectiveDateTime_day BETWEEN date(
         from_iso8601_timestamp('2016-06-01')
     ) AND current_date;

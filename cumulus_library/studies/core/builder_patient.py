@@ -10,7 +10,7 @@ expected_table_cols = {
         "id": [],
         "gender": [],
         "address": [],
-        "birthdate": [],
+        "birthDate": [],
     }
 }
 

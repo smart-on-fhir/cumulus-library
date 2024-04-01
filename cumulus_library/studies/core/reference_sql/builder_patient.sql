@@ -259,7 +259,7 @@ WITH temp_patient AS (
         p.id,
         p.gender,
         p.address,
-        date(from_iso8601_timestamp(p.birthdate)) AS birthdate,
+        date(from_iso8601_timestamp(p.birthDate)) AS birthDate,
         er.race_display,
         ee.ethnicity_display
     FROM
@@ -271,13 +271,13 @@ WITH temp_patient AS (
 SELECT DISTINCT
     tp.id,
     tp.gender,
-    tp.birthdate,
+    tp.birthDate,
     CASE
         WHEN
             t_address.addr_row.postalcode IS NOT NULL
             THEN substr(t_address.addr_row.postalcode, 1, 3)
         ELSE 'None'
-    END AS postalcode3,
+    END AS postalCode_3,
     concat('Patient/', tp.id) AS subject_ref,
     coalesce(tp.race_display, 'unknown') AS race_display,
     coalesce(tp.ethnicity_display, 'unknown') AS ethnicity_display
@@ -286,5 +286,5 @@ FROM
     unnest(tp.address) AS t_address (addr_row)
 
 WHERE
-    tp.birthdate IS NOT NULL
+    tp.birthDate IS NOT NULL
     AND tp.gender IS NOT NULL;

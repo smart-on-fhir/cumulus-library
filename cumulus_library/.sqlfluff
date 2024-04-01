@@ -2,8 +2,13 @@
 templater = jinja
 dialect = athena
 sql_file_exts = .sql,.sql.jinja
-# this rule overfires on athena nested arrays
-exclude_rules=references.from,structure.column_order,aliasing.unused
+exclude_rules=
+    # these rule overfires on athena nested arrays
+    references.from,
+    structure.column_order,
+    aliasing.unused,
+    # this rule interferes with FHIR naming conventions
+    capitalisation.identifiers
 max_line_length = 90
 
 [sqlfluff:indentation]
@@ -100,12 +105,12 @@ schema =
             'category': {
                 'coding': True, 'code': True, 'display': True, 'system': True, 'userSelected': True, 'version': True, 'text': True
             },
-            'clinicalstatus': {
+            'clinicalStatus': {
                 'coding': True, 'code': True, 'display': True, 'system': True, 'userSelected': True, 'version': True, 'text': True
             },
             'id': True, 
-            'recordeddate': True, 
-            'verificationstatus': {
+            'recordedDate': True, 
+            'verificationStatus': {
                 'coding': True, 'code': True, 'display': True, 'system': True, 'userSelected': True, 'version': True, 'text': True},
             'subject': {
                 'reference': True, 'display': False, 'type': True
@@ -118,7 +123,7 @@ schema =
             'id': True, 
             'type': True, 
             'status': True, 
-            'docstatus': True, 
+            'docStatus': True, 
             'context': {
                 'period': True, 'start': True
             }, 
@@ -143,7 +148,7 @@ schema =
             'id': True, 
             'status': True, 
             'intent': True, 
-            'authoredon': True, 
+            'authoredOn': True, 
             'category': {
                 'code': True, 'system': True, 'display': False
             }, 
@@ -166,14 +171,14 @@ schema =
             'interpretation': {
                 'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
             }, 
-            'referencerange': {
+            'referenceRange': {
                 'low': False, 'high': False, 'normalvalue': False, 'type': False, 'appliesto': False, 'age': False, 'text': True
             }, 
             'effectivedatetime': True, 
-            'valuequantity': {
+            'valueQuantity': {
                 'value': True, 'comparator': False, 'unit': False, 'system': False, 'code': False
             }, 
-            'valuecodeableconcept': {
+            'valueCodeableConcept': {
                 'coding': True, 'code': True, 'display': True, 'system': True
             }, 
             'subject': {

@@ -83,12 +83,12 @@ WITH temp_mr AS (
         mr.id,
         mr.status,
         mr.intent,
-        date(from_iso8601_timestamp(mr.authoredon)) AS authoredon,
-        date_trunc('month', date(from_iso8601_timestamp(mr."authoredon")))
-            AS authoredon_month,
+        date(from_iso8601_timestamp(mr.authoredOn)) AS authoredOn,
+        date_trunc('month', date(from_iso8601_timestamp(mr."authoredOn")))
+            AS authoredOn_month,
         cast(NULL as varchar) AS display,
-        mr.reportedboolean,
-        mr.dosageinstruction,
+        mr.reportedBoolean,
+        mr.dosageInstruction,
         mr.subject.reference AS subject_ref,
         mr.encounter.reference AS encounter_ref,
         mrc.code AS category_code,
@@ -108,14 +108,14 @@ SELECT
     mr.intent,
     mr.category_code,
     mr.category_code_system,
-    mr.reportedboolean,
+    mr.reportedBoolean,
     mr.medication_code_system,
     mr.medication_code,
     mr.medication_display,
-    mr.authoredon,
-    mr.authoredon_month,
-    dose_row.dose_col.text AS doseageinstruction_text,
+    mr.authoredOn,
+    mr.authoredOn_month,
+    dose_row.dose_col.text AS dosageInstruction_text,
     mr.subject_ref,
     mr.encounter_ref
 FROM temp_mr AS mr,
-    UNNEST(dosageinstruction) AS dose_row (dose_col)
+    UNNEST(dosageInstruction) AS dose_row (dose_col)

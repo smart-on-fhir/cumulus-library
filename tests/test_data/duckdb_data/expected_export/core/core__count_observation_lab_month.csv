@@ -1,4 +1,4 @@
-cnt,lab_month,lab_code,lab_result_display,enc_class_display
+cnt,effectiveDateTime_month,observation_code,valueCodeableConcept_display,class_display
 20,,,,
 20,,,,ambulatory
 10,,,Urine smell ammoniacal (finding),

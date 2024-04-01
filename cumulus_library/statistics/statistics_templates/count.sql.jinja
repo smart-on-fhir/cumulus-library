@@ -5,7 +5,7 @@ statistics/counts.py level -#}
 {%- if fhir_resource in ('encounter', 'condition') -%}
 encounter_ref
 {%- elif fhir_resource == 'documentreference' -%}
-doc_ref
+documentreference_ref
 {%- elif fhir_resource == 'observation'-%}
 observation_ref
 {%- else -%}
@@ -28,7 +28,7 @@ logic at the statistics/counts.py level -#}
             {{- syntax.comma_delineate(loop) }}
             {%- endfor %}
             {%- if fhir_resource in ('documentreference', 'observation' ) -%},
-            enc_class_display
+            class_display
             {% endif %}
 {%- endmacro -%}
 
@@ -40,7 +40,7 @@ which will drop nulls, resulting in potentially non-unique keys -#}
                 {{- syntax.comma_delineate(loop) }}
                 {%- endfor %}
                 {%- if fhir_resource in ('documentreference', 'observation' ) -%},
-                COALESCE(enc_class_display,'')
+                COALESCE(class_display,'')
                 {% endif %}
 {%- endmacro -%}
 
@@ -73,7 +73,7 @@ CREATE TABLE {{ table_name }} AS (
             s.{{ tertiary }},
             {%- endif -%}
             {%- if fhir_resource in ('documentreference', 'observation') %}
-            e.enc_class_display,
+            e.class_display,
             {%- endif %}
             {#- these exceptions deal with table aliasing related to
             single table queries, where this may be a multitable query
@@ -123,9 +123,9 @@ CREATE TABLE {{ table_name }} AS (
             {%- endif -%}
             {%- if fhir_resource in ('documentreference', 'observation' )%}
             coalesce(
-                cast(enc_class_display AS varchar), 
+                cast(class_display AS varchar), 
                 '{{ missing_null }}'
-            ) AS enc_class_display,
+            ) AS class_display,
             {%- endif -%}
             {%- for col in table_cols %}
             coalesce(
@@ -203,7 +203,7 @@ CREATE TABLE {{ table_name }} AS (
         {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
         {%- if fhir_resource in ('documentreference', 'observation' ) -%},
-        p.enc_class_display
+        p.class_display
         {%- endif %}
     FROM powerset AS p
     {%- if secondary %}

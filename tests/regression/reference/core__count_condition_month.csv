@@ -1,4 +1,4 @@
-cnt,cond_category_code,cond_month,cond_code_display
+cnt,category_code,recordeddate_month,code_display
 10687,,,
 10687,encounter-diagnosis,,
 4876,,,Full-time employment (finding)

@@ -12,13 +12,13 @@ expected_table_cols = {
         "id": [],
         "status": [],
         "intent": [],
-        "authoredon": [],
-        "reportedboolean": [],
+        "authoredOn": [],
+        "reportedBoolean": [],
         "category": ["code", "system", "display"],
-        "medicationcodeableconcept": ["code", "system", "display"],
+        "medicationCodeableConcept": ["code", "system", "display"],
         "subject": ["reference"],
         "encounter": ["reference"],
-        "dosageinstruction": ["text"],
+        "dosageInstruction": ["text"],
     }
 }
 

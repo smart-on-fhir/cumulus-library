@@ -1,0 +1,49 @@
+cnt,class_display,type_display,servicetype_display,priority_display
+31669,,,,
+31669,,,,cumulus__none
+31669,,,cumulus__none,
+31669,,,cumulus__none,cumulus__none
+31669,,cumulus__none,,
+31669,,cumulus__none,,cumulus__none
+31669,,cumulus__none,cumulus__none,
+31669,,cumulus__none,cumulus__none,cumulus__none
+29698,ambulatory,,,
+29698,ambulatory,,,cumulus__none
+29698,ambulatory,,cumulus__none,
+29698,ambulatory,,cumulus__none,cumulus__none
+29698,ambulatory,cumulus__none,,
+29698,ambulatory,cumulus__none,,cumulus__none
+29698,ambulatory,cumulus__none,cumulus__none,
+29698,ambulatory,cumulus__none,cumulus__none,cumulus__none
+1288,emergency,,,
+1288,emergency,,,cumulus__none
+1288,emergency,,cumulus__none,
+1288,emergency,,cumulus__none,cumulus__none
+1288,emergency,cumulus__none,,
+1288,emergency,cumulus__none,,cumulus__none
+1288,emergency,cumulus__none,cumulus__none,
+1288,emergency,cumulus__none,cumulus__none,cumulus__none
+391,inpatient encounter,,,
+391,inpatient encounter,,,cumulus__none
+391,inpatient encounter,,cumulus__none,
+391,inpatient encounter,,cumulus__none,cumulus__none
+391,inpatient encounter,cumulus__none,,
+391,inpatient encounter,cumulus__none,,cumulus__none
+391,inpatient encounter,cumulus__none,cumulus__none,
+391,inpatient encounter,cumulus__none,cumulus__none,cumulus__none
+212,home health,,,
+212,home health,,,cumulus__none
+212,home health,,cumulus__none,
+212,home health,,cumulus__none,cumulus__none
+212,home health,cumulus__none,,
+212,home health,cumulus__none,,cumulus__none
+212,home health,cumulus__none,cumulus__none,
+212,home health,cumulus__none,cumulus__none,cumulus__none
+80,virtual,,,
+80,virtual,,,cumulus__none
+80,virtual,,cumulus__none,
+80,virtual,,cumulus__none,cumulus__none
+80,virtual,cumulus__none,,
+80,virtual,cumulus__none,,cumulus__none
+80,virtual,cumulus__none,cumulus__none,
+80,virtual,cumulus__none,cumulus__none,cumulus__none
