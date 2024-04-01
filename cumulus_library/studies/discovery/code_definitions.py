@@ -58,6 +58,11 @@ code_list = [
         "table_name": "medication",
         "column_hierarchy": [("medicationcode", dict), ("coding", list)],
     },
+    # MedicationRequest
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [("medicationcodeableconcept", dict), ("coding", list)],
+    },
     # Observation
     {
         "table_name": "observation",
