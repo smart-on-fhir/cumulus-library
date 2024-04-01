@@ -39,6 +39,8 @@ Common exceptions to this rule:
 - `postalcode_3` is calculated from a Patient's address.postalCode
 - The Encounter resource includes several elements from the referenced Patient (`gender`, `postalcode_3`,
   and the US Core race and ethnicity extensions) that are commonly used in informatics analysis
+- Fields that contain date values are presented by different rounding methods (day, week, month, year) for convenience for various binning strategies
+- We construct `*_ref` fields from a resource's base id field (i.e creating a `Patient/123456` `patient_ref` field from an `id` of `123456`), to make it easier to join data with reference fields in other resources.
 
 The core tables include all FHIR required/must support fields noted in the
 [FHIR resource profiles(http://hl7.org/fhir/us/core/STU4/artifacts.html#structures-resource-profiles).

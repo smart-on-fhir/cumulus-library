@@ -96,9 +96,9 @@ def test_core_count_missing_data(tmp_path, mock_db):
             assert row in table_rows
         for row in table_rows:
             assert row in ref_table
-    except Exception as e:
+    except Exception:
         conftest.debug_diff_tables(cols, table_rows, ref_table, pos=0)
-        raise e
+        raise
     assert len(table_rows) == len(ref_table)
 
 
