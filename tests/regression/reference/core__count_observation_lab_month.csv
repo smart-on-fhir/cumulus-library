@@ -1,4 +1,4 @@
-cnt,lab_month,lab_code,lab_result_display,enc_class_display
+cnt,effectivedatetime_month,observation_code,valuecodeableconcept_display,class_display
 371492,,,,
 340248,,,,ambulatory
 301186,,,cumulus__none,
