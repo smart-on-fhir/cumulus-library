@@ -13,9 +13,9 @@ CREATE TABLE core__count_condition_month AS (
             s.subject_ref,
             s.encounter_ref,
             --noqa: disable=RF03, AL02
-            s."category_code" AS cond_category_code,
-            s."recordedDate_month" AS cond_month,
-            s."code_display" AS cond_code_display
+            s."category_code",
+            s."recordedDate_month",
+            s."code_display"
             --noqa: enable=RF03, AL02
         FROM core__condition AS s
     ),
@@ -25,66 +25,66 @@ CREATE TABLE core__count_condition_month AS (
             subject_ref,
             encounter_ref,
             coalesce(
-                cast(cond_category_code AS varchar),
+                cast(category_code AS varchar),
                 'cumulus__none'
-            ) AS cond_category_code,
+            ) AS category_code,
             coalesce(
-                cast(cond_month AS varchar),
+                cast(recordedDate_month AS varchar),
                 'cumulus__none'
-            ) AS cond_month,
+            ) AS recordedDate_month,
             coalesce(
-                cast(cond_code_display AS varchar),
+                cast(code_display AS varchar),
                 'cumulus__none'
-            ) AS cond_code_display
+            ) AS code_display
         FROM filtered_table
     ),
     secondary_powerset AS (
         SELECT
             count(DISTINCT encounter_ref) AS cnt_encounter_ref,
-            "cond_category_code",
-            "cond_month",
-            "cond_code_display",
+            "category_code",
+            "recordedDate_month",
+            "code_display",
             concat_ws(
                 '-',
-                COALESCE("cond_category_code",''),
-                COALESCE("cond_month",''),
-                COALESCE("cond_code_display",'')
+                COALESCE("category_code",''),
+                COALESCE("recordedDate_month",''),
+                COALESCE("code_display",'')
             ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-            "cond_category_code",
-            "cond_month",
-            "cond_code_display"
+            "category_code",
+            "recordedDate_month",
+            "code_display"
             )
     ),
 
     powerset AS (
         SELECT
             count(DISTINCT subject_ref) AS cnt_subject_ref,
-            "cond_category_code",
-            "cond_month",
-            "cond_code_display",
+            "category_code",
+            "recordedDate_month",
+            "code_display",
             concat_ws(
                 '-',
-                COALESCE("cond_category_code",''),
-                COALESCE("cond_month",''),
-                COALESCE("cond_code_display",'')
+                COALESCE("category_code",''),
+                COALESCE("recordedDate_month",''),
+                COALESCE("code_display",'')
             ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-            "cond_category_code",
-            "cond_month",
-            "cond_code_display"
+            "category_code",
+            "recordedDate_month",
+            "code_display"
             )
     )
 
     SELECT
         s.cnt_encounter_ref AS cnt,
-        p."cond_category_code",
-        p."cond_month",
-        p."cond_code_display"
+        p."category_code",
+        p."recordedDate_month",
+        p."code_display"
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 

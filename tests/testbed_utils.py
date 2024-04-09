@@ -1,6 +1,7 @@
 """Helper class to set up local files for testing"""
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
 
 import duckdb
@@ -13,6 +14,7 @@ class LocalTestbed:
     def __init__(self, path: Path, with_patient: bool = True):
         self.path = path
         self.indices: dict[str, int] = {}
+        self.ids: dict[str, str] = {}  # cache of registered IDs, for convenience
 
         if with_patient:
             # Add a basic patient that other resources can link to.
@@ -22,6 +24,9 @@ class LocalTestbed:
     def add(self, table: str, obj: dict) -> None:
         index = self.indices.get(table, -1) + 1
         self.indices[table] = index
+
+        if "id" in obj:
+            self.ids.setdefault(table, set()).add(obj["id"])
 
         table_dir = self.path / table
         table_dir.mkdir(exist_ok=True)
@@ -71,6 +76,60 @@ class LocalTestbed:
                 **kwargs,
             },
         )
+
+    def add_etl_completion(
+        self,
+        *,
+        group: str,
+        time: str,
+        include: Iterable[str] | None = None,
+        exclude: Iterable[str] | None = None,
+    ) -> None:
+        """Adds one or several etl__completion row"""
+        if include is None:
+            include = {
+                # All required tables:
+                "condition",
+                "documentreference",
+                "medicationrequest",
+                "observation",
+            }
+        else:
+            include = set(include)
+
+        if exclude:
+            include -= set(exclude)
+
+        if len(time) == 4:  # allow just a year as a shorthand
+            time = f"{time}-06-01T00:00:00Z"
+
+        for table in include:
+            self.add(
+                "etl__completion",
+                {
+                    "group_name": group,
+                    "table_name": table,
+                    "export_time": time,
+                },
+            )
+
+    def add_etl_completion_encounters(
+        self, *, group: str, ids: Iterable[str], time: str
+    ) -> None:
+        """Adds rows to etl__completion_encounters"""
+
+        if len(time) == 4:  # allow just a year as a shorthand
+            time = f"{time}-06-01T00:00:00Z"
+
+        for encounter_id in ids:
+            self.add(
+                "etl__completion_encounters",
+                {
+                    "group_name": group,
+                    "encounter_id": encounter_id,
+                    "export_time": time,
+                },
+            )
 
     def add_patient(
         self, row_id: str, birth_date: str = "2000", gender: str = "unknown", **kwargs

@@ -1,0 +1,8 @@
+{% import 'completion_utils.jinja' as completion_utils %}
+CREATE TABLE core__incomplete_encounter AS
+WITH
+temp_encounter_completion AS {{ completion_utils.complete_encounters(schema) }}
+
+SELECT DISTINCT tec.id
+FROM temp_encounter_completion AS tec
+WHERE NOT tec.is_complete

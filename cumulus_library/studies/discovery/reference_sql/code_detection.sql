@@ -53,17 +53,13 @@ UNNEST(col_1.coding) as table_2 (col_2)
 
 UNION
 
-SELECT *
-FROM (
-    VALUES (
-        'encounter',
-        'class',
-        '',
-        '',
-        ''
-    )
-)
-    AS t (table_name, column_name, code, display, system)
+SELECT DISTINCT
+    'encounter' AS table_name,
+    'class' AS column_name,
+    class.code,
+    class.display,
+    class.system
+FROM encounter
 
 UNION
 
@@ -155,6 +151,17 @@ FROM (
     )
 )
     AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT DISTINCT
+    'medicationrequest' AS table_name,
+    'medicationcodeableconcept' AS column_name,
+    table_1.col_1.code,
+    table_1.col_1.display,
+    table_1.col_1.system
+FROM medicationrequest,
+UNNEST(medicationcodeableconcept.coding) AS table_1 (col_1)
 
 UNION
 

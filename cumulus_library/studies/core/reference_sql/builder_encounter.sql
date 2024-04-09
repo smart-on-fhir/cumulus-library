@@ -477,8 +477,54 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
 
 -- ###########################################################
 
+
 CREATE TABLE core__encounter AS
-WITH temp_encounter_nullable AS (
+WITH
+
+temp_encounter_completion AS (
+    WITH
+    -- Start by grabbing group names and exports times for each Encounter.
+    temp_completion_times AS (
+        SELECT
+            ece.encounter_id,
+            -- note that we don't chop the export time down to a DATE,
+            -- as is typical in the core study
+            min(from_iso8601_timestamp(ece.export_time)) AS earliest_export
+        FROM etl__completion_encounters AS ece
+        GROUP BY ece.encounter_id
+    ),
+
+    -- Then examine all tables that are at least as recently loaded as the
+    -- Encounter. (This is meant to detect Conditions that maybe aren't
+    -- loaded into Athena yet for the Encounter.)
+    -- Make sure that we have all the tables we care about.
+    temp_completed_tables AS (
+        SELECT
+            ece.encounter_id,
+            (
+                BOOL_OR(ec.table_name = 'condition')
+                AND BOOL_OR(ec.table_name = 'documentreference')
+                AND BOOL_OR(ec.table_name = 'medicationrequest')
+                AND BOOL_OR(ec.table_name = 'observation')
+            ) AS is_complete
+        FROM etl__completion_encounters AS ece
+        INNER JOIN temp_completion_times AS tct ON tct.encounter_id = ece.encounter_id
+        INNER JOIN etl__completion AS ec ON ec.group_name = ece.group_name
+        WHERE tct.earliest_export <= from_iso8601_timestamp(ec.export_time)
+        GROUP BY ece.encounter_id
+    )
+
+    -- Left join back with main completion_encounters table,
+    -- to catch rows that are completion-tracked but not in
+    -- temp_completed_tables.
+    SELECT
+        ece.encounter_id AS id,
+        (is_complete IS NOT NULL AND is_complete) AS is_complete
+    FROM etl__completion_encounters AS ece
+    LEFT JOIN temp_completed_tables AS tct ON tct.encounter_id = ece.encounter_id
+),
+
+temp_encounter_nullable AS (
     SELECT DISTINCT
         e.id,
         e.status,
@@ -497,6 +543,12 @@ WITH temp_encounter_nullable AS (
         date_trunc('year', date(from_iso8601_timestamp(e."period"."start")))
             AS period_start_year
     FROM encounter AS e
+    LEFT JOIN temp_encounter_completion AS tec ON tec.id = e.id
+    WHERE (
+        -- NULL completion just means it's a row that isn't completion-tracked
+        -- (likely a legacy row), so allow it in.
+        tec.is_complete IS NULL OR tec.is_complete
+    )
 ),
 
 temp_encounter AS (
@@ -531,8 +583,8 @@ temp_encounter AS (
     LEFT JOIN core__encounter_dn_priority AS edt ON e.id = edt.id
     LEFT JOIN core__encounter_dn_servicetype AS eds ON e.id = eds.id
     LEFT JOIN core__encounter_dn_priority AS edp ON e.id = edp.id
-    LEFT JOIN core__encounter_dn_reasonCode AS edr ON e.id = edr.id
-    LEFT JOIN core__encounter_dn_dischargeDisposition AS edd ON e.id = edd.id
+    LEFT JOIN core__encounter_dn_reasoncode AS edr ON e.id = edr.id
+    LEFT JOIN core__encounter_dn_dischargedisposition AS edd ON e.id = edd.id
 )
 
 SELECT DISTINCT
@@ -574,3 +626,55 @@ LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
 INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref
 WHERE
     e.period_start_day BETWEEN date('2016-06-01') AND current_date;
+
+-- ###########################################################
+
+
+CREATE TABLE core__incomplete_encounter AS
+WITH
+temp_encounter_completion AS (
+    WITH
+    -- Start by grabbing group names and exports times for each Encounter.
+    temp_completion_times AS (
+        SELECT
+            ece.encounter_id,
+            -- note that we don't chop the export time down to a DATE,
+            -- as is typical in the core study
+            min(from_iso8601_timestamp(ece.export_time)) AS earliest_export
+        FROM etl__completion_encounters AS ece
+        GROUP BY ece.encounter_id
+    ),
+
+    -- Then examine all tables that are at least as recently loaded as the
+    -- Encounter. (This is meant to detect Conditions that maybe aren't
+    -- loaded into Athena yet for the Encounter.)
+    -- Make sure that we have all the tables we care about.
+    temp_completed_tables AS (
+        SELECT
+            ece.encounter_id,
+            (
+                BOOL_OR(ec.table_name = 'condition')
+                AND BOOL_OR(ec.table_name = 'documentreference')
+                AND BOOL_OR(ec.table_name = 'medicationrequest')
+                AND BOOL_OR(ec.table_name = 'observation')
+            ) AS is_complete
+        FROM etl__completion_encounters AS ece
+        INNER JOIN temp_completion_times AS tct ON tct.encounter_id = ece.encounter_id
+        INNER JOIN etl__completion AS ec ON ec.group_name = ece.group_name
+        WHERE tct.earliest_export <= from_iso8601_timestamp(ec.export_time)
+        GROUP BY ece.encounter_id
+    )
+
+    -- Left join back with main completion_encounters table,
+    -- to catch rows that are completion-tracked but not in
+    -- temp_completed_tables.
+    SELECT
+        ece.encounter_id AS id,
+        (is_complete IS NOT NULL AND is_complete) AS is_complete
+    FROM etl__completion_encounters AS ece
+    LEFT JOIN temp_completed_tables AS tct ON tct.encounter_id = ece.encounter_id
+)
+
+SELECT DISTINCT tec.id
+FROM temp_encounter_completion AS tec
+WHERE NOT tec.is_complete

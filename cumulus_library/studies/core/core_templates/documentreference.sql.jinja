@@ -60,7 +60,7 @@ temp_encounters AS (
          unnest(context.encounter) AS context_encounter (encounter) --noqa
 
 {% else %}
-        '' AS encounter_ref
+        cast('' AS varchar) AS encounter_ref
     FROM temp_documentreference AS tdr
     WHERE 1=0 -- forces an empty table
 

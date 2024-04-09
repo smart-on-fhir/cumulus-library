@@ -69,7 +69,7 @@ jobs:
       # See https://github.com/aws-actions/configure-aws-credentials for configuring
       # the aws side of this - the below action is just a light wrapper
       - name: Configure AWS Credentials
-        uses: mcblair/configure-aws-profile-action@v0.1.1
+        uses: mcblair/configure-aws-profile-action@v1.0.0
         with:
           role-arn: arn:aws:iam::${{secrets.AWS_ACCOUNT}}:role/cumulus-library-ci
           region: us-east-1

@@ -143,7 +143,13 @@ schema =
                 'reference': True, 'display': False, 'type': True
             }, 
             'id': True
-        }, 
+        },
+        'etl__completion': {
+            'group_name': True,
+        },
+        'etl__completion_encounters': {
+            'group_name': True,
+        },
         'medicationrequest': {
             'id': True, 
             'status': True, 
