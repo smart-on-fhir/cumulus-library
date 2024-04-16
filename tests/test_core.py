@@ -21,6 +21,7 @@ from tests import conftest, testbed_utils
         ("core__medicationrequest"),
         ("core__observation"),
         ("core__observation_lab"),
+        ("core__observation_vital_signs"),
         ("core__patient"),
         ("core__count_condition_month"),
         ("core__count_documentreference_month"),
