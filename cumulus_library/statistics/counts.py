@@ -47,11 +47,11 @@ class CountsBuilder(BaseTableBuilder):
         """Convenience method for constructing arbitrary where clauses.
 
         :param clause: either a string or a list of sql where statements
-        :param min_subject: if clause is none, the bin size for a cnt_subject filter
+        :param min_subject: if clause is none, the bin size for a cnt_subject_ref filter
             (deprecated, use count_[fhir_resource](min_subject) instead)
         """
         if clause is None:
-            return [f"cnt_subject >= {min_subject}"]
+            return [f"cnt_subject_ref >= {min_subject}"]
         elif isinstance(clause, str):
             return [clause]
         elif isinstance(clause, list):
