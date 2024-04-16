@@ -27,8 +27,8 @@ def test_get_table_name(name, duration, expected):
 @pytest.mark.parametrize(
     "clause,min_subject,expected,raises",
     [
-        (None, None, ["cnt_subject >= 10"], does_not_raise()),
-        (None, 5, ["cnt_subject >= 5"], does_not_raise()),
+        (None, None, ["cnt_subject_ref >= 10"], does_not_raise()),
+        (None, 5, ["cnt_subject_ref >= 5"], does_not_raise()),
         ("age > 5", None, ["age > 5"], does_not_raise()),
         (["age > 5", "sex =='F'"], None, ["age > 5", "sex =='F'"], does_not_raise()),
         ("age > 5", 7, ["age > 5"], does_not_raise()),
