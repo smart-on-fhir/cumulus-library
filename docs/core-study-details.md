@@ -288,8 +288,8 @@ making sure to include all associated resources.
 |type_code                       |varchar    |           |
 |type_code_system                |varchar    |           |
 |type_display                    |varchar    |           |
-|sevicetype_code                 |varchar    |           |
-|sevicetype_code_system          |varchar    |           |
+|servicetype_code                |varchar    |           |
+|servicetype_code_system         |varchar    |           |
 |servicetype_display             |varchar    |           |
 |priority_code                   |varchar    |           |
 |priority_code_system            |varchar    |           |
