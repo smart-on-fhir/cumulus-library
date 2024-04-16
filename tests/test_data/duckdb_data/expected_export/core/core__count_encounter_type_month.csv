@@ -1,13 +1,7 @@
 cnt,class_display,type_display,period_start_month
 50,,,
-50,,cumulus__none,
 46,ambulatory,,
-46,ambulatory,cumulus__none,
 26,,,2018-07-01
-26,,cumulus__none,2018-07-01
 24,,,2018-06-01
-24,,cumulus__none,2018-06-01
 24,ambulatory,,2018-07-01
-24,ambulatory,cumulus__none,2018-07-01
 22,ambulatory,,2018-06-01
-22,ambulatory,cumulus__none,2018-06-01
