@@ -45,8 +45,20 @@ for filename in references:
                     filename,
                     (
                         "Columns differ between reference and export:\n"
-                        f"Reference: {list(ref_df.columns)}"
+                        f"Reference: {list(ref_df.columns)}\n"
                         f"Export: {list(exp_df.columns)}"
+                    ),
+                ]
+            )
+            continue
+        if ref_df.size != exp_df.size:
+            diffs.append(
+                [
+                    filename,
+                    (
+                        "Size (num rows) differ between reference and export:\n"
+                        f"Reference: {ref_df.size}\n"
+                        f"Export: {exp_df.size}"
                     ),
                 ]
             )

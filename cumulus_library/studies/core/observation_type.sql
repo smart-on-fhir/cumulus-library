@@ -1,5 +1,4 @@
 CREATE TABLE core__observation_lab AS
-
 SELECT
     co.id,
     co.observation_code,
@@ -17,7 +16,12 @@ SELECT
     co.subject_ref,
     co.encounter_ref,
     co.observation_ref
-FROM core__observation AS co;
+FROM
+    core__observation AS co
+WHERE
+    co.category_code = 'laboratory'
+    AND co.category_code_system
+    = 'http://terminology.hl7.org/CodeSystem/observation-category';
 
 CREATE TABLE core__observation_vital_signs AS
 SELECT
@@ -40,5 +44,9 @@ SELECT
     co.subject_ref,
     co.encounter_ref,
     co.observation_ref
-FROM core__observation AS co
-WHERE co.category_code = 'vital-signs';
+FROM
+    core__observation AS co
+WHERE
+    co.category_code = 'vital-signs'
+    AND co.category_code_system
+    = 'http://terminology.hl7.org/CodeSystem/observation-category';
