@@ -580,7 +580,7 @@ temp_encounter AS (
         edd.display AS dischargeDisposition_display
 
     FROM temp_encounter_nullable AS e
-    LEFT JOIN core__encounter_dn_priority AS edt ON e.id = edt.id
+    LEFT JOIN core__encounter_dn_type AS edt ON e.id = edt.id
     LEFT JOIN core__encounter_dn_servicetype AS eds ON e.id = eds.id
     LEFT JOIN core__encounter_dn_priority AS edp ON e.id = edp.id
     LEFT JOIN core__encounter_dn_reasoncode AS edr ON e.id = edr.id
