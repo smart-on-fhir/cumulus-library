@@ -42,9 +42,8 @@ def upload_data(
 
     if prefetch_res.status_code != 200:
         print("Invalid user/site id")
-        raise requests.RequestException(response=prefetch_res)
+        prefetch_res.raise_for_status()
     res_body = prefetch_res.json()
-
     with open(file_path, "rb") as data_file:
         files = {"file": (file_name, data_file)}
         upload_req = requests.Request(
@@ -55,7 +54,7 @@ def upload_data(
             upload_res = s.send(upload_req, timeout=60)
             if upload_res.status_code != 204:
                 print(f"Error uploading {study}/{file_name}")
-                raise requests.RequestException(response=upload_res)
+                upload_res.raise_for_status()
         else:
             print("upload_req")
             print("headers", upload_req.headers)
