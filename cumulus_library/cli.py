@@ -7,6 +7,7 @@ import pathlib
 import sys
 import sysconfig
 
+import requests
 import rich
 
 from cumulus_library import (
@@ -318,7 +319,11 @@ def run_cli(args: dict):
         create_template(args["create_dir"])
 
     elif args["action"] == "upload":
-        upload.upload_files(args)
+        try:
+            upload.upload_files(args)
+        except requests.RequestException as e:
+            print(str(e))
+            sys.exit()
 
     # all other actions require connecting to the database
     else:
