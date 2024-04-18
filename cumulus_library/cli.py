@@ -323,7 +323,7 @@ def run_cli(args: dict):
             upload.upload_files(args)
         except requests.RequestException as e:
             print(str(e))
-            exit()
+            sys.exit()
 
     # all other actions require connecting to the database
     else:

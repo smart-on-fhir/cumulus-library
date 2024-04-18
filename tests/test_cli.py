@@ -15,7 +15,6 @@ from pathlib import Path
 from unittest import mock
 
 import pytest
-import requests
 import requests_mock
 import toml
 
@@ -507,13 +506,13 @@ def test_cli_stats_rebuild(tmp_path):
             ["upload", "--user", "user", "--id", "id"],
             500,
             False,
-            pytest.raises(requests.exceptions.RequestException),
+            pytest.raises(SystemExit),
         ),
         (
             ["upload", "--user", "baduser", "--id", "badid"],
             204,
             True,
-            pytest.raises(requests.exceptions.RequestException),
+            pytest.raises(SystemExit),
         ),
         (
             ["upload", "--user", "user", "--id", "id", "./foo"],
