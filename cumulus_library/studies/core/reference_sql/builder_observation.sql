@@ -9,21 +9,32 @@
 CREATE TABLE core__observation_dn_category AS (
     WITH
 
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."category"
+        FROM
+            observation AS t,
+            UNNEST(t."category") AS r ("category")
+    ),
+
     system_category_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            s.row,
             u.codeable_concept.code,
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-            observation AS s,
-            UNNEST(s.category) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+            flattened_rows AS s,
+            UNNEST(s.category.coding) AS u (codeable_concept)
     ), --noqa: LT07
 
     union_table AS (
         SELECT
             id,
+            row,
             code_system,
             code,
             display
@@ -32,6 +43,7 @@ CREATE TABLE core__observation_dn_category AS (
     )
     SELECT
         id,
+        row,
         code,
         code_system,
         display
@@ -47,6 +59,7 @@ CREATE TABLE core__observation_dn_code AS (
     system_code_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             u.codeable_concept.code,
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
@@ -58,6 +71,7 @@ CREATE TABLE core__observation_dn_code AS (
     union_table AS (
         SELECT
             id,
+            row,
             code_system,
             code,
             display
@@ -75,6 +89,169 @@ CREATE TABLE core__observation_dn_code AS (
 
 -- ###########################################################
 
+CREATE TABLE core__observation_component_code AS (
+    WITH
+
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."code"
+        FROM
+            observation AS t,
+            UNNEST(t."component") AS parent (r)
+    ),
+
+    system_code_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            s.row,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
+            u.codeable_concept.system AS code_system
+        FROM
+            flattened_rows AS s,
+            UNNEST(s.code.coding) AS u (codeable_concept)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            code_system,
+            code,
+            display
+        FROM system_code_0
+        
+    )
+    SELECT
+        id,
+        row,
+        code,
+        code_system,
+        display
+    FROM union_table
+);
+
+
+-- ###########################################################
+
+CREATE TABLE core__observation_component_dataabsentreason AS (
+    WITH
+
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."dataabsentreason"
+        FROM
+            observation AS t,
+            UNNEST(t."component") AS parent (r)
+    ),
+
+    system_dataabsentreason_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            s.row,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
+            u.codeable_concept.system AS code_system
+        FROM
+            flattened_rows AS s,
+            UNNEST(s.dataabsentreason.coding) AS u (codeable_concept)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            code_system,
+            code,
+            display
+        FROM system_dataabsentreason_0
+        
+    )
+    SELECT
+        id,
+        row,
+        code,
+        code_system,
+        display
+    FROM union_table
+);
+
+
+-- ###########################################################
+
+CREATE TABLE core__observation_component_interpretation AS (
+    WITH
+
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."interpretation"
+        FROM
+            observation AS t,
+            UNNEST(t."component") AS parent (r)
+    ),
+
+    child_flattened_rows AS (
+        SELECT DISTINCT
+            s.id,
+            s.row, -- keep the parent row number
+            u."interpretation"
+        FROM
+            flattened_rows AS s,
+            UNNEST(s."interpretation") AS u ("interpretation")
+    ),
+
+    system_interpretation_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            s.row,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
+            u.codeable_concept.system AS code_system
+        FROM
+            child_flattened_rows AS s,
+            UNNEST(s.interpretation.coding) AS u (codeable_concept)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            code_system,
+            code,
+            display
+        FROM system_interpretation_0
+        
+    )
+    SELECT
+        id,
+        row,
+        code,
+        code_system,
+        display
+    FROM union_table
+);
+
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "main"."core__observation_component_valuecodeableconcept"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+    )
+        AS t ("id","code","code_system","display")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
 CREATE TABLE IF NOT EXISTS "main"."core__observation_dn_interpretation"
 AS (
     SELECT * FROM (
@@ -82,6 +259,7 @@ AS (
         (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
     )
         AS t ("id","code","code_system","display")
+    WHERE 1 = 0 -- ensure empty table
 );
 
 -- ###########################################################
@@ -92,6 +270,7 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
     system_valuecodeableconcept_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             u.codeable_concept.code,
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
@@ -103,6 +282,7 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
     union_table AS (
         SELECT
             id,
+            row,
             code_system,
             code,
             display
@@ -127,6 +307,7 @@ AS (
         (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
     )
         AS t ("id","code","code_system","display")
+    WHERE 1 = 0 -- ensure empty table
 );
 
 -- ###########################################################
@@ -139,11 +320,11 @@ WITH temp_observation AS (
         o.id,
         o.status,
         o.valueString,
-        o.valueQuantity.value AS valuequantity_value,
-        o.valueQuantity.comparator AS valuequantity_comparator,
-        o.valueQuantity.unit AS valuequantity_unit,
-        o.valueQuantity.system AS valuequantity_system,
-        o.valueQuantity.code AS valuequantity_code,
+        o.valueQuantity.value AS valueQuantity_value,
+        o.valueQuantity.comparator AS valueQuantity_comparator,
+        o.valueQuantity.unit AS valueQuantity_unit,
+        o.valueQuantity.system AS valueQuantity_code_system,
+        o.valueQuantity.code AS valueQuantity_code,
         date_trunc('day', date(from_iso8601_timestamp(o."effectiveDateTime")))
             AS effectiveDateTime_day,
         date_trunc('week', date(from_iso8601_timestamp(o."effectiveDateTime")))
@@ -165,8 +346,6 @@ WITH temp_observation AS (
         odda.code AS dataAbsentReason_code,
         odda.code_system AS dataAbsentReason_code_system,
         odda.display AS dataAbsentReason_display,
-        o.referencerange,
-        o.valueQuantity,
         o.subject.reference AS subject_ref,
         o.encounter.reference AS encounter_ref
     FROM observation AS o
@@ -196,8 +375,8 @@ SELECT
     valueCodeableConcept_display,
     valueQuantity_value,
     valueQuantity_comparator,
-    valueQuantity_unit,
-    valueQuantity_system,
+    valueQuantity_unit,valueQuantity_code_system AS valueQuantity_system, -- old alias
+    valueQuantity_code_system,
     valueQuantity_code,
     valueString,
     dataAbsentReason_code,
@@ -211,3 +390,20 @@ WHERE
     effectiveDateTime_day BETWEEN date(
         from_iso8601_timestamp('2016-06-01')
     ) AND current_date;
+
+-- ###########################################################
+
+
+
+
+CREATE TABLE core__observation_component_valuequantity AS (
+    SELECT
+        'x' AS id,
+        CAST(NULL AS BIGINT) AS row,
+        CAST(NULL AS DOUBLE) AS value, -- noqa: disable=L029
+        'x' AS comparator,
+        'x' AS unit,
+        'x' AS code_system,
+        'x' AS code,
+    WHERE 1=0 -- empty table
+);

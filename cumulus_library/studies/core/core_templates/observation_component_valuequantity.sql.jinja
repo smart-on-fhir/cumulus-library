@@ -1,0 +1,66 @@
+{% import 'core_utils.jinja' as utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
+
+{#- Once we have generic denormalization code, this table could be re-written #}
+
+{#- If the database doesn't have valueQuantity fields at all,
+    we'll just skip this table. #}
+{%- set quantity_schema = schema["observation"]["component"]["valueQuantity"] %}
+{%- set has_value_quantity = (
+    quantity_schema["value"] or quantity_schema["comparator"] or
+    quantity_schema["unit"] or quantity_schema["system"] or
+    quantity_schema["code"]
+) %}
+
+CREATE TABLE core__observation_component_valuequantity AS (
+    {%- if has_value_quantity %}
+    WITH
+
+    flattened_rows AS (
+        {{ unnest_utils.flatten('observation', 'component') }}
+    ),
+
+    flattened_quantities AS (
+        SELECT
+            f.id,
+            f.row,
+            {{- utils.nullable_cols(
+                'observation',
+                'f',
+                [
+                    ('component', 'valueQuantity', 'value', 'value'),
+                    ('component', 'valueQuantity', 'comparator', 'comparator'),
+                    ('component', 'valueQuantity', 'unit', 'unit'),
+                    ('component', 'valueQuantity', 'system', 'code_system'),
+                    ('component', 'valueQuantity', 'code', 'code'),
+                ],
+                schema
+            ) }}
+        FROM flattened_rows AS f
+        WHERE f.component.valueQuantity IS NOT NULL
+    )
+
+    SELECT
+        f.id,
+        f.row,
+        -- We ensure value is a double, because nullable_cols() above will cast
+        -- as varchar if value isn't in the schema.
+        CAST(f.value AS DOUBLE) AS value, -- noqa: disable=L029
+        f.comparator,
+        f.unit,
+        f.code_system,
+        f.code
+    FROM flattened_quantities AS f
+
+    {%- else %}
+    SELECT
+        'x' AS id,
+        CAST(NULL AS BIGINT) AS row,
+        CAST(NULL AS DOUBLE) AS value, -- noqa: disable=L029
+        'x' AS comparator,
+        'x' AS unit,
+        'x' AS code_system,
+        'x' AS code,
+    WHERE 1=0 -- empty table
+    {%- endif %}
+);

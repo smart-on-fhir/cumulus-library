@@ -9,21 +9,32 @@
 CREATE TABLE core__medicationrequest_dn_category AS (
     WITH
 
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."category"
+        FROM
+            medicationrequest AS t,
+            UNNEST(t."category") AS r ("category")
+    ),
+
     system_category_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            s.row,
             u.codeable_concept.code,
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-            medicationrequest AS s,
-            UNNEST(s.category) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+            flattened_rows AS s,
+            UNNEST(s.category.coding) AS u (codeable_concept)
     ), --noqa: LT07
 
     union_table AS (
         SELECT
             id,
+            row,
             code_system,
             code,
             display
@@ -32,6 +43,7 @@ CREATE TABLE core__medicationrequest_dn_category AS (
     )
     SELECT
         id,
+        row,
         code,
         code_system,
         display
@@ -47,6 +59,7 @@ CREATE TABLE core__medicationrequest_dn_medication AS (
     system_medicationcodeableconcept_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             u.codeable_concept.code,
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
@@ -58,6 +71,7 @@ CREATE TABLE core__medicationrequest_dn_medication AS (
     union_table AS (
         SELECT
             id,
+            row,
             code_system,
             code,
             display
@@ -118,4 +132,4 @@ SELECT
     mr.subject_ref,
     mr.encounter_ref
 FROM temp_mr AS mr,
-    UNNEST(dosageInstruction) AS dose_row (dose_col)
+    UNNEST(mr.dosageInstruction) AS dose_row (dose_col)

@@ -16,4 +16,5 @@ AS (
             {{- syntax.comma_delineate(loop) }}
             {%- endfor -%}
         )
+    WHERE 1 = 0 -- ensure empty table
 );

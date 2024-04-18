@@ -79,6 +79,9 @@ def get_codeable_concept_denormalize_query(
         if len(config.column_hierarchy) == 1
         else config.column_hierarchy[0][0],
         is_array=(config.column_hierarchy[0][1] == list),
+        child_is_array=False
+        if len(config.column_hierarchy) == 1
+        else config.column_hierarchy[1][1] == list,
         target_table=config.target_table,
         filter_priority=config.filter_priority,
         code_systems=config.code_systems,

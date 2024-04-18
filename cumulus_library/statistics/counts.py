@@ -262,7 +262,7 @@ class CountsBuilder(BaseTableBuilder):
         """
         self.prepare_queries(cursor=None, schema=None)
         self.comment_queries()
-        self.write_queries(filename=filepath)
+        self.write_queries(path=Path(filepath))
 
     def prepare_queries(self, cursor: object | None = None, schema: str | None = None):
         """Stub implementing abstract base class

@@ -69,4 +69,4 @@ SELECT
     mr.subject_ref,
     mr.encounter_ref
 FROM temp_mr AS mr,
-    UNNEST(dosageInstruction) AS dose_row (dose_col)
+    UNNEST(mr.dosageInstruction) AS dose_row (dose_col)

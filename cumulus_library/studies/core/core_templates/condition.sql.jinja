@@ -63,8 +63,9 @@ WITH temp_condition AS (
 
 SELECT
     tc.id,
-    t_category_coding.category_row.code AS category_code,
-    t_category_coding.category_row.display AS category_display,
+    cdc.code AS category_code,
+    cdc.code_system AS category_code_system,
+    cdc.display AS category_display,
     tc.code,
     tc.code_system,
     tc.display AS code_display,
@@ -75,13 +76,12 @@ SELECT
     tc.recordedDate_week,
     tc.recordedDate_month,
     tc.recordedDate_year,
-    t_clinicalStatus_coding.clinicalStatus_row.code AS clinicalStatus_code,
-    t_verificationStatus_coding.verificationStatus_row.code AS verificationStatus_code
-FROM temp_condition AS tc,
-    unnest(category) AS t_category (category_coding),
-    unnest(category_coding.coding) AS t_category_coding (category_row),
-    unnest(clinicalStatus.coding) AS t_clinicalStatus_coding (clinicalStatus_row),
-    unnest(verificationStatus.coding)
-        AS t_verificationStatus_coding (verificationStatus_row)
-
+    {#- We don't expose code_system for these next two since we filter
+        down to a single system in the denormalization table #}
+    cdcs.code AS clinicalStatus_code,
+    cdvs.code AS verificationStatus_code
+FROM temp_condition AS tc
+LEFT JOIN core__condition_dn_category AS cdc ON tc.id = cdc.id
+LEFT JOIN core__condition_dn_clinical_status AS cdcs ON tc.id = cdcs.id
+LEFT JOIN core__condition_dn_verification_status AS cdvs ON tc.id = cdvs.id
 WHERE tc.recordedDate BETWEEN date('2016-01-01') AND current_date;

@@ -27,16 +27,16 @@ targets is an array expecting a data type of the following:
         {#- depth one nested column-#}
         {%- if col is not string and col|length ==3%}
         {%- if schema[table][col[0]][col[1]] %}
-        {{ alias }}.{{ col[0] }}.{{ col[1] }} AS {{col[2].lower()}}
+        {{ alias }}.{{ col[0] }}.{{ col[1] }} AS {{ col[2] }}
         {%- else %}
-        cast(NULL as varchar) AS {{ col[2].lower() }}
+        cast(NULL as varchar) AS {{ col[2] }}
         {%- endif %}
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==4%}
-        {%- if schema[table][col[0]][col[2]] %}
-        {{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }} AS {{col[3].lower()}}
+        {%- if schema[table][col[0]][col[1]][col[2]] %}
+        {{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }} AS {{ col[3] }}
         {%- else %}
-        cast(NULL as varchar) AS {{ col[3].lower()}}
+        cast(NULL as varchar) AS {{ col[3] }}
         {%- endif %}
         {#- SQL primitive column column-#}
         {%- elif schema[table][col] %}
@@ -44,9 +44,9 @@ targets is an array expecting a data type of the following:
         {%- else %}
         {#- workaround for docref date-#}
         {%- if col == "date"%}
-        cast(NULL as timestamp) AS "{{ col.lower() }}"
+        cast(NULL as timestamp) AS "{{ col }}"
         {%- else %}
-        cast(NULL as varchar) AS {{ col.lower() }}
+        cast(NULL as varchar) AS {{ col }}
         {%- endif %}
         {%- endif %}        
         {{- syntax.comma_delineate(loop) }}
@@ -66,20 +66,20 @@ targets is an array expecting a data type of the following:
         {%- if schema[table][col[0]][col[1]] %}
         date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }})) AS {{ col[2] }}
         {%- else %}
-        cast(NULL AS date) AS {{ col[1].lower() }}
+        cast(NULL AS date) AS {{ col[1] }}
         {% endif %}
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==4%}
-        {%- if schema[table][col[0]][col[2]] %}
+        {%- if schema[table][col[0]][col[1]][col[2]] %}
         date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }})) AS {{col[3]}}
         {%- else %}
-        cast(NULL AS date) AS {{ col[3].lower() }}
+        cast(NULL AS date) AS {{ col[3] }}
         {%- endif %}
         {#- SQL primitive column column-#}
         {%- elif schema[table][col] %}
         date(from_iso8601_timestamp({{ alias }}.{{ col }})) AS {{ col }}
         {%- else %}
-        cast(NULL AS date) AS {{ col.lower() }}
+        cast(NULL AS date) AS {{ col }}
         {%- endif %}    
         {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
@@ -103,7 +103,7 @@ targets is assumed to be a list of tuples of one of the following format:
         {% endif %}
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==5%}
-        {%- if schema[table][col[0]][col[2]] %}
+        {%- if schema[table][col[0]][col[1]][col[2]] %}
         date_trunc('{{ col[4] }}', date(from_iso8601_timestamp({{ alias }}."{{ col[0] }}"."{{ col[1] }}"."{{col[2]}}")))
             AS {{ col[3] }}
         {%- else %}

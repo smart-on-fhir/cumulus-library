@@ -6,12 +6,120 @@
 
 -- ###########################################################
 
+CREATE TABLE core__condition_dn_category AS (
+    WITH
+
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."category"
+        FROM
+            condition AS t,
+            UNNEST(t."category") AS r ("category")
+    ),
+
+    system_category_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            s.row,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
+            u.codeable_concept.system AS code_system
+        FROM
+            flattened_rows AS s,
+            UNNEST(s.category.coding) AS u (codeable_concept)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            code_system,
+            code,
+            display
+        FROM system_category_0
+        
+    )
+    SELECT
+        id,
+        row,
+        code,
+        code_system,
+        display
+    FROM union_table
+);
+
+
+-- ###########################################################
+
+CREATE TABLE core__condition_dn_clinical_status AS (
+    WITH
+
+    system_clinicalStatus_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '0' AS priority,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
+            u.codeable_concept.system AS code_system
+        FROM
+            condition AS s,
+            UNNEST(s.clinicalStatus.coding) AS u (codeable_concept)
+        WHERE
+            u.codeable_concept.system LIKE 'http://terminology.hl7.org/CodeSystem/condition-clinical'
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            priority,
+            code_system,
+            code,
+            display
+        FROM system_clinicalStatus_0
+        
+    ),
+
+    partitioned_table AS (
+        SELECT
+            id,
+            row,
+            code,
+            code_system,
+            display,
+            priority,
+            ROW_NUMBER()
+                OVER (
+                    PARTITION BY id
+                    ORDER BY priority ASC
+                ) AS available_priority
+        FROM union_table
+        GROUP BY id, row, priority, code_system, code, display
+        ORDER BY priority ASC
+    )
+
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM partitioned_table
+    WHERE available_priority = 1
+);
+
+
+-- ###########################################################
+
 CREATE TABLE core__condition_codable_concepts_display AS (
     WITH
 
     system_code_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             '0' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
@@ -26,6 +134,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
     system_code_1 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             '1' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
@@ -40,6 +149,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
     system_code_2 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             '2' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
@@ -54,6 +164,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
     system_code_3 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             '3' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
@@ -68,6 +179,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
     system_code_4 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             '4' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
@@ -82,6 +194,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
     system_code_5 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             '5' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
@@ -96,6 +209,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
     system_code_6 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             '6' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
@@ -110,6 +224,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
     union_table AS (
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -118,6 +233,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         UNION
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -126,6 +242,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         UNION
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -134,6 +251,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         UNION
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -142,6 +260,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         UNION
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -150,6 +269,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         UNION
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -158,6 +278,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         UNION
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -169,6 +290,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
     partitioned_table AS (
         SELECT
             id,
+            row,
             code,
             code_system,
             display,
@@ -179,7 +301,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, priority, code_system, code, display
+        GROUP BY id, row, priority, code_system, code, display
         ORDER BY priority ASC
     )
 
@@ -201,6 +323,7 @@ CREATE TABLE core__condition_codable_concepts_all AS (
     system_code_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             u.codeable_concept.code,
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
@@ -212,6 +335,7 @@ CREATE TABLE core__condition_codable_concepts_all AS (
     union_table AS (
         SELECT
             id,
+            row,
             code_system,
             code,
             display
@@ -224,6 +348,66 @@ CREATE TABLE core__condition_codable_concepts_all AS (
         code_system,
         display
     FROM union_table
+);
+
+
+-- ###########################################################
+
+CREATE TABLE core__condition_dn_verification_status AS (
+    WITH
+
+    system_verificationStatus_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '0' AS priority,
+            u.codeable_concept.code,
+            u.codeable_concept.display,
+            u.codeable_concept.system AS code_system
+        FROM
+            condition AS s,
+            UNNEST(s.verificationStatus.coding) AS u (codeable_concept)
+        WHERE
+            u.codeable_concept.system LIKE 'http://terminology.hl7.org/CodeSystem/condition-ver-status'
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            priority,
+            code_system,
+            code,
+            display
+        FROM system_verificationStatus_0
+        
+    ),
+
+    partitioned_table AS (
+        SELECT
+            id,
+            row,
+            code,
+            code_system,
+            display,
+            priority,
+            ROW_NUMBER()
+                OVER (
+                    PARTITION BY id
+                    ORDER BY priority ASC
+                ) AS available_priority
+        FROM union_table
+        GROUP BY id, row, priority, code_system, code, display
+        ORDER BY priority ASC
+    )
+
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM partitioned_table
+    WHERE available_priority = 1
 );
 
 
@@ -256,8 +440,9 @@ WITH temp_condition AS (
 
 SELECT
     tc.id,
-    t_category_coding.category_row.code AS category_code,
-    t_category_coding.category_row.display AS category_display,
+    cdc.code AS category_code,
+    cdc.code_system AS category_code_system,
+    cdc.display AS category_display,
     tc.code,
     tc.code_system,
     tc.display AS code_display,
@@ -268,13 +453,10 @@ SELECT
     tc.recordedDate_week,
     tc.recordedDate_month,
     tc.recordedDate_year,
-    t_clinicalStatus_coding.clinicalStatus_row.code AS clinicalStatus_code,
-    t_verificationStatus_coding.verificationStatus_row.code AS verificationStatus_code
-FROM temp_condition AS tc,
-    unnest(category) AS t_category (category_coding),
-    unnest(category_coding.coding) AS t_category_coding (category_row),
-    unnest(clinicalStatus.coding) AS t_clinicalStatus_coding (clinicalStatus_row),
-    unnest(verificationStatus.coding)
-        AS t_verificationStatus_coding (verificationStatus_row)
-
+    cdcs.code AS clinicalStatus_code,
+    cdvs.code AS verificationStatus_code
+FROM temp_condition AS tc
+LEFT JOIN core__condition_dn_category AS cdc ON tc.id = cdc.id
+LEFT JOIN core__condition_dn_clinical_status AS cdcs ON tc.id = cdcs.id
+LEFT JOIN core__condition_dn_verification_status AS cdvs ON tc.id = cdvs.id
 WHERE tc.recordedDate BETWEEN date('2016-01-01') AND current_date;

@@ -1,11 +1,48 @@
 {%- import 'syntax.sql.jinja' as syntax -%}
+{%- import 'unnest_utils.jinja' as unnest_utils -%}
 CREATE TABLE {{ target_table }} AS (
     WITH
+    {%- if is_array %}
+
+    flattened_rows AS (
+        {{ unnest_utils.flatten(source_table, column_name, parent_field=parent_field) }}
+    ),
+    {%- set source_table = 'flattened_rows' -%}
+    {%- set parent_field = false %}
+    {%- endif %}
+
+    {%- if child_is_array %}
+
+    child_flattened_rows AS (
+        SELECT DISTINCT
+            s.id,
+            {%- if is_array %}
+            s.row, -- keep the parent row number
+            {%- endif %}
+            u."{{ column_name }}"
+        FROM
+            {{ source_table }} AS s,
+        {%- if parent_field %}
+            UNNEST(s."{{ parent_field }}"."{{ column_name }}")
+            AS u ("{{ column_name }}")
+        {%- else %}
+            UNNEST(s."{{ column_name }}") AS u ("{{ column_name }}")
+        {%- endif %}
+    ),
+    {%- set source_table = 'child_flattened_rows' -%}
+    {%- set parent_field = false %}
+    {%- endif %}
+
     {%- for system in code_systems %}
 
     system_{{ column_name }}_{{ loop.index0 }} AS (
         SELECT DISTINCT
             s.{{ source_id }} AS id,
+            {%- if is_array %}
+            s.row,
+            {%- else %}
+            0 AS row,
+            {%- endif %}
             {%- if filter_priority %}
             '{{ loop.index0 }}' AS priority,
             {%- endif %}
@@ -14,22 +51,12 @@ CREATE TABLE {{ target_table }} AS (
             u.codeable_concept.system AS code_system
         FROM
         {#- Temp workaround - to be reworked by generic DN -#}
-        {%- if parent_field != None %}
+        {%- if parent_field %}
             {{ source_table }} AS s,
-        {%- if is_array %}
-            UNNEST(s.{{ parent_field }}) AS parent (parent_row),
-            UNNEST(parent.parent_row.{{ column_name }}.coding) AS u (codeable_concept)
-        {%- else %}
             UNNEST(s.{{ parent_field }}.{{ column_name }}.coding) AS u (codeable_concept)
-        {%- endif %}
         {%- else %}
             {{ source_table }} AS s,
-        {%- if is_array %}
-            UNNEST(s.{{ column_name }}) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
-        {%- else %}
             UNNEST(s.{{ column_name }}.coding) AS u (codeable_concept)
-        {%- endif %}
         {%- endif %}
         {%- if filter_priority %}
         WHERE
@@ -42,6 +69,7 @@ CREATE TABLE {{ target_table }} AS (
         {%- for system in code_systems %}
         SELECT
             id,
+            row,
             {%- if filter_priority %}
             priority,
             {%- endif %}
@@ -57,6 +85,7 @@ CREATE TABLE {{ target_table }} AS (
     partitioned_table AS (
         SELECT
             id,
+            row,
             code,
             code_system,
             display,
@@ -67,12 +96,15 @@ CREATE TABLE {{ target_table }} AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, priority, code_system, code, display
+        GROUP BY id, row, priority, code_system, code, display
         ORDER BY priority ASC
     )
 
     SELECT
         id,
+        {%- if is_array %}
+        row,
+        {%- endif %}
         code,
         code_system,
         display
@@ -82,6 +114,9 @@ CREATE TABLE {{ target_table }} AS (
 {% else %}
     SELECT
         id,
+        {%- if is_array %}
+        row,
+        {%- endif %}
         code,
         code_system,
         display

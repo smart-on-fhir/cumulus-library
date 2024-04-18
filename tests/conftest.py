@@ -10,7 +10,7 @@ import pytest
 from rich import console, table
 
 from cumulus_library.cli import StudyRunner
-from cumulus_library.databases import DatabaseCursor, create_db_backend
+from cumulus_library.databases import create_db_backend
 
 # Useful constants
 
@@ -46,22 +46,6 @@ def get_sorted_table_data(cursor, table):
         f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols)))}"
     ).fetchall()
     return data, cursor.description
-
-
-def modify_resource_column(
-    cursor: DatabaseCursor, table: str, col: str, replacement_val
-):
-    """Allows for modifying a single table col for edge case detection
-
-    TODO: if anything more complex than this is required for unit testing, either
-    create a seperate test dir directory, or consider a generator using the
-    existing test data as a source.
-    """
-    df = cursor.execute(f"SELECT * from {table}").df()
-    df[col] = df.apply(lambda x: replacement_val, axis=1)
-    cursor.register(f"{table}_{col}_df", df)
-    cursor.execute(f"DROP VIEW {table}")
-    cursor.execute(f"CREATE VIEW {table} AS SELECT * from {table}_{col}_df")
 
 
 def duckdb_args(args: list, tmp_path, stats=False):

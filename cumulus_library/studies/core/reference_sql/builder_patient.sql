@@ -18,7 +18,7 @@ CREATE TABLE core__patient_ext_race AS (
             ext_child.ext.valuecoding.display AS race_display
         FROM
             patient AS s,
-            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(s.extension) AS ext_parent (ext),
             UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
@@ -35,7 +35,7 @@ CREATE TABLE core__patient_ext_race AS (
             ext_child.ext.valuecoding.display AS race_display
         FROM
             patient AS s,
-            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(s.extension) AS ext_parent (ext),
             UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
@@ -52,7 +52,7 @@ CREATE TABLE core__patient_ext_race AS (
             ext_child.ext.valuecoding.display AS race_display
         FROM
             patient AS s,
-            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(s.extension) AS ext_parent (ext),
             UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
@@ -141,7 +141,7 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             ext_child.ext.valuecoding.display AS ethnicity_display
         FROM
             patient AS s,
-            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(s.extension) AS ext_parent (ext),
             UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'
@@ -158,7 +158,7 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             ext_child.ext.valuecoding.display AS ethnicity_display
         FROM
             patient AS s,
-            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(s.extension) AS ext_parent (ext),
             UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'
@@ -175,7 +175,7 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             ext_child.ext.valuecoding.display AS ethnicity_display
         FROM
             patient AS s,
-            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(s.extension) AS ext_parent (ext),
             UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'

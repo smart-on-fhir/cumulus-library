@@ -170,6 +170,11 @@ schema =
             'category': {
                 'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
             },
+            'component': {
+                'valueQuantity': {
+                    'code': True, 'comparator': True, 'system': True, 'unit': True, 'value': True
+                },
+            },
             'status': True,
             'code': {
                 'coding': True, 'code': True, 'display': True, 'system': True, 'text': True

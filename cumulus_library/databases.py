@@ -14,7 +14,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 import cumulus_fhir_support
 import duckdb
@@ -44,60 +44,78 @@ class DatabaseCursor(Protocol):
 class DatabaseParser(abc.ABC):
     """Parses information_schema results from a database"""
 
-    def _parse_found_schema(
-        self, expected: dict[dict[list]], schema: dict[list]
-    ) -> dict:
-        """Checks for presence of field for each column in a table
+    @abc.abstractmethod
+    def parse_found_schema(self, schema: dict[str, str]) -> dict:
+        """Parses a database-provided schema string.
 
-        :param expected: A nested dict describing the expected data format of
-        a table. Expected format is like this:
-            {
-                "object_col":["member_a", "member_b"]
-                "primitive_col": []
-            }
         :param schema: the results of a query from the get_column_datatype method
-        of the template_sql.templates function. It looks like this:
-            [
-                ('object_col', 'row(member_a VARCHAR, member_b DATE)'),
-                ('primitive_col', 'VARCHAR')
-            ]
+        of the template_sql.templates function. It looks like this (for athena at
+        least, but the values are opaque strings and database-provider-specific):
+            {
+                'object_col': 'row(member_a varchar, member_b date)',
+                'primitive_col': 'varchar',
+            }
 
-        The actual contents of schema are database dependent. This naive method
-        is a first pass, ignoring complexities of differing database variable
-        types, just iterating through looking for column names.
-
-        TODO: on a per database instance, consider a more nuanced approach if needed
-              (compared to just checking if the schema contains the field name)
+        :returns: a dictionary with an entry for every field present in the schema.
+        For the above example, this should return:
+            {
+                'object_col': {
+                    'member_a': {},
+                    'member_b': {},
+                },
+                'primitive_col': {},
+            }
         """
+
+    def _recursively_validate(
+        self, expected: dict[str, Any], schema: dict[str, Any]
+    ) -> dict[str, Any]:
+        schema = schema or {}
         output = {}
 
         for column, fields in expected.items():
-            column_lower = column.lower()
+            col_schema = schema.get(column.lower())
 
-            # is this an object column? (like: "subject": ["reference"])
-            if fields:
-                col_schema = schema.get(column_lower, "").lower()
-                output[column] = {
-                    # TODO: make this check more robust
-                    field: field.lower() in col_schema
-                    for field in fields
-                }
+            # Is `fields` an falsy? (like: "recordedDate": None or [] or {})
+            # This means we just want to check existance of `column`
+            # otherwise this is a primitive col
+            if not fields:
+                output[column] = col_schema is not None
 
-            # otherwise this is a primitive col (like: "recordedDate": None)
+            # Is `fields` a list? (like: "subject": ["reference"])
+            # This means we should check existance of all mentioned children.
+            elif isinstance(fields, list):
+                for field in fields:
+                    subschema = self._recursively_validate({field: None}, col_schema)
+                    output.setdefault(column, {}).update(subschema)
+
+            # Is `fields` a dict?
+            # Like: "component": {"valueQuantity": ["unit", "value"]}
+            # This means we should descend one level
+            elif isinstance(fields, dict):
+                subschema = self._recursively_validate(fields, col_schema)
+                output[column] = subschema
+
             else:
-                output[column] = column_lower in schema
+                raise ValueError("Bad expected schema provided")
 
         return output
 
-    @abc.abstractmethod
     def validate_table_schema(
-        self, expected: dict[str, list[str]], schema: list[tuple]
+        self, expected: dict[str, list], schema: list[tuple]
     ) -> dict:
         """Public interface for investigating if fields are in a table schema.
 
+        expected is a dictionary of string column names to *something*:
+        - falsy (like None or []): just check that the column exists
+        - list of strings: check all the column children exist
+        - dict of a new child 'expected' dictionary, with same above rules
+
         This method should lightly format results and pass them to
-        _parse_found_schema(), or a more bespoke table analysis function if needed.
+        parse_found_schema(), or a more bespoke table analysis function if needed.
         """
+        parsed_schema = self.parse_found_schema(dict(schema))
+        return self._recursively_validate(expected, parsed_schema)
 
 
 class DatabaseBackend(abc.ABC):
@@ -179,11 +197,53 @@ class AthenaDatabaseBackend(DatabaseBackend):
 
 
 class AthenaParser(DatabaseParser):
-    def validate_table_schema(
-        self, expected: dict[dict[list]], schema: list[list]
-    ) -> dict:
-        schema = dict(schema)
-        return self._parse_found_schema(expected, schema)
+    def _find_type_len(self, row: str) -> int:
+        """Finds the end of a type string like row(...) or array(row(...))"""
+        # Note that this assumes the string is well formatted.
+        depth = 0
+        for i in range(len(row)):
+            match row[i]:
+                case ",":
+                    if depth == 0:
+                        break
+                case "(":
+                    depth += 1
+                case ")":
+                    depth -= 1
+        return i
+
+    def _split_row(self, row: str) -> dict[str, str]:
+        # Must handle "name type, name row(...), name type, name row(...)"
+        result = {}
+        # Real athena doesn't add extra spaces, but our unit tests do for
+        # readability, so let's strip out whitespace as we parse.
+        while row := row.strip():
+            name, remainder = row.split(" ", 1)
+            type_len = self._find_type_len(remainder)
+            result[name] = remainder[0:type_len]
+            row = remainder[type_len + 2 :]  # skip comma and space
+        return result
+
+    def parse_found_schema(self, schema: dict[str, str]) -> dict:
+        # A sample response for table `observation`, column `component`:
+        #   array(row(code varchar, display varchar)),
+        #             text varchar, id varchar)
+        parsed = {}
+
+        for key, value in schema.items():
+            # Strip arrays out, they don't affect the shape of our schema.
+            while value.startswith("array("):
+                value = value.removeprefix("array(")
+                value = value.removesuffix(")")
+
+            if value.startswith("row("):
+                value = value.removeprefix("row(")
+                value = value.removesuffix(")")
+                parsed[key] = self.parse_found_schema(self._split_row(value))
+            else:
+                parsed[key] = {}
+
+        return parsed
 
 
 class DuckDatabaseBackend(DatabaseBackend):
@@ -323,16 +383,26 @@ class DuckDatabaseBackend(DatabaseBackend):
 class DuckDbParser(DatabaseParser):
     """Table parser for DuckDB schemas"""
 
-    def validate_table_schema(
-        self, expected: dict[dict[list]], schema: list[tuple]
-    ) -> dict:
+    def parse_found_schema(self, schema: dict[str, str]) -> dict:
         """parses a information_schema.tables query response for valid columns"""
-        schema = dict(schema)
-        # since we're defaulting to athena naming conventions elsewhere,
-        # we'll lower case all the keys
-        schema = {k.lower(): v for k, v in schema.items()}
+        parsed = {}
 
-        return self._parse_found_schema(expected, schema)
+        for key, value in schema.items():
+            if isinstance(value, str):
+                # DuckDB provides a parser to go from string -> type objects
+                value = duckdb.typing.DuckDBPyType(value)
+
+            # Collapse lists to the contained value
+            if value.id == "list":
+                value = value.children[0][1]  # [('child', CONTAINED_TYPE)]
+
+            if value.id == "struct":
+                result = self.parse_found_schema(dict(value.children))
+            else:
+                result = {}
+            parsed[key.lower()] = result
+
+        return parsed
 
 
 def _read_rows_from_table_dir(path: str) -> list[dict]:

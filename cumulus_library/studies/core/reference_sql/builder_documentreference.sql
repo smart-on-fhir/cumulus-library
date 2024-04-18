@@ -12,6 +12,7 @@ CREATE TABLE core__documentreference_dn_type AS (
     system_type_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             u.codeable_concept.code,
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
@@ -23,6 +24,7 @@ CREATE TABLE core__documentreference_dn_type AS (
     union_table AS (
         SELECT
             id,
+            row,
             code_system,
             code,
             display
@@ -43,17 +45,27 @@ CREATE TABLE core__documentreference_dn_type AS (
 CREATE TABLE core__documentreference_dn_category AS (
     WITH
 
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."category"
+        FROM
+            documentreference AS t,
+            UNNEST(t."category") AS r ("category")
+    ),
+
     system_category_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            s.row,
             '0' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-            documentreference AS s,
-            UNNEST(s.category) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+            flattened_rows AS s,
+            UNNEST(s.category.coding) AS u (codeable_concept)
         WHERE
             u.codeable_concept.system LIKE 'http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-category'
     ), --noqa: LT07
@@ -61,6 +73,7 @@ CREATE TABLE core__documentreference_dn_category AS (
     union_table AS (
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -72,6 +85,7 @@ CREATE TABLE core__documentreference_dn_category AS (
     partitioned_table AS (
         SELECT
             id,
+            row,
             code,
             code_system,
             display,
@@ -82,12 +96,13 @@ CREATE TABLE core__documentreference_dn_category AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, priority, code_system, code, display
+        GROUP BY id, row, priority, code_system, code, display
         ORDER BY priority ASC
     )
 
     SELECT
         id,
+        row,
         code,
         code_system,
         display
@@ -140,11 +155,10 @@ WITH temp_documentreference AS (
         dr.id,
         dr.type,
         dr.status,
-        cast(NULL as timestamp) AS "date",
         dr.docStatus,
         dr.context,
         dr.subject.reference AS subject_ref,
-        dr.context.period.start AS author_date,
+        date(from_iso8601_timestamp(dr.date)) AS date,
         date_trunc('day', date(from_iso8601_timestamp(dr."context"."period"."start")))
             AS author_day,
         date_trunc('week', date(from_iso8601_timestamp(dr."context"."period"."start")))

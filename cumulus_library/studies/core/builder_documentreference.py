@@ -7,9 +7,10 @@ expected_table_cols = {
         "id": [],
         "type": [],
         "status": [],
+        "date": [],
         "docStatus": [],
         "subject": ["reference"],
-        "context": ["encounter", "period", "start"],
+        "context": {"encounter": ["reference"], "period": ["start"]},
         "category": [],
     }
 }

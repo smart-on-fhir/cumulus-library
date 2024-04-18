@@ -23,21 +23,32 @@ def test_codeable_concept_denormalize_all_creation():
     expected = """CREATE TABLE target__concepts AS (
     WITH
 
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."code_col"
+        FROM
+            source AS t,
+            UNNEST(t."code_col") AS r ("code_col")
+    ),
+
     system_code_col_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            s.row,
             u.codeable_concept.code,
             u.codeable_concept.display,
             u.codeable_concept.system AS code_system
         FROM
-            source AS s,
-            UNNEST(s.code_col) AS cc (cc_row),
-            UNNEST(cc.cc_row.coding) AS u (codeable_concept)
+            flattened_rows AS s,
+            UNNEST(s.code_col.coding) AS u (codeable_concept)
     ), --noqa: LT07
 
     union_table AS (
         SELECT
             id,
+            row,
             code_system,
             code,
             display
@@ -46,6 +57,7 @@ def test_codeable_concept_denormalize_all_creation():
     )
     SELECT
         id,
+        row,
         code,
         code_system,
         display
@@ -69,6 +81,7 @@ def test_codeable_concept_denormalize_filter_creation():
     system_code_col_0 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             '0' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
@@ -83,6 +96,7 @@ def test_codeable_concept_denormalize_filter_creation():
     system_code_col_1 AS (
         SELECT DISTINCT
             s.id AS id,
+            0 AS row,
             '1' AS priority,
             u.codeable_concept.code,
             u.codeable_concept.display,
@@ -97,6 +111,7 @@ def test_codeable_concept_denormalize_filter_creation():
     union_table AS (
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -105,6 +120,7 @@ def test_codeable_concept_denormalize_filter_creation():
         UNION
         SELECT
             id,
+            row,
             priority,
             code_system,
             code,
@@ -116,6 +132,7 @@ def test_codeable_concept_denormalize_filter_creation():
     partitioned_table AS (
         SELECT
             id,
+            row,
             code,
             code_system,
             display,
@@ -126,7 +143,7 @@ def test_codeable_concept_denormalize_filter_creation():
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, priority, code_system, code, display
+        GROUP BY id, row, priority, code_system, code, display
         ORDER BY priority ASC
     )
 
@@ -217,6 +234,7 @@ AS (
         (cast(NULL AS varchar),cast(NULL AS varchar))
     )
         AS t ("a","b")
+    WHERE 1 = 0 -- ensure empty table
 );""",
             "test_schema",
             "test_table",
@@ -231,6 +249,7 @@ AS (
         (cast(NULL AS integer),cast(NULL AS varchar))
     )
         AS t ("a","b")
+    WHERE 1 = 0 -- ensure empty table
 );""",
             "test_schema",
             "test_table",
@@ -283,7 +302,7 @@ def test_extension_denormalize_creation():
             ext_child.ext.valuecoding.display AS prefix_display
         FROM
             source_table AS s,
-            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(s.extension) AS ext_parent (ext),
             UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'fhir_extension'
@@ -300,7 +319,7 @@ def test_extension_denormalize_creation():
             ext_child.ext.valuecoding.display AS prefix_display
         FROM
             source_table AS s,
-            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(s.extension) AS ext_parent (ext),
             UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = 'fhir_extension'

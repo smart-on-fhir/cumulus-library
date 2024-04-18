@@ -45,6 +45,17 @@ class LocalTestbed:
     #
     # All other args can be specified as a kwarg, like add() itself does.
 
+    def add_condition(self, row_id: str, recorded: str = "2020", **kwargs) -> None:
+        """Adds a Condition with all the SQL-required fields filled out"""
+        self.add(
+            "condition",
+            {
+                "id": row_id,
+                "recordedDate": recorded,
+                **kwargs,
+            },
+        )
+
     def add_document_reference(
         self, row_id: str, start: str = "2020", **kwargs
     ) -> None:
@@ -130,6 +141,17 @@ class LocalTestbed:
                     "export_time": time,
                 },
             )
+
+    def add_observation(self, row_id: str, effective: str = "2020", **kwargs) -> None:
+        """Adds a Observation with all the SQL-required fields filled out"""
+        self.add(
+            "observation",
+            {
+                "id": row_id,
+                "effectiveDateTime": effective,
+                **kwargs,
+            },
+        )
 
     def add_patient(
         self, row_id: str, birth_date: str = "2000", gender: str = "unknown", **kwargs
