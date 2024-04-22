@@ -5,13 +5,11 @@ from cumulus_library.template_sql import sql_utils
 expected_table_cols = {
     "documentreference": {
         "id": [],
-        "type": [],
         "status": [],
         "date": [],
         "docStatus": [],
-        "subject": ["reference"],
-        "context": {"encounter": ["reference"], "period": ["start"]},
-        "category": [],
+        "subject": sql_utils.REFERENCE,
+        "context": {"encounter": sql_utils.REFERENCE, "period": ["start"]},
     }
 }
 
@@ -30,6 +28,7 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
         self.queries = sql_utils.denormalize_complex_objects(
             schema,
             cursor,
+            parser,
             [
                 sql_utils.CodeableConceptConfig(
                     source_table="documentreference",
@@ -59,10 +58,11 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                     source_id="id",
                     column_hierarchy=[("content", list), ("format", dict)],
                     target_table="core__documentreference_dn_format",
+                    expected={"format": sql_utils.CODING},
                 ),
             ],
         )
-        validated_schema = core_templates.validate_schema(
+        validated_schema = sql_utils.validate_schema(
             cursor, schema, expected_table_cols, parser
         )
         self.queries.append(

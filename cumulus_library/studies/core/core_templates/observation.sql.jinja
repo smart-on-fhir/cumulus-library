@@ -16,6 +16,8 @@ WITH temp_observation AS (
                 'observation',
                 'o',
                 [
+                    ('encounter', 'reference', 'encounter_ref'),
+                    ('subject', 'reference', 'subject_ref'),
                     'valueString',
                     ('valueQuantity', 'value', 'valueQuantity_value'),
                     ('valueQuantity', 'comparator', 'valueQuantity_comparator'),
@@ -50,9 +52,7 @@ WITH temp_observation AS (
         odvcc.display AS valueCodeableConcept_display,
         odda.code AS dataAbsentReason_code,
         odda.code_system AS dataAbsentReason_code_system,
-        odda.display AS dataAbsentReason_display,
-        o.subject.reference AS subject_ref,
-        o.encounter.reference AS encounter_ref
+        odda.display AS dataAbsentReason_display
     FROM observation AS o
     LEFT JOIN core__observation_dn_category AS odcat ON o.id = odcat.id
     LEFT JOIN core__observation_dn_code AS odc ON o.id = odc.id
@@ -81,8 +81,6 @@ SELECT
     valueQuantity_value,
     valueQuantity_comparator,
     valueQuantity_unit,
-    {#- FIXME 3.0: drop one of these aliases (re: issue #211) -#}
-    valueQuantity_code_system AS valueQuantity_system, -- old alias
     valueQuantity_code_system,
     valueQuantity_code,
     valueString,

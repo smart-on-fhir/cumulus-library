@@ -6,24 +6,14 @@ from cumulus_library.template_sql import sql_utils
 
 expected_table_cols = {
     "encounter": {
+        "id": [],
         "status": [],
         "period": [
             "start",
             "end",
         ],
-        "class": [
-            "code",
-            "system",
-            "display",
-            "userSelected",
-            "version",
-        ],
-        "subject": [
-            "reference",
-            "display",
-            "type",
-        ],
-        "id": [],
+        "class": sql_utils.CODING,
+        "subject": sql_utils.REFERENCE,
     },
     "etl__completion": {
         "group_name": [],
@@ -47,7 +37,7 @@ class EncConfig(sql_utils.CodeableConceptConfig):
 class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Creating Encounter tables..."
 
-    def denormalize_codes(self, schema, cursor):
+    def denormalize_codes(self, schema, cursor, parser):
         code_configs = [
             EncConfig(
                 column_hierarchy=[("type", list)],
@@ -110,11 +100,11 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                     ("hospitalization", dict),
                     ("dischargedisposition", dict),
                 ],
-                filter_priority=False,
+                expected={"dischargedisposition": sql_utils.CODEABLE_CONCEPT},
             ),
         ]
         self.queries += sql_utils.denormalize_complex_objects(
-            schema, cursor, code_configs
+            schema, cursor, parser, code_configs
         )
 
     def prepare_queries(
@@ -128,8 +118,9 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
         self.denormalize_codes(
             schema,
             cursor,
+            parser,
         )
-        validated_schema = core_templates.validate_schema(
+        validated_schema = sql_utils.validate_schema(
             cursor, schema, expected_table_cols, parser
         )
         self.queries += [

@@ -14,11 +14,15 @@ from dataclasses import dataclass, field
 from cumulus_library import base_utils, databases
 from cumulus_library.template_sql import base_templates
 
-# TODO: this should be reworked as part of an evenutal typesystem refactor/FHIRClient
-# cutover, possibly tied to a database parser update
-
-CODING = ["code", "system", "display"]
-CODEABLE_CONCEPT = ["coding", "code", "system", "display"]
+# *** Some convenience constants for providing to validate_schema() ***
+# * Only include necessary fields that we actually use.
+# * If any sub-field is not present, we may ignore the parent-field.
+# * Though, cumulus-fhir-support does guarantee a full Coding or Concept.
+CODING = ["code", "display", "system", "userSelected", "version"]
+# If you think you need CODEABLE_CONCEPT, you probably need a de-normalization table
+# instead, since CodeableConcepts can contain multiple entries.
+CODEABLE_CONCEPT = {"coding": CODING, "text": {}}
+REFERENCE = ["reference"]
 
 
 @dataclass(kw_only=True)
@@ -50,7 +54,7 @@ class CodeableConceptConfig(BaseConfig):
     column_hierarchy: list[tuple]
     filter_priority: bool = False
     code_systems: list = None
-    expected: list = field(default_factory=lambda: CODEABLE_CONCEPT)
+    expected: list | dict = field(default_factory=lambda: CODEABLE_CONCEPT)
 
 
 @dataclass(kw_only=True)
@@ -58,7 +62,7 @@ class CodingConfig(BaseConfig):
     column_hierarchy: list[tuple]
     filter_priority: bool = False
     code_systems: list = None
-    expected: list = field(default_factory=lambda: CODING)
+    expected: list | dict = field(default_factory=lambda: CODING)
 
 
 @dataclass(kw_only=True)
@@ -83,6 +87,7 @@ class ExtensionConfig(BaseConfig):
 def _check_data_in_fields(
     schema: str,
     cursor: databases.DatabaseCursor,
+    parser: databases.DatabaseParser,
     code_sources: list[CodeableConceptConfig],
 ) -> dict:
     """checks if CodeableConcept fields actually have data available
@@ -115,6 +120,7 @@ def _check_data_in_fields(
             code_source.has_data = is_field_populated(
                 schema=schema,
                 cursor=cursor,
+                parser=parser,
                 source_table=code_source.source_table,
                 hierarchy=code_source.column_hierarchy,
                 expected=code_source.expected,
@@ -126,10 +132,11 @@ def _check_data_in_fields(
 def denormalize_complex_objects(
     schema: str,
     cursor: databases.DatabaseCursor,
+    parser: databases.DatabaseParser,
     code_sources: list[BaseConfig],
 ):
     queries = []
-    code_sources = _check_data_in_fields(schema, cursor, code_sources)
+    code_sources = _check_data_in_fields(schema, cursor, parser, code_sources)
     for code_source in code_sources:
         # TODO: This method of pairing classed config objects to
         # specific queries should be considered temporary. This should be
@@ -148,7 +155,14 @@ def denormalize_complex_objects(
                         base_templates.get_ctas_empty_query(
                             schema_name=schema,
                             table_name=code_source.target_table,
-                            table_cols=["id", "code", "code_system", "display"],
+                            table_cols=["id", "row", "code", "code_system", "display"],
+                            table_cols_types=[
+                                "varchar",
+                                "bigint",
+                                "varchar",
+                                "varchar",
+                                "varchar",
+                            ],
                         )
                     )
             case CodingConfig():
@@ -168,10 +182,25 @@ def denormalize_complex_objects(
     return queries
 
 
+def validate_schema(
+    cursor: databases.DatabaseCursor,
+    schema: str,
+    expected_table_cols: dict,
+    parser: databases.DatabaseParser,
+) -> dict:
+    validated_schema = {}
+    for table, cols in expected_table_cols.items():
+        query = base_templates.get_column_datatype_query(schema, table, cols.keys())
+        table_schema = cursor.execute(query).fetchall()
+        validated_schema[table] = parser.validate_table_schema(cols, table_schema)
+    return validated_schema
+
+
 def is_field_populated(
     *,
     schema: str,
     cursor: databases.DatabaseCursor,
+    parser: databases.DatabaseParser,
     source_table: str,
     hierarchy: list[tuple],
     expected: list | None = None,
@@ -191,16 +220,14 @@ def is_field_populated(
     if not _check_schema_if_exists(
         schema=schema,
         cursor=cursor,
+        parser=parser,
         source_table=source_table,
         source_col=hierarchy[0][0],
         expected=expected,
-        nested_field=hierarchy[-1][0] if len(hierarchy) > 1 else None,
     ):
         return False
     unnests = []
     source_field = []
-    last_table_alias = None
-    last_row_alias = None
     for element in hierarchy:
         if element[1] == list:
             unnests.append(
@@ -233,44 +260,36 @@ def _check_schema_if_exists(
     *,
     schema: str,
     cursor: databases.DatabaseCursor,
+    parser: databases.DatabaseParser,
     source_table: str,
     source_col: str,
     expected: str | None = None,
-    nested_field: str | None = None,
 ) -> bool:
     """Validation check for a column existing, and having the expected schema
 
     :keyword schema: The schema/database name
     :keyword cursor: a PEP-249 compliant database cursor
+    :keyword parser: a database schema parser
     :keyword source_table: The table to query against
     :keyword source_col: The column to check the schema against
     :keyword expected: a list of elements that should be present in source_col.
         If none, we assume it is a CodeableConcept.
     :returns: a boolean indicating if the schema was found.
     """
-    try:
-        query = base_templates.get_is_table_not_empty_query(source_table, source_col)
-        cursor.execute(query)
-        if cursor.fetchone() is None:
-            return False
+    if expected is None:
+        expected = CODEABLE_CONCEPT
 
-        query = base_templates.get_column_datatype_query(
-            schema, source_table, [source_col]
-        )
-        cursor.execute(query)
-        schema_str = str(cursor.fetchone()[1])
-        if expected is None:
-            expected = CODEABLE_CONCEPT
-        # TODO: this naievely checks a column for:
-        #   - containing the target field
-        #   - containing the expected elements
-        # but it does not check the elements are actually associated with that field.
-        # This should be revisited once we've got better database parsing logic in place
-        if nested_field:
-            expected = [nested_field, *expected]
-        if any(x not in schema_str.lower() for x in expected):
-            return False
-        return True
+    table_cols = {source_table: {source_col: expected}}
+    schema = validate_schema(cursor, schema, table_cols, parser)
 
-    except Exception:
-        return False
+    def _get_all_values(d: dict) -> list:
+        all_values = []
+        for value in d.values():
+            if isinstance(value, dict):
+                all_values += _get_all_values(value)
+            else:
+                all_values.append(value)
+        return all_values
+
+    all_schema_values = _get_all_values(schema)
+    return all(all_schema_values)

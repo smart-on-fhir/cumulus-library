@@ -1,6 +1,6 @@
 """ Module for generating core medication table"""
 
-from cumulus_library import base_table_builder, base_utils
+from cumulus_library import base_table_builder, base_utils, databases
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import base_templates, sql_utils
 
@@ -8,7 +8,7 @@ from cumulus_library.template_sql import base_templates, sql_utils
 class MedicationBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Creating Medication table..."
 
-    def _check_data_in_fields(self, cursor, schema: str):
+    def _check_data_in_fields(self, cursor, parser, schema: str):
         """Validates whether either observed medication source is present
 
         We opt to not use the core_templates.utils based version of
@@ -37,6 +37,7 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
                 source_table=table,
                 hierarchy=[(inline_col, dict), ("coding", list)],
                 cursor=cursor,
+                parser=parser,
             )
             if data_types["inline"]:
                 query = base_templates.get_column_datatype_query(
@@ -56,8 +57,9 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
                 schema=schema,
                 source_table=table,
                 hierarchy=[("medicationreference", dict), ("reference", dict)],
-                expected=["reference"],
+                expected=sql_utils.REFERENCE,
                 cursor=cursor,
+                parser=parser,
             ):
                 return data_types, has_userselected
 
@@ -83,15 +85,22 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
 
             return data_types, has_userselected
 
-    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs) -> dict:
+    def prepare_queries(
+        self,
+        cursor: databases.DatabaseCursor,
+        schema: str,
+        parser: databases.DatabaseParser = None,
+        *args,
+        **kwargs,
+    ) -> dict:
         """Constructs queries related to condition codeableConcept
 
         :param cursor: A database cursor object
         :param schema: the schema/db name, matching the cursor
-
+        :param parser: A database parser
         """
         medication_datasources, has_userselected = self._check_data_in_fields(
-            cursor, schema
+            cursor, parser, schema
         )
         if (
             medication_datasources["inline"]

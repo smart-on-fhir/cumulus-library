@@ -14,7 +14,9 @@ from cumulus_library.databases import create_db_backend
 
 # Useful constants
 
-MOCK_DATA_DIR = f"{Path(__file__).parent}/test_data/duckdb_data"
+TESTS_ROOT = Path(__file__).parent
+LIBRARY_ROOT = TESTS_ROOT.parent / "cumulus_library"
+MOCK_DATA_DIR = f"{TESTS_ROOT}/test_data/duckdb_data"
 ID_PATHS = {
     "condition": [["id"], ["encounter", "reference"], ["subject", "reference"]],
     "documentreference": [

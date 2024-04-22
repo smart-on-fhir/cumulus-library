@@ -31,7 +31,7 @@ def test_core_observation_component_low_schema(tmp_path):
     testbed.add_observation("No Component")
     con = testbed.build()  # most importantly, this shouldn't blow up
     # Spot check some tables (a basic one, then the custom weird valuequantity one)
-    rows = con.sql("SELECT id FROM core__observation_component_code").fetchall()
+    rows = con.sql("SELECT id, row FROM core__observation_component_code").fetchall()
     assert 0 == len(rows)
     rows = con.sql(
         "SELECT id FROM core__observation_component_valuequantity"

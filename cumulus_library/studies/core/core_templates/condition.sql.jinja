@@ -17,7 +17,6 @@ WITH temp_condition AS (
                 'condition',
                 'c',
                 [
-                    'category',
                     ('subject', 'reference', 'subject_ref'),
                     ('encounter', 'reference', 'encounter_ref'),
                 ], 
@@ -54,9 +53,7 @@ WITH temp_condition AS (
                 ],
                 schema
             ) 
-        }},
-        c.verificationStatus,
-        c.clinicalStatus
+        }}
     FROM condition AS c
     LEFT JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
 )

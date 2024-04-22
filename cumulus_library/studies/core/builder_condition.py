@@ -4,13 +4,10 @@ from cumulus_library.template_sql import base_templates, sql_utils
 
 expected_table_cols = {
     "condition": {
-        "category": [],
-        "clinicalstatus": [],
         "id": [],
         "recordedDate": [],
-        "verificationstatus": [],
-        "subject": ["reference", "display", "type"],
-        "encounter": ["reference", "display", "type"],
+        "subject": sql_utils.REFERENCE,
+        "encounter": sql_utils.REFERENCE,
     }
 }
 
@@ -85,7 +82,7 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
         **kwargs,
     ):
         self.denormalize_codes()
-        validated_schema = core_templates.validate_schema(
+        validated_schema = sql_utils.validate_schema(
             cursor, schema, expected_table_cols, parser
         )
         self.queries.append(

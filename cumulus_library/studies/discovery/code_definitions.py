@@ -1,5 +1,6 @@
 # A collection of codes & codeableConcepts to extract available codes from.
 
+from cumulus_library.template_sql import sql_utils
 
 code_list = [
     # Condition
@@ -24,6 +25,7 @@ code_list = [
     {
         "table_name": "encounter",
         "column_hierarchy": [("class", dict)],
+        "expected": sql_utils.CODING,
     },
     {
         "table_name": "encounter",
@@ -48,6 +50,7 @@ code_list = [
             ("dischargedisposition", dict),
             ("coding", list),
         ],
+        "expected": {"dischargedisposition": sql_utils.CODEABLE_CONCEPT},
     },
     # Medication
     {

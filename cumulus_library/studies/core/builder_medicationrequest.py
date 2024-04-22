@@ -14,10 +14,8 @@ expected_table_cols = {
         "intent": [],
         "authoredOn": [],
         "reportedBoolean": [],
-        "category": ["code", "system", "display"],
-        "medicationCodeableConcept": ["code", "system", "display"],
-        "subject": ["reference"],
-        "encounter": ["reference"],
+        "subject": sql_utils.REFERENCE,
+        "encounter": sql_utils.REFERENCE,
         "dosageInstruction": ["text"],
     }
 }
@@ -54,9 +52,9 @@ class MedicationRequestBuilder(base_table_builder.BaseTableBuilder):
             ),
         ]
         self.queries += sql_utils.denormalize_complex_objects(
-            schema, cursor, code_sources
+            schema, cursor, parser, code_sources
         )
-        validated_schema = core_templates.validate_schema(
+        validated_schema = sql_utils.validate_schema(
             cursor, schema, expected_table_cols, parser
         )
         self.queries.append(

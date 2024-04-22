@@ -9,7 +9,7 @@ expected_table_cols = {
     "patient": {
         "id": [],
         "gender": [],
-        "address": [],
+        "address": {"postalCode": {}},
         "birthDate": [],
     }
 }
@@ -53,7 +53,7 @@ class PatientBuilder(BaseTableBuilder):
                 is_array=True,
             )
             self.queries.append(base_templates.get_extension_denormalize_query(config))
-        validated_schema = core_templates.validate_schema(
+        validated_schema = sql_utils.validate_schema(
             cursor, schema, expected_table_cols, parser
         )
         self.queries.append(

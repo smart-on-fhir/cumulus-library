@@ -9,30 +9,15 @@ from cumulus_library.template_sql import sql_utils
 expected_table_cols = {
     "observation": {
         "id": [],
-        "category": [],
         "component": {
-            "code": [],
-            "dataAbsentReason": [],
             "valueQuantity": ["code", "comparator", "system", "unit", "value"],
         },
         "status": [],
-        "code": [],
-        "interpretation": [],
-        "referenceRange": [
-            "low",
-            "high",
-            "normalValue",
-            "type",
-            "appliesTo",
-            "age",
-            "text",
-        ],
         "effectiveDateTime": [],
-        "valueQuantity": ["value", "comparator", "unit", "system", "code"],
-        "valueCodeableConcept": [],
+        "valueQuantity": ["code", "comparator", "system", "unit", "value"],
         "valueString": [],
-        "subject": ["reference"],
-        "encounter": ["reference"],
+        "subject": sql_utils.REFERENCE,
+        "encounter": sql_utils.REFERENCE,
     }
 }
 
@@ -73,18 +58,22 @@ class ObservationBuilder(base_table_builder.BaseTableBuilder):
             ObsConfig(
                 is_public=True,
                 column_hierarchy=[("component", list), ("code", dict)],
+                expected={"code": sql_utils.CODEABLE_CONCEPT},
             ),
             ObsConfig(
                 is_public=True,
                 column_hierarchy=[("component", list), ("dataabsentreason", dict)],
+                expected={"dataabsentreason": sql_utils.CODEABLE_CONCEPT},
             ),
             ObsConfig(
                 is_public=True,
                 column_hierarchy=[("component", list), ("interpretation", list)],
+                expected={"interpretation": sql_utils.CODEABLE_CONCEPT},
             ),
             ObsConfig(
                 is_public=True,
                 column_hierarchy=[("component", list), ("valuecodeableconcept", dict)],
+                expected={"valuecodeableconcept": sql_utils.CODEABLE_CONCEPT},
             ),
             ObsConfig(
                 column_hierarchy=[("interpretation", list)], filter_priority=False
@@ -100,9 +89,9 @@ class ObservationBuilder(base_table_builder.BaseTableBuilder):
         ]
 
         self.queries += sql_utils.denormalize_complex_objects(
-            schema, cursor, code_sources
+            schema, cursor, parser, code_sources
         )
-        validated_schema = core_templates.validate_schema(
+        validated_schema = sql_utils.validate_schema(
             cursor, schema, expected_table_cols, parser
         )
         self.queries += [

@@ -1,7 +1,6 @@
 """unit tests for counts generation"""
 
 import datetime  # noqa: F401
-from pathlib import Path
 
 import pytest
 import toml
@@ -104,9 +103,7 @@ def test_core_count_missing_data(tmp_path):
 
 
 def test_core_counts_exported(mock_db_core):
-    manifest = toml.load(
-        f"{Path(__file__).parent.parent}/cumulus_library/studies/core/manifest.toml"
-    )
+    manifest = toml.load(f"{conftest.LIBRARY_ROOT}/studies/core/manifest.toml")
     manifest["export_config"]["export_list"].remove("core__meta_version")
     manifest["export_config"]["export_list"].remove("core__meta_date")
     count_tables = (

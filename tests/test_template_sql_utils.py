@@ -32,6 +32,23 @@ from cumulus_library.template_sql import sql_utils
         ("encounter", [("period", dict)], None, False, does_not_raise()),
         # non coding with specific expected fields
         ("encounter", [("period", dict)], ["start", "end"], True, does_not_raise()),
+        # deeply nested field
+        (
+            "encounter",
+            [
+                ("hospitalization", dict),
+                ("dischargeDisposition", dict),
+                ("coding", list),
+            ],
+            {
+                "dischargeDisposition": {
+                    "coding": ["code", "system"],
+                    "text": {},
+                },
+            },
+            True,
+            does_not_raise(),
+        ),
     ],
 )
 def test_is_field_populated(mock_db, table, hierarchy, expected, returns, raises):
@@ -42,5 +59,6 @@ def test_is_field_populated(mock_db, table, hierarchy, expected, returns, raises
             hierarchy=hierarchy,
             expected=expected,
             cursor=mock_db.cursor(),
+            parser=mock_db.parser(),
         )
         assert res == returns

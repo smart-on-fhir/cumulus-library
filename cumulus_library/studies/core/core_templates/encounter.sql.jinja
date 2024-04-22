@@ -26,9 +26,9 @@ temp_encounter_nullable AS (
                 'e',
                 [
                     'status',
-                    'class', 
+                    ('class', 'code', 'class_code'),
+                    ('class', 'system', 'class_code_system'),
                     ('subject', 'reference', 'subject_ref'),
-                    'period',
                 ], 
                 schema
             ) 
@@ -46,7 +46,7 @@ temp_encounter_nullable AS (
                 'encounter',
                 'e',
                 [
-                    ('period','end', 'period_end_day', 'day'),
+                    ('period', 'end', 'period_end_day', 'day'),
                     ('period', 'start', 'period_start_day', 'day'),
                     ('period', 'start', 'period_start_week', 'week'),
                     ('period', 'start', 'period_start_month', 'month'),
@@ -68,7 +68,8 @@ temp_encounter AS (
     SELECT DISTINCT
         e.id,
         e.status,
-        e.class,
+        e.class_code,
+        e.class_code_system,
         e.subject_ref,
         e.period_start,
         e.period_start_day,
@@ -134,7 +135,7 @@ SELECT DISTINCT
     concat('Encounter/', e.id) AS encounter_ref
 FROM temp_encounter AS e
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
-    ON e.class.code = eac.found
+    ON e.class_code = eac.found
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
 INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref
 WHERE
