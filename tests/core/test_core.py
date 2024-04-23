@@ -1,12 +1,10 @@
 """unit tests for counts generation"""
 
 import datetime  # noqa: F401
-from pathlib import Path
 
 import pytest
 import toml
 
-from cumulus_library import cli
 from cumulus_library.studies.core.core_templates import core_templates
 from tests import conftest, testbed_utils
 
@@ -57,23 +55,24 @@ def test_core_tables(mock_db_core, table):
         raise e
 
 
-def test_core_count_missing_data(tmp_path, mock_db):
-    null_code_class = {
-        "id": None,
-        "code": None,
-        "display": None,
-        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-        "userSelected": None,
-        "version": None,
-    }
-    cursor = mock_db.cursor()
-    conftest.modify_resource_column(cursor, "encounter", "class", null_code_class)
+def test_core_count_missing_data(tmp_path):
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    for i in range(10):
+        row_id = str(i)
+        testbed.add_patient(row_id)
+        testbed.add_encounter(
+            row_id,
+            patient=row_id,
+            **{
+                "status": "finished",
+                "class": {
+                    # Note: no other fields here
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                },
+            },
+        )
+    cursor = testbed.build()
 
-    builder = cli.StudyRunner(mock_db, f"{tmp_path}/data_path/")
-    builder.clean_and_build_study(
-        f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
-        stats_build=False,
-    )
     table_rows, cols = conftest.get_sorted_table_data(
         cursor, "core__count_encounter_month"
     )
@@ -104,9 +103,7 @@ def test_core_count_missing_data(tmp_path, mock_db):
 
 
 def test_core_counts_exported(mock_db_core):
-    manifest = toml.load(
-        f"{Path(__file__).parent.parent}/cumulus_library/studies/core/manifest.toml"
-    )
+    manifest = toml.load(f"{conftest.LIBRARY_ROOT}/studies/core/manifest.toml")
     manifest["export_config"]["export_list"].remove("core__meta_version")
     manifest["export_config"]["export_list"].remove("core__meta_date")
     count_tables = (
@@ -184,10 +181,14 @@ def test_core_empty_database(tmp_path):
 def test_core_tiny_database(tmp_path):
     """Verify that we can generate core tables with some minimal data filled in"""
     testbed = testbed_utils.LocalTestbed(tmp_path)
+    # Just add bare resources, with minimal data
+    testbed.add_condition("ConA")
     testbed.add_encounter("EncA")
     con = testbed.build()
     patients = con.sql("SELECT id FROM core__patient").fetchall()
     assert {e[0] for e in patients} == {"A"}
+    conditions = con.sql("SELECT id FROM core__condition").fetchall()
+    assert {c[0] for c in conditions} == {"ConA"}
     encounters = con.sql("SELECT id FROM core__encounter").fetchall()
     assert {e[0] for e in encounters} == {"EncA"}
 

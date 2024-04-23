@@ -307,7 +307,7 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
 @pytest.mark.parametrize(
     "build_args,export_args,expected_tables",
     [
-        (["build", "-t", "core"], ["export", "-t", "core"], 49),
+        (["build", "-t", "core"], ["export", "-t", "core"], 57),
         (
             # checking that a study is loaded from a child directory
             # of a user-defined path
@@ -440,11 +440,11 @@ def test_cli_transactions(tmp_path, study, finishes, raises):
     query = (
         db.cursor().execute("SELECT * from study_valid__lib_transactions").fetchall()
     )
-    assert query[1][2] == "started"
+    assert query[0][2] == "started"
     if finishes:
-        assert query[2][2] == "finished"
+        assert query[1][2] == "finished"
     else:
-        assert query[2][2] == "error"
+        assert query[1][2] == "error"
 
 
 @mock.patch.dict(

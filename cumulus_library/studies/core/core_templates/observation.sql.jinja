@@ -16,11 +16,13 @@ WITH temp_observation AS (
                 'observation',
                 'o',
                 [
+                    ('encounter', 'reference', 'encounter_ref'),
+                    ('subject', 'reference', 'subject_ref'),
                     'valueString',
                     ('valueQuantity', 'value', 'valueQuantity_value'),
                     ('valueQuantity', 'comparator', 'valueQuantity_comparator'),
                     ('valueQuantity', 'unit', 'valueQuantity_unit'),
-                    ('valueQuantity', 'system', 'valueQuantity_system'),
+                    ('valueQuantity', 'system', 'valueQuantity_code_system'),
                     ('valueQuantity', 'code', 'valueQuantity_code'),
                 ],
                 schema
@@ -50,11 +52,7 @@ WITH temp_observation AS (
         odvcc.display AS valueCodeableConcept_display,
         odda.code AS dataAbsentReason_code,
         odda.code_system AS dataAbsentReason_code_system,
-        odda.display AS dataAbsentReason_display,
-        o.referencerange,
-        o.valueQuantity,
-        o.subject.reference AS subject_ref,
-        o.encounter.reference AS encounter_ref
+        odda.display AS dataAbsentReason_display
     FROM observation AS o
     LEFT JOIN core__observation_dn_category AS odcat ON o.id = odcat.id
     LEFT JOIN core__observation_dn_code AS odc ON o.id = odc.id
@@ -83,7 +81,7 @@ SELECT
     valueQuantity_value,
     valueQuantity_comparator,
     valueQuantity_unit,
-    valueQuantity_system,
+    valueQuantity_code_system,
     valueQuantity_code,
     valueString,
     dataAbsentReason_code,

@@ -12,7 +12,7 @@ CREATE TABLE {{ target_table }} AS (
             ext_child.ext.valuecoding.display AS {{ target_col_prefix }}_display
         FROM
             {{ source_table }} AS s,
-            UNNEST(extension) AS ext_parent (ext),
+            UNNEST(s.extension) AS ext_parent (ext),
             UNNEST(ext_parent.ext.extension) AS ext_child (ext)
         WHERE
             ext_parent.ext.url = '{{ fhir_extension }}'

@@ -1,3 +1,7 @@
+-- This file should be replaced with programmatic builders at some point.
+-- But for now, while we create the cow paths of this pattern, they're manual.
+-- We can pave them later.
+
 CREATE TABLE core__observation_lab AS
 SELECT
     co.id,
@@ -33,6 +37,11 @@ SELECT
     co.valueCodeableConcept_code,
     co.valueCodeableConcept_code_system,
     co.valueCodeableConcept_display,
+    co.valueQuantity_value,
+    co.valueQuantity_comparator,
+    co.valueQuantity_unit,
+    co.valueQuantity_code_system,
+    co.valueQuantity_code,
     co.status,
     co.interpretation_code,
     co.interpretation_code_system,

@@ -16,16 +16,20 @@ WITH temp_documentreference AS (
                 'documentreference',
                 'dr',
                 [
-                    'type',
                     'status',
-                    'date',
                     'docStatus',
-                    'context',                
+                    'context',
                     ('subject', 'reference', 'subject_ref'),
-                    ('context', 'period', 'start', 'author_date')
                 ], 
                 schema
             ) 
+        }},
+        {{- utils.date_cols_from_str(
+                'documentreference',
+                'dr',
+                ['date'],
+                schema
+            )
         }},
         {{- utils.truncate_date_cols(
                 'documentreference',
@@ -54,7 +58,7 @@ temp_encounters AS (
     SELECT
         tdr.id,
 
-{% if schema["documentreference"]["context"]["encounter"] %}
+{% if schema["documentreference"]["context"]["encounter"]["reference"] %}
         context_encounter.encounter.reference AS encounter_ref
     FROM temp_documentreference AS tdr,
          unnest(context.encounter) AS context_encounter (encounter) --noqa

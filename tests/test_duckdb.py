@@ -83,7 +83,12 @@ def test_duckdb_table_schema():
             json.dump(
                 {
                     "id": "test",
-                    "component": [{"dataAbsentReason": {"text": "Dunno"}}],
+                    "component": [
+                        {
+                            "dataAbsentReason": {"text": "Dunno"},
+                            "valuePeriod": {"id": "X"},
+                        }
+                    ],
                     "valueBoolean": False,
                 },
                 ndjson,
@@ -94,7 +99,11 @@ def test_duckdb_table_schema():
         # Look for a mix of camel-cased and lower-cased fields. Both should work.
         target_schema = {
             "bodySite": [],
-            "CoMpOnEnT": ["dataabsentreason", "valueQuantity"],
+            "CoMpOnEnT": {
+                "dataabsentreason": [],
+                "valuePeriod": ["id"],
+                "valueQuantity": [],
+            },
             "not_a_real_field": [],
             "valueboolean": [],
         }
@@ -118,6 +127,7 @@ def test_duckdb_table_schema():
             "bodySite": True,  # real toplevel fields are guaranteed to be in schema
             "CoMpOnEnT": {
                 "dataabsentreason": True,
+                "valuePeriod": {"id": True},
                 "valueQuantity": False,
             },
             "not_a_real_field": False,

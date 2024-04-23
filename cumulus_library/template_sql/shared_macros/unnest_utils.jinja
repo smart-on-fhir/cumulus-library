@@ -1,0 +1,22 @@
+{# Flattens an array into multiple rows, with ordinality #}
+
+{%- macro flatten(table, field, parent_field = null, source_id = 'id') -%}
+        SELECT DISTINCT
+            t.{{ source_id }} AS id,
+            {#-
+                TODO: switch to using WITH ORDINALITY once this PR lands:
+                    https://github.com/duckdb/duckdb/pull/9014
+                Because ordering with this approach is not 100% guaranteed,
+                even though in practice, a SQL engine would be real rude to
+                give us back unnested rows in an arbitrary order.
+            #}
+            ROW_NUMBER() OVER (PARTITION BY {{ source_id }}) AS row,
+            r."{{ field }}"
+        FROM
+            {{ table }} AS t,
+            {%- if parent_field %}
+            UNNEST(t."{{ parent_field }}") AS parent (r)
+            {%- else %}
+            UNNEST(t."{{ field }}") AS r ("{{ field }}")
+            {%- endif %}
+{%- endmacro -%}
