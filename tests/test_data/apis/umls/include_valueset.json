@@ -1,0 +1,62 @@
+{
+    "--comment--": "this file is an example of a VSAC valueset respsonse which includes references to other value sets. It is part of the public COVID data set, and is otherwise unmodified except for this comment, and changing the included valueset references to point at the single_valueset.json",
+    "resourceType": "ValueSet",
+    "id": "2.16.840.1.113883.3.3616.200.110.102.7001",
+    "meta": {
+        "versionId": "17",
+        "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+        "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+        ]
+    },
+    "extension": [
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueString": "Clinical Architecture"
+        },
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/resource-lastReviewDate",
+            "valueDate": "2023-06-21"
+        },
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-effectiveDate",
+            "valueDate": "2022-12-13"
+        }
+    ],
+    "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.3616.200.110.102.7001",
+    "identifier": [
+        {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.3616.200.110.102.7001"
+        }
+    ],
+    "version": "20221213",
+    "name": "COVID19ICD10CMValueSets",
+    "title": "COVID19 ICD10CM Value Sets",
+    "status": "retired",
+    "date": "2023-06-21T18:16:37-04:00",
+    "publisher": "Clinical Architecture",
+    "description": "This is a collection of value sets for signs, symptoms, diagnoses, administrative data, and other concepts related to COVID-19. These value sets are curated by Clinical Architecture on behalf of CareEvolution, MITRE, SNOMED, and other COVID-19 Interoperability Alliance (https://covid19ia.org) collaborators.",
+    "jurisdiction": [
+        {
+            "extension": [
+                {
+                    "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                    "valueCode": "unknown"
+                }
+            ]
+        }
+    ],
+    "purpose": "(Clinical Focus: ),(Data Element Scope: ),(Inclusion Criteria: ),(Exclusion Criteria: )",
+    "compose": {
+        "include": [
+            {
+                "valueSet": [
+                    "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.3616.200.110.102.3186"
+                ]
+            }
+        ]
+    }
+}

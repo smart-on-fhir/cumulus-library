@@ -15,7 +15,7 @@ from pathlib import Path
 from unittest import mock
 
 import pytest
-import requests_mock
+import responses
 import toml
 
 from cumulus_library import cli, errors
@@ -522,22 +522,23 @@ def test_cli_stats_rebuild(tmp_path):
         ),
     ],
 )
+@responses.activate
 def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
     mock_glob.side_effect = [
         [Path(__file__)],
         [Path(str(Path(__file__).parent) + "/test_data/count_synthea_patient.parquet")],
     ]
     with raises:
-        with requests_mock.Mocker() as r:
-            if login_error:
-                r.post("https://upload.url.test/upload/", status_code=401)
-            else:
-                r.post(
-                    "https://upload.url.test/upload/",
-                    json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
-                )
-            r.post("https://presigned.url.test", status_code=status)
-            cli.main(cli_args=[*args, "--url", "https://upload.url.test/upload/"])
+        if login_error:
+            responses.add(responses.POST, "https://upload.url.test/upload/", status=401)
+        else:
+            responses.add(
+                responses.POST,
+                "https://upload.url.test/upload/",
+                json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
+            )
+        responses.add(responses.POST, "https://presigned.url.test", status=status)
+        cli.main(cli_args=[*args, "--url", "https://upload.url.test/upload/"])
 
 
 @pytest.mark.parametrize(

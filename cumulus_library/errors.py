@@ -21,3 +21,7 @@ class StudyManifestParsingError(Exception):
 
 class StudyManifestQueryError(Exception):
     """Errors related to data queries from StudyManifestParser"""
+
+
+class ApiError(Exception):
+    """Errors from external API calls"""
