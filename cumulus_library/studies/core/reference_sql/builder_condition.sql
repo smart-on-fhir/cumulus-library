@@ -419,7 +419,6 @@ CREATE TABLE core__condition AS
 WITH temp_condition AS (
     SELECT
         c.id,
-        c.category,
         c.subject.reference AS subject_ref,
         c.encounter.reference AS encounter_ref,
         cca.code,
@@ -431,9 +430,7 @@ WITH temp_condition AS (
         date_trunc('month', date(from_iso8601_timestamp(c."recordedDate")))
             AS recordedDate_month,
         date_trunc('year', date(from_iso8601_timestamp(c."recordedDate")))
-            AS recordedDate_year,
-        c.verificationStatus,
-        c.clinicalStatus
+            AS recordedDate_year
     FROM condition AS c
     LEFT JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id
 )

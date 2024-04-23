@@ -72,7 +72,7 @@ CREATE TABLE {{ target_table }} AS (
             {%- endif %}
             ROW_NUMBER()
                 OVER (
-                    PARTITION BY id, system
+                    PARTITION BY id
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table

@@ -100,7 +100,6 @@ WITH temp_mr AS (
         date(from_iso8601_timestamp(mr.authoredOn)) AS authoredOn,
         date_trunc('month', date(from_iso8601_timestamp(mr."authoredOn")))
             AS authoredOn_month,
-        cast(NULL as varchar) AS display,
         mr.reportedBoolean,
         mr.dosageInstruction,
         mr.subject.reference AS subject_ref,

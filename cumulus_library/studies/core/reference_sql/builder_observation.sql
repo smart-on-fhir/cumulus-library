@@ -244,9 +244,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__observation_component_valuecodeableconc
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
     )
-        AS t ("id","code","code_system","display")
+        AS t ("id","row","code","code_system","display")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -256,9 +256,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__observation_dn_interpretation"
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
     )
-        AS t ("id","code","code_system","display")
+        AS t ("id","row","code","code_system","display")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -304,9 +304,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__observation_dn_dataabsentreason"
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
     )
-        AS t ("id","code","code_system","display")
+        AS t ("id","row","code","code_system","display")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -319,6 +319,8 @@ WITH temp_observation AS (
     SELECT
         o.id,
         o.status,
+        o.encounter.reference AS encounter_ref,
+        o.subject.reference AS subject_ref,
         o.valueString,
         o.valueQuantity.value AS valueQuantity_value,
         o.valueQuantity.comparator AS valueQuantity_comparator,
@@ -345,9 +347,7 @@ WITH temp_observation AS (
         odvcc.display AS valueCodeableConcept_display,
         odda.code AS dataAbsentReason_code,
         odda.code_system AS dataAbsentReason_code_system,
-        odda.display AS dataAbsentReason_display,
-        o.subject.reference AS subject_ref,
-        o.encounter.reference AS encounter_ref
+        odda.display AS dataAbsentReason_display
     FROM observation AS o
     LEFT JOIN core__observation_dn_category AS odcat ON o.id = odcat.id
     LEFT JOIN core__observation_dn_code AS odc ON o.id = odc.id
@@ -375,7 +375,7 @@ SELECT
     valueCodeableConcept_display,
     valueQuantity_value,
     valueQuantity_comparator,
-    valueQuantity_unit,valueQuantity_code_system AS valueQuantity_system, -- old alias
+    valueQuantity_unit,
     valueQuantity_code_system,
     valueQuantity_code,
     valueString,

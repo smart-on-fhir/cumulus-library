@@ -273,9 +273,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__encounter_dn_servicetype"
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
     )
-        AS t ("id","code","code_system","display")
+        AS t ("id","row","code","code_system","display")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -285,9 +285,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__encounter_dn_priority"
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
     )
-        AS t ("id","code","code_system","display")
+        AS t ("id","row","code","code_system","display")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -571,9 +571,9 @@ temp_encounter_nullable AS (
     SELECT DISTINCT
         e.id,
         e.status,
-        e.class,
+        e.class.code AS class_code,
+        e.class.system AS class_code_system,
         e.subject.reference AS subject_ref,
-        e.period,
         date(from_iso8601_timestamp(e.period.start)) AS period_start,
         date_trunc('day', date(from_iso8601_timestamp(e."period"."end")))
             AS period_end_day,
@@ -598,7 +598,8 @@ temp_encounter AS (
     SELECT DISTINCT
         e.id,
         e.status,
-        e.class,
+        e.class_code,
+        e.class_code_system,
         e.subject_ref,
         e.period_start,
         e.period_start_day,
@@ -664,7 +665,7 @@ SELECT DISTINCT
     concat('Encounter/', e.id) AS encounter_ref
 FROM temp_encounter AS e
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
-    ON e.class.code = eac.found
+    ON e.class_code = eac.found
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
 INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref
 WHERE

@@ -43,23 +43,6 @@ CREATE TABLE core__patient_ext_race AS (
             AND ext_child.ext.valuecoding.display != ''
     ),
 
-    system_text AS (
-        SELECT DISTINCT
-            s.id AS id,
-            '2' AS priority,
-            'text' AS system, -- noqa: RF04
-            ext_child.ext.valuecoding.code AS race_code,
-            ext_child.ext.valuecoding.display AS race_display
-        FROM
-            patient AS s,
-            UNNEST(s.extension) AS ext_parent (ext),
-            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
-        WHERE
-            ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
-            AND ext_child.ext.url = 'text'
-            AND ext_child.ext.valuecoding.display != ''
-    ),
-
     union_table AS (
         SELECT
             id,
@@ -76,14 +59,6 @@ CREATE TABLE core__patient_ext_race AS (
             race_code,
             race_display
         FROM system_detailed
-        UNION
-        SELECT
-            id,
-            priority,
-            system,
-            race_code,
-            race_display
-        FROM system_text
         
         ORDER BY id, priority
     )
@@ -118,7 +93,7 @@ CREATE TABLE core__patient_ext_race AS (
             ) AS race_display,
             ROW_NUMBER()
                 OVER (
-                    PARTITION BY id, system
+                    PARTITION BY id
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
@@ -166,23 +141,6 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             AND ext_child.ext.valuecoding.display != ''
     ),
 
-    system_text AS (
-        SELECT DISTINCT
-            s.id AS id,
-            '2' AS priority,
-            'text' AS system, -- noqa: RF04
-            ext_child.ext.valuecoding.code AS ethnicity_code,
-            ext_child.ext.valuecoding.display AS ethnicity_display
-        FROM
-            patient AS s,
-            UNNEST(s.extension) AS ext_parent (ext),
-            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
-        WHERE
-            ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'
-            AND ext_child.ext.url = 'text'
-            AND ext_child.ext.valuecoding.display != ''
-    ),
-
     union_table AS (
         SELECT
             id,
@@ -199,14 +157,6 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             ethnicity_code,
             ethnicity_display
         FROM system_detailed
-        UNION
-        SELECT
-            id,
-            priority,
-            system,
-            ethnicity_code,
-            ethnicity_display
-        FROM system_text
         
         ORDER BY id, priority
     )
@@ -241,7 +191,7 @@ CREATE TABLE core__patient_ext_ethnicity AS (
             ) AS ethnicity_display,
             ROW_NUMBER()
                 OVER (
-                    PARTITION BY id, system
+                    PARTITION BY id
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table

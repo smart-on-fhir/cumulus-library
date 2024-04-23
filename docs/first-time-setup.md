@@ -8,15 +8,20 @@ nav_order: 1
 
 # First Time Setup
 
+## Prerequisites
+
+1. Python 3.10 or later.
+2. Access to an AWS cloud services account.
+See the [AWS setup guide](./aws-setup.md) for more information on this.
+3. An Athena database populated by
+[Cumulus ETL](https://docs.smarthealthit.org/cumulus/etl/)
+version 1.0 or later
+
 ## Installation
 
-As a prerequisite, you'll need a copy of python 3.10 or later installed on
-your system, and you'll need access to an AWS cloud services account.
+You can install directly from pypi by running:
 
-You can install directly from pypi by running `pip install cumulus-library`.
-
-You will also need to make sure your machine is configured correctly to talk to AWS
-services. See the [AWS setup guide](./aws-setup.md) for more information on this.
+`pip install cumulus-library`
 
 ## Command line usage
 

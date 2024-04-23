@@ -362,7 +362,7 @@ def test_extension_denormalize_creation():
             ) AS prefix_display,
             ROW_NUMBER()
                 OVER (
-                    PARTITION BY id, system
+                    PARTITION BY id
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
