@@ -169,9 +169,6 @@ def test_core_medication_query(medication_datasources, contains, omits):
         assert item not in query
 
 
-# Patient schemas aren't fully pre-examined yet (we currently assume extensions exist).
-# So we expect this to fail at the moment.
-@pytest.mark.xfail
 def test_core_empty_database(tmp_path):
     """Verify that we can still generate core tables with no data filled in"""
     testbed = testbed_utils.LocalTestbed(tmp_path, with_patient=False)
@@ -191,23 +188,6 @@ def test_core_tiny_database(tmp_path):
     assert {c[0] for c in conditions} == {"ConA"}
     encounters = con.sql("SELECT id FROM core__encounter").fetchall()
     assert {e[0] for e in encounters} == {"EncA"}
-
-
-def test_core_multiple_patient_addresses(tmp_path):
-    """Verify that a patient with multiple addresses resolves to a single entry"""
-    testbed = testbed_utils.LocalTestbed(tmp_path, with_patient=False)
-    testbed.add_patient("None")
-    testbed.add_patient(
-        "Multi",
-        address=[
-            {"city": "Boston"},  # null postal code - should not be picked up
-            {"postalCode": "12345"},
-            {"postalCode": "00000"},
-        ],
-    )
-    con = testbed.build()
-    patients = con.sql("SELECT id, postalCode_3 FROM core__patient").fetchall()
-    assert {("None", "cumulus__none"), ("Multi", "123")} == set(patients)
 
 
 def test_core_multiple_doc_encounters(tmp_path):

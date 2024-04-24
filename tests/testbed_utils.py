@@ -163,23 +163,6 @@ class LocalTestbed:
                 "id": row_id,
                 "birthDate": birth_date,
                 "gender": gender,
-                # TODO: fix the core SQL to check for extensions in the schema
-                #  before querying them. In the meantime, we can just ensure
-                #  those fields exist, ready to be queried.
-                "extension": [
-                    {
-                        "url": "",
-                        "extension": [
-                            {
-                                "url": "",
-                                "valueCoding": {
-                                    "code": "",
-                                    "display": "",
-                                },
-                            }
-                        ],
-                    }
-                ],
                 **kwargs,
             },
         )

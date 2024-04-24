@@ -203,9 +203,12 @@ def is_field_populated(
     parser: databases.DatabaseParser,
     source_table: str,
     hierarchy: list[tuple],
-    expected: list | None = None,
+    expected: list | dict | None = None,
 ) -> bool:
     """Traverses a complex field and determines if it exists and has data
+
+    Non-core studies that rely on the core tables shouldn't need this method.
+    This is just to examine the weird and wonderful world of the raw FHIR tables.
 
     :keyword schema: The schema/database name
     :keyword cursor: a PEP-249 compliant database cursor
@@ -217,7 +220,7 @@ def is_field_populated(
         If none, we assume it is a CodeableConcept.
     :returns: a boolean indicating if valid data is present.
     """
-    if not _check_schema_if_exists(
+    if not is_field_present(
         schema=schema,
         cursor=cursor,
         parser=parser,
@@ -256,14 +259,14 @@ def is_field_populated(
     return True
 
 
-def _check_schema_if_exists(
+def is_field_present(
     *,
     schema: str,
     cursor: databases.DatabaseCursor,
     parser: databases.DatabaseParser,
     source_table: str,
     source_col: str,
-    expected: str | None = None,
+    expected: list | dict | None = None,
 ) -> bool:
     """Validation check for a column existing, and having the expected schema
 

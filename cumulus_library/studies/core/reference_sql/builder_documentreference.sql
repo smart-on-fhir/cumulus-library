@@ -153,7 +153,6 @@ CREATE TABLE core__documentreference AS
 WITH temp_documentreference AS (
     SELECT DISTINCT
         dr.id,
-        dr.type,
         dr.status,
         dr.docStatus,
         dr.context,
