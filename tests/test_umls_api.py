@@ -128,6 +128,8 @@ def test_get_valueset(url, oid, expected_oids, raises):
 )
 @responses.activate
 def test_download_umls(tmp_path):
+    # this zip file is just an archive made by targeting the other .json files
+    # in the same directory
     with open("./tests/test_data/apis/umls/umls.zip", "rb") as download_zip:
         responses.add(
             responses.GET,

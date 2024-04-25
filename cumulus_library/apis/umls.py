@@ -36,13 +36,11 @@ class UmlsApi:
         """
 
         if api_key is None:
-            api_key = os.environ.get("UMLS_API_KEY", None)
+            api_key = os.environ.get("UMLS_API_KEY")
             if api_key is None:
                 raise errors.ApiError("No UMLS API key provided")
         self.api_key = api_key
-        if validator_key is None:
-            validator_key = api_key
-        self.validator_key = validator_key
+        self.validator_key = validator_key or api_key
 
         auth_payload = {"validatorApiKey": self.validator_key, "apiKey": self.api_key}
         self.session = requests.Session()
@@ -88,16 +86,13 @@ class UmlsApi:
         response = self.session.get(url)
         if response.status_code == 404:
             raise errors.ApiError(f"Url not found: {url}")
-        res_json = response.json()
-        if "compose" in res_json and "include" in res_json["compose"]:
-            nested_valuesets = []
-            for record in res_json["compose"]["include"]:
-                if "valueSet" in record:
-                    nested_get = self.get_vsac_valuesets(url=record["valueSet"][0])
-                    nested_valuesets.append(nested_get[0])
-
-            return [response.json(), *nested_valuesets]
-        return response.json()
+        all_responses = [response.json()]
+        included_records = all_responses[0].get("compose", {}).get("include", [])
+        for record in included_records:
+            if "valueSet" in record:
+                valueset = self.get_vsac_valuesets(url=record["valueSet"][0])
+                all_responses.append(valueset[0])
+        return all_responses
 
     def download_umls_files(
         self,
@@ -150,3 +145,4 @@ class UmlsApi:
                         ),
                     )
         base_utils.unzip_file(path / file_meta["fileName"], path)
+        (path / file_meta["fileName"]).unlink()
