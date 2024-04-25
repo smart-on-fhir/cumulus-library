@@ -3,6 +3,7 @@
 import datetime
 import json
 import os
+import pathlib
 import shutil
 import zipfile
 from contextlib import contextmanager
@@ -99,3 +100,10 @@ def zip_dir(read_path, write_path, archive_name):
             f.write(file, file.relative_to(read_path))
             file.unlink()
         shutil.rmtree(read_path)
+
+
+def unzip_file(file_path: pathlib.Path, write_path: pathlib.Path):
+    """Expands a zip archive"""
+    with zipfile.ZipFile(file_path, mode="r") as z:
+        for file in z.namelist():
+            z.extract(file, write_path)

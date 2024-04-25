@@ -7,6 +7,8 @@ data_export/
 cumulus_library_columns.json
 output.sql
 *generated.md
+MRCONSO.RRF
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
