@@ -23,12 +23,13 @@ CREATE TABLE core__medicationrequest_dn_category AS (
         SELECT DISTINCT
             s.id AS id,
             s.row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.category.coding) AS u (codeable_concept)
+            UNNEST(s.category.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -37,7 +38,8 @@ CREATE TABLE core__medicationrequest_dn_category AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_category_0
         
     )
@@ -46,43 +48,8 @@ CREATE TABLE core__medicationrequest_dn_category AS (
         row,
         code,
         code_system,
-        display
-    FROM union_table
-);
-
-
--- ###########################################################
-
-CREATE TABLE core__medicationrequest_dn_medication AS (
-    WITH
-
-    system_medicationcodeableconcept_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            0 AS row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
-        FROM
-            medicationrequest AS s,
-            UNNEST(s.medicationcodeableconcept.coding) AS u (codeable_concept)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            code_system,
-            code,
-            display
-        FROM system_medicationcodeableconcept_0
-        
-    )
-    SELECT
-        id,
-        code,
-        code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -92,7 +59,18 @@ CREATE TABLE core__medicationrequest_dn_medication AS (
 
 
 CREATE TABLE core__medicationrequest AS
-WITH temp_mr AS (
+WITH
+
+tmp_dn_dosage_text AS (
+    SELECT
+        mr.id,
+        u.dosageInstruction.text AS dosageInstruction_text
+    FROM medicationrequest AS mr,
+        UNNEST(mr.dosageInstruction) AS u (dosageInstruction)
+    WHERE u.dosageInstruction.text IS NOT NULL
+),
+
+temp_mr AS (
     SELECT
         mr.id,
         mr.status,
@@ -101,17 +79,18 @@ WITH temp_mr AS (
         date_trunc('month', date(from_iso8601_timestamp(mr."authoredOn")))
             AS authoredOn_month,
         mr.reportedBoolean,
-        mr.dosageInstruction,
         mr.subject.reference AS subject_ref,
         mr.encounter.reference AS encounter_ref,
         mrc.code AS category_code,
         mrc.code_system AS category_code_system,
         mrm.code AS medication_code,
         mrm.code_system AS medication_code_system,
-        mrm.display AS medication_display
+        mrm.display AS medication_display,
+        mrdt.dosageInstruction_text
     FROM medicationrequest AS mr
     LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
-    LEFT JOIN core__medicationrequest_dn_medication AS mrm ON mr.id = mrm.id
+    LEFT JOIN core__medicationrequest_dn_inline_code AS mrm ON mr.id = mrm.id
+    LEFT JOIN tmp_dn_dosage_text AS mrdt ON mr.id = mrdt.id
     WHERE mrm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
 )
 
@@ -127,8 +106,7 @@ SELECT
     mr.medication_display,
     mr.authoredOn,
     mr.authoredOn_month,
-    dose_row.dose_col.text AS dosageInstruction_text,
+    mr.dosageInstruction_text,
     mr.subject_ref,
     mr.encounter_ref
-FROM temp_mr AS mr,
-    UNNEST(mr.dosageInstruction) AS dose_row (dose_col)
+FROM temp_mr AS mr

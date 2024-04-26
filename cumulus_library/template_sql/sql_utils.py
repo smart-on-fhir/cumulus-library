@@ -49,12 +49,17 @@ class CodeableConceptConfig(BaseConfig):
     :keyword code_systems: a list of strings matching the start of the systems field,
       in preference order, for selecting data for filtering. This should not be set
       if filter_priority is false.
+    :keyword expected: a schema fragment for what the shape of this field should be.
+      If any bit of this schema fragment is not present, there will be no results.
+    :keyword extra_fields: extra fields to include, as siblings of the concept.
+      It's a list of tuples (field, alias).
     """
 
     column_hierarchy: list[tuple]
     filter_priority: bool = False
     code_systems: list = None
     expected: list | dict = field(default_factory=lambda: CODEABLE_CONCEPT)
+    extra_fields: list[tuple] = None  # candidate for moving into base config
 
 
 @dataclass(kw_only=True)
@@ -151,18 +156,31 @@ def denormalize_complex_objects(
                         )
                     )
                 else:
+                    table_cols = [
+                        "id",
+                        "row",
+                        "code",
+                        "code_system",
+                        "display",
+                        "userSelected",
+                    ]
+                    col_types = [
+                        "varchar",
+                        "bigint",
+                        "varchar",
+                        "varchar",
+                        "varchar",
+                        "boolean",
+                    ]
+                    if code_source.extra_fields:
+                        table_cols += [f[1] for f in code_source.extra_fields]
+                        col_types += ["varchar"] * len(code_source.extra_fields)
                     queries.append(
                         base_templates.get_ctas_empty_query(
                             schema_name=schema,
                             table_name=code_source.target_table,
-                            table_cols=["id", "row", "code", "code_system", "display"],
-                            table_cols_types=[
-                                "varchar",
-                                "bigint",
-                                "varchar",
-                                "varchar",
-                                "varchar",
-                            ],
+                            table_cols=table_cols,
+                            table_cols_types=col_types,
                         )
                     )
             case CodingConfig():

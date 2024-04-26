@@ -13,12 +13,13 @@ CREATE TABLE core__documentreference_dn_type AS (
         SELECT DISTINCT
             s.id AS id,
             0 AS row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             documentreference AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -27,7 +28,8 @@ CREATE TABLE core__documentreference_dn_type AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_0
         
     )
@@ -35,7 +37,8 @@ CREATE TABLE core__documentreference_dn_type AS (
         id,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -60,14 +63,15 @@ CREATE TABLE core__documentreference_dn_category AS (
             s.id AS id,
             s.row,
             '0' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.category.coding) AS u (codeable_concept)
+            UNNEST(s.category.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-category'
+            u.coding.system LIKE 'http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-category'
     ), --noqa: LT07
 
     union_table AS (
@@ -77,7 +81,8 @@ CREATE TABLE core__documentreference_dn_category AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_category_0
         
     ),
@@ -89,6 +94,7 @@ CREATE TABLE core__documentreference_dn_category AS (
             code,
             code_system,
             display,
+            userSelected,
             priority,
             ROW_NUMBER()
                 OVER (
@@ -96,7 +102,8 @@ CREATE TABLE core__documentreference_dn_category AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, row, priority, code_system, code, display
+        GROUP BY
+            id, row, priority, code_system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -105,7 +112,8 @@ CREATE TABLE core__documentreference_dn_category AS (
         row,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM partitioned_table
     WHERE available_priority = 1
 );

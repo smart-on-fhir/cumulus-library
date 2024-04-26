@@ -1,15 +1,28 @@
 {%- import 'syntax.sql.jinja' as syntax -%}
 {%- import 'unnest_utils.jinja' as unnest_utils -%}
+
+{% set extra_alias_done = false -%}
+
 CREATE TABLE {{ target_table }} AS (
     WITH
     {%- if is_array %}
 
     flattened_rows AS (
-        {{ unnest_utils.flatten(source_table, column_name, parent_field=parent_field) }}
+        {{ unnest_utils.flatten(
+            source_table,
+            column_name,
+            parent_field=parent_field,
+            extra_fields=extra_fields,
+        ) }}
     ),
     {%- set source_table = 'flattened_rows' -%}
     {%- set parent_field = false %}
+    {%- set extra_alias_done = true %}
     {%- endif %}
+
+    {%- set field_alias = (
+        (parent_field + "." + column_name) if parent_field else column_name
+    ) %}
 
     {%- if child_is_array %}
 
@@ -19,18 +32,21 @@ CREATE TABLE {{ target_table }} AS (
             {%- if is_array %}
             s.row, -- keep the parent row number
             {%- endif %}
+            {%- for extra_field in extra_fields %}
+            {%- if extra_alias_done %}
+            {{ extra_field[1] }},
+            {%- else %}
+            s.{{ extra_field[0] }} AS {{ extra_field[1] }},
+            {%- endif %}
+            {%- endfor %}
             u."{{ column_name }}"
         FROM
             {{ source_table }} AS s,
-        {%- if parent_field %}
-            UNNEST(s."{{ parent_field }}"."{{ column_name }}")
-            AS u ("{{ column_name }}")
-        {%- else %}
-            UNNEST(s."{{ column_name }}") AS u ("{{ column_name }}")
-        {%- endif %}
+            UNNEST(s.{{ field_alias }}) AS u ("{{ column_name }}")
     ),
     {%- set source_table = 'child_flattened_rows' -%}
-    {%- set parent_field = false %}
+    {%- set field_alias = column_name %}
+    {%- set extra_alias_done = true %}
     {%- endif %}
 
     {%- for system in code_systems %}
@@ -46,21 +62,24 @@ CREATE TABLE {{ target_table }} AS (
             {%- if filter_priority %}
             '{{ loop.index0 }}' AS priority,
             {%- endif %}
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            {%- for extra_field in extra_fields %}
+            {%- if extra_alias_done %}
+            {{ extra_field[1] }},
+            {%- else %}
+            s.{{ extra_field[0] }} AS {{ extra_field[1] }},
+            {%- endif %}
+            {%- endfor %}
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
-        {#- Temp workaround - to be reworked by generic DN -#}
-        {%- if parent_field %}
+        {#- Temp workaround - to be reworked by generic DN #}
             {{ source_table }} AS s,
-            UNNEST(s.{{ parent_field }}.{{ column_name }}.coding) AS u (codeable_concept)
-        {%- else %}
-            {{ source_table }} AS s,
-            UNNEST(s.{{ column_name }}.coding) AS u (codeable_concept)
-        {%- endif %}
+            UNNEST(s.{{ field_alias }}.coding) AS u (coding)
         {%- if filter_priority %}
         WHERE
-            u.codeable_concept.system LIKE '{{ system }}'
+            u.coding.system LIKE '{{ system }}'
         {%- endif %}
     ), --noqa: LT07
     {%- endfor %}
@@ -73,9 +92,13 @@ CREATE TABLE {{ target_table }} AS (
             {%- if filter_priority %}
             priority,
             {%- endif %}
+            {%- for extra_field in extra_fields %}
+            {{ extra_field[1] }},
+            {%- endfor %}
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_{{ column_name }}_{{ loop.index0 }}
         {{ syntax.union_delineate(loop) }}
         {%- endfor %}
@@ -86,9 +109,13 @@ CREATE TABLE {{ target_table }} AS (
         SELECT
             id,
             row,
+            {%- for extra_field in extra_fields %}
+            {{ extra_field[1] }},
+            {%- endfor %}
             code,
             code_system,
             display,
+            userSelected,
             priority,
             ROW_NUMBER()
                 OVER (
@@ -96,7 +123,9 @@ CREATE TABLE {{ target_table }} AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, row, priority, code_system, code, display
+        GROUP BY
+            id, row, priority, code_system, code, display, userSelected
+            {%- for extra_field in extra_fields %}, {{ extra_field[1] }}{% endfor %}
         ORDER BY priority ASC
     )
 
@@ -105,9 +134,13 @@ CREATE TABLE {{ target_table }} AS (
         {%- if is_array %}
         row,
         {%- endif %}
+        {%- for extra_field in extra_fields %}
+        {{ extra_field[1] }},
+        {%- endfor %}
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM partitioned_table
     WHERE available_priority = 1
 );
@@ -117,9 +150,13 @@ CREATE TABLE {{ target_table }} AS (
         {%- if is_array %}
         row,
         {%- endif %}
+        {%- for extra_field in extra_fields %}
+        {{ extra_field[1] }},
+        {%- endfor %}
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 {% endif %}

@@ -23,12 +23,13 @@ CREATE TABLE core__condition_dn_category AS (
         SELECT DISTINCT
             s.id AS id,
             s.row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.category.coding) AS u (codeable_concept)
+            UNNEST(s.category.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -37,7 +38,8 @@ CREATE TABLE core__condition_dn_category AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_category_0
         
     )
@@ -46,7 +48,8 @@ CREATE TABLE core__condition_dn_category AS (
         row,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -61,14 +64,15 @@ CREATE TABLE core__condition_dn_clinical_status AS (
             s.id AS id,
             0 AS row,
             '0' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.clinicalStatus.coding) AS u (codeable_concept)
+            UNNEST(s.clinicalStatus.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://terminology.hl7.org/CodeSystem/condition-clinical'
+            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/condition-clinical'
     ), --noqa: LT07
 
     union_table AS (
@@ -78,7 +82,8 @@ CREATE TABLE core__condition_dn_clinical_status AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_clinicalStatus_0
         
     ),
@@ -90,6 +95,7 @@ CREATE TABLE core__condition_dn_clinical_status AS (
             code,
             code_system,
             display,
+            userSelected,
             priority,
             ROW_NUMBER()
                 OVER (
@@ -97,7 +103,8 @@ CREATE TABLE core__condition_dn_clinical_status AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, row, priority, code_system, code, display
+        GROUP BY
+            id, row, priority, code_system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -105,7 +112,8 @@ CREATE TABLE core__condition_dn_clinical_status AS (
         id,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM partitioned_table
     WHERE available_priority = 1
 );
@@ -121,14 +129,15 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             s.id AS id,
             0 AS row,
             '0' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://snomed.info/sct'
+            u.coding.system LIKE 'http://snomed.info/sct'
     ), --noqa: LT07
 
     system_code_1 AS (
@@ -136,14 +145,15 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             s.id AS id,
             0 AS row,
             '1' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm'
+            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm'
     ), --noqa: LT07
 
     system_code_2 AS (
@@ -151,14 +161,15 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             s.id AS id,
             0 AS row,
             '2' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://hl7.org/fhir/sid/icd-9-cm'
+            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-9-cm'
     ), --noqa: LT07
 
     system_code_3 AS (
@@ -166,14 +177,15 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             s.id AS id,
             0 AS row,
             '3' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://hl7.org/fhir/sid/icd-9-cm/diagnosis'
+            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-9-cm/diagnosis'
     ), --noqa: LT07
 
     system_code_4 AS (
@@ -181,14 +193,15 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             s.id AS id,
             0 AS row,
             '4' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.2.728286'
+            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.2.728286'
     ), --noqa: LT07
 
     system_code_5 AS (
@@ -196,14 +209,15 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             s.id AS id,
             0 AS row,
             '5' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.4.698084.10375'
+            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.4.698084.10375'
     ), --noqa: LT07
 
     system_code_6 AS (
@@ -211,14 +225,15 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             s.id AS id,
             0 AS row,
             '6' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://terminology.hl7.org/CodeSystem/data-absent-reason'
+            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/data-absent-reason'
     ), --noqa: LT07
 
     union_table AS (
@@ -228,7 +243,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_0
         UNION
         SELECT
@@ -237,7 +253,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_1
         UNION
         SELECT
@@ -246,7 +263,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_2
         UNION
         SELECT
@@ -255,7 +273,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_3
         UNION
         SELECT
@@ -264,7 +283,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_4
         UNION
         SELECT
@@ -273,7 +293,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_5
         UNION
         SELECT
@@ -282,7 +303,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_6
         
     ),
@@ -294,6 +316,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             code,
             code_system,
             display,
+            userSelected,
             priority,
             ROW_NUMBER()
                 OVER (
@@ -301,7 +324,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, row, priority, code_system, code, display
+        GROUP BY
+            id, row, priority, code_system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -309,7 +333,8 @@ CREATE TABLE core__condition_codable_concepts_display AS (
         id,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM partitioned_table
     WHERE available_priority = 1
 );
@@ -324,12 +349,13 @@ CREATE TABLE core__condition_codable_concepts_all AS (
         SELECT DISTINCT
             s.id AS id,
             0 AS row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -338,7 +364,8 @@ CREATE TABLE core__condition_codable_concepts_all AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_0
         
     )
@@ -346,7 +373,8 @@ CREATE TABLE core__condition_codable_concepts_all AS (
         id,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -361,14 +389,15 @@ CREATE TABLE core__condition_dn_verification_status AS (
             s.id AS id,
             0 AS row,
             '0' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             condition AS s,
-            UNNEST(s.verificationStatus.coding) AS u (codeable_concept)
+            UNNEST(s.verificationStatus.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://terminology.hl7.org/CodeSystem/condition-ver-status'
+            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/condition-ver-status'
     ), --noqa: LT07
 
     union_table AS (
@@ -378,7 +407,8 @@ CREATE TABLE core__condition_dn_verification_status AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_verificationStatus_0
         
     ),
@@ -390,6 +420,7 @@ CREATE TABLE core__condition_dn_verification_status AS (
             code,
             code_system,
             display,
+            userSelected,
             priority,
             ROW_NUMBER()
                 OVER (
@@ -397,7 +428,8 @@ CREATE TABLE core__condition_dn_verification_status AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, row, priority, code_system, code, display
+        GROUP BY
+            id, row, priority, code_system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -405,7 +437,8 @@ CREATE TABLE core__condition_dn_verification_status AS (
         id,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM partitioned_table
     WHERE available_priority = 1
 );

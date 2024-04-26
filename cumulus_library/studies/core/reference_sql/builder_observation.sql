@@ -23,12 +23,13 @@ CREATE TABLE core__observation_dn_category AS (
         SELECT DISTINCT
             s.id AS id,
             s.row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.category.coding) AS u (codeable_concept)
+            UNNEST(s.category.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -37,7 +38,8 @@ CREATE TABLE core__observation_dn_category AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_category_0
         
     )
@@ -46,7 +48,8 @@ CREATE TABLE core__observation_dn_category AS (
         row,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -60,12 +63,13 @@ CREATE TABLE core__observation_dn_code AS (
         SELECT DISTINCT
             s.id AS id,
             0 AS row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             observation AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -74,7 +78,8 @@ CREATE TABLE core__observation_dn_code AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_0
         
     )
@@ -82,7 +87,8 @@ CREATE TABLE core__observation_dn_code AS (
         id,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -106,12 +112,13 @@ CREATE TABLE core__observation_component_code AS (
         SELECT DISTINCT
             s.id AS id,
             s.row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.code.coding) AS u (codeable_concept)
+            UNNEST(s.code.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -120,7 +127,8 @@ CREATE TABLE core__observation_component_code AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_0
         
     )
@@ -129,7 +137,8 @@ CREATE TABLE core__observation_component_code AS (
         row,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -153,12 +162,13 @@ CREATE TABLE core__observation_component_dataabsentreason AS (
         SELECT DISTINCT
             s.id AS id,
             s.row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.dataabsentreason.coding) AS u (codeable_concept)
+            UNNEST(s.dataabsentreason.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -167,7 +177,8 @@ CREATE TABLE core__observation_component_dataabsentreason AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_dataabsentreason_0
         
     )
@@ -176,7 +187,8 @@ CREATE TABLE core__observation_component_dataabsentreason AS (
         row,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -203,19 +215,20 @@ CREATE TABLE core__observation_component_interpretation AS (
             u."interpretation"
         FROM
             flattened_rows AS s,
-            UNNEST(s."interpretation") AS u ("interpretation")
+            UNNEST(s.interpretation) AS u ("interpretation")
     ),
 
     system_interpretation_0 AS (
         SELECT DISTINCT
             s.id AS id,
             s.row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             child_flattened_rows AS s,
-            UNNEST(s.interpretation.coding) AS u (codeable_concept)
+            UNNEST(s.interpretation.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -224,7 +237,8 @@ CREATE TABLE core__observation_component_interpretation AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_interpretation_0
         
     )
@@ -233,7 +247,8 @@ CREATE TABLE core__observation_component_interpretation AS (
         row,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -244,9 +259,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__observation_component_valuecodeableconc
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display")
+        AS t ("id","row","code","code_system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -256,9 +271,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__observation_dn_interpretation"
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display")
+        AS t ("id","row","code","code_system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -271,12 +286,13 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
         SELECT DISTINCT
             s.id AS id,
             0 AS row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             observation AS s,
-            UNNEST(s.valuecodeableconcept.coding) AS u (codeable_concept)
+            UNNEST(s.valuecodeableconcept.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -285,7 +301,8 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_valuecodeableconcept_0
         
     )
@@ -293,7 +310,8 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
         id,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 
@@ -304,9 +322,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__observation_dn_dataabsentreason"
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display")
+        AS t ("id","row","code","code_system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 

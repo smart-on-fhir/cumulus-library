@@ -6,44 +6,136 @@
 
 -- ###########################################################
 
-CREATE TABLE core__medication AS (
+CREATE TABLE IF NOT EXISTS "main"."core__medication_dn_code"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","code_system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
+CREATE TABLE core__medicationrequest_dn_inline_code AS (
     WITH
-    
-    mcc_nonnull AS (
-        SELECT 
-            id,
-            encounter, 
-            subject, 
-            medicationcodeableconcept 
-        FROM medicationrequest 
-        WHERE medicationcodeableconcept IS NOT NULL
-        AND encounter IS NOT NULL
-    ),
-    inline_medication AS (
+
+    system_medicationCodeableConcept_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
+        FROM
+            medicationrequest AS s,
+            UNNEST(s.medicationCodeableConcept.coding) AS u (coding)
+    ), --noqa: LT07
+
+    union_table AS (
         SELECT
             id,
-            subject.reference as patient_ref,
-            encounter.reference AS encounter_ref,
-            t.r.code,
-            t.r.display,
-            t.r.system AS code_system,
-            
-            false AS userselected
-            
-        FROM mcc_nonnull,
-        unnest(medicationcodeableconcept.coding) AS t(r)
+            row,
+            code_system,
+            code,
+            display,
+            userSelected
+        FROM system_medicationCodeableConcept_0
+        
     )
-    
-    
-    
     SELECT
         id,
-        encounter_ref,
-        patient_ref,
         code,
-        display,
         code_system,
-        userselected
-    FROM
-        inline_medication
+        display,
+        userSelected
+    FROM union_table
+);
+
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "main"."core__medicationrequest_dn_contained_code"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean),cast(NULL AS varchar),cast(NULL AS varchar))
+    )
+        AS t ("id","row","code","code_system","display","userSelected","contained_id","resource_type")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
+CREATE TABLE core__medication AS (
+    WITH
+
+    mr_basics AS (
+        SELECT DISTINCT
+        mr.id,
+        mr.encounter.reference AS encounter_ref,
+        mr.subject.reference AS patient_ref,
+        mr.medicationReference.reference AS med_ref
+        FROM medicationrequest AS mr
+    ),
+
+    contained_refs AS (
+        SELECT DISTINCT
+            mr.id,
+            substring(mr.med_ref, 2) AS medication_id
+        FROM mr_basics AS mr
+        WHERE mr.med_ref IS NOT NULL AND mr.med_ref LIKE '#%'
+    ),
+
+    external_refs AS (
+        SELECT DISTINCT
+            mr.id,
+            substring(mr.med_ref, 12) AS medication_id
+        FROM mr_basics AS mr
+        WHERE mr.med_ref IS NOT NULL AND mr.med_ref LIKE 'Medication/%'
+    )
+
+    
+    SELECT
+        mr.id,
+        mr.encounter_ref,
+        mr.patient_ref,
+        mric.code,
+        mric.display,
+        mric.code_system,
+        mric.userSelected
+    FROM mr_basics AS mr
+    INNER JOIN core__medicationrequest_dn_inline_code AS mric ON mr.id = mric.id
+
+    
+    UNION
+    SELECT
+        mr.id,
+        mr.encounter_ref,
+        mr.patient_ref,
+        mrcc.code,
+        mrcc.display,
+        mrcc.code_system,
+        mrcc.userSelected
+    FROM mr_basics AS mr
+    INNER JOIN contained_refs AS cr ON mr.id = cr.id
+    INNER JOIN core__medicationrequest_dn_contained_code AS mrcc
+        ON cr.id = mrcc.id AND cr.medication_id = mrcc.contained_id
+    WHERE mrcc.resource_type = 'Medication'
+
+    
+    UNION
+    SELECT
+        mr.id,
+        mr.encounter_ref,
+        mr.patient_ref,
+        mc.code,
+        mc.display,
+        mc.code_system,
+        mc.userSelected
+    FROM mr_basics AS mr
+    INNER JOIN external_refs AS er ON mr.id = er.id
+    INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
 );

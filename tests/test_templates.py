@@ -37,12 +37,13 @@ def test_codeable_concept_denormalize_all_creation():
         SELECT DISTINCT
             s.id AS id,
             s.row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.code_col.coding) AS u (codeable_concept)
+            UNNEST(s.code_col.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -51,7 +52,8 @@ def test_codeable_concept_denormalize_all_creation():
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_col_0
         
     )
@@ -60,7 +62,8 @@ def test_codeable_concept_denormalize_all_creation():
         row,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 """
@@ -83,14 +86,15 @@ def test_codeable_concept_denormalize_filter_creation():
             s.id AS id,
             0 AS row,
             '0' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             source AS s,
-            UNNEST(s.code_col.coding) AS u (codeable_concept)
+            UNNEST(s.code_col.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://snomed.info/sct'
+            u.coding.system LIKE 'http://snomed.info/sct'
     ), --noqa: LT07
 
     system_code_col_1 AS (
@@ -98,14 +102,15 @@ def test_codeable_concept_denormalize_filter_creation():
             s.id AS id,
             0 AS row,
             '1' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             source AS s,
-            UNNEST(s.code_col.coding) AS u (codeable_concept)
+            UNNEST(s.code_col.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm'
+            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm'
     ), --noqa: LT07
 
     union_table AS (
@@ -115,7 +120,8 @@ def test_codeable_concept_denormalize_filter_creation():
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_col_0
         UNION
         SELECT
@@ -124,7 +130,8 @@ def test_codeable_concept_denormalize_filter_creation():
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_code_col_1
         
     ),
@@ -136,6 +143,7 @@ def test_codeable_concept_denormalize_filter_creation():
             code,
             code_system,
             display,
+            userSelected,
             priority,
             ROW_NUMBER()
                 OVER (
@@ -143,7 +151,8 @@ def test_codeable_concept_denormalize_filter_creation():
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, row, priority, code_system, code, display
+        GROUP BY
+            id, row, priority, code_system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -151,7 +160,8 @@ def test_codeable_concept_denormalize_filter_creation():
         id,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM partitioned_table
     WHERE available_priority = 1
 );

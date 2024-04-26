@@ -154,6 +154,7 @@ def test_core_observation_component(tmp_path):
             "code": "hello",
             "code_system": "hi-codes",
             "display": "Hello!",
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -161,6 +162,7 @@ def test_core_observation_component(tmp_path):
             "code": "34",
             "code_system": "codesys",
             "display": None,
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -168,6 +170,7 @@ def test_core_observation_component(tmp_path):
             "code": "thirty-four",
             "code_system": "codesys-alpha",
             "display": None,
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -175,6 +178,7 @@ def test_core_observation_component(tmp_path):
             "code": "42",
             "code_system": "codesys",
             "display": None,
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -182,6 +186,7 @@ def test_core_observation_component(tmp_path):
             "code": "forty-two",
             "code_system": "codesys-alpha",
             "display": None,
+            "userSelected": None,
         },
     ] == rows
 
@@ -197,6 +202,7 @@ def test_core_observation_component(tmp_path):
             "code": "d",
             "code_system": "letters",
             "display": "D",
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -204,6 +210,7 @@ def test_core_observation_component(tmp_path):
             "code": "dog",
             "code_system": "s",
             "display": "dog ate it",
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -211,6 +218,7 @@ def test_core_observation_component(tmp_path):
             "code": "shrug",
             "code_system": "s",
             "display": "gone",
+            "userSelected": None,
         },
     ] == rows
 
@@ -226,6 +234,7 @@ def test_core_observation_component(tmp_path):
             "code": "i",
             "code_system": "letters",
             "display": "I",
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -233,6 +242,7 @@ def test_core_observation_component(tmp_path):
             "code": "low",
             "code_system": "high-or-low",
             "display": None,
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -240,6 +250,7 @@ def test_core_observation_component(tmp_path):
             "code": "good",
             "code_system": "quality",
             "display": "Good",
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -247,6 +258,7 @@ def test_core_observation_component(tmp_path):
             "code": "high",
             "code_system": "high-or-low",
             "display": None,
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -254,6 +266,7 @@ def test_core_observation_component(tmp_path):
             "code": None,
             "code_system": None,
             "display": "Pumped about this one",
+            "userSelected": None,
         },
     ] == rows
 
@@ -269,6 +282,7 @@ def test_core_observation_component(tmp_path):
             "code": "v",
             "code_system": "letters",
             "display": "V",
+            "userSelected": None,
         },
         {
             "id": "Multiple components",
@@ -276,6 +290,7 @@ def test_core_observation_component(tmp_path):
             "code": None,
             "code_system": None,
             "display": "homework",
+            "userSelected": None,
         },
     ] == rows
 

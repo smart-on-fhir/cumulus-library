@@ -1,6 +1,6 @@
 {# Flattens an array into multiple rows, with ordinality #}
 
-{%- macro flatten(table, field, parent_field = null, source_id = 'id') -%}
+{%- macro flatten(table, field, parent_field = null, source_id = 'id', extra_fields = null) -%}
         SELECT DISTINCT
             t.{{ source_id }} AS id,
             {#-
@@ -11,6 +11,9 @@
                 give us back unnested rows in an arbitrary order.
             #}
             ROW_NUMBER() OVER (PARTITION BY {{ source_id }}) AS row,
+            {% for extra_field in (extra_fields or []) -%}
+            r."{{ extra_field[0] }}" AS "{{ extra_field[1] }}",
+            {% endfor -%}
             r."{{ field }}"
         FROM
             {{ table }} AS t,
