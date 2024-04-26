@@ -76,6 +76,7 @@ dataset =
         ["foo","foo"],
         ["bar","bar"]
     ]
+db_type = duckdb
 dependent_variable = is_flu
 ext_systems = ["omb", "text"]
 field = 'column_name'
