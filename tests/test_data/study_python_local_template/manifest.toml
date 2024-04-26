@@ -1,0 +1,4 @@
+study_prefix = "study_python_local_template"
+
+[table_builder_config]
+file_names = ["module1.py"]

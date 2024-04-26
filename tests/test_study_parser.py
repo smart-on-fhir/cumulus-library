@@ -211,6 +211,12 @@ def test_run_protected_table_builder(mock_db, study_path, stats):
             (),
             pytest.raises(errors.StudyManifestParsingError),
         ),
+        (
+            "./tests/test_data/study_python_local_template/",
+            False,
+            ("study_python_valid__table_duckdb_foo",),
+            does_not_raise(),
+        ),
     ],
 )
 def test_table_builder(mock_db, study_path, verbose, expects, raises):

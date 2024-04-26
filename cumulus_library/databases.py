@@ -24,6 +24,8 @@ import pyathena
 from pyathena.common import BaseCursor as AthenaCursor
 from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
 
+from cumulus_library import db_config
+
 
 class DatabaseCursor(Protocol):
     """Protocol for a PEP-249 compatible cursor"""
@@ -474,6 +476,7 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
 
 def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
     db_type = args["db_type"]
+    db_config.db_type = db_type
     database = args["schema_name"]
     load_ndjson_dir = args.get("load_ndjson_dir")
 

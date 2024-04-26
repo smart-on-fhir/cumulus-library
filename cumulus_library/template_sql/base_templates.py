@@ -6,6 +6,7 @@ import pathlib
 import jinja2
 import pandas
 
+from cumulus_library import db_config
 from cumulus_library.template_sql import sql_utils
 
 
@@ -36,7 +37,7 @@ def get_base_template(
             macro_paths.append(path)
         loader = jinja2.FileSystemLoader(macro_paths)
         env = jinja2.Environment(loader=loader).from_string(template)
-        return env.render(**kwargs)
+        return env.render(**kwargs, db_type=db_config.db_type)
 
 
 # All remaining functions are context-specific calls aimed at providing
