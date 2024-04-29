@@ -14,7 +14,7 @@ class LocalTestbed:
     def __init__(self, path: Path, with_patient: bool = True):
         self.path = path
         self.indices: dict[str, int] = {}
-        self.ids: dict[str, str] = {}  # cache of registered IDs, for convenience
+        self.ids: dict[str, set[str]] = {}  # cache of registered IDs, for convenience
 
         if with_patient:
             # Add a basic patient that other resources can link to.
@@ -50,6 +50,7 @@ class LocalTestbed:
         self.add(
             "condition",
             {
+                "resourceType": "Condition",
                 "id": row_id,
                 "recordedDate": recorded,
                 **kwargs,
@@ -66,6 +67,7 @@ class LocalTestbed:
         self.add(
             "documentreference",
             {
+                "resourceType": "DocumentReference",
                 "id": row_id,
                 "context": context,
                 **kwargs,
@@ -81,6 +83,7 @@ class LocalTestbed:
         self.add(
             "encounter",
             {
+                "resourceType": "Encounter",
                 "id": row_id,
                 "subject": {"reference": f"Patient/{patient}"},
                 "period": period,
@@ -142,11 +145,63 @@ class LocalTestbed:
                 },
             )
 
+    def add_medication_request(
+        self,
+        row_id: str,
+        mode: str = "inline",
+        codings: list[dict] | None = None,
+        **kwargs,
+    ) -> None:
+        """Adds a MedicationRequest with all the SQL-required fields filled out"""
+        if codings is None:
+            codings = [
+                {
+                    "code": "2623378",
+                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                }
+            ]
+        concept = {"coding": codings}
+
+        match mode:
+            case "inline":
+                kwargs["medicationCodeableConcept"] = concept
+            case "contained":
+                kwargs["medicationReference"] = {"reference": "#contained"}
+                kwargs["contained"] = [
+                    {
+                        "resourceType": "Medication",
+                        "id": "contained",
+                        "code": concept,
+                    }
+                ]
+            case "external":
+                kwargs["medicationReference"] = {
+                    "reference": f"Medication/med-{row_id}"
+                }
+                self.add(
+                    "medication",
+                    {
+                        "resourceType": "Medication",
+                        "id": f"med-{row_id}",
+                        "code": concept,
+                    },
+                )
+            case "custom":
+                pass  # caller knows what they want
+            case _:
+                raise ValueError(f"Bad mode '{mode}'")
+
+        self.add(
+            "medicationrequest",
+            {"resourceType": "MedicationRequest", "id": row_id, **kwargs},
+        )
+
     def add_observation(self, row_id: str, effective: str = "2020", **kwargs) -> None:
         """Adds a Observation with all the SQL-required fields filled out"""
         self.add(
             "observation",
             {
+                "resourceType": "Observation",
                 "id": row_id,
                 "effectiveDateTime": effective,
                 **kwargs,
@@ -160,6 +215,7 @@ class LocalTestbed:
         self.add(
             "patient",
             {
+                "resourceType": "Patient",
                 "id": row_id,
                 "birthDate": birth_date,
                 "gender": gender,

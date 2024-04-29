@@ -44,12 +44,6 @@ class MedicationRequestBuilder(base_table_builder.BaseTableBuilder):
                 column_hierarchy=[("category", list)],
                 target_table="core__medicationrequest_dn_category",
             ),
-            sql_utils.CodeableConceptConfig(
-                source_table="medicationrequest",
-                source_id="id",
-                column_hierarchy=[("medicationcodeableconcept", dict)],
-                target_table="core__medicationrequest_dn_medication",
-            ),
         ]
         self.queries += sql_utils.denormalize_complex_objects(
             schema, cursor, parser, code_sources

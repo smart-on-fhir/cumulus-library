@@ -61,14 +61,6 @@ column_name = 'bar'
 column_names = ['foo', 'bar']
 conditions = ["1 > 0", "1 < 2"]
 column_hierarchy = [('a', list),('b',dict)]
-config = 
-    {
-        "medication_datasources" : {
-            "by_contained_ref" : True, 
-            "by_external_ref" : True
-        }, 
-        'has_userselected': False
-    }
 count_ref = count_ref
 count_table = count_table
 dataset = 
@@ -79,7 +71,11 @@ dataset =
 db_type = duckdb
 dependent_variable = is_flu
 ext_systems = ["omb", "text"]
+extra_alias_done = True
+extra_field = ("field", "alias")
+extra_fields = [("field", "alias")]
 field = 'column_name'
+field_alias = 'field'
 filter_table = filter_table
 filter_resource = True
 fhir_extension = condition
@@ -158,7 +154,13 @@ schema =
             'authoredOn': True, 
             'category': {
                 'code': True, 'system': True, 'display': False
-            }, 
+            },
+            'dosageInstruction': {
+                'text': True,
+            },
+            'medicationReference': {
+                'reference': True
+            },
             'subject': {
                 'reference': True
             }, 
@@ -199,7 +201,7 @@ schema =
             'encounter': {
                 'reference': True
             }
-        }, 
+        },
         'patient': {
             'id': True, 
             'gender': True, 

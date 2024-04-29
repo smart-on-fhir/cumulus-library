@@ -86,6 +86,7 @@ def get_codeable_concept_denormalize_query(
         target_table=config.target_table,
         filter_priority=config.filter_priority,
         code_systems=config.code_systems,
+        extra_fields=config.extra_fields or [],
     )
 
 

@@ -24,14 +24,15 @@ CREATE TABLE core__encounter_dn_type AS (
             s.id AS id,
             s.row,
             '0' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://terminology.hl7.org/CodeSystem/encounter-type'
+            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/encounter-type'
     ), --noqa: LT07
 
     system_type_1 AS (
@@ -39,14 +40,15 @@ CREATE TABLE core__encounter_dn_type AS (
             s.id AS id,
             s.row,
             '1' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://terminology.hl7.org/CodeSystem/v2-0004'
+            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/v2-0004'
     ), --noqa: LT07
 
     system_type_2 AS (
@@ -54,14 +56,15 @@ CREATE TABLE core__encounter_dn_type AS (
             s.id AS id,
             s.row,
             '2' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'urn:oid:2.16.840.1.113883.4.642.3.248'
+            u.coding.system LIKE 'urn:oid:2.16.840.1.113883.4.642.3.248'
     ), --noqa: LT07
 
     system_type_3 AS (
@@ -69,14 +72,15 @@ CREATE TABLE core__encounter_dn_type AS (
             s.id AS id,
             s.row,
             '3' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://snomed.info/sct'
+            u.coding.system LIKE 'http://snomed.info/sct'
     ), --noqa: LT07
 
     system_type_4 AS (
@@ -84,14 +88,15 @@ CREATE TABLE core__encounter_dn_type AS (
             s.id AS id,
             s.row,
             '4' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'https://fhir.cerner.com/%/codeSet/71'
+            u.coding.system LIKE 'https://fhir.cerner.com/%/codeSet/71'
     ), --noqa: LT07
 
     system_type_5 AS (
@@ -99,14 +104,15 @@ CREATE TABLE core__encounter_dn_type AS (
             s.id AS id,
             s.row,
             '5' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.10110'
+            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.10110'
     ), --noqa: LT07
 
     system_type_6 AS (
@@ -114,14 +120,15 @@ CREATE TABLE core__encounter_dn_type AS (
             s.id AS id,
             s.row,
             '6' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.18875'
+            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.18875'
     ), --noqa: LT07
 
     system_type_7 AS (
@@ -129,14 +136,15 @@ CREATE TABLE core__encounter_dn_type AS (
             s.id AS id,
             s.row,
             '7' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.30'
+            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.30'
     ), --noqa: LT07
 
     system_type_8 AS (
@@ -144,14 +152,15 @@ CREATE TABLE core__encounter_dn_type AS (
             s.id AS id,
             s.row,
             '8' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.type.coding) AS u (codeable_concept)
+            UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.2.808267'
+            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.2.808267'
     ), --noqa: LT07
 
     union_table AS (
@@ -161,7 +170,8 @@ CREATE TABLE core__encounter_dn_type AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_0
         UNION
         SELECT
@@ -170,7 +180,8 @@ CREATE TABLE core__encounter_dn_type AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_1
         UNION
         SELECT
@@ -179,7 +190,8 @@ CREATE TABLE core__encounter_dn_type AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_2
         UNION
         SELECT
@@ -188,7 +200,8 @@ CREATE TABLE core__encounter_dn_type AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_3
         UNION
         SELECT
@@ -197,7 +210,8 @@ CREATE TABLE core__encounter_dn_type AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_4
         UNION
         SELECT
@@ -206,7 +220,8 @@ CREATE TABLE core__encounter_dn_type AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_5
         UNION
         SELECT
@@ -215,7 +230,8 @@ CREATE TABLE core__encounter_dn_type AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_6
         UNION
         SELECT
@@ -224,7 +240,8 @@ CREATE TABLE core__encounter_dn_type AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_7
         UNION
         SELECT
@@ -233,7 +250,8 @@ CREATE TABLE core__encounter_dn_type AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_type_8
         
     ),
@@ -245,6 +263,7 @@ CREATE TABLE core__encounter_dn_type AS (
             code,
             code_system,
             display,
+            userSelected,
             priority,
             ROW_NUMBER()
                 OVER (
@@ -252,7 +271,8 @@ CREATE TABLE core__encounter_dn_type AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, row, priority, code_system, code, display
+        GROUP BY
+            id, row, priority, code_system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -261,7 +281,8 @@ CREATE TABLE core__encounter_dn_type AS (
         row,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM partitioned_table
     WHERE available_priority = 1
 );
@@ -273,9 +294,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__encounter_dn_servicetype"
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display")
+        AS t ("id","row","code","code_system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -285,9 +306,9 @@ CREATE TABLE IF NOT EXISTS "main"."core__encounter_dn_priority"
 AS (
     SELECT * FROM (
         VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display")
+        AS t ("id","row","code","code_system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -311,14 +332,15 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             s.id AS id,
             s.row,
             '0' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.reasoncode.coding) AS u (codeable_concept)
+            UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://terminology.hl7.org/CodeSystem/v3-ActPriority'
+            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/v3-ActPriority'
     ), --noqa: LT07
 
     system_reasoncode_1 AS (
@@ -326,14 +348,15 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             s.id AS id,
             s.row,
             '1' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.reasoncode.coding) AS u (codeable_concept)
+            UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://snomed.info/sct'
+            u.coding.system LIKE 'http://snomed.info/sct'
     ), --noqa: LT07
 
     system_reasoncode_2 AS (
@@ -341,14 +364,15 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             s.id AS id,
             s.row,
             '2' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.reasoncode.coding) AS u (codeable_concept)
+            UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm'
+            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm'
     ), --noqa: LT07
 
     system_reasoncode_3 AS (
@@ -356,14 +380,15 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             s.id AS id,
             s.row,
             '3' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.reasoncode.coding) AS u (codeable_concept)
+            UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'http://hl7.org/fhir/sid/icd-9-cm'
+            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-9-cm'
     ), --noqa: LT07
 
     system_reasoncode_4 AS (
@@ -371,14 +396,15 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             s.id AS id,
             s.row,
             '4' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.reasoncode.coding) AS u (codeable_concept)
+            UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'https://fhir.cerner.com/%/nomenclature'
+            u.coding.system LIKE 'https://fhir.cerner.com/%/nomenclature'
     ), --noqa: LT07
 
     system_reasoncode_5 AS (
@@ -386,14 +412,15 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             s.id AS id,
             s.row,
             '5' AS priority,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.reasoncode.coding) AS u (codeable_concept)
+            UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.codeable_concept.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.2.728286'
+            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.2.728286'
     ), --noqa: LT07
 
     union_table AS (
@@ -403,7 +430,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_reasoncode_0
         UNION
         SELECT
@@ -412,7 +440,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_reasoncode_1
         UNION
         SELECT
@@ -421,7 +450,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_reasoncode_2
         UNION
         SELECT
@@ -430,7 +460,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_reasoncode_3
         UNION
         SELECT
@@ -439,7 +470,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_reasoncode_4
         UNION
         SELECT
@@ -448,7 +480,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             priority,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_reasoncode_5
         
     ),
@@ -460,6 +493,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             code,
             code_system,
             display,
+            userSelected,
             priority,
             ROW_NUMBER()
                 OVER (
@@ -467,7 +501,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, row, priority, code_system, code, display
+        GROUP BY
+            id, row, priority, code_system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -476,7 +511,8 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
         row,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM partitioned_table
     WHERE available_priority = 1
 );
@@ -491,12 +527,13 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
         SELECT DISTINCT
             s.id AS id,
             0 AS row,
-            u.codeable_concept.code,
-            u.codeable_concept.display,
-            u.codeable_concept.system AS code_system
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
         FROM
             encounter AS s,
-            UNNEST(s.hospitalization.dischargedisposition.coding) AS u (codeable_concept)
+            UNNEST(s.hospitalization.dischargedisposition.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -505,7 +542,8 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
             row,
             code_system,
             code,
-            display
+            display,
+            userSelected
         FROM system_dischargedisposition_0
         
     )
@@ -513,7 +551,8 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
         id,
         code,
         code_system,
-        display
+        display,
+        userSelected
     FROM union_table
 );
 

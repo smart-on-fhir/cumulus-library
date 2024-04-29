@@ -5,7 +5,6 @@ import datetime  # noqa: F401
 import pytest
 import toml
 
-from cumulus_library.studies.core.core_templates import core_templates
 from tests import conftest, testbed_utils
 
 
@@ -118,57 +117,6 @@ def test_core_counts_exported(mock_db_core):
     assert set(manifest["export_config"]["export_list"]) == set(count_tables)
 
 
-# for this one, since the query output is very long and likely to change
-# since it's a study table, we're going to do targeted comparisons around the
-# polymorphism and not validate the whole thing
-
-
-# omitting the double false case since we don't call thison that condition
-@pytest.mark.parametrize(
-    "medication_datasources,contains,omits",
-    [
-        (
-            {
-                "by_contained_ref": True,
-                "by_external_ref": False,
-            },
-            ["LIKE '#%'", "contained_medication"],
-            ["LIKE 'Medication/%'", "UNION", "external_medication"],
-        ),
-        (
-            {
-                "by_contained_ref": False,
-                "by_external_ref": True,
-            },
-            ["LIKE 'Medication/%'", "external_medication"],
-            ["LIKE '#%'", "UNION", "contained_medication"],
-        ),
-        (
-            {
-                "by_contained_ref": True,
-                "by_external_ref": True,
-            },
-            [
-                "LIKE '#%'",
-                "LIKE 'Medication/%'",
-                "UNION",
-                "contained_medication",
-                "external_medication",
-            ],
-            [],
-        ),
-    ],
-)
-def test_core_medication_query(medication_datasources, contains, omits):
-    query = core_templates.get_core_template(
-        "medication", config={"medication_datasources": medication_datasources}
-    )
-    for item in contains:
-        assert item in query
-    for item in omits:
-        assert item not in query
-
-
 def test_core_empty_database(tmp_path):
     """Verify that we can still generate core tables with no data filled in"""
     testbed = testbed_utils.LocalTestbed(tmp_path, with_patient=False)
@@ -181,6 +129,7 @@ def test_core_tiny_database(tmp_path):
     # Just add bare resources, with minimal data
     testbed.add_condition("ConA")
     testbed.add_encounter("EncA")
+    testbed.add_medication_request("MedReqA")
     con = testbed.build()
     patients = con.sql("SELECT id FROM core__patient").fetchall()
     assert {e[0] for e in patients} == {"A"}
@@ -188,6 +137,8 @@ def test_core_tiny_database(tmp_path):
     assert {c[0] for c in conditions} == {"ConA"}
     encounters = con.sql("SELECT id FROM core__encounter").fetchall()
     assert {e[0] for e in encounters} == {"EncA"}
+    rows = con.sql("SELECT id FROM core__medicationrequest").fetchall()
+    assert {r[0] for r in rows} == {"MedReqA"}
 
 
 def test_core_multiple_doc_encounters(tmp_path):

@@ -1,207 +1,92 @@
+{% import 'core_utils.jinja' as utils -%}
+
 CREATE TABLE core__medication AS (
     WITH
-    {# Gets medication data from inline ETL extraction.
 
+    mr_basics AS (
+        SELECT DISTINCT
+            {{- utils.basic_cols(
+                    'medicationrequest',
+                    'mr',
+                    [
+                        'id'
+                    ],
+                )
+            }},
+            {{- utils.nullable_cols(
+                    'medicationrequest',
+                    'mr',
+                    [
+                        ('encounter', 'reference', 'encounter_ref'),
+                        ('subject', 'reference', 'patient_ref'),
+                        ('medicationReference', 'reference', 'med_ref'),
+                    ],
+                    schema
+                )
+            }}
+        FROM medicationrequest AS mr
+    ),
+
+    contained_refs AS (
+        SELECT DISTINCT
+            mr.id,
+            substring(mr.med_ref, 2) AS medication_id
+        FROM mr_basics AS mr
+        WHERE mr.med_ref IS NOT NULL AND mr.med_ref LIKE '#%'
+    ),
+
+    external_refs AS (
+        SELECT DISTINCT
+            mr.id,
+            substring(mr.med_ref, 12) AS medication_id
+        FROM mr_basics AS mr
+        WHERE mr.med_ref IS NOT NULL AND mr.med_ref LIKE 'Medication/%'
+    )
+
+    {# Internal: medication data from inline ETL extraction.
     95% of the time, this dataset is the 'correct' dataset for Cerner.
     It may not be present in EPIC datasets. #}
-    {%- if config.medication_datasources.inline %}
-    mcc_nonnull AS (
-        SELECT 
-            id,
-            encounter, 
-            subject, 
-            medicationcodeableconcept 
-        FROM medicationrequest 
-        WHERE medicationcodeableconcept IS NOT NULL
-        AND encounter IS NOT NULL
-    ),
-    inline_medication AS (
-        SELECT
-            id,
-            subject.reference as patient_ref,
-            encounter.reference AS encounter_ref,
-            t.r.code,
-            t.r.display,
-            t.r.system AS code_system,
-            {% if config.has_userselected %}
-            t.r.userselected
-            {% else %}
-            false AS userselected
-            {% endif %}
-        FROM mcc_nonnull,
-        unnest(medicationcodeableconcept.coding) AS t(r)
-    )
-    {%- endif -%}
+    SELECT
+        mr.id,
+        mr.encounter_ref,
+        mr.patient_ref,
+        mric.code,
+        mric.display,
+        mric.code_system,
+        mric.userSelected
+    FROM mr_basics AS mr
+    INNER JOIN core__medicationrequest_dn_inline_code AS mric ON mr.id = mric.id
 
-    {# comma handling for ctas chaining #}
-    {%- if config.medication_datasources.inline  and
-        (config.medication_datasources.by_contained_ref or 
-        config.medication_datasources.by_external_ref)
-    -%}
-    ,
-    {%- endif %}
-    {# This section is also Cerner specific. Sometimes medication codes are blank
-    and we can get :some: info from the contains field.
+    {# Contained: medication reference into contained resources.
+    We've also seen this in Cerner. Though in the cases we've seen this, it's usuall
+    a very lightly fleshed out resource, with only code.text and no codings. #}
+    UNION
+    SELECT
+        mr.id,
+        mr.encounter_ref,
+        mr.patient_ref,
+        mrcc.code,
+        mrcc.display,
+        mrcc.code_system,
+        mrcc.userSelected
+    FROM mr_basics AS mr
+    INNER JOIN contained_refs AS cr ON mr.id = cr.id
+    INNER JOIN core__medicationrequest_dn_contained_code AS mrcc
+        ON cr.id = mrcc.id AND cr.medication_id = mrcc.contained_id
+    WHERE mrcc.resource_type = 'Medication'
 
-    As of this writing, the code coming back via contained when code is not
-    present contains text only. In these cases, we'll cast the text
-    as a display element.
-
-    TODO: If we ever find a case where there is a valid code, we'll
-    need to add a new case detection. #}
-    {%- if config.medication_datasources.by_contained_ref %}
-    mrc_med_ref AS (
-        SELECT medicationreference
-        FROM medicationrequest
-        WHERE
-            medicationreference IS NOT NULL
-            AND medicationcodeableconcept IS NULL
-    ),
-
-    mrc_ref_id AS (
-        SELECT DISTINCT substring(mrc_med_ref.medicationreference.reference, 2) AS id
-        FROM mrc_med_ref
-        WHERE
-            medicationreference.reference IS NOT NULL
-            AND medicationreference.reference LIKE '#%'
-    ),
-
-    mrc_contained_nested AS (
-        SELECT
-            id,
-            encounter,
-            subject,
-            contained
-        FROM medicationrequest
-        WHERE contained IS NOT NULL
-    ),
-
-    mrc_contained_unnest AS (
-        SELECT DISTINCT
-            cn.id AS mr_id,
-            cn.encounter,
-            cn.subject,
-            row.id,
-            row.code
-        FROM mrc_contained_nested AS cn,
-            unnest(cn.contained) AS t (row)
-    ),
-
-    contained_medication AS (
-        SELECT
-            cu.mr_id AS id,
-            cu.encounter.reference AS encounter_ref,
-            cu.subject.reference AS patient_ref,
-            'None' AS code,
-            cu.code.text AS display,
-            'None' AS code_system,
-            FALSE AS userselected
-        FROM mrc_contained_unnest AS cu
-        INNER JOIN mrc_ref_id AS ri ON cu.id = ri.id
-    )
-    {%- endif -%}
-    {# comma handling for ctas chaining #}
-    {%- if config.medication_datasources.by_contained_ref 
-        and config.medication_datasources.by_external_ref -%}
-    ,
-    {%- endif %}
-    {# Gets medication by reference from external medications table.
-
+    {# External: medication by reference from external medications table.
     This is generally how we expect EPIC to provide medication data. #}
-    {%- if config.medication_datasources.by_external_ref %}
-    mre_med_ref AS (
-        SELECT
-            mr.id,
-            mr.encounter,
-            mr.subject,
-            mr.medicationreference
-        FROM medicationrequest AS mr
-        WHERE mr.medicationreference IS NOT NULL
-    ),
-
-    mre_ref_id AS (
-        SELECT DISTINCT
-            mr.id,
-            mr.encounter,
-            mr.subject,
-            substring(mr.medicationreference.reference, 12) AS medication_id
-        FROM mre_med_ref AS mr
-        WHERE
-            mr.medicationreference.reference IS NOT NULL
-            AND mr.medicationreference.reference LIKE 'Medication/%'
-    ),
-
-    mre_med_nonnull AS (
-
-        SELECT DISTINCT
-            mri.id,
-            mri.encounter,
-            mri.subject,
-            m.code
-        FROM medication AS m
-        INNER JOIN mre_ref_id AS mri ON m.id = mri.medication_id
-        WHERE m.code.coding IS NOT NULL
-    ),
-
-    external_medication AS (
-        SELECT
-            mmn.id,
-            mmn.encounter.reference AS encounter_ref,
-            mmn.subject.reference AS patient_ref,
-            t.r.code,
-            mmn.code.text AS display,
-            t.r.system AS code_system,
-            FALSE AS userselected
-        FROM mre_med_nonnull AS mmn,
-            unnest(mmn.code.coding) AS t (r)
-    )
-    {%- endif %}
-    {# Selective unioning of the above tables #}
-    {%- if config.medication_datasources.inline %}
-    SELECT
-        id,
-        encounter_ref,
-        patient_ref,
-        code,
-        display,
-        code_system,
-        userselected
-    FROM
-        inline_medication
-        {%- if config.medication_datasources.inline  and
-            (config.medication_datasources.by_contained_ref or 
-            config.medication_datasources.by_external_ref)
-        %}
     UNION
-    {% endif %}
-    {%- endif %}
-    {%- if config.medication_datasources.by_contained_ref %}
     SELECT
-        id,
-        encounter_ref,
-        patient_ref,
-        code,
-        display,
-        code_system,
-        userselected
-    FROM
-        contained_medication
-        {%- if config.medication_datasources.by_contained_ref 
-            and config.medication_datasources.by_external_ref 
-        %}
-    UNION
-    {% endif %}
-    {%- endif %}
-    {%- if config.medication_datasources.by_external_ref %}
-    SELECT
-        id,
-        encounter_ref,
-        patient_ref,
-        code,
-        display,
-        code_system,
-        userselected
-    FROM
-        external_medication
-    {%- endif %}
+        mr.id,
+        mr.encounter_ref,
+        mr.patient_ref,
+        mc.code,
+        mc.display,
+        mc.code_system,
+        mc.userSelected
+    FROM mr_basics AS mr
+    INNER JOIN external_refs AS er ON mr.id = er.id
+    INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
 );
