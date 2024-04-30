@@ -23,23 +23,6 @@ from cumulus_library.databases import DuckDatabaseBackend
 from tests.conftest import duckdb_args
 
 
-class MockVocabBsv:
-    """mock class for patching test BSVs for the vocab study"""
-
-    builtin_open = open
-
-    def open(self, *args, **kwargs):
-        if str(args[0]).endswith(".bsv"):
-            args = (
-                Path(
-                    "./tests/test_data/mock_bsvs/",
-                    str(args[0]).rsplit("/", maxsplit=1)[-1],
-                ),
-                "r",
-            )
-        return self.builtin_open(*args, **kwargs)
-
-
 @contextmanager
 def mock_stdin(value: str):
     stdin = sys.stdin
@@ -299,7 +282,6 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
                 assert expected not in table
 
 
-@mock.patch("builtins.open", MockVocabBsv().open)
 @mock.patch.dict(
     os.environ,
     clear=True,
@@ -321,7 +303,7 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
             2,
         ),
-        (["build", "-t", "vocab"], None, 3),
+        (["build", "-t", "vocab"], None, 2),
         (
             # checking that a study is loaded from the directory of a user-defined
             # path. we're also validating that the CLI accepts the statistics keyword
