@@ -23,5 +23,9 @@ class StudyManifestQueryError(Exception):
     """Errors related to data queries from StudyManifestParser"""
 
 
+class AWSError(Exception):
+    """Errors from interacting with AWS"""
+
+
 class ApiError(Exception):
     """Errors from external API calls"""

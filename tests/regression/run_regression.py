@@ -5,7 +5,7 @@ run locally at BCH:
 
 - You need to be on the BCH VPN
 - You need to have a federated token for access from the bch-aws-login script
-- You need to do a fresh library build and export to ./data_export core
+- You need to do a fresh library build and export to ./data_export
 
 You can elect to strategically do all of these things, but that's outside
 the scope of the test suite.
@@ -20,62 +20,85 @@ from pathlib import Path
 
 from pandas import read_parquet
 
-ref_path = f"{Path(__file__).resolve().parent}/reference"
-export_path = f"{Path(__file__).resolve().parent}/data_export/core"
+from tests import conftest
 
-references = set(os.listdir(ref_path))
-exports = set(os.listdir(export_path))
 
-if references != exports:
-    ref_missing = references - exports
-    export_missing = exports - references
-    sys.exit(
-        "❌ Found differences in files present: ❌\n"
-        f"Files present in reference not in export: {ref_missing!s}\n"
-        f"Files present in export not in reference: {export_missing!s}"
-    )
-diffs = []
-for filename in references:
-    if filename.endswith(".parquet"):
-        ref_df = read_parquet(f"{ref_path}/{filename}")
-        exp_df = read_parquet(f"{export_path}/{filename}")
-        if list(ref_df.columns) != list(exp_df.columns):
-            diffs.append(
-                [
-                    filename,
-                    (
-                        "Columns differ between reference and export:\n"
-                        f"Reference: {list(ref_df.columns)}\n"
-                        f"Export: {list(exp_df.columns)}"
-                    ),
-                ]
+def regress_core():
+    ref_path = f"{Path(__file__).resolve().parent}/reference"
+    export_path = f"{Path(__file__).resolve().parent}/data_export/core"
+
+    references = set(os.listdir(ref_path))
+    exports = set(os.listdir(export_path))
+
+    if references != exports:
+        ref_missing = references - exports
+        export_missing = exports - references
+        sys.exit(
+            "❌ Found differences in files present: ❌\n"
+            f"Files present in reference not in export: {ref_missing!s}\n"
+            f"Files present in export not in reference: {export_missing!s}"
+        )
+    diffs = []
+    for filename in references:
+        if filename.endswith(".parquet"):
+            ref_df = read_parquet(f"{ref_path}/{filename}")
+            exp_df = read_parquet(f"{export_path}/{filename}")
+            if list(ref_df.columns) != list(exp_df.columns):
+                diffs.append(
+                    [
+                        filename,
+                        (
+                            "Columns differ between reference and export:\n"
+                            f"Reference: {list(ref_df.columns)}\n"
+                            f"Export: {list(exp_df.columns)}"
+                        ),
+                    ]
+                )
+                continue
+            if ref_df.size != exp_df.size:
+                diffs.append(
+                    [
+                        filename,
+                        (
+                            "Size (num rows) differ between reference and export:\n"
+                            f"Reference: {ref_df.size}\n"
+                            f"Export: {exp_df.size}"
+                        ),
+                    ]
+                )
+                continue
+            ref_df = ref_df.sort_values(list(ref_df.columns), ignore_index=True)
+            exp_df = exp_df.sort_values(list(exp_df.columns), ignore_index=True)
+            compared = ref_df.compare(exp_df)
+            if not compared.empty:
+                diffs.append(
+                    [
+                        filename,
+                        f"Rows differ between reference and export:\n {compared}",
+                    ]
+                )
+    if len(diffs) > 0:
+        for row in diffs:
+            print(f"--- {row[0]} ---")
+            print(row[1])
+        sys.exit(f"❌ Found {len(diffs)} difference(s) in core study. ❌")
+    print("✅ Core study reference and export matched ✅")
+
+
+def regress_vocab():
+    export_path = f"{Path(__file__).resolve().parent}/data_export/vocab"
+    with open(export_path / "vocab__icd") as f:
+        export_size = len(f.readlines())
+        # we add one to the row count to accomodate the header added by being a
+        # SQL table export
+        if export_size != conftest.VOCAB_ICD_ROW_COUNT + 1:
+            sys.exit(
+                f"❌ Vocab tables built from parquets are not expected length."
+                f" Found rows: {export_size} ❌"
             )
-            continue
-        if ref_df.size != exp_df.size:
-            diffs.append(
-                [
-                    filename,
-                    (
-                        "Size (num rows) differ between reference and export:\n"
-                        f"Reference: {ref_df.size}\n"
-                        f"Export: {exp_df.size}"
-                    ),
-                ]
-            )
-            continue
-        ref_df = ref_df.sort_values(list(ref_df.columns), ignore_index=True)
-        exp_df = exp_df.sort_values(list(exp_df.columns), ignore_index=True)
-        compared = ref_df.compare(exp_df)
-        if not compared.empty:
-            diffs.append(
-                [
-                    filename,
-                    f"Rows differ between reference and export:\n {compared}",
-                ]
-            )
-if len(diffs) > 0:
-    for row in diffs:
-        print(f"--- {row[0]} ---")
-        print(row[1])
-    sys.exit(f"❌ Found {len(diffs)} difference(s). ❌")
-print("✅ Reference and export matched ✅")
+        print("✅ Vocab tables built from parquets are expected length ✅")
+
+
+if __name__ == "__main__":
+    regress_core()
+    regress_vocab()
