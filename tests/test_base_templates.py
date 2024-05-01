@@ -3,6 +3,7 @@
 import pytest
 from pandas import DataFrame
 
+from cumulus_library import db_config
 from cumulus_library.template_sql import base_templates, sql_utils
 
 
@@ -271,6 +272,49 @@ AS (
 def test_ctas_empty_query_creation(expected, schema, table, cols, types):
     query = base_templates.get_ctas_empty_query(
         schema_name=schema, table_name=table, table_cols=cols, table_cols_types=types
+    )
+    assert query == expected
+
+
+@pytest.mark.parametrize(
+    "expected,db_type,schema,table,cols,remote_types",
+    [
+        (
+            """CREATE EXTERNAL TABLE IF NOT EXISTS `test_athena`.`remote_table` (
+    a String,
+    b Int
+)
+STORED AS PARQUET
+LOCATION 's3://bucket/data/'
+tblproperties ("parquet.compression"="SNAPPY");""",
+            "athena",
+            "test_athena",
+            "remote_table",
+            ["a", "b"],
+            ["String", "Int"],
+        ),
+        (
+            """CREATE TABLE IF NOT EXISTS local_table AS SELECT
+    a,
+    b
+FROM read_parquet('./tests/test_data/*.parquet')""",
+            "duckdb",
+            "test_duckdb",
+            "local_table",
+            ["a", "b"],
+            ["String", "Int"],
+        ),
+    ],
+)
+def test_ctas_from_parquet(expected, db_type, schema, table, cols, remote_types):
+    db_config.db_type = db_type
+    query = base_templates.get_ctas_from_parquet_query(
+        schema_name=schema,
+        table_name=table,
+        local_location="./tests/test_data",
+        remote_location="s3://bucket/data/",
+        table_cols=cols,
+        remote_table_cols_types=remote_types,
     )
     assert query == expected
 

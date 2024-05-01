@@ -12,10 +12,12 @@ import abc
 import datetime
 import json
 import os
+import pathlib
 import sys
 from pathlib import Path
 from typing import Any, Protocol
 
+import boto3
 import cumulus_fhir_support
 import duckdb
 import pandas
@@ -24,7 +26,7 @@ import pyathena
 from pyathena.common import BaseCursor as AthenaCursor
 from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
 
-from cumulus_library import db_config
+from cumulus_library import db_config, errors
 
 
 class DatabaseCursor(Protocol):
@@ -497,3 +499,51 @@ def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
         raise ValueError(f"Unexpected --db-type value '{db_type}'")
 
     return backend
+
+
+def upload_file(
+    *,
+    cursor: DatabaseCursor,
+    file: pathlib.Path,
+    study: str,
+    topic: str,
+    remote_filename: str | None = None,
+) -> str | None:
+    if db_config.db_type == "athena":
+        # We'll investigate the cursor to get the relevant params for S3 upload
+        # TODO: this could be retrieved from a config object passed to builders
+        wg_conf = cursor.connection._client.get_work_group(
+            WorkGroup=cursor.connection.work_group
+        )["WorkGroup"]["Configuration"]["ResultConfiguration"]
+        s3_path = wg_conf["OutputLocation"]
+        bucket = "/".join(s3_path.split("/")[2:3])
+        key_prefix = "/".join(s3_path.split("/")[3:])
+        encryption_type = wg_conf.get("EncryptionConfiguration", {}).get(
+            "EncryptionOption", {}
+        )
+        if encryption_type != "SSE_KMS":
+            raise errors.AWSError(
+                f"Bucket {bucket} has unexpected encryption type {encryption_type}."
+                "AWS KMS encryption is expected for Cumulus buckets"
+            )
+        kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
+        profile = cursor.connection.profile_name
+        s3_key = (
+            f"{key_prefix}cumulus_user_uploads/{cursor._schema_name}/"
+            f"{study}/{topic}"
+        )
+        if not remote_filename:
+            remote_filename = file
+        session = boto3.Session(profile_name=profile)
+        s3_client = session.client("s3")
+        with open(file, "rb") as b_file:
+            s3_client.put_object(
+                Bucket=bucket,
+                Key=f"{s3_key}/{remote_filename}",
+                Body=b_file,
+                ServerSideEncryption="aws:kms",
+                SSEKMSKeyId=kms_arn,
+            )
+        return f"s3://{bucket}/{s3_key}"
+    # For DBs not requiring a remote upload
+    return None

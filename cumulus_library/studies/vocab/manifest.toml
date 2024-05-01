@@ -9,3 +9,9 @@ file_names = [
 file_names = [
     "icd_legend.sql",
 ]
+
+# This export is only intended for use as part of CI regression testing
+[export_config]
+export_list = [
+    "vocab__icd"
+]

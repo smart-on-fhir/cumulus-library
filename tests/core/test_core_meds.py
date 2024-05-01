@@ -1,6 +1,8 @@
 """Tests for core__medicationrequest"""
 
 import json
+import os
+from unittest import mock
 
 import pytest
 
@@ -79,6 +81,10 @@ def test_core_medreq_only_inline(tmp_path):
     assert [x[0] for x in ids] == ["Inline"]
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 def test_core_med_all_types(tmp_path):
     """Verify that we handle all types of medications"""
     testbed = testbed_utils.LocalTestbed(tmp_path)

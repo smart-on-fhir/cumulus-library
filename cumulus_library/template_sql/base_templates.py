@@ -156,6 +156,41 @@ def get_create_view_query(
     )
 
 
+def get_ctas_from_parquet_query(
+    schema_name: str,
+    table_name: str,
+    local_location: str,
+    remote_location: str,
+    table_cols: list[str],
+    remote_table_cols_types: list[str],
+) -> str:
+    """Generates a create table as query using a directory of parquet files as a source
+
+    This function will generate an appropriate query for the underlying DB.
+    Not all params are used by each type of database.
+
+    :param schema_name: (athena) The schema to create the table in
+    :param table_name: (all) The name of the athena table to create
+    :param local_location: (duckdb) A directory containing parquet files to group
+        into a table
+    :param remote_location: (athena) An S3 URL to a directory containing parquert
+        fiels to group into a table
+    :param table_cols: (all) names of fields in your parquet to use as SQL columns
+    :param remote_table_cols_types: (athena) The types to assign to the columns
+        created in athena. Note that these should not be SQL types, but instead
+        should be parquet types.
+    """
+    return get_base_template(
+        "ctas_from_parquet",
+        schema_name=schema_name,
+        table_name=table_name,
+        local_location=local_location,
+        remote_location=remote_location,
+        table_cols=table_cols,
+        remote_table_cols_types=remote_table_cols_types,
+    )
+
+
 def get_ctas_query(
     schema_name: str, table_name: str, dataset: list[list[str]], table_cols: list[str]
 ) -> str:

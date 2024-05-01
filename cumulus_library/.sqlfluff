@@ -89,12 +89,14 @@ join_cols_by_table =
         }
     }
 join_id = subject_ref
+local_location = /var/study/data/
 neg_source_table = neg_source_table
 output_table_name = 'created_table'
 parent_field = 'parent'
 prefix = Test
 primary_ref = encounter_ref
 pos_source_table = pos_source_table
+remote_location = s3://bucket/study/data/
 schema_name = test_schema
 schema = 
     {

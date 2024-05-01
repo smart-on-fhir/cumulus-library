@@ -12,3 +12,7 @@ encounter.sql.jinja
 # Ignoring for now - could be addressed with an in-folder .sqlfluff config
 # or by a refactor of variable names
 count.sql.jinja
+
+# The following files try to adapt syntax to databases and so are not
+# well checkable via static sqlfluff variables
+ctas_from_parquet.sql.jinja

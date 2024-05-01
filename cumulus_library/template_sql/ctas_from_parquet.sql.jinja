@@ -1,0 +1,24 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+{%- if db_type == 'athena' -%}
+CREATE EXTERNAL TABLE IF NOT EXISTS `{{ schema_name }}`.`{{ table_name }}` (
+{%-  elif db_type == 'duckdb' -%}
+CREATE TABLE IF NOT EXISTS {{ table_name }} AS SELECT  
+{%- endif %}
+{%- for col in table_cols %}
+    {{ col }}{% if db_type == 'athena' %} {{ remote_table_cols_types[loop.index0] }}{%- endif -%}
+    {{- syntax.comma_delineate(loop) }}
+{%- endfor %}   
+{%- if db_type == 'athena' %}
+)
+{#- TODO: we may want to consider an optional partition parameter for
+large tables, though we would need to also run a MSCK REPAIR TABLE query 
+after this table is created to make the data available.
+
+See https://docs.aws.amazon.com/athena/latest/ug/parquet-serde.html
+for more info #}
+STORED AS PARQUET
+LOCATION '{{ remote_location }}'
+tblproperties ("parquet.compression"="SNAPPY");
+{%-  elif db_type == 'duckdb' %}
+FROM read_parquet('{{ local_location }}/*.parquet')
+{%- endif %}

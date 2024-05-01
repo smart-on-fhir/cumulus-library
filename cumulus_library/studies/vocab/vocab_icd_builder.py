@@ -1,9 +1,10 @@
 """ Module for directly loading ICD bsvs into athena tables """
 
-import csv
 import pathlib
 
-from cumulus_library import base_table_builder
+import pandas
+
+from cumulus_library import base_table_builder, databases
 from cumulus_library.template_sql import base_templates
 
 
@@ -30,49 +31,31 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
         """
 
         table_name = "vocab__icd"
-        icd_files = ["ICD10CM_2023AA", "ICD10PCS_2023AA", "ICD9CM_2023AA"]
         path = pathlib.Path(__file__).parent
-
+        icd_files = path.glob("icd/*.bsv")
         headers = ["CUI", "TTY", "CODE", "SAB", "STR"]
-        rows_processed = 0
-        dataset = []
-        created = False
-        for filename in icd_files:
-            with open(f"{path}/{filename}.bsv") as file:
-                # For the first row in the dataset, we want to coerce types from
-                # varchar(len(item)) athena default to to an unrestricted varchar, so
-                # we'll create a table with one row - this make the recast faster, and
-                # lets us set the partition_size a little higher by limiting the
-                # character bloat to keep queries under athena's limit of 262144.
-                reader = csv.reader(file, delimiter="|")
-                if not created:
-                    row = self.clean_row(next(reader), filename)
-                    self.queries.append(
-                        base_templates.get_ctas_query(
-                            schema_name=schema,
-                            table_name=table_name,
-                            dataset=[row],
-                            table_cols=headers,
-                        )
-                    )
-                    created = True
-                for row in reader:
-                    row = self.clean_row(row, filename)
-                    dataset.append(row)
-                    rows_processed += 1
-                    if rows_processed == self.partition_size:
-                        self.queries.append(
-                            base_templates.get_insert_into_query(
-                                table_name=table_name,
-                                table_cols=headers,
-                                dataset=dataset,
-                            )
-                        )
-                        dataset = []
-                        rows_processed = 0
-                if rows_processed > 0:
-                    self.queries.append(
-                        base_templates.get_insert_into_query(
-                            table_name=table_name, table_cols=headers, dataset=dataset
-                        )
-                    )
+        header_types = ["STRING", "STRING", "STRING", "STRING", "STRING"]
+        for file in icd_files:
+            parquet_path = path / f"icd/{file.stem}.parquet"
+            if not parquet_path.is_file():
+                df = pandas.read_csv(file, delimiter="|", names=headers)
+                df.to_parquet(parquet_path)
+            remote_path = databases.upload_file(
+                cursor=cursor,
+                file=parquet_path,
+                study="vocab",
+                topic="icd",
+                remote_filename=f"{file.stem}.parquet",
+            )
+        # Since we are building one table from these three files, it's fine to just
+        # use the last value of remote location
+        self.queries.append(
+            base_templates.get_ctas_from_parquet_query(
+                schema_name=schema,
+                table_name=table_name,
+                local_location=path / "icd",
+                remote_location=remote_path,
+                table_cols=headers,
+                remote_table_cols_types=header_types,
+            )
+        )

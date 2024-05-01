@@ -2,34 +2,31 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Effect": "Allow",
             "Action": [
                 "glue:BatchGetCrawlers",
-                "glue:GetCrawler",
-                "glue:GetCrawlerMetrics",
-                "glue:GetCrawlers",
-                "glue:ListCrawls",
-                "glue:ListCrawlers",
+                "glue:GetCrawler*",
+                "glue:ListCrawl*",
                 "glue:StartCrawler",
                 "glue:StopCrawler"
             ],
             "Resource": [
-                "*"
-            ]
+                "arn:aws:glue:us-east-1:[replace w/ account number]:crawler/cumulus-library-regression-crawler"
+            ],
+            "Effect": "Allow",
+            "Sid": "AllowCrawlerAccess"
         },
         {
-            "Effect": "Allow",
             "Action": [
-                "glue:GetDatabase",
-                "glue:CreateDatabase"
+                "glue:GetDatabase"
             ],
             "Resource": [
                 "arn:aws:glue:*:*:catalog",
                 "arn:aws:glue:*:*:database"
-            ]
+            ],
+            "Effect": "Allow",
+            "Sid": "AllowGetDatabases"
         },
         {
-            "Effect": "Allow",
             "Action": [
                 "glue:CreatePartition",
                 "glue:CreateTable",
@@ -46,18 +43,24 @@
             ],
             "Resource": [
                 "arn:aws:glue:*:*:catalog",
-                "arn:aws:glue:*:*:database/*",
+                "arn:aws:glue:*:*:database/cumulus_library_regression_db",
                 "arn:aws:glue:*:*:table/*"
-            ]
+            ],
+            "Effect": "Allow",
+            "Sid": "AllowTableCRUD"
         },
         {
-            "Effect": "Allow",
             "Action": [
-                "athena:*"
+                "athena:StartQueryExecution",
+                "athena:GetQueryExecution",
+                "athena:GetQueryResults",
+                "athena:GetWorkGroup"
             ],
             "Resource": [
-                "arn:aws:athena:*:*:workgroup/*"
-            ]
+                "arn:aws:athena:*:*:workgroup/cumulus"
+            ],
+            "Effect": "Allow",
+            "Sid": "AllowWorkgroupAccess"
         },
         {
             "Action": [
@@ -65,7 +68,6 @@
                 "s3:GetObject",
                 "s3:PutObject",
                 "s3:PutObjectAcl",
-                "secretsmanager:GetSecretValue",
                 "kms:DescribeKey",
                 "kms:Decrypt",
                 "kms:Encrypt",
@@ -73,22 +75,40 @@
                 "kms:GenerateDataKeyPair"
             ],
             "Resource": [
-                "arn:aws:secretsmanager:us-east-1:[replace with account #]:secret:*",
-                "arn:aws:kms:us-east-1:[replace with account #]:key/*",
-                "arn:aws:s3:::cumulus-etl-synthetic-regression*",
-                "arn:aws:s3:::cumulus-etl-synthetic-regression*/"
+                "arn:aws:kms:us-east-1:[replace w/ account number]:key/*",
+                "arn:aws:s3:::cumulus-etl-output-[replace w/ account number]-us-east-1/library-regression/*",
+                "arn:aws:s3:::cumulus-etl-output-[replace w/ account number]-us-east-1",
+                "arn:aws:s3:::cumulus-athena-[replace w/ account number]-us-east-1/*",
+                "arn:aws:s3:::cumulus-athena-[replace w/ account number]-us-east-1"
             ],
-            "Effect": "Allow"
+            "Effect": "Allow",
+            "Sid": "AllowBucketReadUpdate"
         },
         {
+            "Condition": {
+                "StringLike": {
+                    "s3:prefix": [
+                        "library-regression/*"
+                    ]
+                }
+            },
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Resource": "arn:aws:s3:::cumulus-etl-output-[replace w/ account number]-us-east-1",
             "Effect": "Allow",
+            "Sid": "LimitETLBucketListAccessToRegression"
+        },
+        {
             "Action": [
                 "s3:GetBucketLocation"
             ],
             "Resource": [
-                "arn:aws:s3:::cumulus-etl-synthetic-regression*",
-                "arn:aws:s3:::cumulus-etl-synthetic-regression*/"
-            ]
+                "arn:aws:s3:::cumulus-etl-output-[replace w/ account number]-us-east-1",
+                "arn:aws:s3:::cumulus-athena-[replace w/ account number]-us-east-1"
+            ],
+            "Effect": "Allow",
+            "Sid": "AllowBucketResolution"
         }
     ]
 }
