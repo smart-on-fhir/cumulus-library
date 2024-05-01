@@ -539,7 +539,7 @@ def upload_file(
         with open(file, "rb") as b_file:
             s3_client.put_object(
                 Bucket=bucket,
-                Key=f"{s3_key}{remote_filename}",
+                Key=f"{s3_key}/{remote_filename}",
                 Body=b_file,
                 ServerSideEncryption="aws:kms",
                 SSEKMSKeyId=kms_arn,
