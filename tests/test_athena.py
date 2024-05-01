@@ -52,6 +52,7 @@ def test_upload_parquet(s3_client_mock):
     path = pathlib.Path(__file__).resolve().parent
     db_config.db_type = "athena"
     cursor = mock.MagicMock()
+    cursor._schema_name = "db_schema"
     cursor.connection.work_group = "workgroup"
     cursor.connection.profile_name = "profile"
     with open(path / "test_data/aws/boto3.client.athena.get_work_group.json") as f:
@@ -67,7 +68,6 @@ def test_upload_parquet(s3_client_mock):
         topic="count_patient",
         remote_filename="count_synthea_patient.parquet",
     )
-    assert (
-        resp
-        == "s3://cumulus-athena-123456789012-us-east-1/user_uploads/test_study/count_patient"
+    assert resp == (
+        "s3://cumulus-athena-123456789012-us-east-1/results/cumulus_user_uploads/db_schema/test_study/count_patient"
     )

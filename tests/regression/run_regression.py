@@ -87,7 +87,7 @@ def regress_core():
 
 def regress_vocab():
     export_path = f"{Path(__file__).resolve().parent}/data_export/vocab"
-    with open(export_path / "vocab__icd") as f:
+    with open(f"{export_path}/vocab__icd.csv") as f:
         export_size = len(f.readlines())
         # this is the value of
         if export_size != VOCAB_ICD_ROW_COUNT:
@@ -99,5 +99,5 @@ def regress_vocab():
 
 
 if __name__ == "__main__":
-    regress_core()
     regress_vocab()
+    regress_core()
