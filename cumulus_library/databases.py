@@ -517,6 +517,7 @@ def upload_file(
         )["WorkGroup"]["Configuration"]["ResultConfiguration"]
         s3_path = wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
+        key_prefix = "/".join(s3_path.split("/")[3:])
         encryption_type = wg_conf.get("EncryptionConfiguration", {}).get(
             "EncryptionOption", {}
         )
@@ -527,7 +528,10 @@ def upload_file(
             )
         kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
         profile = cursor.connection.profile_name
-
+        s3_key = (
+            f"{key_prefix}cumulus_user_uploads/{cursor._schema_name}/"
+            f"{study}/{topic}"
+        )
         if not remote_filename:
             remote_filename = file
         session = boto3.Session(profile_name=profile)
@@ -535,11 +539,11 @@ def upload_file(
         with open(file, "rb") as b_file:
             s3_client.put_object(
                 Bucket=bucket,
-                Key=f"user_uploads/{study}/{topic}/{remote_filename}",
+                Key=f"{s3_key}{remote_filename}",
                 Body=b_file,
                 ServerSideEncryption="aws:kms",
                 SSEKMSKeyId=kms_arn,
             )
-        return f"s3://{bucket}/user_uploads/{study}/{topic}"
+        return f"s3://{bucket}/{s3_key}"
     # For DBs not requiring a remote upload
     return None

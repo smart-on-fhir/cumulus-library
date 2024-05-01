@@ -316,7 +316,7 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
                 "--statistics",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            2,
+            3,
         ),
     ],
 )

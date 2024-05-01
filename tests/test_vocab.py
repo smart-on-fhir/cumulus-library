@@ -1,5 +1,4 @@
 import os
-import pathlib
 from unittest import mock
 
 from cumulus_library import cli, databases
@@ -42,14 +41,9 @@ def test_vocab(tmp_path):
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     cursor = db.cursor()
     table_rows, cols = conftest.get_sorted_table_data(cursor, "vocab__icd")
-    expected_cols = ["CUI", "TTY", "CODE", "SAB", "STR"]
-    for col in expected_cols:
-        assert any(col_schema[0] == col for col_schema in cols)
-    for col in cols:
-        assert col[0] in expected_cols
-    icd_dir = pathlib.Path("./cumulus_library/studies/vocab/icd/")
-    bsv_row_count = 0
-    for file in icd_dir.glob("*.bsv"):
-        with open(file) as f:
-            bsv_row_count += len(f.readlines())
+    expected_cols = {"CUI", "TTY", "CODE", "SAB", "STR"}
+    found_cols = {col_schema[0] for col_schema in cols}
+    assert expected_cols == found_cols
     assert len(table_rows) == conftest.VOCAB_ICD_ROW_COUNT
+    assert table_rows[0] == ("C0000727", "ICD10CM", "PT", "R10.0", "Acute abdomen")
+    assert table_rows[-1] == ("C5700317", "ICD10CM", "HT", "M91.3", "Pseudocoxalgia")

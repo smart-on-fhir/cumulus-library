@@ -20,7 +20,7 @@ from pathlib import Path
 
 from pandas import read_parquet
 
-from tests import conftest
+VOCAB_ICD_ROW_COUNT = 403231
 
 
 def regress_core():
@@ -89,9 +89,8 @@ def regress_vocab():
     export_path = f"{Path(__file__).resolve().parent}/data_export/vocab"
     with open(export_path / "vocab__icd") as f:
         export_size = len(f.readlines())
-        # we add one to the row count to accomodate the header added by being a
-        # SQL table export
-        if export_size != conftest.VOCAB_ICD_ROW_COUNT + 1:
+        # this is the value of
+        if export_size != VOCAB_ICD_ROW_COUNT:
             sys.exit(
                 f"❌ Vocab tables built from parquets are not expected length."
                 f" Found rows: {export_size} ❌"
