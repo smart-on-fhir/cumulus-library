@@ -1,0 +1,38 @@
+{
+    "ResponseMetadata": {
+        "RequestId": "1234567890ABCDEFGHI",
+        "HostId": "1234567890ABCDEFGHIJK=",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "x-amz-id-2": "1234567890ABCDEFGHIJK=",
+            "x-amz-request-id": "0987654321FEDCBA",
+            "date": "Fri, 03 May 2024 16:04:03 GMT",
+            "x-amz-bucket-region": "us-east-1",
+            "content-type": "application/xml",
+            "transfer-encoding": "chunked",
+            "server": "AmazonS3"
+        },
+        "RetryAttempts": 0
+    },
+    "IsTruncated": false,
+    "Contents": [
+        {
+            "Key": "key.path/topic/file.parquet",
+            "LastModified": "datetime.datetime(2024",
+            "5": null,
+            "2": null,
+            "20": null,
+            "13": null,
+            "34": null,
+            "tzinfo=tzutc())": null,
+            "ETag": "\"12678120alskc\"",
+            "Size": 2104615,
+            "StorageClass": "STANDARD"
+        }
+    ],
+    "Name": "cumulus-athena-123456789012-us-east-1",
+    "Prefix": "key.path/topic/file.parquet",
+    "MaxKeys": 1000,
+    "EncodingType": "url",
+    "KeyCount": 1
+}

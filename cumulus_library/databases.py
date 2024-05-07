@@ -153,6 +153,18 @@ class DatabaseBackend(abc.ABC):
         """Returns parser object for interrogating DB schemas"""
 
     @abc.abstractmethod
+    def upload_file(
+        self,
+        *,
+        file: pathlib.Path,
+        study: str,
+        topic: str,
+        remote_filename: str | None = None,
+        replace_existing=False,
+    ) -> str | None:
+        """If the db is file based, upload a file to it; if not, return None"""
+
+    @abc.abstractmethod
     def close(self) -> None:
         """Clean up any resources necessary"""
 
@@ -160,10 +172,19 @@ class DatabaseBackend(abc.ABC):
 class AthenaDatabaseBackend(DatabaseBackend):
     """Database backend that can talk to AWS Athena"""
 
-    def __init__(self, region: str, workgroup: str, profile: str, schema_name: str):
+    def __init__(self, region: str, work_group: str, profile: str, schema_name: str):
         super().__init__(schema_name)
 
+        self.region = region
+        self.work_group = work_group
+        self.profile = profile
+        self.schema_name = schema_name
+        # the profile may not be required, provided the above three AWS env vars
+        # are set. If both are present, the env vars take precedence
         connect_kwargs = {}
+        if self.profile is not None:
+            connect_kwargs["profile_name"] = self.profile
+
         for aws_env_name in [
             "AWS_ACCESS_KEY_ID",
             "AWS_SECRET_ACCESS_KEY",
@@ -171,30 +192,75 @@ class AthenaDatabaseBackend(DatabaseBackend):
         ]:
             if aws_env_val := os.environ.get(aws_env_name):
                 connect_kwargs[aws_env_name.lower()] = aws_env_val
-        # the profile may not be required, provided the above three AWS env vars
-        # are set. If both are present, the env vars take precedence
-        if profile is not None:
-            connect_kwargs["profile_name"] = profile
-
         self.connection = pyathena.connect(
-            region_name=region,
-            work_group=workgroup,
+            region_name=self.region,
+            work_group=self.work_group,
             schema_name=self.schema_name,
             **connect_kwargs,
         )
-        self.pandas_cursor = self.connection.cursor(cursor=AthenaPandasCursor)
 
     def cursor(self) -> AthenaCursor:
         return self.connection.cursor()
 
     def pandas_cursor(self) -> AthenaPandasCursor:
-        return self.pandas_cursor
+        return self.connection.cursor(cursor=AthenaPandasCursor)
 
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
-        return self.pandas_cursor.execute(sql).as_pandas()
+        return self.pandas_cursor().execute(sql).as_pandas()
 
     def parser(self) -> DatabaseParser:
         return AthenaParser()
+
+    def upload_file(
+        self,
+        *,
+        file: pathlib.Path,
+        study: str,
+        topic: str,
+        remote_filename: str | None = None,
+        replace_existing=False,
+    ) -> str | None:
+        # We'll investigate the cursor to get the relevant params for S3 upload
+        # TODO: this could be retrieved from a config object passed to builders
+        wg_conf = self.connection._client.get_work_group(WorkGroup=self.work_group)[
+            "WorkGroup"
+        ]["Configuration"]["ResultConfiguration"]
+        s3_path = wg_conf["OutputLocation"]
+        bucket = "/".join(s3_path.split("/")[2:3])
+        key_prefix = "/".join(s3_path.split("/")[3:])
+        encryption_type = wg_conf.get("EncryptionConfiguration", {}).get(
+            "EncryptionOption", {}
+        )
+        if encryption_type != "SSE_KMS":
+            raise errors.AWSError(
+                f"Bucket {bucket} has unexpected encryption type {encryption_type}."
+                "AWS KMS encryption is expected for Cumulus buckets"
+            )
+        kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
+        s3_key = (
+            f"{key_prefix}cumulus_user_uploads/{self.schema_name}/" f"{study}/{topic}"
+        )
+        if not remote_filename:
+            remote_filename = file
+
+        session = boto3.Session(profile_name=self.connection.profile_name)
+        s3_client = session.client("s3")
+        if not replace_existing:
+            res = s3_client.list_objects_v2(
+                Bucket=bucket,
+                Prefix=f"{s3_key}/{remote_filename}",
+            )
+            if res["KeyCount"] > 0:
+                return f"s3://{bucket}/{s3_key}"
+        with open(file, "rb") as b_file:
+            s3_client.put_object(
+                Bucket=bucket,
+                Key=f"{s3_key}/{remote_filename}",
+                Body=b_file,
+                ServerSideEncryption="aws:kms",
+                SSEKMSKeyId=kms_arn,
+            )
+        return f"s3://{bucket}/{s3_key}"
 
     def close(self) -> None:
         return self.connection.close()
@@ -380,6 +446,9 @@ class DuckDatabaseBackend(DatabaseBackend):
     def parser(self) -> DatabaseParser:
         return DuckDbParser()
 
+    def upload_file(self, *args, **kwargs) -> None:
+        return None
+
     def close(self) -> None:
         self.connection.close()
 
@@ -499,51 +568,3 @@ def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
         raise ValueError(f"Unexpected --db-type value '{db_type}'")
 
     return backend
-
-
-def upload_file(
-    *,
-    cursor: DatabaseCursor,
-    file: pathlib.Path,
-    study: str,
-    topic: str,
-    remote_filename: str | None = None,
-) -> str | None:
-    if db_config.db_type == "athena":
-        # We'll investigate the cursor to get the relevant params for S3 upload
-        # TODO: this could be retrieved from a config object passed to builders
-        wg_conf = cursor.connection._client.get_work_group(
-            WorkGroup=cursor.connection.work_group
-        )["WorkGroup"]["Configuration"]["ResultConfiguration"]
-        s3_path = wg_conf["OutputLocation"]
-        bucket = "/".join(s3_path.split("/")[2:3])
-        key_prefix = "/".join(s3_path.split("/")[3:])
-        encryption_type = wg_conf.get("EncryptionConfiguration", {}).get(
-            "EncryptionOption", {}
-        )
-        if encryption_type != "SSE_KMS":
-            raise errors.AWSError(
-                f"Bucket {bucket} has unexpected encryption type {encryption_type}."
-                "AWS KMS encryption is expected for Cumulus buckets"
-            )
-        kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
-        profile = cursor.connection.profile_name
-        s3_key = (
-            f"{key_prefix}cumulus_user_uploads/{cursor._schema_name}/"
-            f"{study}/{topic}"
-        )
-        if not remote_filename:
-            remote_filename = file
-        session = boto3.Session(profile_name=profile)
-        s3_client = session.client("s3")
-        with open(file, "rb") as b_file:
-            s3_client.put_object(
-                Bucket=bucket,
-                Key=f"{s3_key}/{remote_filename}",
-                Body=b_file,
-                ServerSideEncryption="aws:kms",
-                SSEKMSKeyId=kms_arn,
-            )
-        return f"s3://{bucket}/{s3_key}"
-    # For DBs not requiring a remote upload
-    return None

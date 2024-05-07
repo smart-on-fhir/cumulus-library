@@ -6,7 +6,7 @@ from pathlib import Path
 
 import duckdb
 
-from cumulus_library import cli
+from cumulus_library import base_utils, cli
 from cumulus_library.databases import create_db_backend
 
 
@@ -236,6 +236,6 @@ class LocalTestbed:
         # builder.verbose = True
         builder.clean_and_build_study(
             Path(__file__).parent.parent / "cumulus_library/studies" / study,
-            stats_build=False,
+            config=base_utils.StudyConfig(db_backend=db, stats_build=False),
         )
         return duckdb.connect(db_file)

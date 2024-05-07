@@ -17,6 +17,10 @@ for more details and any associated publications.
 - [Covid symptoms](https://github.com/smart-on-fhir/cumulus-library-covid)
 - [Suicidality length of stay](https://github.com/smart-on-fhir/cumulus-library-suicidality-los)
 
+### 2024
+- [Hypertension](https://github.com/smart-on-fhir/cumulus-library-hypertension)
+- [UMLS vocabulary](https://github.com/smart-on-fhir/cumulus-library-umls)
+
 ## Third party studies
 
 If you are using Cumulus to manage your own clinical studies and would like

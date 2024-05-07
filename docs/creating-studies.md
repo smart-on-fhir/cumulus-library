@@ -45,7 +45,7 @@ study_prefix = "my_study"
 
 # For most use cases, this should not be required, but if you need to programmatically
 # build tables, you can provide a list of files implementing BaseTableBuilder.
-# See vocab and core studies for examples of this pattern. These run before
+# See the core studies for examples of this pattern. These run before
 # any SQL execution
 # [table_builder_config]
 # file_names = [

@@ -141,27 +141,26 @@ Add your count generator file to the `counts_builder_config` section of your
 ### Adding a static dataset
 
 Occasionally you will have a dataset from a third party that is useful for working
-with your dataset. In the vocab study (requiring a license to use), we 
-[add coding system data](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/vocab/vocab_icd_builder.py)
-from flat files to Athena. If you need to do this, you should extend the base
+with your dataset. 
+
+If you need to do this, you should extend the base
 `TableBuilder` class, and your `prepare_queries` function should do the following,
 leveraging the
 [template function library](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/template_sql/base_templates.py):
-- Use the `get_ctas_query` function to get a `CREATE TABLE AS` statement to 
-instantiate your table in Athena
-- Since Athena SQL queries are limited in size to 262144 bytes, if you have
-a large dataset, break it up into smaller chunks
-- Use the `get_insert_into` function to add the data from each table to
-the chunk you just created.
+- Convert your data to parquet format. The 
+[UMLS study](https://github.com/smart-on-fhir/cumulus-library-umls) provides an example
+of how to do this using a pandas DataFrame
+- Use the `upload_data` function from the StudyConfig.db_backend (passed to 
+TableBuilders as `config`) to push files to the appropriate location for databases
+Cumulus supports
+- Use the `get_ctas_from_parquet_query` function from the template library to get 
+a `CREATE TABLE AS` statement for the appropriate database, and add that to the builder's
+`queries` array.
 
 Add the dataset uploader to the `table_builder_config` section of your
 `manifest.toml` to include it in your build - this will make this data
 available for downstream queries
 
-{: .note }
-We have an
-[open issue](https://github.com/smart-on-fhir/cumulus-library/issues/58)
-to develop an easier methodology for adding new datasets.
 
 ### Querying nested data
 

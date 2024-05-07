@@ -1,8 +1,8 @@
 """ Collection of small commonly used utility functions """
 
+import dataclasses
 import datetime
 import json
-import os
 import pathlib
 import shutil
 import zipfile
@@ -10,9 +10,34 @@ from contextlib import contextmanager
 
 from rich import progress
 
+from cumulus_library import databases
 
-def filepath(filename: str) -> str:
-    return os.path.join(os.path.dirname(__file__), filename)
+
+@dataclasses.dataclass
+class StudyConfig:
+    """Class for containing study-centric parameters
+
+    The intent of this class is that if you want something passed through to the
+    prepare_queries section of a study, this is the place it should go. If you're
+    doing something above that level, consider explicit arguments instead. This should
+    be an interface aimed at a study author.
+
+    :param db_backend: a databaseBackend object for a specific target database
+    :keyword db_type: the argument passed in from the CLI indicating the requested DB
+        (this is easier to use in things like jinja templates than db_backend, if they
+        need to run DB technology aware queries)
+    :keyword replace_existing: If the study downloads data from an external resource,
+        force it to skip any cached data when running
+    :keyword stats_build: If the study runs a stats builder, force regeneration of
+        any sampling or other stochastic techniques
+    :keyword umls: A UMLS API key
+    """
+
+    db_backend: databases.DatabaseBackend
+    db_type: str | None = None
+    replace_existing: bool = False
+    stats_build: bool = False
+    umls: str | None = None
 
 
 def load_text(path: str) -> str:
@@ -39,17 +64,6 @@ def parse_sql(sql_text: str) -> list[str]:
 
 def filter_strip(commands) -> list[str]:
     return list(filter(None, [c.strip() for c in commands]))
-
-
-def list_coding(code_display: dict, system=None) -> list[dict]:
-    as_list = []
-    for code, display in code_display.items():
-        if system:
-            item = {"code": code, "display": display, "system": system}
-        else:
-            item = {"code": code, "display": display}
-        as_list.append(item)
-    return as_list
 
 
 @contextmanager
