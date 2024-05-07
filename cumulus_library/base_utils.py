@@ -33,11 +33,11 @@ class StudyConfig:
     :keyword umls: A UMLS API key
     """
 
-    db_backend: databases.DatabaseBackend
+    db: databases.DatabaseBackend
     db_type: str | None = None
-    replace_existing: bool = False
+    force_upload: bool = False
     stats_build: bool = False
-    umls: str | None = None
+    umls_key: str | None = None
 
 
 def load_text(path: str) -> str:

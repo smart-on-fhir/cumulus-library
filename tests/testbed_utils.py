@@ -236,6 +236,6 @@ class LocalTestbed:
         # builder.verbose = True
         builder.clean_and_build_study(
             Path(__file__).parent.parent / "cumulus_library/studies" / study,
-            config=base_utils.StudyConfig(db_backend=db, stats_build=False),
+            config=base_utils.StudyConfig(db=db, stats_build=False),
         )
         return duckdb.connect(db_file)

@@ -183,11 +183,11 @@ following order of preference is used to select credentials:
         dest="stats_build",
     )
     build.add_argument(
-        "--umls",
+        "--umls-key",
         help="An API Key for the UMLS API",
     )
     build.add_argument(
-        "--replace-existing",
+        "--force-upload",
         action="store_true",
         help="Forces file downloads/uploads to occur, even if they already exist",
     )

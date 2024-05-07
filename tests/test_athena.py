@@ -50,7 +50,7 @@ def test_schema_parsing():
 @mock.patch("botocore.session.Session")
 def test_upload_parquet(s3_session_mock):
     path = pathlib.Path(__file__).resolve().parent
-    db_backend = databases.AthenaDatabaseBackend(
+    db = databases.AthenaDatabaseBackend(
         region="us-east-1",
         work_group="work_group",
         profile="profile",
@@ -59,12 +59,12 @@ def test_upload_parquet(s3_session_mock):
     client = mock.MagicMock()
     with open(path / "test_data/aws/boto3.client.athena.get_work_group.json") as f:
         client.get_work_group.return_value = json.load(f)
-    db_backend.connection._client = client
+    db.connection._client = client
     s3_client = mock.MagicMock()
     with open(path / "test_data/aws/boto3.client.s3.list_objects_v2.json") as f:
         s3_client.list_objects_v2.return_value = json.load(f)
     s3_session_mock.return_value.create_client.return_value = s3_client
-    resp = db_backend.upload_file(
+    resp = db.upload_file(
         file=path / "test_data/count_synthea_patient.parquet",
         study="test_study",
         topic="count_patient",

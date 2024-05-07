@@ -152,7 +152,6 @@ class DatabaseBackend(abc.ABC):
     def parser(self) -> DatabaseParser:
         """Returns parser object for interrogating DB schemas"""
 
-    @abc.abstractmethod
     def upload_file(
         self,
         *,
@@ -160,9 +159,13 @@ class DatabaseBackend(abc.ABC):
         study: str,
         topic: str,
         remote_filename: str | None = None,
-        replace_existing=False,
+        force_upload=False,
     ) -> str | None:
-        """If the db is file based, upload a file to it; if not, return None"""
+        """Handler for remote database file upload.
+
+        By default, this should return None. Only override this for databases that
+        have an API for file upload (i.e. cloud databases)"""
+        return None
 
     @abc.abstractmethod
     def close(self) -> None:
@@ -218,7 +221,7 @@ class AthenaDatabaseBackend(DatabaseBackend):
         study: str,
         topic: str,
         remote_filename: str | None = None,
-        replace_existing=False,
+        force_upload=False,
     ) -> str | None:
         # We'll investigate the connection to get the relevant S3 upload path.
         wg_conf = self.connection._client.get_work_group(WorkGroup=self.work_group)[
@@ -244,7 +247,7 @@ class AthenaDatabaseBackend(DatabaseBackend):
 
         session = boto3.Session(profile_name=self.connection.profile_name)
         s3_client = session.client("s3")
-        if not replace_existing:
+        if not force_upload:
             res = s3_client.list_objects_v2(
                 Bucket=bucket,
                 Prefix=f"{s3_key}/{remote_filename}",
@@ -444,9 +447,6 @@ class DuckDatabaseBackend(DatabaseBackend):
 
     def parser(self) -> DatabaseParser:
         return DuckDbParser()
-
-    def upload_file(self, *args, **kwargs) -> None:
-        return None
 
     def close(self) -> None:
         self.connection.close()

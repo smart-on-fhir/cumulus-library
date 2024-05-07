@@ -47,12 +47,12 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
             if not parquet_path.is_file():
                 df = pandas.read_csv(file, delimiter="|", names=headers)
                 df.to_parquet(parquet_path)
-            remote_path = config.db_backend.upload_file(
+            remote_path = config.db.upload_file(
                 file=parquet_path,
                 study="vocab",
                 topic="icd",
                 remote_filename=f"{file.stem}.parquet",
-                replace_existing=config.replace_existing,
+                force_upload=config.force_upload,
             )
         # Since we are building one table from these three files, it's fine to just
         # use the last value of remote location

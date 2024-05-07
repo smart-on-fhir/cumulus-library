@@ -346,13 +346,13 @@ def run_cli(args: dict):
     else:
         config = base_utils.StudyConfig(
             db_type=args.get("db_type"),
-            db_backend=databases.create_db_backend(args),
-            replace_existing=args.get("replace_existing", False),
+            db=databases.create_db_backend(args),
+            force_upload=args.get("replace_existing", False),
             stats_build=args.get("stats_build", False),
-            umls=args.get("umls"),
+            umls_key=args.get("umls"),
         )
         try:
-            runner = StudyRunner(config.db_backend, data_path=args.get("data_path"))
+            runner = StudyRunner(config.db, data_path=args.get("data_path"))
             if args.get("verbose"):
                 runner.verbose = True
             console.print("[italic] Connecting to database...")
@@ -424,7 +424,7 @@ def run_cli(args: dict):
                 for target in args["target"]:
                     runner.generate_study_markdown(study_dict[target])
         finally:
-            config.db_backend.close()
+            config.db.close()
 
 
 def main(cli_args=None):

@@ -63,8 +63,7 @@ def test_psm_create(
 ):
     builder = cli.StudyRunner(mock_db_stats, data_path=Path(tmp_path))
     psmbuilder = psm.PsmBuilder(
-        f"{Path(__file__).parent}/test_data/psm/{toml_def}",
-        Path(tmp_path),  # config=study_parser.StudyConfig(db_type='duckdb')
+        f"{Path(__file__).parent}/test_data/psm/{toml_def}", Path(tmp_path)
     )
     mock_db_stats.cursor().execute(
         "create table psm_test__psm_cohort as (select * from core__condition "

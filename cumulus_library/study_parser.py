@@ -388,9 +388,7 @@ class StudyManifestParser:
             table_builder.comment_queries(doc_str=doc_str)
             new_filename = pathlib.Path(f"{filename}").stem + ".sql"
             table_builder.write_queries(
-                path=pathlib.Path(
-                    f"{self._study_path}/reference_sql/" + new_filename, config=config
-                )
+                path=pathlib.Path(f"{self._study_path}/reference_sql/" + new_filename)
             )
         else:
             table_builder.execute_queries(

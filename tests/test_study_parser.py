@@ -112,7 +112,7 @@ def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, r
             parser.run_protected_table_builder(
                 mock_db.cursor(),
                 schema,
-                config=base_utils.StudyConfig(db_backend=mock_db),
+                config=base_utils.StudyConfig(db=mock_db),
             )
 
             # We're mocking stats tables since creating them programmatically
@@ -168,7 +168,7 @@ def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, r
 def test_run_protected_table_builder(mock_db, study_path, stats):
     parser = study_parser.StudyManifestParser(study_path)
     parser.run_protected_table_builder(
-        mock_db.cursor(), "main", config=base_utils.StudyConfig(db_backend=mock_db)
+        mock_db.cursor(), "main", config=base_utils.StudyConfig(db=mock_db)
     )
     tables = (
         mock_db.cursor()
@@ -230,7 +230,7 @@ def test_table_builder(mock_db, study_path, verbose, expects, raises):
             mock_db.cursor(),
             "main",
             verbose=verbose,
-            config=base_utils.StudyConfig(db_backend=mock_db),
+            config=base_utils.StudyConfig(db=mock_db),
         )
         tables = (
             mock_db.cursor()
@@ -293,7 +293,7 @@ def test_build_study(mock_db, study_path, verbose, expects, raises):
         parser.build_study(
             mock_db.cursor(),
             verbose=verbose,
-            config=base_utils.StudyConfig(db_backend=mock_db),
+            config=base_utils.StudyConfig(db=mock_db),
         )
         tables = (
             mock_db.cursor()
@@ -325,7 +325,7 @@ def test_run_statistics_builders(
 ):
     with raises:
         parser = study_parser.StudyManifestParser(study_path, data_path=tmp_path)
-        config = base_utils.StudyConfig(db_backend=mock_db_stats, stats_build=stats)
+        config = base_utils.StudyConfig(db=mock_db_stats, stats_build=stats)
         parser.run_protected_table_builder(
             mock_db_stats.cursor(), "main", config=config
         )
