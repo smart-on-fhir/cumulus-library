@@ -48,7 +48,6 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
                 df = pandas.read_csv(file, delimiter="|", names=headers)
                 df.to_parquet(parquet_path)
             remote_path = config.db_backend.upload_file(
-                cursor=cursor,
                 file=parquet_path,
                 study="vocab",
                 topic="icd",
