@@ -220,8 +220,7 @@ class AthenaDatabaseBackend(DatabaseBackend):
         remote_filename: str | None = None,
         replace_existing=False,
     ) -> str | None:
-        # We'll investigate the cursor to get the relevant params for S3 upload
-        # TODO: this could be retrieved from a config object passed to builders
+        # We'll investigate the connection to get the relevant S3 upload path.
         wg_conf = self.connection._client.get_work_group(WorkGroup=self.work_group)[
             "WorkGroup"
         ]["Configuration"]["ResultConfiguration"]
