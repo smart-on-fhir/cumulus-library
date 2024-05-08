@@ -26,7 +26,7 @@ import pyathena
 from pyathena.common import BaseCursor as AthenaCursor
 from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
 
-from cumulus_library import errors
+from cumulus_library import db_config, errors
 
 
 class DatabaseCursor(Protocol):
@@ -551,15 +551,15 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
 
 
 def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
-    db_type = args["db_type"]
+    db_config.db_type = args["db_type"]
     database = args["schema_name"]
     load_ndjson_dir = args.get("load_ndjson_dir")
 
-    if db_type == "duckdb":
+    if db_config.db_type == "duckdb":
         backend = DuckDatabaseBackend(database)  # `database` is path name in this case
         if load_ndjson_dir:
             backend.insert_tables(read_ndjson_dir(load_ndjson_dir))
-    elif db_type == "athena":
+    elif db_config.db_type == "athena":
         backend = AthenaDatabaseBackend(
             args["region"],
             args["workgroup"],
@@ -569,6 +569,6 @@ def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
         if load_ndjson_dir:
             sys.exit("Loading an ndjson dir is not supported with --db-type=athena.")
     else:
-        raise ValueError(f"Unexpected --db-type value '{db_type}'")
+        raise ValueError(f"Unexpected --db-type value '{db_config.db_type}'")
 
     return backend
