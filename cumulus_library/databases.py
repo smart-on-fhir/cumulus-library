@@ -26,7 +26,7 @@ import pyathena
 from pyathena.common import BaseCursor as AthenaCursor
 from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
 
-from cumulus_library import db_config, errors
+from cumulus_library import errors
 
 
 class DatabaseCursor(Protocol):
@@ -131,6 +131,10 @@ class DatabaseBackend(abc.ABC):
         :param schema_name: the database name ('schema' is Athena-speak for a database)
         """
         self.schema_name = schema_name
+        # db_type, while perhaps feeling redundant, is intended to be a value that is
+        # passed to jinja templates for creating valid sql for a particular database's
+        # technology
+        self.db_type = None
 
     @abc.abstractmethod
     def cursor(self) -> DatabaseCursor:
@@ -178,6 +182,7 @@ class AthenaDatabaseBackend(DatabaseBackend):
     def __init__(self, region: str, work_group: str, profile: str, schema_name: str):
         super().__init__(schema_name)
 
+        self.db_type = "athena"
         self.region = region
         self.work_group = work_group
         self.profile = profile
@@ -323,6 +328,7 @@ class DuckDatabaseBackend(DatabaseBackend):
 
     def __init__(self, db_file: str):
         super().__init__("main")
+        self.db_type = "duckdb"
         self.connection = duckdb.connect(db_file)
         # Aliasing Athena's as_pandas to duckDB's df cast
         duckdb.DuckDBPyConnection.as_pandas = duckdb.DuckDBPyConnection.df
@@ -546,7 +552,6 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
 
 def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
     db_type = args["db_type"]
-    db_config.db_type = db_type
     database = args["schema_name"]
     load_ndjson_dir = args.get("load_ndjson_dir")
 

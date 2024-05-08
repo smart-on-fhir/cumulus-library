@@ -345,7 +345,6 @@ def run_cli(args: dict):
     # all other actions require connecting to the database
     else:
         config = base_utils.StudyConfig(
-            db_type=args.get("db_type"),
             db=databases.create_db_backend(args),
             force_upload=args.get("replace_existing", False),
             stats_build=args.get("stats_build", False),

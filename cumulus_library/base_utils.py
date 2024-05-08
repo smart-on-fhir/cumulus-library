@@ -34,7 +34,6 @@ class StudyConfig:
     """
 
     db: databases.DatabaseBackend
-    db_type: str | None = None
     force_upload: bool = False
     stats_build: bool = False
     umls_key: str | None = None
