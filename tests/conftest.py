@@ -9,7 +9,7 @@ import pandas
 import pytest
 from rich import console, table
 
-from cumulus_library.cli import StudyRunner
+from cumulus_library import base_utils, cli
 from cumulus_library.databases import create_db_backend
 
 # Useful constants
@@ -208,9 +208,10 @@ def mock_db(tmp_path):
 @pytest.fixture
 def mock_db_core(tmp_path, mock_db):  # pylint: disable=redefined-outer-name
     """Provides a DuckDatabaseBackend with the core study ran for local testing"""
-    builder = StudyRunner(mock_db, data_path=f"{tmp_path}/data_path")
+    builder = cli.StudyRunner(mock_db, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
-        f"{Path(__file__).parent.parent}/cumulus_library/studies/core", stats_build=True
+        f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
+        config=base_utils.StudyConfig(stats_build=True, db=mock_db),
     )
     yield mock_db
 
@@ -226,8 +227,9 @@ def mock_db_stats(tmp_path):
             "load_ndjson_dir": f"{tmp_path}/mock_data",
         }
     )
-    builder = StudyRunner(db, data_path=f"{tmp_path}/data_path")
+    builder = cli.StudyRunner(db, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
-        f"{Path(__file__).parent.parent}/cumulus_library/studies/core", stats_build=True
+        f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
+        config=base_utils.StudyConfig(stats_build=True, db=db),
     )
     yield db

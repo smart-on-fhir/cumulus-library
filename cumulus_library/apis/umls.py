@@ -94,10 +94,22 @@ class UmlsApi:
                 all_responses.append(valueset[0])
         return all_responses
 
+    def get_latest_umls_file_release(self, target: str):
+        if target not in VALID_UMLS_DOWNLOADS:
+            raise errors.ApiError(
+                f"'{target}' is not a valid umls download type.\n\n"
+                f"Expected values: {','.join(VALID_UMLS_DOWNLOADS)}"
+            )
+        release_payload = {"releaseType": target, "current": "true"}
+        return self.session.get(
+            "https://uts-ws.nlm.nih.gov/releases", params=release_payload
+        ).json()[0]
+
     def download_umls_files(
         self,
-        target: str = "umls-metathesaurus-mrconso-file",
+        target: str = "umls-metathesaurus-full-subset",
         path: pathlib.Path | None = None,
+        unzip: bool = True,
     ):
         """Downloads an available file from the UMLS Download API and unzips it
         target: the UMLS resource to download (default: the MRCONSO.RRF file)
@@ -113,10 +125,7 @@ class UmlsApi:
             )
         if path is None:
             path = pathlib.Path.cwd()
-        release_payload = {"releaseType": target, "current": "true"}
-        file_meta = self.session.get(
-            "https://uts-ws.nlm.nih.gov/releases", params=release_payload
-        ).json()[0]
+        file_meta = self.get_latest_umls_file_release(target)
 
         # This particular endpoint requires the API key as a param rather than a
         # basic auth header ¯\_(ツ)_/¯.
@@ -144,5 +153,6 @@ class UmlsApi:
                             f"{chunks_read/1000} MB"
                         ),
                     )
-        base_utils.unzip_file(path / file_meta["fileName"], path)
-        (path / file_meta["fileName"]).unlink()
+        if unzip:
+            base_utils.unzip_file(path / file_meta["fileName"], path)
+            (path / file_meta["fileName"]).unlink()

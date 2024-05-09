@@ -131,6 +131,10 @@ class DatabaseBackend(abc.ABC):
         :param schema_name: the database name ('schema' is Athena-speak for a database)
         """
         self.schema_name = schema_name
+        # db_type, while perhaps feeling redundant, is intended to be a value that is
+        # passed to jinja templates for creating valid sql for a particular database's
+        # technology
+        self.db_type = None
 
     @abc.abstractmethod
     def cursor(self) -> DatabaseCursor:
@@ -152,6 +156,21 @@ class DatabaseBackend(abc.ABC):
     def parser(self) -> DatabaseParser:
         """Returns parser object for interrogating DB schemas"""
 
+    def upload_file(
+        self,
+        *,
+        file: pathlib.Path,
+        study: str,
+        topic: str,
+        remote_filename: str | None = None,
+        force_upload=False,
+    ) -> str | None:
+        """Handler for remote database file upload.
+
+        By default, this should return None. Only override this for databases that
+        have an API for file upload (i.e. cloud databases)"""
+        return None
+
     @abc.abstractmethod
     def close(self) -> None:
         """Clean up any resources necessary"""
@@ -160,10 +179,20 @@ class DatabaseBackend(abc.ABC):
 class AthenaDatabaseBackend(DatabaseBackend):
     """Database backend that can talk to AWS Athena"""
 
-    def __init__(self, region: str, workgroup: str, profile: str, schema_name: str):
+    def __init__(self, region: str, work_group: str, profile: str, schema_name: str):
         super().__init__(schema_name)
 
+        self.db_type = "athena"
+        self.region = region
+        self.work_group = work_group
+        self.profile = profile
+        self.schema_name = schema_name
+        # the profile may not be required, provided the above three AWS env vars
+        # are set. If both are present, the env vars take precedence
         connect_kwargs = {}
+        if self.profile is not None:
+            connect_kwargs["profile_name"] = self.profile
+
         for aws_env_name in [
             "AWS_ACCESS_KEY_ID",
             "AWS_SECRET_ACCESS_KEY",
@@ -171,30 +200,74 @@ class AthenaDatabaseBackend(DatabaseBackend):
         ]:
             if aws_env_val := os.environ.get(aws_env_name):
                 connect_kwargs[aws_env_name.lower()] = aws_env_val
-        # the profile may not be required, provided the above three AWS env vars
-        # are set. If both are present, the env vars take precedence
-        if profile is not None:
-            connect_kwargs["profile_name"] = profile
-
         self.connection = pyathena.connect(
-            region_name=region,
-            work_group=workgroup,
+            region_name=self.region,
+            work_group=self.work_group,
             schema_name=self.schema_name,
             **connect_kwargs,
         )
-        self.pandas_cursor = self.connection.cursor(cursor=AthenaPandasCursor)
 
     def cursor(self) -> AthenaCursor:
         return self.connection.cursor()
 
     def pandas_cursor(self) -> AthenaPandasCursor:
-        return self.pandas_cursor
+        return self.connection.cursor(cursor=AthenaPandasCursor)
 
     def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
-        return self.pandas_cursor.execute(sql).as_pandas()
+        return self.pandas_cursor().execute(sql).as_pandas()
 
     def parser(self) -> DatabaseParser:
         return AthenaParser()
+
+    def upload_file(
+        self,
+        *,
+        file: pathlib.Path,
+        study: str,
+        topic: str,
+        remote_filename: str | None = None,
+        force_upload=False,
+    ) -> str | None:
+        # We'll investigate the connection to get the relevant S3 upload path.
+        wg_conf = self.connection._client.get_work_group(WorkGroup=self.work_group)[
+            "WorkGroup"
+        ]["Configuration"]["ResultConfiguration"]
+        s3_path = wg_conf["OutputLocation"]
+        bucket = "/".join(s3_path.split("/")[2:3])
+        key_prefix = "/".join(s3_path.split("/")[3:])
+        encryption_type = wg_conf.get("EncryptionConfiguration", {}).get(
+            "EncryptionOption", {}
+        )
+        if encryption_type != "SSE_KMS":
+            raise errors.AWSError(
+                f"Bucket {bucket} has unexpected encryption type {encryption_type}."
+                "AWS KMS encryption is expected for Cumulus buckets"
+            )
+        kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
+        s3_key = (
+            f"{key_prefix}cumulus_user_uploads/{self.schema_name}/" f"{study}/{topic}"
+        )
+        if not remote_filename:
+            remote_filename = file
+
+        session = boto3.Session(profile_name=self.connection.profile_name)
+        s3_client = session.client("s3")
+        if not force_upload:
+            res = s3_client.list_objects_v2(
+                Bucket=bucket,
+                Prefix=f"{s3_key}/{remote_filename}",
+            )
+            if res["KeyCount"] > 0:
+                return f"s3://{bucket}/{s3_key}"
+        with open(file, "rb") as b_file:
+            s3_client.put_object(
+                Bucket=bucket,
+                Key=f"{s3_key}/{remote_filename}",
+                Body=b_file,
+                ServerSideEncryption="aws:kms",
+                SSEKMSKeyId=kms_arn,
+            )
+        return f"s3://{bucket}/{s3_key}"
 
     def close(self) -> None:
         return self.connection.close()
@@ -255,6 +328,7 @@ class DuckDatabaseBackend(DatabaseBackend):
 
     def __init__(self, db_file: str):
         super().__init__("main")
+        self.db_type = "duckdb"
         self.connection = duckdb.connect(db_file)
         # Aliasing Athena's as_pandas to duckDB's df cast
         duckdb.DuckDBPyConnection.as_pandas = duckdb.DuckDBPyConnection.df
@@ -477,16 +551,15 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
 
 
 def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
-    db_type = args["db_type"]
-    db_config.db_type = db_type
+    db_config.db_type = args["db_type"]
     database = args["schema_name"]
     load_ndjson_dir = args.get("load_ndjson_dir")
 
-    if db_type == "duckdb":
+    if db_config.db_type == "duckdb":
         backend = DuckDatabaseBackend(database)  # `database` is path name in this case
         if load_ndjson_dir:
             backend.insert_tables(read_ndjson_dir(load_ndjson_dir))
-    elif db_type == "athena":
+    elif db_config.db_type == "athena":
         backend = AthenaDatabaseBackend(
             args["region"],
             args["workgroup"],
@@ -496,54 +569,6 @@ def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
         if load_ndjson_dir:
             sys.exit("Loading an ndjson dir is not supported with --db-type=athena.")
     else:
-        raise ValueError(f"Unexpected --db-type value '{db_type}'")
+        raise ValueError(f"Unexpected --db-type value '{db_config.db_type}'")
 
     return backend
-
-
-def upload_file(
-    *,
-    cursor: DatabaseCursor,
-    file: pathlib.Path,
-    study: str,
-    topic: str,
-    remote_filename: str | None = None,
-) -> str | None:
-    if db_config.db_type == "athena":
-        # We'll investigate the cursor to get the relevant params for S3 upload
-        # TODO: this could be retrieved from a config object passed to builders
-        wg_conf = cursor.connection._client.get_work_group(
-            WorkGroup=cursor.connection.work_group
-        )["WorkGroup"]["Configuration"]["ResultConfiguration"]
-        s3_path = wg_conf["OutputLocation"]
-        bucket = "/".join(s3_path.split("/")[2:3])
-        key_prefix = "/".join(s3_path.split("/")[3:])
-        encryption_type = wg_conf.get("EncryptionConfiguration", {}).get(
-            "EncryptionOption", {}
-        )
-        if encryption_type != "SSE_KMS":
-            raise errors.AWSError(
-                f"Bucket {bucket} has unexpected encryption type {encryption_type}."
-                "AWS KMS encryption is expected for Cumulus buckets"
-            )
-        kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
-        profile = cursor.connection.profile_name
-        s3_key = (
-            f"{key_prefix}cumulus_user_uploads/{cursor._schema_name}/"
-            f"{study}/{topic}"
-        )
-        if not remote_filename:
-            remote_filename = file
-        session = boto3.Session(profile_name=profile)
-        s3_client = session.client("s3")
-        with open(file, "rb") as b_file:
-            s3_client.put_object(
-                Bucket=bucket,
-                Key=f"{s3_key}/{remote_filename}",
-                Body=b_file,
-                ServerSideEncryption="aws:kms",
-                SSEKMSKeyId=kms_arn,
-            )
-        return f"s3://{bucket}/{s3_key}"
-    # For DBs not requiring a remote upload
-    return None

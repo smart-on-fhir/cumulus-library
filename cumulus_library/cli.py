@@ -103,20 +103,20 @@ class StudyRunner:
         self,
         target: pathlib.Path,
         *,
-        stats_build: bool,
+        config: base_utils.StudyConfig,
         continue_from: str | None = None,
     ) -> None:
         """Recreates study views/tables
 
         :param target: A path to the study directory
-        :param stats_build: if True, forces creation of new stats tables
+        :param config: A StudyConfig object containing optional params
         :keyword continue_from: Restart a run from a specific sql file (for dev only)
         """
         studyparser = study_parser.StudyManifestParser(target, self.data_path)
         try:
             if not continue_from:
                 studyparser.run_protected_table_builder(
-                    self.cursor, self.schema_name, verbose=self.verbose
+                    self.cursor, self.schema_name, verbose=self.verbose, config=config
                 )
                 self.update_transactions(studyparser.get_study_prefix(), "started")
                 cleaned_tables = studyparser.clean_study(
@@ -127,25 +127,31 @@ class StudyRunner:
                 )
                 # If the study hasn't been created before, force stats table generation
                 if len(cleaned_tables) == 0:
-                    stats_build = True
+                    config.stats_build = True
                 studyparser.run_table_builder(
                     self.cursor,
                     self.schema_name,
                     verbose=self.verbose,
                     parser=self.db.parser(),
+                    config=config,
                 )
             else:
                 self.update_transactions(studyparser.get_study_prefix(), "resumed")
 
-            studyparser.build_study(self.cursor, self.verbose, continue_from)
+            studyparser.build_study(
+                self.cursor,
+                verbose=self.verbose,
+                continue_from=continue_from,
+                config=config,
+            )
             studyparser.run_counts_builders(
-                self.cursor, self.schema_name, verbose=self.verbose
+                self.cursor, self.schema_name, verbose=self.verbose, config=config
             )
             studyparser.run_statistics_builders(
                 self.cursor,
                 self.schema_name,
                 verbose=self.verbose,
-                stats_build=stats_build,
+                config=config,
             )
             self.update_transactions(studyparser.get_study_prefix(), "finished")
 
@@ -158,12 +164,16 @@ class StudyRunner:
             raise e
 
     def run_matching_table_builder(
-        self, target: pathlib.Path, table_builder_name: str
+        self,
+        target: pathlib.Path,
+        table_builder_name: str,
+        config: base_utils.StudyConfig,
     ) -> None:
         """Runs a single table builder
 
         :param target: A path to the study directory
         :param table_builder_name: a builder file referenced in the study's manifest
+        :param config: A StudyConfig object containing optional params
         """
         studyparser = study_parser.StudyManifestParser(target)
         studyparser.run_matching_table_builder(
@@ -172,26 +182,27 @@ class StudyRunner:
             table_builder_name,
             self.verbose,
             parser=self.db.parser(),
+            config=config,
         )
 
-    def clean_and_build_all(self, study_dict: dict, stats_build: bool) -> None:
-        """Builds views for all studies.
+    def clean_and_build_all(
+        self, study_dict: dict, config: base_utils.StudyConfig
+    ) -> None:
+        """Builds tables for all studies.
 
         NOTE: By design, this method will always exclude the `template` study dir,
         since 99% of the time you don't need a live copy in the database.
 
         :param study_dict: A dict of paths
-        :param stats_build: if True, regen stats tables
+        :param config: A StudyConfig object containing optional params
         """
         study_dict = dict(study_dict)
         study_dict.pop("template")
         for precursor_study in ["vocab", "core"]:
-            self.clean_and_build_study(
-                study_dict[precursor_study], stats_build=stats_build
-            )
+            self.clean_and_build_study(study_dict[precursor_study], config=config)
             study_dict.pop(precursor_study)
         for key in study_dict:
-            self.clean_and_build_study(study_dict[key], stats_build=stats_build)
+            self.clean_and_build_study(study_dict[key], config=config)
 
     ### Data exporters
     def export_study(
@@ -212,11 +223,16 @@ class StudyRunner:
             self.export_study(study_dict[key], data_path, archive)
 
     def generate_study_sql(
-        self, target: pathlib.Path, builder: str | None = None
+        self,
+        target: pathlib.Path,
+        *,
+        config: base_utils.StudyConfig,
+        builder: str | None = None,
     ) -> None:
         """Materializes study sql from templates
 
         :param target: A path to the study directory
+        :param config: A StudyConfig object containing optional params
         :param builder: Specify a single builder to generate sql from
         """
         studyparser = study_parser.StudyManifestParser(target)
@@ -226,6 +242,7 @@ class StudyRunner:
             builder=builder,
             verbose=self.verbose,
             parser=self.db.parser(),
+            config=config,
         )
 
     def generate_study_markdown(
@@ -327,9 +344,14 @@ def run_cli(args: dict):
 
     # all other actions require connecting to the database
     else:
-        db_backend = databases.create_db_backend(args)
+        config = base_utils.StudyConfig(
+            db=databases.create_db_backend(args),
+            force_upload=args.get("replace_existing", False),
+            stats_build=args.get("stats_build", False),
+            umls_key=args.get("umls"),
+        )
         try:
-            runner = StudyRunner(db_backend, data_path=args.get("data_path"))
+            runner = StudyRunner(config.db, data_path=args.get("data_path"))
             if args.get("verbose"):
                 runner.verbose = True
             console.print("[italic] Connecting to database...")
@@ -354,18 +376,17 @@ def run_cli(args: dict):
                 )
             elif args["action"] == "build":
                 if "all" in args["target"]:
-                    runner.clean_and_build_all(study_dict, args["stats_build"])
+                    runner.clean_and_build_all(study_dict, config=config)
                 else:
                     for target in args["target"]:
                         if args["builder"]:
                             runner.run_matching_table_builder(
-                                study_dict[target], args["builder"]
+                                study_dict[target], config=config
                             )
                         else:
                             runner.clean_and_build_study(
                                 study_dict[target],
-                                stats_build=args["stats_build"],
-                                continue_from=args["continue_from"],
+                                config=config,
                             )
 
             elif args["action"] == "export":
@@ -394,13 +415,15 @@ def run_cli(args: dict):
 
             elif args["action"] == "generate-sql":
                 for target in args["target"]:
-                    runner.generate_study_sql(study_dict[target], args["builder"])
+                    runner.generate_study_sql(
+                        study_dict[target], builder=args["builder"], config=config
+                    )
 
             elif args["action"] == "generate-md":
                 for target in args["target"]:
                     runner.generate_study_markdown(study_dict[target])
         finally:
-            db_backend.close()
+            config.db.close()
 
 
 def main(cli_args=None):
@@ -421,17 +444,18 @@ def main(cli_args=None):
                 break
 
     arg_env_pairs = (
-        ("db_type", "CUMULUS_LIBRARY_DB_TYPE"),
-        ("profile", "CUMULUS_LIBRARY_PROFILE"),
-        ("schema_name", "CUMULUS_LIBRARY_DATABASE"),
-        ("workgroup", "CUMULUS_LIBRARY_WORKGROUP"),
-        ("region", "CUMULUS_LIBRARY_REGION"),
-        ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
         ("data_path", "CUMULUS_LIBRARY_DATA_PATH"),
-        ("load_ndjson_dir", "CUMULUS_LIBRARY_LOAD_NDJSON_DIR"),
-        ("user", "CUMULUS_AGGREGATOR_USER"),
+        ("db_type", "CUMULUS_LIBRARY_DB_TYPE"),
         ("id", "CUMULUS_AGGREGATOR_ID"),
+        ("load_ndjson_dir", "CUMULUS_LIBRARY_LOAD_NDJSON_DIR"),
+        ("profile", "CUMULUS_LIBRARY_PROFILE"),
+        ("region", "CUMULUS_LIBRARY_REGION"),
+        ("schema_name", "CUMULUS_LIBRARY_DATABASE"),
+        ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
+        ("umls", "UMLS_API_KEY"),
         ("url", "CUMULUS_AGGREGATOR_URL"),
+        ("user", "CUMULUS_AGGREGATOR_USER"),
+        ("workgroup", "CUMULUS_LIBRARY_WORKGROUP"),
     )
     read_env_vars = []
     for pair in arg_env_pairs:

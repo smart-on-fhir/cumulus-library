@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 from freezegun import freeze_time
 
-from cumulus_library.cli import StudyRunner
-from cumulus_library.statistics.psm import PsmBuilder
+from cumulus_library import cli
+from cumulus_library.statistics import psm
 
 
 @freeze_time("2024-01-01")
@@ -61,13 +61,13 @@ def test_psm_create(
     expected_first_record,
     expected_last_record,
 ):
-    builder = StudyRunner(mock_db_stats, data_path=Path(tmp_path))
-    psm = PsmBuilder(
+    builder = cli.StudyRunner(mock_db_stats, data_path=Path(tmp_path))
+    psmbuilder = psm.PsmBuilder(
         f"{Path(__file__).parent}/test_data/psm/{toml_def}", Path(tmp_path)
     )
     mock_db_stats.cursor().execute(
         "create table psm_test__psm_cohort as (select * from core__condition "
-        f"ORDER BY {psm.config.primary_ref} limit 100)"
+        f"ORDER BY {psmbuilder.config.primary_ref} limit 100)"
     ).df()
     mock_db_stats.cursor().execute("select * from psm_test__psm_cohort").fetchall()
     safe_timestamp = (
@@ -77,7 +77,7 @@ def test_psm_create(
         .replace(":", "_")
         .replace("-", "_")
     )
-    psm.execute_queries(
+    psmbuilder.execute_queries(
         mock_db_stats.pandas_cursor(),
         builder.schema_name,
         False,

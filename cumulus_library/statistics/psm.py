@@ -54,7 +54,7 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
 
     display_text = "Building PSM tables..."
 
-    def __init__(self, toml_config_path: str, data_path: pathlib.Path):
+    def __init__(self, toml_config_path: str, data_path: pathlib.Path, **kwargs):
         """Loads PSM job details from a PSM configuration file"""
         super().__init__()
         # We're stashing the toml path for error reporting later
@@ -346,16 +346,20 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
                 "your sample size."
             )
 
-    def prepare_queries(self, cursor: object, schema: str, table_suffix: str):
+    def prepare_queries(
+        self, cursor: object, schema: str, table_suffix: str, *args, **kwargs
+    ):
         self._create_covariate_table(cursor, schema, table_suffix)
 
     def post_execution(
         self,
         cursor: object,
         schema: str,
-        verbose: bool,
+        *args,
+        verbose: bool = False,
         drop_table: bool = False,
         table_suffix: str | None = None,
+        **kwargs,
     ):
         # super().execute_queries(cursor, schema, verbose, drop_table)
         self.generate_psm_analysis(cursor, schema, table_suffix)

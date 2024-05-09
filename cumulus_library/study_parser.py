@@ -329,6 +329,8 @@ class StudyManifestParser:
         filename: str,
         cursor: databases.DatabaseCursor,
         schema: str,
+        *,
+        config: base_utils.StudyConfig,
         verbose: bool = False,
         drop_table: bool = False,
         parser: databases.DatabaseParser = None,
@@ -382,7 +384,7 @@ class StudyManifestParser:
         table_builder_class = table_builder_subclasses[0]
         table_builder = table_builder_class()
         if write_reference_sql:
-            table_builder.prepare_queries(cursor, schema, parser=parser)
+            table_builder.prepare_queries(cursor, schema, parser=parser, config=config)
             table_builder.comment_queries(doc_str=doc_str)
             new_filename = pathlib.Path(f"{filename}").stem + ".sql"
             table_builder.write_queries(
@@ -390,7 +392,12 @@ class StudyManifestParser:
             )
         else:
             table_builder.execute_queries(
-                cursor, schema, verbose=verbose, drop_table=drop_table, parser=parser
+                cursor,
+                schema,
+                verbose=verbose,
+                drop_table=drop_table,
+                parser=parser,
+                config=config,
             )
 
         # After running the executor code, we'll remove
@@ -400,7 +407,12 @@ class StudyManifestParser:
         del table_builder_module
 
     def run_protected_table_builder(
-        self, cursor: databases.DatabaseCursor, schema: str, verbose: bool = False
+        self,
+        cursor: databases.DatabaseCursor,
+        schema: str,
+        *,
+        config: base_utils.StudyConfig,
+        verbose: bool = False,
     ) -> None:
         """Creates protected tables for persisting selected data across runs
 
@@ -415,12 +427,15 @@ class StudyManifestParser:
             verbose,
             study_name=self._study_config.get("study_prefix"),
             study_stats=self._study_config.get("statistics_config"),
+            config=config,
         )
 
     def run_table_builder(
         self,
         cursor: databases.DatabaseCursor,
         schema: str,
+        *,
+        config: base_utils.StudyConfig,
         verbose: bool = False,
         parser: databases.DatabaseParser = None,
     ) -> None:
@@ -432,11 +447,16 @@ class StudyManifestParser:
         """
         for file in self.get_table_builder_file_list():
             self._load_and_execute_builder(
-                file, cursor, schema, verbose=verbose, parser=parser
+                file, cursor, schema, verbose=verbose, parser=parser, config=config
             )
 
     def run_counts_builders(
-        self, cursor: databases.DatabaseCursor, schema: str, verbose: bool = False
+        self,
+        cursor: databases.DatabaseCursor,
+        schema: str,
+        *,
+        config: base_utils.StudyConfig,
+        verbose: bool = False,
     ) -> None:
         """Loads counts modules from a manifest and executes code via BaseTableBuilder
 
@@ -450,14 +470,17 @@ class StudyManifestParser:
         :param verbose: toggle from progress bar to query output
         """
         for file in self.get_counts_builder_file_list():
-            self._load_and_execute_builder(file, cursor, schema, verbose=verbose)
+            self._load_and_execute_builder(
+                file, cursor, schema, verbose=verbose, config=config
+            )
 
     def run_statistics_builders(
         self,
         cursor: databases.DatabaseCursor,
         schema: str,
+        *,
+        config: base_utils.StudyConfig,
         verbose: bool = False,
-        stats_build: bool = False,
     ) -> None:
         """Loads statistics modules from toml definitions and executes
 
@@ -466,7 +489,7 @@ class StudyManifestParser:
         :keyword verbose: toggle from progress bar to query output
         :keyword stats_build: If true, will run statistical sampling & table generation
         """
-        if not stats_build:
+        if not config.stats_build:
             return
         for file in self.get_statistics_file_list():
             # This open is a bit redundant with the open inside of the PSM builder,
@@ -480,14 +503,16 @@ class StudyManifestParser:
                 target_table = config["target_table"]
             if config_type == "psm":
                 builder = psm.PsmBuilder(
-                    toml_path, self.data_path / f"{self.get_study_prefix()}/psm"
+                    toml_path,
+                    self.data_path / f"{self.get_study_prefix()}/psm",
+                    config=config,
                 )
             else:
                 raise errors.StudyManifestParsingError(
                     f"{toml_path} references an invalid statistics type {config_type}."
                 )
             builder.execute_queries(
-                cursor, schema, verbose, table_suffix=safe_timestamp
+                cursor, schema, verbose, table_suffix=safe_timestamp, config=config
             )
 
             insert_query = base_templates.get_insert_into_query(
@@ -518,6 +543,8 @@ class StudyManifestParser:
         cursor: databases.DatabaseCursor,
         schema: str,
         builder: str,
+        *,
+        config: base_utils.StudyConfig,
         verbose: bool = False,
         parser: databases.DatabaseParser = None,
     ):
@@ -527,13 +554,21 @@ class StudyManifestParser:
             if builder and file.find(builder) == -1:
                 continue
             self._load_and_execute_builder(
-                file, cursor, schema, verbose=verbose, drop_table=True, parser=parser
+                file,
+                cursor,
+                schema,
+                verbose=verbose,
+                drop_table=True,
+                parser=parser,
+                config=config,
             )
 
     def run_generate_sql(
         self,
         cursor: databases.DatabaseCursor,
         schema: str,
+        *,
+        config: base_utils.StudyConfig,
         builder: str | None = None,
         parser: databases.DatabaseParser = None,
         verbose: bool = False,
@@ -564,6 +599,7 @@ class StudyManifestParser:
                 write_reference_sql=True,
                 doc_str=doc_str,
                 verbose=verbose,
+                config=config,
             )
 
     def run_generate_markdown(
@@ -619,6 +655,8 @@ class StudyManifestParser:
     def build_study(
         self,
         cursor: databases.DatabaseCursor,
+        *,
+        config: base_utils.StudyConfig,
         verbose: bool = False,
         continue_from: str | None = None,
     ) -> list:
@@ -650,6 +688,7 @@ class StudyManifestParser:
                 queries,
                 progress,
                 task,
+                config,
             )
         return queries
 
@@ -671,6 +710,7 @@ class StudyManifestParser:
         queries: list,
         progress: Progress,
         task: TaskID,
+        config: base_utils.StudyConfig,
     ) -> None:
         """Handler for executing create table queries and displaying console output.
 

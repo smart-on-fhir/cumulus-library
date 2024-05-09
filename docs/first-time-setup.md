@@ -43,8 +43,7 @@ loading data into analytics packages.
 
 By default, all available studies will be used by build and export, but you can use
 or `--target` to specify a specific study to be run. You can use it multiple
-times to configure several studies in order. The `vocab` study, in particular, can take a
-bit of time to generate, so we recommend using targets after your initial configuration.
+times to configure several studies in order. 
 
 Several pip installable studies will automatically be added to the list of available
 studies to run. See [study list](./study-list.md) for more details.
@@ -61,20 +60,16 @@ this completed, you'll be ready to move on to [Creating studies](./creating-stud
 if you haven't already. Our follown steps assume you use the default names and
 deploy in Amazon's US-East zone.
 - Configure your system to talk to AWS as mentioned in the [AWS setup guide](./aws-setup.md)
-- Now we'll build the tables we'll need to run the template study. The `vocab`
-study creates mappings of system codes to strings, and the `core` study creates
-tables for commonly used base FHIR resources like `Patient` and `Observation`
-using those `vocab` mappings. To do this, run the following command:
+- Now we'll build the tables we'll need to run the template study. The `core` study 
+creates tables for commonly used base FHIR resources like `Patient` and `Observation`.
+To do this, run the following command:
 ```bash
-cumulus-library build --target vocab --target core
+cumulus-library build --target core
 ```
 This usually takes around five minutes, but once it's done, you won't need to build
-`vocab` again unless there's a coding system addition, and you'll only need to build
-`core` again if data changes.
+`core` again unless the data changes.
 You should see some progress bars like this while the tables are being created:
 ```
-Uploading vocab__icd data... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸ 100% 0:00:00
-Creating vocab study in db... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
 Creating core study in db... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
 ```
 - Now, we'll build the built-in example `template` study.

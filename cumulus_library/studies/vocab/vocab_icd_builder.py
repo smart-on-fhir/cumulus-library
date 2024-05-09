@@ -4,7 +4,7 @@ import pathlib
 
 import pandas
 
-from cumulus_library import base_table_builder, databases
+from cumulus_library import base_table_builder, base_utils
 from cumulus_library.template_sql import base_templates
 
 
@@ -20,7 +20,14 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
             row[i] = cell
         return row
 
-    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
+    def prepare_queries(
+        self,
+        cursor: object,
+        schema: str,
+        *args,
+        config: base_utils.StudyConfig,
+        **kwargs,
+    ):
         """Creates queries for populating ICD vocab
 
         TODO: this would be a lot faster if we converted the bsv to parquet,
@@ -40,12 +47,12 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
             if not parquet_path.is_file():
                 df = pandas.read_csv(file, delimiter="|", names=headers)
                 df.to_parquet(parquet_path)
-            remote_path = databases.upload_file(
-                cursor=cursor,
+            remote_path = config.db.upload_file(
                 file=parquet_path,
                 study="vocab",
                 topic="icd",
                 remote_filename=f"{file.stem}.parquet",
+                force_upload=config.force_upload,
             )
         # Since we are building one table from these three files, it's fine to just
         # use the last value of remote location

@@ -8,9 +8,7 @@ from unittest import mock
 
 import pytest
 
-from cumulus_library import errors
-from cumulus_library.enums import ProtectedTableKeywords, ProtectedTables
-from cumulus_library.study_parser import StudyManifestParser
+from cumulus_library import base_utils, enums, errors, study_parser
 from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
 
 
@@ -34,7 +32,7 @@ def test_load_manifest(manifest_path, raises):
             path = f"{pathlib.Path(__file__).resolve().parents[0]}/{manifest_path}"
         else:
             path = None
-        StudyManifestParser(path)
+        study_parser.StudyManifestParser(path)
 
 
 @pytest.mark.parametrize(
@@ -54,9 +52,9 @@ def test_manifest_data(manifest_key, raises):
     ):
         with raises:
             if manifest_key == "invalid_none":
-                parser = StudyManifestParser()
+                parser = study_parser.StudyManifestParser()
             else:
-                parser = StudyManifestParser("./path")
+                parser = study_parser.StudyManifestParser("./path")
             expected = mock_manifests[manifest_key]
             assert parser.get_study_prefix() == expected["study_prefix"]
             if "sql_config" in expected.keys():
@@ -108,16 +106,20 @@ def test_manifest_data(manifest_key, raises):
 )
 def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, raises):
     with raises:
-        protected_strs = [x.value for x in ProtectedTableKeywords]
+        protected_strs = [x.value for x in enums.ProtectedTableKeywords]
         with mock.patch.object(builtins, "input", lambda _: confirm):
-            parser = StudyManifestParser("./tests/test_data/study_valid/")
-            parser.run_protected_table_builder(mock_db.cursor(), schema)
+            parser = study_parser.StudyManifestParser("./tests/test_data/study_valid/")
+            parser.run_protected_table_builder(
+                mock_db.cursor(),
+                schema,
+                config=base_utils.StudyConfig(db=mock_db),
+            )
 
             # We're mocking stats tables since creating them programmatically
             # is very slow and we're trying a lot of conditions
             mock_db.cursor().execute(
                 f"CREATE TABLE {parser.get_study_prefix()}__"
-                f"{ProtectedTables.STATISTICS.value} "
+                f"{enums.ProtectedTables.STATISTICS.value} "
                 "AS SELECT 'study_valid' as study_name, "
                 "'study_valid__123' AS table_name"
             )
@@ -142,16 +144,16 @@ def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, r
             else:
                 assert (target,) not in remaining_tables
             assert (
-                f"{parser.get_study_prefix()}__{ProtectedTables.TRANSACTIONS.value}",
+                f"{parser.get_study_prefix()}__{enums.ProtectedTables.TRANSACTIONS.value}",
             ) in remaining_tables
             if stats:
                 assert (
-                    f"{parser.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
+                    f"{parser.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}",
                 ) not in remaining_tables
                 assert ("study_valid__123",) not in remaining_tables
             else:
                 assert (
-                    f"{parser.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
+                    f"{parser.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}",
                 ) in remaining_tables
                 assert ("study_valid__123",) in remaining_tables
 
@@ -164,23 +166,25 @@ def test_clean_study(mock_db, schema, verbose, prefix, confirm, stats, target, r
     ],
 )
 def test_run_protected_table_builder(mock_db, study_path, stats):
-    parser = StudyManifestParser(study_path)
-    parser.run_protected_table_builder(mock_db.cursor(), "main")
+    parser = study_parser.StudyManifestParser(study_path)
+    parser.run_protected_table_builder(
+        mock_db.cursor(), "main", config=base_utils.StudyConfig(db=mock_db)
+    )
     tables = (
         mock_db.cursor()
         .execute("SELECT distinct(table_name) FROM information_schema.tables ")
         .fetchall()
     )
     assert (
-        f"{parser.get_study_prefix()}__{ProtectedTables.TRANSACTIONS.value}",
+        f"{parser.get_study_prefix()}__{enums.ProtectedTables.TRANSACTIONS.value}",
     ) in tables
     if stats:
         assert (
-            f"{parser.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
+            f"{parser.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}",
         ) in tables
     else:
         assert (
-            f"{parser.get_study_prefix()}__{ProtectedTables.STATISTICS.value}",
+            f"{parser.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}",
         ) not in tables
 
 
@@ -221,11 +225,12 @@ def test_run_protected_table_builder(mock_db, study_path, stats):
 )
 def test_table_builder(mock_db, study_path, verbose, expects, raises):
     with raises:
-        parser = StudyManifestParser(study_path)
+        parser = study_parser.StudyManifestParser(study_path)
         parser.run_table_builder(
             mock_db.cursor(),
             "main",
-            verbose,
+            verbose=verbose,
+            config=base_utils.StudyConfig(db=mock_db),
         )
         tables = (
             mock_db.cursor()
@@ -284,8 +289,12 @@ def test_table_builder(mock_db, study_path, verbose, expects, raises):
 )
 def test_build_study(mock_db, study_path, verbose, expects, raises):
     with raises:
-        parser = StudyManifestParser(study_path)
-        parser.build_study(mock_db.cursor(), verbose)
+        parser = study_parser.StudyManifestParser(study_path)
+        parser.build_study(
+            mock_db.cursor(),
+            verbose=verbose,
+            config=base_utils.StudyConfig(db=mock_db),
+        )
         tables = (
             mock_db.cursor()
             .execute("SELECT distinct(table_name) FROM information_schema.tables ")
@@ -315,12 +324,13 @@ def test_run_statistics_builders(
     tmp_path, mock_db_stats, study_path, stats, expects, raises
 ):
     with raises:
-        parser = StudyManifestParser(study_path, data_path=tmp_path)
-        parser.run_protected_table_builder(mock_db_stats.cursor(), "main")
-        parser.build_study(mock_db_stats.cursor(), "main")
-        parser.run_statistics_builders(
-            mock_db_stats.cursor(), "main", stats_build=stats
+        parser = study_parser.StudyManifestParser(study_path, data_path=tmp_path)
+        config = base_utils.StudyConfig(db=mock_db_stats, stats_build=stats)
+        parser.run_protected_table_builder(
+            mock_db_stats.cursor(), "main", config=config
         )
+        parser.build_study(mock_db_stats.cursor(), config=config)
+        parser.run_statistics_builders(mock_db_stats.cursor(), "main", config=config)
         tables = (
             mock_db_stats.cursor()
             .execute("SELECT distinct(table_name) FROM information_schema.tables")
@@ -334,7 +344,7 @@ def test_run_statistics_builders(
 
 
 def test_export_study(tmp_path, mock_db_core):
-    parser = StudyManifestParser(
+    parser = study_parser.StudyManifestParser(
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
         data_path=f"{tmp_path}/export",
     )
