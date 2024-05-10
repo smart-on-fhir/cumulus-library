@@ -126,8 +126,6 @@ def test_count_builder_mapping(mock_path, tmp_path):
                 "study_python_counts_valid",
                 "-s",
                 "./tests/test_data",
-                "--database",
-                "test",
             ],
             tmp_path,
         )
@@ -159,8 +157,6 @@ def test_generate_sql(mock_path, tmp_path):
                 "study_python_valid",
                 "-s",
                 f"{tmp_path}",
-                "--database",
-                "test",
             ],
             tmp_path,
         )
@@ -195,8 +191,6 @@ def test_generate_md(mock_path, tmp_path):
                 "study_python_valid",
                 "-s",
                 f"{tmp_path}",
-                "--database",
-                "test",
             ],
             tmp_path,
         )
@@ -209,8 +203,6 @@ def test_generate_md(mock_path, tmp_path):
                 "study_python_valid",
                 "-s",
                 f"{tmp_path}",
-                "--database",
-                "test",
             ],
             tmp_path,
         )
@@ -263,20 +255,10 @@ def test_generate_md(mock_path, tmp_path):
 )
 def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-argument
     mock_path.return_value = f"{Path(__file__).resolve().parents[0]}/test_data/"
-    cli.main(
-        cli_args=duckdb_args(["build", "-t", "core", "--database", "test"], tmp_path)
-    )
+    cli.main(cli_args=duckdb_args(["build", "-t", "core"], tmp_path))
     with does_not_raise():
         with mock.patch.object(builtins, "input", lambda _: "y"):
-            cli.main(
-                cli_args=[
-                    *args,
-                    "--db-type",
-                    "duckdb",
-                    "--database",
-                    f"{tmp_path}/duck.db",
-                ]
-            )
+            cli.main(cli_args=duckdb_args(args, tmp_path))
             db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
             for table in db.cursor().execute("show tables").fetchall():
                 assert expected not in table
@@ -403,7 +385,7 @@ def test_cli_export_archive(tmp_path, args, input_txt, expects_files, raises):
 def test_cli_transactions(tmp_path, study, finishes, raises):
     with raises:
         args = duckdb_args(
-            ["build", "-t", study, "--database", "test", "-s", "tests/test_data/"],
+            ["build", "-t", study, "-s", "tests/test_data/"],
             f"{tmp_path}",
         )
         print(args[-1:])
@@ -443,11 +425,7 @@ def test_cli_stats_rebuild(tmp_path):
     - that a results table is created when we explicitly ask for one with a CLI flag
     """
 
-    cli.main(
-        cli_args=duckdb_args(
-            ["build", "-t", "core", "--database", "test"], tmp_path, stats=True
-        )
-    )
+    cli.main(cli_args=duckdb_args(["build", "-t", "core"], tmp_path, stats=True))
     arg_list = [
         "build",
         "-s",
@@ -554,3 +532,33 @@ def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls):
         # filepath is in the third argument position in the upload data arg list
         assert target in str(mock_upload_data.call_args[0][2])
     assert mock_upload_data.call_count == calls
+
+
+@pytest.mark.parametrize("mode", ["cli", "env"])
+@mock.patch.dict(os.environ, clear=True)
+# early exit with a dumb error
+@mock.patch("cumulus_library.base_utils.StudyConfig", side_effect=ZeroDivisionError)
+def test_cli_umls_parsing(mock_config, mode, tmp_path):
+    with pytest.raises(ZeroDivisionError):
+        match mode:
+            case "cli":
+                cli.main(cli_args=duckdb_args(["build", "--umls-key=MY-KEY"], tmp_path))
+            case "env":
+                with mock.patch.dict(os.environ, {"UMLS_API_KEY": "MY-KEY"}):
+                    cli.main(cli_args=duckdb_args(["build"], tmp_path))
+
+    assert mock_config.call_args[1]["umls_key"] == "MY-KEY"
+
+
+@mock.patch.dict(os.environ, clear=True)
+def test_cli_single_builder(tmp_path):
+    cli.main(
+        cli_args=duckdb_args(["build", "--builder=patient", "--target=core"], tmp_path)
+    )
+    db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    tables = {x[0] for x in db.cursor().execute("show tables").fetchall()}
+    assert {
+        "core__patient",
+        "core__patient_ext_ethnicity",
+        "core__patient_ext_race",
+    } == tables
