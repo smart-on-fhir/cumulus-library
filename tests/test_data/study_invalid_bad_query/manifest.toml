@@ -1,7 +1,7 @@
-study_prefix = "study_valid"
+study_prefix = "study_invalid_bad_query"
 
 [sql_config]
 file_names = ["test.sql"]
 
 [export_config]
-export_list = ["study_valid__table"]
+export_list = ["study_invalid_bad_query__table"]

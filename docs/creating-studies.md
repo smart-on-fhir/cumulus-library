@@ -73,7 +73,7 @@ file_names = [
 # The following tables will be output to disk when an export is run. In most cases,
 # only count tables should be output in this way.
 export_list = [
-    "template__count_influenza_test_month",
+    "my_study__count_influenza_test_month",
 ]
 
 # For generating counts table in a more standardized manner, we have a class in the 

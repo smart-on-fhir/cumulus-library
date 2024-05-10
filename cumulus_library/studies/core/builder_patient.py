@@ -1,4 +1,4 @@
-""" Module for extracting US core extensions from patient records"""
+"""Module for extracting US core extensions from patient records"""
 
 from cumulus_library import databases
 from cumulus_library.base_table_builder import BaseTableBuilder

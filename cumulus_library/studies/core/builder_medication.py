@@ -1,4 +1,4 @@
-""" Module for generating core medication table"""
+"""Module for generating core medication table"""
 
 from cumulus_library import base_table_builder, databases
 from cumulus_library.studies.core.core_templates import core_templates

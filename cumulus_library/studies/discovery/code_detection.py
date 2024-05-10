@@ -1,4 +1,4 @@
-""" Module for generating encounter codeableConcept table"""
+"""Module for generating encounter codeableConcept table"""
 
 from cumulus_library import base_table_builder, base_utils, databases
 from cumulus_library.studies.discovery import code_definitions

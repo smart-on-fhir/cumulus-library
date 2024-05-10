@@ -1,6 +1,6 @@
-""" This builder primarily exists to make sure that the FHIR lookup
+"""This builder primarily exists to make sure that the FHIR lookup
 tables are created before other builders in the core study run, so that
-they are available for joins. """
+they are available for joins."""
 
 import pathlib
 

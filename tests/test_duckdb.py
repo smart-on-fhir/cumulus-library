@@ -1,4 +1,4 @@
-""" tests for duckdb backend support """
+"""tests for duckdb backend support"""
 
 import glob
 import json

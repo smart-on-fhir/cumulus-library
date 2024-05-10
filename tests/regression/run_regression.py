@@ -1,6 +1,6 @@
 """Checks export against known dataset.
 
-This file is excluded from the pytest suite because it's finicky to 
+This file is excluded from the pytest suite because it's finicky to
 run locally at BCH:
 
 - You need to be on the BCH VPN

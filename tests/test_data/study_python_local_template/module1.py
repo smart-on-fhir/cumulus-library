@@ -1,5 +1,6 @@
+from study_python_local_template import local_template
+
 from cumulus_library.base_table_builder import BaseTableBuilder
-from tests.test_data.study_python_local_template import local_template
 
 
 class ModuleOneRunner(BaseTableBuilder):

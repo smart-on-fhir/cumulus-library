@@ -1,4 +1,4 @@
-""" Module for extracting US core extensions from medicationrequests
+"""Module for extracting US core extensions from medicationrequests
 
 Note: This module assumes that you have already run builder_medication,
 as it leverages the core__medication table for data population"""

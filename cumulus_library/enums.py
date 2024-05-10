@@ -1,4 +1,4 @@
-""" Holds enums used across more than one module """
+"""Holds enums used across more than one module"""
 
 from enum import Enum
 

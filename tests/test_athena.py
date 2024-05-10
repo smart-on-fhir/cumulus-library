@@ -1,4 +1,5 @@
 """Tests for Athena database support"""
+
 import json
 import os
 import pathlib

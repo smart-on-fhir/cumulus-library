@@ -1,4 +1,4 @@
-""" tests for the cli interface to studies """
+"""tests for the cli interface to studies"""
 
 import builtins
 import filecmp
@@ -401,9 +401,7 @@ def test_cli_transactions(tmp_path, study, finishes, raises):
         .execute("select table_name from information_schema.tables")
         .fetchall()
     )
-    query = (
-        db.cursor().execute("SELECT * from study_valid__lib_transactions").fetchall()
-    )
+    query = db.cursor().execute(f"SELECT * from {study}__lib_transactions").fetchall()
     assert query[0][2] == "started"
     if finishes:
         assert query[1][2] == "finished"
@@ -431,7 +429,7 @@ def test_cli_stats_rebuild(tmp_path):
         "-s",
         "./tests/test_data",
         "-t",
-        "psm",
+        "psm_test",
         "--db-type",
         "duckdb",
         "--database",
@@ -562,3 +560,18 @@ def test_cli_single_builder(tmp_path):
         "core__patient_ext_ethnicity",
         "core__patient_ext_race",
     } == tables
+
+
+@mock.patch.dict(os.environ, clear=True)
+def test_cli_finds_study_from_manifest_prefix(tmp_path):
+    # This study is located inside a folder called `study_different_dir`,
+    # but we're going to find it using its real study prefix from the manifest.
+    cli.main(
+        cli_args=duckdb_args(
+            ["build", "-s", "tests/test_data", "--target=study_different_name"],
+            tmp_path,
+        )
+    )
+    db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    tables = {x[0] for x in db.cursor().execute("show tables").fetchall()}
+    assert "study_different_name__table" in tables

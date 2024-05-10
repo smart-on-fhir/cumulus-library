@@ -1,4 +1,4 @@
-""" tests for outputs of counts_builder module """
+"""tests for outputs of counts_builder module"""
 
 from contextlib import nullcontext as does_not_raise
 from unittest import mock
