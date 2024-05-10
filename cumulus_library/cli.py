@@ -180,7 +180,7 @@ class StudyRunner:
             self.cursor,
             self.schema_name,
             table_builder_name,
-            self.verbose,
+            verbose=self.verbose,
             parser=self.db.parser(),
             config=config,
         )
@@ -348,7 +348,7 @@ def run_cli(args: dict):
             db=databases.create_db_backend(args),
             force_upload=args.get("replace_existing", False),
             stats_build=args.get("stats_build", False),
-            umls_key=args.get("umls"),
+            umls_key=args.get("umls_key"),
         )
         try:
             runner = StudyRunner(config.db, data_path=args.get("data_path"))
@@ -365,7 +365,7 @@ def run_cli(args: dict):
                                 f"{target} was not found in available studies: "
                                 f"{list(study_dict.keys())}.\n\n"
                                 "If you are trying to run a custom study, make sure "
-                                "you include `-s path/to/study/dir` as an arugment."
+                                "you include `-s path/to/study/dir` as an argument."
                             )
             if args["action"] == "clean":
                 runner.clean_study(
@@ -381,7 +381,7 @@ def run_cli(args: dict):
                     for target in args["target"]:
                         if args["builder"]:
                             runner.run_matching_table_builder(
-                                study_dict[target], config=config
+                                study_dict[target], args["builder"], config=config
                             )
                         else:
                             runner.clean_and_build_study(
@@ -452,7 +452,7 @@ def main(cli_args=None):
         ("region", "CUMULUS_LIBRARY_REGION"),
         ("schema_name", "CUMULUS_LIBRARY_DATABASE"),
         ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
-        ("umls", "UMLS_API_KEY"),
+        ("umls_key", "UMLS_API_KEY"),
         ("url", "CUMULUS_AGGREGATOR_URL"),
         ("user", "CUMULUS_AGGREGATOR_USER"),
         ("workgroup", "CUMULUS_LIBRARY_WORKGROUP"),
