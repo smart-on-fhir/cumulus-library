@@ -116,7 +116,7 @@ def _check_data_in_fields(
 
     with base_utils.get_progress_bar(transient=True) as progress:
         task = progress.add_task(
-            "Detecting available encounter codeableConcepts...",
+            "Detecting available codeableConcepts...",
             # Each column in code_sources requires at most 3 queries to
             # detect valid data is in the DB
             total=len(code_sources),
@@ -209,7 +209,12 @@ def validate_schema(
     validated_schema = {}
     for table, cols in expected_table_cols.items():
         query = base_templates.get_column_datatype_query(schema, table, cols.keys())
-        table_schema = cursor.execute(query).fetchall()
+        try:
+            table_schema = cursor.execute(query).fetchall()
+        except Exception:
+            # The database might reasonably raise an exception in cases like
+            # the table not existing. Here we treat error tables as no-column tables.
+            table_schema = []
         validated_schema[table] = parser.validate_table_schema(cols, table_schema)
     return validated_schema
 
