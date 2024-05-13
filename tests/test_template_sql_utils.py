@@ -1,4 +1,4 @@
-""" tests for the cli interface to studies """
+"""tests for the cli interface to studies"""
 
 from contextlib import nullcontext as does_not_raise
 

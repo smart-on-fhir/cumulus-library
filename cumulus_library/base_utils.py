@@ -1,4 +1,4 @@
-""" Collection of small commonly used utility functions """
+"""Collection of small commonly used utility functions"""
 
 import dataclasses
 import datetime

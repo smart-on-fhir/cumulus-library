@@ -318,14 +318,18 @@ def get_study_dict(alt_dir_paths: list) -> dict[str, pathlib.Path] | None:
     return manifest_studies
 
 
-def get_studies_by_manifest_path(path: pathlib.Path) -> dict:
+def get_studies_by_manifest_path(path: pathlib.Path) -> dict[str, pathlib.Path]:
     """Recursively search for manifest.toml files from a given path"""
     manifest_paths = {}
     for child_path in path.iterdir():
         if child_path.is_dir():
             manifest_paths.update(get_studies_by_manifest_path(child_path))
         elif child_path.name == "manifest.toml":
-            manifest_paths[path.name] = path
+            try:
+                manifest = study_parser.StudyManifestParser(path)
+                manifest_paths[manifest.get_study_prefix()] = path
+            except errors.StudyManifestParsingError as exc:
+                rich.print(f"[bold red] Ignoring study in '{path}': {exc}")
     return manifest_paths
 
 

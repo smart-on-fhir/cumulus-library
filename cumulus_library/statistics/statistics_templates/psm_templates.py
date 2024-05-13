@@ -1,4 +1,4 @@
-""" Collection of jinja template getters for common SQL queries """
+"""Collection of jinja template getters for common SQL queries"""
 
 from pathlib import Path
 

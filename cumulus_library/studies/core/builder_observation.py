@@ -1,4 +1,4 @@
-""" Module for extracting US core extensions from patient records"""
+"""Module for extracting US core extensions from patient records"""
 
 from dataclasses import dataclass
 

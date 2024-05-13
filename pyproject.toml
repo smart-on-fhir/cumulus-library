@@ -31,7 +31,8 @@ classifiers = [
 dynamic=["version"]
 [project.optional-dependencies]
 dev = [
-    "ruff == 0.2.1",
+    # if you update the ruff version, also update .pre-commit-config.yaml
+    "ruff == 0.4.4",
     "pre-commit",
 ]
 test = [
@@ -41,8 +42,8 @@ test = [
 ]
 
 [project.urls]
-Home = "https://smarthealthit.org/cumulus-a-universal-sidecar-for-a-smart-learning-healthcare-system/"
-Documentation = "https://docs.smarthealthit.org/cumulus/"
+Home = "https://smarthealthit.org/cumulus/"
+Documentation = "https://docs.smarthealthit.org/cumulus/library/"
 Source = "https://github.com/smart-on-fhir/cumulus-library"
 
 
@@ -61,9 +62,6 @@ minversion = "6.0"
 testpaths = [
     "tests",
 ]
-
-[tool.ruff]
-target-version = "py310"
 
 [tool.ruff.lint]
 select = [

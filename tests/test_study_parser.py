@@ -1,4 +1,4 @@
-""" tests for study parser against mocks in test_data """
+"""tests for study parser against mocks in test_data"""
 
 import builtins
 import pathlib
@@ -225,7 +225,7 @@ def test_run_protected_table_builder(mock_db, study_path, stats):
 )
 def test_table_builder(mock_db, study_path, verbose, expects, raises):
     with raises:
-        parser = study_parser.StudyManifestParser(study_path)
+        parser = study_parser.StudyManifestParser(pathlib.Path(study_path))
         parser.run_table_builder(
             mock_db.cursor(),
             "main",

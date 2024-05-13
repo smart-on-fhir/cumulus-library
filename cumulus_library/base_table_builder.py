@@ -1,4 +1,4 @@
-""" abstract base for python-based study executors """
+"""abstract base for python-based study executors"""
 
 import pathlib
 import re

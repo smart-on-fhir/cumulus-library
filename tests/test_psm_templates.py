@@ -1,4 +1,4 @@
-""" validates sql output of psm table sql generation """
+"""validates sql output of psm table sql generation"""
 
 from contextlib import nullcontext as does_not_raise
 

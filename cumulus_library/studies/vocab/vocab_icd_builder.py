@@ -1,4 +1,4 @@
-""" Module for directly loading ICD bsvs into athena tables """
+"""Module for directly loading ICD bsvs into athena tables"""
 
 import pathlib
 

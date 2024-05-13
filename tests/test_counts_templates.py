@@ -1,4 +1,4 @@
-""" validates sql output of counts table sql generation """
+"""validates sql output of counts table sql generation"""
 
 import pytest
 

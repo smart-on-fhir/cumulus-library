@@ -8,7 +8,7 @@ simply. This includes, but is not limited, to:
     - Data with deep missing elements
     - Data which may or may not be in an array depending on context
 """
-import abc
+
 from dataclasses import dataclass, field
 
 from cumulus_library import base_utils, databases
@@ -26,8 +26,8 @@ REFERENCE = ["reference"]
 
 
 @dataclass(kw_only=True)
-class BaseConfig(abc.ABC):
-    """Abstract ase class for handling table detection/denormalization"""
+class BaseConfig:
+    """Base class for handling table detection/denormalization"""
 
     source_table: str = None
     source_id: str = "id"

@@ -1,4 +1,5 @@
 """Class for communicating with the umls API"""
+
 import os
 import pathlib
 

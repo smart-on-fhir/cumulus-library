@@ -1,4 +1,4 @@
-""" tests for propensity score matching generation """
+"""tests for propensity score matching generation"""
 
 from datetime import datetime
 from pathlib import Path

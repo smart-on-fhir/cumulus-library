@@ -1,5 +1,6 @@
-""" Contains classes for loading study data based on manifest.toml files """
+"""Contains classes for loading study data based on manifest.toml files"""
 
+import contextlib
 import csv
 import importlib.util
 import inspect
@@ -23,6 +24,16 @@ from cumulus_library import (
 )
 from cumulus_library.statistics import psm
 from cumulus_library.template_sql import base_templates
+
+
+@contextlib.contextmanager
+def _temporary_sys_path(add: pathlib.Path) -> None:
+    orig_path = list(sys.path)
+    try:
+        sys.path.insert(0, str(add))
+        yield
+    finally:
+        sys.path = orig_path
 
 
 class StudyManifestParser:
@@ -73,9 +84,12 @@ class StudyManifestParser:
                 self._study_config = config
             self._study_path = study_path
         except FileNotFoundError as e:
-            raise errors.StudyManifestFilesystemError(  # pylint: disable=raise-missing-from
+            raise errors.StudyManifestFilesystemError(
                 f"Missing or invalid manifest found at {study_path}"
             ) from e
+        except toml.TomlDecodeError as e:
+            # just unify the error classes for convenience of catching them
+            raise errors.StudyManifestParsingError(str(e)) from e
 
     def get_study_prefix(self) -> str | None:
         """Reads the name of a study prefix from the in-memory study config
@@ -353,7 +367,11 @@ class StudyManifestParser:
         )
         table_builder_module = importlib.util.module_from_spec(spec)
         sys.modules["table_builder"] = table_builder_module
-        spec.loader.exec_module(table_builder_module)
+        # Inject the study dir into sys.path so that builders can import
+        # from surrounding utility code, even if the study isn't installed.
+        # (i.e. you're working from a git checkout and do something like `-s .`)
+        with _temporary_sys_path(self._study_path.parent):
+            spec.loader.exec_module(table_builder_module)
 
         # We're going to find all subclasses of BaseTableBuild in this file.
         # Since BaseTableBuilder itself is a valid subclass of BaseTableBuilder,
