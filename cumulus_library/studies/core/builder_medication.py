@@ -1,6 +1,6 @@
 """Module for generating core medication table"""
 
-from cumulus_library import base_table_builder, databases
+from cumulus_library import base_table_builder, base_utils
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import sql_utils
 
@@ -19,17 +19,13 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
 
     def prepare_queries(
         self,
-        cursor: databases.DatabaseCursor,
-        schema: str,
-        parser: databases.DatabaseParser = None,
         *args,
+        config: base_utils.StudyConfig,
         **kwargs,
     ) -> None:
         """Constructs queries related to condition codeableConcept
 
-        :param cursor: A database cursor object
-        :param schema: the schema/db name, matching the cursor
-        :param parser: A database parser
+        :param config: A study config object
         """
         code_sources = [
             sql_utils.CodeableConceptConfig(
@@ -57,12 +53,8 @@ class MedicationBuilder(base_table_builder.BaseTableBuilder):
                 ],
             ),
         ]
-        self.queries += sql_utils.denormalize_complex_objects(
-            schema, cursor, parser, code_sources
-        )
-        validated_schema = sql_utils.validate_schema(
-            cursor, schema, expected_table_cols, parser
-        )
+        self.queries += sql_utils.denormalize_complex_objects(config.db, code_sources)
+        validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries += [
             core_templates.get_core_template("medication", validated_schema),
         ]

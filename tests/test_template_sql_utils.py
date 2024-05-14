@@ -54,11 +54,9 @@ from cumulus_library.template_sql import sql_utils
 def test_is_field_populated(mock_db, table, hierarchy, expected, returns, raises):
     with raises:
         res = sql_utils.is_field_populated(
-            schema="main",
+            database=mock_db,
             source_table=table,
             hierarchy=hierarchy,
             expected=expected,
-            cursor=mock_db.cursor(),
-            parser=mock_db.parser(),
         )
         assert res == returns

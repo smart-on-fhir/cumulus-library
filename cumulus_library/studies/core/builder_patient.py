@@ -1,6 +1,6 @@
 """Module for extracting US core extensions from patient records"""
 
-from cumulus_library import databases
+from cumulus_library import base_utils, databases
 from cumulus_library.base_table_builder import BaseTableBuilder
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import base_templates, sql_utils
@@ -20,16 +20,12 @@ class PatientBuilder(BaseTableBuilder):
 
     @staticmethod
     def make_extension_query(
-        schema: str,
-        cursor: databases.DatabaseCursor,
-        parser: databases.DatabaseParser,
+        database: databases.DatabaseBackend,
         name: str,
         url: str,
     ) -> str:
         has_extensions = sql_utils.is_field_present(
-            schema=schema,
-            cursor=cursor,
-            parser=parser,
+            database=database,
             source_table="patient",
             source_col="extension",
             expected={
@@ -53,23 +49,20 @@ class PatientBuilder(BaseTableBuilder):
             return base_templates.get_extension_denormalize_query(config)
         else:
             return base_templates.get_ctas_empty_query(
-                schema_name=schema,
+                schema_name=database.schema_name,
                 table_name=f"core__patient_ext_{name}",
                 table_cols=["id", "system", f"{name}_code", f"{name}_display"],
             )
 
     def prepare_queries(
         self,
-        cursor: databases.DatabaseCursor,
-        schema: str,
         *args,
-        parser: databases.DatabaseParser = None,
+        config: base_utils.StudyConfig,
         **kwargs,
     ):
         """constructs queries related to patient extensions of interest
 
-        :param cursor: A database cursor object
-        :param schema: the schema/db name, matching the cursor
+        :param config: A study config object
         """
         extension_types = [
             {
@@ -84,13 +77,11 @@ class PatientBuilder(BaseTableBuilder):
         for extension in extension_types:
             self.queries.append(
                 self.make_extension_query(
-                    schema, cursor, parser, extension["name"], extension["fhirpath"]
+                    config.db, extension["name"], extension["fhirpath"]
                 )
             )
 
-        validated_schema = sql_utils.validate_schema(
-            cursor, schema, expected_table_cols, parser
-        )
+        validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries.append(
             core_templates.get_core_template("patient", validated_schema)
         )

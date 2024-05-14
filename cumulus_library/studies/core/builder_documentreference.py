@@ -1,4 +1,4 @@
-from cumulus_library import base_table_builder, databases
+from cumulus_library import base_table_builder, base_utils
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import sql_utils
 
@@ -19,16 +19,12 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
 
     def prepare_queries(
         self,
-        cursor: object,
-        schema: str,
         *args,
-        parser: databases.DatabaseParser = None,
+        config: base_utils.StudyConfig,
         **kwargs,
     ):
         self.queries = sql_utils.denormalize_complex_objects(
-            schema,
-            cursor,
-            parser,
+            config.db,
             [
                 sql_utils.CodeableConceptConfig(
                     source_table="documentreference",
@@ -62,9 +58,7 @@ class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
                 ),
             ],
         )
-        validated_schema = sql_utils.validate_schema(
-            cursor, schema, expected_table_cols, parser
-        )
+        validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries.append(
             core_templates.get_core_template("documentreference", validated_schema)
         )

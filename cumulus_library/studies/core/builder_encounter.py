@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from cumulus_library import base_table_builder, databases
+from cumulus_library import base_table_builder, base_utils
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import sql_utils
 
@@ -37,7 +37,7 @@ class EncConfig(sql_utils.CodeableConceptConfig):
 class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Creating Encounter tables..."
 
-    def denormalize_codes(self, schema, cursor, parser):
+    def denormalize_codes(self, database):
         code_configs = [
             EncConfig(
                 column_hierarchy=[("type", list)],
@@ -103,26 +103,16 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
                 expected={"dischargedisposition": sql_utils.CODEABLE_CONCEPT},
             ),
         ]
-        self.queries += sql_utils.denormalize_complex_objects(
-            schema, cursor, parser, code_configs
-        )
+        self.queries += sql_utils.denormalize_complex_objects(database, code_configs)
 
     def prepare_queries(
         self,
-        cursor: object,
-        schema: str,
         *args,
-        parser: databases.DatabaseParser = None,
+        config: base_utils.StudyConfig,
         **kwargs,
     ):
-        self.denormalize_codes(
-            schema,
-            cursor,
-            parser,
-        )
-        validated_schema = sql_utils.validate_schema(
-            cursor, schema, expected_table_cols, parser
-        )
+        self.denormalize_codes(config.db)
+        validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries += [
             core_templates.get_core_template("encounter", validated_schema),
             core_templates.get_core_template("incomplete_encounter", validated_schema),
