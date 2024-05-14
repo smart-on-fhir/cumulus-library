@@ -1,4 +1,4 @@
-{# Commonly used macros related to basic SQL syntax formatting #}
+{# Commonly used macros related to basic SQL syntax formatting #}-- noqa:disable=JJ01
 
 {%- macro comma_delineate(loop) -%}
 {%- if not loop.last -%}
@@ -16,5 +16,17 @@
 {%- if not loop.last -%}
 UNION
 {%- endif -%}
+{%- endmacro -%}
+
+{#- The intent of this function is to allow an end user to work in SQL for partial
+string searches, rather than regex. So for example, a value of macro_string like:
+
+https://fhir.cerner.com/%/codeSet/71
+
+will be converted into a regex-escaped pattern with a regex match anything pattern:
+
+https:\/\/fhir\.cerner\.com\/(.*)\/codeSet\/71 -#}
+{%- macro wildcard_to_regex(match_string) -%}
+{{ match_string.replace("/", "\\/").replace(".", "\\.").replace("%", "(.*)") }}
 {%- endmacro -%}
 --noqa: LT12

@@ -1,6 +1,7 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
 SELECT table_name
 FROM information_schema.tables
 WHERE
     table_schema = '{{ schema_name }}'
     AND table_type = 'VIEW'
-    AND table_name LIKE '{{ prefix }}%';
+    AND regexp_like(table_name, '{{ '^' + prefix }}');

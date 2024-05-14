@@ -32,7 +32,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/encounter-type'
+            regexp_like(u.coding.system, 'http:\/\/terminology\.hl7\.org\/CodeSystem\/encounter-type')
     ), --noqa: LT07
 
     system_type_1 AS (
@@ -48,7 +48,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/v2-0004'
+            regexp_like(u.coding.system, 'http:\/\/terminology\.hl7\.org\/CodeSystem\/v2-0004')
     ), --noqa: LT07
 
     system_type_2 AS (
@@ -64,7 +64,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'urn:oid:2.16.840.1.113883.4.642.3.248'
+            regexp_like(u.coding.system, 'urn:oid:2\.16\.840\.1\.113883\.4\.642\.3\.248')
     ), --noqa: LT07
 
     system_type_3 AS (
@@ -80,7 +80,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://snomed.info/sct'
+            regexp_like(u.coding.system, 'http:\/\/snomed\.info\/sct')
     ), --noqa: LT07
 
     system_type_4 AS (
@@ -96,7 +96,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'https://fhir.cerner.com/%/codeSet/71'
+            regexp_like(u.coding.system, 'https:\/\/fhir\.cerner\.com\/(.*)\/codeSet\/71')
     ), --noqa: LT07
 
     system_type_5 AS (
@@ -112,7 +112,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.10110'
+            regexp_like(u.coding.system, 'urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.10\.698084\.10110')
     ), --noqa: LT07
 
     system_type_6 AS (
@@ -128,7 +128,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.18875'
+            regexp_like(u.coding.system, 'urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.10\.698084\.18875')
     ), --noqa: LT07
 
     system_type_7 AS (
@@ -144,7 +144,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.30'
+            regexp_like(u.coding.system, 'urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.10\.698084\.30')
     ), --noqa: LT07
 
     system_type_8 AS (
@@ -160,7 +160,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.2.808267'
+            regexp_like(u.coding.system, 'urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.2\.808267')
     ), --noqa: LT07
 
     union_table AS (
@@ -340,7 +340,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             flattened_rows AS s,
             UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/v3-ActPriority'
+            regexp_like(u.coding.system, 'http:\/\/terminology\.hl7\.org\/CodeSystem\/v3-ActPriority')
     ), --noqa: LT07
 
     system_reasoncode_1 AS (
@@ -356,7 +356,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             flattened_rows AS s,
             UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://snomed.info/sct'
+            regexp_like(u.coding.system, 'http:\/\/snomed\.info\/sct')
     ), --noqa: LT07
 
     system_reasoncode_2 AS (
@@ -372,7 +372,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             flattened_rows AS s,
             UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm'
+            regexp_like(u.coding.system, 'http:\/\/hl7\.org\/fhir\/sid\/icd-10-cm')
     ), --noqa: LT07
 
     system_reasoncode_3 AS (
@@ -388,7 +388,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             flattened_rows AS s,
             UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-9-cm'
+            regexp_like(u.coding.system, 'http:\/\/hl7\.org\/fhir\/sid\/icd-9-cm')
     ), --noqa: LT07
 
     system_reasoncode_4 AS (
@@ -404,7 +404,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             flattened_rows AS s,
             UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'https://fhir.cerner.com/%/nomenclature'
+            regexp_like(u.coding.system, 'https:\/\/fhir\.cerner\.com\/(.*)\/nomenclature')
     ), --noqa: LT07
 
     system_reasoncode_5 AS (
@@ -420,7 +420,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             flattened_rows AS s,
             UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.2.728286'
+            regexp_like(u.coding.system, 'urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.2\.728286')
     ), --noqa: LT07
 
     union_table AS (

@@ -13,6 +13,7 @@ import datetime
 import json
 import os
 import pathlib
+import re
 import sys
 from pathlib import Path
 from typing import Any, Protocol
@@ -342,6 +343,13 @@ class DuckDatabaseBackend(DatabaseBackend):
             duckdb.typing.VARCHAR,
         )
         self.connection.create_function(
+            # DuckDB's version is regexp_matches.
+            "regexp_like",
+            self._compat_regexp_like,
+            None,
+            duckdb.typing.BOOLEAN,
+        )
+        self.connection.create_function(
             # We frequently use Athena's date() function because it's easier than
             # the more widely-supported way of CAST(x AS DATE).
             # Rather than convert all of our SQL to the longer version,
@@ -392,6 +400,15 @@ class DuckDatabaseBackend(DatabaseBackend):
         if value is None:
             return None
         return delimiter.join(v for v in value if v is not None)
+
+    @staticmethod
+    def _compat_regexp_like(string: str | None, pattern: str | None) -> bool:
+        if string is None or pattern is None:
+            return False
+        match = re.search(pattern, string)
+        if match is None:
+            return False
+        return True
 
     @staticmethod
     def _compat_date(

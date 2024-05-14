@@ -79,7 +79,8 @@ def test_codeable_concept_denormalize_all_creation():
 
 
 def test_codeable_concept_denormalize_filter_creation():
-    expected = """CREATE TABLE target__concepts AS (
+    # fmt: off
+    expected = ("""CREATE TABLE target__concepts AS (
     WITH
 
     system_code_col_0 AS (
@@ -95,7 +96,7 @@ def test_codeable_concept_denormalize_filter_creation():
             source AS s,
             UNNEST(s.code_col.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://snomed.info/sct'
+            REGEXP_LIKE(u.coding.system, 'http:\\/\\/snomed\\.info\\/sct')
     ), --noqa: LT07
 
     system_code_col_1 AS (
@@ -111,7 +112,25 @@ def test_codeable_concept_denormalize_filter_creation():
             source AS s,
             UNNEST(s.code_col.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm'
+            REGEXP_LIKE(u.coding.system, """
+    """'http:\\/\\/hl7\\.org\\/fhir\\/sid\\/icd-10-cm')
+    ), --noqa: LT07
+
+    system_code_col_2 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '2' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
+        FROM
+            source AS s,
+            UNNEST(s.code_col.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, """
+    """'https:\\/\\/fhir\\.cerner\\.com\\/(.*)\\/codeSet\\/71')
     ), --noqa: LT07
 
     union_table AS (
@@ -134,6 +153,16 @@ def test_codeable_concept_denormalize_filter_creation():
             display,
             userSelected
         FROM system_code_col_1
+        UNION
+        SELECT
+            id,
+            row,
+            priority,
+            code_system,
+            code,
+            display,
+            userSelected
+        FROM system_code_col_2
         
     ),
 
@@ -166,7 +195,8 @@ def test_codeable_concept_denormalize_filter_creation():
     FROM partitioned_table
     WHERE available_priority = 1
 );
-"""
+""")  
+    # fmt: on
 
     config = sql_utils.CodeableConceptConfig(
         source_table="source",
@@ -177,6 +207,7 @@ def test_codeable_concept_denormalize_filter_creation():
         code_systems=[
             "http://snomed.info/sct",
             "http://hl7.org/fhir/sid/icd-10-cm",
+            "https://fhir.cerner.com/%/codeSet/71",
         ],
     )
     query = base_templates.get_codeable_concept_denormalize_query(config)

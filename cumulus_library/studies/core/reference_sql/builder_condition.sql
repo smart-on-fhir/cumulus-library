@@ -72,7 +72,7 @@ CREATE TABLE core__condition_dn_clinical_status AS (
             condition AS s,
             UNNEST(s.clinicalStatus.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/condition-clinical'
+            regexp_like(u.coding.system, 'http:\/\/terminology\.hl7\.org\/CodeSystem\/condition-clinical')
     ), --noqa: LT07
 
     union_table AS (
@@ -137,7 +137,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             condition AS s,
             UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://snomed.info/sct'
+            regexp_like(u.coding.system, 'http:\/\/snomed\.info\/sct')
     ), --noqa: LT07
 
     system_code_1 AS (
@@ -153,7 +153,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             condition AS s,
             UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-10-cm'
+            regexp_like(u.coding.system, 'http:\/\/hl7\.org\/fhir\/sid\/icd-10-cm')
     ), --noqa: LT07
 
     system_code_2 AS (
@@ -169,7 +169,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             condition AS s,
             UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-9-cm'
+            regexp_like(u.coding.system, 'http:\/\/hl7\.org\/fhir\/sid\/icd-9-cm')
     ), --noqa: LT07
 
     system_code_3 AS (
@@ -185,7 +185,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             condition AS s,
             UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://hl7.org/fhir/sid/icd-9-cm/diagnosis'
+            regexp_like(u.coding.system, 'http:\/\/hl7\.org\/fhir\/sid\/icd-9-cm\/diagnosis')
     ), --noqa: LT07
 
     system_code_4 AS (
@@ -201,7 +201,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             condition AS s,
             UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.2.728286'
+            regexp_like(u.coding.system, 'urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.2\.728286')
     ), --noqa: LT07
 
     system_code_5 AS (
@@ -217,7 +217,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             condition AS s,
             UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'urn:oid:1.2.840.114350.1.13.71.2.7.4.698084.10375'
+            regexp_like(u.coding.system, 'urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.4\.698084\.10375')
     ), --noqa: LT07
 
     system_code_6 AS (
@@ -233,7 +233,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             condition AS s,
             UNNEST(s.code.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/data-absent-reason'
+            regexp_like(u.coding.system, 'http:\/\/terminology\.hl7\.org\/CodeSystem\/data-absent-reason')
     ), --noqa: LT07
 
     union_table AS (
@@ -397,7 +397,7 @@ CREATE TABLE core__condition_dn_verification_status AS (
             condition AS s,
             UNNEST(s.verificationStatus.coding) AS u (coding)
         WHERE
-            u.coding.system LIKE 'http://terminology.hl7.org/CodeSystem/condition-ver-status'
+            regexp_like(u.coding.system, 'http:\/\/terminology\.hl7\.org\/CodeSystem\/condition-ver-status')
     ), --noqa: LT07
 
     union_table AS (
