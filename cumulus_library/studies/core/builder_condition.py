@@ -1,4 +1,4 @@
-from cumulus_library import base_table_builder, databases
+from cumulus_library import base_table_builder, base_utils
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import base_templates, sql_utils
 
@@ -75,16 +75,12 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
 
     def prepare_queries(
         self,
-        cursor: object,
-        schema: str,
         *args,
-        parser: databases.DatabaseParser = None,
+        config: base_utils.StudyConfig,
         **kwargs,
     ):
         self.denormalize_codes()
-        validated_schema = sql_utils.validate_schema(
-            cursor, schema, expected_table_cols, parser
-        )
+        validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries.append(
             core_templates.get_core_template("condition", validated_schema)
         )

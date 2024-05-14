@@ -156,6 +156,17 @@ class DatabaseBackend(abc.ABC):
     def parser(self) -> DatabaseParser:
         """Returns parser object for interrogating DB schemas"""
 
+    def operational_errors(self) -> tuple[Exception]:
+        """Returns a tuple of operational exception classes
+
+        An operational error is something that went wrong while performing a database
+        query. So something like "table doesn't exist" but not like a network or
+        syntax error.
+
+        This is designed to be used in an `except` clause.
+        """
+        return ()
+
     def upload_file(
         self,
         *,
@@ -218,6 +229,9 @@ class AthenaDatabaseBackend(DatabaseBackend):
 
     def parser(self) -> DatabaseParser:
         return AthenaParser()
+
+    def operational_errors(self) -> tuple[Exception]:
+        return (pyathena.OperationalError,)
 
     def upload_file(
         self,
@@ -453,6 +467,9 @@ class DuckDatabaseBackend(DatabaseBackend):
 
     def parser(self) -> DatabaseParser:
         return DuckDbParser()
+
+    def operational_errors(self) -> tuple[Exception]:
+        return (duckdb.OperationalError,)
 
     def close(self) -> None:
         self.connection.close()

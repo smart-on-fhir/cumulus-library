@@ -90,9 +90,7 @@ class ExtensionConfig(BaseConfig):
 
 
 def _check_data_in_fields(
-    schema: str,
-    cursor: databases.DatabaseCursor,
-    parser: databases.DatabaseParser,
+    database: databases.DatabaseBackend,
     code_sources: list[CodeableConceptConfig],
 ) -> dict:
     """checks if CodeableConcept fields actually have data available
@@ -116,16 +114,14 @@ def _check_data_in_fields(
 
     with base_utils.get_progress_bar(transient=True) as progress:
         task = progress.add_task(
-            "Detecting available encounter codeableConcepts...",
+            "Detecting available codeableConcepts...",
             # Each column in code_sources requires at most 3 queries to
             # detect valid data is in the DB
             total=len(code_sources),
         )
         for code_source in code_sources:
             code_source.has_data = is_field_populated(
-                schema=schema,
-                cursor=cursor,
-                parser=parser,
+                database=database,
                 source_table=code_source.source_table,
                 hierarchy=code_source.column_hierarchy,
                 expected=code_source.expected,
@@ -135,13 +131,11 @@ def _check_data_in_fields(
 
 
 def denormalize_complex_objects(
-    schema: str,
-    cursor: databases.DatabaseCursor,
-    parser: databases.DatabaseParser,
+    database: databases.DatabaseBackend,
     code_sources: list[BaseConfig],
 ):
     queries = []
-    code_sources = _check_data_in_fields(schema, cursor, parser, code_sources)
+    code_sources = _check_data_in_fields(database, code_sources)
     for code_source in code_sources:
         # TODO: This method of pairing classed config objects to
         # specific queries should be considered temporary. This should be
@@ -177,7 +171,7 @@ def denormalize_complex_objects(
                         col_types += ["varchar"] * len(code_source.extra_fields)
                     queries.append(
                         base_templates.get_ctas_empty_query(
-                            schema_name=schema,
+                            schema_name=database.schema_name,
                             table_name=code_source.target_table,
                             table_cols=table_cols,
                             table_cols_types=col_types,
@@ -191,7 +185,7 @@ def denormalize_complex_objects(
                 else:
                     queries.append(
                         base_templates.get_ctas_empty_query(
-                            schema_name=schema,
+                            schema_name=database.schema_name,
                             table_name=code_source.target_table,
                             table_cols=["id", "code", "code_system", "display"],
                         )
@@ -201,24 +195,31 @@ def denormalize_complex_objects(
 
 
 def validate_schema(
-    cursor: databases.DatabaseCursor,
-    schema: str,
+    database: databases.DatabaseBackend,
     expected_table_cols: dict,
-    parser: databases.DatabaseParser,
 ) -> dict:
     validated_schema = {}
     for table, cols in expected_table_cols.items():
-        query = base_templates.get_column_datatype_query(schema, table, cols.keys())
-        table_schema = cursor.execute(query).fetchall()
-        validated_schema[table] = parser.validate_table_schema(cols, table_schema)
+        query = base_templates.get_column_datatype_query(
+            database.schema_name, table, cols.keys()
+        )
+
+        try:
+            table_schema = database.cursor().execute(query).fetchall()
+        except database.operational_errors():
+            # A database backend might reasonably raise an exception in cases like
+            # the table not existing (Athena does this).
+            table_schema = []
+
+        validated_schema[table] = database.parser().validate_table_schema(
+            cols, table_schema
+        )
     return validated_schema
 
 
 def is_field_populated(
     *,
-    schema: str,
-    cursor: databases.DatabaseCursor,
-    parser: databases.DatabaseParser,
+    database: databases.DatabaseBackend,
     source_table: str,
     hierarchy: list[tuple],
     expected: list | dict | None = None,
@@ -228,8 +229,7 @@ def is_field_populated(
     Non-core studies that rely on the core tables shouldn't need this method.
     This is just to examine the weird and wonderful world of the raw FHIR tables.
 
-    :keyword schema: The schema/database name
-    :keyword cursor: a PEP-249 compliant database cursor
+    :keyword database: The database backend
     :keyword source_table: The table to query against
     :keyword hierarchy: a list of tuples defining the FHIR path to the element.
         Each tuple should be of the form ('element_name', dict | list), where
@@ -239,9 +239,7 @@ def is_field_populated(
     :returns: a boolean indicating if valid data is present.
     """
     if not is_field_present(
-        schema=schema,
-        cursor=cursor,
-        parser=parser,
+        database=database,
         source_table=source_table,
         source_col=hierarchy[0][0],
         expected=expected,
@@ -271,7 +269,7 @@ def is_field_populated(
     query = base_templates.get_is_table_not_empty_query(
         source_table=source_table, field=".".join(source_field), unnests=unnests
     )
-    res = cursor.execute(query).fetchall()
+    res = database.cursor().execute(query).fetchall()
     if len(res) == 0:
         return False
     return True
@@ -279,18 +277,14 @@ def is_field_populated(
 
 def is_field_present(
     *,
-    schema: str,
-    cursor: databases.DatabaseCursor,
-    parser: databases.DatabaseParser,
+    database: databases.DatabaseBackend,
     source_table: str,
     source_col: str,
     expected: list | dict | None = None,
 ) -> bool:
     """Validation check for a column existing, and having the expected schema
 
-    :keyword schema: The schema/database name
-    :keyword cursor: a PEP-249 compliant database cursor
-    :keyword parser: a database schema parser
+    :keyword database: The database backend
     :keyword source_table: The table to query against
     :keyword source_col: The column to check the schema against
     :keyword expected: a list of elements that should be present in source_col.
@@ -301,7 +295,7 @@ def is_field_present(
         expected = CODEABLE_CONCEPT
 
     table_cols = {source_table: {source_col: expected}}
-    schema = validate_schema(cursor, schema, table_cols, parser)
+    schema = validate_schema(database, table_cols)
 
     def _get_all_values(d: dict) -> list:
         all_values = []
