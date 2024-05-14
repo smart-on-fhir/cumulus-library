@@ -20,6 +20,7 @@ for more details and any associated publications.
 ### 2024
 - [Hypertension](https://github.com/smart-on-fhir/cumulus-library-hypertension)
 - [UMLS vocabulary](https://github.com/smart-on-fhir/cumulus-library-umls)
+- [Data Metrics](https://github.com/smart-on-fhir/cumulus-library-data-metrics)
 
 ## Third party studies
 
