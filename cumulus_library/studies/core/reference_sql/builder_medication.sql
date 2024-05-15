@@ -86,7 +86,8 @@ CREATE TABLE core__medication AS (
             mr.id,
             substring(mr.med_ref, 2) AS medication_id
         FROM mr_basics AS mr
-        WHERE mr.med_ref IS NOT NULL AND mr.med_ref LIKE '#%'
+        WHERE mr.med_ref IS NOT NULL AND REGEXP_LIKE(mr.med_ref, '#.*')
+        )
     ),
 
     external_refs AS (
@@ -94,7 +95,8 @@ CREATE TABLE core__medication AS (
             mr.id,
             substring(mr.med_ref, 12) AS medication_id
         FROM mr_basics AS mr
-        WHERE mr.med_ref IS NOT NULL AND mr.med_ref LIKE 'Medication/%'
+        WHERE mr.med_ref IS NOT NULL AND REGEXP_LIKE(mr.med_ref, 'Medication/.*')
+        )
     )
 
     

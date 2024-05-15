@@ -17,7 +17,7 @@ CREATE TABLE {{ target_table }} AS (
             UNNEST(s.{{ parent_field }}) AS u (parent_col)
         {%- if filter_priority %}
         WHERE
-            u.parent_col.{{ column_name }}.system LIKE '{{ system }}'
+            {{ syntax.like("u.parent_col." + column_name + ".system", system) }}
         {%- endif %}
     ), --noqa: LT07
     {%- endfor %}
