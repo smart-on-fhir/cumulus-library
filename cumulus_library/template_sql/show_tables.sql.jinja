@@ -4,4 +4,4 @@ FROM information_schema.tables
 WHERE
     table_schema = '{{ schema_name }}'
     AND table_type = 'BASE TABLE'
-    AND regexp_like(table_name, '{{ '^' + prefix }}');
+    AND {{ syntax.like('table_name', prefix +"%") }}

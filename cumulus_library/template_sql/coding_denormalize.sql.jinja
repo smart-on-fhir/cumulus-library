@@ -17,10 +17,7 @@ CREATE TABLE {{ target_table }} AS (
             UNNEST(s.{{ parent_field }}) AS u (parent_col)
         {%- if filter_priority %}
         WHERE
-            REGEXP_LIKE(
-                u.parent_col.{{ column_name }}.system,
-                '{{ syntax.wildcard_to_regex(system) }}'
-            )
+            {{ syntax.like("u.parent_col." + column_name + ".system", system) }}
         {%- endif %}
     ), --noqa: LT07
     {%- endfor %}

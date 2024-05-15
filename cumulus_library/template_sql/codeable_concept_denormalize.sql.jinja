@@ -79,7 +79,7 @@ CREATE TABLE {{ target_table }} AS (
             UNNEST(s.{{ field_alias }}.coding) AS u (coding)
         {%- if filter_priority %}
         WHERE
-            REGEXP_LIKE(u.coding.system, '{{ syntax.wildcard_to_regex(system) }}')
+            {{ syntax.like('u.coding.system', system) }}
         {%- endif %}
     ), --noqa: LT07
     {%- endfor %}

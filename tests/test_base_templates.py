@@ -80,7 +80,7 @@ def test_codeable_concept_denormalize_all_creation():
 
 def test_codeable_concept_denormalize_filter_creation():
     # fmt: off
-    expected = ("""CREATE TABLE target__concepts AS (
+    expected = r"""CREATE TABLE target__concepts AS (
     WITH
 
     system_code_col_0 AS (
@@ -96,7 +96,7 @@ def test_codeable_concept_denormalize_filter_creation():
             source AS s,
             UNNEST(s.code_col.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, 'http:\\/\\/snomed\\.info\\/sct')
+            REGEXP_LIKE(u.coding.system, '^http://snomed\.info/sct$')
     ), --noqa: LT07
 
     system_code_col_1 AS (
@@ -112,8 +112,7 @@ def test_codeable_concept_denormalize_filter_creation():
             source AS s,
             UNNEST(s.code_col.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, """
-    """'http:\\/\\/hl7\\.org\\/fhir\\/sid\\/icd-10-cm')
+            REGEXP_LIKE(u.coding.system, '^http://hl7\.org/fhir/sid/icd-10-cm$')
     ), --noqa: LT07
 
     system_code_col_2 AS (
@@ -129,8 +128,7 @@ def test_codeable_concept_denormalize_filter_creation():
             source AS s,
             UNNEST(s.code_col.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, """
-    """'https:\\/\\/fhir\\.cerner\\.com\\/(.*)\\/codeSet\\/71')
+            REGEXP_LIKE(u.coding.system, '^https://fhir\.cerner\.com/.*/codeSet/71$')
     ), --noqa: LT07
 
     union_table AS (
@@ -195,7 +193,7 @@ def test_codeable_concept_denormalize_filter_creation():
     FROM partitioned_table
     WHERE available_priority = 1
 );
-""")  
+"""
     # fmt: on
 
     config = sql_utils.CodeableConceptConfig(

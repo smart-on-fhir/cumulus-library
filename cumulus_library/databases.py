@@ -404,11 +404,9 @@ class DuckDatabaseBackend(DatabaseBackend):
     @staticmethod
     def _compat_regexp_like(string: str | None, pattern: str | None) -> bool:
         if string is None or pattern is None:
-            return False
+            return None
         match = re.search(pattern, string)
-        if match is None:
-            return False
-        return True
+        return match is not None
 
     @staticmethod
     def _compat_date(

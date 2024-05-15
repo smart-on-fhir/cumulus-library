@@ -18,15 +18,31 @@ UNION
 {%- endif -%}
 {%- endmacro -%}
 
-{#- The intent of this function is to allow an end user to work in SQL for partial
-string searches, rather than regex. So for example, a value of macro_string like:
+{#- The intent of this macro is to convert sql wildcard format to regex syntax.
+ So for example, a value of macro_string like:
 
 https://fhir.cerner.com/%/codeSet/71
 
 will be converted into a regex-escaped pattern with a regex match anything pattern:
 
-https:\/\/fhir\.cerner\.com\/(.*)\/codeSet\/71 -#}
+https:\/\/fhir\.cerner\.com\/(.*)\/codeSet\/71 
+
+See https://trino.io/docs/current/functions/regexp.html for more information. We
+are applying a limited ruleset currently, since this is based on common patterns
+in coding system fields, where this is currently used; if needed this could be
+made more robust.
+-#}
 {%- macro wildcard_to_regex(match_string) -%}
-{{ match_string.replace("/", "\\/").replace(".", "\\.").replace("%", "(.*)") }}
+'^{{ match_string.replace("\'", "\\\''").replace(".", "\\.").replace("%", ".*") }}$'
 {%- endmacro -%}
+
+
+{#- This macro provides a SQL LIKE-esque interface to abstract away having to
+worry about the slightly more performant regex based matching we want to use
+in most cases.
+-#}
+{%- macro like(field, match_string) -%}
+REGEXP_LIKE({{ field }}, {{ wildcard_to_regex(match_string) }})
+{%- endmacro -%}
+
 --noqa: LT12

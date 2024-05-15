@@ -33,9 +33,7 @@ CREATE TABLE core__medication AS (
             mr.id,
             substring(mr.med_ref, 2) AS medication_id
         FROM mr_basics AS mr
-        WHERE mr.med_ref IS NOT NULL AND regexp_like(
-            mr.med_ref, '{{ syntax.wildcard_to_regex('#%') }}'
-        )
+        WHERE mr.med_ref IS NOT NULL AND {{ syntax.like('mr.med_ref', '#%') }}
     ),
 
     external_refs AS (
@@ -43,9 +41,7 @@ CREATE TABLE core__medication AS (
             mr.id,
             substring(mr.med_ref, 12) AS medication_id
         FROM mr_basics AS mr
-        WHERE mr.med_ref IS NOT NULL AND regexp_like(
-            mr.med_ref, '{{ syntax.wildcard_to_regex('Medication/%') }}'
-        )
+        WHERE mr.med_ref IS NOT NULL AND {{ syntax.like('mr.med_ref', 'Medication/%') }}
     )
 
     {# Internal: medication data from inline ETL extraction.

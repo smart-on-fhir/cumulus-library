@@ -71,7 +71,7 @@ CREATE TABLE core__documentreference_dn_category AS (
             flattened_rows AS s,
             UNNEST(s.category.coding) AS u (coding)
         WHERE
-            regexp_like(u.coding.system, 'http:\/\/hl7\.org\/fhir\/us\/core\/ValueSet\/us-core-documentreference-category')
+            REGEXP_LIKE(u.coding.system, 'http://hl7\.org/fhir/us/core/ValueSet/us-core-documentreference-category')
     ), --noqa: LT07
 
     union_table AS (
