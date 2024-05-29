@@ -248,32 +248,14 @@ You can grab fake
 [Synthea data](https://github.com/smart-on-fhir/sample-bulk-fhir-datasets)
 or use the result of actual bulk-export results from your EHR.
 
-Once you have that,
-run [Cumulus ETL](https://docs.smarthealthit.org/cumulus/etl/)
-on your source ndjson with the
-`--output-format=ndjson` flag and pointing at some local directory.
-For example:
-```shell
-docker compose run \
-  --volume local_dir:/in \
-  cumulus-etl \
-  /in/ndjson \
-  /in/output \
-  /in/phi \
-  --output-format=ndjson
-```
-
-This will generate a tree of processed & anonymized ndjson
-(just like the ETL normally makes).
-
 ### Run your study on the local ndjson
 
-Now you can run Cumulus Library but point it at the output files with the
+Now you can run Cumulus Library but point it at the ndjson folder with the
 `--db-type=duckdb` and `--load-ndjson-dir=DIR` flags. For example:
 ```shell
 cumulus-library build \
   --db-type duckdb \
-  --load-ndjson-dir local_dir/output \
+  --load-ndjson-dir local_dir/ndjson/ \
   --database local_dir/duck.db \
   --target my_study
 ```
