@@ -515,21 +515,37 @@ class DuckDbParser(DatabaseParser):
         return parsed
 
 
-def _read_rows_from_table_dir(path: str) -> list[dict]:
-    # Grab filenames to load (ignoring .meta files and handling missing folders)
-    folder = Path(path)
-    filenames = []
-    if folder.exists():
-        filenames = sorted(
-            str(x) for x in folder.iterdir() if x.name.endswith(".ndjson")
-        )
-
-    # Read all ndjson directly into memory
+def _read_rows_from_files(filenames: list[str]) -> list[dict]:
+    """Reads all provided ndjson files directly into memory"""
     rows = []
-    for filename in filenames:
+    for filename in sorted(filenames):
         with open(filename, encoding="utf8") as f:
             for line in f:
                 rows.append(json.loads(line))
+    return rows
+
+
+def _read_rows_from_table_dir(path: Path) -> list[dict]:
+    """Grab ndjson files in the Cumulus ETL output format: path/tablename/*.ndjson"""
+    if not path.exists():
+        return []
+
+    filenames = [str(x) for x in path.iterdir() if x.name.endswith(".ndjson")]
+    return _read_rows_from_files(filenames)
+
+
+def _read_rows_for_resource(path: Path, resource: str) -> list[dict]:
+    rows = []
+
+    # Grab any ndjson files in Cumulus ETL input format: path/*.Resource.*.ndjson
+    if path.exists():
+        # This pattern is copied from the ETL, allowing a suffix or a numbered prefix.
+        pattern = re.compile(rf"([0-9]+\.)?{resource}(\.[^/]+)?\.ndjson")
+        filenames = [str(x) for x in path.iterdir() if pattern.match(x.name)]
+        rows += _read_rows_from_files(filenames)
+
+    # Also grab any ndjson files in Cumulus ETL output format
+    rows += _read_rows_from_table_dir(path / resource.lower())
 
     return rows
 
@@ -562,7 +578,7 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
     ]
     for resource in resources:
         table_name = resource.lower()
-        rows = _read_rows_from_table_dir(f"{path}/{table_name}")
+        rows = _read_rows_for_resource(Path(path), resource)
 
         # Make a pyarrow table with full schema from the data
         schema = cumulus_fhir_support.pyarrow_schema_from_rows(resource, rows)
@@ -574,7 +590,7 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
         "etl__completion_encounters",
     ]
     for metadata_table in metadata_tables:
-        rows = _read_rows_from_table_dir(f"{path}/{metadata_table}")
+        rows = _read_rows_from_table_dir(Path(f"{path}/{metadata_table}"))
         if rows:
             # Auto-detecting the schema works for these simple tables
             all_tables[metadata_table] = pyarrow.Table.from_pylist(rows)

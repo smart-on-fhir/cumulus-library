@@ -72,6 +72,41 @@ def test_duckdb_from_iso8601_timestamp(timestamp, expected):
     assert parsed == expected
 
 
+def test_duckdb_load_ndjson_dir(tmp_path):
+    filenames = {
+        "A.Patient.ndjson": False,
+        "1.Patient.ndjson": True,
+        "Patient.ndjson": True,
+        "patient.ndjson": False,
+        "Patient.hello.bye.ndjson": True,
+        "Patient.nope": False,
+        "patient/blarg.ndjson": True,
+        "patient/blarg.meta": False,
+    }
+    os.mkdir(f"{tmp_path}/patient")
+    for index, (filename, valid) in enumerate(filenames.items()):
+        with open(f"{tmp_path}/{filename}", "w", encoding="utf8") as f:
+            row_id = f"Good{index}" if valid else f"Bad{index}"
+            f.write(f'{{"id":"{row_id}"}}')
+
+    db = databases.create_db_backend(
+        {
+            "db_type": "duckdb",
+            "schema_name": ":memory:",
+            "load_ndjson_dir": tmp_path,
+        }
+    )
+
+    expected_good_count = len({f for f, v in filenames.items() if v})
+    found_ids = {
+        row[0] for row in db.cursor().execute("select id from patient").fetchall()
+    }
+    found_good = {row_id for row_id in found_ids if row_id.startswith("Good")}
+    found_bad = found_ids - found_good
+    assert len(found_good) == expected_good_count
+    assert len(found_bad) == 0
+
+
 def test_duckdb_table_schema():
     """Verify we can detect schemas correctly, even for nested camel case fields"""
     db = databases.DuckDatabaseBackend(":memory:")
