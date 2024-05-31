@@ -39,7 +39,6 @@ def upload_data(
         print("body", prefetch_res.request.body, "\n")
         print("response")
         print(prefetch_res.json(), "\n")
-
     if prefetch_res.status_code != 200:
         print("Invalid user/site id")
         prefetch_res.raise_for_status()
@@ -64,7 +63,7 @@ def upload_data(
 
 def upload_files(args: dict):
     """Wrapper to prep files & console output"""
-    if args["data_path"] is None:
+    if args["data_path"] is None or not args["data_path"].exists():
         sys.exit(
             "No data directory provided - please provide a path to your"
             "study export folder."

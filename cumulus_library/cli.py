@@ -19,13 +19,13 @@ from cumulus_library import (
     errors,
     protected_table_builder,
     study_parser,
-    upload,
 )
+from cumulus_library.actions import builder, cleaner, exporter, file_generator, uploader
 from cumulus_library.template_sql import base_templates
 
 
 class StudyRunner:
-    """Class for managing cursors and executing Cumulus queries"""
+    """Class for managing cursors and invoking actions"""
 
     verbose = False
     schema_name = None
@@ -82,19 +82,21 @@ class StudyRunner:
             )
         for target in targets:
             if prefix:
-                parser = study_parser.StudyManifestParser()
-                parser.clean_study(
-                    self.cursor,
-                    self.schema_name,
+                manifest_parser = study_parser.StudyManifestParser()
+                cleaner.clean_study(
+                    manifest_parser=manifest_parser,
+                    cursor=self.cursor,
+                    schema_name=self.schema_name,
                     verbose=self.verbose,
                     stats_clean=stats_clean,
                     prefix=target,
                 )
             else:
-                parser = study_parser.StudyManifestParser(study_dict[target])
-                parser.clean_study(
-                    self.cursor,
-                    self.schema_name,
+                manifest_parser = study_parser.StudyManifestParser(study_dict[target])
+                cleaner.clean_study(
+                    manifest_parser=manifest_parser,
+                    cursor=self.cursor,
+                    schema_name=self.schema_name,
                     verbose=self.verbose,
                     stats_clean=stats_clean,
                 )
@@ -112,55 +114,67 @@ class StudyRunner:
         :param config: A StudyConfig object containing optional params
         :keyword continue_from: Restart a run from a specific sql file (for dev only)
         """
-        studyparser = study_parser.StudyManifestParser(target, self.data_path)
+        manifest_parser = study_parser.StudyManifestParser(target, self.data_path)
         try:
             if not continue_from:
-                studyparser.run_protected_table_builder(
-                    self.cursor, self.schema_name, verbose=self.verbose, config=config
-                )
-                self.update_transactions(studyparser.get_study_prefix(), "started")
-                cleaned_tables = studyparser.clean_study(
+                builder.run_protected_table_builder(
+                    manifest_parser,
                     self.cursor,
                     self.schema_name,
+                    verbose=self.verbose,
+                    config=config,
+                )
+                self.update_transactions(manifest_parser.get_study_prefix(), "started")
+                cleaned_tables = cleaner.clean_study(
+                    manifest_parser=manifest_parser,
+                    cursor=self.cursor,
+                    schema_name=self.schema_name,
                     verbose=self.verbose,
                     stats_clean=False,
                 )
                 # If the study hasn't been created before, force stats table generation
                 if len(cleaned_tables) == 0:
                     config.stats_build = True
-                studyparser.run_table_builder(
+                builder.run_table_builder(
+                    manifest_parser,
                     self.cursor,
                     self.schema_name,
                     verbose=self.verbose,
-                    parser=self.db.parser(),
+                    db_parser=self.db.parser(),
                     config=config,
                 )
             else:
-                self.update_transactions(studyparser.get_study_prefix(), "resumed")
+                self.update_transactions(manifest_parser.get_study_prefix(), "resumed")
 
-            studyparser.build_study(
+            builder.build_study(
+                manifest_parser,
                 self.cursor,
                 verbose=self.verbose,
                 continue_from=continue_from,
                 config=config,
             )
-            studyparser.run_counts_builders(
-                self.cursor, self.schema_name, verbose=self.verbose, config=config
-            )
-            studyparser.run_statistics_builders(
+            builder.run_counts_builders(
+                manifest_parser,
                 self.cursor,
                 self.schema_name,
                 verbose=self.verbose,
                 config=config,
             )
-            self.update_transactions(studyparser.get_study_prefix(), "finished")
+            builder.run_statistics_builders(
+                manifest_parser,
+                self.cursor,
+                self.schema_name,
+                verbose=self.verbose,
+                config=config,
+            )
+            self.update_transactions(manifest_parser.get_study_prefix(), "finished")
 
         except errors.StudyManifestFilesystemError as e:
             # This should be thrown prior to any database connections, so
             # skipping logging
             raise e
         except Exception as e:
-            self.update_transactions(studyparser.get_study_prefix(), "error")
+            self.update_transactions(manifest_parser.get_study_prefix(), "error")
             raise e
 
     def run_matching_table_builder(
@@ -175,13 +189,14 @@ class StudyRunner:
         :param table_builder_name: a builder file referenced in the study's manifest
         :param config: A StudyConfig object containing optional params
         """
-        studyparser = study_parser.StudyManifestParser(target)
-        studyparser.run_matching_table_builder(
+        manifest_parser = study_parser.StudyManifestParser(target)
+        builder.run_matching_table_builder(
+            manifest_parser,
             self.cursor,
             self.schema_name,
             table_builder_name,
             verbose=self.verbose,
-            parser=self.db.parser(),
+            db_parser=self.db.parser(),
             config=config,
         )
 
@@ -214,8 +229,10 @@ class StudyRunner:
         """
         if data_path is None:
             sys.exit("Missing destination - please provide a path argument.")
-        studyparser = study_parser.StudyManifestParser(target, data_path)
-        studyparser.export_study(self.db, self.schema_name, data_path, archive)
+        manifest_parser = study_parser.StudyManifestParser(target, data_path)
+        exporter.export_study(
+            manifest_parser, self.db, self.schema_name, data_path, archive
+        )
 
     def export_all(self, study_dict: dict, data_path: pathlib.Path, archive: bool):
         """Exports all defined count tables to disk"""
@@ -235,13 +252,14 @@ class StudyRunner:
         :param config: A StudyConfig object containing optional params
         :param builder: Specify a single builder to generate sql from
         """
-        studyparser = study_parser.StudyManifestParser(target)
-        studyparser.run_generate_sql(
+        manifest_parser = study_parser.StudyManifestParser(target)
+        file_generator.run_generate_sql(
+            manifest_parser=manifest_parser,
             cursor=self.cursor,
             schema=self.schema_name,
-            builder=builder,
+            table_builder=builder,
             verbose=self.verbose,
-            parser=self.db.parser(),
+            db_parser=self.db.parser(),
             config=config,
         )
 
@@ -253,16 +271,17 @@ class StudyRunner:
 
         :param target: A path to the study directory
         """
-        studyparser = study_parser.StudyManifestParser(target)
-        studyparser.run_generate_markdown(
-            self.cursor,
-            self.schema_name,
+        manifest_parser = study_parser.StudyManifestParser(target)
+        file_generator.run_generate_markdown(
+            manifest_parser=manifest_parser,
+            cursor=self.cursor,
+            schema=self.schema_name,
             verbose=self.verbose,
-            parser=self.db.parser(),
+            db_parser=self.db.parser(),
         )
 
 
-def get_abs_posix_path(path: str) -> pathlib.Path:
+def get_abs_path(path: str) -> pathlib.Path:
     """Convenience method for handling abs vs rel paths"""
     if path[0] == "/":
         return pathlib.Path(path)
@@ -272,7 +291,7 @@ def get_abs_posix_path(path: str) -> pathlib.Path:
 
 def create_template(path: str) -> None:
     """Creates a manifest in target dir if one doesn't exist"""
-    abs_path = get_abs_posix_path(path)
+    abs_path = get_abs_path(path)
     manifest_path = pathlib.Path(abs_path, "manifest.toml")
     if manifest_path.exists():
         sys.exit(f"A manifest.toml already exists at {abs_path}, skipping creation")
@@ -341,7 +360,7 @@ def run_cli(args: dict):
 
     elif args["action"] == "upload":
         try:
-            upload.upload_files(args)
+            uploader.upload_files(args)
         except requests.RequestException as e:
             print(str(e))
             sys.exit()
@@ -485,11 +504,11 @@ def main(cli_args=None):
     if args.get("study_dir"):
         posix_paths = []
         for path in args["study_dir"]:
-            posix_paths.append(get_abs_posix_path(path))
+            posix_paths.append(get_abs_path(path))
         args["study_dir"] = posix_paths
 
     if args.get("data_path"):
-        args["data_path"] = get_abs_posix_path(args["data_path"])
+        args["data_path"] = get_abs_path(args["data_path"])
     return run_cli(args)
 
 

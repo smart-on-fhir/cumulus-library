@@ -512,7 +512,7 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
     clear=True,
 )
 @mock.patch("pathlib.Path.glob")
-@mock.patch("cumulus_library.upload.upload_data")
+@mock.patch("cumulus_library.actions.uploader.upload_data")
 def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls):
     mock_glob.side_effect = [
         [

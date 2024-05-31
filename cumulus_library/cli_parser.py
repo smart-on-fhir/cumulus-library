@@ -200,7 +200,7 @@ following order of preference is used to select credentials:
     # Database export
 
     export = actions.add_parser(
-        "export", help="Generates files on disk from Athena views"
+        "export", help="Generates files on disk from Athena tables/views"
     )
     add_target_argument(export)
     add_study_dir_argument(export)
@@ -212,6 +212,7 @@ following order of preference is used to select credentials:
         action="store_true",
         help="Generates archive of :all: study tables, ignoring manifest export list.",
     )
+
     # Aggregator upload
 
     upload = actions.add_parser(
