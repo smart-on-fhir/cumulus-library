@@ -63,7 +63,7 @@ def upload_data(
 
 def upload_files(args: dict):
     """Wrapper to prep files & console output"""
-    if args["data_path"] is None or not args["data_path"].exists():
+    if args["data_path"] is None:
         sys.exit(
             "No data directory provided - please provide a path to your"
             "study export folder."
