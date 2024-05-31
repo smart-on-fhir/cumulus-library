@@ -323,9 +323,9 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
             if len(build_args) == 9:
                 manifest_dir = cli.get_study_dict([])[build_args[2]]
             else:
-                manifest_dir = cli.get_study_dict(
-                    [cli.get_abs_posix_path(build_args[4])]
-                )[build_args[2]]
+                manifest_dir = cli.get_study_dict([cli.get_abs_path(build_args[4])])[
+                    build_args[2]
+                ]
 
             with open(f"{manifest_dir}/manifest.toml", encoding="UTF-8") as file:
                 config = toml.load(file)
@@ -512,7 +512,7 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
     clear=True,
 )
 @mock.patch("pathlib.Path.glob")
-@mock.patch("cumulus_library.upload.upload_data")
+@mock.patch("cumulus_library.actions.uploader.upload_data")
 def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls):
     mock_glob.side_effect = [
         [

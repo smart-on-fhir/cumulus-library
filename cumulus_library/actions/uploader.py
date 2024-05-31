@@ -39,7 +39,6 @@ def upload_data(
         print("body", prefetch_res.request.body, "\n")
         print("response")
         print(prefetch_res.json(), "\n")
-
     if prefetch_res.status_code != 200:
         print("Invalid user/site id")
         prefetch_res.raise_for_status()
