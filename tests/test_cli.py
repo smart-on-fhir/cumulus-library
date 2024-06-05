@@ -579,13 +579,14 @@ def test_cli_finds_study_from_manifest_prefix(tmp_path):
 
 @mock.patch.dict(os.environ, clear=True)
 @pytest.mark.parametrize(
-    "c_arg,raises",
+    "option,raises",
     [
         ("foo:bar", does_not_raise()),
         ("foo", pytest.raises(SystemExit)),
     ],
 )
-def test_cli_custom_args(tmp_path, c_arg, raises):
+@mock.patch("cumulus_library.base_utils.StudyConfig")
+def test_cli_custom_args(mock_config, tmp_path, option, raises):
     with raises:
         cli.main(
             cli_args=duckdb_args(
@@ -595,9 +596,11 @@ def test_cli_custom_args(tmp_path, c_arg, raises):
                     "study_valid",
                     "-s",
                     f"{Path(__file__).resolve().parents[0]}/test_data/study_valid",
-                    "-c",
-                    c_arg,
+                    "-o",
+                    option,
                 ],
                 tmp_path,
             )
         )
+        called_options = mock_config.call_args[1]["options"]
+        assert called_options[option.split(":")[0]] == option.split(":")[1]

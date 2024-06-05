@@ -350,6 +350,13 @@ def test_import_study(tmp_path, mock_db):
             archive_path=tmp_path / "duck.db", args=args, config=config
         )
     with pytest.raises(errors.StudyImportError):
+        df.to_parquet(tmp_path / "archive/table.parquet")
+        with zipfile.ZipFile(tmp_path / "archive/no_dunder.zip", "w") as archive:
+            archive.write(tmp_path / "archive/table.parquet")
+        importer.import_archive(
+            archive_path=tmp_path / "archive/no_dunder.zip", args=args, config=config
+        )
+    with pytest.raises(errors.StudyImportError):
         (tmp_path / "archive/empty.zip")
         importer.import_archive(
             archive_path=tmp_path / "archive/empty.zip", args=args, config=config

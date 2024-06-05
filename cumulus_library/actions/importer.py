@@ -1,4 +1,5 @@
 import pathlib
+import tempfile
 import zipfile
 
 import pandas
@@ -10,7 +11,9 @@ from cumulus_library.template_sql import base_templates
 
 def create_table_from_parquet(archive, file, study_name, db, schema):
     try:
-        parquet_path = pathlib.Path(archive.extract(file))
+        parquet_path = pathlib.Path(
+            archive.extract(file), path=tempfile.TemporaryFile()
+        )
         table_types = pandas.read_parquet(parquet_path).dtypes
         remote_types = db.col_parquet_types_from_pandas(table_types.values)
         s3_path = db.upload_file(
@@ -52,6 +55,10 @@ def import_archive(
     if len(files) == 0:
         raise errors.StudyImportError(
             f"File {archive_path} does not contain any tables."
+        )
+    if not any("__" in file for file in files):
+        raise errors.StudyImportError(
+            f"File {archive_path} contains non-study parquet files."
         )
     study_name = files[0].split("__")[0]
     for file in files[1:]:

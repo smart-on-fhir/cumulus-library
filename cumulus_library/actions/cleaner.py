@@ -2,7 +2,7 @@ import sys
 
 from rich.progress import Progress, TaskID
 
-from cumulus_library import base_utils, databases, enums, study_parser
+from cumulus_library import base_utils, databases, enums, errors, study_parser
 from cumulus_library.template_sql import base_templates
 
 
@@ -85,14 +85,21 @@ def clean_study(
 ) -> list:
     """Removes tables beginning with the study prefix from the database schema
 
+    :param manifest_parser: a StudyManifestParser for the study
     :param cursor: A DatabaseCursor object
     :param schema_name: The name of the schema containing the study tables
-    :verbose: toggle from progress bar to query output, optional
+    :keyword verbose: toggle from progress bar to query output, optional
+    :keyword stats_clean: will delete stats tables created from random sampling
+    :keyword prefix: override manifest-based prefix discovery with the provided prefix
     :returns: list of dropped tables (for unit testing only)
-    :prefix: override prefix discovery with the provided prefix
+
     """
     if not schema_name:
-        raise ValueError("No database provided")
+        raise errors.CumulusLibraryError("No database provided")
+    if not prefix and not manifest_parser:
+        raise errors.CumulusLibraryError(
+            "Either a manifest parser or a filter prefix must be provided"
+        )
     if not prefix:
         drop_prefix = f"{manifest_parser.get_study_prefix()}__"
         display_prefix = manifest_parser.get_study_prefix()

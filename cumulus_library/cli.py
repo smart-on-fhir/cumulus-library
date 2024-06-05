@@ -379,7 +379,7 @@ def run_cli(args: dict):
             force_upload=args.get("replace_existing", False),
             stats_build=args.get("stats_build", False),
             umls_key=args.get("umls_key"),
-            custom_args=args.get("custom_args"),
+            options=args.get("options"),
         )
         try:
             runner = StudyRunner(config.db, data_path=args.get("data_path"))
@@ -460,6 +460,8 @@ def run_cli(args: dict):
                     runner.generate_study_markdown(study_dict[target])
         finally:
             config.db.close()
+        # For unit testing only
+        return config
 
 
 def main(cli_args=None):
@@ -514,19 +516,17 @@ def main(cli_args=None):
         console = rich.console.Console()
         console.print(table)
 
-    if arglist := args.get("custom_args"):
-        custom_args = {}
+    if arglist := args.get("options", []):
+        options = {}
         for c_arg in arglist:
-            c_arg = c_arg.split(":")
-            if len(c_arg) != 2:
+            c_arg = c_arg.split(":", 2)
+            if len(c_arg) == 1:
                 sys.exit(
                     f"Custom argument '{c_arg}' is not validly formatted.\n"
                     "Custom arguments should be of the form 'argname:value'."
                 )
-            custom_args[c_arg[0]] = c_arg[1]
-        args["custom_args"] = custom_args
-    else:
-        args["custom_args"] = {}
+            options[c_arg[0]] = c_arg[1]
+        args["options"] = options
 
     if args.get("data_path"):
         args["data_path"] = get_abs_path(args["data_path"])

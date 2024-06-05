@@ -21,14 +21,14 @@ def add_aws_config(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def add_custom_argument(parser: argparse.ArgumentParser) -> None:
+def add_custom_option(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
-        "-c",
-        "--custom-arg",
+        "-o",
+        "--option",
         action="append",
-        dest="custom_args",
+        dest="options",
         help=(
-            'Add a study-specific argument, as "arg:value". '
+            'Add a study-specific option, as "arg:value". '
             "See individual study documentation for possible argument names"
         ),
     )
@@ -163,7 +163,7 @@ following order of preference is used to select credentials:
         "clean", help="Removes tables & views beginning with '[target]__' from Athena"
     )
 
-    add_custom_argument(clean)
+    add_custom_option(clean)
     add_db_config(clean)
     add_target_argument(clean)
     add_study_dir_argument(clean)
@@ -187,7 +187,7 @@ following order of preference is used to select credentials:
         "build",
         help="Removes and recreates Athena tables & views for specified studies",
     )
-    add_custom_argument(build)
+    add_custom_option(build)
     add_data_path_argument(build)
     add_db_config(build, input_mode=True)
     add_study_dir_argument(build)
@@ -224,7 +224,7 @@ following order of preference is used to select credentials:
     export = actions.add_parser(
         "export", help="Generates files on disk from Athena tables/views"
     )
-    add_custom_argument(export)
+    add_custom_option(export)
     add_target_argument(export)
     add_study_dir_argument(export)
     add_data_path_argument(export)
@@ -283,7 +283,7 @@ following order of preference is used to select credentials:
     sql = actions.add_parser(
         "generate-sql", help="Generates a study's template-driven sql for reference"
     )
-    add_custom_argument(sql)
+    add_custom_option(sql)
     add_db_config(sql, input_mode=True)
     add_table_builder_argument(sql)
     add_target_argument(sql)
