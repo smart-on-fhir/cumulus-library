@@ -21,6 +21,7 @@ from typing import Any, Protocol
 import boto3
 import cumulus_fhir_support
 import duckdb
+import numpy
 import pandas
 import pyarrow
 import pyathena
@@ -168,6 +169,37 @@ class DatabaseBackend(abc.ABC):
         """
         return ()
 
+    def col_parquet_types_from_pandas(self, field_types: list) -> list:
+        """Returns appropriate types for creating tables based from parquet.
+
+        By default, returns the input (which assumes that the DB infers directly
+        from parquet data types). Only override if your DB uses an explicit SerDe
+        format, or otherwise needs a modified typing to inject directly into a query."""
+
+        # The following example shows the types we're expecting to catch with this
+        # approach and the rough type to cast them to.
+        # TODO: consider handling complex types.
+        # output = []
+        # for field in field_types:
+        #     match field:
+        #         case numpy.dtypes.ObjectDType():
+        #             output.append('string')
+        #         case pandas.core.arrays.integer.Int64Dtype():
+        #             output.append('int')
+        #         case numpy.dtypes.Float64DType():
+        #             output.append('float')
+        #         case numpy.dtypes.BoolDType():
+        #             output.append('bool')
+        #         case numpy.dtypes.DateTime64DType():
+        #             output.append('date')
+        #         case _:
+        #             raise errors.CumulusLibraryError(
+        #                 f"Unsupported type {type(field)} found."
+        #             )
+        # return output
+
+        return field_types
+
     def upload_file(
         self,
         *,
@@ -233,6 +265,26 @@ class AthenaDatabaseBackend(DatabaseBackend):
 
     def operational_errors(self) -> tuple[Exception]:
         return (pyathena.OperationalError,)
+
+    def col_parquet_types_from_pandas(self, field_types: list) -> list:
+        output = []
+        for field in field_types:
+            match field:
+                case numpy.dtypes.ObjectDType():
+                    output.append("STRING")
+                case pandas.core.arrays.integer.Int64Dtype():
+                    output.append("INT")
+                case numpy.dtypes.Float64DType():
+                    output.append("DOUBLE")
+                case numpy.dtypes.BoolDType():
+                    output.append("BOOLEAN")
+                case numpy.dtypes.DateTime64DType():
+                    output.append("TIMESTAMP")
+                case _:
+                    raise errors.CumulusLibraryError(
+                        f"Unsupported type {type(field)} found."
+                    )
+        return output
 
     def upload_file(
         self,

@@ -37,6 +37,7 @@ class StudyConfig:
     force_upload: bool = False
     stats_build: bool = False
     umls_key: str | None = None
+    custom_args: dict | None = None
 
 
 def load_text(path: str) -> str:

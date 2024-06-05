@@ -76,7 +76,7 @@ def get_unprotected_stats_view_table(
 
 
 def clean_study(
-    manifest_parser: study_parser.StudyManifestParser,
+    manifest_parser: study_parser.StudyManifestParser | None,
     cursor: databases.DatabaseCursor,
     schema_name: str,
     stats_clean: bool = False,
