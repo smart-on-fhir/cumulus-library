@@ -20,7 +20,14 @@ from cumulus_library import (
     protected_table_builder,
     study_parser,
 )
-from cumulus_library.actions import builder, cleaner, exporter, file_generator, uploader
+from cumulus_library.actions import (
+    builder,
+    cleaner,
+    exporter,
+    file_generator,
+    importer,
+    uploader,
+)
 from cumulus_library.template_sql import base_templates
 
 
@@ -372,6 +379,7 @@ def run_cli(args: dict):
             force_upload=args.get("replace_existing", False),
             stats_build=args.get("stats_build", False),
             umls_key=args.get("umls_key"),
+            options=args.get("options"),
         )
         try:
             runner = StudyRunner(config.db, data_path=args.get("data_path"))
@@ -381,7 +389,7 @@ def run_cli(args: dict):
             runner.cursor.execute("SHOW DATABASES")
             study_dict = get_study_dict(args["study_dir"])
             if "prefix" not in args.keys():
-                if args["target"]:
+                if args.get("target"):
                     for target in args["target"]:
                         if target not in study_dict:
                             sys.exit(
@@ -436,6 +444,11 @@ def run_cli(args: dict):
                             study_dict[target], args["data_path"], args["archive"]
                         )
 
+            elif args["action"] == "import":
+                for archive in args["archive_path"]:
+                    archive = get_abs_path(archive)
+                    importer.import_archive(config, archive, args)
+
             elif args["action"] == "generate-sql":
                 for target in args["target"]:
                     runner.generate_study_sql(
@@ -447,6 +460,8 @@ def run_cli(args: dict):
                     runner.generate_study_markdown(study_dict[target])
         finally:
             config.db.close()
+        # For unit testing only
+        return config
 
 
 def main(cli_args=None):
@@ -501,14 +516,27 @@ def main(cli_args=None):
         console = rich.console.Console()
         console.print(table)
 
+    if arglist := args.get("options", []):
+        options = {}
+        for c_arg in arglist:
+            c_arg = c_arg.split(":", 2)
+            if len(c_arg) == 1:
+                sys.exit(
+                    f"Custom argument '{c_arg}' is not validly formatted.\n"
+                    "Custom arguments should be of the form 'argname:value'."
+                )
+            options[c_arg[0]] = c_arg[1]
+        args["options"] = options
+
+    if args.get("data_path"):
+        args["data_path"] = get_abs_path(args["data_path"])
+
     if args.get("study_dir"):
         posix_paths = []
         for path in args["study_dir"]:
             posix_paths.append(get_abs_path(path))
         args["study_dir"] = posix_paths
 
-    if args.get("data_path"):
-        args["data_path"] = get_abs_path(args["data_path"])
     return run_cli(args)
 
 

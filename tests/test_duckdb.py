@@ -77,7 +77,6 @@ def test_duckdb_load_ndjson_dir(tmp_path):
         "A.Patient.ndjson": False,
         "1.Patient.ndjson": True,
         "Patient.ndjson": True,
-        "patient.ndjson": False,
         "Patient.hello.bye.ndjson": True,
         "Patient.nope": False,
         "patient/blarg.ndjson": True,

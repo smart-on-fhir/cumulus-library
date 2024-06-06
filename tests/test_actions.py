@@ -1,16 +1,27 @@
 import builtins
+import datetime
 import pathlib
 import shutil
+import zipfile
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest import mock
 
+import pandas
 import pytest
 import requests
 import responses
+from freezegun import freeze_time
 
 from cumulus_library import base_utils, enums, errors, study_parser
-from cumulus_library.actions import builder, cleaner, exporter, file_generator, uploader
+from cumulus_library.actions import (
+    builder,
+    cleaner,
+    exporter,
+    file_generator,
+    importer,
+    uploader,
+)
 
 
 @pytest.mark.parametrize(
@@ -291,6 +302,65 @@ def test_export_study(tmp_path, mock_db_core):
     exporter.export_study(parser, mock_db_core, None, f"{tmp_path}/export", False)
     for file in Path(f"{tmp_path}/export").glob("*.*"):
         assert file in parser.get_export_table_list()
+
+
+@freeze_time("2024-01-01")
+def test_import_study(tmp_path, mock_db):
+    test_data = {
+        "string": ["a", "b", None],
+        "int": [1, 2, pandas.NA],
+        "float": [1.1, 2.2, pandas.NA],
+        "bool": [True, False, pandas.NA],
+        "datetime": [datetime.datetime.now(), datetime.datetime.now(), None],
+    }
+    df = pandas.DataFrame(test_data)
+    (tmp_path / "archive").mkdir()
+    df.to_parquet(tmp_path / "archive/test__table.parquet")
+    df.to_csv(tmp_path / "archive/test__table.csv")
+    with zipfile.ZipFile(tmp_path / "archive/test.zip", "w") as archive:
+        archive.write(tmp_path / "archive/test__table.parquet")
+        archive.write(tmp_path / "archive/test__table.csv")
+    (tmp_path / "archive/test__table.parquet").unlink()
+    (tmp_path / "archive/test__table.csv").unlink()
+    args = {"schema_name": "main", "verbose": False}
+    config = base_utils.StudyConfig(db=mock_db)
+    importer.import_archive(
+        archive_path=tmp_path / "archive/test.zip", args=args, config=config
+    )
+    assert len(list((tmp_path / "archive").glob("*"))) == 1
+    test_table = mock_db.cursor().execute("SELECT * FROM test__table").fetchall()
+    assert test_table == [
+        ("a", 1, 1.1, True, datetime.datetime(2024, 1, 1, 0, 0)),
+        ("b", 2, 2.2, False, datetime.datetime(2024, 1, 1, 0, 0)),
+        (None, None, None, None, None),
+    ]
+    with pytest.raises(errors.StudyImportError):
+        importer.import_archive(
+            archive_path=tmp_path / "archive/missing.zip", args=args, config=config
+        )
+    with pytest.raises(errors.StudyImportError):
+        importer.import_archive(
+            archive_path=tmp_path / "duck.db", args=args, config=config
+        )
+    with pytest.raises(errors.StudyImportError):
+        df.to_parquet(tmp_path / "archive/other_test__table.parquet")
+        with zipfile.ZipFile(tmp_path / "archive/test.zip", "w") as archive:
+            archive.write(tmp_path / "archive/other_test__table.parquet")
+        importer.import_archive(
+            archive_path=tmp_path / "duck.db", args=args, config=config
+        )
+    with pytest.raises(errors.StudyImportError):
+        df.to_parquet(tmp_path / "archive/table.parquet")
+        with zipfile.ZipFile(tmp_path / "archive/no_dunder.zip", "w") as archive:
+            archive.write(tmp_path / "archive/table.parquet")
+        importer.import_archive(
+            archive_path=tmp_path / "archive/no_dunder.zip", args=args, config=config
+        )
+    with pytest.raises(errors.StudyImportError):
+        (tmp_path / "archive/empty.zip")
+        importer.import_archive(
+            archive_path=tmp_path / "archive/empty.zip", args=args, config=config
+        )
 
 
 @pytest.mark.parametrize(

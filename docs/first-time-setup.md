@@ -38,8 +38,11 @@ authoring queries (more information on this in
 `.parquet` file. The former is intended for human review, while the latter is
 more compressed and should be preferred (if supported) for use when
 loading data into analytics packages.
+- `import` will re-insert a previously exported study into the database
 - `upload` will send data you exported to the
 [Cumulus Aggregator](https://docs.smarthealthit.org/cumulus/aggregator/)
+- `generate-sql` and `generate-md` both create documentation artifacts, for
+users authoring studies
 
 By default, all available studies will be used by build and export, but you can use
 or `--target` to specify a specific study to be run. You can use it multiple

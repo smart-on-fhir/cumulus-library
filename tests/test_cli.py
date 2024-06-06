@@ -575,3 +575,32 @@ def test_cli_finds_study_from_manifest_prefix(tmp_path):
     db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
     tables = {x[0] for x in db.cursor().execute("show tables").fetchall()}
     assert "study_different_name__table" in tables
+
+
+@mock.patch.dict(os.environ, clear=True)
+@pytest.mark.parametrize(
+    "option,raises",
+    [
+        ("foo:bar", does_not_raise()),
+        ("foo", pytest.raises(SystemExit)),
+    ],
+)
+@mock.patch("cumulus_library.base_utils.StudyConfig")
+def test_cli_custom_args(mock_config, tmp_path, option, raises):
+    with raises:
+        cli.main(
+            cli_args=duckdb_args(
+                [
+                    "build",
+                    "-t",
+                    "study_valid",
+                    "-s",
+                    f"{Path(__file__).resolve().parents[0]}/test_data/study_valid",
+                    "-o",
+                    option,
+                ],
+                tmp_path,
+            )
+        )
+        called_options = mock_config.call_args[1]["options"]
+        assert called_options[option.split(":")[0]] == option.split(":")[1]
