@@ -14,6 +14,9 @@ def create_table_from_parquet(archive, file, study_name, db, schema):
         parquet_path = pathlib.Path(
             archive.extract(file), path=tempfile.TemporaryFile()
         )
+        # While convenient to access, this exposes us to panda's type system,
+        # which is messy - this could be optionally be replaced by pyarrow if it
+        # becomes problematic.
         table_types = pandas.read_parquet(parquet_path).dtypes
         remote_types = db.col_parquet_types_from_pandas(table_types.values)
         s3_path = db.upload_file(
