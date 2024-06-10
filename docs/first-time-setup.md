@@ -28,9 +28,6 @@ You can install directly from pypi by running:
 Installing adds a `cumulus-library` command for interacting with Athena.
 It provides several actions for users:
 
-- `create` will create a manifest file for you so you can start working on
-authoring queries (more information on this in 
-[Creating studies](./creating-studies.md)).
 - `build` will create new study tables, replacing previously created versions
 (more information on this in [Creating studies](./creating-studies.md)).
 - `clean` will remove studies from Athena, in case you no longer need them

@@ -14,6 +14,7 @@ from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest import mock
 
+import pandas
 import pytest
 import responses
 import toml
@@ -80,6 +81,16 @@ def test_cli_early_exit(args):
             does_not_raise(),
             "study_python_valid__table",
         ),
+        (
+            ["build", "-t", "study_python_valid", "--continue", "module2"],
+            does_not_raise(),
+            "study_python_valid__table_2",
+        ),
+        (
+            ["build", "-t", "study_bad_manifest"],
+            pytest.raises(errors.StudyManifestParsingError),
+            "study_python_valid__table_2",
+        ),
         (["build", "-t", "wrong"], pytest.raises(SystemExit), None),
         (
             [
@@ -103,6 +114,7 @@ def test_cli_path_mapping(mock_load_json, mock_path, tmp_path, args, raises, exp
             "__desc__": "",
             "allowlist": {
                 "study_python_valid": "study_python_valid",
+                "study_bad_manifest": "study_bad_manifest",
             },
         }
         args = duckdb_args(args, tmp_path)
@@ -223,7 +235,7 @@ def test_generate_md(mock_path, tmp_path):
 )
 @mock.patch("sysconfig.get_path")
 @pytest.mark.parametrize(
-    "args,expected",
+    "args,expected,raises",
     [
         (
             [
@@ -232,6 +244,7 @@ def test_generate_md(mock_path, tmp_path):
                 "core",
             ],
             "core__",
+            does_not_raise(),
         ),
         (
             [
@@ -241,6 +254,7 @@ def test_generate_md(mock_path, tmp_path):
                 "foo",
             ],
             "foo",
+            does_not_raise(),
         ),
         (
             [
@@ -250,18 +264,27 @@ def test_generate_md(mock_path, tmp_path):
                 "--statistics",
             ],
             "core__",
+            does_not_raise(),
+        ),
+        (
+            [
+                "clean",
+            ],
+            "core__",
+            pytest.raises(SystemExit),
         ),
     ],
 )
-def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-argument
-    mock_path.return_value = f"{Path(__file__).resolve().parents[0]}/test_data/"
-    cli.main(cli_args=duckdb_args(["build", "-t", "core"], tmp_path))
-    with does_not_raise():
-        with mock.patch.object(builtins, "input", lambda _: "y"):
-            cli.main(cli_args=duckdb_args(args, tmp_path))
-            db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
-            for table in db.cursor().execute("show tables").fetchall():
-                assert expected not in table
+def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=unused-argument
+    with raises:
+        mock_path.return_value = f"{Path(__file__).resolve().parents[0]}/test_data/"
+        cli.main(cli_args=duckdb_args(["build", "-t", "core"], tmp_path))
+        with does_not_raise():
+            with mock.patch.object(builtins, "input", lambda _: "y"):
+                cli.main(cli_args=duckdb_args(args, tmp_path))
+                db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+                for table in db.cursor().execute("show tables").fetchall():
+                    assert expected not in table
 
 
 @mock.patch.dict(
@@ -269,9 +292,14 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
     clear=True,
 )
 @pytest.mark.parametrize(
-    "build_args,export_args,expected_tables",
+    "build_args,export_args,expected_tables,raises",
     [
-        (["build", "-t", "core"], ["export", "-t", "core"], 59),
+        (
+            ["build", "-t", "core"],
+            ["export", "-t", "core"],
+            59,
+            does_not_raise(),
+        ),
         (
             # checking that a study is loaded from a child directory
             # of a user-defined path
@@ -284,8 +312,23 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
             2,
+            does_not_raise(),
         ),
-        (["build", "-t", "vocab"], None, 3),
+        (
+            # checking that a study is loaded from a child directory
+            # of a user-defined path
+            [
+                "build",
+                "-t",
+                "study_valid",
+                "-s",
+                "tests/test_data/",
+            ],
+            ["export", "-t", "study_valid", "-s", "tests/test_data/"],
+            2,
+            does_not_raise(),
+        ),
+        (["build", "-t", "vocab"], None, 3, does_not_raise()),
         (
             # checking that a study is loaded from the directory of a user-defined
             # path. we're also validating that the CLI accepts the statistics keyword
@@ -299,11 +342,27 @@ def test_clean(mock_path, tmp_path, args, expected):  # pylint: disable=unused-a
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
             2,
+            does_not_raise(),
+        ),
+        (
+            [
+                "build",
+                "-t",
+                "study_valid",
+                "-s",
+                "tests/test_data/study_valid/",
+                "--statistics",
+            ],
+            ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
+            2,
+            does_not_raise(),
         ),
     ],
 )
-def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables):
-    with does_not_raise():
+def test_cli_executes_queries(
+    tmp_path, build_args, export_args, expected_tables, raises
+):
+    with raises:
         build_args = duckdb_args(build_args, tmp_path)
         cli.main(cli_args=build_args)
         if export_args is not None:
@@ -604,3 +663,28 @@ def test_cli_custom_args(mock_config, tmp_path, option, raises):
         )
         called_options = mock_config.call_args[1]["options"]
         assert called_options[option.split(":")[0]] == option.split(":")[1]
+
+
+@mock.patch.dict(os.environ, clear=True)
+def test_cli_import_study(tmp_path):
+    test_data = {"string": ["a", "b", None]}
+    df = pandas.DataFrame(test_data)
+    (tmp_path / "archive").mkdir()
+    df.to_parquet(tmp_path / "archive/test__table.parquet")
+    df.to_csv(tmp_path / "archive/test__table.csv")
+    with zipfile.ZipFile(tmp_path / "archive/test.zip", "w") as archive:
+        archive.write(tmp_path / "archive/test__table.parquet")
+        archive.write(tmp_path / "archive/test__table.csv")
+    (tmp_path / "archive/test__table.parquet").unlink()
+    (tmp_path / "archive/test__table.csv").unlink()
+
+    cli.main(
+        cli_args=duckdb_args(
+            [
+                "import",
+                "-a",
+                str(tmp_path / "archive/test.zip"),
+            ],
+            tmp_path,
+        )
+    )

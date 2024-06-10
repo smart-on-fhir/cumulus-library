@@ -17,3 +17,10 @@
 |test  |INTEGER|           |
 
 
+### study_python_valid__table_2
+
+|Column| Type  |Description|
+|------|-------|-----------|
+|test  |INTEGER|           |
+
+

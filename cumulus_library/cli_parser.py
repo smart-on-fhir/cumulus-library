@@ -12,6 +12,7 @@ def add_aws_config(parser: argparse.ArgumentParser) -> None:
     aws.add_argument(
         "--workgroup",
         default="cumulus",
+        dest="work_group",
         help="Cumulus Athena workgroup (default: cumulus)",
     )
     aws.add_argument(

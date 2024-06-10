@@ -9,6 +9,7 @@ output.sql
 *generated.md
 MRCONSO.RRF
 *.zip
+coverage.xml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

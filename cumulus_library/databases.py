@@ -9,6 +9,7 @@ wrapper method in one of DatabaseCursor or DatabaseBackend.
 """
 
 import abc
+import collections
 import datetime
 import json
 import os
@@ -35,16 +36,16 @@ class DatabaseCursor(Protocol):
     """Protocol for a PEP-249 compatible cursor"""
 
     def execute(self, sql: str) -> None:
-        pass
+        pass  # pragma: no cover
 
     def fetchone(self) -> list | None:
-        pass
+        pass  # pragma: no cover
 
     def fetchmany(self, size: int | None) -> list[list] | None:
-        pass
+        pass  # pragma: no cover
 
     def fetchall(self) -> list[list] | None:
-        pass
+        pass  # pragma: no cover
 
 
 class DatabaseParser(abc.ABC):
@@ -151,7 +152,9 @@ class DatabaseBackend(abc.ABC):
         """
 
     @abc.abstractmethod
-    def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
+    def execute_as_pandas(
+        self, sql: str, chunksize: int | None = None
+    ) -> (pandas.DataFrame | collections.abc.Iterator[pandas.DataFrame], list[tuple]):
         """Returns a pandas.DataFrame version of the results from the provided SQL"""
 
     @abc.abstractmethod
@@ -172,7 +175,7 @@ class DatabaseBackend(abc.ABC):
     def col_parquet_types_from_pandas(self, field_types: list) -> list:
         """Returns appropriate types for creating tables based from parquet.
 
-        By default, returns the input (which assumes that the DB infers directly
+        By default, returns an empty list (which assumes that the DB infers directly
         from parquet data types). Only override if your DB uses an explicit SerDe
         format, or otherwise needs a modified typing to inject directly into a query."""
 
@@ -196,9 +199,10 @@ class DatabaseBackend(abc.ABC):
         #             raise errors.CumulusLibraryError(
         #                 f"Unsupported type {type(field)} found."
         #             )
-        # return output
+        return []
 
-        return field_types
+    def col_pyarrow_types_from_sql(self, columns: list[tuple]) -> list:
+        return columns
 
     def upload_file(
         self,
@@ -257,14 +261,17 @@ class AthenaDatabaseBackend(DatabaseBackend):
     def pandas_cursor(self) -> AthenaPandasCursor:
         return self.connection.cursor(cursor=AthenaPandasCursor)
 
-    def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
-        return self.pandas_cursor().execute(sql).as_pandas()
+    def execute_as_pandas(
+        self, sql: str, chunksize: int | None = None
+    ) -> (pandas.DataFrame | collections.abc.Iterator[pandas.DataFrame], list[tuple]):
+        query = self.pandas_cursor().execute(sql, chunksize=chunksize)
+        return query.as_pandas(), query.description
 
     def parser(self) -> DatabaseParser:
         return AthenaParser()
 
     def operational_errors(self) -> tuple[Exception]:
-        return (pyathena.OperationalError,)
+        return (pyathena.OperationalError,)  # pragma: no cover
 
     def col_parquet_types_from_pandas(self, field_types: list) -> list:
         output = []
@@ -272,7 +279,10 @@ class AthenaDatabaseBackend(DatabaseBackend):
             match field:
                 case numpy.dtypes.ObjectDType():
                     output.append("STRING")
-                case pandas.core.arrays.integer.Int64Dtype():
+                case (
+                    pandas.core.arrays.integer.Int64Dtype()
+                    | numpy.dtypes.Int64DType()
+                ):
                     output.append("INT")
                 case numpy.dtypes.Float64DType():
                     output.append("DOUBLE")
@@ -282,7 +292,31 @@ class AthenaDatabaseBackend(DatabaseBackend):
                     output.append("TIMESTAMP")
                 case _:
                     raise errors.CumulusLibraryError(
-                        f"Unsupported type {type(field)} found."
+                        f"Unsupported pandas type {type(field)} found."
+                    )
+        return output
+
+    def col_pyarrow_types_from_sql(self, columns: list[tuple]) -> list:
+        output = []
+        for column in columns:
+            match column[1]:
+                case "varchar":
+                    output.append((column[0], pyarrow.string()))
+                case "bigint":
+                    output.append((column[0], pyarrow.int64()))
+                case "integer":
+                    output.append((column[0], pyarrow.int64()))
+                case "double":
+                    output.append((column[0], pyarrow.float64()))
+                case "boolean":
+                    output.append((column[0], pyarrow.bool_()))
+                case "date":
+                    output.append((column[0], pyarrow.date64()))
+                case "timestamp":
+                    output.append((column[0], pyarrow.timestamp("s")))
+                case _:
+                    raise errors.CumulusLibraryError(
+                        output.append(f"Unsupported SQL type '{column}' found.")
                     )
         return output
 
@@ -296,9 +330,8 @@ class AthenaDatabaseBackend(DatabaseBackend):
         force_upload=False,
     ) -> str | None:
         # We'll investigate the connection to get the relevant S3 upload path.
-        wg_conf = self.connection._client.get_work_group(WorkGroup=self.work_group)[
-            "WorkGroup"
-        ]["Configuration"]["ResultConfiguration"]
+        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
+        wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
         s3_path = wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
         key_prefix = "/".join(s3_path.split("/")[3:])
@@ -315,7 +348,7 @@ class AthenaDatabaseBackend(DatabaseBackend):
             f"{key_prefix}cumulus_user_uploads/{self.schema_name}/" f"{study}/{topic}"
         )
         if not remote_filename:
-            remote_filename = file
+            remote_filename = file.name
 
         session = boto3.Session(profile_name=self.connection.profile_name)
         s3_client = session.client("s3")
@@ -337,7 +370,7 @@ class AthenaDatabaseBackend(DatabaseBackend):
         return f"s3://{bucket}/{s3_key}"
 
     def close(self) -> None:
-        return self.connection.close()
+        return self.connection.close()  # pragma: no cover
 
 
 class AthenaParser(DatabaseParser):
@@ -525,18 +558,47 @@ class DuckDatabaseBackend(DatabaseBackend):
         # Since this is not provided, return the vanilla cursor
         return self.connection
 
-    def execute_as_pandas(self, sql: str) -> pandas.DataFrame:
+    def execute_as_pandas(
+        self, sql: str, chunksize: int | None = None
+    ) -> (pandas.DataFrame | collections.abc.Iterator[pandas.DataFrame], list[tuple]):
         # We call convert_dtypes here in case there are integer columns.
         # Pandas will normally cast nullable-int as a float type unless
         # we call this to convert to its nullable int column type.
         # PyAthena seems to do this correctly for us, but not DuckDB.
-        return self.connection.execute(sql).df().convert_dtypes()
+        result = self.connection.execute(sql)
+        if chunksize:
+            return iter([result.df().convert_dtypes()]), result.description
+        return result.df().convert_dtypes(), result.description
+
+    def col_pyarrow_types_from_sql(self, columns: list[tuple]) -> list:
+        output = []
+        for column in columns:
+            match column[1]:
+                case "STRING":
+                    output.append((column[0], pyarrow.string()))
+                case "INTEGER":
+                    output.append((column[0], pyarrow.int64()))
+                case "NUMBER":
+                    output.append((column[0], pyarrow.float64()))
+                case "DOUBLE":
+                    output.append((column[0], pyarrow.float64()))
+                case "boolean" | "bool":
+                    output.append((column[0], pyarrow.bool_()))
+                case "Date":
+                    output.append((column[0], pyarrow.date64()))
+                case "TIMESTAMP" | "DATETIME":
+                    output.append((column[0], pyarrow.timestamp("s")))
+                case _:
+                    raise errors.CumulusLibraryError(
+                        f"{column[0],column[1]} does not have a conversion type"
+                    )
+        return output
 
     def parser(self) -> DatabaseParser:
         return DuckDbParser()
 
     def operational_errors(self) -> tuple[Exception]:
-        return (duckdb.OperationalError,)
+        return (duckdb.OperationalError,)  # pragma: no cover
 
     def close(self) -> None:
         self.connection.close()
@@ -652,23 +714,25 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
 
 def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
     db_config.db_type = args["db_type"]
-    database = args["schema_name"]
+    schema = args["schema_name"]
     load_ndjson_dir = args.get("load_ndjson_dir")
 
     if db_config.db_type == "duckdb":
-        backend = DuckDatabaseBackend(database)  # `database` is path name in this case
+        backend = DuckDatabaseBackend(schema)  # `database` is path name in this case
         if load_ndjson_dir:
             backend.insert_tables(read_ndjson_dir(load_ndjson_dir))
     elif db_config.db_type == "athena":
         backend = AthenaDatabaseBackend(
             args["region"],
-            args["workgroup"],
+            args["work_group"],
             args["profile"],
-            database,
+            schema,
         )
         if load_ndjson_dir:
             sys.exit("Loading an ndjson dir is not supported with --db-type=athena.")
     else:
-        raise ValueError(f"Unexpected --db-type value '{db_config.db_type}'")
+        raise errors.CumulusLibraryError(
+            f"'{db_config.db_type}' is not a supported database."
+        )
 
     return backend
