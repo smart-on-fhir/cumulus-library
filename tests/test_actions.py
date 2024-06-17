@@ -299,7 +299,9 @@ def test_export_study(tmp_path, mock_db_core):
         f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
         data_path=f"{tmp_path}/export",
     )
-    exporter.export_study(parser, mock_db_core, None, f"{tmp_path}/export", False)
+    exporter.export_study(
+        parser, mock_db_core, None, f"{tmp_path}/export", False, chunksize=20
+    )
     for file in Path(f"{tmp_path}/export").glob("*.*"):
         assert file in parser.get_export_table_list()
 

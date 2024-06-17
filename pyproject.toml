@@ -38,6 +38,7 @@ dev = [
 test = [
     "freezegun",
     "pytest",
+    "pytest-cov",
     "responses"
 ]
 

@@ -1,6 +1,7 @@
-import csv
 import pathlib
 
+import pyarrow
+from pyarrow import csv, parquet
 from rich.progress import track
 
 from cumulus_library import base_utils, databases, study_parser
@@ -25,12 +26,25 @@ def reset_counts_exports(
             file.unlink()
 
 
+def _write_chunk(writer, chunk, schema):
+    writer.write(
+        pyarrow.Table.from_pandas(
+            chunk.sort_values(
+                by=list(chunk.columns), ascending=False, na_position="first"
+            ),
+            preserve_index=False,
+            schema=schema,
+        )
+    )
+
+
 def export_study(
     manifest_parser: study_parser.StudyManifestParser,
     db: databases.DatabaseBackend,
     schema_name: str,
     data_path: pathlib.Path,
     archive: bool,
+    chunksize: int = 1000000,
 ) -> list:
     """Exports csvs/parquet extracts of tables listed in export_list
     :param db: A database backend
@@ -56,13 +70,22 @@ def export_study(
         description=f"Exporting {manifest_parser.get_study_prefix()} data...",
     ):
         query = f"SELECT * FROM {table}"
-        dataframe = db.execute_as_pandas(query)
+        dataframe_chunks, db_schema = db.execute_as_pandas(query, chunksize=chunksize)
         path.mkdir(parents=True, exist_ok=True)
-        dataframe = dataframe.sort_values(
-            by=list(dataframe.columns), ascending=False, na_position="first"
-        )
-        dataframe.to_csv(f"{path}/{table}.csv", index=False, quoting=csv.QUOTE_MINIMAL)
-        dataframe.to_parquet(f"{path}/{table}.parquet", index=False)
+        schema = pyarrow.schema(db.col_pyarrow_types_from_sql(db_schema))
+        with parquet.ParquetWriter(f"{path}/{table}.parquet", schema) as p_writer:
+            with csv.CSVWriter(
+                f"{path}/{table}.csv",
+                schema,
+                write_options=csv.WriteOptions(
+                    # Note that this quoting style is not exactly csv.QUOTE_MINIMAL
+                    # https://github.com/apache/arrow/issues/42032
+                    quoting_style="needed"
+                ),
+            ) as c_writer:
+                for chunk in dataframe_chunks:
+                    _write_chunk(p_writer, chunk, schema)  # pragma: no cover
+                    _write_chunk(c_writer, chunk, schema)  # pragma: no cover
         queries.append(queries)
     if archive:
         base_utils.zip_dir(path, data_path, manifest_parser.get_study_prefix())

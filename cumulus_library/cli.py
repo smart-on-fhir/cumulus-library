@@ -82,11 +82,12 @@ class StudyRunner:
         :param stats_clean: If true, removes previous stats runs
         :keyword prefix: If True, does a search by string prefix in place of study name
         """
-        if targets is None or targets == ["all"]:
+        if targets is None:
             sys.exit(
                 "Explicit targets for cleaning not provided. "
                 "Provide one or more explicit study prefixes to remove."
             )
+
         for target in targets:
             if prefix:
                 manifest_parser = study_parser.StudyManifestParser()
@@ -207,25 +208,6 @@ class StudyRunner:
             config=config,
         )
 
-    def clean_and_build_all(
-        self, study_dict: dict, config: base_utils.StudyConfig
-    ) -> None:
-        """Builds tables for all studies.
-
-        NOTE: By design, this method will always exclude the `template` study dir,
-        since 99% of the time you don't need a live copy in the database.
-
-        :param study_dict: A dict of paths
-        :param config: A StudyConfig object containing optional params
-        """
-        study_dict = dict(study_dict)
-        study_dict.pop("template")
-        for precursor_study in ["vocab", "core"]:
-            self.clean_and_build_study(study_dict[precursor_study], config=config)
-            study_dict.pop(precursor_study)
-        for key in study_dict:
-            self.clean_and_build_study(study_dict[key], config=config)
-
     ### Data exporters
     def export_study(
         self, target: pathlib.Path, data_path: pathlib.Path, archive: bool
@@ -240,11 +222,6 @@ class StudyRunner:
         exporter.export_study(
             manifest_parser, self.db, self.schema_name, data_path, archive
         )
-
-    def export_all(self, study_dict: dict, data_path: pathlib.Path, archive: bool):
-        """Exports all defined count tables to disk"""
-        for key in study_dict.keys():
-            self.export_study(study_dict[key], data_path, archive)
 
     def generate_study_sql(
         self,
@@ -296,24 +273,6 @@ def get_abs_path(path: str) -> pathlib.Path:
         return pathlib.Path(pathlib.Path.cwd(), path)
 
 
-def create_template(path: str) -> None:
-    """Creates a manifest in target dir if one doesn't exist"""
-    abs_path = get_abs_path(path)
-    manifest_path = pathlib.Path(abs_path, "manifest.toml")
-    if manifest_path.exists():
-        sys.exit(f"A manifest.toml already exists at {abs_path}, skipping creation")
-    abs_path.mkdir(parents=True, exist_ok=True)
-
-    copy_lists = [
-        ["studies/template/manifest.toml", "manifest.toml"],
-        [".sqlfluff", ".sqlfluff"],
-    ]
-    for source, dest in copy_lists:
-        source_path = pathlib.Path(pathlib.Path(__file__).resolve().parents[0], source)
-        dest_path = pathlib.Path(abs_path, dest)
-        dest_path.write_bytes(source_path.read_bytes())
-
-
 def get_study_dict(alt_dir_paths: list) -> dict[str, pathlib.Path] | None:
     """Gets valid study targets from ./studies/, and any pip installed studies
 
@@ -362,10 +321,8 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict[str, pathlib.Path]:
 def run_cli(args: dict):
     """Controls which library tasks are run based on CLI arguments"""
     console = rich.console.Console()
-    if args["action"] == "create":
-        create_template(args["create_dir"])
 
-    elif args["action"] == "upload":
+    if args["action"] == "upload":
         try:
             uploader.upload_files(args)
         except requests.RequestException as e:
@@ -387,7 +344,7 @@ def run_cli(args: dict):
                 runner.verbose = True
             console.print("[italic] Connecting to database...")
             runner.cursor.execute("SHOW DATABASES")
-            study_dict = get_study_dict(args["study_dir"])
+            study_dict = get_study_dict(args.get("study_dir"))
             if "prefix" not in args.keys():
                 if args.get("target"):
                     for target in args["target"]:
@@ -406,19 +363,16 @@ def run_cli(args: dict):
                     prefix=args["prefix"],
                 )
             elif args["action"] == "build":
-                if "all" in args["target"]:
-                    runner.clean_and_build_all(study_dict, config=config)
-                else:
-                    for target in args["target"]:
-                        if args["builder"]:
-                            runner.run_matching_table_builder(
-                                study_dict[target], args["builder"], config=config
-                            )
-                        else:
-                            runner.clean_and_build_study(
-                                study_dict[target],
-                                config=config,
-                            )
+                for target in args["target"]:
+                    if args["builder"]:
+                        runner.run_matching_table_builder(
+                            study_dict[target], args["builder"], config=config
+                        )
+                    else:
+                        runner.clean_and_build_study(
+                            study_dict[target],
+                            config=config,
+                        )
 
             elif args["action"] == "export":
                 if args["archive"]:
@@ -429,20 +383,17 @@ def run_cli(args: dict):
                         "set[/italic], primarily dates, on a per patient level.\n\n"
                         "[bold]By doing this, you are assuming the responsibility for "
                         "meeting your organization's security requirements for "
-                        "storing this data in a secure manager.[/bold]\n\n"
+                        "storing this data in a secure manner.[/bold]\n\n"
                         "Type Y to proceed, or any other value to quit.\n"
                     )
                     console.print(warning_text)
                     response = input()
                     if response.lower() != "y":
                         sys.exit()
-                if "all" in args["target"]:
-                    runner.export_all(study_dict, args["data_path"], args["archive"])
-                else:
-                    for target in args["target"]:
-                        runner.export_study(
-                            study_dict[target], args["data_path"], args["archive"]
-                        )
+                for target in args["target"]:
+                    runner.export_study(
+                        study_dict[target], args["data_path"], args["archive"]
+                    )
 
             elif args["action"] == "import":
                 for archive in args["archive_path"]:
@@ -475,11 +426,6 @@ def main(cli_args=None):
     if args["action"] is None:
         parser.print_usage()
         sys.exit(1)
-    if args.get("target"):
-        for target in args["target"]:
-            if target == "all":
-                args["target"] = ["all"]
-                break
 
     arg_env_pairs = (
         ("data_path", "CUMULUS_LIBRARY_DATA_PATH"),
@@ -493,7 +439,7 @@ def main(cli_args=None):
         ("umls_key", "UMLS_API_KEY"),
         ("url", "CUMULUS_AGGREGATOR_URL"),
         ("user", "CUMULUS_AGGREGATOR_USER"),
-        ("workgroup", "CUMULUS_LIBRARY_WORKGROUP"),
+        ("work_group", "CUMULUS_LIBRARY_WORKGROUP"),
     )
     read_env_vars = []
     for pair in arg_env_pairs:
@@ -541,8 +487,8 @@ def main(cli_args=None):
 
 
 def main_cli():  # called by the generated wrapper scripts
-    main()
+    main()  # pragma: no cover
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover

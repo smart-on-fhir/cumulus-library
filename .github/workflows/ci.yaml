@@ -29,9 +29,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install ".[test]"
+      - name: Create mock AWS credentials
+        run: |
+          mkdir ~/.aws && touch ~/.aws/credentials 
+          echo -e "[test]\naws_access_key_id = test\naws_secret_access_key = test" > ~/.aws/credentials
       - name: Test with pytest
         run: |
-          python -m pytest
+          python -m pytest --cov-report xml --cov=cumulus_library tests
+      - name: Generate coverage report
+        uses: orgoro/coverage@v3.1
+        with:
+            coverageFile: coverage.xml
+            token: ${{ secrets.GITHUB_TOKEN }}
+            thresholdAll: .9
+            thresholdNew: 1
+            thresholdModified: .95
+
+
   lint:
     runs-on: ubuntu-22.04
     steps:
