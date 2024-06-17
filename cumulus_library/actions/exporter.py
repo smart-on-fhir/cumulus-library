@@ -70,11 +70,7 @@ def export_study(
         description=f"Exporting {manifest_parser.get_study_prefix()} data...",
     ):
         query = f"SELECT * FROM {table}"
-        # Note: we assume that, for duckdb, you are unlikely to be dealing with large
-        # exports, so it will ignore the chunksize parameter, as it does not provide
-        # a pandas enabled cursor.
         dataframe_chunks, db_schema = db.execute_as_pandas(query, chunksize=chunksize)
-        first_chunk = next(dataframe_chunks)
         path.mkdir(parents=True, exist_ok=True)
         schema = pyarrow.schema(db.col_pyarrow_types_from_sql(db_schema))
         with parquet.ParquetWriter(f"{path}/{table}.parquet", schema) as p_writer:
@@ -87,8 +83,6 @@ def export_study(
                     quoting_style="needed"
                 ),
             ) as c_writer:
-                _write_chunk(p_writer, first_chunk, schema)
-                _write_chunk(c_writer, first_chunk, schema)
                 for chunk in dataframe_chunks:
                     _write_chunk(p_writer, chunk, schema)  # pragma: no cover
                     _write_chunk(c_writer, chunk, schema)  # pragma: no cover

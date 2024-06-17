@@ -718,7 +718,7 @@ def create_db_backend(args: dict[str, str]) -> DatabaseBackend:
     load_ndjson_dir = args.get("load_ndjson_dir")
 
     if db_config.db_type == "duckdb":
-        backend = DuckDatabaseBackend(schema)  # `database` is path name in this case
+        backend = DuckDatabaseBackend(schema)  # `schema` is path name in this case
         if load_ndjson_dir:
             backend.insert_tables(read_ndjson_dir(load_ndjson_dir))
     elif db_config.db_type == "athena":
