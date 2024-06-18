@@ -6,7 +6,7 @@ import sys
 from abc import ABC, abstractmethod
 from typing import final
 
-from cumulus_library import base_utils
+from cumulus_library import base_utils, study_parser
 from cumulus_library.databases import DatabaseCursor
 
 
@@ -42,6 +42,7 @@ class BaseTableBuilder(ABC):
         verbose: bool,
         *args,
         drop_table: bool = False,
+        manifest: study_parser.StudyManifestParser = None,
         **kwargs,
     ):
         """Executes queries set up by a prepare_queries call
@@ -51,7 +52,7 @@ class BaseTableBuilder(ABC):
         :param verbose: toggle for verbose output mode
         :param drop_table: drops any tables found in prepared_queries results
         """
-        self.prepare_queries(cursor, schema, *args, **kwargs)
+        self.prepare_queries(cursor, schema, *args, manifest=manifest, **kwargs)
         if drop_table:
             table_names = []
             for query in self.queries:
@@ -69,6 +70,7 @@ class BaseTableBuilder(ABC):
                         )
 
                     table_name = table_name[0]
+                    # TODO: this may not be required? reinvestigate
                     # if it contains a schema, remove it (usually it won't, but some
                     # CTAS forms may)
                     if "." in table_name:
@@ -84,6 +86,12 @@ class BaseTableBuilder(ABC):
             )
             for query in self.queries:
                 try:
+                    if manifest:
+                        if manifest.get_dedicated_schema():
+                            query = query.replace(
+                                f"`{manifest.get_study_prefix()}__",
+                                "`",
+                            )
                     with base_utils.query_console_output(
                         verbose, query, progress, task
                     ):

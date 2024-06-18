@@ -11,26 +11,40 @@ from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
 
 
 @pytest.mark.parametrize(
-    "manifest_path,raises",
+    "manifest_path,expected,raises",
     [
-        ("test_data/study_valid", does_not_raise()),
-        (None, does_not_raise()),
+        (
+            "test_data/study_valid",
+            (
+                "{'study_prefix': 'study_valid', 'sql_config': {'file_names': "
+                "['test.sql', 'test2.sql']}, 'export_config': {'export_list': "
+                "['study_valid__table', 'study_valid__table2']}}"
+            ),
+            does_not_raise(),
+        ),
+        (None, "{}", does_not_raise()),
         (
             "test_data/study_missing_prefix",
+            "{}",
             pytest.raises(errors.StudyManifestParsingError),
         ),
-        ("test_data/study_wrong_type", pytest.raises(errors.StudyManifestParsingError)),
-        ("", pytest.raises(errors.StudyManifestFilesystemError)),
-        (".", pytest.raises(errors.StudyManifestFilesystemError)),
+        (
+            "test_data/study_wrong_type",
+            "{}",
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
+        ("", "{}", pytest.raises(errors.StudyManifestFilesystemError)),
+        (".", "{}", pytest.raises(errors.StudyManifestFilesystemError)),
     ],
 )
-def test_load_manifest(manifest_path, raises):
+def test_load_manifest(manifest_path, expected, raises):
     with raises:
         if manifest_path is not None:
             path = f"{pathlib.Path(__file__).resolve().parents[0]}/{manifest_path}"
         else:
             path = None
-        study_parser.StudyManifestParser(path)
+        manifest = study_parser.StudyManifestParser(path)
+        assert str(manifest) == expected
 
 
 @pytest.mark.parametrize(

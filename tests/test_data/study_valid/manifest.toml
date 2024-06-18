@@ -1,7 +1,13 @@
 study_prefix = "study_valid"
 
 [sql_config]
-file_names = ["test.sql"]
+file_names = [
+    "test.sql",
+    "test2.sql"
+]
 
 [export_config]
-export_list = ["study_valid__table"]
+export_list = [
+    "study_valid__table",
+    "study_valid__table2"
+]

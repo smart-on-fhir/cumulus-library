@@ -227,7 +227,7 @@ def test_pyarrow_types_from_sql(db, data, expected, raises):
     "args,expected_type, raises",
     [
         (
-            {**{"db_type": "duckdb", "schema_name": "test"}, **DUCKDB_KWARGS},
+            {**{"db_type": "duckdb", "schema_name": ":memory:"}, **DUCKDB_KWARGS},
             databases.DuckDatabaseBackend,
             does_not_raise(),
         ),

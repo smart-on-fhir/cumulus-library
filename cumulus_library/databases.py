@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 import boto3
+import botocore
 import cumulus_fhir_support
 import duckdb
 import numpy
@@ -220,6 +221,10 @@ class DatabaseBackend(abc.ABC):
         return None
 
     @abc.abstractmethod
+    def create_schema(self, schema_name):
+        """Creates a new schema object inside the catalog"""
+
+    @abc.abstractmethod
     def close(self) -> None:
         """Clean up any resources necessary"""
 
@@ -368,6 +373,14 @@ class AthenaDatabaseBackend(DatabaseBackend):
                 SSEKMSKeyId=kms_arn,
             )
         return f"s3://{bucket}/{s3_key}"
+
+    def create_schema(self, schema_name) -> None:
+        """Creates a new schema object inside the database"""
+        glue_client = boto3.client("glue")
+        try:
+            glue_client.get_database(Name=schema_name)
+        except botocore.exceptions.ClientError:
+            glue_client.create_database(DatabaseInput={"Name": schema_name})
 
     def close(self) -> None:
         return self.connection.close()  # pragma: no cover
@@ -599,6 +612,10 @@ class DuckDatabaseBackend(DatabaseBackend):
 
     def operational_errors(self) -> tuple[Exception]:
         return (duckdb.OperationalError,)  # pragma: no cover
+
+    def create_schema(self, schema_name):
+        """Creates a new schema object inside the database"""
+        self.connection.sql(f"CREATE SCHEMA {schema_name}")
 
     def close(self) -> None:
         self.connection.close()

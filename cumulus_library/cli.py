@@ -43,15 +43,33 @@ class StudyRunner:
         self.cursor = db.cursor()
         self.schema_name = db.schema_name
 
-    def update_transactions(self, prefix: str, status: str):
+    def get_schema(self, manifest: study_parser.StudyManifestParser):
+        if dedicated := manifest.get_dedicated_schema():
+            self.db.create_schema(dedicated)
+            return dedicated
+        return self.schema_name
+
+    def update_transactions(
+        self, manifest: study_parser.StudyManifestParser, status: str
+    ):
         """Adds a record to a study's transactions table"""
+        if manifest.get_dedicated_schema():
+            transactions = (
+                f"{manifest.get_dedicated_schema()}."
+                f"{enums.ProtectedTables.TRANSACTIONS.value}"
+            )
+        else:
+            transactions = (
+                f"{manifest.get_study_prefix()}__"
+                f"{enums.ProtectedTables.TRANSACTIONS.value}"
+            )
         self.cursor.execute(
             base_templates.get_insert_into_query(
-                f"{prefix}__{enums.ProtectedTables.TRANSACTIONS.value}",
+                transactions,
                 protected_table_builder.TRANSACTIONS_COLS,
                 [
                     [
-                        prefix,
+                        manifest.get_study_prefix(),
                         __version__,
                         status,
                         base_utils.get_utc_datetime(),
@@ -90,21 +108,23 @@ class StudyRunner:
 
         for target in targets:
             if prefix:
-                manifest_parser = study_parser.StudyManifestParser()
+                manifest = study_parser.StudyManifestParser()
+                schema = self.get_schema(manifest)
                 cleaner.clean_study(
-                    manifest_parser=manifest_parser,
+                    manifest_parser=manifest,
                     cursor=self.cursor,
-                    schema_name=self.schema_name,
+                    schema_name=schema,
                     verbose=self.verbose,
                     stats_clean=stats_clean,
                     prefix=target,
                 )
             else:
-                manifest_parser = study_parser.StudyManifestParser(study_dict[target])
+                manifest = study_parser.StudyManifestParser(study_dict[target])
+                schema = self.get_schema(manifest)
                 cleaner.clean_study(
-                    manifest_parser=manifest_parser,
+                    manifest_parser=manifest,
                     cursor=self.cursor,
-                    schema_name=self.schema_name,
+                    schema_name=schema,
                     verbose=self.verbose,
                     stats_clean=stats_clean,
                 )
@@ -122,21 +142,22 @@ class StudyRunner:
         :param config: A StudyConfig object containing optional params
         :keyword continue_from: Restart a run from a specific sql file (for dev only)
         """
-        manifest_parser = study_parser.StudyManifestParser(target, self.data_path)
+        manifest = study_parser.StudyManifestParser(target, self.data_path)
+        schema = self.get_schema(manifest)
         try:
+            builder.run_protected_table_builder(
+                manifest,
+                self.cursor,
+                schema,
+                verbose=self.verbose,
+                config=config,
+            )
             if not continue_from:
-                builder.run_protected_table_builder(
-                    manifest_parser,
-                    self.cursor,
-                    self.schema_name,
-                    verbose=self.verbose,
-                    config=config,
-                )
-                self.update_transactions(manifest_parser.get_study_prefix(), "started")
+                self.update_transactions(manifest, "started")
                 cleaned_tables = cleaner.clean_study(
-                    manifest_parser=manifest_parser,
+                    manifest_parser=manifest,
                     cursor=self.cursor,
-                    schema_name=self.schema_name,
+                    schema_name=schema,
                     verbose=self.verbose,
                     stats_clean=False,
                 )
@@ -144,45 +165,44 @@ class StudyRunner:
                 if len(cleaned_tables) == 0:
                     config.stats_build = True
                 builder.run_table_builder(
-                    manifest_parser,
+                    manifest,
                     self.cursor,
-                    self.schema_name,
+                    schema,
                     verbose=self.verbose,
                     db_parser=self.db.parser(),
                     config=config,
                 )
             else:
-                self.update_transactions(manifest_parser.get_study_prefix(), "resumed")
-
+                self.update_transactions(manifest, "resumed")
             builder.build_study(
-                manifest_parser,
+                manifest,
                 self.cursor,
                 verbose=self.verbose,
                 continue_from=continue_from,
                 config=config,
             )
             builder.run_counts_builders(
-                manifest_parser,
+                manifest,
                 self.cursor,
-                self.schema_name,
+                schema,
                 verbose=self.verbose,
                 config=config,
             )
             builder.run_statistics_builders(
-                manifest_parser,
+                manifest,
                 self.cursor,
-                self.schema_name,
+                schema,
                 verbose=self.verbose,
                 config=config,
             )
-            self.update_transactions(manifest_parser.get_study_prefix(), "finished")
+            self.update_transactions(manifest, "finished")
 
         except errors.StudyManifestFilesystemError as e:
             # This should be thrown prior to any database connections, so
             # skipping logging
             raise e
         except Exception as e:
-            self.update_transactions(manifest_parser.get_study_prefix(), "error")
+            self.update_transactions(manifest, "error")
             raise e
 
     def run_matching_table_builder(
@@ -197,11 +217,12 @@ class StudyRunner:
         :param table_builder_name: a builder file referenced in the study's manifest
         :param config: A StudyConfig object containing optional params
         """
-        manifest_parser = study_parser.StudyManifestParser(target)
+        manifest = study_parser.StudyManifestParser(target)
+        schema = self.get_schema(manifest)
         builder.run_matching_table_builder(
-            manifest_parser,
+            manifest,
             self.cursor,
-            self.schema_name,
+            schema,
             table_builder_name,
             verbose=self.verbose,
             db_parser=self.db.parser(),
@@ -218,10 +239,8 @@ class StudyRunner:
         """
         if data_path is None:
             sys.exit("Missing destination - please provide a path argument.")
-        manifest_parser = study_parser.StudyManifestParser(target, data_path)
-        exporter.export_study(
-            manifest_parser, self.db, self.schema_name, data_path, archive
-        )
+        manifest = study_parser.StudyManifestParser(target, data_path)
+        exporter.export_study(manifest, self.db, self.schema_name, data_path, archive)
 
     def generate_study_sql(
         self,
@@ -236,11 +255,12 @@ class StudyRunner:
         :param config: A StudyConfig object containing optional params
         :param builder: Specify a single builder to generate sql from
         """
-        manifest_parser = study_parser.StudyManifestParser(target)
+        manifest = study_parser.StudyManifestParser(target)
+        schema = self.get_schema(manifest)
         file_generator.run_generate_sql(
-            manifest_parser=manifest_parser,
+            manifest_parser=manifest,
             cursor=self.cursor,
-            schema=self.schema_name,
+            schema=schema,
             table_builder=builder,
             verbose=self.verbose,
             db_parser=self.db.parser(),
@@ -255,11 +275,12 @@ class StudyRunner:
 
         :param target: A path to the study directory
         """
-        manifest_parser = study_parser.StudyManifestParser(target)
+        manifest = study_parser.StudyManifestParser(target)
+        schema = self.get_schema(manifest)
         file_generator.run_generate_markdown(
-            manifest_parser=manifest_parser,
+            manifest_parser=manifest,
             cursor=self.cursor,
-            schema=self.schema_name,
+            schema=schema,
             verbose=self.verbose,
             db_parser=self.db.parser(),
         )
@@ -321,7 +342,6 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict[str, pathlib.Path]:
 def run_cli(args: dict):
     """Controls which library tasks are run based on CLI arguments"""
     console = rich.console.Console()
-
     if args["action"] == "upload":
         try:
             uploader.upload_files(args)
@@ -372,6 +392,7 @@ def run_cli(args: dict):
                         runner.clean_and_build_study(
                             study_dict[target],
                             config=config,
+                            continue_from=args["continue_from"],
                         )
 
             elif args["action"] == "export":

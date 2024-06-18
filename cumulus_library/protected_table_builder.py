@@ -1,6 +1,6 @@
 """Builder for creating tables for tracking state/logging changes"""
 
-from cumulus_library import base_table_builder, enums
+from cumulus_library import base_table_builder, enums, study_parser
 from cumulus_library.template_sql import base_templates
 
 TRANSACTIONS_COLS = ["study_name", "library_version", "status", "event_time"]
@@ -37,12 +37,21 @@ class ProtectedTableBuilder(base_table_builder.BaseTableBuilder):
         study_name: str,
         study_stats: dict,
         *args,
+        manifest: study_parser.StudyManifestParser | None = None,
         **kwargs,
     ):
+        if manifest and manifest.get_dedicated_schema():
+            db_schema = manifest.get_dedicated_schema()
+            transactions = enums.ProtectedTables.TRANSACTIONS.value
+            statistics = enums.ProtectedTables.STATISTICS.value
+        else:
+            db_schema = schema
+            transactions = f"{study_name}__{enums.ProtectedTables.TRANSACTIONS.value}"
+            statistics = f"{study_name}__{enums.ProtectedTables.STATISTICS.value}"
         self.queries.append(
             base_templates.get_ctas_empty_query(
-                schema,
-                f"{study_name}__{enums.ProtectedTables.TRANSACTIONS.value}",
+                db_schema,
+                transactions,
                 TRANSACTIONS_COLS,
                 TRANSACTION_COLS_TYPES,
             )
@@ -50,8 +59,8 @@ class ProtectedTableBuilder(base_table_builder.BaseTableBuilder):
         if study_stats:
             self.queries.append(
                 base_templates.get_ctas_empty_query(
-                    schema,
-                    f"{study_name}__{enums.ProtectedTables.STATISTICS.value}",
+                    db_schema,
+                    statistics,
                     STATISTICS_COLS,
                     STATISTICS_COLS_TYPES,
                 )

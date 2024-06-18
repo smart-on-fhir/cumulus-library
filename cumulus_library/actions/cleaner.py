@@ -100,7 +100,10 @@ def clean_study(
         raise errors.CumulusLibraryError(
             "Either a manifest parser or a filter prefix must be provided"
         )
-    if not prefix:
+    if manifest_parser and manifest_parser.get_dedicated_schema():
+        drop_prefix = ""
+        display_prefix = ""
+    elif not prefix:
         drop_prefix = f"{manifest_parser.get_study_prefix()}__"
         display_prefix = manifest_parser.get_study_prefix()
     else:
@@ -109,7 +112,7 @@ def clean_study(
 
     if stats_clean:
         confirm = input(
-            "This will remove all historical stats tables beginning in the "
+            "This will remove all historical stats tables in the "
             f"{display_prefix} study - are you sure? (y/N)"
         )
         if confirm is None or confirm.lower() not in ("y", "yes"):
@@ -136,6 +139,7 @@ def clean_study(
             (
                 f"__{word.value}_" in view_table[0]
                 or view_table[0].endswith(f"__{word.value}")
+                or view_table[0].startswith(f"{word.value}_")
             )
             for word in enums.ProtectedTableKeywords
         ):
@@ -148,6 +152,14 @@ def clean_study(
         confirm = input("Remove these tables? (y/N)")
         if confirm.lower() not in ("y", "yes"):
             sys.exit("Table cleaning aborted")
+    if manifest_parser.get_dedicated_schema():
+        view_table_list = [
+            (
+                f"`{manifest_parser.get_dedicated_schema()}`.`{x[0]}`",
+                x[1],
+            )
+            for x in view_table_list
+        ]
     # We want to only show a progress bar if we are :not: printing SQL lines
     with base_utils.get_progress_bar(disable=verbose) as progress:
         task = progress.add_task(

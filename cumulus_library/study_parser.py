@@ -61,6 +61,16 @@ class StudyManifestParser:
         """
         return self._study_config.get("study_prefix")
 
+    def get_dedicated_schema(self) -> str | None:
+        """Reads the contents of the dedicated schema in the options dict
+
+        :returns: A dictionay of objects, or None if not found
+        """
+        if options := self._study_config.get("options"):
+            if schema := options.get("use_dedicated_schema"):
+                return schema
+        return None
+
     def get_sql_file_list(self, continue_from: str | None = None) -> list[str] | None:
         """Reads the contents of the sql_config array from the manifest
 

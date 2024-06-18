@@ -14,6 +14,7 @@ from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest import mock
 
+import duckdb
 import pandas
 import pytest
 import responses
@@ -82,7 +83,7 @@ def test_cli_early_exit(args):
             "study_python_valid__table",
         ),
         (
-            ["build", "-t", "study_python_valid", "--continue", "module2"],
+            ["build", "-t", "study_python_valid", "--builder", "module2"],
             does_not_raise(),
             "study_python_valid__table_2",
         ),
@@ -311,7 +312,7 @@ def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=
                 "tests/test_data/",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
-            2,
+            3,
             does_not_raise(),
         ),
         (
@@ -325,7 +326,7 @@ def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=
                 "tests/test_data/",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
-            2,
+            3,
             does_not_raise(),
         ),
         (["build", "-t", "vocab"], None, 3, does_not_raise()),
@@ -341,7 +342,7 @@ def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=
                 "--statistics",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            2,
+            3,
             does_not_raise(),
         ),
         (
@@ -354,7 +355,54 @@ def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=
                 "--statistics",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
+            3,
+            does_not_raise(),
+        ),
+        (
+            [
+                "build",
+                "-t",
+                "study_valid",
+                "-s",
+                "tests/test_data/study_valid/",
+                "--continue",
+                "test2",
+            ],
+            ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
             2,
+            pytest.raises(duckdb.duckdb.CatalogException),
+        ),
+        (
+            [
+                "build",
+                "-t",
+                "study_valid",
+                "-s",
+                "tests/test_data/study_valid/",
+                "--continue",
+                "test3",
+            ],
+            ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
+            2,
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
+        (
+            [
+                "build",
+                "-t",
+                "study_dedicated_schema",
+                "-s",
+                "tests/test_data/study_dedicated_schema/",
+                "--statistics",
+            ],
+            [
+                "export",
+                "-t",
+                "study_dedicated_schema",
+                "-s",
+                "tests/test_data/study_dedicated_schema/",
+            ],
+            3,
             does_not_raise(),
         ),
     ],
@@ -389,7 +437,8 @@ def test_cli_executes_queries(
             with open(f"{manifest_dir}/manifest.toml", encoding="UTF-8") as file:
                 config = toml.load(file)
             csv_files = glob.glob(f"{tmp_path}/export/{build_args[2]}/*.csv")
-            for export_table in config["export_config"]["export_list"]:
+            export_tables = config["export_config"]["export_list"]
+            for export_table in export_tables:
                 assert any(export_table in x for x in csv_files)
 
 

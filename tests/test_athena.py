@@ -1,9 +1,11 @@
-"""Tests for Athena database support"""
+"""Edge case testing for Athena database support"""
 
 import json
 import os
 import pathlib
 from unittest import mock
+
+import botocore
 
 from cumulus_library import databases
 
@@ -49,7 +51,7 @@ def test_schema_parsing():
     clear=True,
 )
 @mock.patch("botocore.session.Session")
-def test_upload_parquet(s3_session_mock):
+def test_upload_parquet_response_handling(mock_session):
     path = pathlib.Path(__file__).resolve().parent
     db = databases.AthenaDatabaseBackend(
         region="us-east-1",
@@ -64,7 +66,7 @@ def test_upload_parquet(s3_session_mock):
     s3_client = mock.MagicMock()
     with open(path / "test_data/aws/boto3.client.s3.list_objects_v2.json") as f:
         s3_client.list_objects_v2.return_value = json.load(f)
-    s3_session_mock.return_value.create_client.return_value = s3_client
+    mock_session.return_value.create_client.return_value = s3_client
     resp = db.upload_file(
         file=path / "test_data/count_synthea_patient.parquet",
         study="test_study",
@@ -74,3 +76,24 @@ def test_upload_parquet(s3_session_mock):
     assert resp == (
         "s3://cumulus-athena-123456789012-us-east-1/results/cumulus_user_uploads/db_schema/test_study/count_patient"
     )
+
+
+@mock.patch("botocore.client")
+def test_create_schema(mock_client):
+    mock_clientobj = mock_client.ClientCreator.return_value.create_client.return_value
+    mock_clientobj.get_database.side_effect = [
+        None,
+        botocore.exceptions.ClientError({}, {}),
+    ]
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+    db.create_schema("test_exists")
+    assert mock_clientobj.get_database.called
+    assert not mock_clientobj.create_database.called
+
+    db.create_schema("test_new")
+    assert mock_clientobj.create_database.called
