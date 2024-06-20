@@ -152,10 +152,10 @@ def clean_study(
         confirm = input("Remove these tables? (y/N)")
         if confirm.lower() not in ("y", "yes"):
             sys.exit("Table cleaning aborted")
-    if manifest_parser.get_dedicated_schema():
+    if dedicated := manifest_parser.get_dedicated_schema():
         view_table_list = [
             (
-                f"`{manifest_parser.get_dedicated_schema()}`.`{x[0]}`",
+                f"`{dedicated}`.`{x[0]}`",
                 x[1],
             )
             for x in view_table_list

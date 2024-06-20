@@ -86,12 +86,11 @@ class BaseTableBuilder(ABC):
             )
             for query in self.queries:
                 try:
-                    if manifest:
-                        if manifest.get_dedicated_schema():
-                            query = query.replace(
-                                f"`{manifest.get_study_prefix()}__",
-                                "`",
-                            )
+                    if manifest and manifest.get_dedicated_schema():
+                        query = query.replace(
+                            f"`{manifest.get_study_prefix()}__",
+                            "`",
+                        )
                     with base_utils.query_console_output(
                         verbose, query, progress, task
                     ):

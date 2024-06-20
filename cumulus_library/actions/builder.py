@@ -348,13 +348,13 @@ def build_study(
             queries.append([query, file])
     if len(queries) == 0:
         return []
-    # We want to only show a progress bar if we are :not: printing SQL lines
     if manifest.get_dedicated_schema():
         for query in queries:
             query[0] = query[0].replace(
                 f"`{manifest.get_study_prefix()}__",
                 "`",
             )
+    # We want to only show a progress bar if we are :not: printing SQL lines
     with base_utils.get_progress_bar(disable=verbose) as progress:
         task = progress.add_task(
             f"Creating {manifest.get_study_prefix()} study in db...",
