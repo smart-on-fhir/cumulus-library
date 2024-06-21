@@ -47,6 +47,7 @@ study_prefix = "my_study"
 # build tables, you can provide a list of files implementing BaseTableBuilder.
 # See the core study for examples of this pattern. These run before
 # any SQL execution
+
 # [table_builder_config]
 # file_names = [
 #     "my_table_builder.py",
@@ -54,11 +55,14 @@ study_prefix = "my_study"
 
 # The following section describes all tables that should be generated directly
 # from SQL files.
+
 [sql_config]
+
 # 'file_names' defines a list of sql files to execute, in order, in this folder.
 # Recommended order: Any ancillary config (like a list of condition codes),
 # tables/view selecting subsets of data from FHIR data, tables/views creating 
 # summary statistics.
+
 file_names = [
     "setup.sql",
     "lab_observations.sql",
@@ -69,9 +73,12 @@ file_names = [
 
 # The following section defines parameters related to exporting study data from
 # your athena database
+
 [export_config]
+
 # The following tables will be output to disk when an export is run. In most cases,
 # only count tables should be output in this way.
+
 export_list = [
     "my_study__count_influenza_test_month",
 ]
@@ -81,6 +88,7 @@ export_list = [
 # queries for you. We use this pattern for generating the core tables, as well
 # other studies authored inside BCH. These will always be run after any other
 # SQL queries have been generated
+
 # [counts_builder_config]
 # file_names = [
 #    "count.py"
@@ -92,11 +100,30 @@ export_list = [
 # supported approaches.
 # These will run last, so all the data in your study will exist by the time these
 # are invoked.
+
 # [statistics_config]
 # file_names = 
 # [
 #    "psm_config.toml"
 # ]
+
+# The following section is for advanced/unusual study use cases
+
+# [options]
+
+# If you want to override the default schema name to an explicit one, you can define
+# the name of this schema here. 99% of the time, this is not the behavior you want -
+# you want library data to be in the same schema as your data source, since this allows
+# you to keep track of where your source data for a given study run came from.
+#
+# The intended use case for this is for static/slow moving data sets that are external
+# to your EHR data - this is typically things like coding systems.
+#
+# These should be read only use cases - if you want to do additional iterations with
+# the contents of one of these reference sets, do it in the study, not in the reference
+# itself.
+
+# use_dedicated_schema="alternate_schema_name"
 
 ```
 

@@ -10,7 +10,7 @@ from contextlib import contextmanager
 
 from rich import progress
 
-from cumulus_library import databases
+from cumulus_library import databases, study_parser
 
 
 @dataclasses.dataclass
@@ -114,6 +114,17 @@ def zip_dir(read_path, write_path, archive_name):
             f.write(file, file.relative_to(read_path))
             file.unlink()
         shutil.rmtree(read_path)
+
+
+def update_query_if_schema_specified(
+    query: str, manifest: study_parser.StudyManifestParser
+):
+    if manifest and manifest.get_dedicated_schema():
+        query = query.replace(
+            f"{manifest.get_study_prefix()}__",
+            f"{manifest.get_dedicated_schema()}.",
+        )
+    return query
 
 
 def unzip_file(file_path: pathlib.Path, write_path: pathlib.Path):
