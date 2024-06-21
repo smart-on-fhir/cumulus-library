@@ -393,7 +393,6 @@ def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=
                 "study_dedicated_schema",
                 "-s",
                 "tests/test_data/study_dedicated_schema/",
-                "--statistics",
             ],
             [
                 "export",
@@ -402,7 +401,7 @@ def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=
                 "-s",
                 "tests/test_data/study_dedicated_schema/",
             ],
-            3,
+            4,
             does_not_raise(),
         ),
     ],
@@ -418,7 +417,11 @@ def test_cli_executes_queries(
             cli.main(cli_args=export_args)
 
         db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
-        found_tables = db.cursor().execute("show tables").fetchall()
+        found_tables = (
+            db.cursor()
+            .execute("SELECT table_schema,table_name FROM information_schema.tables")
+            .fetchall()
+        )
         assert len(found_tables) == expected_tables
         for table in found_tables:
             # If a table was created by this run, check it has the study prefix
@@ -737,3 +740,40 @@ def test_cli_import_study(tmp_path):
             tmp_path,
         )
     )
+
+
+@mock.patch.dict(os.environ, clear=True)
+def test_dedicated_schema(tmp_path):
+    core_build_args = duckdb_args(
+        [
+            "build",
+            "-t",
+            "core",
+        ],
+        tmp_path,
+    )
+    build_args = duckdb_args(
+        [
+            "build",
+            "-t",
+            "study_dedicated_schema",
+            "-s",
+            "tests/test_data/study_dedicated_schema/",
+        ],
+        tmp_path,
+    )
+    cli.main(cli_args=core_build_args)
+    cli.main(cli_args=build_args)
+    db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    tables = (
+        db.cursor()
+        .execute("SELECT table_schema,table_name FROM information_schema.tables")
+        .fetchall()
+    )
+    for table in [
+        ("dedicated", "table_1"),
+        ("dedicated", "table_2"),
+        ("dedicated", "table_raw_sql"),
+        ("main", "core__condition"),
+    ]:
+        assert table in tables

@@ -6,5 +6,5 @@ class ModuleOneRunner(BaseTableBuilder):
 
     def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
         self.queries.append(
-            "CREATE TABLE IF NOT EXISTS study_dedicated_schema__table (test int);"
+            "CREATE TABLE IF NOT EXISTS study_dedicated_schema__table_1 (test int);"
         )

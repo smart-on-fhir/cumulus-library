@@ -54,10 +54,12 @@ def export_study(
     :returns: a list of queries, (only for unit tests)
     """
     reset_counts_exports(manifest_parser)
+    if manifest_parser.get_dedicated_schema():
+        prefix = f"{manifest_parser.get_dedicated_schema()}."
+    else:
+        prefix = f"{manifest_parser.get_study_prefix()}__"
     if archive:
-        table_query = base_templates.get_show_tables(
-            schema_name, f"{manifest_parser.get_study_prefix()}__"
-        )
+        table_query = base_templates.get_show_tables(schema_name, prefix)
         result = db.cursor().execute(table_query).fetchall()
         table_list = [row[0] for row in result]
     else:
@@ -70,6 +72,7 @@ def export_study(
         description=f"Exporting {manifest_parser.get_study_prefix()} data...",
     ):
         query = f"SELECT * FROM {table}"
+        query = base_utils.update_query_if_schema_specified(query, manifest_parser)
         dataframe_chunks, db_schema = db.execute_as_pandas(query, chunksize=chunksize)
         path.mkdir(parents=True, exist_ok=True)
         schema = pyarrow.schema(db.col_pyarrow_types_from_sql(db_schema))
@@ -86,7 +89,7 @@ def export_study(
                 for chunk in dataframe_chunks:
                     _write_chunk(p_writer, chunk, schema)  # pragma: no cover
                     _write_chunk(c_writer, chunk, schema)  # pragma: no cover
-        queries.append(queries)
+        queries.append(query)
     if archive:
         base_utils.zip_dir(path, data_path, manifest_parser.get_study_prefix())
     return queries

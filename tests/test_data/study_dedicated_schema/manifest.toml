@@ -9,5 +9,5 @@ file_names = ["test.sql"]
 [export_config]
 export_list = ["study_dedicated_schema__table_raw_sql"]
 
-[options]
-use_dedicated_schema="dedicated"
+[advanced_options]
+dedicated_schema="dedicated"

@@ -348,12 +348,12 @@ def build_study(
             queries.append([query, file])
     if len(queries) == 0:
         return []
-    if manifest.get_dedicated_schema():
-        for query in queries:
-            query[0] = query[0].replace(
-                f"`{manifest.get_study_prefix()}__",
-                "`",
-            )
+    for query in queries:
+        query[0] = base_utils.update_query_if_schema_specified(query[0], manifest)
+        query[0] = query[0].replace(
+            f"`{manifest.get_study_prefix()}__",
+            "`",
+        )
     # We want to only show a progress bar if we are :not: printing SQL lines
     with base_utils.get_progress_bar(disable=verbose) as progress:
         task = progress.add_task(
@@ -406,7 +406,10 @@ def _execute_build_queries(
     """
     for query in queries:
         create_line = query[0].split("\n")[0]
-        if f" {manifest.get_study_prefix()}__" not in create_line:
+        if (
+            f" {manifest.get_study_prefix()}__" not in create_line
+            and not manifest.get_dedicated_schema()
+        ):
             _query_error(
                 query,
                 "This query does not contain the study prefix. All tables should "
