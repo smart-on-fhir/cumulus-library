@@ -11,7 +11,7 @@ simply. This includes, but is not limited, to:
 
 from dataclasses import dataclass, field
 
-from cumulus_library import base_utils, databases
+from cumulus_library import base_utils, databases, enums
 from cumulus_library.template_sql import base_templates
 
 # *** Some convenience constants for providing to validate_schema() ***
@@ -26,7 +26,73 @@ REFERENCE = ["reference"]
 
 
 @dataclass(kw_only=True)
-class BaseConfig:
+class BaseTable:
+    """Base class for system table metadata
+
+    :keyword name: the name of the table
+    :keyword columns: a list of columns names
+    :keyword column_types: a list of sql types for the columns
+    :keyword type_casts: a dict of column/type values that require explicit casting
+    """
+
+    name: str
+    columns: list
+    column_types: list
+    type_casts: dict
+
+
+@dataclass(kw_only=True)
+class TransactionsTable(BaseTable):
+    name: str = enums.ProtectedTables.TRANSACTIONS.value
+    columns: list = field(
+        default_factory=lambda: [
+            "study_name",
+            "library_version",
+            "status",
+            "event_time",
+            "message",
+        ]
+    )
+    column_types: list = field(
+        default_factory=lambda: [
+            "varchar",
+            "varchar",
+            "varchar",
+            "timestamp",
+            "varchar",
+        ]
+    )
+    type_casts: dict = field(default_factory=lambda: {"event_time": "timestamp"})
+
+
+@dataclass(kw_only=True)
+class StatisticsTable(BaseTable):
+    name: str = enums.ProtectedTables.STATISTICS.value
+    columns: list = field(
+        default_factory=lambda: [
+            "study_name",
+            "library_version",
+            "table_type",
+            "table_name",
+            "view_name",
+            "created_on",
+        ]
+    )
+    column_types: list = field(
+        default_factory=lambda: [
+            "varchar",
+            "varchar",
+            "varchar",
+            "varchar",
+            "varchar",
+            "timestamp",
+        ]
+    )
+    type_casts: dict = field(default_factory=lambda: {"created_on": "timestamp"})
+
+
+@dataclass(kw_only=True)
+class BaseFHIRResourceConfig:
     """Base class for handling table detection/denormalization"""
 
     source_table: str = None
@@ -36,7 +102,7 @@ class BaseConfig:
 
 
 @dataclass(kw_only=True)
-class CodeableConceptConfig(BaseConfig):
+class CodeableConceptConfig(BaseFHIRResourceConfig):
     """Holds parameters for generating codableconcept tables.
 
     :keyword column_name: the column containing the codeableConcept you want to extract.
@@ -63,7 +129,7 @@ class CodeableConceptConfig(BaseConfig):
 
 
 @dataclass(kw_only=True)
-class CodingConfig(BaseConfig):
+class CodingConfig(BaseFHIRResourceConfig):
     column_hierarchy: list[tuple]
     filter_priority: bool = False
     code_systems: list = None
@@ -71,7 +137,7 @@ class CodingConfig(BaseConfig):
 
 
 @dataclass(kw_only=True)
-class ExtensionConfig(BaseConfig):
+class ExtensionConfig(BaseFHIRResourceConfig):
     """convenience class for holding parameters for generating extension tables.
 
     :keyword source_table: the table to extract extensions from
@@ -132,7 +198,7 @@ def _check_data_in_fields(
 
 def denormalize_complex_objects(
     database: databases.DatabaseBackend,
-    code_sources: list[BaseConfig],
+    code_sources: list[BaseFHIRResourceConfig],
 ):
     queries = []
     code_sources = _check_data_in_fields(database, code_sources)

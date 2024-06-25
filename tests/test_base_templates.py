@@ -496,23 +496,25 @@ def test_extension_denormalize_creation():
 
 
 def test_insert_into_query_creation():
-    expected = """INSERT INTO test_table
+    expected = """INSERT INTO test.test_table
 ("a","b")
 VALUES
 ('foo','foo'),
 ('bar','bar');"""
     query = base_templates.get_insert_into_query(
+        schema="test",
         table_name="test_table",
         table_cols=["a", "b"],
         dataset=[["foo", "foo"], ["bar", "bar"]],
     )
     assert query == expected
-    expected = """INSERT INTO test_table
+    expected = """INSERT INTO test.test_table
 ("a","b")
 VALUES
 ('foo',VARCHAR 'foo'),
 ('bar',VARCHAR 'bar');"""
     query = base_templates.get_insert_into_query(
+        schema="test",
         table_name="test_table",
         table_cols=["a", "b"],
         dataset=[["foo", "foo"], ["bar", "bar"]],

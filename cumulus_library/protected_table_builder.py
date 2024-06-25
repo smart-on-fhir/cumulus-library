@@ -1,10 +1,10 @@
 """Builder for creating tables for tracking state/logging changes"""
 
-from cumulus_library import base_table_builder, enums, study_parser
+from cumulus_library import base_table_builder, databases, enums, study_parser
 from cumulus_library.template_sql import base_templates
 
-TRANSACTIONS_COLS = ["study_name", "library_version", "status", "event_time"]
-TRANSACTION_COLS_TYPES = ["varchar", "varchar", "varchar", "timestamp"]
+TRANSACTIONS_COLS = ["study_name", "library_version", "status", "event_time", "message"]
+TRANSACTION_COLS_TYPES = ["varchar", "varchar", "varchar", "timestamp", "varchar"]
 # while it may seem redundant, study_name and view_name are included as a column for
 # ease of constructing a view of multiple transaction tables
 STATISTICS_COLS = [
@@ -32,7 +32,7 @@ class ProtectedTableBuilder(base_table_builder.BaseTableBuilder):
 
     def prepare_queries(
         self,
-        cursor: object,
+        cursor: databases.DatabaseCursor,
         schema: str,
         study_name: str,
         study_stats: dict,

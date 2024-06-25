@@ -10,17 +10,16 @@ import toml
 from rich.progress import Progress, TaskID
 
 from cumulus_library import (
-    __version__,
     base_table_builder,
     base_utils,
     databases,
     enums,
     errors,
+    log_utils,
     protected_table_builder,
     study_parser,
 )
 from cumulus_library.statistics import psm
-from cumulus_library.template_sql import base_templates
 
 
 @contextlib.contextmanager
@@ -263,29 +262,14 @@ def run_statistics_builders(
             config=config,
             manifest=manifest,
         )
-
-        insert_query = base_templates.get_insert_into_query(
-            f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}",
-            [
-                "study_name",
-                "library_version",
-                "table_type",
-                "table_name",
-                "view_name",
-                "created_on",
-            ],
-            [
-                [
-                    manifest.get_study_prefix(),
-                    __version__,
-                    config_type,
-                    f"{target_table}_{safe_timestamp}",
-                    target_table,
-                    base_utils.get_utc_datetime(),
-                ]
-            ],
+        log_utils.log_statistics(
+            cursor=cursor,
+            schema=schema,
+            manifest=manifest,
+            table_type=config_type,
+            table_name=f"{target_table}_{safe_timestamp}",
+            view_name=target_table,
         )
-        cursor.execute(insert_query)
 
 
 def run_matching_table_builder(

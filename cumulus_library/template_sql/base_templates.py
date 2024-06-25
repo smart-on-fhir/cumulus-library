@@ -298,6 +298,7 @@ def get_extension_denormalize_query(config: sql_utils.ExtensionConfig) -> str:
 
 
 def get_insert_into_query(
+    schema: str,
     table_name: str,
     table_cols: list[str],
     dataset: list[list[str]],
@@ -313,6 +314,7 @@ def get_insert_into_query(
     type_casts = type_casts or {}
     return get_base_template(
         "insert_into",
+        schema_name=schema,
         table_name=table_name,
         table_cols=table_cols,
         dataset=dataset,

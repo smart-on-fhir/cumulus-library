@@ -221,8 +221,6 @@ def test_generate_md(mock_path, tmp_path):
         )
         cli.main(cli_args=args)
         test_file = f"{tmp_path}/study_python_valid/study_python_valid_generated.md"
-        with open(test_file) as f:
-            print(f.read())
         ref_file = (
             pathlib.Path(__file__).resolve().parent
             / "test_data/study_python_valid_generated.md"

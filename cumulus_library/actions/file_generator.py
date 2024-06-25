@@ -85,7 +85,7 @@ def run_generate_markdown(
         if len(count_tables) > 0:
             f.write(f"## {manifest_parser.get_study_prefix()} count tables\n\n")
             for table in count_tables:
-                manifest_parser._write_md_table(table, study_df, f)
+                _write_md_table(table, study_df, f)
         if len(base_tables) > 0:
             f.write(f"## {manifest_parser.get_study_prefix()} base tables\n\n")
             for table in base_tables:

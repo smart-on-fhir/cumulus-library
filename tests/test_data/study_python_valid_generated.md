@@ -8,6 +8,7 @@
 |library_version|VARCHAR  |           |
 |status         |VARCHAR  |           |
 |event_time     |TIMESTAMP|           |
+|message        |VARCHAR  |           |
 
 
 ### study_python_valid__table

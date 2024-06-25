@@ -1,9 +1,9 @@
 """Holds enums used across more than one module"""
 
-from enum import Enum
+import enum
 
 
-class ProtectedTableKeywords(Enum):
+class ProtectedTableKeywords(enum.Enum):
     """Tables with a pattern like '_{keyword}_' are not manually dropped."""
 
     ETL = "etl"
@@ -11,8 +11,18 @@ class ProtectedTableKeywords(Enum):
     NLP = "nlp"
 
 
-class ProtectedTables(Enum):
+class ProtectedTables(enum.Enum):
     """Tables created by cumulus for persistence outside of study rebuilds"""
 
     STATISTICS = "lib_statistics"
     TRANSACTIONS = "lib_transactions"
+
+
+class LogStatuses(enum.Enum):
+    DEBUG = "debug"
+    ERROR = "error"
+    FINISHED = "finished"
+    INFO = "info"
+    RESUMED = "resumed"
+    STARTED = "started"
+    WARN = "warn"

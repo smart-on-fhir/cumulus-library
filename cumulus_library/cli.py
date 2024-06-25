@@ -17,7 +17,7 @@ from cumulus_library import (
     databases,
     enums,
     errors,
-    protected_table_builder,
+    log_utils,
     study_parser,
 )
 from cumulus_library.actions import (
@@ -28,7 +28,6 @@ from cumulus_library.actions import (
     importer,
     uploader,
 )
-from cumulus_library.template_sql import base_templates
 
 
 class StudyRunner:
@@ -48,36 +47,6 @@ class StudyRunner:
             self.db.create_schema(dedicated)
             return dedicated
         return self.schema_name
-
-    def update_transactions(
-        self, manifest: study_parser.StudyManifestParser, status: str
-    ):
-        """Adds a record to a study's transactions table"""
-        if manifest.get_dedicated_schema():
-            transactions = (
-                f"{manifest.get_dedicated_schema()}."
-                f"{enums.ProtectedTables.TRANSACTIONS.value}"
-            )
-        else:
-            transactions = (
-                f"{manifest.get_study_prefix()}__"
-                f"{enums.ProtectedTables.TRANSACTIONS.value}"
-            )
-        self.cursor.execute(
-            base_templates.get_insert_into_query(
-                transactions,
-                protected_table_builder.TRANSACTIONS_COLS,
-                [
-                    [
-                        manifest.get_study_prefix(),
-                        __version__,
-                        status,
-                        base_utils.get_utc_datetime(),
-                    ]
-                ],
-                {"event_time": "TIMESTAMP"},
-            )
-        )
 
     ### Creating studies
 
@@ -153,7 +122,12 @@ class StudyRunner:
                 config=config,
             )
             if not continue_from:
-                self.update_transactions(manifest, "started")
+                log_utils.log_transaction(
+                    cursor=self.cursor,
+                    schema=schema,
+                    manifest=manifest,
+                    status=enums.LogStatuses.STARTED,
+                )
                 cleaned_tables = cleaner.clean_study(
                     manifest_parser=manifest,
                     cursor=self.cursor,
@@ -173,7 +147,12 @@ class StudyRunner:
                     config=config,
                 )
             else:
-                self.update_transactions(manifest, "resumed")
+                log_utils.log_transaction(
+                    cursor=self.cursor,
+                    schema=schema,
+                    manifest=manifest,
+                    status=enums.LogStatuses.RESUMED,
+                )
             builder.build_study(
                 manifest,
                 self.cursor,
@@ -195,14 +174,24 @@ class StudyRunner:
                 verbose=self.verbose,
                 config=config,
             )
-            self.update_transactions(manifest, "finished")
+            log_utils.log_transaction(
+                cursor=self.cursor,
+                schema=schema,
+                manifest=manifest,
+                status=enums.LogStatuses.FINISHED,
+            )
 
         except errors.StudyManifestFilesystemError as e:
             # This should be thrown prior to any database connections, so
             # skipping logging
             raise e
         except Exception as e:
-            self.update_transactions(manifest, "error")
+            log_utils.log_transaction(
+                cursor=self.cursor,
+                schema=schema,
+                manifest=manifest,
+                status=enums.LogStatuses.ERROR,
+            )
             raise e
 
     def run_matching_table_builder(
