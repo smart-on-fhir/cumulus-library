@@ -38,7 +38,7 @@ def log_transaction(
                 __version__,
                 status.value,
                 base_utils.get_utc_datetime(),
-                message if message else None,
+                message or None,
             ]
         ],
     )

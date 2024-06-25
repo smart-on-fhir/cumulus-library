@@ -13,7 +13,7 @@ VALUES
     {%- if table_cols[loop.index0] in type_casts.keys() -%}
     {{ type_casts[table_cols[loop.index0]] }} '{{ field }}'
     {%- elif not field -%}
-    NULL
+    CAST(NULL AS VARCHAR)
     {%- else -%}
     '{{ field }}'
     {%- endif -%}
