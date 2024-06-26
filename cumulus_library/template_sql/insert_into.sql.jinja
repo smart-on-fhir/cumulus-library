@@ -1,5 +1,5 @@
 {%- import 'syntax.sql.jinja' as syntax -%}
-INSERT INTO {{ table_name }}
+INSERT INTO {{ schema_name }}.{{ table_name }}
 (
     {%- for col in table_cols -%}
     "{{ col }}"
@@ -12,6 +12,8 @@ VALUES
     {%- for field in row -%}
     {%- if table_cols[loop.index0] in type_casts.keys() -%}
     {{ type_casts[table_cols[loop.index0]] }} '{{ field }}'
+    {%- elif not field -%}
+    CAST(NULL AS VARCHAR)
     {%- else -%}
     '{{ field }}'
     {%- endif -%}

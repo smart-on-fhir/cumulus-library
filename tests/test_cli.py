@@ -85,12 +85,12 @@ def test_cli_early_exit(args):
         (
             ["build", "-t", "study_python_valid", "--builder", "module2"],
             does_not_raise(),
-            "study_python_valid__table_2",
+            "study_python_valid__count_table",
         ),
         (
             ["build", "-t", "study_bad_manifest"],
             pytest.raises(errors.StudyManifestParsingError),
-            "study_python_valid__table_2",
+            "study_python_valid__count_table",
         ),
         (["build", "-t", "wrong"], pytest.raises(SystemExit), None),
         (
@@ -221,12 +221,12 @@ def test_generate_md(mock_path, tmp_path):
         )
         cli.main(cli_args=args)
         test_file = f"{tmp_path}/study_python_valid/study_python_valid_generated.md"
-        with open(test_file) as f:
-            print(f.read())
         ref_file = (
             pathlib.Path(__file__).resolve().parent
             / "test_data/study_python_valid_generated.md"
         )
+        with open(test_file) as f:
+            print(f.read())
         assert filecmp.cmp(test_file, ref_file, shallow=True)
 
 

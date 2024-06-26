@@ -1,3 +1,12 @@
+## study_python_valid count tables
+
+### study_python_valid__count_table
+
+|Column| Type  |Description|
+|------|-------|-----------|
+|test  |INTEGER|           |
+
+
 ## study_python_valid base tables
 
 ### study_python_valid__lib_transactions
@@ -8,16 +17,10 @@
 |library_version|VARCHAR  |           |
 |status         |VARCHAR  |           |
 |event_time     |TIMESTAMP|           |
+|message        |VARCHAR  |           |
 
 
 ### study_python_valid__table
-
-|Column| Type  |Description|
-|------|-------|-----------|
-|test  |INTEGER|           |
-
-
-### study_python_valid__table_2
 
 |Column| Type  |Description|
 |------|-------|-----------|
