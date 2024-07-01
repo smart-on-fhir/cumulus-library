@@ -43,8 +43,7 @@ class ProtectedTableBuilder(base_table_builder.BaseTableBuilder):
         study_stats: dict | None = None,
         **kwargs,
     ):
-        if study_stats is None:
-            study_stats = {}
+        study_stats = study_stats or {}
         if manifest and manifest.get_dedicated_schema():
             db_schema = manifest.get_dedicated_schema()
             transactions = enums.ProtectedTables.TRANSACTIONS.value

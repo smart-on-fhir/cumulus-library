@@ -208,9 +208,7 @@ def run_statistics_builders(
             target_table = stats_config["target_table"]
 
         if (target_table,) in existing_stats and not config.stats_build:
-            print("early break")
             continue
-        print("run build")
         if config_type == "psm":
             builder = psm.PsmBuilder(
                 toml_config_path=toml_path,
