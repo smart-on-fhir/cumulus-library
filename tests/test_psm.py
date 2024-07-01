@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from freezegun import freeze_time
 
-from cumulus_library import cli
+from cumulus_library import cli, study_manifest
 from cumulus_library.statistics import psm
 
 
@@ -54,22 +54,25 @@ from cumulus_library.statistics import psm
 )
 def test_psm_create(
     tmp_path,
-    mock_db_stats,
+    mock_db_stats_config,
     toml_def,
     pos_set,
     neg_set,
     expected_first_record,
     expected_last_record,
 ):
-    builder = cli.StudyRunner(mock_db_stats, data_path=Path(tmp_path))
+    builder = cli.StudyRunner(mock_db_stats_config, data_path=Path(tmp_path))
+    manifest = study_manifest.StudyManifest(
+        study_path=f"{Path(__file__).parent}/test_data/psm/"
+    )
     psmbuilder = psm.PsmBuilder(
         f"{Path(__file__).parent}/test_data/psm/{toml_def}", Path(tmp_path)
     )
-    mock_db_stats.cursor().execute(
+    builder.config.db.cursor().execute(
         "create table psm_test__psm_cohort as (select * from core__condition "
         f"ORDER BY {psmbuilder.config.primary_ref} limit 100)"
     ).df()
-    mock_db_stats.cursor().execute("select * from psm_test__psm_cohort").fetchall()
+    builder.config.db.cursor().execute("select * from psm_test__psm_cohort").fetchall()
     safe_timestamp = (
         datetime.now()
         .replace(microsecond=0)
@@ -78,14 +81,13 @@ def test_psm_create(
         .replace("-", "_")
     )
     psmbuilder.execute_queries(
-        mock_db_stats.pandas_cursor(),
-        builder.schema_name,
-        False,
+        builder.config,
+        manifest,
         drop_table=True,
         table_suffix=safe_timestamp,
     )
     df = (
-        mock_db_stats.cursor()
+        builder.config.db.cursor()
         .execute("select * from psm_test__psm_encounter_covariate")
         .df()
     )

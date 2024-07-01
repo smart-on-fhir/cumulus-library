@@ -1,16 +1,15 @@
 """abstract base for python-based study executors"""
 
+import abc
 import pathlib
 import re
 import sys
-from abc import ABC, abstractmethod
-from typing import final
+import typing
 
-from cumulus_library import base_utils, study_parser
-from cumulus_library.databases import DatabaseCursor
+from cumulus_library import base_utils, study_manifest
 
 
-class BaseTableBuilder(ABC):
+class BaseTableBuilder(abc.ABC):
     """Generic base class for python table builders.
 
     To use a table builder, extend this class exactly once in a new module.
@@ -22,38 +21,38 @@ class BaseTableBuilder(ABC):
     def __init__(self):
         self.queries = []
 
-    @abstractmethod
-    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
+    @abc.abstractmethod
+    def prepare_queries(
+        self,
+        config: base_utils.StudyConfig,
+        manifest: study_manifest.StudyManifest,
+        *args,
+        **kwargs,
+    ):
         """Main entrypoint for python table builders.
 
         When completed, prepare_queries should populate self.queries with sql
-        statements to execute. This array will the be read by run queries.
+        statements to execute. This array will the be read by execute_queries.
 
-        :param cursor: A PEP-249 compatible cursor
-        :param schema: A schema name
+        :param config: A study configuration object
         """
         raise NotImplementedError
 
-    @final
+    @typing.final
     def execute_queries(
         self,
-        cursor: DatabaseCursor,
-        schema: str,
-        verbose: bool,
+        config: base_utils.StudyConfig,
+        manifest: study_manifest.StudyManifest,
         *args,
-        drop_table: bool = False,
-        manifest: study_parser.StudyManifestParser = None,
         **kwargs,
     ):
         """Executes queries set up by a prepare_queries call
 
-        :param cursor: A PEP-249 compatible cursor
-        :param schema: A schema name
-        :param verbose: toggle for verbose output mode
-        :param drop_table: drops any tables found in prepared_queries results
+        :param config: A study configuration object
         """
-        self.prepare_queries(cursor, schema, *args, manifest=manifest, **kwargs)
-        if drop_table:
+        self.prepare_queries(*args, config=config, manifest=manifest, **kwargs)
+        cursor = config.db.cursor()
+        if config.drop_table:
             table_names = []
             for query in self.queries:
                 # Get the first non-whitespace word after create table
@@ -78,31 +77,28 @@ class BaseTableBuilder(ABC):
                     table_names.append(table_name)
             for table_name in table_names:
                 cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
-        with base_utils.get_progress_bar(disable=verbose) as progress:
+        with base_utils.get_progress_bar(disable=config.verbose) as progress:
             task = progress.add_task(
                 self.display_text,
                 total=len(self.queries),
-                visible=not verbose,
+                visible=not config.verbose,
             )
             for query in self.queries:
                 try:
                     query = base_utils.update_query_if_schema_specified(query, manifest)
                     with base_utils.query_console_output(
-                        verbose, query, progress, task
+                        config.verbose, query, progress, task
                     ):
                         cursor.execute(query)
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     sys.exit(e)
 
-        self.post_execution(cursor, schema, verbose, drop_table, *args, **kwargs)
+        self.post_execution(config, *args, **kwargs)
 
     def post_execution(  # noqa: B027 - this looks like, but is not, an abstract method
         self,
-        cursor: DatabaseCursor,
-        schema: str,
-        verbose: bool,
+        config: base_utils.StudyConfig,
         *args,
-        drop_table: bool = False,
         **kwargs,
     ):
         """Hook for any additional actions to run after execute_queries"""

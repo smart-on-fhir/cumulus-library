@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Utility for building/retrieving data views in AWS Athena"""
 
+import copy
 import json
 import os
 import pathlib
@@ -18,7 +19,7 @@ from cumulus_library import (
     enums,
     errors,
     log_utils,
-    study_parser,
+    study_manifest,
 )
 from cumulus_library.actions import (
     builder,
@@ -36,17 +37,18 @@ class StudyRunner:
     verbose = False
     schema_name = None
 
-    def __init__(self, db: databases.DatabaseBackend, data_path: str):
-        self.db = db
+    def __init__(self, config: base_utils.StudyConfig, data_path: str):
+        self.config = config
         self.data_path = data_path
-        self.cursor = db.cursor()
-        self.schema_name = db.schema_name
 
-    def get_schema(self, manifest: study_parser.StudyManifestParser):
-        if dedicated := manifest.get_dedicated_schema():
-            self.db.create_schema(dedicated)
-            return dedicated
-        return self.schema_name
+    def get_config(self, manifest=study_manifest.StudyManifest):
+        schema = base_utils.get_schema(self.config, manifest)
+        if schema == self.config.schema:
+            return self.config
+        else:
+            config = copy.copy(self.config)
+            config.schema = schema
+            return config
 
     ### Creating studies
 
@@ -55,7 +57,6 @@ class StudyRunner:
         targets: list[str],
         study_dict: dict,
         *,
-        stats_clean: bool,
         prefix: bool = False,
     ) -> None:
         """Removes study table/views from Athena.
@@ -66,7 +67,6 @@ class StudyRunner:
 
         :param target: The study prefix to use for IDing tables to remove
         :param study_dict: The dictionary of available study targets
-        :param stats_clean: If true, removes previous stats runs
         :keyword prefix: If True, does a search by string prefix in place of study name
         """
         if targets is None:
@@ -77,106 +77,63 @@ class StudyRunner:
 
         for target in targets:
             if prefix:
-                manifest = study_parser.StudyManifestParser()
-                schema = self.get_schema(manifest)
-                cleaner.clean_study(
-                    manifest_parser=manifest,
-                    cursor=self.cursor,
-                    schema_name=schema,
-                    verbose=self.verbose,
-                    stats_clean=stats_clean,
-                    prefix=target,
-                )
+                manifest = study_manifest.StudyManifest()
+                cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)
             else:
-                manifest = study_parser.StudyManifestParser(study_dict[target])
-                schema = self.get_schema(manifest)
-                cleaner.clean_study(
-                    manifest_parser=manifest,
-                    cursor=self.cursor,
-                    schema_name=schema,
-                    verbose=self.verbose,
-                    stats_clean=stats_clean,
-                )
+                manifest = study_manifest.StudyManifest(study_dict[target])
+                cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)
 
     def clean_and_build_study(
         self,
         target: pathlib.Path,
         *,
-        config: base_utils.StudyConfig,
         continue_from: str | None = None,
     ) -> None:
         """Recreates study views/tables
 
         :param target: A path to the study directory
-        :param config: A StudyConfig object containing optional params
         :keyword continue_from: Restart a run from a specific sql file (for dev only)
         """
-        manifest = study_parser.StudyManifestParser(target, self.data_path)
-        schema = self.get_schema(manifest)
+        manifest = study_manifest.StudyManifest(target, self.data_path)
         try:
             builder.run_protected_table_builder(
-                manifest,
-                self.cursor,
-                schema,
-                verbose=self.verbose,
-                config=config,
+                config=self.get_config(manifest), manifest=manifest
             )
             if not continue_from:
                 log_utils.log_transaction(
-                    cursor=self.cursor,
-                    schema=schema,
+                    config=self.get_config(manifest),
                     manifest=manifest,
                     status=enums.LogStatuses.STARTED,
                 )
-                cleaned_tables = cleaner.clean_study(
-                    manifest_parser=manifest,
-                    cursor=self.cursor,
-                    schema_name=schema,
-                    verbose=self.verbose,
-                    stats_clean=False,
+                cleaner.clean_study(
+                    config=self.get_config(manifest),
+                    manifest=manifest,
                 )
-                # If the study hasn't been created before, force stats table generation
-                if len(cleaned_tables) == 0:
-                    config.stats_build = True
                 builder.run_table_builder(
-                    manifest,
-                    self.cursor,
-                    schema,
-                    verbose=self.verbose,
-                    db_parser=self.db.parser(),
-                    config=config,
+                    config=self.get_config(manifest), manifest=manifest
                 )
+
             else:
                 log_utils.log_transaction(
-                    cursor=self.cursor,
-                    schema=schema,
+                    config=self.get_config(manifest),
                     manifest=manifest,
                     status=enums.LogStatuses.RESUMED,
                 )
+
             builder.build_study(
-                manifest,
-                self.cursor,
-                verbose=self.verbose,
+                config=self.get_config(manifest),
+                manifest=manifest,
                 continue_from=continue_from,
-                config=config,
             )
             builder.run_counts_builders(
-                manifest,
-                self.cursor,
-                schema,
-                verbose=self.verbose,
-                config=config,
+                config=self.get_config(manifest), manifest=manifest
             )
             builder.run_statistics_builders(
-                manifest,
-                self.cursor,
-                schema,
-                verbose=self.verbose,
-                config=config,
+                config=self.get_config(manifest),
+                manifest=manifest,
             )
             log_utils.log_transaction(
-                cursor=self.cursor,
-                schema=schema,
+                config=self.get_config(manifest),
                 manifest=manifest,
                 status=enums.LogStatuses.FINISHED,
             )
@@ -187,8 +144,7 @@ class StudyRunner:
             raise e
         except Exception as e:
             log_utils.log_transaction(
-                cursor=self.cursor,
-                schema=schema,
+                config=self.get_config(manifest),
                 manifest=manifest,
                 status=enums.LogStatuses.ERROR,
             )
@@ -198,24 +154,17 @@ class StudyRunner:
         self,
         target: pathlib.Path,
         table_builder_name: str,
-        config: base_utils.StudyConfig,
     ) -> None:
         """Runs a single table builder
 
         :param target: A path to the study directory
         :param table_builder_name: a builder file referenced in the study's manifest
-        :param config: A StudyConfig object containing optional params
         """
-        manifest = study_parser.StudyManifestParser(target)
-        schema = self.get_schema(manifest)
+        manifest = study_manifest.StudyManifest(target)
         builder.run_matching_table_builder(
-            manifest,
-            self.cursor,
-            schema,
-            table_builder_name,
-            verbose=self.verbose,
-            db_parser=self.db.parser(),
-            config=config,
+            config=self.get_config(manifest),
+            manifest=manifest,
+            builder=table_builder_name,
         )
 
     ### Data exporters
@@ -225,35 +174,33 @@ class StudyRunner:
         """Exports aggregates defined in a manifest
 
         :param target: A path to the study directory
+        :param datapath: The location to export data to
+        :param archive: If true, will export all tables, otherwise uses manifest list
         """
         if data_path is None:
             sys.exit("Missing destination - please provide a path argument.")
-        manifest = study_parser.StudyManifestParser(target, data_path)
-        exporter.export_study(manifest, self.db, self.schema_name, data_path, archive)
+        manifest = study_manifest.StudyManifest(target, data_path)
+        exporter.export_study(
+            config=self.get_config(manifest),
+            manifest=manifest,
+            data_path=data_path,
+            archive=archive,
+        )
 
     def generate_study_sql(
         self,
         target: pathlib.Path,
         *,
-        config: base_utils.StudyConfig,
         builder: str | None = None,
     ) -> None:
         """Materializes study sql from templates
 
         :param target: A path to the study directory
-        :param config: A StudyConfig object containing optional params
-        :param builder: Specify a single builder to generate sql from
+        :keyword builder: Specify a single builder to generate sql from
         """
-        manifest = study_parser.StudyManifestParser(target)
-        schema = self.get_schema(manifest)
+        manifest = study_manifest.StudyManifest(target)
         file_generator.run_generate_sql(
-            manifest_parser=manifest,
-            cursor=self.cursor,
-            schema=schema,
-            table_builder=builder,
-            verbose=self.verbose,
-            db_parser=self.db.parser(),
-            config=config,
+            config=self.get_config(manifest), manifest=manifest
         )
 
     def generate_study_markdown(
@@ -264,14 +211,9 @@ class StudyRunner:
 
         :param target: A path to the study directory
         """
-        manifest = study_parser.StudyManifestParser(target)
-        schema = self.get_schema(manifest)
+        manifest = study_manifest.StudyManifest(target)
         file_generator.run_generate_markdown(
-            manifest_parser=manifest,
-            cursor=self.cursor,
-            schema=schema,
-            verbose=self.verbose,
-            db_parser=self.db.parser(),
+            config=self.get_config(manifest), manifest=manifest
         )
 
 
@@ -321,7 +263,7 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict[str, pathlib.Path]:
             manifest_paths.update(get_studies_by_manifest_path(child_path))
         elif child_path.name == "manifest.toml":
             try:
-                manifest = study_parser.StudyManifestParser(path)
+                manifest = study_manifest.StudyManifest(path)
                 manifest_paths[manifest.get_study_prefix()] = path
             except errors.StudyManifestParsingError as exc:
                 rich.print(f"[bold red] Ignoring study in '{path}': {exc}")
@@ -340,19 +282,31 @@ def run_cli(args: dict):
 
     # all other actions require connecting to the database
     else:
+        # if we're targeting a builder explicitly, we always want to
+        # run in drop mode
+        if builder := args.get("builder"):
+            drop_table = builder
+        else:
+            drop_table = args.get("drop_table")
+        if args.get("db_type") == "duckdb":
+            schema = "main"
+        else:
+            schema = args.get("schema_name")
         config = base_utils.StudyConfig(
             db=databases.create_db_backend(args),
+            schema=schema,
+            drop_table=drop_table,
             force_upload=args.get("replace_existing", False),
+            verbose=args.get("verbose"),
             stats_build=args.get("stats_build", False),
+            stats_clean=args.get("stats_clean", False),
             umls_key=args.get("umls_key"),
             options=args.get("options"),
         )
         try:
-            runner = StudyRunner(config.db, data_path=args.get("data_path"))
-            if args.get("verbose"):
-                runner.verbose = True
+            runner = StudyRunner(config, data_path=args.get("data_path"))
             console.print("[italic] Connecting to database...")
-            runner.cursor.execute("SHOW DATABASES")
+            runner.config.db.cursor().execute("SHOW DATABASES")
             study_dict = get_study_dict(args.get("study_dir"))
             if "prefix" not in args.keys():
                 if args.get("target"):
@@ -366,21 +320,19 @@ def run_cli(args: dict):
                             )
             if args["action"] == "clean":
                 runner.clean_study(
-                    args["target"],
-                    study_dict,
-                    stats_clean=args["stats_clean"],
+                    targets=args["target"],
+                    study_dict=study_dict,
                     prefix=args["prefix"],
                 )
             elif args["action"] == "build":
                 for target in args["target"]:
                     if args["builder"]:
                         runner.run_matching_table_builder(
-                            study_dict[target], args["builder"], config=config
+                            study_dict[target], args["builder"]
                         )
                     else:
                         runner.clean_and_build_study(
                             study_dict[target],
-                            config=config,
                             continue_from=args["continue_from"],
                         )
 
@@ -408,12 +360,12 @@ def run_cli(args: dict):
             elif args["action"] == "import":
                 for archive in args["archive_path"]:
                     archive = get_abs_path(archive)
-                    importer.import_archive(config, archive, args)
+                    importer.import_archive(config, archive_path=archive)
 
             elif args["action"] == "generate-sql":
                 for target in args["target"]:
                     runner.generate_study_sql(
-                        study_dict[target], builder=args["builder"], config=config
+                        study_dict[target], builder=args["builder"]
                     )
 
             elif args["action"] == "generate-md":

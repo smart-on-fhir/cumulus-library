@@ -225,8 +225,6 @@ def test_generate_md(mock_path, tmp_path):
             pathlib.Path(__file__).resolve().parent
             / "test_data/study_python_valid_generated.md"
         )
-        with open(test_file) as f:
-            print(f.read())
         assert filecmp.cmp(test_file, ref_file, shallow=True)
 
 
@@ -499,19 +497,11 @@ def test_cli_transactions(tmp_path, study, finishes, raises):
             ["build", "-t", study, "-s", "tests/test_data/"],
             f"{tmp_path}",
         )
-        print(args[-1:])
-
         args = args[:-1] + [
             f"{tmp_path}/{study}_duck.db",
         ]
-        print(args[-1:])
         cli.main(cli_args=args)
     db = DuckDatabaseBackend(f"{tmp_path}/{study}_duck.db")
-    print(
-        db.cursor()
-        .execute("select table_name from information_schema.tables")
-        .fetchall()
-    )
     query = db.cursor().execute(f"SELECT * from {study}__lib_transactions").fetchall()
     assert query[0][2] == "started"
     if finishes:
@@ -698,6 +688,7 @@ def test_cli_finds_study_from_manifest_prefix(tmp_path):
 )
 @mock.patch("cumulus_library.base_utils.StudyConfig")
 def test_cli_custom_args(mock_config, tmp_path, option, raises):
+    mock_config.return_value.stats_clean = False
     with raises:
         cli.main(
             cli_args=duckdb_args(

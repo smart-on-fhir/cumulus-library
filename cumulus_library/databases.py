@@ -614,7 +614,11 @@ class DuckDatabaseBackend(DatabaseBackend):
 
     def create_schema(self, schema_name):
         """Creates a new schema object inside the database"""
-        self.connection.sql(f"CREATE SCHEMA {schema_name}")
+        schemas = self.connection.sql(
+            "SELECT schema_name FROM information_schema.schemata"
+        ).fetchall()
+        if (schema_name,) not in schemas:
+            self.connection.sql(f"CREATE SCHEMA {schema_name}")
 
     def close(self) -> None:
         self.connection.close()

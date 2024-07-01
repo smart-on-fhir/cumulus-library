@@ -16,7 +16,7 @@ from psmpy import PsmPy
 # these imports are mimicing PsmPy imports for re-implemented functions
 from psmpy.functions import cohenD
 
-from cumulus_library import base_table_builder, databases
+from cumulus_library import base_table_builder, base_utils, databases
 from cumulus_library.statistics.statistics_templates import psm_templates
 from cumulus_library.template_sql import base_templates
 
@@ -347,19 +347,16 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
             )
 
     def prepare_queries(
-        self, cursor: object, schema: str, table_suffix: str, *args, **kwargs
+        self, config: base_utils.StudyConfig, *args, table_suffix: str, **kwargs
     ):
-        self._create_covariate_table(cursor, schema, table_suffix)
+        self._create_covariate_table(config.db.cursor(), config.schema, table_suffix)
 
     def post_execution(
         self,
-        cursor: object,
-        schema: str,
+        config: base_utils.StudyConfig,
         *args,
-        verbose: bool = False,
-        drop_table: bool = False,
         table_suffix: str | None = None,
         **kwargs,
     ):
         # super().execute_queries(cursor, schema, verbose, drop_table)
-        self.generate_psm_analysis(cursor, schema, table_suffix)
+        self.generate_psm_analysis(config.db.cursor(), config.schema, table_suffix)

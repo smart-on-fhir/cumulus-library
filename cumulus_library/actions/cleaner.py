@@ -2,7 +2,7 @@ import sys
 
 from rich.progress import Progress, TaskID
 
-from cumulus_library import base_utils, databases, enums, errors, study_parser
+from cumulus_library import base_utils, databases, enums, errors, study_manifest
 from cumulus_library.template_sql import base_templates
 
 
@@ -76,41 +76,35 @@ def get_unprotected_stats_view_table(
 
 
 def clean_study(
-    manifest_parser: study_parser.StudyManifestParser | None,
-    cursor: databases.DatabaseCursor,
-    schema_name: str,
-    stats_clean: bool = False,
-    verbose: bool = False,
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest | None,
     prefix: str | None = None,
 ) -> list:
     """Removes tables beginning with the study prefix from the database schema
 
-    :param manifest_parser: a StudyManifestParser for the study
-    :param cursor: A DatabaseCursor object
-    :param schema_name: The name of the schema containing the study tables
-    :keyword verbose: toggle from progress bar to query output, optional
-    :keyword stats_clean: will delete stats tables created from random sampling
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
     :keyword prefix: override manifest-based prefix discovery with the provided prefix
     :returns: list of dropped tables (for unit testing only)
 
     """
-    if not schema_name:
+    if not config.schema:
         raise errors.CumulusLibraryError("No database provided")
-    if not prefix and not manifest_parser:
+    if not prefix and not manifest:
         raise errors.CumulusLibraryError(
             "Either a manifest parser or a filter prefix must be provided"
         )
-    if manifest_parser and manifest_parser.get_dedicated_schema():
+    if manifest and manifest.get_dedicated_schema():
         drop_prefix = ""
         display_prefix = ""
     elif not prefix:
-        drop_prefix = f"{manifest_parser.get_study_prefix()}__"
-        display_prefix = manifest_parser.get_study_prefix()
+        drop_prefix = f"{manifest.get_study_prefix()}__"
+        display_prefix = manifest.get_study_prefix()
     else:
         drop_prefix = prefix
         display_prefix = drop_prefix
 
-    if stats_clean:
+    if config.stats_clean:
         confirm = input(
             "This will remove all historical stats tables in the "
             f"{display_prefix} study - are you sure? (y/N)"
@@ -118,8 +112,9 @@ def clean_study(
         if confirm is None or confirm.lower() not in ("y", "yes"):
             sys.exit("Table cleaning aborted")
 
-    view_sql = base_templates.get_show_views(schema_name, drop_prefix)
-    table_sql = base_templates.get_show_tables(schema_name, drop_prefix)
+    cursor = config.db.cursor()
+    view_sql = base_templates.get_show_views(config.schema, drop_prefix)
+    table_sql = base_templates.get_show_tables(config.schema, drop_prefix)
     for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
         view_table_list = get_unprotected_stats_view_table(
             cursor,
@@ -127,7 +122,7 @@ def clean_study(
             query_and_type[1],
             drop_prefix,
             display_prefix,
-            stats_clean,
+            config.stats_clean,
         )
     if not view_table_list:
         return view_table_list
@@ -152,7 +147,7 @@ def clean_study(
         confirm = input("Remove these tables? (y/N)")
         if confirm.lower() not in ("y", "yes"):
             sys.exit("Table cleaning aborted")
-    if dedicated := manifest_parser.get_dedicated_schema():
+    if dedicated := manifest.get_dedicated_schema():
         view_table_list = [
             (
                 f"`{dedicated}`.`{x[0]}`",
@@ -161,22 +156,22 @@ def clean_study(
             for x in view_table_list
         ]
     # We want to only show a progress bar if we are :not: printing SQL lines
-    with base_utils.get_progress_bar(disable=verbose) as progress:
+    with base_utils.get_progress_bar(disable=config.verbose) as progress:
         task = progress.add_task(
             f"Removing {display_prefix} study artifacts...",
             total=len(view_table_list),
-            visible=not verbose,
+            visible=not config.verbose,
         )
         _execute_drop_queries(
             cursor,
-            verbose,
+            config.verbose,
             view_table_list,
             progress,
             task,
         )
     # if we're doing a stats clean, we'll also remove the table containing the
     # list of protected tables
-    if stats_clean:
+    if config.stats_clean:
         drop_query = base_templates.get_drop_view_table(
             f"{drop_prefix}{enums.ProtectedTables.STATISTICS.value}", "TABLE"
         )

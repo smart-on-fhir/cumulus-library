@@ -206,14 +206,31 @@ def mock_db(tmp_path):
 
 
 @pytest.fixture
+def mock_db_config(mock_db):
+    """Provides a DuckDatabaseBackend for local testing inside a StudyConfig"""
+    config = base_utils.StudyConfig(db=mock_db, schema="main")
+    yield config
+
+
+@pytest.fixture
 def mock_db_core(tmp_path, mock_db):  # pylint: disable=redefined-outer-name
     """Provides a DuckDatabaseBackend with the core study ran for local testing"""
-    builder = cli.StudyRunner(mock_db, data_path=f"{tmp_path}/data_path")
+    config = base_utils.StudyConfig(
+        db=mock_db,
+        schema="main",
+    )
+    builder = cli.StudyRunner(config, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
         Path(__file__).parent.parent / "cumulus_library/studies/core",
-        config=base_utils.StudyConfig(stats_build=True, db=mock_db),
     )
     yield mock_db
+
+
+@pytest.fixture
+def mock_db_core_config(mock_db_core):
+    """Provides a DuckDatabaseBackend with core study inside a StudyConfig"""
+    config = base_utils.StudyConfig(db=mock_db_core, schema="main")
+    yield config
 
 
 @pytest.fixture
@@ -223,13 +240,23 @@ def mock_db_stats(tmp_path):
     db = create_db_backend(
         {
             "db_type": "duckdb",
-            "schema_name": f"{tmp_path}cumulus.duckdb",
+            "schema_name": f"{tmp_path}/stats.db",
             "load_ndjson_dir": f"{tmp_path}/mock_data",
         }
     )
-    builder = cli.StudyRunner(db, data_path=f"{tmp_path}/data_path")
+    config = base_utils.StudyConfig(
+        db=db,
+        schema="main",
+    )
+    builder = cli.StudyRunner(config, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
         Path(__file__).parent.parent / "cumulus_library/studies/core",
-        config=base_utils.StudyConfig(stats_build=True, db=db),
     )
     yield db
+
+
+@pytest.fixture
+def mock_db_stats_config(mock_db_stats):
+    """Provides a DuckDatabaseBackend with core study inside a StudyConfig"""
+    config = base_utils.StudyConfig(db=mock_db_stats, schema="main")
+    yield config

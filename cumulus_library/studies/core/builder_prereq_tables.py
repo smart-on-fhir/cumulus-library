@@ -12,7 +12,7 @@ from cumulus_library import base_table_builder
 class CorePrereqTableBuilder(base_table_builder.BaseTableBuilder):
     display_text = "Creating core prerequisite tables..."
 
-    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
+    def prepare_queries(self, *args, **kwargs):
         dir_path = pathlib.Path(__file__).resolve().parents[0]
         prereq_sql = [
             "version.sql",

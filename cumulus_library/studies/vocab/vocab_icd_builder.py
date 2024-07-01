@@ -10,7 +10,6 @@ from cumulus_library.template_sql import base_templates
 
 class VocabIcdRunner(base_table_builder.BaseTableBuilder):
     display_text = "Creating ICD vocab..."
-    partition_size = 1200
 
     @staticmethod
     def clean_row(row, filename):
@@ -22,10 +21,8 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
 
     def prepare_queries(
         self,
-        cursor: object,
-        schema: str,
-        *args,
         config: base_utils.StudyConfig,
+        *args,
         **kwargs,
     ):
         """Creates queries for populating ICD vocab
@@ -58,7 +55,7 @@ class VocabIcdRunner(base_table_builder.BaseTableBuilder):
         # use the last value of remote location
         self.queries.append(
             base_templates.get_ctas_from_parquet_query(
-                schema_name=schema,
+                schema_name=config.schema,
                 table_name=table_name,
                 local_location=path / "icd",
                 remote_location=remote_path,

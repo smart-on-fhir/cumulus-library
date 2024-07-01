@@ -7,7 +7,7 @@ import toml
 from cumulus_library import errors
 
 
-class StudyManifestParser:
+class StudyManifest:
     """Handles interactions with study directories and manifest files"""
 
     def __init__(
@@ -15,7 +15,7 @@ class StudyManifestParser:
         study_path: pathlib.Path | None = None,
         data_path: pathlib.Path | None = None,
     ):
-        """Instantiates a StudyManifestParser.
+        """Instantiates a StudyManifest.
 
         :param study_path: A pathlib Path object, optional
         """
