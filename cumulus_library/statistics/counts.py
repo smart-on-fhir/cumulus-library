@@ -262,7 +262,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
 
         :param filepath: path to file to write queries out to.
         """
-        self.prepare_queries(cursor=None, schema=None)
+        self.prepare_queries()
         self.comment_queries()
         self.write_queries(path=Path(filepath))
 
@@ -272,4 +272,4 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         This should be overridden in any count generator. See studies/core/count_core.py
         for an example
         """
-        pass
+        pass  # pramga: no cover

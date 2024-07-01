@@ -351,12 +351,20 @@ def test_import_study(tmp_path, mock_db_config):
             config=mock_db_config, archive_path=tmp_path / "archive/missing.zip"
         )
     with pytest.raises(errors.StudyImportError):
+        with open(tmp_path / "archive/empty.zip", "w"):
+            pass
+        importer.import_archive(
+            config=mock_db_config, archive_path=tmp_path / "archive/empty.zip"
+        )
+    with pytest.raises(errors.StudyImportError):
         importer.import_archive(
             config=mock_db_config, archive_path=tmp_path / "duck.db"
         )
     with pytest.raises(errors.StudyImportError):
+        df.to_parquet(tmp_path / "archive/test__table.parquet")
         df.to_parquet(tmp_path / "archive/other_test__table.parquet")
         with zipfile.ZipFile(tmp_path / "archive/test.zip", "w") as archive:
+            archive.write(tmp_path / "archive/test__table.parquet")
             archive.write(tmp_path / "archive/other_test__table.parquet")
         importer.import_archive(
             config=mock_db_config, archive_path=tmp_path / "duck.db"
@@ -376,14 +384,15 @@ def test_import_study(tmp_path, mock_db_config):
 
 
 @pytest.mark.parametrize(
-    "user,id_token,status,login_error,raises",
+    "user,id_token,status,login_error,preview,raises",
     [
-        (None, None, 204, False, pytest.raises(SystemExit)),
-        ("user", "id", 204, False, does_not_raise()),
+        (None, None, 204, False, False, pytest.raises(SystemExit)),
+        ("user", "id", 204, False, False, does_not_raise()),
         (
             "user",
             "id",
             500,
+            False,
             False,
             pytest.raises(requests.exceptions.HTTPError),
         ),
@@ -392,6 +401,7 @@ def test_import_study(tmp_path, mock_db_config):
             "badid",
             204,
             True,
+            False,
             pytest.raises(requests.exceptions.HTTPError),
         ),
         (
@@ -399,12 +409,21 @@ def test_import_study(tmp_path, mock_db_config):
             "id",
             204,
             False,
+            False,
+            does_not_raise(),
+        ),
+        (
+            "user",
+            "id",
+            204,
+            False,
+            True,
             does_not_raise(),
         ),
     ],
 )
 @responses.activate
-def test_upload_data(user, id_token, status, login_error, raises):
+def test_upload_data(user, id_token, status, preview, login_error, raises):
     with raises:
         if login_error:
             responses.add(responses.POST, "https://upload.url.test/upload/", status=401)
@@ -417,13 +436,17 @@ def test_upload_data(user, id_token, status, login_error, raises):
         args = {
             "data_path": pathlib.Path.cwd() / "tests/test_data",
             "id": id_token,
-            "preview": False,
+            "preview": preview,
             "target": "core",
             "url": "https://upload.url.test/upload/",
             "user": user,
         }
         responses.add(responses.POST, "https://presigned.url.test", status=status)
         uploader.upload_files(args)
+        if preview:
+            responses.assert_call_count("https://upload.url.test/upload/", 1)
+        elif raises == does_not_raise():
+            responses.assert_call_count("https://upload.url.test/upload/", 2)
 
 
 @mock.patch("sysconfig.get_path")
