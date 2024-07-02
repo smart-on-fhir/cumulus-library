@@ -4,7 +4,14 @@ from datetime import datetime
 import pytest
 from freezegun import freeze_time
 
-from cumulus_library import __version__, enums, errors, log_utils, study_parser
+from cumulus_library import (
+    __version__,
+    base_utils,
+    enums,
+    errors,
+    log_utils,
+    study_manifest,
+)
 from cumulus_library.template_sql import base_templates, sql_utils
 
 
@@ -56,7 +63,8 @@ def test_transactions(mock_db, schema, study, status, message, expects, raises):
     with raises:
         cursor = mock_db.cursor()
         table = sql_utils.TransactionsTable()
-        manifest = study_parser.StudyManifestParser(f"./tests/test_data/{study}/")
+        config = base_utils.StudyConfig(db=mock_db, schema="main")
+        manifest = study_manifest.StudyManifest(f"./tests/test_data/{study}/")
         if manifest.get_dedicated_schema():
             schema = manifest.get_dedicated_schema()
             table_name = table.name
@@ -71,8 +79,7 @@ def test_transactions(mock_db, schema, study, status, message, expects, raises):
         )
         cursor.execute(query)
         log_utils.log_transaction(
-            cursor=cursor,
-            schema=schema,
+            config=config,
             manifest=manifest,
             status=status,
             message=message,
@@ -125,7 +132,8 @@ def test_statistics(
     with raises:
         cursor = mock_db.cursor()
         table = sql_utils.StatisticsTable()
-        manifest = study_parser.StudyManifestParser(f"./tests/test_data/{study}/")
+        manifest = study_manifest.StudyManifest(f"./tests/test_data/{study}/")
+        config = base_utils.StudyConfig(db=mock_db, schema="main")
         if manifest.get_dedicated_schema():
             schema = manifest.get_dedicated_schema()
             table_name = table.name
@@ -140,8 +148,7 @@ def test_statistics(
         )
         cursor.execute(query)
         log_utils.log_statistics(
-            cursor=cursor,
-            schema=schema,
+            config=config,
             manifest=manifest,
             table_type=table_type,
             table_name=table_name,

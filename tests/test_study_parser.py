@@ -6,7 +6,7 @@ from unittest import mock
 
 import pytest
 
-from cumulus_library import errors, study_parser
+from cumulus_library import errors, study_manifest
 from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
 
 
@@ -43,7 +43,7 @@ def test_load_manifest(manifest_path, expected, raises):
             path = f"{pathlib.Path(__file__).resolve().parents[0]}/{manifest_path}"
         else:
             path = None
-        manifest = study_parser.StudyManifestParser(path)
+        manifest = study_manifest.StudyManifest(path)
         assert str(manifest) == expected
 
 
@@ -64,9 +64,9 @@ def test_manifest_data(manifest_key, raises):
     ):
         with raises:
             if manifest_key == "invalid_none":
-                parser = study_parser.StudyManifestParser()
+                parser = study_manifest.StudyManifest()
             else:
-                parser = study_parser.StudyManifestParser("./path")
+                parser = study_manifest.StudyManifest("./path")
             expected = mock_manifests[manifest_key]
             assert parser.get_study_prefix() == expected["study_prefix"]
             if "sql_config" in expected.keys():

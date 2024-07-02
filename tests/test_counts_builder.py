@@ -5,8 +5,8 @@ from unittest import mock
 
 import pytest
 
-from cumulus_library.errors import CountsBuilderError
-from cumulus_library.statistics.counts import CountsBuilder
+from cumulus_library import errors
+from cumulus_library.statistics import counts
 
 TEST_PREFIX = "test"
 
@@ -19,7 +19,7 @@ TEST_PREFIX = "test"
     ],
 )
 def test_get_table_name(name, duration, expected):
-    builder = CountsBuilder(study_prefix=TEST_PREFIX)
+    builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
     output = builder.get_table_name(name, duration)
     assert output == expected
 
@@ -32,7 +32,7 @@ def test_get_table_name(name, duration, expected):
         ("age > 5", None, ["age > 5"], does_not_raise()),
         (["age > 5", "sex =='F'"], None, ["age > 5", "sex =='F'"], does_not_raise()),
         ("age > 5", 7, ["age > 5"], does_not_raise()),
-        ({"age": "5"}, None, None, pytest.raises(CountsBuilderError)),
+        ({"age": "5"}, None, None, pytest.raises(errors.CountsBuilderError)),
     ],
 )
 def test_get_where_clauses(clause, min_subject, expected, raises):
@@ -42,7 +42,7 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
             kwargs["clause"] = clause
         if min_subject is not None:
             kwargs["min_subject"] = min_subject
-        builder = CountsBuilder(study_prefix=TEST_PREFIX)
+        builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
         output = builder.get_where_clauses(**kwargs)
         assert output == expected
 
@@ -67,12 +67,24 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
             "source",
             ["a", "b"],
             {"bad_key": True},
-            pytest.raises(CountsBuilderError),
+            pytest.raises(errors.CountsBuilderError),
         ),
-        (None, "source", ["a", "b"], {}, pytest.raises(CountsBuilderError)),
-        ("table", None, ["a", "b"], {}, pytest.raises(CountsBuilderError)),
-        ("table", "source", [], {}, pytest.raises(CountsBuilderError)),
-        ("table", "source", None, {}, pytest.raises(CountsBuilderError)),
+        (
+            None,
+            "source",
+            ["a", "b"],
+            {},
+            pytest.raises(errors.CountsBuilderError),
+        ),
+        (
+            "table",
+            None,
+            ["a", "b"],
+            {},
+            pytest.raises(errors.CountsBuilderError),
+        ),
+        ("table", "source", [], {}, pytest.raises(errors.CountsBuilderError)),
+        ("table", "source", None, {}, pytest.raises(errors.CountsBuilderError)),
     ],
 )
 @mock.patch(
@@ -82,7 +94,7 @@ def test_get_count_query(
     mock_count, table_name, source_table, table_cols, kwargs, raises
 ):
     with raises:
-        builder = CountsBuilder(study_prefix=TEST_PREFIX)
+        builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
         builder.get_count_query(table_name, source_table, table_cols, **kwargs)
         assert mock_count.called
         call_args, call_kwargs = mock_count.call_args
@@ -165,7 +177,7 @@ def test_count_wrappers(
         kwargs["where_clauses"] = where
     if min_subject is not None:
         kwargs["min_subject"] = min_subject
-    builder = CountsBuilder(study_prefix=TEST_PREFIX)
+    builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
     wrapper = getattr(builder, method)
     wrapper(table_name, source_table, table_cols, **kwargs)
     assert mock_count.called
@@ -176,3 +188,24 @@ def test_count_wrappers(
         assert call_kwargs["where_clauses"] == where
     if min_subject is not None:
         assert call_kwargs["min_subject"] == min_subject
+
+
+def test_null_initialization():
+    with pytest.raises(errors.CountsBuilderError):
+        counts.CountsBuilder()
+
+
+def test_write_queries(tmp_path):
+    builder = counts.CountsBuilder(study_prefix="foo")
+    builder.queries = ["SELECT * FROM FOO", "SELECT * FROM BAR"]
+    builder.write_counts(tmp_path / "output.sql")
+    with open(tmp_path / "output.sql") as f:
+        found = f.read()
+    expected = """-- noqa: disable=all
+SELECT * FROM FOO
+
+-- ###########################################################
+
+SELECT * FROM BAR
+"""
+    assert found == expected

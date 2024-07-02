@@ -3,13 +3,11 @@
 import sys
 from pathlib import Path
 
-from cumulus_library.base_table_builder import BaseTableBuilder
-from cumulus_library.errors import CountsBuilderError
+from cumulus_library import base_table_builder, errors, study_manifest
 from cumulus_library.statistics.statistics_templates import counts_templates
-from cumulus_library.study_parser import StudyManifestParser
 
 
-class CountsBuilder(BaseTableBuilder):
+class CountsBuilder(base_table_builder.BaseTableBuilder):
     """Extends BaseTableBuilder for counts-related use cases"""
 
     def __init__(self, study_prefix: str | None = None):
@@ -19,10 +17,10 @@ class CountsBuilder(BaseTableBuilder):
             study_path = Path(sys.modules[self.__module__].__file__).parent
 
             try:
-                parser = StudyManifestParser(study_path)
+                parser = study_manifest.StudyManifest(study_path)
                 self.study_prefix = parser.get_study_prefix()
             except Exception as e:
-                raise CountsBuilderError(
+                raise errors.CountsBuilderError(
                     "CountsBuilder must be either initiated with a study prefix, "
                     "or be in a directory with a valid manifest.toml"
                 ) from e
@@ -57,7 +55,9 @@ class CountsBuilder(BaseTableBuilder):
         elif isinstance(clause, list):
             return clause
         else:
-            raise CountsBuilderError(f"get_where_clauses invalid clause {clause}")
+            raise errors.CountsBuilderError(
+                f"get_where_clauses invalid clause {clause}"
+            )
 
     def get_count_query(
         self, table_name: str, source_table: str, table_cols: list, **kwargs
@@ -74,7 +74,7 @@ class CountsBuilder(BaseTableBuilder):
             statistics/statistics_templates/count_templates.CountableFhirResource)
         """
         if not table_name or not source_table or not table_cols:
-            raise CountsBuilderError(
+            raise errors.CountsBuilderError(
                 "count_query missing required arguments. " f"output table: {table_name}"
             )
         for key in kwargs:
@@ -84,7 +84,9 @@ class CountsBuilder(BaseTableBuilder):
                 "fhir_resource",
                 "filter_resource",
             ]:
-                raise CountsBuilderError(f"count_query received unexpected key: {key}")
+                raise errors.CountsBuilderError(
+                    f"count_query received unexpected key: {key}"
+                )
         return counts_templates.get_count_query(
             table_name, source_table, table_cols, **kwargs
         )
@@ -260,7 +262,7 @@ class CountsBuilder(BaseTableBuilder):
 
         :param filepath: path to file to write queries out to.
         """
-        self.prepare_queries(cursor=None, schema=None)
+        self.prepare_queries()
         self.comment_queries()
         self.write_queries(path=Path(filepath))
 
@@ -270,4 +272,4 @@ class CountsBuilder(BaseTableBuilder):
         This should be overridden in any count generator. See studies/core/count_core.py
         for an example
         """
-        pass
+        pass  # pragma: no cover

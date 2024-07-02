@@ -7,7 +7,7 @@ class ModuleOneRunner(CountsBuilder):
     def __init__(self):
         super().__init__()
 
-    def prepare_queries(self, cursor: object, schema: str, *args, **kwargs):
+    def prepare_queries(self, *args, **kwargs):
         self.queries.append(
             "CREATE TABLE IF NOT EXISTS study_python_counts_valid__table1 (test int);"
         )

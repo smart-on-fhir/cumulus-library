@@ -10,7 +10,7 @@ from contextlib import contextmanager
 
 from rich import progress
 
-from cumulus_library import databases, study_parser
+from cumulus_library import databases, study_manifest
 
 
 @dataclasses.dataclass
@@ -22,22 +22,36 @@ class StudyConfig:
     doing something above that level, consider explicit arguments instead. This should
     be an interface aimed at a study author.
 
-    :param db_backend: a databaseBackend object for a specific target database
-    :keyword db_type: the argument passed in from the CLI indicating the requested DB
-        (this is easier to use in things like jinja templates than db_backend, if they
-        need to run DB technology aware queries)
-    :keyword replace_existing: If the study downloads data from an external resource,
+    :param db: a databaseBackend object for a specific target database
+    :param schema: the database schema specified at the command line
+    :keyword drop_table: when creating tables, if one already exists in the db,
+        drop it
+    :keyword force_upload: If the study downloads data from an external resource,
         force it to skip any cached data when running
+    :keyword verbose: if True, print raw queries to the cli instead of progress bars
     :keyword stats_build: If the study runs a stats builder, force regeneration of
         any sampling or other stochastic techniques
+    :keyword umls_key: An API for the UMLS service, used for downloading vocabularies
     :keyword umls: A UMLS API key
+    :keyword options: a dictionary for any study-specific CLI arguments
     """
 
     db: databases.DatabaseBackend
+    schema: str
+    drop_table: bool = False
     force_upload: bool = False
+    verbose: bool = False
     stats_build: bool = False
+    stats_clean: bool = False
     umls_key: str | None = None
     options: dict | None = None
+
+
+def get_schema(config: StudyConfig, manifest: study_manifest.StudyManifest):
+    if dedicated := manifest.get_dedicated_schema():
+        config.db.create_schema(dedicated)
+        return dedicated
+    return config.schema
 
 
 def load_text(path: str) -> str:
@@ -117,7 +131,7 @@ def zip_dir(read_path, write_path, archive_name):
 
 
 def update_query_if_schema_specified(
-    query: str, manifest: study_parser.StudyManifestParser
+    query: str, manifest: study_manifest.StudyManifest
 ):
     if manifest and manifest.get_dedicated_schema():
         query = query.replace(

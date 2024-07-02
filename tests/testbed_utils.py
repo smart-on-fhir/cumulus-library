@@ -232,10 +232,13 @@ class LocalTestbed:
                 "load_ndjson_dir": str(self.path),
             }
         )
-        builder = cli.StudyRunner(db, data_path=str(self.path))
-        # builder.verbose = True
+        config = base_utils.StudyConfig(
+            db=db,
+            schema="main",
+            # builder.verbose = True
+        )
+        builder = cli.StudyRunner(config, data_path=str(self.path))
         builder.clean_and_build_study(
             Path(__file__).parent.parent / "cumulus_library/studies" / study,
-            config=base_utils.StudyConfig(db=db, stats_build=False),
         )
         return duckdb.connect(db_file)

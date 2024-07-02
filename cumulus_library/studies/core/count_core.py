@@ -111,7 +111,7 @@ class CoreCountsBuilder(counts.CountsBuilder):
         cols = ["gender", "race_display", "ethnicity_display"]
         return self.count_patient(table_name, from_table, cols)
 
-    def prepare_queries(self, cursor=None, schema=None, *args, **kwargs):
+    def prepare_queries(self, *args, **kwargs):
         self.queries = [
             self.count_core_condition(duration="month"),
             self.count_core_documentreference(duration="month"),

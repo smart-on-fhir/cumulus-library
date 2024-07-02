@@ -17,7 +17,7 @@ from cumulus_library import (
     errors,
     log_utils,
     protected_table_builder,
-    study_parser,
+    study_manifest,
 )
 from cumulus_library.statistics import psm
 
@@ -33,27 +33,19 @@ def _temporary_sys_path(add: pathlib.Path) -> None:
 
 
 def _load_and_execute_builder(
-    manifest: study_parser.StudyManifestParser,
-    filename: str,
-    cursor: databases.DatabaseCursor,
-    schema: str,
-    *,
     config: base_utils.StudyConfig,
-    verbose: bool = False,
-    drop_table: bool = False,
+    manifest: study_manifest.StudyManifest,
+    *,
+    filename: str,
     db_parser: databases.DatabaseParser = None,
     write_reference_sql: bool = False,
     doc_str: str | None = None,
 ) -> None:
     """Loads a table builder from a file.
 
-    :param manifest: a StudyManifestParser object
-    :param filename: filename of a module implementing a TableBuilder
-    :param cursor: a database cursor for query execution
-    :param schema: the database schema to write to
-    :keyword config: a StudyConfig object
-    :keyword verbose: if true, will replace progress bars with sql query output
-    :keyword drop_table: if true, will drop a table if it already exists
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
+    :keyword filename: filename of a module implementing a TableBuilder
     :keyword db_parser: an object implementing DatabaseParser for the target database
     :keyword write_reference_sql: if true, writes sql to disk inside a study's directory
     :keyword doc_string: A string to insert between queries written to disk
@@ -102,7 +94,9 @@ def _load_and_execute_builder(
     table_builder_class = table_builder_subclasses[0]
     table_builder = table_builder_class()
     if write_reference_sql:
-        table_builder.prepare_queries(cursor, schema, parser=db_parser, config=config)
+        table_builder.prepare_queries(
+            config=config, manifest=manifest, parser=db_parser
+        )
         table_builder.comment_queries(doc_str=doc_str)
         new_filename = pathlib.Path(f"{filename}").stem + ".sql"
         table_builder.write_queries(
@@ -110,13 +104,9 @@ def _load_and_execute_builder(
         )
     else:
         table_builder.execute_queries(
-            cursor,
-            schema,
-            verbose=verbose,
-            drop_table=drop_table,
-            parser=db_parser,
             config=config,
             manifest=manifest,
+            parser=db_parser,
         )
 
     # After running the executor code, we'll remove
@@ -127,70 +117,45 @@ def _load_and_execute_builder(
 
 
 def run_protected_table_builder(
-    manifest: study_parser.StudyManifestParser,
-    cursor: databases.DatabaseCursor,
-    schema: str,
-    *,
     config: base_utils.StudyConfig,
-    verbose: bool = False,
+    manifest: study_manifest.StudyManifest,
 ) -> None:
     """Creates protected tables for persisting selected data across runs
 
-    :param manifest: a StudyManifestParser object
-    :param cursor: A DatabaseCursor object
-    :param schema: The name of the schema to write tables to
-    :keyword config: a StudyConfig object
-    :keyword verbose: if true, will replace progress bars with sql query output
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
     """
     ptb = protected_table_builder.ProtectedTableBuilder()
     ptb.execute_queries(
-        cursor,
-        schema,
-        verbose,
-        study_name=manifest._study_config.get("study_prefix"),
-        study_stats=manifest._study_config.get("statistics_config"),
         config=config,
         manifest=manifest,
     )
 
 
 def run_table_builder(
-    manifest: study_parser.StudyManifestParser,
-    cursor: databases.DatabaseCursor,
-    schema: str,
-    *,
     config: base_utils.StudyConfig,
-    verbose: bool = False,
+    manifest: study_manifest.StudyManifest,
+    *,
     db_parser: databases.DatabaseParser = None,
 ) -> None:
     """Loads modules from a manifest and executes code via BaseTableBuilder
 
-    :param manifest: a StudyManifestParser object
-    :param cursor: A DatabaseCursor object
-    :param schema: The name of the schema to write tables to
-    :keyword config: a StudyConfig object
-    :keyword verbose: if true, will replace progress bars with sql query output
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
     :keyword db_parser: an object implementing DatabaseParser for the target database
     """
     for file in manifest.get_table_builder_file_list():
         _load_and_execute_builder(
-            manifest,
-            file,
-            cursor,
-            schema,
-            verbose=verbose,
-            db_parser=db_parser,
             config=config,
+            manifest=manifest,
+            filename=file,
+            db_parser=db_parser,
         )
 
 
 def run_counts_builders(
-    manifest: study_parser.StudyManifestParser,
-    cursor: databases.DatabaseCursor,
-    schema: str,
-    *,
     config: base_utils.StudyConfig,
-    verbose: bool = False,
+    manifest: study_manifest.StudyManifest,
 ) -> None:
     """Loads counts modules from a manifest and executes code via BaseTableBuilder
 
@@ -199,41 +164,38 @@ def run_counts_builders(
     given dataset, where other statistical methods may use sampling techniques
     or adjustable input parameters that may need to be preserved for later review.
 
-    :param manifest: a StudyManifestParser object
-    :param cursor: A DatabaseCursor object
-    :param schema: The name of the schema to write tables to
-    :keyword config: a StudyConfig object
-    :keyword verbose: if true, will replace progress bars with sql query output
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
     """
     for file in manifest.get_counts_builder_file_list():
         _load_and_execute_builder(
-            manifest,
-            file,
-            cursor,
-            schema,
-            verbose=verbose,
             config=config,
+            manifest=manifest,
+            filename=file,
         )
 
 
 def run_statistics_builders(
-    manifest: study_parser.StudyManifestParser,
-    cursor: databases.DatabaseCursor,
-    schema: str,
-    *,
     config: base_utils.StudyConfig,
-    verbose: bool = False,
+    manifest: study_manifest.StudyManifest,
 ) -> None:
     """Loads statistics modules from toml definitions and executes
 
-    :param manifest: a StudyManifestParser object
-    :param cursor: A DatabaseCursor object
-    :param schema: The name of the schema to write tables to
-    :keyword config: a StudyConfig object
-    :keyword verbose: if true, will replace progress bars with sql query output
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
     """
-    if not config.stats_build:
+    if len(manifest.get_statistics_file_list()) == 0:
         return
+    existing_stats = []
+    if not config.stats_build:
+        existing_stats = (
+            config.db.cursor()
+            .execute(
+                "SELECT view_name FROM "
+                f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}"
+            )
+            .fetchall()
+        )
     for file in manifest.get_statistics_file_list():
         # This open is a bit redundant with the open inside of the PSM builder,
         # but we're letting it slide so that builders function similarly
@@ -241,30 +203,29 @@ def run_statistics_builders(
         safe_timestamp = base_utils.get_tablename_safe_iso_timestamp()
         toml_path = pathlib.Path(f"{manifest._study_path}/{file}")
         with open(toml_path, encoding="UTF-8") as file:
-            config = toml.load(file)
-            config_type = config["config_type"]
-            target_table = config["target_table"]
+            stats_config = toml.load(file)
+            config_type = stats_config["config_type"]
+            target_table = stats_config["target_table"]
+
+        if (target_table,) in existing_stats and not config.stats_build:
+            continue
         if config_type == "psm":
             builder = psm.PsmBuilder(
-                toml_path,
-                manifest.data_path / f"{manifest.get_study_prefix()}/psm",
-                config=config,
+                toml_config_path=toml_path,
+                config=stats_config,
+                data_path=manifest.data_path / f"{manifest.get_study_prefix()}/psm",
             )
         else:
             raise errors.StudyManifestParsingError(
                 f"{toml_path} references an invalid statistics type {config_type}."
             )
         builder.execute_queries(
-            cursor,
-            schema,
-            verbose,
-            table_suffix=safe_timestamp,
             config=config,
             manifest=manifest,
+            table_suffix=safe_timestamp,
         )
         log_utils.log_statistics(
-            cursor=cursor,
-            schema=schema,
+            config=config,
             manifest=manifest,
             table_type=config_type,
             table_name=f"{target_table}_{safe_timestamp}",
@@ -273,54 +234,40 @@ def run_statistics_builders(
 
 
 def run_matching_table_builder(
-    manifest: study_parser.StudyManifestParser,
-    cursor: databases.DatabaseCursor,
-    schema: str,
-    builder: str,
-    *,
     config: base_utils.StudyConfig,
-    verbose: bool = False,
+    manifest: study_manifest.StudyManifest,
+    *,
+    builder: str,
     db_parser: databases.DatabaseParser = None,
 ):
     """targets all table builders matching a target string for running
 
-    :param manifest: a StudyManifestParser object
-    :param cursor: A DatabaseCursor object
-    :param schema: The name of the schema to write tables to
-    :param builder: filename of a module implementing a TableBuilder
-    :keyword config: a StudyConfig object
-    :keyword verbose: if true, will replace progress bars with sql query output
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
+    :keyword builder: filename of a module implementing a TableBuilder
     :keyword db_parser: an object implementing DatabaseParser for the target database"""
     all_generators = manifest.get_all_generators()
     for file in all_generators:
         if builder and file.find(builder) == -1:
             continue
         _load_and_execute_builder(
-            manifest,
-            file,
-            cursor,
-            schema,
-            verbose=verbose,
-            drop_table=True,
-            db_parser=db_parser,
             config=config,
+            manifest=manifest,
+            filename=file,
+            db_parser=db_parser,
         )
 
 
 def build_study(
-    manifest: study_parser.StudyManifestParser,
-    cursor: databases.DatabaseCursor,
-    *,
     config: base_utils.StudyConfig,
-    verbose: bool = False,
+    manifest: study_manifest.StudyManifest,
+    *,
     continue_from: str | None = None,
 ) -> list:
     """Creates tables in the schema by iterating through the sql_config.file_names
 
-    :param manifest: a StudyManifestParser object
-    :param cursor: A DatabaseCursor object
-    :keyword config: a StudyConfig object
-    :keyword verbose: if true, will replace progress bars with sql query output
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
     :keyword continue_from: Name of a sql file to resume table creation from
     :returns: loaded queries (for unit testing only)
     """
@@ -338,21 +285,23 @@ def build_study(
             f"`{manifest.get_study_prefix()}__",
             "`",
         )
+    # We'll explicitly create a cursor since recreating cursors for each
+    # table in a study is slightly slower for some databases
+    cursor = config.db.cursor()
     # We want to only show a progress bar if we are :not: printing SQL lines
-    with base_utils.get_progress_bar(disable=verbose) as progress:
+    with base_utils.get_progress_bar(disable=config.verbose) as progress:
         task = progress.add_task(
             f"Creating {manifest.get_study_prefix()} study in db...",
             total=len(queries),
-            visible=not verbose,
+            visible=not config.verbose,
         )
         _execute_build_queries(
-            manifest,
-            cursor,
-            verbose,
-            queries,
-            progress,
-            task,
-            config,
+            config=config,
+            manifest=manifest,
+            cursor=cursor,
+            queries=queries,
+            progress=progress,
+            task=task,
         )
     return queries
 
@@ -370,23 +319,21 @@ def _query_error(query_and_filename: list, exit_message: str) -> None:
 
 
 def _execute_build_queries(
-    manifest: study_parser.StudyManifestParser,
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
+    *,
     cursor: databases.DatabaseCursor,
-    verbose: bool,
     queries: list,
     progress: Progress,
     task: TaskID,
-    config: base_utils.StudyConfig,
 ) -> None:
     """Handler for executing create table queries and displaying console output.
 
-    :param manifest: a StudyManifestParser object
+    :param manifest: a StudyManifest object
     :param cursor: A DatabaseCursor object
-    :param verbose: toggle from progress bar to query output
     :param queries: a list of queries read from files in sql_config.file_names
     :param progress: a rich progress bar renderer
     :param task: a TaskID for a given progress bar
-    :param config: a StudyConfig object
     """
     for query in queries:
         create_line = query[0].split("\n")[0]
@@ -430,7 +377,9 @@ def _execute_build_queries(
                 "start with a string like `study_prefix__`.",
             )
         try:
-            with base_utils.query_console_output(verbose, query[0], progress, task):
+            with base_utils.query_console_output(
+                config.verbose, query[0], progress, task
+            ):
                 cursor.execute(query[0])
         except Exception as e:  # pylint: disable=broad-exception-caught
             _query_error(

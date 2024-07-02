@@ -3,19 +3,17 @@
 from cumulus_library import (
     __version__,
     base_utils,
-    databases,
     enums,
     errors,
-    study_parser,
+    study_manifest,
 )
 from cumulus_library.template_sql import base_templates, sql_utils
 
 
 def log_transaction(
     *,
-    cursor: databases.DatabaseCursor,
-    schema: str,
-    manifest: study_parser.StudyManifestParser,
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
     status: enums.LogStatuses | str | None = enums.LogStatuses.INFO,
     message: str | None = None,
 ):
@@ -29,8 +27,7 @@ def log_transaction(
             ) from e
     _log_table(
         table=sql_utils.TransactionsTable(),
-        cursor=cursor,
-        schema=schema,
+        config=config,
         manifest=manifest,
         dataset=[
             [
@@ -46,17 +43,15 @@ def log_transaction(
 
 def log_statistics(
     *,
-    cursor: databases.DatabaseCursor,
-    schema: str,
-    manifest: study_parser.StudyManifestParser,
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
     table_type: str,
     table_name: str,
     view_name: str,
 ):
     _log_table(
         table=sql_utils.StatisticsTable(),
-        cursor=cursor,
-        schema=schema,
+        config=config,
         manifest=manifest,
         dataset=[
             [
@@ -74,16 +69,16 @@ def log_statistics(
 def _log_table(
     *,
     table: sql_utils.BaseTable,
-    cursor: databases.DatabaseCursor,
-    schema: str,
-    manifest: study_parser.StudyManifestParser,
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
     dataset: list[list],
 ):
+    print(type(config))
     if manifest and manifest.get_dedicated_schema():
         db_schema = manifest.get_dedicated_schema()
         table_name = table.name
     else:
-        db_schema = schema
+        db_schema = config.schema
         table_name = f"{manifest.get_study_prefix()}__{table.name}"
     query = base_templates.get_insert_into_query(
         schema=db_schema,
@@ -92,4 +87,4 @@ def _log_table(
         dataset=dataset,
         type_casts=table.type_casts,
     )
-    cursor.execute(query)
+    config.db.cursor().execute(query)

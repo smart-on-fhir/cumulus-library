@@ -1,12 +1,13 @@
 """tests for propensity score matching generation"""
 
-from datetime import datetime
-from pathlib import Path
+import datetime
+import pathlib
+from unittest import mock
 
 import pytest
 from freezegun import freeze_time
 
-from cumulus_library import cli
+from cumulus_library import cli, study_manifest
 from cumulus_library.statistics import psm
 
 
@@ -54,48 +55,84 @@ from cumulus_library.statistics import psm
 )
 def test_psm_create(
     tmp_path,
-    mock_db_stats,
+    mock_db_stats_config,
     toml_def,
     pos_set,
     neg_set,
     expected_first_record,
     expected_last_record,
 ):
-    builder = cli.StudyRunner(mock_db_stats, data_path=Path(tmp_path))
-    psmbuilder = psm.PsmBuilder(
-        f"{Path(__file__).parent}/test_data/psm/{toml_def}", Path(tmp_path)
+    builder = cli.StudyRunner(mock_db_stats_config, data_path=pathlib.Path(tmp_path))
+    manifest = study_manifest.StudyManifest(
+        study_path=f"{pathlib.Path(__file__).parent}/test_data/psm/"
     )
-    mock_db_stats.cursor().execute(
+    psmbuilder = psm.PsmBuilder(
+        f"{pathlib.Path(__file__).parent}/test_data/psm/{toml_def}",
+        pathlib.Path(tmp_path),
+    )
+    builder.config.db.cursor().execute(
         "create table psm_test__psm_cohort as (select * from core__condition "
         f"ORDER BY {psmbuilder.config.primary_ref} limit 100)"
     ).df()
-    mock_db_stats.cursor().execute("select * from psm_test__psm_cohort").fetchall()
     safe_timestamp = (
-        datetime.now()
+        datetime.datetime.now()
         .replace(microsecond=0)
         .isoformat()
         .replace(":", "_")
         .replace("-", "_")
     )
     psmbuilder.execute_queries(
-        mock_db_stats.pandas_cursor(),
-        builder.schema_name,
-        False,
+        builder.config,
+        manifest,
         drop_table=True,
         table_suffix=safe_timestamp,
     )
     df = (
-        mock_db_stats.cursor()
+        builder.config.db.cursor()
         .execute("select * from psm_test__psm_encounter_covariate")
         .df()
     )
-    print(df.columns)
+
     ed_series = df["example_diagnosis"].value_counts()
     assert ed_series.iloc[0] == neg_set
     assert ed_series.iloc[1] == pos_set
     first_record = df.iloc[0].to_dict()
-    print(first_record)
     assert first_record == expected_first_record
     last_record = df.iloc[neg_set + pos_set - 1].to_dict()
-    print(last_record)
     assert last_record == expected_last_record
+
+
+@pytest.mark.parametrize("error", [("value"), ("zero")])
+@mock.patch("psmpy.PsmPy.logistic_ps")
+def test_psm_error_handling(mock_psm, error, tmp_path, mock_db_stats_config):
+    match error:
+        case "value":
+            mock_psm.side_effect = ValueError
+        case "zero":
+            mock_psm.side_effect = ZeroDivisionError
+    builder = cli.StudyRunner(mock_db_stats_config, data_path=pathlib.Path(tmp_path))
+    manifest = study_manifest.StudyManifest(
+        study_path=f"{pathlib.Path(__file__).parent}/test_data/psm/"
+    )
+    psmbuilder = psm.PsmBuilder(
+        f"{pathlib.Path(__file__).parent}/test_data/psm/psm_config.toml",
+        pathlib.Path(tmp_path),
+    )
+    builder.config.db.cursor().execute(
+        "create table psm_test__psm_cohort as (select * from core__condition "
+        f"ORDER BY {psmbuilder.config.primary_ref} limit 100)"
+    ).df()
+    safe_timestamp = (
+        datetime.datetime.now()
+        .replace(microsecond=0)
+        .isoformat()
+        .replace(":", "_")
+        .replace("-", "_")
+    )
+    with pytest.raises(SystemExit):
+        psmbuilder.execute_queries(
+            builder.config,
+            manifest,
+            drop_table=True,
+            table_suffix=safe_timestamp,
+        )
