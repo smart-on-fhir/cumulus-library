@@ -36,7 +36,7 @@ class BaseTableBuilder(abc.ABC):
 
         :param config: A study configuration object
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @typing.final
     def execute_queries(
@@ -69,11 +69,6 @@ class BaseTableBuilder(abc.ABC):
                         )
 
                     table_name = table_name[0]
-                    # TODO: this may not be required? reinvestigate
-                    # if it contains a schema, remove it (usually it won't, but some
-                    # CTAS forms may)
-                    if "." in table_name:
-                        table_name = table_name.split(".")[1].replace('"', "")
                     table_names.append(table_name)
             for table_name in table_names:
                 cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
@@ -91,7 +86,11 @@ class BaseTableBuilder(abc.ABC):
                     ):
                         cursor.execute(query)
                 except Exception as e:  # pylint: disable=broad-exception-caught
-                    sys.exit(e)
+                    sys.exit(
+                        "An error occured executing this query:\n----\n"
+                        f"{query}\n----\n"
+                        f"{e}"
+                    )
 
         self.post_execution(config, *args, **kwargs)
 
@@ -123,7 +122,7 @@ class BaseTableBuilder(abc.ABC):
     def write_queries(self, path: pathlib.Path | None = None):
         """writes all queries constructed by prepare_queries to disk"""
         if path is None:
-            path = pathlib.Path.cwd() / "output.sql"
+            path = pathlib.Path.cwd() / "output.sql"  # pragma: no cover
 
         path.parents[0].mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as file:

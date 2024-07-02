@@ -272,4 +272,4 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         This should be overridden in any count generator. See studies/core/count_core.py
         for an example
         """
-        pass  # pramga: no cover
+        pass  # pragma: no cover

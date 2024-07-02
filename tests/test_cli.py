@@ -20,8 +20,7 @@ import pytest
 import responses
 import toml
 
-from cumulus_library import cli, errors
-from cumulus_library.databases import DuckDatabaseBackend
+from cumulus_library import cli, databases, errors
 from tests.conftest import duckdb_args
 
 
@@ -120,7 +119,7 @@ def test_cli_path_mapping(mock_load_json, mock_path, tmp_path, args, raises, exp
         }
         args = duckdb_args(args, tmp_path)
         cli.main(cli_args=args)
-        db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
         assert (expected,) in db.cursor().execute("show tables").fetchall()
 
 
@@ -143,7 +142,7 @@ def test_count_builder_mapping(mock_path, tmp_path):
             tmp_path,
         )
         cli.main(cli_args=args)
-        db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
         assert [
             ("study_python_counts_valid__lib_transactions",),
             ("study_python_counts_valid__table1",),
@@ -281,7 +280,7 @@ def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=
         with does_not_raise():
             with mock.patch.object(builtins, "input", lambda _: "y"):
                 cli.main(cli_args=duckdb_args(args, tmp_path))
-                db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+                db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
                 for table in db.cursor().execute("show tables").fetchall():
                     assert expected not in table
 
@@ -414,7 +413,7 @@ def test_cli_executes_queries(
             export_args = duckdb_args(export_args, tmp_path)
             cli.main(cli_args=export_args)
 
-        db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
         found_tables = (
             db.cursor()
             .execute("SELECT table_schema,table_name FROM information_schema.tables")
@@ -501,7 +500,7 @@ def test_cli_transactions(tmp_path, study, finishes, raises):
             f"{tmp_path}/{study}_duck.db",
         ]
         cli.main(cli_args=args)
-    db = DuckDatabaseBackend(f"{tmp_path}/{study}_duck.db")
+    db = databases.DuckDatabaseBackend(f"{tmp_path}/{study}_duck.db")
     query = db.cursor().execute(f"SELECT * from {study}__lib_transactions").fetchall()
     assert query[0][2] == "started"
     if finishes:
@@ -539,7 +538,7 @@ def test_cli_stats_rebuild(tmp_path):
     cli.main(cli_args=[*arg_list, f"{tmp_path}/export"])
     cli.main(cli_args=[*arg_list, f"{tmp_path}/export"])
     cli.main(cli_args=[*arg_list, f"{tmp_path}/export", "--statistics"])
-    db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     expected = (
         db.cursor()
         .execute(
@@ -654,7 +653,7 @@ def test_cli_single_builder(tmp_path):
     cli.main(
         cli_args=duckdb_args(["build", "--builder=patient", "--target=core"], tmp_path)
     )
-    db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     tables = {x[0] for x in db.cursor().execute("show tables").fetchall()}
     assert {
         "core__patient",
@@ -673,7 +672,7 @@ def test_cli_finds_study_from_manifest_prefix(tmp_path):
             tmp_path,
         )
     )
-    db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     tables = {x[0] for x in db.cursor().execute("show tables").fetchall()}
     assert "study_different_name__table" in tables
 
@@ -755,7 +754,7 @@ def test_dedicated_schema(tmp_path):
     )
     cli.main(cli_args=core_build_args)
     cli.main(cli_args=build_args)
-    db = DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     tables = (
         db.cursor()
         .execute("SELECT table_schema,table_name FROM information_schema.tables")
@@ -768,3 +767,24 @@ def test_dedicated_schema(tmp_path):
         ("main", "core__condition"),
     ]:
         assert table in tables
+
+
+@mock.patch.dict(os.environ, clear=True)
+@mock.patch("cumulus_library.databases.DuckDatabaseBackend")
+def test_sql_error_handling(mock_backend, tmp_path):
+    mock_backend.return_value.cursor.return_value.execute.side_effect = [
+        None,
+        Exception("bad query"),
+    ]
+    build_args = duckdb_args(
+        [
+            "build",
+            "-t",
+            "study_valid",
+            "-s",
+            "tests/test_data/study_valid/",
+        ],
+        tmp_path,
+    )
+    with pytest.raises(SystemExit):
+        cli.main(cli_args=build_args)

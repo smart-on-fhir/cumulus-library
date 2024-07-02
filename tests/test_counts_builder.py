@@ -193,3 +193,19 @@ def test_count_wrappers(
 def test_null_initialization():
     with pytest.raises(errors.CountsBuilderError):
         counts.CountsBuilder()
+
+
+def test_write_queries(tmp_path):
+    builder = counts.CountsBuilder(study_prefix="foo")
+    builder.queries = ["SELECT * FROM FOO", "SELECT * FROM BAR"]
+    builder.write_counts(tmp_path / "output.sql")
+    with open(tmp_path / "output.sql") as f:
+        found = f.read()
+    expected = """-- noqa: disable=all
+SELECT * FROM FOO
+
+-- ###########################################################
+
+SELECT * FROM BAR
+"""
+    assert found == expected
