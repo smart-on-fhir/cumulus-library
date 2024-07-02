@@ -363,11 +363,11 @@ def test_import_study(tmp_path, mock_db_config):
     with pytest.raises(errors.StudyImportError):
         df.to_parquet(tmp_path / "archive/test__table.parquet")
         df.to_parquet(tmp_path / "archive/other_test__table.parquet")
-        with zipfile.ZipFile(tmp_path / "archive/test.zip", "w") as archive:
+        with zipfile.ZipFile(tmp_path / "archive/two_studies.zip", "w") as archive:
             archive.write(tmp_path / "archive/test__table.parquet")
             archive.write(tmp_path / "archive/other_test__table.parquet")
         importer.import_archive(
-            config=mock_db_config, archive_path=tmp_path / "duck.db"
+            config=mock_db_config, archive_path=tmp_path / "archive/two_studies.zip"
         )
     with pytest.raises(errors.StudyImportError):
         df.to_parquet(tmp_path / "archive/table.parquet")
@@ -375,11 +375,6 @@ def test_import_study(tmp_path, mock_db_config):
             archive.write(tmp_path / "archive/table.parquet")
         importer.import_archive(
             config=mock_db_config, archive_path=tmp_path / "archive/no_dunder.zip"
-        )
-    with pytest.raises(errors.StudyImportError):
-        (tmp_path / "archive/empty.zip")
-        importer.import_archive(
-            config=mock_db_config, archive_path=tmp_path / "archive/empty.zip"
         )
 
 

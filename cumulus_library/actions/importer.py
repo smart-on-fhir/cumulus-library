@@ -48,6 +48,7 @@ def import_archive(config: base_utils.StudyConfig, *, archive_path: pathlib.Path
     """
 
     # Ensure we've got something that looks like a valid database export
+    print(archive_path)
     if not archive_path.exists():
         raise errors.StudyImportError(f"File {archive_path} not found.")
     try:
@@ -58,10 +59,6 @@ def import_archive(config: base_utils.StudyConfig, *, archive_path: pathlib.Path
         raise errors.StudyImportError(
             f"File {archive_path} is not a valid archive."
         ) from e
-    if len(files) == 0:
-        raise errors.StudyImportError(
-            f"File {archive_path} does not contain any tables."
-        )
     if not any("__" in file for file in files):
         raise errors.StudyImportError(
             f"File {archive_path} contains non-study parquet files."
