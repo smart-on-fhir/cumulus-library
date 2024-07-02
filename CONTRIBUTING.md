@@ -11,6 +11,20 @@ pre-commit install
 This will install dependencies & build tools,
 as well as set up an auto-formatter commit hook.
 
+## Running tests
+
+Tests can be run with `pytest` like you might expect,
+but you'll first want to set up a fake `test` AWS profile.
+
+1. Edit `~/.aws/credentials`
+2. Add a block like:
+```
+[test]
+aws_access_key_id = test
+aws_secret_access_key = test
+```
+3. Then run `pytest`
+
 ## Adding new resources
 
 Things to keep in mind:

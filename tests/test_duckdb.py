@@ -74,11 +74,8 @@ def test_duckdb_from_iso8601_timestamp(timestamp, expected):
 
 def test_duckdb_load_ndjson_dir(tmp_path):
     filenames = {
-        "A.Patient.ndjson": False,
-        "1.Patient.ndjson": True,
-        "Patient.ndjson": True,
-        "Patient.hello.bye.ndjson": True,
-        "Patient.nope": False,
+        "blarg.ndjson": True,
+        "blarg.nope": False,
         "patient/blarg.ndjson": True,
         "patient/blarg.meta": False,
     }
@@ -86,7 +83,7 @@ def test_duckdb_load_ndjson_dir(tmp_path):
     for index, (filename, valid) in enumerate(filenames.items()):
         with open(f"{tmp_path}/{filename}", "w", encoding="utf8") as f:
             row_id = f"Good{index}" if valid else f"Bad{index}"
-            f.write(f'{{"id":"{row_id}"}}')
+            f.write(f'{{"id":"{row_id}", "resourceType": "Patient"}}')
 
     db = databases.create_db_backend(
         {
@@ -115,6 +112,7 @@ def test_duckdb_table_schema():
         with open(f"{tmpdir}/observation/test.ndjson", "w", encoding="utf8") as ndjson:
             json.dump(
                 {
+                    "resourceType": "Observation",
                     "id": "test",
                     "component": [
                         {
