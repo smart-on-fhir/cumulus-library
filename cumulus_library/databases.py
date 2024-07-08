@@ -15,7 +15,6 @@ import os
 import pathlib
 import re
 import sys
-from pathlib import Path
 from typing import Any, Protocol
 
 import boto3
@@ -649,7 +648,7 @@ class DuckDbParser(DatabaseParser):
         return parsed
 
 
-def _read_rows_for_resource(path: Path, resource: str) -> list[dict]:
+def _read_rows_for_resource(path: pathlib.Path, resource: str) -> list[dict]:
     rows = []
 
     # Support any ndjson files from the target folder directly
@@ -690,7 +689,7 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
     ]
     for resource in resources:
         table_name = resource.lower()
-        rows = _read_rows_for_resource(Path(path), resource)
+        rows = _read_rows_for_resource(pathlib.Path(path), resource)
 
         # Make a pyarrow table with full schema from the data
         schema = cumulus_fhir_support.pyarrow_schema_from_rows(resource, rows)
