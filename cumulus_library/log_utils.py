@@ -73,7 +73,6 @@ def _log_table(
     manifest: study_manifest.StudyManifest,
     dataset: list[list],
 ):
-    print(type(config))
     if manifest and manifest.get_dedicated_schema():
         db_schema = manifest.get_dedicated_schema()
         table_name = table.name

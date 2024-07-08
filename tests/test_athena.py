@@ -7,7 +7,7 @@ from unittest import mock
 
 import botocore
 
-from cumulus_library import databases
+from cumulus_library import base_utils, databases, study_manifest
 
 
 def test_schema_parsing():
@@ -97,3 +97,17 @@ def test_create_schema(mock_client):
 
     db.create_schema("test_new")
     assert mock_clientobj.create_database.called
+
+
+def test_dedicated_schema_namespacing():
+    manifest = study_manifest.StudyManifest()
+    manifest._study_config = manifest._study_config = {
+        "study_prefix": "foo",
+        "advanced_options": {"dedicated_schema": "foo"},
+    }
+    query = "CREATE TABLE foo__bar"
+    result = base_utils.update_query_if_schema_specified(query, manifest)
+    assert result == "CREATE TABLE foo.bar"
+    query = "CREATE EXTERNAL TABLE foo.foo__bar"
+    result = base_utils.update_query_if_schema_specified(query, manifest)
+    assert result == "CREATE EXTERNAL TABLE foo.bar"

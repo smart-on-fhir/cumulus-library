@@ -134,10 +134,21 @@ def update_query_if_schema_specified(
     query: str, manifest: study_manifest.StudyManifest
 ):
     if manifest and manifest.get_dedicated_schema():
-        query = query.replace(
-            f"{manifest.get_study_prefix()}__",
-            f"{manifest.get_dedicated_schema()}.",
-        )
+        # External queries in athena require a schema to be specified already, so
+        # rather than splitting and ending up with a table name like
+        # `schema`.`schema.table`, we just remove the `schema__` chunk from the
+        # table name.
+        # TODO: Move this to be a database defined function.
+        if "CREATE EXTERNAL" in query:
+            query = query.replace(
+                f"{manifest.get_study_prefix()}__",
+                "",
+            )
+        else:
+            query = query.replace(
+                f"{manifest.get_study_prefix()}__",
+                f"{manifest.get_dedicated_schema()}.",
+            )
     return query
 
 

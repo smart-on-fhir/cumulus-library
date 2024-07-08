@@ -4,6 +4,8 @@
     "allowlist" : {
         "covid_symptom" : "cumulus_library_covid/covid_symptom",
         "data_metrics" : "cumulus_library_data_metrics",
+        "rxnorm" : "cumulus_library_rxnorm",
         "umls" : "cumulus_library_umls/umls"
+
     }
 }
