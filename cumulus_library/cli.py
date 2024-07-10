@@ -424,17 +424,17 @@ def main(cli_args=None):
         console = rich.console.Console()
         console.print(table)
 
-    if arglist := args.get("options", []):
-        options = {}
-        for c_arg in arglist:
-            c_arg = c_arg.split(":", 2)
-            if len(c_arg) == 1:
-                sys.exit(
-                    f"Custom argument '{c_arg}' is not validly formatted.\n"
-                    "Custom arguments should be of the form 'argname:value'."
-                )
-            options[c_arg[0]] = c_arg[1]
-        args["options"] = options
+    options = {}
+    cli_options = args.get("options") or []
+    for c_arg in cli_options:
+        c_arg = c_arg.split(":", 2)
+        if len(c_arg) == 1:
+            sys.exit(
+                f"Custom argument '{c_arg}' is not validly formatted.\n"
+                "Custom arguments should be of the form 'argname:value'."
+            )
+        options[c_arg[0]] = c_arg[1]
+    args["options"] = options
 
     if args.get("data_path"):
         args["data_path"] = get_abs_path(args["data_path"])
