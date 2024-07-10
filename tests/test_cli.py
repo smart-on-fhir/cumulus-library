@@ -708,6 +708,26 @@ def test_cli_custom_args(mock_config, tmp_path, option, raises):
 
 
 @mock.patch.dict(os.environ, clear=True)
+@mock.patch("cumulus_library.base_utils.StudyConfig")
+def test_cli_no_custom_args_yields_empty_dict(mock_config, tmp_path):
+    mock_config.return_value.stats_clean = False
+    cli.main(
+        cli_args=duckdb_args(
+            [
+                "build",
+                "-t",
+                "study_valid",
+                "-s",
+                f"{Path(__file__).resolve().parents[0]}/test_data/study_valid",
+            ],
+            tmp_path,
+        )
+    )
+    called_options = mock_config.call_args[1]["options"]
+    assert {} == called_options
+
+
+@mock.patch.dict(os.environ, clear=True)
 def test_cli_import_study(tmp_path):
     test_data = {"string": ["a", "b", None]}
     df = pandas.DataFrame(test_data)
