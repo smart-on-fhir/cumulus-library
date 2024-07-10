@@ -3,6 +3,7 @@
 from cumulus_library import (
     __version__,
     base_utils,
+    databases,
     enums,
     errors,
     study_manifest,
@@ -86,4 +87,37 @@ def _log_table(
         dataset=dataset,
         type_casts=table.type_casts,
     )
-    config.db.cursor().execute(query)
+    cursor = config.db.cursor()
+    try:
+        cursor.execute(query)
+    except Exception as e:
+        # Migrating logging tables
+        if "lib_transactions" in table_name:
+            cols = cursor.execute(
+                "SELECT column_name FROM information_schema.columns "
+                f"WHERE table_name ='{table_name}' "
+                f"AND table_schema ='{db_schema}'"
+            ).fetchall()
+            cols = [col[0] for col in cols]
+            # Table schema pre-v3 library release
+            if sorted(cols) == [
+                "event_time",
+                "library_version",
+                "status",
+                "study_name",
+            ]:
+                alter_query = ""
+                if isinstance(config.db, databases.AthenaDatabaseBackend):
+                    alter_query = (
+                        f"ALTER TABLE {db_schema}.{table_name} "
+                        "ADD COLUMNS(message string)"
+                    )
+                elif isinstance(config.db, databases.DuckDatabaseBackend):
+                    alter_query = (
+                        f"ALTER TABLE {db_schema}.{table_name} "
+                        "ADD COLUMN message varchar"
+                    )
+                cursor.execute(alter_query)
+                cursor.execute(query)
+        else:
+            raise e

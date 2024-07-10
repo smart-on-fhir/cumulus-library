@@ -1,5 +1,7 @@
+import os
 from contextlib import nullcontext as does_not_raise
 from datetime import datetime
+from unittest import mock
 
 import pytest
 from freezegun import freeze_time
@@ -7,6 +9,7 @@ from freezegun import freeze_time
 from cumulus_library import (
     __version__,
     base_utils,
+    databases,
     enums,
     errors,
     log_utils,
@@ -86,6 +89,80 @@ def test_transactions(mock_db, schema, study, status, message, expects, raises):
         )
         log = cursor.execute(f"select * from {schema}.{table_name}").fetchone()
         assert log == expects
+
+
+def test_migrate_transactions_duckdb(mock_db_config):
+    query = base_templates.get_ctas_empty_query(
+        "main",
+        "study_valid__lib_transactions",
+        ["study_name", "library_version", "status", "event_time"],
+        ["varchar", "varchar", "varchar", "timestamp"],
+    )
+    mock_db_config.db.cursor().execute(query)
+    manifest = study_manifest.StudyManifest("./tests/test_data/study_valid/")
+    with does_not_raise():
+        log_utils.log_transaction(
+            config=mock_db_config,
+            manifest=manifest,
+            status="debug",
+            message="message",
+        )
+        cols = (
+            mock_db_config.db.cursor()
+            .execute(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name ='study_valid__lib_transactions' "
+                "AND table_schema ='main'"
+            )
+            .fetchall()
+        )
+        assert len(cols) == 5
+        assert ("message",) in cols
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("pyathena.connect")
+def test_migrate_transactions_athena(mock_pyathena):
+    mock_fetchall = mock.MagicMock()
+    mock_fetchall.fetchall.side_effect = [
+        [("event_time",), ("library_version",), ("status",), ("study_name",)],
+        [
+            ("event_time",),
+            ("library_version",),
+            ("status",),
+            ("study_name",),
+            ("message",),
+        ],
+    ]
+    mock_pyathena.return_value.cursor.return_value.execute.side_effect = [
+        Exception,
+        mock_fetchall,
+        None,
+        None,
+    ]
+
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+    manifest = study_manifest.StudyManifest("./tests/test_data/study_valid/")
+    config = base_utils.StudyConfig(schema="test", db=db)
+    log_utils.log_transaction(
+        config=config,
+        manifest=manifest,
+        status="debug",
+        message="message",
+    )
+    expected = (
+        "ALTER TABLE test.study_valid__lib_transactions" " ADD COLUMNS(message string)"
+    )
+    call_args = mock_pyathena.return_value.cursor.return_value.execute.call_args_list
+    assert expected == call_args[2][0][0]
 
 
 @freeze_time("2024-01-01")
