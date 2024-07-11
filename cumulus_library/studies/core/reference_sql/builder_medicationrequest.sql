@@ -82,9 +82,9 @@ temp_mr AS (
         mr.subject.reference AS subject_ref,
         mr.encounter.reference AS encounter_ref,
         mrc.code AS category_code,
-        mrc.code_system AS category_code_system,
+        mrc.code_system AS category_system,
         mrm.code AS medication_code,
-        mrm.code_system AS medication_code_system,
+        mrm.code_system AS medication_system,
         mrm.display AS medication_display,
         mrdt.dosageInstruction_text
     FROM medicationrequest AS mr
@@ -99,9 +99,9 @@ SELECT
     mr.status,
     mr.intent,
     mr.category_code,
-    mr.category_code_system,
+    mr.category_system,
     mr.reportedBoolean,
-    mr.medication_code_system,
+    mr.medication_system,
     mr.medication_code,
     mr.medication_display,
     mr.authoredOn,

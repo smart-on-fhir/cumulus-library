@@ -3,7 +3,7 @@ import pathlib
 from cumulus_library.template_sql import base_templates
 
 
-def get_code_system_pairs(output_table_name: str, code_system_tables: list) -> str:
+def get_system_pairs(output_table_name: str, code_system_tables: list) -> str:
     """Extracts code system details as a standalone table"""
 
     # Since it's easier to wrangle data before SQL, this code block does
