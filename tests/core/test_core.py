@@ -1,9 +1,9 @@
 """unit tests for counts generation"""
 
 import datetime  # noqa: F401
+import tomllib
 
 import pytest
-import toml
 
 from tests import conftest, testbed_utils
 
@@ -102,7 +102,8 @@ def test_core_count_missing_data(tmp_path):
 
 
 def test_core_counts_exported(mock_db_core):
-    manifest = toml.load(f"{conftest.LIBRARY_ROOT}/studies/core/manifest.toml")
+    with open(f"{conftest.LIBRARY_ROOT}/studies/core/manifest.toml", "rb") as f:
+        manifest = tomllib.load(f)
     manifest["export_config"]["export_list"].remove("core__meta_version")
     manifest["export_config"]["export_list"].remove("core__meta_date")
     count_tables = (
