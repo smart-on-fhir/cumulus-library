@@ -90,7 +90,7 @@ def _log_table(
     cursor = config.db.cursor()
     try:
         cursor.execute(query)
-    except Exception as e:
+    except config.db.operational_errors() as e:
         # Migrating logging tables
         if "lib_transactions" in table_name:
             cols = cursor.execute(

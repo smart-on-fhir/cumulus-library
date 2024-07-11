@@ -274,7 +274,7 @@ class AthenaDatabaseBackend(DatabaseBackend):
         return AthenaParser()
 
     def operational_errors(self) -> tuple[Exception]:
-        return (pyathena.OperationalError,)  # pragma: no cover
+        return (pyathena.OperationalError,)
 
     def col_parquet_types_from_pandas(self, field_types: list) -> list:
         output = []
@@ -609,7 +609,10 @@ class DuckDatabaseBackend(DatabaseBackend):
         return DuckDbParser()
 
     def operational_errors(self) -> tuple[Exception]:
-        return (duckdb.OperationalError,)  # pragma: no cover
+        return (
+            duckdb.OperationalError,
+            duckdb.BinderException,
+        )
 
     def create_schema(self, schema_name):
         """Creates a new schema object inside the database"""

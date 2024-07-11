@@ -3,6 +3,7 @@ from contextlib import nullcontext as does_not_raise
 from datetime import datetime
 from unittest import mock
 
+import pyathena
 import pytest
 from freezegun import freeze_time
 
@@ -138,7 +139,7 @@ def test_migrate_transactions_athena(mock_pyathena):
         ],
     ]
     mock_pyathena.return_value.cursor.return_value.execute.side_effect = [
-        Exception,
+        pyathena.OperationalError,
         mock_fetchall,
         None,
         None,
