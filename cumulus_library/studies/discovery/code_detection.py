@@ -60,7 +60,7 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
                 code_source[key] = code_definition[key]
             code_sources.append(code_source)
         code_sources = self._check_codes_in_fields(code_sources, config.db)
-        query = discovery_templates.get_code_system_pairs(
+        query = discovery_templates.get_system_pairs(
             "discovery__code_sources", code_sources
         )
         self.queries.append(query)

@@ -139,7 +139,7 @@ FROM
 -- This includes both the expected URI, as well as several found URIs from
 -- various source systems
 
-CREATE TABLE core__fhir_mapping_code_system_uri AS SELECT * FROM
+CREATE TABLE core__fhir_mapping_system_uri AS SELECT * FROM
     (
         VALUES
         ('ICD10', 'http://hl7.org/fhir/sid/icd-10-cm'),

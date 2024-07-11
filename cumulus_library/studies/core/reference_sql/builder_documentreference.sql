@@ -175,7 +175,7 @@ WITH temp_documentreference AS (
         date_trunc('year', date(from_iso8601_timestamp(dr."context"."period"."start")))
             AS author_year,
         cdrt.code as type_code,
-        cdrt.code_system as type_code_system,
+        cdrt.code_system as type_system,
         cdrt.display as type_display,
         cdrc.code as category_code,
         cdrf.code as format_code
@@ -201,7 +201,7 @@ SELECT DISTINCT
     tdr.id,
     tdr.status,
     tdr.type_code,
-    tdr.type_code_system,
+    tdr.type_system,
     tdr.type_display,
     tdr.category_code,
     tdr.docStatus,

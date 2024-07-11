@@ -220,7 +220,7 @@ making sure to include all associated resources.
 |id                   |varchar     |           |
 |status               |varchar     |           |
 |type_code            |varchar     |           |
-|type_code_system     |varchar     |           |
+|type_system     |varchar     |           |
 |type_display         |varchar     |           |
 |category_code        |varchar     |           |
 |docstatus            |varchar     |           |
@@ -286,19 +286,19 @@ making sure to include all associated resources.
 |class_code                      |varchar(6) |           |
 |class_display                   |varchar(21)|           |
 |type_code                       |varchar    |           |
-|type_code_system                |varchar    |           |
+|type_system                |varchar    |           |
 |type_display                    |varchar    |           |
 |servicetype_code                |varchar    |           |
-|servicetype_code_system         |varchar    |           |
+|servicetype_system         |varchar    |           |
 |servicetype_display             |varchar    |           |
 |priority_code                   |varchar    |           |
-|priority_code_system            |varchar    |           |
+|priority_system            |varchar    |           |
 |priority_display                |varchar    |           |
 |reasoncode_code                 |varchar    |           |
-|reasoncode_code_system          |varchar    |           |
+|reasoncode_system          |varchar    |           |
 |reasoncode_display              |varchar    |           |
 |dischargedisposition_code       |varchar    |           |
-|dischargedisposition_code_system|varchar    |           |
+|dischargedisposition_system|varchar    |           |
 |dischargedisposition_display    |varchar    |           |
 |age_at_visit                    |bigint     |           |
 |gender                          |varchar    |           |
@@ -382,7 +382,7 @@ making sure to include all associated resources.
 |display|varchar(21)|           |
 
 
-### core__fhir_mapping_code_system_uri
+### core__fhir_mapping_system_uri
 
 |  Column   |   Type    |Description|
 |-----------|-----------|-----------|
@@ -437,9 +437,9 @@ making sure to include all associated resources.
 |status                |varchar|           |
 |intent                |varchar|           |
 |category_code         |varchar|           |
-|category_code_system  |varchar|           |
+|category_system  |varchar|           |
 |reportedboolean       |boolean|           |
-|medication_code_system|varchar|           |
+|medication_system|varchar|           |
 |medication_code       |varchar|           |
 |medication_display    |varchar|           |
 |authoredon            |date   |           |
@@ -490,19 +490,19 @@ making sure to include all associated resources.
 |--------------------------------|-------|-----------|
 |id                              |varchar|           |
 |category_code                   |varchar|           |
-|category_code_system            |varchar|           |
+|category_system            |varchar|           |
 |status                          |varchar|           |
 |observation_code                |varchar|           |
-|observation_code_system         |varchar|           |
+|observation_system         |varchar|           |
 |interpretation_code             |varchar|           |
-|interpretation_code_system      |varchar|           |
+|interpretation_system      |varchar|           |
 |interpretation_display          |varchar|           |
 |effectivedatetime_day           |date   |           |
 |effectivedatetime_week          |date   |           |
 |effectivedatetime_month         |date   |           |
 |effectivedatetime_year          |date   |           |
 |valuecodeableconcept_code       |varchar|           |
-|valuecodeableconcept_code_system|varchar|           |
+|valuecodeableconcept_system|varchar|           |
 |valuecodeableconcept_display    |varchar|           |
 |valuequantity_value             |double |           |
 |valuequantity_comparator        |varchar|           |
@@ -511,7 +511,7 @@ making sure to include all associated resources.
 |valuequantity_code              |varchar|           |
 |valuestring                     |varchar|           |
 |dataabsentreason_code           |varchar|           |
-|dataabsentreason_code_system    |varchar|           |
+|dataabsentreason_system    |varchar|           |
 |dataabsentreason_display        |varchar|           |
 |subject_ref                     |varchar|           |
 |encounter_ref                   |varchar|           |
@@ -574,11 +574,11 @@ making sure to include all associated resources.
 |--------------------------------|-------|-----------|
 |id                              |varchar|           |
 |observation_code                |varchar|           |
-|observation_code_system         |varchar|           |
+|observation_system         |varchar|           |
 |category_code                   |varchar|           |
-|category_code_system            |varchar|           |
+|category_system            |varchar|           |
 |valuecodeableconcept_code       |varchar|           |
-|valuecodeableconcept_code_system|varchar|           |
+|valuecodeableconcept_system|varchar|           |
 |valuecodeableconcept_display    |varchar|           |
 |effectivedatetime_day           |date   |           |
 |effectivedatetime_week          |date   |           |
@@ -596,15 +596,15 @@ making sure to include all associated resources.
 |--------------------------------|-------|-----------|
 |id                              |varchar|           |
 |observation_code                |varchar|           |
-|observation_code_system         |varchar|           |
+|observation_system         |varchar|           |
 |category_code                   |varchar|           |
-|category_code_system            |varchar|           |
+|category_system            |varchar|           |
 |valuecodeableconcept_code       |varchar|           |
-|valuecodeableconcept_code_system|varchar|           |
+|valuecodeableconcept_system|varchar|           |
 |valuecodeableconcept_display    |varchar|           |
 |status                          |varchar|           |
 |interpretation_code             |varchar|           |
-|interpretation_code_system      |varchar|           |
+|interpretation_system      |varchar|           |
 |interpretation_display          |varchar|           |
 |effectivedatetime_day           |date   |           |
 |effectivedatetime_week          |date   |           |

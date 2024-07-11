@@ -69,7 +69,7 @@ def test_discovery(tmp_path):
             raise e
 
 
-def test_get_code_system_pairs():
+def test_get_system_pairs():
     expected = """CREATE TABLE output_table AS
 SELECT DISTINCT
     'arrays' AS table_name,
@@ -118,7 +118,7 @@ FROM (
 
 
 """
-    query = discovery_templates.get_code_system_pairs(
+    query = discovery_templates.get_system_pairs(
         "output_table",
         [
             {
