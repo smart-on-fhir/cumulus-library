@@ -8,6 +8,7 @@ import os
 import pathlib
 import shutil
 import sys
+import tomllib
 import zipfile
 from contextlib import contextmanager
 from contextlib import nullcontext as does_not_raise
@@ -18,7 +19,6 @@ import duckdb
 import pandas
 import pytest
 import responses
-import toml
 
 from cumulus_library import cli, databases, errors
 from tests.conftest import duckdb_args
@@ -434,8 +434,8 @@ def test_cli_executes_queries(
                     build_args[2]
                 ]
 
-            with open(f"{manifest_dir}/manifest.toml", encoding="UTF-8") as file:
-                config = toml.load(file)
+            with open(f"{manifest_dir}/manifest.toml", "rb") as file:
+                config = tomllib.load(file)
             csv_files = glob.glob(f"{tmp_path}/export/{build_args[2]}/*.csv")
             export_tables = config["export_config"]["export_list"]
             for export_table in export_tables:

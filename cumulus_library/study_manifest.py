@@ -50,7 +50,6 @@ class StudyManifest:
                 f"Missing or invalid manifest found at {study_path}"
             ) from e
         except tomllib.TOMLDecodeError as e:
-            raise e
             # just unify the error classes for convenience of catching them
             raise errors.StudyManifestParsingError(str(e)) from e
 
