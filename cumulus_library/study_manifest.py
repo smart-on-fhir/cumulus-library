@@ -50,6 +50,7 @@ class StudyManifest:
                 f"Missing or invalid manifest found at {study_path}"
             ) from e
         except tomllib.TOMLDecodeError as e:
+            raise e
             # just unify the error classes for convenience of catching them
             raise errors.StudyManifestParsingError(str(e)) from e
 
@@ -74,7 +75,7 @@ class StudyManifest:
         :returns: An array of sql files from the manifest, or None if not found.
         """
         sql_config = self._study_config.get("sql_config", {})
-        sql_files = sql_config.get("file_names", [])
+        sql_files = sql_config.get("file_names", []) or []
         if continue_from:
             for pos, file in enumerate(sql_files):
                 if continue_from.replace(".sql", "") == file.replace(".sql", ""):
@@ -117,7 +118,7 @@ class StudyManifest:
         :returns: An array of tables to export from the manifest, or None if not found.
         """
         export_config = self._study_config.get("export_config", {})
-        export_table_list = export_config.get("export_list", [])
+        export_table_list = export_config.get("export_list", []) or []
         for table in export_table_list:
             if not table.startswith(f"{self.get_study_prefix()}__"):
                 raise errors.StudyManifestParsingError(

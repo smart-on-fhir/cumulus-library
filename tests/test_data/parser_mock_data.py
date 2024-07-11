@@ -1,11 +1,9 @@
 """test util for accessing mock toml configs"""
 
-import toml
-
 
 def get_mock_toml(key: str):
     """convenience method for in-mem toml object"""
-    return toml.dumps(mock_manifests[key])
+    return mock_manifests[key]
 
 
 mock_manifests = {
