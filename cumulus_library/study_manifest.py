@@ -1,8 +1,7 @@
 """Class for loading study configuration data from manifest.toml files"""
 
 import pathlib
-
-import toml
+import tomllib
 
 from cumulus_library import errors
 
@@ -36,8 +35,8 @@ class StudyManifest:
         :raises StudyManifestParsingError: the manifest.toml is malformed or missing.
         """
         try:
-            with open(f"{study_path}/manifest.toml", encoding="UTF-8") as file:
-                config = toml.load(file)
+            with open(f"{study_path}/manifest.toml", "rb") as file:
+                config = tomllib.load(file)
                 if not config.get("study_prefix") or not isinstance(
                     config["study_prefix"], str
                 ):
@@ -50,7 +49,7 @@ class StudyManifest:
             raise errors.StudyManifestFilesystemError(
                 f"Missing or invalid manifest found at {study_path}"
             ) from e
-        except toml.TomlDecodeError as e:
+        except tomllib.TOMLDecodeError as e:
             # just unify the error classes for convenience of catching them
             raise errors.StudyManifestParsingError(str(e)) from e
 
