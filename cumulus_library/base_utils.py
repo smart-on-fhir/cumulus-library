@@ -105,7 +105,7 @@ def get_progress_bar(**kwargs) -> progress.Progress:
 
 
 def get_utc_datetime() -> datetime.datetime:
-    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
+    return datetime.datetime.now(datetime.UTC).replace(microsecond=0)
 
 
 def get_tablename_safe_iso_timestamp() -> str:
