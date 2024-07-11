@@ -1,8 +1,7 @@
 """Class for loading study configuration data from manifest.toml files"""
 
 import pathlib
-
-import toml
+import tomllib
 
 from cumulus_library import errors
 
@@ -36,8 +35,8 @@ class StudyManifest:
         :raises StudyManifestParsingError: the manifest.toml is malformed or missing.
         """
         try:
-            with open(f"{study_path}/manifest.toml", encoding="UTF-8") as file:
-                config = toml.load(file)
+            with open(f"{study_path}/manifest.toml", "rb") as file:
+                config = tomllib.load(file)
                 if not config.get("study_prefix") or not isinstance(
                     config["study_prefix"], str
                 ):
@@ -50,7 +49,7 @@ class StudyManifest:
             raise errors.StudyManifestFilesystemError(
                 f"Missing or invalid manifest found at {study_path}"
             ) from e
-        except toml.TomlDecodeError as e:
+        except tomllib.TOMLDecodeError as e:
             # just unify the error classes for convenience of catching them
             raise errors.StudyManifestParsingError(str(e)) from e
 
@@ -75,7 +74,7 @@ class StudyManifest:
         :returns: An array of sql files from the manifest, or None if not found.
         """
         sql_config = self._study_config.get("sql_config", {})
-        sql_files = sql_config.get("file_names", [])
+        sql_files = sql_config.get("file_names", []) or []
         if continue_from:
             for pos, file in enumerate(sql_files):
                 if continue_from.replace(".sql", "") == file.replace(".sql", ""):
@@ -118,7 +117,7 @@ class StudyManifest:
         :returns: An array of tables to export from the manifest, or None if not found.
         """
         export_config = self._study_config.get("export_config", {})
-        export_table_list = export_config.get("export_list", [])
+        export_table_list = export_config.get("export_list", []) or []
         for table in export_table_list:
             if not table.startswith(f"{self.get_study_prefix()}__"):
                 raise errors.StudyManifestParsingError(

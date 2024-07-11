@@ -58,34 +58,33 @@ def test_load_manifest(manifest_path, expected, raises):
         ("invalid_none", pytest.raises(TypeError)),
     ],
 )
-def test_manifest_data(manifest_key, raises):
-    with mock.patch(
-        "builtins.open", mock.mock_open(read_data=get_mock_toml(manifest_key))
-    ):
-        with raises:
-            if manifest_key == "invalid_none":
-                parser = study_manifest.StudyManifest()
+@mock.patch("builtins.open")
+@mock.patch("tomllib.load")
+def test_manifest_data(mock_load, mock_open, manifest_key, raises):
+    mock_load.return_value = get_mock_toml(manifest_key)
+    with raises:
+        if manifest_key == "invalid_none":
+            manifest = study_manifest.StudyManifest()
+        else:
+            manifest = study_manifest.StudyManifest("./path")
+        expected = mock_manifests[manifest_key]
+        assert manifest.get_study_prefix() == expected["study_prefix"]
+        if "sql_config" in expected.keys():
+            if expected["sql_config"]["file_names"] is None:
+                assert manifest.get_sql_file_list() == []
             else:
-                parser = study_manifest.StudyManifest("./path")
-            expected = mock_manifests[manifest_key]
-            assert parser.get_study_prefix() == expected["study_prefix"]
-            if "sql_config" in expected.keys():
-                if expected["sql_config"]["file_names"] is None:
-                    assert parser.get_sql_file_list() == []
-                else:
-                    assert (
-                        parser.get_sql_file_list()
-                        == expected["sql_config"]["file_names"]
-                    )
+                assert (
+                    manifest.get_sql_file_list() == expected["sql_config"]["file_names"]
+                )
+        else:
+            assert manifest.get_sql_file_list() == []
+        if "export_config" in expected.keys():
+            if expected["export_config"]["export_list"] is None:
+                assert manifest.get_export_table_list() == []
             else:
-                assert parser.get_sql_file_list() == []
-            if "export_config" in expected.keys():
-                if expected["export_config"]["export_list"] is None:
-                    assert parser.get_export_table_list() == []
-                else:
-                    assert (
-                        parser.get_export_table_list()
-                        == expected["export_config"]["export_list"]
-                    )
-            else:
-                assert parser.get_export_table_list() == []
+                assert (
+                    manifest.get_export_table_list()
+                    == expected["export_config"]["export_list"]
+                )
+        else:
+            assert manifest.get_export_table_list() == []

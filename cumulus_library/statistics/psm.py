@@ -4,13 +4,13 @@ import json
 import os
 import pathlib
 import sys
+import tomllib
 import warnings
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
 import pandas
 import seaborn as sns
-import toml
 from psmpy import PsmPy
 
 # these imports are mimicing PsmPy imports for re-implemented functions
@@ -61,8 +61,8 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         self.toml_path = toml_config_path
         self.data_path = data_path
         try:
-            with open(self.toml_path, encoding="UTF-8") as file:
-                toml_config = toml.load(file)
+            with open(self.toml_path, "rb") as file:
+                toml_config = tomllib.load(file)
 
         except OSError:
             sys.exit(f"PSM configuration not found at {self.toml_path}")

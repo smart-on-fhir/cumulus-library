@@ -5,8 +5,8 @@ import importlib.util
 import inspect
 import pathlib
 import sys
+import tomllib
 
-import toml
 from rich.progress import Progress, TaskID
 
 from cumulus_library import (
@@ -202,8 +202,8 @@ def run_statistics_builders(
         # across the board
         safe_timestamp = base_utils.get_tablename_safe_iso_timestamp()
         toml_path = pathlib.Path(f"{manifest._study_path}/{file}")
-        with open(toml_path, encoding="UTF-8") as file:
-            stats_config = toml.load(file)
+        with open(toml_path, "rb") as file:
+            stats_config = tomllib.load(file)
             config_type = stats_config["config_type"]
             target_table = stats_config["target_table"]
 
