@@ -8,6 +8,7 @@ import pathlib
 from contextlib import nullcontext as does_not_raise
 from unittest import mock
 
+import duckdb
 import pandas
 import pyarrow
 import pytest
@@ -255,14 +256,7 @@ def test_create_db_backend(args, expected_type, raises):
         assert isinstance(db, expected_type)
 
 
-def test_upload_file_default():
-    db = databases.DuckDatabaseBackend(**DUCKDB_KWARGS)
-    location = db.upload_file(
-        file=pathlib.Path(__file__).resolve(),
-        study="test",
-        topic="table",
-    )
-    assert location is None
+### Database-specific edge case testing
 
 
 @mock.patch.dict(
@@ -365,3 +359,158 @@ def test_upload_file_athena(mock_botocore, args, sse, keycount, expected, raises
                 assert kwargs["Key"].endswith(args["remote_filename"])
             else:
                 assert kwargs["Key"].endswith(args["file"].name)
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("pyathena.connect")
+def test_athena_pandas_cursor(mock_pyathena):
+    mock_as_pandas = mock.MagicMock()
+    mock_as_pandas.as_pandas.side_effect = [
+        pandas.DataFrame(
+            [
+                [
+                    1,
+                    2,
+                ],
+                [3, 4],
+                [5, 6],
+            ]
+        )
+    ]
+    mock_execute = mock_pyathena.return_value.cursor.return_value.execute
+    mock_execute.side_effect = [
+        mock_as_pandas,
+    ]
+    mock_execute.description = (
+        (None, "A", None, None, None),
+        (None, "B", None, None, None),
+    )
+    db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
+    res, desc = db.execute_as_pandas("ignored query")
+    assert res.equals(
+        pandas.DataFrame(
+            [
+                [
+                    1,
+                    2,
+                ],
+                [3, 4],
+                [5, 6],
+            ]
+        )
+    )
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("pyathena.connect")
+def test_athena_parser(mock_pyathena):
+    db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
+    parser = db.parser()
+    assert isinstance(parser, databases.AthenaParser)
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("pyathena.connect")
+def test_athena_env_var_priority(mock_pyathena):
+    os.environ["AWS_ACCESS_KEY_ID"] = "secret"
+    databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
+    assert mock_pyathena.call_args[1]["aws_access_key_id"] == "secret"
+
+
+def test_upload_file_duckdb():
+    db = databases.DuckDatabaseBackend(**DUCKDB_KWARGS)
+    location = db.upload_file(
+        file=pathlib.Path(__file__).resolve(),
+        study="test",
+        topic="table",
+    )
+    assert location is None
+
+
+def test_duckdb_pandas(mock_db):
+    # pandas_cursor is treated as equivalent to a regular cursor in duckdb
+    assert mock_db.cursor() == mock_db.pandas_cursor()
+    # for execute_as_pandas, we are specifically checking that duckdb ignores the
+    # chunksize param, but does return an iterable object for compatibility
+    query = "SELECT * FROM condition"
+    df, all_cols = mock_db.execute_as_pandas(query, chunksize=None)
+    assert len(df.index) == 20
+    df_iter, chunk_cols = mock_db.execute_as_pandas(query, chunksize=10)
+    assert len(next(df_iter).index) == 20
+    assert all_cols == chunk_cols
+
+
+### duckdb user defined functions
+
+
+def test_duckdb_to_utf8(mock_db):
+    cursor = mock_db.cursor()
+    hash_val = cursor.execute(
+        "SELECT md5(to_utf8(table_name)) FROM information_schema.tables"
+    ).fetchone()
+    assert hash_val == ("47a83502f34b0d2155e1b22b19fb8431",)
+
+
+@pytest.mark.parametrize(
+    "data,field_type,raises",
+    [
+        ("2000-01-01", "VARCHAR", does_not_raise()),
+        ("2000-01-01", "DATE", does_not_raise()),
+        ("2000-01-01", "DATETIME", does_not_raise()),
+        ("True", "BOOLEAN", pytest.raises(duckdb.duckdb.InvalidInputException)),
+    ],
+)
+def test_duckdb_date(mock_db, data, field_type, raises):
+    with raises:
+        cursor = mock_db.cursor()
+        field = cursor.execute(
+            f"SELECT date(CAST('{data}' AS {field_type})) AS field"
+        ).fetchall()
+        assert field == [(datetime.date(2000, 1, 1),)]
+
+
+@pytest.mark.parametrize(
+    "pattern,expects",
+    [
+        ("foo", True),
+        ("bar", False),
+        (None, None),
+    ],
+)
+def test_duckdb_regexp_like(mock_db, pattern, expects):
+    cursor = mock_db.cursor()
+    field = cursor.execute(f"SELECT regexp_like('foo', '{pattern}')").fetchall()
+    assert field == [(expects,)]
+
+
+@pytest.mark.parametrize(
+    "array,delim,expects",
+    [
+        (["foo", "bar"], ",", "foo,bar"),
+        (["foo", "bar"], None, "foobar"),
+        ([], ",", ""),
+    ],
+)
+def test_duckdb_array_join(mock_db, array, delim, expects):
+    cursor = mock_db.cursor()
+    if array is None:
+        query = f"SELECT array_join(['None'], '{delim}')"
+    else:
+        query = (
+            f"WITH dataset AS (SELECT ARRAY {array} AS data) "
+            f"SELECT array_join(data, '{delim}') FROM dataset"
+        )
+    joined = cursor.execute(query).fetchall()
+    assert joined == [(expects,)]
+
+
+### End of duckdb user defined functions

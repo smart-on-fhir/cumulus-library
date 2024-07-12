@@ -88,7 +88,7 @@ class DatabaseParser(abc.ABC):
                 output[column] = subschema
 
             else:
-                raise ValueError("Bad expected schema provided")
+                raise ValueError("Bad expected schema provided")  # pragma: no cover
 
         return output
 
@@ -154,7 +154,7 @@ class DatabaseBackend(abc.ABC):
 
         This is designed to be used in an `except` clause.
         """
-        return ()
+        return ()  # pragma: no cover
 
     def col_parquet_types_from_pandas(self, field_types: list) -> list:
         """Returns appropriate types for creating tables based from parquet.
@@ -186,7 +186,7 @@ class DatabaseBackend(abc.ABC):
         return []
 
     def col_pyarrow_types_from_sql(self, columns: list[tuple]) -> list:
-        return columns
+        return columns  # pragma: no cover
 
     def upload_file(
         self,

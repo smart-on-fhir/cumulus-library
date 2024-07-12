@@ -90,15 +90,15 @@ class DuckDatabaseBackend(base.DatabaseBackend):
 
     @staticmethod
     def _compat_array_join(
-        value: list[str | None] | None, delimiter: str
+        value: list[str | None], delimiter: str | None
     ) -> str | None:
-        if value is None:
-            return None
+        if delimiter is None or delimiter == "None":
+            delimiter = ""
         return delimiter.join(v for v in value if v is not None)
 
     @staticmethod
     def _compat_regexp_like(string: str | None, pattern: str | None) -> bool:
-        if string is None or pattern is None:
+        if string is None or string == "None" or pattern is None or pattern == "None":
             return None
         match = re.search(pattern, string)
         return match is not None
