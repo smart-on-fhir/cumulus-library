@@ -37,7 +37,8 @@ jobs:
         run: |
           python -m pytest --cov-report xml --cov=cumulus_library tests
       - name: Log missing coverage
-          run: coverage report -m --skip-covered
+        run: |
+          coverage report -m --skip-covered
       - name: Generate coverage report
         if: github.ref != 'refs/heads/main'
         uses: orgoro/coverage@v3.1

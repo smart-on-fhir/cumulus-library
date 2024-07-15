@@ -393,10 +393,7 @@ def test_athena_pandas_cursor(mock_pyathena):
     assert res.equals(
         pandas.DataFrame(
             [
-                [
-                    1,
-                    2,
-                ],
+                [1, 2],
                 [3, 4],
                 [5, 6],
             ]
@@ -497,6 +494,7 @@ def test_duckdb_regexp_like(mock_db, pattern, expects):
     [
         (["foo", "bar"], ",", "foo,bar"),
         (["foo", "bar"], None, "foobar"),
+        (["foo", "bar"], "None", "foobar"),
         ([], ",", ""),
     ],
 )
