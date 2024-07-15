@@ -123,6 +123,8 @@ class DuckDatabaseBackend(base.DatabaseBackend):
     @staticmethod
     def _compat_to_utf8(value: str | None) -> datetime.date | None:
         """See the create_function() call for to_utf8 for more background"""
+        # This is exercised locally on unit tests but is not in CI. Not sure why,
+        # and not sure it's worth debugging
         return value
 
     @staticmethod
