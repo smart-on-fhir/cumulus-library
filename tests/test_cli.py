@@ -790,7 +790,7 @@ def test_dedicated_schema(tmp_path):
 
 
 @mock.patch.dict(os.environ, clear=True)
-@mock.patch("cumulus_library.databases.DuckDatabaseBackend")
+@mock.patch("cumulus_library.databases.duckdb.DuckDatabaseBackend")
 def test_sql_error_handling(mock_backend, tmp_path):
     mock_backend.return_value.cursor.return_value.execute.side_effect = [
         None,
