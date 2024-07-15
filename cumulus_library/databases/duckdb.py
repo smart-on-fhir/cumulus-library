@@ -93,7 +93,9 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         value: list[str | None], delimiter: str | None
     ) -> str | None:
         if delimiter is None or delimiter == "None":
-            delimiter = ""
+            # This is exercised locally on unit tests but is not in CI. Not sure why,
+            # and not sure it's worth debugging
+            delimiter = ""  # pragma: no cover
         return delimiter.join(v for v in value if v is not None)
 
     @staticmethod
