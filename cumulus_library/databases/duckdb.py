@@ -90,8 +90,10 @@ class DuckDatabaseBackend(base.DatabaseBackend):
 
     @staticmethod
     def _compat_array_join(
-        value: list[str | None], delimiter: str | None
+        value: list[str | None] | None, delimiter: str | None
     ) -> str | None:
+        if value is None:
+            return None
         if delimiter is None or delimiter == "None":
             # This is exercised locally on unit tests but is not in CI. Not sure why,
             # and not sure it's worth debugging
