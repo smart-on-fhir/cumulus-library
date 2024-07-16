@@ -105,6 +105,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     output.append((column[0], pyarrow.int64()))
                 case "double":
                     output.append((column[0], pyarrow.float64()))
+                case "decimal":
+                    output.append((column[0], pyarrow.decimal128(column[4], column[5])))
                 case "boolean":
                     output.append((column[0], pyarrow.bool_()))
                 case "date":
@@ -113,7 +115,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     output.append((column[0], pyarrow.timestamp("s")))
                 case _:
                     raise errors.CumulusLibraryError(
-                        output.append(f"Unsupported SQL type '{column}' found.")
+                        f"Unsupported SQL type '{column[1]}' found."
                     )
         return output
 
