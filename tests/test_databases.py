@@ -238,7 +238,12 @@ def test_pyarrow_types_from_sql(db, data, expected, raises):
             does_not_raise(),
         ),
         (
-            {**{"db_type": "athena", "database": "testtwp"}, **ATHENA_KWARGS},
+            {**{"db_type": "athena", "database": "test"}, **ATHENA_KWARGS},
+            databases.AthenaDatabaseBackend,
+            does_not_raise(),
+        ),
+        (
+            {**{"db_type": "athena", "database": "testtwo"}, **ATHENA_KWARGS},
             databases.AthenaDatabaseBackend,
             pytest.raises(SystemExit),
         ),
