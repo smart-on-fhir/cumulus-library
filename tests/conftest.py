@@ -195,10 +195,10 @@ def debug_diff_tables(cols, found, ref, pos=0):
 @pytest.fixture
 def mock_db(tmp_path):
     """Provides a DuckDatabaseBackend for local testing"""
-    db = create_db_backend(
+    db, _ = create_db_backend(
         {
             "db_type": "duckdb",
-            "schema_name": f"{tmp_path}/duck.db",
+            "database": f"{tmp_path}/duck.db",
             "load_ndjson_dir": MOCK_DATA_DIR,
         }
     )
@@ -237,10 +237,10 @@ def mock_db_core_config(mock_db_core):
 def mock_db_stats(tmp_path):
     """Provides a DuckDatabaseBackend with a larger dataset for sampling stats"""
     ndjson_data_generator(Path(MOCK_DATA_DIR), f"{tmp_path}/mock_data", 20)
-    db = create_db_backend(
+    db, schema = create_db_backend(
         {
             "db_type": "duckdb",
-            "schema_name": f"{tmp_path}/stats.db",
+            "database": f"{tmp_path}/stats.db",
             "load_ndjson_dir": f"{tmp_path}/mock_data",
         }
     )

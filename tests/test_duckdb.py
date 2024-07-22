@@ -85,10 +85,10 @@ def test_duckdb_load_ndjson_dir(tmp_path):
             row_id = f"Good{index}" if valid else f"Bad{index}"
             f.write(f'{{"id":"{row_id}", "resourceType": "Patient"}}')
 
-    db = databases.create_db_backend(
+    db, _ = databases.create_db_backend(
         {
             "db_type": "duckdb",
-            "schema_name": ":memory:",
+            "database": ":memory:",
             "load_ndjson_dir": tmp_path,
         }
     )
