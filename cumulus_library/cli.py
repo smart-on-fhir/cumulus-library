@@ -288,12 +288,9 @@ def run_cli(args: dict):
             drop_table = builder
         else:
             drop_table = args.get("drop_table")
-        if args.get("db_type") == "duckdb":
-            schema = "main"
-        else:
-            schema = args.get("schema_name")
+        db, schema = databases.create_db_backend(args)
         config = base_utils.StudyConfig(
-            db=databases.create_db_backend(args),
+            db=db,
             schema=schema,
             drop_table=drop_table,
             force_upload=args.get("replace_existing", False),
@@ -396,7 +393,8 @@ def main(cli_args=None):
         ("load_ndjson_dir", "CUMULUS_LIBRARY_LOAD_NDJSON_DIR"),
         ("profile", "CUMULUS_LIBRARY_PROFILE"),
         ("region", "CUMULUS_LIBRARY_REGION"),
-        ("schema_name", "CUMULUS_LIBRARY_DATABASE"),
+        ("schema_name", "CUMULUS_LIBRARY_SCHEMA_NAME"),
+        ("database", "CUMULUS_LIBRARY_DATABASE"),
         ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
         ("umls_key", "UMLS_API_KEY"),
         ("url", "CUMULUS_AGGREGATOR_URL"),

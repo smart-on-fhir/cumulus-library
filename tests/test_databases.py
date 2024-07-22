@@ -228,7 +228,7 @@ def test_pyarrow_types_from_sql(db, data, expected, raises):
     "args,expected_type, raises",
     [
         (
-            {**{"db_type": "duckdb", "schema_name": ":memory:"}, **DUCKDB_KWARGS},
+            {**{"db_type": "duckdb", "database": ":memory:"}, **DUCKDB_KWARGS},
             databases.DuckDatabaseBackend,
             does_not_raise(),
         ),
@@ -236,6 +236,16 @@ def test_pyarrow_types_from_sql(db, data, expected, raises):
             {**{"db_type": "athena"}, **ATHENA_KWARGS},
             databases.AthenaDatabaseBackend,
             does_not_raise(),
+        ),
+        (
+            {**{"db_type": "athena", "database": "test"}, **ATHENA_KWARGS},
+            databases.AthenaDatabaseBackend,
+            does_not_raise(),
+        ),
+        (
+            {**{"db_type": "athena", "database": "testtwo"}, **ATHENA_KWARGS},
+            databases.AthenaDatabaseBackend,
+            pytest.raises(SystemExit),
         ),
         (
             {**{"db_type": "athena", "load_ndjson_dir": "file.json"}, **ATHENA_KWARGS},
@@ -252,8 +262,10 @@ def test_pyarrow_types_from_sql(db, data, expected, raises):
 )
 def test_create_db_backend(args, expected_type, raises):
     with raises:
-        db = databases.create_db_backend(args)
+        db, schema = databases.create_db_backend(args)
         assert isinstance(db, expected_type)
+        if args.get("schema_name"):
+            assert args["schema_name"] == schema
 
 
 ### Database-specific edge case testing

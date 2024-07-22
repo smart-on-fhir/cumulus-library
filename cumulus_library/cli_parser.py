@@ -69,11 +69,17 @@ def add_db_config(parser: argparse.ArgumentParser, input_mode: bool = False) -> 
         #
         # In DuckDB, we use this as the path to the filename to store tables.
         #
-        # Since we started as an Athena-centric codebase, we mostly keep referring to
-        # this as name "schema_name". But to the user, both uses are still conceptually
-        # a "database".
-        dest="schema_name",
-        help="Database name (for Athena) or file (for DuckDB)",
+        help="Database/schema name (for Athena) or file (for DuckDB)",
+    )
+    group.add_argument(
+        "--schema_name",
+        # In Athena, we use this as the schema_name.
+        #
+        # In DuckDB, we will eventually use this to allow for schema specification,
+        # though it's in the bin of 'not implemented yet' for the way the python
+        # API accesses it on connect.
+        #
+        help="Database/schema name (for Athena) or schema (for DuckDB)",
     )
 
     if input_mode:

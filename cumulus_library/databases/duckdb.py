@@ -22,9 +22,14 @@ from cumulus_library.databases import base
 class DuckDatabaseBackend(base.DatabaseBackend):
     """Database backend that uses local files via duckdb"""
 
-    def __init__(self, db_file: str):
+    def __init__(self, db_file: str, schema_name: str | None = None):
         super().__init__("main")
         self.db_type = "duckdb"
+        # As of the 1.0 duckdb release, local scopes, where schema names can be provided
+        # as configuration to duckdb.connect, are not supported.
+        # https://duckdb.org/docs/sql/statements/set.html#syntax
+
+        # This is where the connection config would be supplied when it is supported
         self.connection = duckdb.connect(db_file)
         # Aliasing Athena's as_pandas to duckDB's df cast
         duckdb.DuckDBPyConnection.as_pandas = duckdb.DuckDBPyConnection.df

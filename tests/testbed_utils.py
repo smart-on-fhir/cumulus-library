@@ -225,10 +225,10 @@ class LocalTestbed:
 
     def build(self, study="core") -> duckdb.DuckDBPyConnection:
         db_file = f"{self.path}/{study}.db"
-        db = create_db_backend(
+        db, _ = create_db_backend(
             {
                 "db_type": "duckdb",
-                "schema_name": db_file,
+                "database": db_file,
                 "load_ndjson_dir": str(self.path),
             }
         )
