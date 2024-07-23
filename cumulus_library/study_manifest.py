@@ -133,3 +133,9 @@ class StudyManifest:
             + self.get_counts_builder_file_list()
             + self.get_statistics_file_list()
         )
+
+    def get_prefix_with_seperator(self) -> str:
+        """Convenience method for getting the appropriate prefix for tables"""
+        if dedicated := self.get_dedicated_schema():
+            return f"{dedicated}."
+        return f"{self.get_study_prefix()}__"
