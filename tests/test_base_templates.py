@@ -1,9 +1,11 @@
 """tests for jinja sql templates"""
 
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 from pandas import DataFrame
 
-from cumulus_library import db_config
+from cumulus_library import db_config, errors
 from cumulus_library.template_sql import base_templates, sql_utils
 
 
@@ -243,6 +245,81 @@ WHERE
         include_table_names=True,
     )
     assert query == expected
+
+
+def test_get_create_table_from_union():
+    expected = """CREATE TABLE union_table AS
+SELECT
+foo,
+bar,
+baz
+FROM table_a
+UNION
+SELECT
+foo,
+bar,
+baz
+FROM view_b
+"""
+    query = base_templates.get_create_table_from_union(
+        table_name="union_table",
+        tables=["table_a", "view_b"],
+        columns=["foo", "bar", "baz"],
+    )
+    assert query == expected
+
+
+@pytest.mark.parametrize(
+    "tables,table_aliases,column_aliases,expected,raises",
+    [
+        (
+            ["table_a", "view_b"],
+            None,
+            None,
+            """CREATE OR REPLACE VIEW view AS
+SELECT
+    a.foo,
+    b.bar,
+    b.baz
+FROM table_a AS a,
+    view_b AS b
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (
+            ["table_a", "view_b"],
+            ["b", "c"],
+            {"b.baz": "foobar"},
+            """CREATE OR REPLACE VIEW view AS
+SELECT
+    a.foo,
+    b.bar,
+    b.baz AS foobar
+FROM table_a AS b,
+    view_b AS c
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (["table_a"], [], {}, "", pytest.raises(errors.CumulusLibraryError)),
+    ],
+)
+def test_create_view_from_tables(
+    tables, table_aliases, column_aliases, expected, raises
+):
+    with raises:
+        query = base_templates.get_create_view_from_tables(
+            view_name="view",
+            tables=tables,
+            table_aliases=table_aliases,
+            columns=["a.foo", "b.bar", "b.baz"],
+            column_aliases=column_aliases,
+            join_clauses=["b.bar = a.foo", "b.baz != a.foo"],
+        )
+        assert query == expected
 
 
 def test_create_view_query_creation():

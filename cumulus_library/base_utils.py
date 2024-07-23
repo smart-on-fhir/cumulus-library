@@ -2,7 +2,6 @@
 
 import dataclasses
 import datetime
-import json
 import pathlib
 import shutil
 import zipfile
@@ -57,11 +56,6 @@ def get_schema(config: StudyConfig, manifest: study_manifest.StudyManifest):
 def load_text(path: str) -> str:
     with open(path, encoding="UTF-8") as fp:
         return fp.read()
-
-
-def load_json(path: str) -> dict:
-    with open(path, encoding="UTF-8") as fp:
-        return json.load(fp)
 
 
 def parse_sql(sql_text: str) -> list[str]:
