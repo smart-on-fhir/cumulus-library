@@ -1,0 +1,12 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+
+CREATE TABLE {{ table_name }} AS
+{%- for table in tables %}
+SELECT 
+{%- for col in columns %}
+{{ col }}
+{{- syntax.comma_delineate(loop) }}
+{%- endfor %}
+FROM {{ table }}
+{{ syntax.union_delineate(loop) }}
+{%- endfor %}

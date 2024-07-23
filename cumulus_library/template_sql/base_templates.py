@@ -6,7 +6,7 @@ import pathlib
 import jinja2
 import pandas
 
-from cumulus_library import db_config
+from cumulus_library import db_config, errors
 from cumulus_library.template_sql import sql_utils
 
 
@@ -79,10 +79,10 @@ def get_codeable_concept_denormalize_query(
         parent_field=None
         if len(config.column_hierarchy) == 1
         else config.column_hierarchy[0][0],
-        is_array=(config.column_hierarchy[0][1] == list),
+        is_array=(config.column_hierarchy[0][1] is list),
         child_is_array=False
         if len(config.column_hierarchy) == 1
-        else config.column_hierarchy[1][1] == list,
+        else config.column_hierarchy[1][1] is list,
         target_table=config.target_table,
         filter_priority=config.filter_priority,
         code_systems=config.code_systems,
@@ -139,6 +139,23 @@ def get_column_datatype_query(
     )
 
 
+def get_create_table_from_union(
+    *, table_name: str, tables: list[str], columns: list[str]
+) -> str:
+    """Generates a create union table query
+
+    :keyword table_name: the name of the resulting table
+    :keyword tables: A list of length two for the source tables for the join
+    :keyword columns: a list of cols to add to the view. Prepend with the table
+        or the alias."""
+    return get_base_template(
+        "create_table_from_union",
+        table_name=table_name,
+        tables=tables,
+        columns=columns,
+    )
+
+
 def get_create_view_query(
     view_name: str, dataset: list[list[str]], view_cols: list[str]
 ) -> str:
@@ -153,6 +170,47 @@ def get_create_view_query(
         view_name=view_name,
         dataset=dataset,
         view_cols=view_cols,
+    )
+
+
+def get_create_view_from_tables(
+    *,
+    view_name: str,
+    tables: list,
+    columns: list,
+    join_clauses: list,
+    table_aliases: list | None = None,
+    column_aliases: dict | None = None,
+) -> str:
+    """Generates a create view query from tables in the database
+
+    :keyword view_name: the name of the resulting view
+    :keyword tables: A list of length two for the source tables for the join
+    :keyword columns: a list of columns to add to the view. Prepend with the table
+        or the alias.
+    :keyword join_clauses: a list of valid SQL join statements
+    :keyword table_aliases: A list of length two of aliases for the source tables.
+        ["a","b"] used if not supplied
+    :keyword column_aliases: A dict of aliases to apply, like {'a_col': 'alias'}
+    """
+    if table_aliases is None:
+        table_aliases = ["a", "b"]
+    if column_aliases is None:
+        column_aliases = {}
+    for list_arg in [tables, table_aliases]:
+        if len(list_arg) != 2:
+            raise errors.CumulusLibraryError(
+                f"Error generating view {view_name}: "
+                f"Expected {','.join(list_arg)} to be of length two."
+            )
+    return get_base_template(
+        "create_view_from_tables",
+        view_name=view_name,
+        join_tables=tables,
+        join_table_aliases=table_aliases,
+        join_columns=columns,
+        column_aliases=column_aliases,
+        join_clauses=join_clauses,
     )
 
 

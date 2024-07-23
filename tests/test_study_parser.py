@@ -6,7 +6,7 @@ from unittest import mock
 
 import pytest
 
-from cumulus_library import errors, study_manifest
+from cumulus_library import base_utils, errors, study_manifest
 from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
 
 
@@ -88,3 +88,16 @@ def test_manifest_data(mock_load, mock_open, manifest_key, raises):
                 )
         else:
             assert manifest.get_export_table_list() == []
+
+
+@pytest.mark.parametrize(
+    "manifest_path,prefix",
+    [
+        ("test_data/study_valid", "study_valid__"),
+        ("test_data/study_dedicated_schema", "dedicated."),
+    ],
+)
+def test_get_prefix_with_seperator(manifest_path, prefix):
+    path = f"{pathlib.Path(__file__).resolve().parents[0]}/{manifest_path}"
+    manifest = study_manifest.StudyManifest(path)
+    assert prefix == base_utils.get_prefix_with_seperator(manifest)

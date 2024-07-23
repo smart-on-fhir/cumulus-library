@@ -26,6 +26,7 @@ load_macros_from_path = cumulus_library/template_sql/shared_macros,cumulus_libra
 
 [sqlfluff:templater:jinja:context]
 code_systems = ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"]
+column_aliases = {'a.foo': 'foobar', 'b.bar' : 'foobaz'}
 col_type_list = ["a string","b string"]
 columns = ['a','b']
 cc_columns = 
@@ -81,6 +82,8 @@ filter_resource = True
 fhir_extension = condition
 fhir_resource = patient
 id = 'id'
+join_clauses = ['a.foo = b.foo','a.bar = b.bar']
+join_columns = ['a.foo', 'b.foo', 'a.bar', 'b.bar']
 join_cols_by_table = 
     { 
         "join_table": { 
@@ -89,6 +92,8 @@ join_cols_by_table =
         }
     }
 join_id = subject_ref
+join_tables = ['table_a','table_b']
+join_table_aliases = ['a','b']
 local_location = /var/study/data/
 neg_source_table = neg_source_table
 output_table_name = 'created_table'
@@ -217,6 +222,7 @@ table_cols = ["a","b"]
 table_cols_types = ["varchar", "varchar"]
 table_name = test_table
 table_names = ["test_table"]
+tables = ["test_a", "test_b"]
 table_suffix = 2024_01_01_11_11_11
 target_col_prefix = prefix
 target_table = target_table

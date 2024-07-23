@@ -54,6 +54,12 @@ def get_schema(config: StudyConfig, manifest: study_manifest.StudyManifest):
     return config.schema
 
 
+def get_prefix_with_seperator(manifest: study_manifest.StudyManifest):
+    if dedicated := manifest.get_dedicated_schema():
+        return f"{dedicated}."
+    return f"{manifest.get_study_prefix()}__"
+
+
 def load_text(path: str) -> str:
     with open(path, encoding="UTF-8") as fp:
         return fp.read()

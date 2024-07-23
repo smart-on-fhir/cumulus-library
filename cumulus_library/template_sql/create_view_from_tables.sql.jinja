@@ -1,0 +1,14 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+CREATE OR REPLACE VIEW {{ view_name }} AS
+SELECT 
+{%- for col in join_columns %}
+    {{ col }}
+    {%- if col in column_aliases.keys() 
+    %} AS {{ column_aliases[col] }}{%- endif -%}{{ syntax.comma_delineate(loop) }}
+{%- endfor %}
+FROM {{ join_tables[0] }} AS {{ join_table_aliases[0] }},
+    {{ join_tables[1] }} AS {{ join_table_aliases[1] }}
+WHERE
+    {%- for clause in join_clauses %}
+    {{ syntax.and_delineate(loop) }}{{ clause }}
+    {%- endfor %}

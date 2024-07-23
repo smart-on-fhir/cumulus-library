@@ -18,6 +18,21 @@ UNION
 {%- endif -%}
 {%- endmacro -%}
 
+{# Note that this delineation is meant to be at the front of the string in
+a loop - this is to enable formatting in a WHERE statement like this:
+---
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo
+---
+This is slightly easier to work with when debugging queries (and also
+conforms better to the mozilla style guide)
+#}
+{%- macro and_delineate(loop) -%}
+{%- if not loop.first -%}AND {% endif -%}
+{%- endmacro -%}
+
+
 {#- The intent of this macro is to convert sql wildcard format to regex syntax.
  So for example, a value of macro_string like:
 
