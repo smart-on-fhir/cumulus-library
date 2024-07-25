@@ -24,6 +24,8 @@ VALID_UMLS_DOWNLOADS = [
     "umls-full-release",
 ]
 
+VSAC_API_ACTIONS = ["definition", "expansion"]
+
 
 class UmlsApi:
     def __init__(self, api_key: str | None = None, validator_key: str | None = None):
@@ -55,7 +57,7 @@ class UmlsApi:
         self.session.auth = requests.auth.HTTPBasicAuth("apikey", api_key)
 
     def get_vsac_valuesets(
-        self, url: str | None = None, oid: str | None = None
+        self, url: str | None = None, oid: str | None = None, action: str = "expansion"
     ) -> list[dict]:
         """Gets a valueset, and any nested valuesets, from the VSAC API
 
@@ -67,16 +69,21 @@ class UmlsApi:
         Documentation on this API is available at
         https://www.nlm.nih.gov/vsac/support/usingvsac/vsacfhirapi.html
 
-
-        TODO: do we need to support the FHIR operators?
         TODO: do we need to support the v2 API?
         https://www.nlm.nih.gov/vsac/support/usingvsac/vsacsvsapiv2.html
         """
+        if action not in VSAC_API_ACTIONS:
+            raise errors.CumulusLibraryError(
+                f"get_vsac_valuesets() received unexpected action type {action}. "
+                f"Expected values: {','.join(VSAC_API_ACTIONS)}"
+            )
         if url is None:
             url = "https://cts.nlm.nih.gov/fhir/res/ValueSet"
         if oid:
             url = f"{url}/{oid}"
-
+        # TODO: Do we need to support the remaining FHIR operators?
+        if action == "expansion":
+            url = url + "/$expand"
         # If we're inspecting url references in a VSAC response, they come back
         # specifying a url that does not align with the actual implemented rest
         # APIs, so we do some massaging
@@ -88,11 +95,14 @@ class UmlsApi:
         if response.status_code == 404:
             raise errors.ApiError(f"Url not found: {url}")
         all_responses = [response.json()]
-        included_records = all_responses[0].get("compose", {}).get("include", [])
-        for record in included_records:
-            if "valueSet" in record:
-                valueset = self.get_vsac_valuesets(url=record["valueSet"][0])
-                all_responses.append(valueset[0])
+        if action == "definition":
+            included_records = all_responses[0].get("compose", {}).get("include", [])
+            for record in included_records:
+                if "valueSet" in record:
+                    valueset = self.get_vsac_valuesets(
+                        action=action, url=record["valueSet"][0]
+                    )
+                    all_responses.append(valueset[0])
         return all_responses
 
     def get_latest_umls_file_release(self, target: str):

@@ -1,0 +1,54 @@
+{
+  "resourceType": "ValueSet",
+  "id": "2.16.840.1.113762.1.4.1106.68",
+  "meta": {
+    "versionId": "9",
+    "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+    "profile": [ "http://hl7.org/fhir/StructureDefinition/shareablevalueset", "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm", "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm" ]
+  },
+  "extension": [ {
+    "url": "http://hl7.org/fhir/StructureDefinition/valueset-effectiveDate",
+    "valueDate": "2020-12-31"
+  } ],
+  "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1106.68",
+  "identifier": [ {
+    "system": "urn:ietf:rfc:3986",
+    "value": "urn:oid:2.16.840.1.113762.1.4.1106.68"
+  } ],
+  "version": "20201231",
+  "name": "OpioidMeds",
+  "title": "Opioid Meds",
+  "status": "retired",
+  "experimental": false,
+  "date": "2020-12-31T01:00:46-05:00",
+  "publisher": "ACEP/AMA-PCPI Steward",
+  "expansion": {
+    "identifier": "urn:uuid:a0298877-7908-4db0-a19f-449c857b3c44",
+    "timestamp": "2024-07-25T14:55:42-04:00",
+    "total": 836,
+    "offset": 0,
+    "parameter": [ {
+      "name": "count",
+      "valueInteger": 1000
+    }, {
+      "name": "offset",
+      "valueInteger": 0
+    } ],
+    "contains": [ {
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "version": "07012024",
+      "code": "1010600",
+      "display": "buprenorphine 2 MG / naloxone 0.5 MG Sublingual Film"
+    }, {
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "version": "07012024",
+      "code": "1010601",
+      "display": "buprenorphine 2 MG / naloxone 0.5 MG [Suboxone]"
+    }, {
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "version": "07012024",
+      "code": "1010603",
+      "display": "buprenorphine 2 MG / naloxone 0.5 MG Sublingual Film [Suboxone]"
+    }]
+  }
+}
