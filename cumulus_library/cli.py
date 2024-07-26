@@ -78,7 +78,9 @@ class StudyRunner:
         for target in targets:
             if prefix:
                 manifest = study_manifest.StudyManifest()
-                cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)
+                cleaner.clean_study(
+                    config=self.get_config(manifest), manifest=manifest, prefix=target
+                )
             else:
                 manifest = study_manifest.StudyManifest(study_dict[target])
                 cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)

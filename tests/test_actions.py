@@ -69,6 +69,9 @@ def test_clean_study(mock_db_config, verbose, prefix, confirm, stats, target, ra
             mock_db_config.db.cursor().execute(
                 "CREATE TABLE study_valid__123 (test int)"
             )
+            mock_db_config.db.cursor().execute(
+                "CREATE VIEW study_valid__456 AS SELECT * FROM study_valid__123"
+            )
 
             if target is not None:
                 mock_db_config.db.cursor().execute(f"CREATE TABLE {target} (test int);")
@@ -78,6 +81,7 @@ def test_clean_study(mock_db_config, verbose, prefix, confirm, stats, target, ra
                 .execute("select distinct(table_name) from information_schema.tables")
                 .fetchall()
             )
+
             if any(x in target for x in protected_strs):
                 assert (target,) in remaining_tables
             else:
@@ -95,6 +99,8 @@ def test_clean_study(mock_db_config, verbose, prefix, confirm, stats, target, ra
                     f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}",
                 ) in remaining_tables
                 assert ("study_valid__123",) in remaining_tables
+            if not prefix:
+                assert ("study_valid__456",) not in remaining_tables
 
 
 @pytest.mark.parametrize(
