@@ -13,8 +13,9 @@ AUTH_URL = "https://utslogin.nlm.nih.gov/validateUser"
 VALUESET_URL = "https://cts.nlm.nih.gov/fhir/res/ValueSet"
 RELEASE_URL = "https://uts-ws.nlm.nih.gov/releases"
 DOWNLOAD_URL = "https://uts-ws.nlm.nih.gov/download"
-SINGLE_VALUESET_OID = "2.16.840.1.113883.3.3616.200.110.102.3186"
-INCLUDE_VALUESET_OID = "2.16.840.1.113883.3.3616.200.110.102.7001"
+DEFINITION_SINGLE_VALUESET_OID = "2.16.840.1.113883.3.3616.200.110.102.3186"
+DEFINITION_INCLUDE_VALUESET_OID = "2.16.840.1.113883.3.3616.200.110.102.7001"
+EXPANSION_VALUESET_OID = "2.16.840.1.113762.1.4.1106.68"
 
 
 @mock.patch.dict(
@@ -67,56 +68,86 @@ def get_valueset_data(file_name):
     clear=True,
 )
 @pytest.mark.parametrize(
-    "url,oid,expected_oids,raises",
+    "action,url,oid,expected_oids,raises",
     [
-        (VALUESET_URL, SINGLE_VALUESET_OID, [SINGLE_VALUESET_OID], does_not_raise()),
-        (None, SINGLE_VALUESET_OID, [SINGLE_VALUESET_OID], does_not_raise()),
         (
-            VALUESET_URL + "/" + SINGLE_VALUESET_OID,
-            None,
-            [SINGLE_VALUESET_OID],
-            does_not_raise(),
-        ),
-        (
+            "definition",
             VALUESET_URL,
-            INCLUDE_VALUESET_OID,
-            [INCLUDE_VALUESET_OID, SINGLE_VALUESET_OID],
+            DEFINITION_SINGLE_VALUESET_OID,
+            [DEFINITION_SINGLE_VALUESET_OID],
             does_not_raise(),
         ),
         (
+            "definition",
             None,
-            INCLUDE_VALUESET_OID,
-            [INCLUDE_VALUESET_OID, SINGLE_VALUESET_OID],
+            DEFINITION_SINGLE_VALUESET_OID,
+            [DEFINITION_SINGLE_VALUESET_OID],
             does_not_raise(),
         ),
         (
-            VALUESET_URL + "/" + INCLUDE_VALUESET_OID,
+            "definition",
+            VALUESET_URL + "/" + DEFINITION_SINGLE_VALUESET_OID,
             None,
-            [INCLUDE_VALUESET_OID, SINGLE_VALUESET_OID],
+            [DEFINITION_SINGLE_VALUESET_OID],
             does_not_raise(),
         ),
-        (None, None, [], pytest.raises(errors.ApiError)),
+        (
+            "definition",
+            VALUESET_URL,
+            DEFINITION_INCLUDE_VALUESET_OID,
+            [DEFINITION_INCLUDE_VALUESET_OID, DEFINITION_SINGLE_VALUESET_OID],
+            does_not_raise(),
+        ),
+        (
+            "definition",
+            None,
+            DEFINITION_INCLUDE_VALUESET_OID,
+            [DEFINITION_INCLUDE_VALUESET_OID, DEFINITION_SINGLE_VALUESET_OID],
+            does_not_raise(),
+        ),
+        (
+            "definition",
+            VALUESET_URL + "/" + DEFINITION_INCLUDE_VALUESET_OID,
+            None,
+            [DEFINITION_INCLUDE_VALUESET_OID, DEFINITION_SINGLE_VALUESET_OID],
+            does_not_raise(),
+        ),
+        (
+            "expansion",
+            VALUESET_URL + "/" + EXPANSION_VALUESET_OID,
+            None,
+            [EXPANSION_VALUESET_OID],
+            does_not_raise(),
+        ),
+        ("definition", None, None, [], pytest.raises(errors.ApiError)),
+        ("invalidaction", None, None, [], pytest.raises(errors.ApiError)),
     ],
 )
 @responses.activate
-def test_get_valueset(url, oid, expected_oids, raises):
+def test_get_valueset(action, url, oid, expected_oids, raises):
     with raises:
         responses.add(responses.GET, AUTH_URL, body="true", status=200)
         responses.add(responses.GET, VALUESET_URL, status=404)
         responses.add(
             responses.GET,
-            VALUESET_URL + "/" + SINGLE_VALUESET_OID,
-            body=get_valueset_data("single_valueset.json"),
+            VALUESET_URL + "/" + DEFINITION_SINGLE_VALUESET_OID,
+            body=get_valueset_data("definition_single_valueset.json"),
             status=200,
         )
         responses.add(
             responses.GET,
-            VALUESET_URL + "/" + INCLUDE_VALUESET_OID,
-            body=get_valueset_data("include_valueset.json"),
+            VALUESET_URL + "/" + DEFINITION_INCLUDE_VALUESET_OID,
+            body=get_valueset_data("definition_include_valueset.json"),
+            status=200,
+        )
+        responses.add(
+            responses.GET,
+            VALUESET_URL + "/" + EXPANSION_VALUESET_OID + "/$expand",
+            body=get_valueset_data("expansion_valueset.json"),
             status=200,
         )
         api = umls.UmlsApi(api_key="123")
-        data = api.get_vsac_valuesets(url=url, oid=oid)
+        data = api.get_vsac_valuesets(action=action, url=url, oid=oid)
         assert len(data) == len(expected_oids)
         for i in range(0, len(expected_oids)):
             assert data[i]["id"] == expected_oids[i]
@@ -163,11 +194,14 @@ def test_download_umls(tmp_path):
         api = umls.UmlsApi(api_key="123")
         api.download_umls_files(path=tmp_path)
         downloads = os.listdir(tmp_path)
-        assert len(downloads) == 2
+        assert len(downloads) == 3
         for file in [
-            "single_valueset.json",
-            "include_valueset.json",
+            "definition_single_valueset.json",
+            "definition_include_valueset.json",
+            "expansion_valueset.json",
         ]:
             assert file in downloads
         with pytest.raises(errors.ApiError):
             api.download_umls_files(path=tmp_path, target="foo")
+        with pytest.raises(errors.ApiError):
+            api.get_latest_umls_file_release(target="foo")
