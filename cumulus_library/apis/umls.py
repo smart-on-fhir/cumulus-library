@@ -73,7 +73,7 @@ class UmlsApi:
         https://www.nlm.nih.gov/vsac/support/usingvsac/vsacsvsapiv2.html
         """
         if action not in VSAC_API_ACTIONS:
-            raise errors.CumulusLibraryError(
+            raise errors.ApiError(
                 f"get_vsac_valuesets() received unexpected action type {action}. "
                 f"Expected values: {','.join(VSAC_API_ACTIONS)}"
             )
@@ -134,8 +134,7 @@ class UmlsApi:
                 f"'{target}' is not a valid umls download type.\n\n"
                 f"Expected values: {','.join(VALID_UMLS_DOWNLOADS)}"
             )
-        if path is None:
-            path = pathlib.Path.cwd()
+        path = path or pathlib.Path.cwd()
         file_meta = self.get_latest_umls_file_release(target)
 
         # This particular endpoint requires the API key as a param rather than a

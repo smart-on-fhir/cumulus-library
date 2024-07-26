@@ -120,6 +120,7 @@ def get_valueset_data(file_name):
             does_not_raise(),
         ),
         ("definition", None, None, [], pytest.raises(errors.ApiError)),
+        ("invalidaction", None, None, [], pytest.raises(errors.ApiError)),
     ],
 )
 @responses.activate
@@ -193,11 +194,14 @@ def test_download_umls(tmp_path):
         api = umls.UmlsApi(api_key="123")
         api.download_umls_files(path=tmp_path)
         downloads = os.listdir(tmp_path)
-        assert len(downloads) == 2
+        assert len(downloads) == 3
         for file in [
-            "single_valueset.json",
-            "include_valueset.json",
+            "definition_single_valueset.json",
+            "definition_include_valueset.json",
+            "expansion_valueset.json",
         ]:
             assert file in downloads
         with pytest.raises(errors.ApiError):
             api.download_umls_files(path=tmp_path, target="foo")
+        with pytest.raises(errors.ApiError):
+            api.get_latest_umls_file_release(target="foo")
