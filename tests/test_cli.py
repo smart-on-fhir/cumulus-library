@@ -20,7 +20,7 @@ import pandas
 import pytest
 import responses
 
-from cumulus_library import cli, databases, errors
+from cumulus_library import __version__, cli, databases, errors
 from tests.conftest import duckdb_args
 
 
@@ -807,4 +807,29 @@ def test_sql_error_handling(mock_backend, tmp_path):
         tmp_path,
     )
     with pytest.raises(SystemExit):
+        cli.main(cli_args=build_args)
+
+
+@mock.patch.dict(os.environ, clear=True)
+def test_version(capfd):
+    with pytest.raises(SystemExit):
+        cli.main(cli_args=["--version"])
+        out, _ = capfd.readouterr()
+        assert out == __version__
+
+
+@mock.patch.dict(os.environ, clear=True)
+def test_study_dir(tmp_path):
+    os.environ["CUMULUS_LIBRARY_STUDY_DIR"] = str(
+        pathlib.Path(__file__).resolve().parent / "test_data/"
+    )
+    build_args = duckdb_args(
+        [
+            "build",
+            "-t",
+            "study_valid",
+        ],
+        tmp_path,
+    )
+    with does_not_raise():
         cli.main(cli_args=build_args)

@@ -78,7 +78,9 @@ class StudyRunner:
         for target in targets:
             if prefix:
                 manifest = study_manifest.StudyManifest()
-                cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)
+                cleaner.clean_study(
+                    config=self.get_config(manifest), manifest=manifest, prefix=target
+                )
             else:
                 manifest = study_manifest.StudyManifest(study_dict[target])
                 cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)
@@ -141,7 +143,7 @@ class StudyRunner:
         except errors.StudyManifestFilesystemError as e:
             # This should be thrown prior to any database connections, so
             # skipping logging
-            raise e
+            raise e  # pragma: no cover
         except Exception as e:
             log_utils.log_transaction(
                 config=self.get_config(manifest),
@@ -177,8 +179,6 @@ class StudyRunner:
         :param datapath: The location to export data to
         :param archive: If true, will export all tables, otherwise uses manifest list
         """
-        if data_path is None:
-            sys.exit("Missing destination - please provide a path argument.")
         manifest = study_manifest.StudyManifest(target, data_path)
         exporter.export_study(
             config=self.get_config(manifest),
@@ -416,7 +416,7 @@ def main(cli_args=None):
         table.add_column("Value", style="cyan")
         for row in read_env_vars:
             if row[0] == "CUMULUS_AGGREGATOR_ID":
-                table.add_row(row[0], "#########")
+                table.add_row(row[0], "#########")  # pragma: no cover
             else:
                 table.add_row(row[0], row[1])
         console = rich.console.Console()
