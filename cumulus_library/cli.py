@@ -143,7 +143,7 @@ class StudyRunner:
         except errors.StudyManifestFilesystemError as e:
             # This should be thrown prior to any database connections, so
             # skipping logging
-            raise e  # pragma: no-cover
+            raise e  # pragma: no cover
         except Exception as e:
             log_utils.log_transaction(
                 config=self.get_config(manifest),
@@ -416,7 +416,7 @@ def main(cli_args=None):
         table.add_column("Value", style="cyan")
         for row in read_env_vars:
             if row[0] == "CUMULUS_AGGREGATOR_ID":
-                table.add_row(row[0], "#########")  # pragma: no-cover
+                table.add_row(row[0], "#########")  # pragma: no cover
             else:
                 table.add_row(row[0], row[1])
         console = rich.console.Console()

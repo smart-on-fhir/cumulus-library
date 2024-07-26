@@ -115,7 +115,7 @@ def clean_study(
     table_sql = base_templates.get_show_tables(config.schema, drop_prefix)
     view_table_list = []
     for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
-        view_table_list = view_table_list + get_unprotected_stats_view_table(
+        view_table_list += get_unprotected_stats_view_table(
             cursor,
             query_and_type[0],
             query_and_type[1],
