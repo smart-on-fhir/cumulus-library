@@ -88,8 +88,6 @@ def clean_study(
     :returns: list of dropped tables (for unit testing only)
 
     """
-    if not config.schema:
-        raise errors.CumulusLibraryError("No database provided")
     if not prefix and not manifest:
         raise errors.CumulusLibraryError(
             "Either a manifest parser or a filter prefix must be provided"

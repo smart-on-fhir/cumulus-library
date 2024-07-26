@@ -103,6 +103,11 @@ def test_clean_study(mock_db_config, verbose, prefix, confirm, stats, target, ra
                 assert ("study_valid__456",) not in remaining_tables
 
 
+def test_clean_throws_error_on_missing_params(mock_db_config):
+    with pytest.raises(errors.CumulusLibraryError):
+        cleaner.clean_study(config=mock_db_config, manifest=None)
+
+
 @pytest.mark.parametrize(
     "study_path,stats",
     [
