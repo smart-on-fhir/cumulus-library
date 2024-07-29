@@ -133,9 +133,7 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         """Creates a covariate table from the loaded toml config"""
         # checks for primary & link ref being the same
         source_refs = list({self.config.primary_ref, self.config.count_ref} - {None})
-        pos_query = psm_templates.get_distinct_ids(
-            source_refs, self.config.pos_source_table
-        )
+        pos_query = psm_templates.get_distinct_ids(source_refs, self.config.pos_source_table)
         pos = self._get_sampled_ids(
             cursor,
             schema,
@@ -187,8 +185,8 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         Title="Side by side matched controls",
         Ylabel="Number of patients",
         Xlabel="propensity logit",
-        names=["positive_cohort", "negative_cohort"],  # noqa: B006
-        colors=["#E69F00", "#56B4E9"],  # noqa: B006
+        names=None,
+        colors=None,
         save=True,
         filename="propensity_match.png",
     ):
@@ -199,6 +197,8 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         and passing in the psm object instead of assuming a call from inside
         the PsmPy class.
         """
+        names = names or ["positive_cohort", "negative_cohort"]
+        colors = colors or ["#E69F00", "#56B4E9"]
         dftreat = psm.df_matched[psm.df_matched[psm.treatment] == 1]
         dfcontrol = psm.df_matched[psm.df_matched[psm.treatment] == 0]
         x1 = dftreat[matched_entity]
@@ -217,7 +217,7 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
     def psm_effect_size_plot(
         self,
         psm,
-        title="Standardized Mean differences accross covariates before and after matching",  # noqa: E501
+        title="Standardized Mean differences accross covariates before and after matching",
         before_color="#FCB754",
         after_color="#3EC8FB",
         save=False,
@@ -239,9 +239,7 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
         for cl in psm.xvars:
             data.append([cl, "before", cohenD(df_preds_b4_float, psm.treatment, cl)])
             data.append([cl, "after", cohenD(df_preds_after_float, psm.treatment, cl)])
-        psm.effect_size = pandas.DataFrame(
-            data, columns=["Variable", "matching", "Effect Size"]
-        )
+        psm.effect_size = pandas.DataFrame(data, columns=["Variable", "matching", "Effect Size"])
         sns.set_style("white")
         sns_plot = sns.barplot(
             data=psm.effect_size,
@@ -260,17 +258,13 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
     ):
         stats_table = f"{self.config.target_table}_{table_suffix}"
         """Runs PSM statistics on generated tables"""
-        cursor.execute(
-            base_templates.get_alias_table_query(stats_table, self.config.target_table)
-        )
+        cursor.execute(base_templates.get_alias_table_query(stats_table, self.config.target_table))
         df = cursor.execute(
             base_templates.get_select_all_query(self.config.target_table)
         ).as_pandas()
         symptoms_dict = self._get_symptoms_dict(self.config.classification_json)
         for dependent_variable, codes in symptoms_dict.items():
-            df[dependent_variable] = df["code"].apply(
-                lambda x, codes=codes: 1 if x in codes else 0
-            )
+            df[dependent_variable] = df["code"].apply(lambda x, codes=codes: 1 if x in codes else 0)
         df = df.drop(columns="code")
         # instance_count present but unused for PSM if table contains a count_ref input
         # (it's intended for manual review)
@@ -342,13 +336,10 @@ class PsmBuilder(base_table_builder.BaseTableBuilder):
             )
         except ValueError:
             sys.exit(
-                "Encountered a value error during KNN matching. Try increasing "
-                "your sample size."
+                "Encountered a value error during KNN matching. Try increasing " "your sample size."
             )
 
-    def prepare_queries(
-        self, config: base_utils.StudyConfig, *args, table_suffix: str, **kwargs
-    ):
+    def prepare_queries(self, config: base_utils.StudyConfig, *args, table_suffix: str, **kwargs):
         self._create_covariate_table(config.db.cursor(), config.schema, table_suffix)
 
     def post_execution(

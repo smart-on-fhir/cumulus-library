@@ -100,9 +100,7 @@ def ndjson_data_generator(source_dir: Path, target_dir: Path, iterations: int):
                 obj[id_path[0]] = obj[id_path[0]] + str(i)
         else:
             if isinstance(obj, list):
-                obj[0][id_path[0]] = update_nested_obj(
-                    id_path[1:], obj[0][id_path[0]], i
-                )
+                obj[0][id_path[0]] = update_nested_obj(id_path[1:], obj[0][id_path[0]], i)
             else:
                 obj[id_path[0]] = update_nested_obj(id_path[1:], obj[id_path[0]], i)
 
@@ -131,9 +129,7 @@ def ndjson_data_generator(source_dir: Path, target_dir: Path, iterations: int):
             # workaround for pandas/null/boolean casting issues
             for null_bool_col in ["multipleBirthBoolean"]:
                 if null_bool_col in output_df.columns:
-                    output_df[null_bool_col] = output_df[null_bool_col].replace(
-                        {0.0: False}
-                    )
+                    output_df[null_bool_col] = output_df[null_bool_col].replace({0.0: False})
             output_df = output_df.replace({numpy.nan: None})
 
             write_path = Path(str(target_dir) + f"/{key}/{filepath.name}")

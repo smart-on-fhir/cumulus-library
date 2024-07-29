@@ -221,8 +221,7 @@ def test_generate_md(mock_path, tmp_path):
         cli.main(cli_args=args)
         test_file = f"{tmp_path}/study_python_valid/study_python_valid_generated.md"
         ref_file = (
-            pathlib.Path(__file__).resolve().parent
-            / "test_data/study_python_valid_generated.md"
+            pathlib.Path(__file__).resolve().parent / "test_data/study_python_valid_generated.md"
         )
         assert filecmp.cmp(test_file, ref_file, shallow=True)
 
@@ -403,9 +402,7 @@ def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=
         ),
     ],
 )
-def test_cli_executes_queries(
-    tmp_path, build_args, export_args, expected_tables, raises
-):
+def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables, raises):
     with raises:
         build_args = duckdb_args(build_args, tmp_path)
         cli.main(cli_args=build_args)
@@ -430,9 +427,7 @@ def test_cli_executes_queries(
             if len(build_args) == 9:
                 manifest_dir = cli.get_study_dict([])[build_args[2]]
             else:
-                manifest_dir = cli.get_study_dict([cli.get_abs_path(build_args[4])])[
-                    build_args[2]
-                ]
+                manifest_dir = cli.get_study_dict([cli.get_abs_path(build_args[4])])[build_args[2]]
 
             with open(f"{manifest_dir}/manifest.toml", "rb") as file:
                 config = tomllib.load(file)
@@ -616,12 +611,8 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
 def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls):
     mock_glob.side_effect = [
         [
-            Path(
-                str(Path(__file__).parent) + "/test_data/count_synthea_patient.parquet"
-            ),
-            Path(
-                str(Path(__file__).parent) + "/other_data/count_synthea_patient.parquet"
-            ),
+            Path(str(Path(__file__).parent) + "/test_data/count_synthea_patient.parquet"),
+            Path(str(Path(__file__).parent) + "/other_data/count_synthea_patient.parquet"),
         ],
     ]
     cli.main(cli_args=args)
@@ -650,9 +641,7 @@ def test_cli_umls_parsing(mock_config, mode, tmp_path):
 
 @mock.patch.dict(os.environ, clear=True)
 def test_cli_single_builder(tmp_path):
-    cli.main(
-        cli_args=duckdb_args(["build", "--builder=patient", "--target=core"], tmp_path)
-    )
+    cli.main(cli_args=duckdb_args(["build", "--builder=patient", "--target=core"], tmp_path))
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     tables = {x[0] for x in db.cursor().execute("show tables").fetchall()}
     assert {

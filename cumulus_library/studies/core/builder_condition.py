@@ -69,8 +69,7 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
             ),
         ]
         self.queries += [
-            base_templates.get_codeable_concept_denormalize_query(config)
-            for config in configs
+            base_templates.get_codeable_concept_denormalize_query(config) for config in configs
         ]
 
     def prepare_queries(
@@ -81,6 +80,4 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
     ):
         self.denormalize_codes()
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
-        self.queries.append(
-            core_templates.get_core_template("condition", validated_schema)
-        )
+        self.queries.append(core_templates.get_core_template("condition", validated_schema))

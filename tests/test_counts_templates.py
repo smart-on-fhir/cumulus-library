@@ -200,9 +200,7 @@ from cumulus_library.statistics.statistics_templates import counts_templates
     ],
 )
 def test_count_query(expected, kwargs):
-    query = counts_templates.get_count_query(
-        "test_table", "test_source", ["age", "sex"], **kwargs
-    )
+    query = counts_templates.get_count_query("test_table", "test_source", ["age", "sex"], **kwargs)
     # Snippet for getting updated template output
     # with open("output.sql", "w") as f:
     #     f.write(query)

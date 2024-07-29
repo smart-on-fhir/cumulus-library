@@ -94,7 +94,7 @@ def _log_table(
         # Migrating logging tables
         if "lib_transactions" in table_name:
             cols = cursor.execute(
-                "SELECT column_name FROM information_schema.columns "
+                "SELECT column_name FROM information_schema.columns "  # noqa: S608
                 f"WHERE table_name ='{table_name}' "
                 f"AND table_schema ='{db_schema}'"
             ).fetchall()
@@ -109,13 +109,11 @@ def _log_table(
                 alter_query = ""
                 if isinstance(config.db, databases.AthenaDatabaseBackend):
                     alter_query = (
-                        f"ALTER TABLE {db_schema}.{table_name} "
-                        "ADD COLUMNS(message string)"
+                        f"ALTER TABLE {db_schema}.{table_name} " "ADD COLUMNS(message string)"
                     )
                 elif isinstance(config.db, databases.DuckDatabaseBackend):
                     alter_query = (
-                        f"ALTER TABLE {db_schema}.{table_name} "
-                        "ADD COLUMN message varchar"
+                        f"ALTER TABLE {db_schema}.{table_name} " "ADD COLUMN message varchar"
                     )
                 cursor.execute(alter_query)
                 cursor.execute(query)

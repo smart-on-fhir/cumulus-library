@@ -26,9 +26,7 @@ class ValueSet(Enum):
     DocumentType = "http://hl7.org/fhir/ValueSet/c80-doc-typecodes"
     ObservationCode = "http://hl7.org/fhir/ValueSet/observation-codes"
     ObservationCategory = "http://hl7.org/fhir/ValueSet/observation-category"
-    ObservationInterpretation = (
-        "http://hl7.org/fhir/ValueSet/observation-interpretation"
-    )
+    ObservationInterpretation = "http://hl7.org/fhir/ValueSet/observation-interpretation"
 
     def __init__(self, url: str):
         self.url = url

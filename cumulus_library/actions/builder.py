@@ -94,9 +94,7 @@ def _load_and_execute_builder(
     table_builder_class = table_builder_subclasses[0]
     table_builder = table_builder_class()
     if write_reference_sql:
-        table_builder.prepare_queries(
-            config=config, manifest=manifest, parser=db_parser
-        )
+        table_builder.prepare_queries(config=config, manifest=manifest, parser=db_parser)
         table_builder.comment_queries(doc_str=doc_str)
         new_filename = pathlib.Path(f"{filename}").stem + ".sql"
         table_builder.write_queries(
@@ -191,7 +189,7 @@ def run_statistics_builders(
         existing_stats = (
             config.db.cursor()
             .execute(
-                "SELECT view_name FROM "
+                "SELECT view_name FROM "  # noqa: S608
                 f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}"
             )
             .fetchall()
@@ -273,9 +271,7 @@ def build_study(
     """
     queries = []
     for file in manifest.get_sql_file_list(continue_from):
-        for query in base_utils.parse_sql(
-            base_utils.load_text(f"{manifest._study_path}/{file}")
-        ):
+        for query in base_utils.parse_sql(base_utils.load_text(f"{manifest._study_path}/{file}")):
             queries.append([query, file])
     if len(queries) == 0:
         return []
@@ -377,9 +373,7 @@ def _execute_build_queries(
                 "start with a string like `study_prefix__`.",
             )
         try:
-            with base_utils.query_console_output(
-                config.verbose, query[0], progress, task
-            ):
+            with base_utils.query_console_output(config.verbose, query[0], progress, task):
                 cursor.execute(query[0])
         except Exception as e:  # pylint: disable=broad-exception-caught
             _query_error(

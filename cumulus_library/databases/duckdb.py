@@ -94,9 +94,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             self.connection.register(name, table)
 
     @staticmethod
-    def _compat_array_join(
-        value: list[str | None] | None, delimiter: str | None
-    ) -> str | None:
+    def _compat_array_join(value: list[str | None] | None, delimiter: str | None) -> str | None:
         if value is None:
             return None
         if delimiter is None or delimiter == "None":

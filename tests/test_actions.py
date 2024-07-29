@@ -66,9 +66,7 @@ def test_clean_study(mock_db_config, verbose, prefix, confirm, stats, target, ra
                 "AS SELECT 'study_valid' as study_name, "
                 "'study_valid__123' AS table_name"
             )
-            mock_db_config.db.cursor().execute(
-                "CREATE TABLE study_valid__123 (test int)"
-            )
+            mock_db_config.db.cursor().execute("CREATE TABLE study_valid__123 (test int)")
             mock_db_config.db.cursor().execute(
                 "CREATE VIEW study_valid__456 AS SELECT * FROM study_valid__123"
             )
@@ -123,9 +121,7 @@ def test_run_protected_table_builder(mock_db_config, study_path, stats):
         .execute("SELECT distinct(table_name) FROM information_schema.tables ")
         .fetchall()
     )
-    assert (
-        f"{manifest.get_study_prefix()}__{enums.ProtectedTables.TRANSACTIONS.value}",
-    ) in tables
+    assert (f"{manifest.get_study_prefix()}__{enums.ProtectedTables.TRANSACTIONS.value}",) in tables
     if stats:
         assert (
             f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}",
@@ -345,13 +341,9 @@ def test_import_study(tmp_path, mock_db_config):
     (tmp_path / "archive/test__table.parquet").unlink()
     (tmp_path / "archive/test__table.csv").unlink()
     mock_db_config.schema = "schema_name"
-    importer.import_archive(
-        config=mock_db_config, archive_path=tmp_path / "archive/test.zip"
-    )
+    importer.import_archive(config=mock_db_config, archive_path=tmp_path / "archive/test.zip")
     assert len(list((tmp_path / "archive").glob("*"))) == 1
-    test_table = (
-        mock_db_config.db.cursor().execute("SELECT * FROM test__table").fetchall()
-    )
+    test_table = mock_db_config.db.cursor().execute("SELECT * FROM test__table").fetchall()
     assert test_table == [
         ("a", 1, 1.1, True, datetime.datetime(2024, 1, 1, 0, 0)),
         ("b", 2, 2.2, False, datetime.datetime(2024, 1, 1, 0, 0)),
@@ -364,13 +356,9 @@ def test_import_study(tmp_path, mock_db_config):
     with pytest.raises(errors.StudyImportError):
         with open(tmp_path / "archive/empty.zip", "w"):
             pass
-        importer.import_archive(
-            config=mock_db_config, archive_path=tmp_path / "archive/empty.zip"
-        )
+        importer.import_archive(config=mock_db_config, archive_path=tmp_path / "archive/empty.zip")
     with pytest.raises(errors.StudyImportError):
-        importer.import_archive(
-            config=mock_db_config, archive_path=tmp_path / "duck.db"
-        )
+        importer.import_archive(config=mock_db_config, archive_path=tmp_path / "duck.db")
     with pytest.raises(errors.StudyImportError):
         df.to_parquet(tmp_path / "archive/test__table.parquet")
         df.to_parquet(tmp_path / "archive/other_test__table.parquet")
@@ -467,9 +455,7 @@ def test_generate_sql(mock_path, mock_db_config, tmp_path):
             study_path=pathlib.Path(f"{tmp_path}/study_python_valid/")
         )
         file_generator.run_generate_sql(manifest=manifest, config=mock_db_config)
-        files = list(
-            pathlib.Path(f"{tmp_path}/study_python_valid/reference_sql/").glob("*")
-        )
+        files = list(pathlib.Path(f"{tmp_path}/study_python_valid/reference_sql/").glob("*"))
         files = [str(x) for x in files]
         assert len(files) == 2
         assert "module1.sql" in ",".join(files)
@@ -494,9 +480,7 @@ def test_generate_md(mock_path, mock_db_config, tmp_path):
         )
         builder.run_table_builder(config=mock_db_config, manifest=manifest)
         file_generator.run_generate_markdown(config=mock_db_config, manifest=manifest)
-        with open(
-            f"{tmp_path}/study_python_valid/study_python_valid_generated.md"
-        ) as f:
+        with open(f"{tmp_path}/study_python_valid/study_python_valid_generated.md") as f:
             generated_md = f.read()
         expected_table = """### study_python_valid__table
 

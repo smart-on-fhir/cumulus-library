@@ -92,9 +92,7 @@ class DatabaseParser(abc.ABC):
 
         return output
 
-    def validate_table_schema(
-        self, expected: dict[str, list], schema: list[tuple]
-    ) -> dict:
+    def validate_table_schema(self, expected: dict[str, list], schema: list[tuple]) -> dict:
         """Public interface for investigating if fields are in a table schema.
 
         expected is a dictionary of string column names to *something*:

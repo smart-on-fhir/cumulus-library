@@ -228,9 +228,7 @@ following order of preference is used to select credentials:
 
     # Database export
 
-    export = actions.add_parser(
-        "export", help="Generates files on disk from Athena tables/views"
-    )
+    export = actions.add_parser("export", help="Generates files on disk from Athena tables/views")
     add_custom_option(export)
     add_target_argument(export)
     add_study_dir_argument(export)
@@ -245,9 +243,7 @@ following order of preference is used to select credentials:
 
     # Database import
 
-    importer = actions.add_parser(
-        "import", help="Recreates a study from an exported archive"
-    )
+    importer = actions.add_parser("import", help="Recreates a study from an exported archive")
     add_db_config(importer)
     add_verbose_argument(importer)
     importer.add_argument(
@@ -258,15 +254,11 @@ following order of preference is used to select credentials:
     )
     # Aggregator upload
 
-    upload = actions.add_parser(
-        "upload", help="Bulk uploads data to Cumulus aggregator"
-    )
+    upload = actions.add_parser("upload", help="Bulk uploads data to Cumulus aggregator")
     add_data_path_argument(upload)
     add_target_argument(upload)
 
-    upload.add_argument(
-        "--id", help="Site ID. Default is value of CUMULUS_AGGREGATOR_ID"
-    )
+    upload.add_argument("--id", help="Site ID. Default is value of CUMULUS_AGGREGATOR_ID")
     upload.add_argument(
         "--preview",
         default=False,
@@ -281,9 +273,7 @@ following order of preference is used to select credentials:
         ),
         default="https://aggregator.smartcumulus.org/upload/",
     )
-    upload.add_argument(
-        "--user", help="Cumulus user. Default is value of CUMULUS_AGGREGATOR_USER"
-    )
+    upload.add_argument("--user", help="Cumulus user. Default is value of CUMULUS_AGGREGATOR_USER")
 
     # Generate a study's template-driven sql
 

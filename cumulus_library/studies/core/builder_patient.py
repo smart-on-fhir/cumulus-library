@@ -76,12 +76,8 @@ class PatientBuilder(BaseTableBuilder):
         ]
         for extension in extension_types:
             self.queries.append(
-                self.make_extension_query(
-                    config.db, extension["name"], extension["fhirpath"]
-                )
+                self.make_extension_query(config.db, extension["name"], extension["fhirpath"])
             )
 
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
-        self.queries.append(
-            core_templates.get_core_template("patient", validated_schema)
-        )
+        self.queries.append(core_templates.get_core_template("patient", validated_schema))

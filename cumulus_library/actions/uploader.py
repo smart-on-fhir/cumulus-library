@@ -65,8 +65,7 @@ def upload_files(args: dict):
     """Wrapper to prep files & console output"""
     if args["data_path"] is None:
         sys.exit(
-            "No data directory provided - please provide a path to your"
-            "study export folder."
+            "No data directory provided - please provide a path to your" "study export folder."
         )
     file_paths = list(args["data_path"].glob("**/*.parquet"))
     if args["target"]:
@@ -79,9 +78,7 @@ def upload_files(args: dict):
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
     try:
-        meta_version = next(
-            filter(lambda x: str(x).endswith("__meta_version.parquet"), file_paths)
-        )
+        meta_version = next(filter(lambda x: str(x).endswith("__meta_version.parquet"), file_paths))
         version = str(read_parquet(meta_version)["data_package_version"][0])
         file_paths.remove(meta_version)
     except StopIteration:

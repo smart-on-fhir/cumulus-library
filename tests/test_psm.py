@@ -87,11 +87,7 @@ def test_psm_create(
         drop_table=True,
         table_suffix=safe_timestamp,
     )
-    df = (
-        builder.config.db.cursor()
-        .execute("select * from psm_test__psm_encounter_covariate")
-        .df()
-    )
+    df = builder.config.db.cursor().execute("select * from psm_test__psm_encounter_covariate").df()
 
     ed_series = df["example_diagnosis"].value_counts()
     assert ed_series.iloc[0] == neg_set

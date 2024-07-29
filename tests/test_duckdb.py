@@ -64,11 +64,7 @@ def test_duckdb_core_build_and_export(tmp_path):
 )
 def test_duckdb_from_iso8601_timestamp(timestamp, expected):
     db = databases.DuckDatabaseBackend(":memory:")
-    parsed = (
-        db.cursor()
-        .execute(f"select from_iso8601_timestamp('{timestamp}')")
-        .fetchone()[0]
-    )
+    parsed = db.cursor().execute(f"select from_iso8601_timestamp('{timestamp}')").fetchone()[0]
     assert parsed == expected
 
 
@@ -94,9 +90,7 @@ def test_duckdb_load_ndjson_dir(tmp_path):
     )
 
     expected_good_count = len({f for f, v in filenames.items() if v})
-    found_ids = {
-        row[0] for row in db.cursor().execute("select id from patient").fetchall()
-    }
+    found_ids = {row[0] for row in db.cursor().execute("select id from patient").fetchall()}
     found_good = {row_id for row_id in found_ids if row_id.startswith("Good")}
     found_bad = found_ids - found_good
     assert len(found_good) == expected_good_count
@@ -149,9 +143,7 @@ def test_duckdb_table_schema():
         actual_schema = db.cursor().execute(query).fetchall()
 
         # Validate that schema against what we were looking for
-        validated_schema = db.parser().validate_table_schema(
-            target_schema, actual_schema
-        )
+        validated_schema = db.parser().validate_table_schema(target_schema, actual_schema)
         # Note the all mixed-case results.
         # These are guaranteed to be the same case as the expected/target schema.
         expected_schema = {

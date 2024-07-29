@@ -481,9 +481,7 @@ def test_duckdb_to_utf8(mock_db):
 def test_duckdb_date(mock_db, data, field_type, raises):
     with raises:
         cursor = mock_db.cursor()
-        field = cursor.execute(
-            f"SELECT date(CAST('{data}' AS {field_type})) AS field"
-        ).fetchall()
+        field = cursor.execute(f"SELECT date(CAST('{data}' AS {field_type})) AS field").fetchall()
         assert field == [(datetime.date(2000, 1, 1),)]
 
 

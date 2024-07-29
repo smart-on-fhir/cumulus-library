@@ -58,8 +58,7 @@ def test_core_medreq_only_rxnorm(tmp_path, codings, expected):
     testbed.add_medication_request("A", codings=codings)
     con = testbed.build()
     codes = con.sql(
-        "SELECT medication_code FROM core__medicationrequest "
-        "ORDER BY medication_code"
+        "SELECT medication_code FROM core__medicationrequest " "ORDER BY medication_code"
     ).fetchall()
     assert [x[0] for x in codes] == expected
 

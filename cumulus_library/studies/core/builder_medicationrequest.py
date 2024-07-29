@@ -44,6 +44,4 @@ class MedicationRequestBuilder(base_table_builder.BaseTableBuilder):
         ]
         self.queries += sql_utils.denormalize_complex_objects(config.db, code_sources)
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
-        self.queries.append(
-            core_templates.get_core_template("medicationrequest", validated_schema)
-        )
+        self.queries.append(core_templates.get_core_template("medicationrequest", validated_schema))

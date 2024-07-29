@@ -98,9 +98,7 @@ class StudyRunner:
         """
         manifest = study_manifest.StudyManifest(target, self.data_path)
         try:
-            builder.run_protected_table_builder(
-                config=self.get_config(manifest), manifest=manifest
-            )
+            builder.run_protected_table_builder(config=self.get_config(manifest), manifest=manifest)
             if not continue_from:
                 log_utils.log_transaction(
                     config=self.get_config(manifest),
@@ -111,9 +109,7 @@ class StudyRunner:
                     config=self.get_config(manifest),
                     manifest=manifest,
                 )
-                builder.run_table_builder(
-                    config=self.get_config(manifest), manifest=manifest
-                )
+                builder.run_table_builder(config=self.get_config(manifest), manifest=manifest)
 
             else:
                 log_utils.log_transaction(
@@ -127,9 +123,7 @@ class StudyRunner:
                 manifest=manifest,
                 continue_from=continue_from,
             )
-            builder.run_counts_builders(
-                config=self.get_config(manifest), manifest=manifest
-            )
+            builder.run_counts_builders(config=self.get_config(manifest), manifest=manifest)
             builder.run_statistics_builders(
                 config=self.get_config(manifest),
                 manifest=manifest,
@@ -170,9 +164,7 @@ class StudyRunner:
         )
 
     ### Data exporters
-    def export_study(
-        self, target: pathlib.Path, data_path: pathlib.Path, archive: bool
-    ) -> None:
+    def export_study(self, target: pathlib.Path, data_path: pathlib.Path, archive: bool) -> None:
         """Exports aggregates defined in a manifest
 
         :param target: A path to the study directory
@@ -199,9 +191,7 @@ class StudyRunner:
         :keyword builder: Specify a single builder to generate sql from
         """
         manifest = study_manifest.StudyManifest(target)
-        file_generator.run_generate_sql(
-            config=self.get_config(manifest), manifest=manifest
-        )
+        file_generator.run_generate_sql(config=self.get_config(manifest), manifest=manifest)
 
     def generate_study_markdown(
         self,
@@ -212,9 +202,7 @@ class StudyRunner:
         :param target: A path to the study directory
         """
         manifest = study_manifest.StudyManifest(target)
-        file_generator.run_generate_markdown(
-            config=self.get_config(manifest), manifest=manifest
-        )
+        file_generator.run_generate_markdown(config=self.get_config(manifest), manifest=manifest)
 
 
 def get_abs_path(path: str) -> pathlib.Path:
@@ -324,9 +312,7 @@ def run_cli(args: dict):
             elif args["action"] == "build":
                 for target in args["target"]:
                     if args["builder"]:
-                        runner.run_matching_table_builder(
-                            study_dict[target], args["builder"]
-                        )
+                        runner.run_matching_table_builder(study_dict[target], args["builder"])
                     else:
                         runner.clean_and_build_study(
                             study_dict[target],
@@ -350,9 +336,7 @@ def run_cli(args: dict):
                     if response.lower() != "y":
                         sys.exit()
                 for target in args["target"]:
-                    runner.export_study(
-                        study_dict[target], args["data_path"], args["archive"]
-                    )
+                    runner.export_study(study_dict[target], args["data_path"], args["archive"])
 
             elif args["action"] == "import":
                 for archive in args["archive_path"]:
@@ -361,9 +345,7 @@ def run_cli(args: dict):
 
             elif args["action"] == "generate-sql":
                 for target in args["target"]:
-                    runner.generate_study_sql(
-                        study_dict[target], builder=args["builder"]
-                    )
+                    runner.generate_study_sql(study_dict[target], builder=args["builder"])
 
             elif args["action"] == "generate-md":
                 for target in args["target"]:

@@ -7,6 +7,4 @@ class ModuleOneRunner(BaseTableBuilder):
     display_text = "module1"
 
     def prepare_queries(self, *args, **kwargs):
-        self.queries.append(
-            local_template.get_local_template("table", config={"field": "foo"})
-        )
+        self.queries.append(local_template.get_local_template("table", config={"field": "foo"}))

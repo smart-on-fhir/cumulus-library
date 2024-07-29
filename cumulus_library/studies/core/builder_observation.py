@@ -72,9 +72,7 @@ class ObservationBuilder(base_table_builder.BaseTableBuilder):
                 column_hierarchy=[("component", list), ("valuecodeableconcept", dict)],
                 expected={"valuecodeableconcept": sql_utils.CODEABLE_CONCEPT},
             ),
-            ObsConfig(
-                column_hierarchy=[("interpretation", list)], filter_priority=False
-            ),
+            ObsConfig(column_hierarchy=[("interpretation", list)], filter_priority=False),
             ObsConfig(
                 column_hierarchy=[("valuecodeableconcept", dict)],
                 filter_priority=False,

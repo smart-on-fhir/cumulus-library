@@ -21,7 +21,7 @@ def get_system_pairs(output_table_name: str, code_system_tables: list) -> str:
         for column in table["column_hierarchy"]:
             unnest_layer = ".".join(x for x in [unnest_layer, column[0]] if x)
             display_col = ".".join(x for x in [display_col, column[0]] if x)
-            if column[1] == list:
+            if column[1] is list:
                 squashed_hierarchy.append((unnest_layer, list))
                 unnest_layer = ""
         if unnest_layer != "":

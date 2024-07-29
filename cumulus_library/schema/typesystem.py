@@ -16,16 +16,10 @@ class Structure(FHIR):
 
     Patient = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
     Encounter = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
-    DocumentReference = (
-        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference"
-    )
+    DocumentReference = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference"
     Condition = "http://hl7.org/fhir/condition-definitions.html"
-    ObservationLab = (
-        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
-    )
-    ObservationValue = (
-        "http://hl7.org/fhir/observation-definitions.html#Observation.value_x_"
-    )
+    ObservationLab = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+    ObservationValue = "http://hl7.org/fhir/observation-definitions.html#Observation.value_x_"
     VitalSign = "http://hl7.org/fhir/us/vitals/ImplementationGuide/hl7.fhir.us.vitals"
 
 

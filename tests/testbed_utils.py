@@ -57,9 +57,7 @@ class LocalTestbed:
             },
         )
 
-    def add_document_reference(
-        self, row_id: str, start: str = "2020", **kwargs
-    ) -> None:
+    def add_document_reference(self, row_id: str, start: str = "2020", **kwargs) -> None:
         """Adds a DocumentReference with all the SQL-required fields filled out"""
         context = kwargs.pop("context", {})
         period = context.setdefault("period", {})
@@ -74,9 +72,7 @@ class LocalTestbed:
             },
         )
 
-    def add_encounter(
-        self, row_id: str, patient: str = "A", start: str = "2020", **kwargs
-    ) -> None:
+    def add_encounter(self, row_id: str, patient: str = "A", start: str = "2020", **kwargs) -> None:
         """Adds an Encounter with all the SQL-required fields filled out"""
         period = kwargs.pop("period", {})
         period["start"] = start
@@ -127,9 +123,7 @@ class LocalTestbed:
                 },
             )
 
-    def add_etl_completion_encounters(
-        self, *, group: str, ids: Iterable[str], time: str
-    ) -> None:
+    def add_etl_completion_encounters(self, *, group: str, ids: Iterable[str], time: str) -> None:
         """Adds rows to etl__completion_encounters"""
 
         if len(time) == 4:  # allow just a year as a shorthand
@@ -175,9 +169,7 @@ class LocalTestbed:
                     }
                 ]
             case "external":
-                kwargs["medicationReference"] = {
-                    "reference": f"Medication/med-{row_id}"
-                }
+                kwargs["medicationReference"] = {"reference": f"Medication/med-{row_id}"}
                 self.add(
                     "medication",
                     {

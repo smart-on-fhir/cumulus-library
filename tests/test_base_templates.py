@@ -307,9 +307,7 @@ WHERE
         (["table_a"], [], {}, "", pytest.raises(errors.CumulusLibraryError)),
     ],
 )
-def test_create_view_from_tables(
-    tables, table_aliases, column_aliases, expected, raises
-):
+def test_create_view_from_tables(tables, table_aliases, column_aliases, expected, raises):
     with raises:
         query = base_templates.get_create_view_from_tables(
             view_name="view",

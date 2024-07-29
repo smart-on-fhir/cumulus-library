@@ -56,17 +56,13 @@ class BaseTableBuilder(abc.ABC):
             table_names = []
             for query in self.queries:
                 # Get the first non-whitespace word after create table
-                table_name = re.search(
-                    '(?i)(?<=create table )(([a-zA-Z0-9_".-]+))', query
-                )
+                table_name = re.search('(?i)(?<=create table )(([a-zA-Z0-9_".-]+))', query)
 
                 if table_name:
                     if table_name[0] == "IF":
                         # Edge case - if we're doing an empty conditional CTAS creation,
                         # we need to run a slightly different regex
-                        table_name = re.search(
-                            '(?i)(?<=not exists )(([a-zA-Z0-9_".-]+))', query
-                        )
+                        table_name = re.search('(?i)(?<=not exists )(([a-zA-Z0-9_".-]+))', query)
 
                     table_name = table_name[0]
                     table_names.append(table_name)
@@ -81,20 +77,16 @@ class BaseTableBuilder(abc.ABC):
             for query in self.queries:
                 try:
                     query = base_utils.update_query_if_schema_specified(query, manifest)
-                    with base_utils.query_console_output(
-                        config.verbose, query, progress, task
-                    ):
+                    with base_utils.query_console_output(config.verbose, query, progress, task):
                         cursor.execute(query)
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     sys.exit(
-                        "An error occured executing this query:\n----\n"
-                        f"{query}\n----\n"
-                        f"{e}"
+                        "An error occured executing this query:\n----\n" f"{query}\n----\n" f"{e}"
                     )
 
         self.post_execution(config, *args, **kwargs)
 
-    def post_execution(  # noqa: B027 - this looks like, but is not, an abstract method
+    def post_execution(
         self,
         config: base_utils.StudyConfig,
         *args,

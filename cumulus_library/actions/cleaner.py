@@ -57,7 +57,7 @@ def get_unprotected_stats_view_table(
         protected_list = cursor.execute(
             f"""SELECT {artifact_type.lower()}_name 
             FROM {drop_prefix}{enums.ProtectedTables.STATISTICS.value}
-            WHERE study_name = '{display_prefix}'"""
+            WHERE study_name = '{display_prefix}'"""  # noqa: S608
         ).fetchall()
         for protected_tuple in protected_list:
             if protected_tuple in db_contents:
@@ -66,9 +66,7 @@ def get_unprotected_stats_view_table(
         # this check handles athena reporting views as also being tables,
         # so we don't waste time dropping things that don't exist
         if artifact_type == "TABLE":
-            if not any(
-                db_row_tuple[0] in iter_q_and_t for iter_q_and_t in unprotected_list
-            ):
+            if not any(db_row_tuple[0] in iter_q_and_t for iter_q_and_t in unprotected_list):
                 unprotected_list.append([db_row_tuple[0], artifact_type])
         else:
             unprotected_list.append([db_row_tuple[0], artifact_type])

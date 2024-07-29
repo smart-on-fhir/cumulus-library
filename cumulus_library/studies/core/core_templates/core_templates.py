@@ -11,6 +11,4 @@ def get_core_template(
     config: dict | None = None,
 ) -> str:
     """Extracts code system details as a standalone table"""
-    return base_templates.get_base_template(
-        target_table, path=PATH, schema=schema, config=config
-    )
+    return base_templates.get_base_template(target_table, path=PATH, schema=schema, config=config)

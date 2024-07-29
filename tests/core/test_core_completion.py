@@ -119,9 +119,7 @@ def test_completion_multiple_groups(tmp_path):
     testbed.add_encounter("Incomplete")  # early observation load (G1)
 
     testbed.add_etl_completion_encounters(group="G1", ids=["Incomplete"], time="2021")
-    testbed.add_etl_completion_encounters(
-        group="G2", ids=["Complete", "Incomplete"], time="2021"
-    )
+    testbed.add_etl_completion_encounters(group="G2", ids=["Complete", "Incomplete"], time="2021")
     testbed.add_etl_completion_encounters(group="G3", ids=["Complete"], time="2021")
     testbed.add_etl_completion_encounters(
         group="Unreferenced", ids=["Complete", "Incomplete"], time="2021"

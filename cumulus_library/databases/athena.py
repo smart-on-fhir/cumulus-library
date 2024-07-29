@@ -76,10 +76,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             match field:
                 case numpy.dtypes.ObjectDType():
                     output.append("STRING")
-                case (
-                    pandas.core.arrays.integer.Int64Dtype()
-                    | numpy.dtypes.Int64DType()
-                ):
+                case pandas.core.arrays.integer.Int64Dtype() | numpy.dtypes.Int64DType():
                     output.append("INT")
                 case numpy.dtypes.Float64DType():
                     output.append("DOUBLE")
@@ -114,9 +111,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 case "timestamp":
                     output.append((column[0], pyarrow.timestamp("s")))
                 case _:
-                    raise errors.CumulusLibraryError(
-                        f"Unsupported SQL type '{column[1]}' found."
-                    )
+                    raise errors.CumulusLibraryError(f"Unsupported SQL type '{column[1]}' found.")
         return output
 
     def upload_file(
@@ -134,18 +129,14 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         s3_path = wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
         key_prefix = "/".join(s3_path.split("/")[3:])
-        encryption_type = wg_conf.get("EncryptionConfiguration", {}).get(
-            "EncryptionOption", {}
-        )
+        encryption_type = wg_conf.get("EncryptionConfiguration", {}).get("EncryptionOption", {})
         if encryption_type != "SSE_KMS":
             raise errors.AWSError(
                 f"Bucket {bucket} has unexpected encryption type {encryption_type}."
                 "AWS KMS encryption is expected for Cumulus buckets"
             )
         kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
-        s3_key = (
-            f"{key_prefix}cumulus_user_uploads/{self.schema_name}/" f"{study}/{topic}"
-        )
+        s3_key = f"{key_prefix}cumulus_user_uploads/{self.schema_name}/" f"{study}/{topic}"
         if not remote_filename:
             remote_filename = file.name
 

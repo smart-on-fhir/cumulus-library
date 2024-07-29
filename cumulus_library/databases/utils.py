@@ -61,11 +61,7 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.Table]:
         "etl__completion_encounters",
     ]
     for metadata_table in metadata_tables:
-        rows = list(
-            cumulus_fhir_support.read_multiline_json_from_dir(
-                f"{path}/{metadata_table}"
-            )
-        )
+        rows = list(cumulus_fhir_support.read_multiline_json_from_dir(f"{path}/{metadata_table}"))
         if rows:
             # Auto-detecting the schema works for these simple tables
             all_tables[metadata_table] = pyarrow.Table.from_pylist(rows)
@@ -113,8 +109,6 @@ def create_db_backend(args: dict[str, str]) -> (base.DatabaseBackend, str):
         if args.get("load_ndjson_dir"):
             sys.exit("Loading an ndjson dir is not supported with --db-type=athena.")
     else:
-        raise errors.CumulusLibraryError(
-            f"'{db_config.db_type}' is not a supported database."
-        )
+        raise errors.CumulusLibraryError(f"'{db_config.db_type}' is not a supported database.")
 
     return (backend, schema_name)
