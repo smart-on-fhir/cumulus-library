@@ -51,12 +51,10 @@ class ProtectedTableBuilder(base_table_builder.BaseTableBuilder):
         else:
             db_schema = config.schema
             transactions = (
-                f"{manifest.get_study_prefix()}"
-                f"__{enums.ProtectedTables.TRANSACTIONS.value}"
+                f"{manifest.get_study_prefix()}" f"__{enums.ProtectedTables.TRANSACTIONS.value}"
             )
             statistics = (
-                f"{manifest.get_study_prefix()}"
-                f"__{enums.ProtectedTables.STATISTICS.value}"
+                f"{manifest.get_study_prefix()}" f"__{enums.ProtectedTables.STATISTICS.value}"
             )
         self.queries.append(
             base_templates.get_ctas_empty_query(

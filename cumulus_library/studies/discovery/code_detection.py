@@ -28,9 +28,7 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
                 total=len(code_sources),
             )
             for code_source in code_sources:
-                code_source["has_data"] = self._check_coding_against_db(
-                    code_source, database
-                )
+                code_source["has_data"] = self._check_coding_against_db(code_source, database)
                 progress.advance(task)
         return code_sources
 
@@ -50,8 +48,7 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
         for code_definition in code_definitions.code_list:
             if not required_keys.issubset(code_definition):
                 raise KeyError(
-                    "Expected table_name and column_hierarchy keys in "
-                    f"{code_definition!s}"
+                    "Expected table_name and column_hierarchy keys in " f"{code_definition!s}"
                 )
             code_source = {
                 "has_data": False,
@@ -60,7 +57,5 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
                 code_source[key] = code_definition[key]
             code_sources.append(code_source)
         code_sources = self._check_codes_in_fields(code_sources, config.db)
-        query = discovery_templates.get_system_pairs(
-            "discovery__code_sources", code_sources
-        )
+        query = discovery_templates.get_system_pairs("discovery__code_sources", code_sources)
         self.queries.append(query)

@@ -10,6 +10,4 @@ def get_local_template(
     schema: dict[dict[bool]] | None = None,
     config: dict | None = None,
 ) -> str:
-    return base_templates.get_base_template(
-        target_table, path=PATH, schema=schema, config=config
-    )
+    return base_templates.get_base_template(target_table, path=PATH, schema=schema, config=config)

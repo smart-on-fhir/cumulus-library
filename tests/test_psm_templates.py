@@ -48,13 +48,9 @@ FROM source""",
         ),
     ],
 )
-def test_get_distinct_ids(
-    columns, source_table, join_id, filter_table, expected, raises
-):
+def test_get_distinct_ids(columns, source_table, join_id, filter_table, expected, raises):
     with raises:
-        query = psm_templates.get_distinct_ids(
-            columns, source_table, join_id, filter_table
-        )
+        query = psm_templates.get_distinct_ids(columns, source_table, join_id, filter_table)
         assert query == expected
 
 

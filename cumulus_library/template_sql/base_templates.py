@@ -34,7 +34,7 @@ def get_base_template(filename_stem: str, path: pathlib.Path | None = None, **kw
         if path:
             macro_paths.append(path)
         loader = jinja2.FileSystemLoader(macro_paths)
-        env = jinja2.Environment(loader=loader, autoescape=True).from_string(template)
+        env = jinja2.Environment(loader=loader).from_string(template)  # noqa: S701
         return env.render(**kwargs, db_type=db_config.db_type)
 
 
@@ -62,7 +62,7 @@ def get_codeable_concept_denormalize_query(
     :param config: a CodableConeptConfig
     """
 
-    if config.column_hierarchy > 2:
+    if len(config.column_hierarchy) > 2:
         raise errors.CumulusLibraryError(
             "base_templates.get_codeable_concept_denormalize_query expects a column "
             f"hierarchy of length 2 or less, but received: {config.column_hierarchy}"
@@ -102,7 +102,7 @@ def get_coding_denormalize_query(
     :param config: a CodingConfig
     """
 
-    if config.column_hierarchy > 2:
+    if len(config.column_hierarchy) > 2:
         raise errors.CumulusLibraryError(
             "base_templates.get_coding_denormalize_query expects a column "
             f"hierarchy of length 2, but received: {config.column_hierarchy}"

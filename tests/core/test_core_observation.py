@@ -33,9 +33,7 @@ def test_core_observation_component_low_schema(tmp_path):
     # Spot check some tables (a basic one, then the custom weird valuequantity one)
     rows = con.sql("SELECT id, row FROM core__observation_component_code").fetchall()
     assert 0 == len(rows)
-    rows = con.sql(
-        "SELECT id FROM core__observation_component_valuequantity"
-    ).fetchall()
+    rows = con.sql("SELECT id FROM core__observation_component_valuequantity").fetchall()
     assert 0 == len(rows)
     _assert_valuequantity_schema(con)
 
@@ -55,9 +53,7 @@ def test_core_observation_component_valuequantity_low_schema(tmp_path):
         ],
     )
     con = testbed.build()  # most importantly, this shouldn't blow up
-    rows = con.sql(
-        "SELECT id FROM core__observation_component_valuequantity"
-    ).fetchall()
+    rows = con.sql("SELECT id FROM core__observation_component_valuequantity").fetchall()
     assert 1 == len(rows)
     _assert_valuequantity_schema(con)
 
@@ -143,9 +139,7 @@ def test_core_observation_component(tmp_path):
     )
     con = testbed.build()
 
-    df = con.sql(
-        "SELECT * FROM core__observation_component_code ORDER BY id, row, code"
-    ).df()
+    df = con.sql("SELECT * FROM core__observation_component_code ORDER BY id, row, code").df()
     rows = json.loads(df.to_json(orient="records"))
     assert [
         {
@@ -191,8 +185,7 @@ def test_core_observation_component(tmp_path):
     ] == rows
 
     df = con.sql(
-        "SELECT * FROM core__observation_component_dataabsentreason "
-        "ORDER BY id, row, code"
+        "SELECT * FROM core__observation_component_dataabsentreason " "ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [
@@ -223,8 +216,7 @@ def test_core_observation_component(tmp_path):
     ] == rows
 
     df = con.sql(
-        "SELECT * FROM core__observation_component_interpretation "
-        "ORDER BY id, row, code"
+        "SELECT * FROM core__observation_component_interpretation " "ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [
@@ -271,8 +263,7 @@ def test_core_observation_component(tmp_path):
     ] == rows
 
     df = con.sql(
-        "SELECT * FROM core__observation_component_valuecodeableconcept "
-        "ORDER BY id, row, code"
+        "SELECT * FROM core__observation_component_valuecodeableconcept " "ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [
@@ -295,8 +286,7 @@ def test_core_observation_component(tmp_path):
     ] == rows
 
     df = con.sql(
-        "SELECT * FROM core__observation_component_valuequantity "
-        "ORDER BY id, row, code"
+        "SELECT * FROM core__observation_component_valuequantity " "ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [

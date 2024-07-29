@@ -124,9 +124,7 @@ def zip_dir(read_path, write_path, archive_name):
         shutil.rmtree(read_path)
 
 
-def update_query_if_schema_specified(
-    query: str, manifest: study_manifest.StudyManifest
-):
+def update_query_if_schema_specified(query: str, manifest: study_manifest.StudyManifest):
     if manifest and manifest.get_dedicated_schema():
         # External queries in athena require a schema to be specified already, so
         # rather than splitting and ending up with a table name like

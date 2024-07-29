@@ -52,13 +52,9 @@ def get_count_query(
     for item in table_cols:
         # TODO: remove check after cutover
         if isinstance(item, list):
-            table_col_classed.append(
-                CountColumn(name=item[0], db_type=item[1], alias=item[2])
-            )
+            table_col_classed.append(CountColumn(name=item[0], db_type=item[1], alias=item[2]))
         else:
-            table_col_classed.append(
-                CountColumn(name=item, db_type="varchar", alias=None)
-            )
+            table_col_classed.append(CountColumn(name=item, db_type="varchar", alias=None))
     table_cols = table_col_classed
 
     query = base_templates.get_base_template(

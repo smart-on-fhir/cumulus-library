@@ -40,9 +40,7 @@ class CoreCountsBuilder(counts.CountsBuilder):
 
         return self.count_encounter(table_name, from_table, cols)
 
-    def _count_core_encounter_type(
-        self, table_name: str, cols: list, duration: str | None = None
-    ):
+    def _count_core_encounter_type(self, table_name: str, cols: list, duration: str | None = None):
         """
         Encounter Type information is for every visit, and therefore this
         SQL should be precise in which fields to select (This is a BIG query).
@@ -67,9 +65,7 @@ class CoreCountsBuilder(counts.CountsBuilder):
             "serviceType_display",
             "priority_display",
         ]
-        return self._count_core_encounter_type(
-            "count_encounter_all_types", cols, duration
-        )
+        return self._count_core_encounter_type("count_encounter_all_types", cols, duration)
 
     # The following encounter tables all count on one specific code type
 
@@ -79,15 +75,11 @@ class CoreCountsBuilder(counts.CountsBuilder):
 
     def count_core_encounter_priority(self, duration: str = "month"):
         cols = ["class_display", "priority_display"]
-        return self._count_core_encounter_type(
-            "count_encounter_priority", cols, duration
-        )
+        return self._count_core_encounter_type("count_encounter_priority", cols, duration)
 
     def count_core_encounter_service(self, duration: str = "month"):
         cols = ["class_display", "serviceType_display"]
-        return self._count_core_encounter_type(
-            "count_encounter_service", cols, duration
-        )
+        return self._count_core_encounter_type("count_encounter_service", cols, duration)
 
     def count_core_medicationrequest(self, duration: str = "month"):
         table_name = self.get_table_name("count_medicationrequest", duration=duration)

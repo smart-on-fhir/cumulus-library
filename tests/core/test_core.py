@@ -72,9 +72,7 @@ def test_core_count_missing_data(tmp_path):
         )
     cursor = testbed.build()
 
-    table_rows, cols = conftest.get_sorted_table_data(
-        cursor, "core__count_encounter_month"
-    )
+    table_rows, cols = conftest.get_sorted_table_data(cursor, "core__count_encounter_month")
     # For regenerating data if needed
     # with open(
     #     f"./tests/test_data/core/core__count_encounter_month_missing_data.txt",

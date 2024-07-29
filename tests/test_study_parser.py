@@ -73,19 +73,14 @@ def test_manifest_data(mock_load, mock_open, manifest_key, raises):
             if expected["sql_config"]["file_names"] is None:
                 assert manifest.get_sql_file_list() == []
             else:
-                assert (
-                    manifest.get_sql_file_list() == expected["sql_config"]["file_names"]
-                )
+                assert manifest.get_sql_file_list() == expected["sql_config"]["file_names"]
         else:
             assert manifest.get_sql_file_list() == []
         if "export_config" in expected.keys():
             if expected["export_config"]["export_list"] is None:
                 assert manifest.get_export_table_list() == []
             else:
-                assert (
-                    manifest.get_export_table_list()
-                    == expected["export_config"]["export_list"]
-                )
+                assert manifest.get_export_table_list() == expected["export_config"]["export_list"]
         else:
             assert manifest.get_export_table_list() == []
 

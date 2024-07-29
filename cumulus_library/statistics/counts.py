@@ -39,9 +39,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         else:
             return f"{self.study_prefix}__{table_name}"
 
-    def get_where_clauses(
-        self, clause: list | str | None = None, min_subject: int = 10
-    ) -> str:
+    def get_where_clauses(self, clause: list | str | None = None, min_subject: int = 10) -> str:
         """Convenience method for constructing arbitrary where clauses.
 
         :param clause: either a string or a list of sql where statements
@@ -55,9 +53,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         elif isinstance(clause, list):
             return clause
         else:
-            raise errors.CountsBuilderError(
-                f"get_where_clauses invalid clause {clause}"
-            )
+            raise errors.CountsBuilderError(f"get_where_clauses invalid clause {clause}")
 
     def get_count_query(
         self, table_name: str, source_table: str, table_cols: list, **kwargs
@@ -84,12 +80,8 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
                 "fhir_resource",
                 "filter_resource",
             ]:
-                raise errors.CountsBuilderError(
-                    f"count_query received unexpected key: {key}"
-                )
-        return counts_templates.get_count_query(
-            table_name, source_table, table_cols, **kwargs
-        )
+                raise errors.CountsBuilderError(f"count_query received unexpected key: {key}")
+        return counts_templates.get_count_query(table_name, source_table, table_cols, **kwargs)
 
     # ----------------------------------------------------------------------
     # The following function all wrap get_count_query as convenience methods.

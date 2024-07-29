@@ -11,9 +11,7 @@ from cumulus_library.template_sql import base_templates
 
 def _create_table_from_parquet(archive, file, study_name, config):
     try:
-        parquet_path = pathlib.Path(
-            archive.extract(file), path=tempfile.TemporaryFile()
-        )
+        parquet_path = pathlib.Path(archive.extract(file), path=tempfile.TemporaryFile())
         # While convenient to access, this exposes us to panda's type system,
         # which is messy - this could be optionally be replaced by pyarrow if it
         # becomes problematic.
@@ -56,13 +54,9 @@ def import_archive(config: base_utils.StudyConfig, *, archive_path: pathlib.Path
         files = archive.namelist()
         files = [file for file in files if file.endswith(".parquet")]
     except zipfile.BadZipFile as e:
-        raise errors.StudyImportError(
-            f"File {archive_path} is not a valid archive."
-        ) from e
+        raise errors.StudyImportError(f"File {archive_path} is not a valid archive.") from e
     if not any("__" in file for file in files):
-        raise errors.StudyImportError(
-            f"File {archive_path} contains non-study parquet files."
-        )
+        raise errors.StudyImportError(f"File {archive_path} contains non-study parquet files.")
     study_name = files[0].split("__")[0]
     for file in files[1:]:
         if file.split("__")[0] != study_name:

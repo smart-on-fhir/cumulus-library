@@ -37,9 +37,7 @@ class StudyManifest:
         try:
             with open(f"{study_path}/manifest.toml", "rb") as file:
                 config = tomllib.load(file)
-                if not config.get("study_prefix") or not isinstance(
-                    config["study_prefix"], str
-                ):
+                if not config.get("study_prefix") or not isinstance(config["study_prefix"], str):
                     raise errors.StudyManifestParsingError(
                         f"Invalid prefix in manifest at {study_path}"
                     )
