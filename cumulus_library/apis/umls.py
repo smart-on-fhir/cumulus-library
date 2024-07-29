@@ -99,9 +99,7 @@ class UmlsApi:
             included_records = all_responses[0].get("compose", {}).get("include", [])
             for record in included_records:
                 if "valueSet" in record:
-                    valueset = self.get_vsac_valuesets(
-                        action=action, url=record["valueSet"][0]
-                    )
+                    valueset = self.get_vsac_valuesets(action=action, url=record["valueSet"][0])
                     all_responses.append(valueset[0])
         return all_responses
 
@@ -143,24 +141,21 @@ class UmlsApi:
             "url": file_meta["downloadUrl"],
             "apiKey": self.api_key,
         }
-        download_res = requests.get(
+        download_res = requests.get(  # noqa: S113
             "https://uts-ws.nlm.nih.gov/download", params=download_payload, stream=True
         )
 
         with open(path / file_meta["fileName"], "wb") as f:
             chunks_read = 0
             with base_utils.get_progress_bar() as progress:
-                task = progress.add_task(
-                    f"Downloading {file_meta['fileName']}", total=None
-                )
+                task = progress.add_task(f"Downloading {file_meta['fileName']}", total=None)
                 for chunk in download_res.iter_content(chunk_size=1024):
                     f.write(chunk)
                     chunks_read += 1
                     progress.update(
                         task,
                         description=(
-                            f"Downloading {file_meta['fileName']}: "
-                            f"{chunks_read/1000} MB"
+                            f"Downloading {file_meta['fileName']}: " f"{chunks_read/1000} MB"
                         ),
                     )
         if unzip:

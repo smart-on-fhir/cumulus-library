@@ -31,7 +31,7 @@ dynamic=["version"]
 [project.optional-dependencies]
 dev = [
     # if you update the ruff version, also update .pre-commit-config.yaml
-    "ruff == 0.4.4",
+    "ruff < 0.6",
     "pre-commit",
 ]
 test = [
@@ -63,25 +63,24 @@ testpaths = [
     "tests",
 ]
 
+[tool.ruff]
+line-length = 100
+
 [tool.ruff.lint]
+allowed-confusables = ["’"]  # allow proper apostrophes
 select = [
     "A",  # prevent using keywords that clobber python builtins
-    "B",  # bugbear: security warnings
     "E",  # pycodestyle
     "F",  # pyflakes
     "I",  # isort
-    "ISC",  # implicit string concatenation
     "PLE",  # pylint errors
     "RUF",  # the ruff developer's own rules
+    "S",  # bandit security warnings
     "UP",  # alert you when better syntax is available in your python version
 ]
-ignore = [
-# Recommended ingore from `ruff format` due to in-project conflicts with check.
-# It's expected that this will be fixed in the coming months.
-    "ISC001"
-]
-
 [tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]  # init files hold API, so not using imports is intentional
+"tests/**" = ["S"]  # tests do suspicious stuff that's fine, actually
 # ./cumulus_library/schema needs general revisiting, deferring on style maintenance
 # until that occurs
 "cumulus_library/schema/valueset.py" = ["E501"]

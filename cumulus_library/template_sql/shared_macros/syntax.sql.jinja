@@ -60,4 +60,12 @@ in most cases.
 REGEXP_LIKE({{ field }}, {{ wildcard_to_regex(match_string) }})
 {%- endmacro -%}
 
---noqa: LT12
+{#- Checks for NULL, empty, whitespace-only, and '\u0000' strings
+(We've seen Cerner give back strings with just a single NUL char.) -#}
+{% macro is_string_valid(field) -%}
+(
+    {{ field }} IS NOT NULL
+    AND TRIM({{ field }}) <> ''
+    AND {{ field }} <> CHR(0)
+)
+{%- endmacro %}

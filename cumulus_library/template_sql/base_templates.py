@@ -17,9 +17,7 @@ class TableView(enum.Enum):
     VIEW = "VIEW"
 
 
-def get_base_template(
-    filename_stem: str, path: pathlib.Path | None = None, **kwargs: dict
-) -> str:
+def get_base_template(filename_stem: str, path: pathlib.Path | None = None, **kwargs: dict) -> str:
     """Abstract renderer for jinja templates
 
     You can use this renderer directly, but if you are designing a function
@@ -36,7 +34,7 @@ def get_base_template(
         if path:
             macro_paths.append(path)
         loader = jinja2.FileSystemLoader(macro_paths)
-        env = jinja2.Environment(loader=loader).from_string(template)
+        env = jinja2.Environment(loader=loader, autoescape=True).from_string(template)
         return env.render(**kwargs, db_type=db_config.db_type)
 
 
@@ -46,9 +44,7 @@ def get_base_template(
 
 def get_alias_table_query(source_table: str, target_table: str):
     """Creates a view of source_table named target_table"""
-    return get_base_template(
-        "alias_table", source_table=source_table, target_table=target_table
-    )
+    return get_base_template("alias_table", source_table=source_table, target_table=target_table)
 
 
 def get_codeable_concept_denormalize_query(
@@ -66,7 +62,11 @@ def get_codeable_concept_denormalize_query(
     :param config: a CodableConeptConfig
     """
 
-    assert len(config.column_hierarchy) <= 2
+    if config.column_hierarchy > 2:
+        raise errors.CumulusLibraryError(
+            "base_templates.get_codeable_concept_denormalize_query expects a column "
+            f"hierarchy of length 2 or less, but received: {config.column_hierarchy}"
+        )
     # If we get a None for code systems, we want one dummy value so the jinja
     # for loop will do a single pass. This implicitly means that we're not
     # filtering, so this parameter will be otherwise ignored
@@ -76,9 +76,7 @@ def get_codeable_concept_denormalize_query(
         source_table=config.source_table,
         source_id=config.source_id,
         column_name=config.column_hierarchy[-1][0],
-        parent_field=None
-        if len(config.column_hierarchy) == 1
-        else config.column_hierarchy[0][0],
+        parent_field=None if len(config.column_hierarchy) == 1 else config.column_hierarchy[0][0],
         is_array=(config.column_hierarchy[0][1] is list),
         child_is_array=False
         if len(config.column_hierarchy) == 1
@@ -104,7 +102,11 @@ def get_coding_denormalize_query(
     :param config: a CodingConfig
     """
 
-    assert len(config.column_hierarchy) == 2
+    if config.column_hierarchy > 2:
+        raise errors.CumulusLibraryError(
+            "base_templates.get_coding_denormalize_query expects a column "
+            f"hierarchy of length 2, but received: {config.column_hierarchy}"
+        )
     # If we get a None for code systems, we want one dummy value so the jinja
     # for loop will do a single pass. This implicitly means that we're not
     # filtering, so this parameter will be otherwise ignored
@@ -139,9 +141,7 @@ def get_column_datatype_query(
     )
 
 
-def get_create_table_from_union(
-    *, table_name: str, tables: list[str], columns: list[str]
-) -> str:
+def get_create_table_from_union(*, table_name: str, tables: list[str], columns: list[str]) -> str:
     """Generates a create union table query
 
     :keyword table_name: the name of the resulting table
@@ -156,9 +156,7 @@ def get_create_table_from_union(
     )
 
 
-def get_create_view_query(
-    view_name: str, dataset: list[list[str]], view_cols: list[str]
-) -> str:
+def get_create_view_query(view_name: str, dataset: list[list[str]], view_cols: list[str]) -> str:
     """Generates a create view as query for inserting static data into athena
 
     :param view_name: The name of the athena table to create
@@ -273,9 +271,7 @@ def get_ctas_query(
     )
 
 
-def get_ctas_query_from_df(
-    schema_name: str, table_name: str, df: pandas.DataFrame
-) -> str:
+def get_ctas_query_from_df(schema_name: str, table_name: str, df: pandas.DataFrame) -> str:
     """Generates a create table as query from a dataframe
 
     :param schema_name: The athena schema to create the table in

@@ -27,9 +27,7 @@ def reset_counts_exports(
 def _write_chunk(writer, chunk, arrow_schema):
     writer.write(
         pyarrow.Table.from_pandas(
-            chunk.sort_values(
-                by=list(chunk.columns), ascending=False, na_position="first"
-            ),
+            chunk.sort_values(by=list(chunk.columns), ascending=False, na_position="first"),
             preserve_index=False,
             schema=arrow_schema,
         )
@@ -70,11 +68,9 @@ def export_study(
         table_list,
         description=f"Exporting {manifest.get_study_prefix()} data...",
     ):
-        query = f"SELECT * FROM {table}"
+        query = f"SELECT * FROM {table}"  # noqa: S608
         query = base_utils.update_query_if_schema_specified(query, manifest)
-        dataframe_chunks, db_schema = config.db.execute_as_pandas(
-            query, chunksize=chunksize
-        )
+        dataframe_chunks, db_schema = config.db.execute_as_pandas(query, chunksize=chunksize)
         path.mkdir(parents=True, exist_ok=True)
         arrow_schema = pyarrow.schema(config.db.col_pyarrow_types_from_sql(db_schema))
         with parquet.ParquetWriter(f"{path}/{table}.parquet", arrow_schema) as p_writer:

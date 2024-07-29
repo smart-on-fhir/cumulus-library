@@ -211,9 +211,7 @@ def denormalize_complex_objects(
             case CodeableConceptConfig():
                 if code_source.has_data:
                     queries.append(
-                        base_templates.get_codeable_concept_denormalize_query(
-                            code_source
-                        )
+                        base_templates.get_codeable_concept_denormalize_query(code_source)
                     )
                 else:
                     table_cols = [
@@ -245,9 +243,7 @@ def denormalize_complex_objects(
                     )
             case CodingConfig():
                 if code_source.has_data:
-                    queries.append(
-                        base_templates.get_coding_denormalize_query(code_source)
-                    )
+                    queries.append(base_templates.get_coding_denormalize_query(code_source))
                 else:
                     queries.append(
                         base_templates.get_ctas_empty_query(
@@ -266,9 +262,7 @@ def validate_schema(
 ) -> dict:
     validated_schema = {}
     for table, cols in expected_table_cols.items():
-        query = base_templates.get_column_datatype_query(
-            database.schema_name, table, cols.keys()
-        )
+        query = base_templates.get_column_datatype_query(database.schema_name, table, cols.keys())
 
         try:
             table_schema = database.cursor().execute(query).fetchall()
@@ -277,9 +271,7 @@ def validate_schema(
             # the table not existing (Athena does this).
             table_schema = []
 
-        validated_schema[table] = database.parser().validate_table_schema(
-            cols, table_schema
-        )
+        validated_schema[table] = database.parser().validate_table_schema(cols, table_schema)
     return validated_schema
 
 
@@ -314,7 +306,7 @@ def is_field_populated(
     unnests = []
     source_field = []
     for element in hierarchy:
-        if element[1] == list:
+        if element[1] is list:
             unnests.append(
                 {
                     "source_col": ".".join([*source_field, element[0]]),
@@ -325,7 +317,7 @@ def is_field_populated(
             last_table_alias = f"{element[0]}_table"
             last_row_alias = f"{element[0]}_row"
             source_field = [last_table_alias, last_row_alias]
-        elif element[1] == dict:
+        elif element[1] is dict:
             source_field.append(element[0])
         else:
             raise ValueError(
