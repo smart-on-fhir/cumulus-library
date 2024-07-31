@@ -223,7 +223,7 @@ def run_statistics_builders(
                 data_path=manifest.data_path / f"{manifest.get_study_prefix()}/psm",
             )
         else:
-            raise errors.StudyManifestParsingError(
+            raise errors.StudyManifestParsingError(  # pragma: no cover
                 f"{toml_path} references an invalid statistics type {config_type}."
             )
         builder.execute_queries(
@@ -371,15 +371,6 @@ def _execute_build_queries(
                 "Double underscores are reserved for special use cases. Please "
                 "rename this table so the only double undercore is after the "
                 f"study prefix, e.g. `{manifest.get_study_prefix()}__`",
-            )
-        if (
-            f"{manifest.get_study_prefix()}__" not in query[0].split("\n")[0]
-            and not manifest.get_dedicated_schema()
-        ):
-            _query_error(
-                query,
-                "This query does not contain the study prefix. All tables should "
-                "start with a string like `study_prefix__`.",
             )
         try:
             with base_utils.query_console_output(config.verbose, query[0], progress, task):

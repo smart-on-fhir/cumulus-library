@@ -204,6 +204,12 @@ def test_table_builder(mock_db_config, study_path, verbose, expects, raises):
             does_not_raise(),
         ),
         (
+            "./tests/test_data/study_invalid_bad_query/",
+            None,
+            ("study_valid__table",),
+            pytest.raises(errors.StudyManifestQueryError),
+        ),
+        (
             "./tests/test_data/study_wrong_prefix/",
             None,
             [],
