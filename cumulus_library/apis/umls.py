@@ -86,7 +86,7 @@ class UmlsApi:
         if oid:
             url = f"{url}/{oid}"
         # TODO: Do we need to support the remaining FHIR operators?
-        if action == "expansion" and "expand" not in url:
+        if action == "expansion" and "/$expand" not in url:
             url = url + "/$expand"
         # If we're inspecting url references in a VSAC response, they come back
         # specifying a url that does not align with the actual implemented rest
@@ -106,10 +106,10 @@ class UmlsApi:
         if action == "expansion":
             # Do we need to fetch the next page?
             # Note: the VSAC API hard codes the page size to 1000
-            # and ignores the count param in the FHIR API
+            # and ignores the count param in the FHIR ValueSet expand API
             # (https://www.hl7.org/fhir/ValueSet-operation-expand.html),
             # so we just hardcode an expansion of 1000 and hope it
-            # doesn't chage
+            # doesn't change
             if all_responses[0]["expansion"]["total"] > offset + 1000:
                 all_responses += self.get_vsac_valuesets(
                     action=action, url=url, offset=offset + 1000
