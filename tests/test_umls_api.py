@@ -116,7 +116,7 @@ def get_valueset_data(file_name):
             "expansion",
             VALUESET_URL + "/" + EXPANSION_VALUESET_OID,
             None,
-            [EXPANSION_VALUESET_OID],
+            [EXPANSION_VALUESET_OID, EXPANSION_VALUESET_OID],
             does_not_raise(),
         ),
         ("definition", None, None, [], pytest.raises(errors.ApiError)),
@@ -142,7 +142,13 @@ def test_get_valueset(action, url, oid, expected_oids, raises):
         )
         responses.add(
             responses.GET,
-            VALUESET_URL + "/" + EXPANSION_VALUESET_OID + "/$expand",
+            VALUESET_URL + "/" + EXPANSION_VALUESET_OID + "/$expand?offset=0",
+            body=get_valueset_data("expansion_valueset.json"),
+            status=200,
+        )
+        responses.add(
+            responses.GET,
+            VALUESET_URL + "/" + EXPANSION_VALUESET_OID + "/$expand?offset=1000",
             body=get_valueset_data("expansion_valueset.json"),
             status=200,
         )

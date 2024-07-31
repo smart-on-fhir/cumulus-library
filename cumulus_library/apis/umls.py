@@ -57,7 +57,11 @@ class UmlsApi:
         self.session.auth = requests.auth.HTTPBasicAuth("apikey", api_key)
 
     def get_vsac_valuesets(
-        self, url: str | None = None, oid: str | None = None, action: str = "expansion"
+        self,
+        url: str | None = None,
+        oid: str | None = None,
+        action: str = "expansion",
+        offset: int = 0,
     ) -> list[dict]:
         """Gets a valueset, and any nested valuesets, from the VSAC API
 
@@ -82,7 +86,7 @@ class UmlsApi:
         if oid:
             url = f"{url}/{oid}"
         # TODO: Do we need to support the remaining FHIR operators?
-        if action == "expansion":
+        if action == "expansion" and "/$expand" not in url:
             url = url + "/$expand"
         # If we're inspecting url references in a VSAC response, they come back
         # specifying a url that does not align with the actual implemented rest
@@ -91,16 +95,32 @@ class UmlsApi:
             url = url.replace("http:", "https:")
         if "/res/" not in url:
             url = url.replace("/fhir/", "/fhir/res/")
-        response = self.session.get(url)
+        match action:
+            case "definition":
+                response = self.session.get(url)
+            case "expansion":
+                response = self.session.get(url + f"?offset={offset}")
         if response.status_code == 404:
             raise errors.ApiError(f"Url not found: {url}")
         all_responses = [response.json()]
+        if action == "expansion":
+            # Do we need to fetch the next page?
+            # Note: the VSAC API hard codes the page size to 1000
+            # and ignores the count param in the FHIR ValueSet expand API
+            # (https://www.hl7.org/fhir/ValueSet-operation-expand.html),
+            # so we just hardcode an expansion of 1000 and hope it
+            # doesn't change
+            if all_responses[0]["expansion"]["total"] > offset + 1000:
+                all_responses += self.get_vsac_valuesets(
+                    action=action, url=url, offset=offset + 1000
+                )
         if action == "definition":
             included_records = all_responses[0].get("compose", {}).get("include", [])
             for record in included_records:
                 if "valueSet" in record:
                     valueset = self.get_vsac_valuesets(action=action, url=record["valueSet"][0])
                     all_responses.append(valueset[0])
+
         return all_responses
 
     def get_latest_umls_file_release(self, target: str):
