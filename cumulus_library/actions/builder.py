@@ -4,6 +4,7 @@ import contextlib
 import importlib.util
 import inspect
 import pathlib
+import re
 import sys
 import tomllib
 
@@ -94,7 +95,15 @@ def _load_and_execute_builder(
     table_builder_class = table_builder_subclasses[0]
     table_builder = table_builder_class()
     if write_reference_sql:
+        prefix = manifest.get_study_prefix()
         table_builder.prepare_queries(config=config, manifest=manifest, parser=db_parser)
+        for query_pos in range(len(table_builder.queries)):
+            if "s3://" in table_builder.queries[query_pos]:
+                table_builder.queries[query_pos] = re.sub(
+                    f"s3://(.+){prefix}",
+                    f"s3://bucket/db_path/{prefix}",
+                    table_builder.queries[query_pos],
+                )
         table_builder.comment_queries(doc_str=doc_str)
         new_filename = pathlib.Path(f"{filename}").stem + ".sql"
         table_builder.write_queries(
