@@ -14,7 +14,6 @@ from tests import conftest, testbed_utils
         ("core__condition"),
         ("core__documentreference"),
         ("core__encounter"),
-        ("core__medication"),
         ("core__medicationrequest"),
         ("core__observation"),
         ("core__observation_lab"),

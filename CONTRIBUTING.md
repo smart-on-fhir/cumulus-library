@@ -48,3 +48,20 @@ cumulus-library generate-sql \
   --target core \
   --target discovery
 ```
+
+## Rebuilding the Markdown table docs
+
+We keep some generated documentation in git,
+to help us keep our docs in sync with table changes.
+This is stored in `docs/core-study-details.md`
+
+You can regenerate these yourself when you make changes to table layout:
+1. Rebuild the `core` study in Athena.
+1. Run `generate-md` against Athena:
+```sh
+cumulus-library generate-md --target core [database args pointing at your athena db]
+```
+
+Then take the contents of `cumulus_library/studies/core/core_generated.md`
+and paste them into `docs/core-study-details.md`
+(being careful to not erase any manually entered descriptions).

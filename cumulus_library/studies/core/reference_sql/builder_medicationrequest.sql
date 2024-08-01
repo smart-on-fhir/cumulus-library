@@ -69,15 +69,72 @@ AS (
 
 -- ###########################################################
 
-CREATE TABLE core__medication AS (
+CREATE TABLE core__medicationrequest_dn_category AS (
+    WITH
+
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."category"
+        FROM
+            medicationrequest AS t,
+            UNNEST(t."category") AS r ("category")
+    ),
+
+    system_category_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            s.row,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
+        FROM
+            flattened_rows AS s,
+            UNNEST(s.category.coding) AS u (coding)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            code_system,
+            code,
+            display,
+            userSelected
+        FROM system_category_0
+        
+    )
+    SELECT
+        id,
+        row,
+        code,
+        code_system,
+        display,
+        userSelected
+    FROM union_table
+);
+
+
+-- ###########################################################
+
+CREATE TABLE core__medicationrequest AS (
     WITH
 
     mr_basics AS (
         SELECT DISTINCT
         mr.id,
+        mr.status,
+        mr.intent,
+        mr.reportedBoolean,
+        mr.reportedReference.reference AS reported_ref,
         mr.encounter.reference AS encounter_ref,
-        mr.subject.reference AS patient_ref,
-        mr.medicationReference.reference AS med_ref
+        mr.subject.reference AS subject_ref,
+        mr.medicationReference.reference AS med_ref,
+        date(from_iso8601_timestamp(mr.authoredOn)) AS authoredOn,
+        date_trunc('month', date(from_iso8601_timestamp(mr."authoredOn")))
+            AS authoredOn_month
         FROM medicationrequest AS mr
     ),
 
@@ -86,8 +143,7 @@ CREATE TABLE core__medication AS (
             mr.id,
             substring(mr.med_ref, 2) AS medication_id
         FROM mr_basics AS mr
-        WHERE mr.med_ref IS NOT NULL AND REGEXP_LIKE(mr.med_ref, '#.*')
-        )
+        WHERE mr.med_ref IS NOT NULL AND REGEXP_LIKE(mr.med_ref, '^#.*$')
     ),
 
     external_refs AS (
@@ -95,33 +151,44 @@ CREATE TABLE core__medication AS (
             mr.id,
             substring(mr.med_ref, 12) AS medication_id
         FROM mr_basics AS mr
-        WHERE mr.med_ref IS NOT NULL AND REGEXP_LIKE(mr.med_ref, 'Medication/.*')
-        )
+        WHERE mr.med_ref IS NOT NULL AND REGEXP_LIKE(mr.med_ref, '^Medication/.*$')
+    ),
+
+    mr_shared AS (
+        SELECT
+            mr.id,
+            mr.status,
+            mr.intent,
+            mrc.code AS category_code,
+            mrc.code_system AS category_code_system,
+            mrc.display AS category_display,
+            mr.reportedBoolean,
+            mr.reported_ref,
+            mr.subject_ref,
+            mr.encounter_ref,
+            mr.authoredOn,
+            mr.authoredOn_month
+        FROM mr_basics AS mr
+        LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
     )
 
     
     SELECT
-        mr.id,
-        mr.encounter_ref,
-        mr.patient_ref,
-        mric.code,
-        mric.display,
-        mric.code_system,
-        mric.userSelected
-    FROM mr_basics AS mr
+        mr.*,
+        mric.code AS medication_code,
+        mric.code_system AS medication_code_system,
+        mric.display AS medication_display
+    FROM mr_shared AS mr
     INNER JOIN core__medicationrequest_dn_inline_code AS mric ON mr.id = mric.id
 
     
     UNION
     SELECT
-        mr.id,
-        mr.encounter_ref,
-        mr.patient_ref,
-        mrcc.code,
-        mrcc.display,
-        mrcc.code_system,
-        mrcc.userSelected
-    FROM mr_basics AS mr
+        mr.*,
+        mrcc.code AS medication_code,
+        mrcc.code_system AS medication_code_system,
+        mrcc.display AS medication_display
+    FROM mr_shared AS mr
     INNER JOIN contained_refs AS cr ON mr.id = cr.id
     INNER JOIN core__medicationrequest_dn_contained_code AS mrcc
         ON cr.id = mrcc.id AND cr.medication_id = mrcc.contained_id
@@ -130,14 +197,11 @@ CREATE TABLE core__medication AS (
     
     UNION
     SELECT
-        mr.id,
-        mr.encounter_ref,
-        mr.patient_ref,
-        mc.code,
-        mc.display,
-        mc.code_system,
-        mc.userSelected
-    FROM mr_basics AS mr
+        mr.*,
+        mc.code AS medication_code,
+        mc.code_system AS medication_code_system,
+        mc.display AS medication_display
+    FROM mr_shared AS mr
     INNER JOIN external_refs AS er ON mr.id = er.id
     INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
 );
