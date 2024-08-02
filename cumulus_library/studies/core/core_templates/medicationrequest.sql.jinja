@@ -1,89 +1,123 @@
-{% import 'core_utils.jinja' as utils %}
+{% import 'core_utils.jinja' as utils -%}
+{% import 'syntax.sql.jinja' as syntax -%}
 
-CREATE TABLE core__medicationrequest AS
-WITH
+CREATE TABLE core__medicationrequest AS (
+    WITH
 
-tmp_dn_dosage_text AS (
+    mr_basics AS (
+        SELECT DISTINCT
+            {{- utils.basic_cols(
+                    'medicationrequest',
+                    'mr',
+                    [
+                        'id',
+                        'status',
+                        'intent'
+                    ],
+                )
+            }},
+            {{- utils.nullable_cols(
+                    'medicationrequest',
+                    'mr',
+                    [
+                        'reportedBoolean',
+                        ('reportedReference', 'reference', 'reported_ref'),
+                        ('encounter', 'reference', 'encounter_ref'),
+                        ('subject', 'reference', 'subject_ref'),
+                        ('medicationReference', 'reference', 'med_ref'),
+                    ],
+                    schema
+                )
+            }},
+            {{- utils.date_cols_from_str(
+                    'medicationrequest',
+                    'mr',
+                    ['authoredOn'],
+                    schema
+                )
+            }},
+            {{- utils.truncate_date_cols(
+                    'medicationrequest',
+                    'mr',
+                    [
+                        ('authoredOn', 'month'),
+                    ],
+                    schema
+                )
+            }}
+        FROM medicationrequest AS mr
+    ),
+
+    contained_refs AS (
+        SELECT DISTINCT
+            mr.id,
+            substring(mr.med_ref, 2) AS medication_id
+        FROM mr_basics AS mr
+        WHERE mr.med_ref IS NOT NULL AND {{ syntax.like('mr.med_ref', '#%') }}
+    ),
+
+    external_refs AS (
+        SELECT DISTINCT
+            mr.id,
+            substring(mr.med_ref, 12) AS medication_id
+        FROM mr_basics AS mr
+        WHERE mr.med_ref IS NOT NULL AND {{ syntax.like('mr.med_ref', 'Medication/%') }}
+    ),
+
+    {# this holds all the fields that each unioned table below will share -#}
+    mr_shared AS (
+        SELECT
+            mr.id,
+            mr.status,
+            mr.intent,
+            mrc.code AS category_code,
+            mrc.code_system AS category_code_system,
+            mrc.display AS category_display,
+            mr.reportedBoolean,
+            mr.reported_ref,
+            mr.subject_ref,
+            mr.encounter_ref,
+            mr.authoredOn,
+            mr.authoredOn_month
+        FROM mr_basics AS mr
+        LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
+    )
+
+    {# Internal: medication data from inline ETL extraction.
+    95% of the time, this dataset is the 'correct' dataset for Cerner.
+    It may not be present in EPIC datasets. #}
     SELECT
-        mr.id,
-        {{- utils.nullable_cols(
-            'medicationrequest',
-            'u',
-            [
-                ('dosageInstruction', 'text', 'dosageInstruction_text'),
-            ],
-            schema
-        ) }}
-    FROM medicationrequest AS mr,
-        UNNEST(mr.dosageInstruction) AS u (dosageInstruction)
-    WHERE u.dosageInstruction.text IS NOT NULL
-),
+        mr.*,
+        mric.code AS medication_code,
+        mric.code_system AS medication_code_system,
+        mric.display AS medication_display
+    FROM mr_shared AS mr
+    INNER JOIN core__medicationrequest_dn_inline_code AS mric ON mr.id = mric.id
 
-temp_mr AS (
-    SELECT 
-        {{- utils.basic_cols(
-                'medicationrequest',
-                'mr',
-                [
-                    'id', 
-                    'status', 
-                    'intent',
-                ]
-            ) 
-        }},
-        {{- utils.date_cols_from_str(
-                'medicationrequest',
-                'mr',
-                ['authoredOn'],
-                schema
-            ) 
-        }},
-        {{- utils.truncate_date_cols(
-                'medicationrequest',
-                'mr',
-                [
-                    ('authoredOn', 'month'),
-                ],
-                schema
-            ) 
-        }},
-        {{- utils.nullable_cols(
-                'medicationrequest',
+    {# Contained: medication reference into contained resources.
+    We've also seen this in Cerner. Though in the cases we've seen this, it's usually
+    a very lightly fleshed out resource, with only code.text and no codings. #}
+    UNION
+    SELECT
+        mr.*,
+        mrcc.code AS medication_code,
+        mrcc.code_system AS medication_code_system,
+        mrcc.display AS medication_display
+    FROM mr_shared AS mr
+    INNER JOIN contained_refs AS cr ON mr.id = cr.id
+    INNER JOIN core__medicationrequest_dn_contained_code AS mrcc
+        ON cr.id = mrcc.id AND cr.medication_id = mrcc.contained_id
+    WHERE mrcc.resource_type = 'Medication'
 
-                'mr',
-                [
-                    'reportedBoolean',
-                    ('subject', 'reference', 'subject_ref'),
-                    ('encounter', 'reference', 'encounter_ref'),
-                ],
-                schema
-        ) -}},
-        mrc.code AS category_code,
-        mrc.code_system AS category_system,
-        mrm.code AS medication_code,
-        mrm.code_system AS medication_system,
-        mrm.display AS medication_display,
-        mrdt.dosageInstruction_text
-    FROM medicationrequest AS mr
-    LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
-    LEFT JOIN core__medicationrequest_dn_inline_code AS mrm ON mr.id = mrm.id
-    LEFT JOIN tmp_dn_dosage_text AS mrdt ON mr.id = mrdt.id
-    WHERE mrm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
-)
-
-SELECT
-    mr.id,
-    mr.status,
-    mr.intent,
-    mr.category_code,
-    mr.category_system,
-    mr.reportedBoolean,
-    mr.medication_system,
-    mr.medication_code,
-    mr.medication_display,
-    mr.authoredOn,
-    mr.authoredOn_month,
-    mr.dosageInstruction_text,
-    mr.subject_ref,
-    mr.encounter_ref
-FROM temp_mr AS mr
+    {# External: medication by reference from external medications table.
+    This is generally how we expect EPIC to provide medication data. #}
+    UNION
+    SELECT
+        mr.*,
+        mc.code AS medication_code,
+        mc.code_system AS medication_code_system,
+        mc.display AS medication_display
+    FROM mr_shared AS mr
+    INNER JOIN external_refs AS er ON mr.id = er.id
+    INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
+);

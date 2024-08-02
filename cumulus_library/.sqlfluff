@@ -162,6 +162,10 @@ schema =
             'category': {
                 'code': True, 'system': True, 'display': False
             },
+            'reportedBoolean': True,
+            'reportedReference': {
+                'reference': True
+            },
             'dosageInstruction': {
                 'text': True,
             },

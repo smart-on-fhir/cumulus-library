@@ -6,6 +6,69 @@
 
 -- ###########################################################
 
+CREATE TABLE IF NOT EXISTS "main"."core__medication_dn_code"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","code_system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
+CREATE TABLE core__medicationrequest_dn_inline_code AS (
+    WITH
+
+    system_medicationCodeableConcept_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system AS code_system,
+            u.coding.userSelected
+        FROM
+            medicationrequest AS s,
+            UNNEST(s.medicationCodeableConcept.coding) AS u (coding)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            code_system,
+            code,
+            display,
+            userSelected
+        FROM system_medicationCodeableConcept_0
+        
+    )
+    SELECT
+        id,
+        code,
+        code_system,
+        display,
+        userSelected
+    FROM union_table
+);
+
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "main"."core__medicationrequest_dn_contained_code"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean),cast(NULL AS varchar),cast(NULL AS varchar))
+    )
+        AS t ("id","row","code","code_system","display","userSelected","contained_id","resource_type")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
 CREATE TABLE core__medicationrequest_dn_category AS (
     WITH
 
@@ -56,57 +119,89 @@ CREATE TABLE core__medicationrequest_dn_category AS (
 
 -- ###########################################################
 
+CREATE TABLE core__medicationrequest AS (
+    WITH
 
-
-CREATE TABLE core__medicationrequest AS
-WITH
-
-tmp_dn_dosage_text AS (
-    SELECT
-        mr.id,
-        u.dosageInstruction.text AS dosageInstruction_text
-    FROM medicationrequest AS mr,
-        UNNEST(mr.dosageInstruction) AS u (dosageInstruction)
-    WHERE u.dosageInstruction.text IS NOT NULL
-),
-
-temp_mr AS (
-    SELECT
+    mr_basics AS (
+        SELECT DISTINCT
         mr.id,
         mr.status,
         mr.intent,
+        mr.reportedBoolean,
+        mr.reportedReference.reference AS reported_ref,
+        mr.encounter.reference AS encounter_ref,
+        mr.subject.reference AS subject_ref,
+        mr.medicationReference.reference AS med_ref,
         date(from_iso8601_timestamp(mr.authoredOn)) AS authoredOn,
         date_trunc('month', date(from_iso8601_timestamp(mr."authoredOn")))
-            AS authoredOn_month,
-        mr.reportedBoolean,
-        mr.subject.reference AS subject_ref,
-        mr.encounter.reference AS encounter_ref,
-        mrc.code AS category_code,
-        mrc.code_system AS category_system,
-        mrm.code AS medication_code,
-        mrm.code_system AS medication_system,
-        mrm.display AS medication_display,
-        mrdt.dosageInstruction_text
-    FROM medicationrequest AS mr
-    LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
-    LEFT JOIN core__medicationrequest_dn_inline_code AS mrm ON mr.id = mrm.id
-    LEFT JOIN tmp_dn_dosage_text AS mrdt ON mr.id = mrdt.id
-    WHERE mrm.code_system = 'http://www.nlm.nih.gov/research/umls/rxnorm'
-)
+            AS authoredOn_month
+        FROM medicationrequest AS mr
+    ),
 
-SELECT
-    mr.id,
-    mr.status,
-    mr.intent,
-    mr.category_code,
-    mr.category_system,
-    mr.reportedBoolean,
-    mr.medication_system,
-    mr.medication_code,
-    mr.medication_display,
-    mr.authoredOn,
-    mr.authoredOn_month,
-    mr.dosageInstruction_text,
-    mr.subject_ref,
-    mr.encounter_ref
-FROM temp_mr AS mr
+    contained_refs AS (
+        SELECT DISTINCT
+            mr.id,
+            substring(mr.med_ref, 2) AS medication_id
+        FROM mr_basics AS mr
+        WHERE mr.med_ref IS NOT NULL AND REGEXP_LIKE(mr.med_ref, '^#.*$')
+    ),
+
+    external_refs AS (
+        SELECT DISTINCT
+            mr.id,
+            substring(mr.med_ref, 12) AS medication_id
+        FROM mr_basics AS mr
+        WHERE mr.med_ref IS NOT NULL AND REGEXP_LIKE(mr.med_ref, '^Medication/.*$')
+    ),
+
+    mr_shared AS (
+        SELECT
+            mr.id,
+            mr.status,
+            mr.intent,
+            mrc.code AS category_code,
+            mrc.code_system AS category_code_system,
+            mrc.display AS category_display,
+            mr.reportedBoolean,
+            mr.reported_ref,
+            mr.subject_ref,
+            mr.encounter_ref,
+            mr.authoredOn,
+            mr.authoredOn_month
+        FROM mr_basics AS mr
+        LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
+    )
+
+    
+    SELECT
+        mr.*,
+        mric.code AS medication_code,
+        mric.code_system AS medication_code_system,
+        mric.display AS medication_display
+    FROM mr_shared AS mr
+    INNER JOIN core__medicationrequest_dn_inline_code AS mric ON mr.id = mric.id
+
+    
+    UNION
+    SELECT
+        mr.*,
+        mrcc.code AS medication_code,
+        mrcc.code_system AS medication_code_system,
+        mrcc.display AS medication_display
+    FROM mr_shared AS mr
+    INNER JOIN contained_refs AS cr ON mr.id = cr.id
+    INNER JOIN core__medicationrequest_dn_contained_code AS mrcc
+        ON cr.id = mrcc.id AND cr.medication_id = mrcc.contained_id
+    WHERE mrcc.resource_type = 'Medication'
+
+    
+    UNION
+    SELECT
+        mr.*,
+        mc.code AS medication_code,
+        mc.code_system AS medication_code_system,
+        mc.display AS medication_display
+    FROM mr_shared AS mr
+    INNER JOIN external_refs AS er ON mr.id = er.id
+    INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
+);

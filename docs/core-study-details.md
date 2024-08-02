@@ -61,7 +61,6 @@ making sure to include all associated resources.
 
 ## core count tables
 
-
 ### core__count_condition_month
 
 |      Column      | Type  |Description|
@@ -89,7 +88,7 @@ making sure to include all associated resources.
 |cnt                 |bigint |Count      |
 |class_display       |varchar|Encounter Code (Healthcare Setting)|
 |type_display        |varchar|Encounter Type|
-|service_display     |varchar|Encounter Service|
+|servicetype_display |varchar|Encounter Service|
 |priority_display    |varchar|Encounter Priority|
 
 
@@ -100,7 +99,7 @@ making sure to include all associated resources.
 |cnt                 |bigint |Count      |
 |class_display       |varchar|Encounter Code (Healthcare Setting)|
 |type_display        |varchar|Encounter Type|
-|service_display     |varchar|Encounter Service|
+|servicetype_display |varchar|Encounter Service|
 |priority_display    |varchar|Encounter Priority|
 |period_start_month  |varchar|Month encounter recorded|
 
@@ -134,8 +133,18 @@ making sure to include all associated resources.
 |-------------------|-------|-----------|
 |cnt                |bigint |Count      |
 |class_display      |varchar|Encounter Code (Healthcare Setting)|
-|service_display    |varchar|Encounter Service|
+|servicetype_display|varchar|Encounter Service|
 |period_start_month |varchar|Month encounter recorded|
+
+
+### core__count_encounter_type_month
+
+|      Column      | Type  |Description|
+|------------------|-------|-----------|
+|cnt               |bigint |           |
+|class_display     |varchar|           |
+|type_display      |varchar|           |
+|period_start_month|varchar|           |
 
 
 ### core__count_medicationrequest_month
@@ -359,7 +368,6 @@ making sure to include all associated resources.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
-|row         |bigint |           |
 |code        |varchar|           |
 |code_system |varchar|           |
 |display     |varchar|           |
@@ -371,7 +379,6 @@ making sure to include all associated resources.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
-|row         |bigint |           |
 |code        |varchar|           |
 |code_system |varchar|           |
 |display     |varchar|           |
@@ -395,7 +402,6 @@ making sure to include all associated resources.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
-|row         |bigint |           |
 |code        |varchar|           |
 |code_system |varchar|           |
 |display     |varchar|           |
@@ -464,19 +470,6 @@ making sure to include all associated resources.
 |message        |varchar     |           |
 
 
-### core__medication
-
-|   Column    | Type  |Description|
-|-------------|-------|-----------|
-|id           |varchar|           |
-|encounter_ref|varchar|           |
-|patient_ref  |varchar|           |
-|code         |varchar|           |
-|display      |varchar|           |
-|code_system  |varchar|           |
-|userselected |boolean|           |
-
-
 ### core__medication_dn_code
 
 |   Column   | Type  |Description|
@@ -497,16 +490,17 @@ making sure to include all associated resources.
 |status                |varchar|           |
 |intent                |varchar|           |
 |category_code         |varchar|           |
-|category_system       |varchar|           |
+|category_code_system  |varchar|           |
+|category_display      |varchar|           |
 |reportedboolean       |boolean|           |
-|medication_system     |varchar|           |
-|medication_code       |varchar|           |
-|medication_display    |varchar|           |
-|authoredon            |date   |           |
-|authoredon_month      |date   |           |
-|dosageinstruction_text|varchar|           |
+|reported_ref          |varchar|           |
 |subject_ref           |varchar|           |
 |encounter_ref         |varchar|           |
+|authoredon            |date   |           |
+|authoredon_month      |date   |           |
+|medication_code       |varchar|           |
+|medication_code_system|varchar|           |
+|medication_display    |varchar|           |
 
 
 ### core__medicationrequest_dn_category
@@ -684,7 +678,6 @@ making sure to include all associated resources.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
-|row         |bigint |           |
 |code        |varchar|           |
 |code_system |varchar|           |
 |display     |varchar|           |
@@ -781,22 +774,22 @@ making sure to include all associated resources.
 
 ### core__patient_ext_ethnicity
 
-|     Column      | Type  |Description|
-|-----------------|-------|-----------|
-|id               |varchar|           |
-|system           |varchar|           |
-|ethnicity_code   |varchar|           |
-|ethnicity_display|varchar|           |
+|     Column      |   Type    |Description|
+|-----------------|-----------|-----------|
+|id               |varchar    |           |
+|system           |varchar(11)|           |
+|ethnicity_code   |varchar    |           |
+|ethnicity_display|varchar    |           |
 
 
 ### core__patient_ext_race
 
-|   Column   | Type  |Description|
-|------------|-------|-----------|
-|id          |varchar|           |
-|system      |varchar|           |
-|race_code   |varchar|           |
-|race_display|varchar|           |
+|   Column   |   Type    |Description|
+|------------|-----------|-----------|
+|id          |varchar    |           |
+|system      |varchar(11)|           |
+|race_code   |varchar    |           |
+|race_display|varchar    |           |
 
 
 ### core__study_period

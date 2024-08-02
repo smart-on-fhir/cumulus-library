@@ -7,7 +7,6 @@ file_names = [
     "builder_patient.py",
     "builder_encounter.py",
     "builder_documentreference.py",
-    "builder_medication.py",
     "builder_medicationrequest.py",
     "builder_observation.py"
 ]

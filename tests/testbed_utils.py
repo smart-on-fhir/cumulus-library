@@ -227,7 +227,7 @@ class LocalTestbed:
         config = base_utils.StudyConfig(
             db=db,
             schema="main",
-            # builder.verbose = True
+            # verbose=True,
         )
         builder = cli.StudyRunner(config, data_path=str(self.path))
         builder.clean_and_build_study(
