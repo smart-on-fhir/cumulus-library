@@ -18,8 +18,8 @@ UNION
 {%- endif -%}
 {%- endmacro -%}
 
-{# Note that this delineation is meant to be at the front of the string in
-a loop - this is to enable formatting in a WHERE statement like this:
+{# Note that the following two delineations are meant to be at the front of the string
+in a loop - this is to enable formatting in a WHERE statement like this:
 ---
 WHERE
     b.bar = a.foo
@@ -32,6 +32,9 @@ conforms better to the mozilla style guide)
 {%- if not loop.first -%}AND {% endif -%}
 {%- endmacro -%}
 
+{%- macro or_delineate(loop) -%}
+{%- if not loop.first -%}OR {% endif -%}
+{%- endmacro -%}
 
 {#- The intent of this macro is to convert sql wildcard format to regex syntax.
  So for example, a value of macro_string like:
@@ -48,7 +51,7 @@ in coding system fields, where this is currently used; if needed this could be
 made more robust.
 -#}
 {%- macro wildcard_to_regex(match_string) -%}
-'^{{ match_string.replace("\'", "\\\''").replace(".", "\\.").replace("%", ".*") }}$'
+{{ match_string.replace("\'", "\\\''").replace(".", "\\.").replace("%", ".*") }}
 {%- endmacro -%}
 
 
@@ -57,7 +60,11 @@ worry about the slightly more performant regex based matching we want to use
 in most cases.
 -#}
 {%- macro like(field, match_string) -%}
-REGEXP_LIKE({{ field }}, {{ wildcard_to_regex(match_string) }})
+REGEXP_LIKE({{ field }}, '^{{ wildcard_to_regex(match_string) }}$')
+{%- endmacro -%}
+
+{%- macro ilike(field, match_string) -%}
+REGEXP_LIKE({{ field }}, '^(?i:{{ wildcard_to_regex(match_string) }})$')
 {%- endmacro -%}
 
 {#- Checks for NULL, empty, whitespace-only, and '\u0000' strings

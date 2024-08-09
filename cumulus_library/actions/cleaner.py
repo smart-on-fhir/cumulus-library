@@ -30,8 +30,8 @@ def _execute_drop_queries(
             cursor.execute(drop_view_table)
 
 
-def get_unprotected_stats_view_table(
-    cursor: databases.DatabaseCursor,
+def _get_unprotected_stats_view_table(
+    config: base_utils.StudyConfig,
     query: str,
     artifact_type: str,
     drop_prefix: str,
@@ -40,7 +40,7 @@ def get_unprotected_stats_view_table(
 ):
     """Gets all items from the database by type, less any protected items
 
-    :param cursor: An object of type databases.DatabaseCursor
+    :param config: A StudyConfig object
     :param query: A query to get the raw list of items from the db
     :param artifact_type: either 'table' or 'view'
     :param drop_prefix: The prefix requested to drop
@@ -49,6 +49,7 @@ def get_unprotected_stats_view_table(
 
     :returns: a list of study tables to drop
     """
+    cursor = config.db.cursor()
     unprotected_list = []
     db_contents = cursor.execute(query).fetchall()
     if (
@@ -113,8 +114,8 @@ def clean_study(
     table_sql = base_templates.get_show_tables(config.schema, drop_prefix)
     view_table_list = []
     for query_and_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
-        view_table_list += get_unprotected_stats_view_table(
-            cursor,
+        view_table_list += _get_unprotected_stats_view_table(
+            config,
             query_and_type[0],
             query_and_type[1],
             drop_prefix,
@@ -136,7 +137,6 @@ def clean_study(
             for word in enums.ProtectedTableKeywords
         ):
             view_table_list.remove(view_table)
-
     if prefix:
         print("The following views/tables were selected by prefix:")
         for view_table in view_table_list:
