@@ -64,7 +64,7 @@ REGEXP_LIKE({{ field }}, '^{{ wildcard_to_regex(match_string) }}$')
 {%- endmacro -%}
 
 {%- macro ilike(field, match_string) -%}
-REGEXP_LIKE({{ field }}, '.*(?i:{{ wildcard_to_regex(match_string) }}).*$')
+REGEXP_LIKE({{ field }}, '^(?i:{{ wildcard_to_regex(match_string) }})$')
 {%- endmacro -%}
 
 {#- Checks for NULL, empty, whitespace-only, and '\u0000' strings
