@@ -14,7 +14,7 @@ file_names = [
 [sql_config]
 file_names = [
     "observation_type.sql",
-    "study_period.sql",
+    "meta_date.sql",
 ]
 
 [counts_builder_config]

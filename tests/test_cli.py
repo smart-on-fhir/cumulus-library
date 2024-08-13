@@ -294,7 +294,7 @@ def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
-            58,
+            57,
             does_not_raise(),
         ),
         (

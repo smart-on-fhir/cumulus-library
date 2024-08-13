@@ -247,6 +247,79 @@ WHERE
     assert query == expected
 
 
+@pytest.mark.parametrize(
+    "tables,table_aliases,column_aliases,distinct,expected,raises",
+    [
+        (
+            ["table_a", "view_b"],
+            None,
+            None,
+            False,
+            """CREATE TABLE IF NOT EXISTS table AS
+SELECT
+    a.foo,
+    b.bar,
+    b.baz
+FROM table_a AS a,
+    view_b AS b
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (
+            ["table_a", "view_b"],
+            None,
+            None,
+            True,
+            """CREATE TABLE IF NOT EXISTS table AS
+SELECT DISTINCT
+    a.foo,
+    b.bar,
+    b.baz
+FROM table_a AS a,
+    view_b AS b
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (
+            ["table_a", "view_b"],
+            ["b", "c"],
+            {"b.baz": "foobar"},
+            False,
+            """CREATE TABLE IF NOT EXISTS table AS
+SELECT
+    a.foo,
+    b.bar,
+    b.baz AS foobar
+FROM table_a AS b,
+    view_b AS c
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (["table_a"], [], {}, False, "", pytest.raises(errors.CumulusLibraryError)),
+    ],
+)
+def test_create_table_from_tables(
+    tables, table_aliases, column_aliases, distinct, expected, raises
+):
+    with raises:
+        query = base_templates.get_create_table_from_tables(
+            table_name="table",
+            tables=tables,
+            table_aliases=table_aliases,
+            columns=["a.foo", "b.bar", "b.baz"],
+            column_aliases=column_aliases,
+            join_clauses=["b.bar = a.foo", "b.baz != a.foo"],
+            distinct=distinct,
+        )
+        assert query == expected
+
+
 def test_get_create_table_from_union():
     expected = """CREATE TABLE union_table AS
 SELECT
@@ -270,12 +343,13 @@ FROM view_b
 
 
 @pytest.mark.parametrize(
-    "tables,table_aliases,column_aliases,expected,raises",
+    "tables,table_aliases,column_aliases,distinct,expected,raises",
     [
         (
             ["table_a", "view_b"],
             None,
             None,
+            False,
             """CREATE OR REPLACE VIEW view AS
 SELECT
     a.foo,
@@ -290,8 +364,26 @@ WHERE
         ),
         (
             ["table_a", "view_b"],
+            None,
+            None,
+            True,
+            """CREATE OR REPLACE VIEW view AS
+SELECT DISTINCT
+    a.foo,
+    b.bar,
+    b.baz
+FROM table_a AS a,
+    view_b AS b
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (
+            ["table_a", "view_b"],
             ["b", "c"],
             {"b.baz": "foobar"},
+            False,
             """CREATE OR REPLACE VIEW view AS
 SELECT
     a.foo,
@@ -304,10 +396,10 @@ WHERE
     AND b.baz != a.foo""",
             does_not_raise(),
         ),
-        (["table_a"], [], {}, "", pytest.raises(errors.CumulusLibraryError)),
+        (["table_a"], [], {}, False, "", pytest.raises(errors.CumulusLibraryError)),
     ],
 )
-def test_create_view_from_tables(tables, table_aliases, column_aliases, expected, raises):
+def test_create_view_from_tables(tables, table_aliases, column_aliases, distinct, expected, raises):
     with raises:
         query = base_templates.get_create_view_from_tables(
             view_name="view",
@@ -316,6 +408,7 @@ def test_create_view_from_tables(tables, table_aliases, column_aliases, expected
             columns=["a.foo", "b.bar", "b.baz"],
             column_aliases=column_aliases,
             join_clauses=["b.bar = a.foo", "b.baz != a.foo"],
+            distinct=distinct,
         )
         assert query == expected
 

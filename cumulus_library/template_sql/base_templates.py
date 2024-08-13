@@ -141,6 +141,49 @@ def get_column_datatype_query(
     )
 
 
+def get_create_table_from_tables(
+    *,
+    table_name: str,
+    tables: list,
+    columns: list,
+    join_clauses: list,
+    table_aliases: list | None = None,
+    column_aliases: dict | None = None,
+    distinct: bool = False,
+) -> str:
+    """Generates a create table query from tables in the database
+
+    :keyword table_name: the name of the resulting table
+    :keyword tables: A list of length two for the source tables for the join
+    :keyword columns: a list of columns to add to the table. Prepend with the table
+        or the alias.
+    :keyword join_clauses: a list of valid SQL join statements
+    :keyword table_aliases: A list of length two of aliases for the source tables.
+        ["a","b"] used if not supplied
+    :keyword column_aliases: A dict of aliases to apply, like {'a_col': 'alias'}
+    """
+    if table_aliases is None:
+        table_aliases = ["a", "b"]
+    if column_aliases is None:
+        column_aliases = {}
+    for list_arg in [tables, table_aliases]:
+        if len(list_arg) != 2:
+            raise errors.CumulusLibraryError(
+                f"Error generating table {table_name}: "
+                f"Expected {','.join(list_arg)} to be of length two."
+            )
+    return get_base_template(
+        "create_table_from_tables",
+        table_name=table_name,
+        join_tables=tables,
+        join_table_aliases=table_aliases,
+        join_columns=columns,
+        column_aliases=column_aliases,
+        join_clauses=join_clauses,
+        distinct=distinct,
+    )
+
+
 def get_create_table_from_union(*, table_name: str, tables: list[str], columns: list[str]) -> str:
     """Generates a create union table query
 
@@ -179,6 +222,7 @@ def get_create_view_from_tables(
     join_clauses: list,
     table_aliases: list | None = None,
     column_aliases: dict | None = None,
+    distinct: bool = False,
 ) -> str:
     """Generates a create view query from tables in the database
 
@@ -209,6 +253,7 @@ def get_create_view_from_tables(
         join_columns=columns,
         column_aliases=column_aliases,
         join_clauses=join_clauses,
+        distinct=distinct,
     )
 
 
