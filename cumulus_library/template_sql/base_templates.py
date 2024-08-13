@@ -101,8 +101,7 @@ def get_coding_denormalize_query(
 
     :param config: a CodingConfig
     """
-
-    if len(config.column_hierarchy) > 2:
+    if len(config.column_hierarchy) != 2:
         raise errors.CumulusLibraryError(
             "base_templates.get_coding_denormalize_query expects a column "
             f"hierarchy of length 2, but received: {config.column_hierarchy}"
