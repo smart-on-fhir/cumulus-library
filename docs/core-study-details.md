@@ -59,6 +59,38 @@ You can see which encounters were ignored as incomplete by examining the
 Usually, you can resolve this by running the ETL process again for the encounters,
 making sure to include all associated resources.
 
+## Optional fields
+
+The core study includes several fields that are considered optional by FHIR/US core.
+These are included due to their general utility in clinical informatics studies.
+In practice, we have found that this data is usually present in FHIR exports from
+EHR systems, but note that it is not guaranteed that a study relying on these
+fields will work across multiple institutions without some additional work.
+
+Per resource, the optional fields are as follows:
+- Condition
+  - recordedDate
+  - encounter_ref
+- Encounter
+  - serviceType
+  - priority
+  - reasonCode
+  - dischargeDisposition
+- Observation
+  - dataAbsentReason
+- Observation - vital signs
+  - valueCodeableConcept
+  - interpretation
+- Patient
+  - US Core race extension
+  - US Core ethnicity extension
+
+## Deprecation Notice
+
+The `core__observation` table is currently deprecated, and will be removed in a
+future version. When possible, use one of the targeted profile tables (labs,
+vital signs) instead.
+
 ## core count tables
 
 ### core__count_condition_month
@@ -368,6 +400,7 @@ making sure to include all associated resources.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |code_system |varchar|           |
 |display     |varchar|           |
@@ -379,6 +412,7 @@ making sure to include all associated resources.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |code_system |varchar|           |
 |display     |varchar|           |
@@ -402,6 +436,7 @@ making sure to include all associated resources.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |code_system |varchar|           |
 |display     |varchar|           |
@@ -470,6 +505,19 @@ making sure to include all associated resources.
 |message        |varchar     |           |
 
 
+### core__medication
+
+|   Column    | Type  |Description|
+|-------------|-------|-----------|
+|id           |varchar|           |
+|encounter_ref|varchar|           |
+|patient_ref  |varchar|           |
+|code         |varchar|           |
+|display      |varchar|           |
+|code_system  |varchar|           |
+|userselected |boolean|           |
+
+
 ### core__medication_dn_code
 
 |   Column   | Type  |Description|
@@ -490,17 +538,16 @@ making sure to include all associated resources.
 |status                |varchar|           |
 |intent                |varchar|           |
 |category_code         |varchar|           |
-|category_code_system  |varchar|           |
-|category_display      |varchar|           |
+|category_system       |varchar|           |
 |reportedboolean       |boolean|           |
-|reported_ref          |varchar|           |
-|subject_ref           |varchar|           |
-|encounter_ref         |varchar|           |
+|medication_system     |varchar|           |
+|medication_code       |varchar|           |
+|medication_display    |varchar|           |
 |authoredon            |date   |           |
 |authoredon_month      |date   |           |
-|medication_code       |varchar|           |
-|medication_code_system|varchar|           |
-|medication_display    |varchar|           |
+|dosageinstruction_text|varchar|           |
+|subject_ref           |varchar|           |
+|encounter_ref         |varchar|           |
 
 
 ### core__medicationrequest_dn_category
@@ -678,6 +725,7 @@ making sure to include all associated resources.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |code_system |varchar|           |
 |display     |varchar|           |
@@ -774,22 +822,22 @@ making sure to include all associated resources.
 
 ### core__patient_ext_ethnicity
 
-|     Column      |   Type    |Description|
-|-----------------|-----------|-----------|
-|id               |varchar    |           |
-|system           |varchar(11)|           |
-|ethnicity_code   |varchar    |           |
-|ethnicity_display|varchar    |           |
+|     Column      | Type  |Description|
+|-----------------|-------|-----------|
+|id               |varchar|           |
+|system           |varchar|           |
+|ethnicity_code   |varchar|           |
+|ethnicity_display|varchar|           |
 
 
 ### core__patient_ext_race
 
-|   Column   |   Type    |Description|
-|------------|-----------|-----------|
-|id          |varchar    |           |
-|system      |varchar(11)|           |
-|race_code   |varchar    |           |
-|race_display|varchar    |           |
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|system      |varchar|           |
+|race_code   |varchar|           |
+|race_display|varchar|           |
 
 
 ### core__study_period
@@ -818,3 +866,4 @@ making sure to include all associated resources.
 |doc_type_code        |varchar    |           |
 |doc_type_display     |varchar    |           |
 |ed_note              |boolean    |           |
+
