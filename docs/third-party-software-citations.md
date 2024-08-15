@@ -1,7 +1,7 @@
 ---
 title: Third party software citations
 parent: Library
-nav_order: 9
+nav_order: 10
 # audience: Clinical researchers interested in publications
 # type: reference
 ---

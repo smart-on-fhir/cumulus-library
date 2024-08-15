@@ -1,7 +1,7 @@
 ---
 title: Statistics
 parent: Library
-nav_order: 7
+nav_order: 8
 has_children: true
 # audience: Clinical researchers interested in publications
 # type: reference

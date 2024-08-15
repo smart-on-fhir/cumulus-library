@@ -1,7 +1,7 @@
 ---
 title: Data Sharing
 parent: Library
-nav_order: 6
+nav_order: 7
 # audience: IT security or clinical researcher with low to medium familiarity with project
 # type: explanation
 ---
