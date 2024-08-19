@@ -525,33 +525,33 @@ def test_duckdb_array_join(mock_db, array, delim, expects):
 
 ### End of duckdb user defined functions
 
+
 @mock.patch("cumulus_library.databases.duckdb.DuckDatabaseBackend.cursor")
 @pytest.mark.parametrize(
     "error,raises",
     [
         (duckdb.OperationalError, pytest.raises(ValueError)),
         (duckdb.BinderException, pytest.raises(ValueError)),
-        (errors.CumulusLibraryError,pytest.raises(errors.CumulusLibraryError))
+        (errors.CumulusLibraryError, pytest.raises(errors.CumulusLibraryError)),
     ],
 )
-def test_duckdb_operational_errors( mock_cursor, mock_db, error, raises):
+def test_duckdb_operational_errors(mock_cursor, mock_db, error, raises):
     mock_cursor.return_value.execute.return_value.fetchall.side_effect = error
     with raises:
-        sql_utils.validate_schema(mock_db,{"table": {"foo": "bar"}})
+        sql_utils.validate_schema(mock_db, {"table": {"foo": "bar"}})
+
 
 @mock.patch("cumulus_library.databases.athena.AthenaDatabaseBackend.cursor")
 @mock.patch("botocore.client")
 @pytest.mark.parametrize(
     "error,raises",
     [
-        (pyathena.OperationalError,pytest.raises(ValueError)),
-        (errors.CumulusLibraryError,pytest.raises(errors.CumulusLibraryError))
+        (pyathena.OperationalError, pytest.raises(ValueError)),
+        (errors.CumulusLibraryError, pytest.raises(errors.CumulusLibraryError)),
     ],
 )
 def test_athena_operational_errors(mock_botocore, mock_cursor, error, raises):
     db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
     mock_cursor.return_value.execute.return_value.fetchall.side_effect = error
     with raises:
-        sql_utils.validate_schema(db,{"table": {"foo": "bar"}})
-
-
+        sql_utils.validate_schema(db, {"table": {"foo": "bar"}})
