@@ -22,6 +22,7 @@ from cumulus_library.actions import (
     importer,
     uploader,
 )
+from cumulus_library.template_sql import base_templates, sql_utils
 
 
 @pytest.mark.parametrize(
@@ -238,6 +239,14 @@ def test_table_builder(mock_db_config, study_path, verbose, expects, raises):
 def test_build_study(mock_db_config, study_path, verbose, expects, raises):
     with raises:
         manifest = study_manifest.StudyManifest(study_path)
+        table = sql_utils.TransactionsTable()
+        query = base_templates.get_ctas_empty_query(
+            schema_name="main",
+            table_name=f"{manifest.get_study_prefix()}__lib_transactions",
+            table_cols=table.columns,
+            table_cols_types=table.column_types,
+        )
+        mock_db_config.db.cursor().execute(query)
         builder.build_study(
             config=mock_db_config,
             manifest=manifest,
