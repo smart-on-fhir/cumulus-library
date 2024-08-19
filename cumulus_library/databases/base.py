@@ -87,7 +87,7 @@ class DatabaseParser(abc.ABC):
                 output[column] = subschema
 
             else:
-                raise ValueError("Bad expected schema provided")  # pragma: no cover
+                raise ValueError("Bad expected schema provided")
 
         return output
 
