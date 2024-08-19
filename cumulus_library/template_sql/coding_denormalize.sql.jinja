@@ -11,7 +11,7 @@ CREATE TABLE {{ target_table }} AS (
             {%- endif %}
             u.parent_col.{{ column_name }}.code,
             u.parent_col.{{ column_name }}.display,
-            u.parent_col.{{ column_name }}.system AS system
+            u.parent_col.{{ column_name }}.system
         FROM
             {{ source_table }} AS s,
             UNNEST(s.{{ parent_field }}) AS u (parent_col)
