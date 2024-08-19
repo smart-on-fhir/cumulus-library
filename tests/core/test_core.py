@@ -52,7 +52,6 @@ def test_core_tables(mock_db_core, table):
         conftest.debug_diff_tables(cols, table_rows, ref_table, pos=0)
         raise e
 
-
 def test_core_count_missing_data(tmp_path):
     testbed = testbed_utils.LocalTestbed(tmp_path)
     for i in range(10):

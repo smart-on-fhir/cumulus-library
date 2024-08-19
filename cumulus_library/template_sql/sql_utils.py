@@ -218,7 +218,7 @@ def denormalize_complex_objects(
                         "id",
                         "row",
                         "code",
-                        "code_system",
+                        "system",
                         "display",
                         "userSelected",
                     ]
@@ -249,7 +249,7 @@ def denormalize_complex_objects(
                         base_templates.get_ctas_empty_query(
                             schema_name=database.schema_name,
                             table_name=code_source.target_table,
-                            table_cols=["id", "code", "code_system", "display"],
+                            table_cols=["id", "code", "system", "display"],
                         )
                     )
 
@@ -258,19 +258,17 @@ def denormalize_complex_objects(
 
 def validate_schema(
     database: databases.DatabaseBackend,
-    expected_table_cols: dict,
+    expected_table_cols: dict[dict],
 ) -> dict:
     validated_schema = {}
     for table, cols in expected_table_cols.items():
         query = base_templates.get_column_datatype_query(database.schema_name, table, cols.keys())
-
         try:
             table_schema = database.cursor().execute(query).fetchall()
         except database.operational_errors():
             # A database backend might reasonably raise an exception in cases like
             # the table not existing (Athena does this).
-            table_schema = []
-
+            table_schema = {}
         validated_schema[table] = database.parser().validate_table_schema(cols, table_schema)
     return validated_schema
 

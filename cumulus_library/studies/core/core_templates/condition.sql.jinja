@@ -29,7 +29,7 @@ WITH temp_condition AS (
                 'cca',
                 [
                     'code',
-                    'code_system',
+                    'system',
                     'display'
                 ]
             ) 
@@ -61,10 +61,10 @@ WITH temp_condition AS (
 SELECT
     tc.id,
     cdc.code AS category_code,
-    cdc.code_system AS category_system,
+    cdc.system AS category_system,
     cdc.display AS category_display,
     tc.code,
-    tc.code_system,
+    tc.system,
     tc.display AS code_display,
     tc.subject_ref,
     tc.encounter_ref,
@@ -73,7 +73,7 @@ SELECT
     tc.recordedDate_week,
     tc.recordedDate_month,
     tc.recordedDate_year,
-    {#- We don't expose code_system for these next two since we filter
+    {#- We don't expose system for these next two since we filter
         down to a single system in the denormalization table #}
     cdcs.code AS clinicalStatus_code,
     cdvs.code AS verificationStatus_code

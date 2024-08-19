@@ -63,7 +63,6 @@ class DatabaseParser(abc.ABC):
     ) -> dict[str, Any]:
         schema = schema or {}
         output = {}
-
         for column, fields in expected.items():
             col_schema = schema.get(column.lower())
 

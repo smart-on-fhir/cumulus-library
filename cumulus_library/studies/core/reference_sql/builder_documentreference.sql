@@ -15,7 +15,7 @@ CREATE TABLE core__documentreference_dn_type AS (
             0 AS row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             documentreference AS s,
@@ -26,7 +26,7 @@ CREATE TABLE core__documentreference_dn_type AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -36,7 +36,7 @@ CREATE TABLE core__documentreference_dn_type AS (
     SELECT
         id,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -65,7 +65,7 @@ CREATE TABLE core__documentreference_dn_category AS (
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -79,7 +79,7 @@ CREATE TABLE core__documentreference_dn_category AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -92,7 +92,7 @@ CREATE TABLE core__documentreference_dn_category AS (
             id,
             row,
             code,
-            code_system,
+            system,
             display,
             userSelected,
             priority,
@@ -103,7 +103,7 @@ CREATE TABLE core__documentreference_dn_category AS (
                 ) AS available_priority
         FROM union_table
         GROUP BY
-            id, row, priority, code_system, code, display, userSelected
+            id, row, priority, system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -111,7 +111,7 @@ CREATE TABLE core__documentreference_dn_category AS (
         id,
         row,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM partitioned_table
@@ -129,7 +129,7 @@ CREATE TABLE core__documentreference_dn_format AS (
             s.id AS id,
             u.parent_col.format.code,
             u.parent_col.format.display,
-            u.parent_col.format.system AS code_system
+            u.parent_col.format.system AS system
         FROM
             documentreference AS s,
             UNNEST(s.content) AS u (parent_col)
@@ -138,7 +138,7 @@ CREATE TABLE core__documentreference_dn_format AS (
     union_table AS (
         SELECT
             id,
-            code_system,
+            system,
             code,
             display
         FROM system_format_0
@@ -147,7 +147,7 @@ CREATE TABLE core__documentreference_dn_format AS (
     SELECT
         id,
         code,
-        code_system,
+        system,
         display
     FROM union_table
 );
@@ -175,7 +175,7 @@ WITH temp_documentreference AS (
         date_trunc('year', date(from_iso8601_timestamp(dr."context"."period"."start")))
             AS author_year,
         cdrt.code as type_code,
-        cdrt.code_system as type_system,
+        cdrt.system as type_system,
         cdrt.display as type_display,
         cdrc.code as category_code,
         cdrf.code as format_code

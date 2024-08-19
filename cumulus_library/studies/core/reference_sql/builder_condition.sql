@@ -25,7 +25,7 @@ CREATE TABLE core__condition_dn_category AS (
             s.row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -36,7 +36,7 @@ CREATE TABLE core__condition_dn_category AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -47,7 +47,7 @@ CREATE TABLE core__condition_dn_category AS (
         id,
         row,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -66,7 +66,7 @@ CREATE TABLE core__condition_dn_clinical_status AS (
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -80,7 +80,7 @@ CREATE TABLE core__condition_dn_clinical_status AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -93,7 +93,7 @@ CREATE TABLE core__condition_dn_clinical_status AS (
             id,
             row,
             code,
-            code_system,
+            system,
             display,
             userSelected,
             priority,
@@ -104,14 +104,14 @@ CREATE TABLE core__condition_dn_clinical_status AS (
                 ) AS available_priority
         FROM union_table
         GROUP BY
-            id, row, priority, code_system, code, display, userSelected
+            id, row, priority, system, code, display, userSelected
         ORDER BY priority ASC
     )
 
     SELECT
         id,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM partitioned_table
@@ -131,7 +131,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -147,7 +147,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             '1' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -163,7 +163,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             '2' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -179,7 +179,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             '3' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -195,7 +195,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             '4' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -211,7 +211,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             '5' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -227,7 +227,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             '6' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -241,7 +241,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -251,7 +251,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -261,7 +261,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -271,7 +271,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -281,7 +281,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -291,7 +291,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -301,7 +301,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -314,7 +314,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             id,
             row,
             code,
-            code_system,
+            system,
             display,
             userSelected,
             priority,
@@ -325,14 +325,14 @@ CREATE TABLE core__condition_codable_concepts_display AS (
                 ) AS available_priority
         FROM union_table
         GROUP BY
-            id, row, priority, code_system, code, display, userSelected
+            id, row, priority, system, code, display, userSelected
         ORDER BY priority ASC
     )
 
     SELECT
         id,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM partitioned_table
@@ -351,7 +351,7 @@ CREATE TABLE core__condition_codable_concepts_all AS (
             0 AS row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -362,7 +362,7 @@ CREATE TABLE core__condition_codable_concepts_all AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -372,7 +372,7 @@ CREATE TABLE core__condition_codable_concepts_all AS (
     SELECT
         id,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -391,7 +391,7 @@ CREATE TABLE core__condition_dn_verification_status AS (
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             condition AS s,
@@ -405,7 +405,7 @@ CREATE TABLE core__condition_dn_verification_status AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -418,7 +418,7 @@ CREATE TABLE core__condition_dn_verification_status AS (
             id,
             row,
             code,
-            code_system,
+            system,
             display,
             userSelected,
             priority,
@@ -429,14 +429,14 @@ CREATE TABLE core__condition_dn_verification_status AS (
                 ) AS available_priority
         FROM union_table
         GROUP BY
-            id, row, priority, code_system, code, display, userSelected
+            id, row, priority, system, code, display, userSelected
         ORDER BY priority ASC
     )
 
     SELECT
         id,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM partitioned_table
@@ -455,7 +455,7 @@ WITH temp_condition AS (
         c.subject.reference AS subject_ref,
         c.encounter.reference AS encounter_ref,
         cca.code,
-        cca.code_system,
+        cca.system,
         cca.display,
         date(from_iso8601_timestamp(c.recordedDate)) AS recordedDate,
         date_trunc('week', date(from_iso8601_timestamp(c."recordedDate")))
@@ -471,10 +471,10 @@ WITH temp_condition AS (
 SELECT
     tc.id,
     cdc.code AS category_code,
-    cdc.code_system AS category_system,
+    cdc.system AS category_system,
     cdc.display AS category_display,
     tc.code,
-    tc.code_system,
+    tc.system,
     tc.display AS code_display,
     tc.subject_ref,
     tc.encounter_ref,

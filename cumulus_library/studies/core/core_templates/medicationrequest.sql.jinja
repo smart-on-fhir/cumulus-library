@@ -71,7 +71,7 @@ CREATE TABLE core__medicationrequest AS (
             mr.status,
             mr.intent,
             mrc.code AS category_code,
-            mrc.code_system AS category_code_system,
+            mrc.system AS category_system,
             mrc.display AS category_display,
             mr.reportedBoolean,
             mr.reported_ref,
@@ -89,7 +89,7 @@ CREATE TABLE core__medicationrequest AS (
     SELECT
         mr.*,
         mric.code AS medication_code,
-        mric.code_system AS medication_code_system,
+        mric.system AS medication_system,
         mric.display AS medication_display
     FROM mr_shared AS mr
     INNER JOIN core__medicationrequest_dn_inline_code AS mric ON mr.id = mric.id
@@ -101,7 +101,7 @@ CREATE TABLE core__medicationrequest AS (
     SELECT
         mr.*,
         mrcc.code AS medication_code,
-        mrcc.code_system AS medication_code_system,
+        mrcc.system AS medication_system,
         mrcc.display AS medication_display
     FROM mr_shared AS mr
     INNER JOIN contained_refs AS cr ON mr.id = cr.id
@@ -115,7 +115,7 @@ CREATE TABLE core__medicationrequest AS (
     SELECT
         mr.*,
         mc.code AS medication_code,
-        mc.code_system AS medication_code_system,
+        mc.system AS medication_system,
         mc.display AS medication_display
     FROM mr_shared AS mr
     INNER JOIN external_refs AS er ON mr.id = er.id

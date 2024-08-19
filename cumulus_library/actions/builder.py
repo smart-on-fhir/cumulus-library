@@ -320,7 +320,7 @@ def _query_error(query_and_filename: list, exit_message: str) -> None:
     print("--------", file=sys.stderr)
     print(query_and_filename[0], file=sys.stderr)
     print("--------", file=sys.stderr)
-    raise errors.StudyManifestQueryError(exit_message)
+    sys.exit(exit_message)
 
 
 def _execute_build_queries(

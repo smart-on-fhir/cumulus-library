@@ -41,17 +41,17 @@ WITH temp_observation AS (
             ) 
         }},
         odc.code AS observation_code,
-        odc.code_system AS observation_system,
+        odc.system AS observation_system,
         odcat.code AS category_code,
-        odcat.code_system AS category_system,
+        odcat.system AS category_system,
         odi.code AS interpretation_code,
-        odi.code_system AS interpretation_system,
+        odi.system AS interpretation_system,
         odi.display AS interpretation_display,
         odvcc.code AS valueCodeableConcept_code,
-        odvcc.code_system AS valueCodeableConcept_system,
+        odvcc.system AS valueCodeableConcept_system,
         odvcc.display AS valueCodeableConcept_display,
         odda.code AS dataAbsentReason_code,
-        odda.code_system AS dataAbsentReason_system,
+        odda.system AS dataAbsentReason_system,
         odda.display AS dataAbsentReason_display
     FROM observation AS o
     LEFT JOIN core__observation_dn_category AS odcat ON o.id = odcat.id

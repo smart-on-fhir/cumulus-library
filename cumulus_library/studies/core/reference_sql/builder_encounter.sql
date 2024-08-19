@@ -26,7 +26,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -42,7 +42,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '1' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -58,7 +58,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '2' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -74,7 +74,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '3' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -90,7 +90,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '4' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -106,7 +106,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '5' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -122,7 +122,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '6' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -138,7 +138,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '7' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -154,7 +154,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '8' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -168,7 +168,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -178,7 +178,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -188,7 +188,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -198,7 +198,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -208,7 +208,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -218,7 +218,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -228,7 +228,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -238,7 +238,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -248,7 +248,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -261,7 +261,7 @@ CREATE TABLE core__encounter_dn_type AS (
             id,
             row,
             code,
-            code_system,
+            system,
             display,
             userSelected,
             priority,
@@ -272,7 +272,7 @@ CREATE TABLE core__encounter_dn_type AS (
                 ) AS available_priority
         FROM union_table
         GROUP BY
-            id, row, priority, code_system, code, display, userSelected
+            id, row, priority, system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -280,7 +280,7 @@ CREATE TABLE core__encounter_dn_type AS (
         id,
         row,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM partitioned_table
@@ -296,7 +296,7 @@ AS (
         VALUES
         (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display","userSelected")
+        AS t ("id","row","code","system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -308,7 +308,7 @@ AS (
         VALUES
         (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display","userSelected")
+        AS t ("id","row","code","system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -334,7 +334,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -350,7 +350,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '1' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -366,7 +366,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '2' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -382,7 +382,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '3' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -398,7 +398,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '4' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -414,7 +414,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '5' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -428,7 +428,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -438,7 +438,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -448,7 +448,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -458,7 +458,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -468,7 +468,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -478,7 +478,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -491,7 +491,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             id,
             row,
             code,
-            code_system,
+            system,
             display,
             userSelected,
             priority,
@@ -502,7 +502,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
                 ) AS available_priority
         FROM union_table
         GROUP BY
-            id, row, priority, code_system, code, display, userSelected
+            id, row, priority, system, code, display, userSelected
         ORDER BY priority ASC
     )
 
@@ -510,7 +510,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
         id,
         row,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM partitioned_table
@@ -529,7 +529,7 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
             0 AS row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             encounter AS s,
@@ -540,7 +540,7 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -550,7 +550,7 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
     SELECT
         id,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -647,19 +647,19 @@ temp_encounter AS (
         e.period_start_month,
         e.period_start_year,
         edt.code AS type_code,
-        edt.code_system AS type_system,
+        edt.system AS type_system,
         edt.display AS type_display,
         eds.code AS serviceType_code,
-        eds.code_system AS serviceType_system,
+        eds.system AS serviceType_system,
         eds.display AS serviceType_display,
         edp.code AS priority_code,
-        edp.code_system AS priority_system,
+        edp.system AS priority_system,
         edp.display AS priority_display,
         edr.code AS reasonCode_code,
-        edr.code_system AS reasonCode_system,
+        edr.system AS reasonCode_system,
         edr.display AS reasonCode_display,
         edd.code AS dischargeDisposition_code,
-        edd.code_system AS dischargeDisposition_system,
+        edd.system AS dischargeDisposition_system,
         edd.display AS dischargeDisposition_display
 
     FROM temp_encounter_nullable AS e

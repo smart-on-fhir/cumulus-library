@@ -25,7 +25,7 @@ CREATE TABLE core__observation_dn_category AS (
             s.row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -36,7 +36,7 @@ CREATE TABLE core__observation_dn_category AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -47,7 +47,7 @@ CREATE TABLE core__observation_dn_category AS (
         id,
         row,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -65,7 +65,7 @@ CREATE TABLE core__observation_dn_code AS (
             0 AS row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             observation AS s,
@@ -76,7 +76,7 @@ CREATE TABLE core__observation_dn_code AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -86,7 +86,7 @@ CREATE TABLE core__observation_dn_code AS (
     SELECT
         id,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -114,7 +114,7 @@ CREATE TABLE core__observation_component_code AS (
             s.row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -125,7 +125,7 @@ CREATE TABLE core__observation_component_code AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -136,7 +136,7 @@ CREATE TABLE core__observation_component_code AS (
         id,
         row,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -164,7 +164,7 @@ CREATE TABLE core__observation_component_dataabsentreason AS (
             s.row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -175,7 +175,7 @@ CREATE TABLE core__observation_component_dataabsentreason AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -186,7 +186,7 @@ CREATE TABLE core__observation_component_dataabsentreason AS (
         id,
         row,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -224,7 +224,7 @@ CREATE TABLE core__observation_component_interpretation AS (
             s.row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             child_flattened_rows AS s,
@@ -235,7 +235,7 @@ CREATE TABLE core__observation_component_interpretation AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -246,7 +246,7 @@ CREATE TABLE core__observation_component_interpretation AS (
         id,
         row,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -261,7 +261,7 @@ AS (
         VALUES
         (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display","userSelected")
+        AS t ("id","row","code","system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -273,7 +273,7 @@ AS (
         VALUES
         (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display","userSelected")
+        AS t ("id","row","code","system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -288,7 +288,7 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
             0 AS row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system AS system,
             u.coding.userSelected
         FROM
             observation AS s,
@@ -299,7 +299,7 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -309,7 +309,7 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
     SELECT
         id,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -324,7 +324,7 @@ AS (
         VALUES
         (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-        AS t ("id","row","code","code_system","display","userSelected")
+        AS t ("id","row","code","system","display","userSelected")
     WHERE 1 = 0 -- ensure empty table
 );
 
@@ -354,17 +354,17 @@ WITH temp_observation AS (
         date_trunc('year', date(from_iso8601_timestamp(o."effectiveDateTime")))
             AS effectiveDateTime_year,
         odc.code AS observation_code,
-        odc.code_system AS observation_system,
+        odc.system AS observation_system,
         odcat.code AS category_code,
-        odcat.code_system AS category_system,
+        odcat.system AS category_system,
         odi.code AS interpretation_code,
-        odi.code_system AS interpretation_system,
+        odi.system AS interpretation_system,
         odi.display AS interpretation_display,
         odvcc.code AS valueCodeableConcept_code,
-        odvcc.code_system AS valueCodeableConcept_system,
+        odvcc.system AS valueCodeableConcept_system,
         odvcc.display AS valueCodeableConcept_display,
         odda.code AS dataAbsentReason_code,
-        odda.code_system AS dataAbsentReason_system,
+        odda.system AS dataAbsentReason_system,
         odda.display AS dataAbsentReason_display
     FROM observation AS o
     LEFT JOIN core__observation_dn_category AS odcat ON o.id = odcat.id
@@ -421,7 +421,7 @@ CREATE TABLE core__observation_component_valuequantity AS (
         CAST(NULL AS DOUBLE) AS value, -- noqa: disable=L029
         'x' AS comparator,
         'x' AS unit,
-        'x' AS code_system,
+        'x' AS system,
         'x' AS code
     WHERE 1=0 -- empty table
 );
