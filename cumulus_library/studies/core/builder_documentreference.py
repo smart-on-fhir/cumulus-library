@@ -1,4 +1,4 @@
-from cumulus_library import base_table_builder, base_utils
+import cumulus_library
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import sql_utils
 
@@ -14,13 +14,13 @@ expected_table_cols = {
 }
 
 
-class CoreDocumentreferenceBuilder(base_table_builder.BaseTableBuilder):
+class CoreDocumentreferenceBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating DocumentReference tables..."
 
     def prepare_queries(
         self,
         *args,
-        config: base_utils.StudyConfig,
+        config: cumulus_library.StudyConfig,
         **kwargs,
     ):
         self.queries = sql_utils.denormalize_complex_objects(

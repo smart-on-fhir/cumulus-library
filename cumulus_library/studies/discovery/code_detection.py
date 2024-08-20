@@ -1,12 +1,13 @@
 """Module for generating encounter codeableConcept table"""
 
-from cumulus_library import base_table_builder, base_utils
+import cumulus_library
+from cumulus_library import base_utils
 from cumulus_library.studies.discovery import code_definitions
 from cumulus_library.studies.discovery.discovery_templates import discovery_templates
 from cumulus_library.template_sql import sql_utils
 
 
-class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
+class CodeDetectionBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Selecting unique code systems..."
 
     def _check_coding_against_db(self, code_source, database):
@@ -35,7 +36,7 @@ class CodeDetectionBuilder(base_table_builder.BaseTableBuilder):
     def prepare_queries(
         self,
         *args,
-        config: base_utils.StudyConfig,
+        config: cumulus_library.StudyConfig,
         **kwargs,
     ):
         """Constructs queries related to condition codeableConcept

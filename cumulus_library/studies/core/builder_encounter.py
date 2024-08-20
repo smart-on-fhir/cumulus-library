@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from cumulus_library import base_table_builder, base_utils
+import cumulus_library
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import sql_utils
 
@@ -34,7 +34,7 @@ class EncConfig(sql_utils.CodeableConceptConfig):
         self.target_table = f"core__encounter_dn_{self.column_hierarchy[-1][0]}"
 
 
-class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
+class CoreEncounterBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Encounter tables..."
 
     def denormalize_codes(self, database):
@@ -108,7 +108,7 @@ class CoreEncounterBuilder(base_table_builder.BaseTableBuilder):
     def prepare_queries(
         self,
         *args,
-        config: base_utils.StudyConfig,
+        config: cumulus_library.StudyConfig,
         **kwargs,
     ):
         self.denormalize_codes(config.db)

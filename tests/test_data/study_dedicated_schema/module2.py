@@ -1,7 +1,7 @@
-from cumulus_library.base_table_builder import BaseTableBuilder
+import cumulus_library
 
 
-class ModuleTwoRunner(BaseTableBuilder):
+class ModuleTwoRunner(cumulus_library.BaseTableBuilder):
     display_text = "module2"
 
     def prepare_queries(self, *args, **kwargs):

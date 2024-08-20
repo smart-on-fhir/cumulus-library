@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from cumulus_library.statistics import counts
+import cumulus_library
 
 
-class CoreCountsBuilder(counts.CountsBuilder):
+class CoreCountsBuilder(cumulus_library.CountsBuilder):
     display_text = "Creating core counts..."
 
     def count_core_condition(self, duration: str = "month"):
@@ -119,6 +119,6 @@ class CoreCountsBuilder(counts.CountsBuilder):
         ]
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     builder = CoreCountsBuilder()
     builder.write_counts(f"{Path(__file__).resolve().parent}/count_core.sql")

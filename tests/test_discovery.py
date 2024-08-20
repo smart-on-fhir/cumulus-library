@@ -2,6 +2,8 @@ import os
 import pathlib
 from unittest import mock
 
+import pytest
+
 from cumulus_library import cli, databases
 from cumulus_library.studies.discovery.discovery_templates import discovery_templates
 from tests import conftest
@@ -144,3 +146,18 @@ FROM (
         ],
     )
     assert query == expected
+
+
+@mock.patch.dict(os.environ, clear=True)
+@mock.patch("cumulus_library.studies.discovery.code_definitions.code_list", new=[{}])
+def test_bad_code_definition(tmp_path):
+    with pytest.raises(KeyError, match="Expected table_name and column_hierarchy keys"):
+        cli.main(
+            cli_args=conftest.duckdb_args(
+                [
+                    "build",
+                    "--target=discovery",
+                ],
+                tmp_path,
+            )
+        )

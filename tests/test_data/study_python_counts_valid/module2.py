@@ -1,7 +1,7 @@
-from cumulus_library.statistics.counts import CountsBuilder
+import cumulus_library
 
 
-class ModuleTwoRunner(CountsBuilder):
+class ModuleTwoRunner(cumulus_library.CountsBuilder):
     display_text = "module2"
 
     def __init__(self):

@@ -1,4 +1,4 @@
-from cumulus_library import base_table_builder, base_utils
+import cumulus_library
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import base_templates, sql_utils
 
@@ -12,7 +12,7 @@ expected_table_cols = {
 }
 
 
-class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
+class CoreConditionBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Condition tables..."
 
     def denormalize_codes(self):
@@ -75,7 +75,7 @@ class CoreConditionBuilder(base_table_builder.BaseTableBuilder):
     def prepare_queries(
         self,
         *args,
-        config: base_utils.StudyConfig,
+        config: cumulus_library.StudyConfig,
         **kwargs,
     ):
         self.denormalize_codes()

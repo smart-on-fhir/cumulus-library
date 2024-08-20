@@ -1,7 +1,7 @@
 """Module for extracting US core extensions from patient records"""
 
-from cumulus_library import base_utils, databases
-from cumulus_library.base_table_builder import BaseTableBuilder
+import cumulus_library
+from cumulus_library import databases
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import base_templates, sql_utils
 
@@ -15,7 +15,7 @@ expected_table_cols = {
 }
 
 
-class PatientBuilder(BaseTableBuilder):
+class PatientBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Patient tables..."
 
     @staticmethod
@@ -57,7 +57,7 @@ class PatientBuilder(BaseTableBuilder):
     def prepare_queries(
         self,
         *args,
-        config: base_utils.StudyConfig,
+        config: cumulus_library.StudyConfig,
         **kwargs,
     ):
         """constructs queries related to patient extensions of interest
