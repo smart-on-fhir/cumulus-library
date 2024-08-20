@@ -1,6 +1,6 @@
 """Module for generating core medicationrequest table"""
 
-from cumulus_library import base_table_builder, base_utils
+import cumulus_library
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import sql_utils
 
@@ -19,13 +19,13 @@ expected_table_cols = {
 }
 
 
-class MedicationRequestBuilder(base_table_builder.BaseTableBuilder):
+class MedicationRequestBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating MedicationRequest table..."
 
     def prepare_queries(
         self,
         *args,
-        config: base_utils.StudyConfig,
+        config: cumulus_library.StudyConfig,
         **kwargs,
     ) -> None:
         """Constructs queries related to medication requests

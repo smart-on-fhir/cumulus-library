@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from cumulus_library import base_table_builder, base_utils
+import cumulus_library
 from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import sql_utils
 
@@ -36,13 +36,13 @@ class ObsConfig(sql_utils.CodeableConceptConfig):
         self.target_table = f"core__observation_{table_suffix}"
 
 
-class ObservationBuilder(base_table_builder.BaseTableBuilder):
+class ObservationBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Observation tables..."
 
     def prepare_queries(
         self,
         *args,
-        config: base_utils.StudyConfig,
+        config: cumulus_library.StudyConfig,
         **kwargs,
     ):
         """constructs queries related to patient extensions of interest

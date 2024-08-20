@@ -4,16 +4,16 @@ import pathlib
 
 import pandas
 
-from cumulus_library import base_table_builder, base_utils
+import cumulus_library
 from cumulus_library.template_sql import base_templates
 
 
-class VocabIcdRunner(base_table_builder.BaseTableBuilder):
+class VocabIcdRunner(cumulus_library.BaseTableBuilder):
     display_text = "Creating ICD vocab..."
 
     def prepare_queries(
         self,
-        config: base_utils.StudyConfig,
+        config: cumulus_library.StudyConfig,
         *args,
         **kwargs,
     ):

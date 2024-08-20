@@ -6,10 +6,10 @@ import pathlib
 
 import sqlparse
 
-from cumulus_library import base_table_builder
+import cumulus_library
 
 
-class CorePrereqTableBuilder(base_table_builder.BaseTableBuilder):
+class CorePrereqTableBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating core prerequisite tables..."
 
     def prepare_queries(self, *args, **kwargs):
