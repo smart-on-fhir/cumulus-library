@@ -222,7 +222,7 @@ vital signs) instead.
 |category_system        |varchar|           |
 |category_display       |varchar|           |
 |code                   |varchar|           |
-|code_system            |varchar|           |
+|system                 |varchar|           |
 |code_display           |varchar|           |
 |subject_ref            |varchar|           |
 |encounter_ref          |varchar|           |
@@ -241,7 +241,7 @@ vital signs) instead.
 |------------|-------|-----------|
 |id          |varchar|           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -252,7 +252,7 @@ vital signs) instead.
 |------------|-------|-----------|
 |id          |varchar|           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -264,7 +264,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -275,7 +275,7 @@ vital signs) instead.
 |------------|-------|-----------|
 |id          |varchar|           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -286,7 +286,7 @@ vital signs) instead.
 |------------|-------|-----------|
 |id          |varchar|           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -320,19 +320,19 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
 
 ### core__documentreference_dn_format
 
-|  Column   | Type  |Description|
-|-----------|-------|-----------|
-|id         |varchar|           |
-|code       |varchar|           |
-|code_system|varchar|           |
-|display    |varchar|           |
+|Column | Type  |Description|
+|-------|-------|-----------|
+|id     |varchar|           |
+|code   |varchar|           |
+|system |varchar|           |
+|display|varchar|           |
 
 
 ### core__documentreference_dn_type
@@ -341,7 +341,7 @@ vital signs) instead.
 |------------|-------|-----------|
 |id          |varchar|           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -402,7 +402,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -414,7 +414,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -426,7 +426,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -438,7 +438,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -450,7 +450,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -505,19 +505,6 @@ vital signs) instead.
 |message        |varchar     |           |
 
 
-### core__medication
-
-|   Column    | Type  |Description|
-|-------------|-------|-----------|
-|id           |varchar|           |
-|encounter_ref|varchar|           |
-|patient_ref  |varchar|           |
-|code         |varchar|           |
-|display      |varchar|           |
-|code_system  |varchar|           |
-|userselected |boolean|           |
-
-
 ### core__medication_dn_code
 
 |   Column   | Type  |Description|
@@ -525,29 +512,30 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
 
 ### core__medicationrequest
 
-|        Column        | Type  |Description|
-|----------------------|-------|-----------|
-|id                    |varchar|           |
-|status                |varchar|           |
-|intent                |varchar|           |
-|category_code         |varchar|           |
-|category_system       |varchar|           |
-|reportedboolean       |boolean|           |
-|medication_system     |varchar|           |
-|medication_code       |varchar|           |
-|medication_display    |varchar|           |
-|authoredon            |date   |           |
-|authoredon_month      |date   |           |
-|dosageinstruction_text|varchar|           |
-|subject_ref           |varchar|           |
-|encounter_ref         |varchar|           |
+|      Column      | Type  |Description|
+|------------------|-------|-----------|
+|id                |varchar|           |
+|status            |varchar|           |
+|intent            |varchar|           |
+|category_code     |varchar|           |
+|category_system   |varchar|           |
+|category_display  |varchar|           |
+|reportedboolean   |boolean|           |
+|reported_ref      |varchar|           |
+|subject_ref       |varchar|           |
+|encounter_ref     |varchar|           |
+|authoredon        |date   |           |
+|authoredon_month  |date   |           |
+|medication_code   |varchar|           |
+|medication_system |varchar|           |
+|medication_display|varchar|           |
 
 
 ### core__medicationrequest_dn_category
@@ -557,7 +545,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -569,7 +557,7 @@ vital signs) instead.
 |id           |varchar|           |
 |row          |bigint |           |
 |code         |varchar|           |
-|code_system  |varchar|           |
+|system       |varchar|           |
 |display      |varchar|           |
 |userselected |boolean|           |
 |contained_id |varchar|           |
@@ -582,7 +570,7 @@ vital signs) instead.
 |------------|-------|-----------|
 |id          |varchar|           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -643,7 +631,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -655,7 +643,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -667,7 +655,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -679,22 +667,22 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
 
 ### core__observation_component_valuequantity
 
-|  Column   | Type  |Description|
-|-----------|-------|-----------|
-|id         |varchar|           |
-|row        |bigint |           |
-|value      |double |           |
-|comparator |varchar|           |
-|unit       |varchar|           |
-|code_system|varchar|           |
-|code       |varchar|           |
+|  Column  | Type  |Description|
+|----------|-------|-----------|
+|id        |varchar|           |
+|row       |bigint |           |
+|value     |double |           |
+|comparator|varchar|           |
+|unit      |varchar|           |
+|system    |varchar|           |
+|code      |varchar|           |
 
 
 ### core__observation_dn_category
@@ -704,7 +692,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -715,7 +703,7 @@ vital signs) instead.
 |------------|-------|-----------|
 |id          |varchar|           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -727,7 +715,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -739,7 +727,7 @@ vital signs) instead.
 |id          |varchar|           |
 |row         |bigint |           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
@@ -750,7 +738,7 @@ vital signs) instead.
 |------------|-------|-----------|
 |id          |varchar|           |
 |code        |varchar|           |
-|code_system |varchar|           |
+|system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
