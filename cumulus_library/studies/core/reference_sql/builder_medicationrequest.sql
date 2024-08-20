@@ -6,7 +6,7 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__medication_dn_code"
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__medication_dn_code"
 AS (
     SELECT * FROM (
         VALUES
@@ -27,7 +27,7 @@ CREATE TABLE core__medicationrequest_dn_inline_code AS (
             0 AS row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             medicationrequest AS s,
@@ -57,7 +57,7 @@ CREATE TABLE core__medicationrequest_dn_inline_code AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__medicationrequest_dn_contained_code"
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__medicationrequest_dn_contained_code"
 AS (
     SELECT * FROM (
         VALUES
@@ -88,7 +88,7 @@ CREATE TABLE core__medicationrequest_dn_category AS (
             s.row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,

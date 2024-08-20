@@ -26,7 +26,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -42,7 +42,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '1' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -58,7 +58,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '2' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -74,7 +74,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '3' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -90,7 +90,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '4' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -106,7 +106,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '5' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -122,7 +122,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '6' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -138,7 +138,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '7' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -154,7 +154,7 @@ CREATE TABLE core__encounter_dn_type AS (
             '8' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -290,7 +290,7 @@ CREATE TABLE core__encounter_dn_type AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__encounter_dn_servicetype"
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__encounter_dn_servicetype"
 AS (
     SELECT * FROM (
         VALUES
@@ -302,7 +302,7 @@ AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__encounter_dn_priority"
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__encounter_dn_priority"
 AS (
     SELECT * FROM (
         VALUES
@@ -334,7 +334,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -350,7 +350,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '1' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -366,7 +366,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '2' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -382,7 +382,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '3' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -398,7 +398,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '4' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -414,7 +414,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             '5' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -520,42 +520,15 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
 
 -- ###########################################################
 
-CREATE TABLE core__encounter_dn_dischargedisposition AS (
-    WITH
-
-    system_dischargedisposition_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            0 AS row,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system AS system,
-            u.coding.userSelected
-        FROM
-            encounter AS s,
-            UNNEST(s.hospitalization.dischargedisposition.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_dischargedisposition_0
-        
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__encounter_dn_dischargedisposition"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-    SELECT
-        id,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
 );
-
 
 -- ###########################################################
 
@@ -563,48 +536,7 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
 CREATE TABLE core__encounter AS
 WITH
 
-temp_encounter_completion AS (
-    WITH
-    -- Start by grabbing group names and exports times for each Encounter.
-    temp_completion_times AS (
-        SELECT
-            ece.encounter_id,
-            -- note that we don't chop the export time down to a DATE,
-            -- as is typical in the core study
-            min(from_iso8601_timestamp(ece.export_time)) AS earliest_export
-        FROM etl__completion_encounters AS ece
-        GROUP BY ece.encounter_id
-    ),
-
-    -- Then examine all tables that are at least as recently loaded as the
-    -- Encounter. (This is meant to detect Conditions that maybe aren't
-    -- loaded into Athena yet for the Encounter.)
-    -- Make sure that we have all the tables we care about.
-    temp_completed_tables AS (
-        SELECT
-            ece.encounter_id,
-            (
-                BOOL_OR(ec.table_name = 'condition')
-                AND BOOL_OR(ec.table_name = 'documentreference')
-                AND BOOL_OR(ec.table_name = 'medicationrequest')
-                AND BOOL_OR(ec.table_name = 'observation')
-            ) AS is_complete
-        FROM etl__completion_encounters AS ece
-        INNER JOIN temp_completion_times AS tct ON tct.encounter_id = ece.encounter_id
-        INNER JOIN etl__completion AS ec ON ec.group_name = ece.group_name
-        WHERE tct.earliest_export <= from_iso8601_timestamp(ec.export_time)
-        GROUP BY ece.encounter_id
-    )
-
-    -- Left join back with main completion_encounters table,
-    -- to catch rows that are completion-tracked but not in
-    -- temp_completed_tables.
-    SELECT
-        ece.encounter_id AS id,
-        (is_complete IS NOT NULL AND is_complete) AS is_complete
-    FROM etl__completion_encounters AS ece
-    LEFT JOIN temp_completed_tables AS tct ON tct.encounter_id = ece.encounter_id
-),
+temp_encounter_completion AS (SELECT cast('' AS varchar) AS id, FALSE AS is_complete WHERE 1=0),
 
 temp_encounter_nullable AS (
     SELECT DISTINCT
@@ -715,48 +647,7 @@ WHERE
 
 CREATE TABLE core__incomplete_encounter AS
 WITH
-temp_encounter_completion AS (
-    WITH
-    -- Start by grabbing group names and exports times for each Encounter.
-    temp_completion_times AS (
-        SELECT
-            ece.encounter_id,
-            -- note that we don't chop the export time down to a DATE,
-            -- as is typical in the core study
-            min(from_iso8601_timestamp(ece.export_time)) AS earliest_export
-        FROM etl__completion_encounters AS ece
-        GROUP BY ece.encounter_id
-    ),
-
-    -- Then examine all tables that are at least as recently loaded as the
-    -- Encounter. (This is meant to detect Conditions that maybe aren't
-    -- loaded into Athena yet for the Encounter.)
-    -- Make sure that we have all the tables we care about.
-    temp_completed_tables AS (
-        SELECT
-            ece.encounter_id,
-            (
-                BOOL_OR(ec.table_name = 'condition')
-                AND BOOL_OR(ec.table_name = 'documentreference')
-                AND BOOL_OR(ec.table_name = 'medicationrequest')
-                AND BOOL_OR(ec.table_name = 'observation')
-            ) AS is_complete
-        FROM etl__completion_encounters AS ece
-        INNER JOIN temp_completion_times AS tct ON tct.encounter_id = ece.encounter_id
-        INNER JOIN etl__completion AS ec ON ec.group_name = ece.group_name
-        WHERE tct.earliest_export <= from_iso8601_timestamp(ec.export_time)
-        GROUP BY ece.encounter_id
-    )
-
-    -- Left join back with main completion_encounters table,
-    -- to catch rows that are completion-tracked but not in
-    -- temp_completed_tables.
-    SELECT
-        ece.encounter_id AS id,
-        (is_complete IS NOT NULL AND is_complete) AS is_complete
-    FROM etl__completion_encounters AS ece
-    LEFT JOIN temp_completed_tables AS tct ON tct.encounter_id = ece.encounter_id
-)
+temp_encounter_completion AS (SELECT cast('' AS varchar) AS id, FALSE AS is_complete WHERE 1=0)
 
 SELECT DISTINCT tec.id
 FROM temp_encounter_completion AS tec
