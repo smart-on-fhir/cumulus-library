@@ -121,6 +121,7 @@ CREATE TABLE core__documentreference_dn_category AS (
 
 -- ###########################################################
 
+<<<<<<< HEAD
 CREATE TABLE core__documentreference_dn_format AS (
     WITH
 
@@ -150,8 +151,17 @@ CREATE TABLE core__documentreference_dn_format AS (
         system,
         display
     FROM union_table
+=======
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__documentreference_dn_format"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+    )
+        AS t ("id","code","code_system","display")
+    WHERE 1 = 0 -- ensure empty table
+>>>>>>> 67643ad (sql regen)
 );
-
 
 -- ###########################################################
 

@@ -6,7 +6,7 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__medication_dn_code"
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__medication_dn_code"
 AS (
     SELECT * FROM (
         VALUES
@@ -57,7 +57,7 @@ CREATE TABLE core__medicationrequest_dn_inline_code AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__medicationrequest_dn_contained_code"
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__medicationrequest_dn_contained_code"
 AS (
     SELECT * FROM (
         VALUES

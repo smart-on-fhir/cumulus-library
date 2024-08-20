@@ -95,6 +95,7 @@ CREATE TABLE core__observation_dn_code AS (
 
 -- ###########################################################
 
+<<<<<<< HEAD
 CREATE TABLE core__observation_component_code AS (
     WITH
 
@@ -256,6 +257,9 @@ CREATE TABLE core__observation_component_interpretation AS (
 -- ###########################################################
 
 CREATE TABLE IF NOT EXISTS "main"."core__observation_component_valuecodeableconcept"
+=======
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__observation_component_code"
+>>>>>>> 67643ad (sql regen)
 AS (
     SELECT * FROM (
         VALUES
@@ -267,7 +271,43 @@ AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__observation_dn_interpretation"
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__observation_component_dataabsentreason"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","code_system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__observation_component_interpretation"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","code_system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__observation_component_valuecodeableconcept"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","code_system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__observation_dn_interpretation"
 AS (
     SELECT * FROM (
         VALUES
@@ -318,7 +358,7 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__observation_dn_dataabsentreason"
+CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__observation_dn_dataabsentreason"
 AS (
     SELECT * FROM (
         VALUES
@@ -415,7 +455,33 @@ WHERE
 
 
 CREATE TABLE core__observation_component_valuequantity AS (
+    WITH
+
+    flattened_rows AS (
+        SELECT DISTINCT
+            t.id AS id,
+            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            r."component"
+        FROM
+            observation AS t,
+            UNNEST(t."component") AS r ("component")
+    ),
+
+    flattened_quantities AS (
+        SELECT
+            f.id,
+            f.row,
+        f.component.valueQuantity.value AS value,
+        cast(NULL as varchar) AS comparator,
+        f.component.valueQuantity.unit AS unit,
+        f.component.valueQuantity.system AS code_system,
+        f.component.valueQuantity.code AS code
+        FROM flattened_rows AS f
+        WHERE f.component.valueQuantity IS NOT NULL
+    )
+
     SELECT
+<<<<<<< HEAD
         'x' AS id,
         CAST(NULL AS BIGINT) AS row,
         CAST(NULL AS DOUBLE) AS value, -- noqa: disable=L029
@@ -424,4 +490,16 @@ CREATE TABLE core__observation_component_valuequantity AS (
         'x' AS system,
         'x' AS code
     WHERE 1=0 -- empty table
+=======
+        f.id,
+        f.row,
+        -- We ensure value is a double, because nullable_cols() above will cast
+        -- as varchar if value isn't in the schema.
+        CAST(f.value AS DOUBLE) AS value, -- noqa: disable=L029
+        f.comparator,
+        f.unit,
+        f.code_system,
+        f.code
+    FROM flattened_quantities AS f
+>>>>>>> 67643ad (sql regen)
 );
