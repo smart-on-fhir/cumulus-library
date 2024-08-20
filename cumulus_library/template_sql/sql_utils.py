@@ -258,7 +258,7 @@ def denormalize_complex_objects(
 
 def validate_schema(
     database: databases.DatabaseBackend,
-    expected_table_cols: dict[dict],
+    expected_table_cols: dict[str, dict[str, str]],
 ) -> dict:
     validated_schema = {}
     for table, cols in expected_table_cols.items():
