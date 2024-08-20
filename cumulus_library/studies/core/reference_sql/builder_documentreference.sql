@@ -15,7 +15,7 @@ CREATE TABLE core__documentreference_dn_type AS (
             0 AS row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             documentreference AS s,
@@ -65,7 +65,7 @@ CREATE TABLE core__documentreference_dn_category AS (
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -121,46 +121,14 @@ CREATE TABLE core__documentreference_dn_category AS (
 
 -- ###########################################################
 
-<<<<<<< HEAD
-CREATE TABLE core__documentreference_dn_format AS (
-    WITH
-
-    system_format_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            u.parent_col.format.code,
-            u.parent_col.format.display,
-            u.parent_col.format.system AS system
-        FROM
-            documentreference AS s,
-            UNNEST(s.content) AS u (parent_col)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            system,
-            code,
-            display
-        FROM system_format_0
-        
-    )
-    SELECT
-        id,
-        code,
-        system,
-        display
-    FROM union_table
-=======
 CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__documentreference_dn_format"
 AS (
     SELECT * FROM (
         VALUES
         (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
     )
-        AS t ("id","code","code_system","display")
+        AS t ("id","code","system","display")
     WHERE 1 = 0 -- ensure empty table
->>>>>>> 67643ad (sql regen)
 );
 
 -- ###########################################################

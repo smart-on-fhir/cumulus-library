@@ -34,15 +34,15 @@ in supporting it, so please reach out and let us know.
 
 FHIR dates/times come across the wires as ISO 8061-formatted strings.
 To get them into actual timestamps, use the `from_is08061_timestamp` function as
-part of your query, and case to either `date` or `timestamp`.If you want to get a
+part of your query, and `CASE` to either `date` or `timestamp`.If you want to get a
 specific portion of a date, like a month or year, use the `date_trunc` function. 
 An example use case:
 
 ```sql
  SELECT 
         date(from_iso8601_timestamp(dr.date)) AS doc_date,
-        date_trunc('day', date(from_iso8601_timestamp(dr."context"."period"."start")))
-            AS author_day,
+        date_trunc('month', date(from_iso8601_timestamp(dr."context"."period"."start")))
+            AS author_month,
     FROM documentreference AS dr
 ```
 
@@ -92,7 +92,9 @@ Importantly - make sure the table(s) you're using for your cube do not contain e
 null values, since these are indistinguishable from the nulls created when cubing outputs.
 Instead,
 [coalesce](https://trino.io/docs/current/functions/conditional.html#coalesce)
-fields to some static value, like 'None', if required.
+fields to some static value, like 'None', if required. Note that we use the
+string `cumulus__none` as a way to say 'this is a null value distinct from
+a powerset null', and the dashboard will handle this gracefully during rendering.
 
 # Performance
 

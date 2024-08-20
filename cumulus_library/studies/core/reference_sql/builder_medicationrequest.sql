@@ -27,7 +27,7 @@ CREATE TABLE core__medicationrequest_dn_inline_code AS (
             0 AS row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             medicationrequest AS s,
@@ -88,7 +88,7 @@ CREATE TABLE core__medicationrequest_dn_category AS (
             s.row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
