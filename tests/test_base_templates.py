@@ -214,6 +214,75 @@ def test_codeable_concept_denormalize_filter_creation():
     assert query == expected
 
 
+def test_codeable_concept_denormalize_error():
+    with pytest.raises(errors.CumulusLibraryError):
+        config = sql_utils.CodeableConceptConfig(
+            source_table="source",
+            source_id="id",
+            column_hierarchy=[("code_col", dict), ("code_col", dict), ("code_col", dict)],
+            target_table="target__concepts",
+            filter_priority=True,
+            code_systems=[
+                "http://snomed.info/sct",
+                "http://hl7.org/fhir/sid/icd-10-cm",
+                "https://fhir.cerner.com/%/codeSet/71",
+            ],
+        )
+        base_templates.get_codeable_concept_denormalize_query(config)
+
+
+def test_get_coding_denormalize_query():
+    expected = """CREATE TABLE core__documentreference_dn_format AS (
+    WITH
+
+    system_format_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            u.parent_col.format.code,
+            u.parent_col.format.display,
+            u.parent_col.format.system AS code_system
+        FROM
+            documentreference AS s,
+            UNNEST(s.content) AS u (parent_col)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            code_system,
+            code,
+            display
+        FROM system_format_0
+        
+    )
+    SELECT
+        id,
+        code,
+        code_system,
+        display
+    FROM union_table
+);
+"""
+    config = sql_utils.CodingConfig(
+        source_table="documentreference",
+        source_id="id",
+        column_hierarchy=[("content", list), ("format", dict)],
+        target_table="core__documentreference_dn_format",
+        expected={"format": sql_utils.CODING},
+    )
+    query = base_templates.get_coding_denormalize_query(config)
+    assert query == expected
+    with pytest.raises(errors.CumulusLibraryError):
+        config = sql_utils.CodingConfig(
+            source_table="documentreference",
+            source_id="id",
+            column_hierarchy=[("content", list)],
+            target_table="core__documentreference_dn_format",
+            expected={"format": sql_utils.CODING},
+        )
+        base_templates.get_coding_denormalize_query(config)
+
+
 def test_get_column_datatype_query():
     expected = """SELECT
     column_name,
@@ -247,6 +316,79 @@ WHERE
     assert query == expected
 
 
+@pytest.mark.parametrize(
+    "tables,table_aliases,column_aliases,distinct,expected,raises",
+    [
+        (
+            ["table_a", "view_b"],
+            None,
+            None,
+            False,
+            """CREATE TABLE IF NOT EXISTS table AS
+SELECT
+    a.foo,
+    b.bar,
+    b.baz
+FROM table_a AS a,
+    view_b AS b
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (
+            ["table_a", "view_b"],
+            None,
+            None,
+            True,
+            """CREATE TABLE IF NOT EXISTS table AS
+SELECT DISTINCT
+    a.foo,
+    b.bar,
+    b.baz
+FROM table_a AS a,
+    view_b AS b
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (
+            ["table_a", "view_b"],
+            ["b", "c"],
+            {"b.baz": "foobar"},
+            False,
+            """CREATE TABLE IF NOT EXISTS table AS
+SELECT
+    a.foo,
+    b.bar,
+    b.baz AS foobar
+FROM table_a AS b,
+    view_b AS c
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (["table_a"], [], {}, False, "", pytest.raises(errors.CumulusLibraryError)),
+    ],
+)
+def test_create_table_from_tables(
+    tables, table_aliases, column_aliases, distinct, expected, raises
+):
+    with raises:
+        query = base_templates.get_create_table_from_tables(
+            table_name="table",
+            tables=tables,
+            table_aliases=table_aliases,
+            columns=["a.foo", "b.bar", "b.baz"],
+            column_aliases=column_aliases,
+            join_clauses=["b.bar = a.foo", "b.baz != a.foo"],
+            distinct=distinct,
+        )
+        assert query == expected
+
+
 def test_get_create_table_from_union():
     expected = """CREATE TABLE union_table AS
 SELECT
@@ -270,12 +412,13 @@ FROM view_b
 
 
 @pytest.mark.parametrize(
-    "tables,table_aliases,column_aliases,expected,raises",
+    "tables,table_aliases,column_aliases,distinct,expected,raises",
     [
         (
             ["table_a", "view_b"],
             None,
             None,
+            False,
             """CREATE OR REPLACE VIEW view AS
 SELECT
     a.foo,
@@ -290,8 +433,26 @@ WHERE
         ),
         (
             ["table_a", "view_b"],
+            None,
+            None,
+            True,
+            """CREATE OR REPLACE VIEW view AS
+SELECT DISTINCT
+    a.foo,
+    b.bar,
+    b.baz
+FROM table_a AS a,
+    view_b AS b
+WHERE
+    b.bar = a.foo
+    AND b.baz != a.foo""",
+            does_not_raise(),
+        ),
+        (
+            ["table_a", "view_b"],
             ["b", "c"],
             {"b.baz": "foobar"},
+            False,
             """CREATE OR REPLACE VIEW view AS
 SELECT
     a.foo,
@@ -304,10 +465,10 @@ WHERE
     AND b.baz != a.foo""",
             does_not_raise(),
         ),
-        (["table_a"], [], {}, "", pytest.raises(errors.CumulusLibraryError)),
+        (["table_a"], [], {}, False, "", pytest.raises(errors.CumulusLibraryError)),
     ],
 )
-def test_create_view_from_tables(tables, table_aliases, column_aliases, expected, raises):
+def test_create_view_from_tables(tables, table_aliases, column_aliases, distinct, expected, raises):
     with raises:
         query = base_templates.get_create_view_from_tables(
             view_name="view",
@@ -316,6 +477,7 @@ def test_create_view_from_tables(tables, table_aliases, column_aliases, expected
             columns=["a.foo", "b.bar", "b.baz"],
             column_aliases=column_aliases,
             join_clauses=["b.bar = a.foo", "b.baz != a.foo"],
+            distinct=distinct,
         )
         assert query == expected
 

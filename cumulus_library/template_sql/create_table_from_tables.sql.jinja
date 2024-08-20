@@ -1,5 +1,5 @@
 {%- import 'syntax.sql.jinja' as syntax -%}
-CREATE OR REPLACE VIEW {{ view_name }} AS
+CREATE TABLE IF NOT EXISTS {{ table_name }} AS
 SELECT{%- if distinct %} DISTINCT
     {%- endif %}
 {%- for col in join_columns %}

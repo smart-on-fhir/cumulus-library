@@ -18,6 +18,12 @@ UNION
 {%- endif -%}
 {%- endmacro -%}
 
+{%- macro union_all_delineate(loop) -%}
+{%- if not loop.last -%}
+UNION ALL
+{%- endif -%}
+{%- endmacro -%}
+
 {# Note that the following two delineations are meant to be at the front of the string
 in a loop - this is to enable formatting in a WHERE statement like this:
 ---
