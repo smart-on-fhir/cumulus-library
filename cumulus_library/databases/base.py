@@ -63,7 +63,6 @@ class DatabaseParser(abc.ABC):
     ) -> dict[str, Any]:
         schema = schema or {}
         output = {}
-
         for column, fields in expected.items():
             col_schema = schema.get(column.lower())
 
@@ -88,7 +87,7 @@ class DatabaseParser(abc.ABC):
                 output[column] = subschema
 
             else:
-                raise ValueError("Bad expected schema provided")  # pragma: no cover
+                raise ValueError("Bad expected schema provided")
 
         return output
 

@@ -71,7 +71,7 @@ CREATE TABLE {{ target_table }} AS (
             {%- endfor %}
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system,
             u.coding.userSelected
         FROM
         {#- Temp workaround - to be reworked by generic DN #}
@@ -95,7 +95,7 @@ CREATE TABLE {{ target_table }} AS (
             {%- for extra_field in extra_fields %}
             {{ extra_field[1] }},
             {%- endfor %}
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -113,7 +113,7 @@ CREATE TABLE {{ target_table }} AS (
             {{ extra_field[1] }},
             {%- endfor %}
             code,
-            code_system,
+            system,
             display,
             userSelected,
             priority,
@@ -124,7 +124,7 @@ CREATE TABLE {{ target_table }} AS (
                 ) AS available_priority
         FROM union_table
         GROUP BY
-            id, row, priority, code_system, code, display, userSelected
+            id, row, priority, system, code, display, userSelected
             {%- for extra_field in extra_fields %}, {{ extra_field[1] }}{% endfor %}
         ORDER BY priority ASC
     )
@@ -138,7 +138,7 @@ CREATE TABLE {{ target_table }} AS (
         {{ extra_field[1] }},
         {%- endfor %}
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM partitioned_table
@@ -154,7 +154,7 @@ CREATE TABLE {{ target_table }} AS (
         {{ extra_field[1] }},
         {%- endfor %}
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table

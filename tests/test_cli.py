@@ -481,7 +481,7 @@ def test_cli_export_archive(tmp_path, args, input_txt, expects_files, raises):
         (
             "study_invalid_bad_query",
             False,
-            pytest.raises(errors.StudyManifestQueryError),
+            pytest.raises(SystemExit),
         ),
     ],
 )

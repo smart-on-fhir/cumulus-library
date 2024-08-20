@@ -311,7 +311,12 @@ def build_study(
     return queries
 
 
-def _query_error(query_and_filename: list, exit_message: str) -> None:
+def _query_error(
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
+    query_and_filename: list,
+    exit_message: str,
+) -> None:
     print(
         "An error occured executing the following query in ",
         f"{query_and_filename[1]}:",
@@ -320,7 +325,8 @@ def _query_error(query_and_filename: list, exit_message: str) -> None:
     print("--------", file=sys.stderr)
     print(query_and_filename[0], file=sys.stderr)
     print("--------", file=sys.stderr)
-    raise errors.StudyManifestQueryError(exit_message)
+    log_utils.log_transaction(config=config, manifest=manifest, status=enums.LogStatuses.ERROR)
+    sys.exit(exit_message)
 
 
 def _execute_build_queries(
@@ -347,6 +353,8 @@ def _execute_build_queries(
             and not manifest.get_dedicated_schema()
         ):
             _query_error(
+                config,
+                manifest,
                 query,
                 "This query does not contain the study prefix. All tables should "
                 f"start with a string like `{manifest.get_study_prefix()}__`, "
@@ -357,6 +365,8 @@ def _execute_build_queries(
             for word in enums.ProtectedTableKeywords
         ):
             _query_error(
+                config,
+                manifest,
                 query,
                 "This query contains a table name which contains a reserved word "
                 "immediately after the study prefix. Please rename this table so "
@@ -366,6 +376,8 @@ def _execute_build_queries(
             )
         if create_line.count("__") > 1:
             _query_error(
+                config,
+                manifest,
                 query,
                 "This query contains a table name with more than one '__' in it. "
                 "Double underscores are reserved for special use cases. Please "
@@ -377,6 +389,8 @@ def _execute_build_queries(
                 cursor.execute(query[0])
         except Exception as e:  # pylint: disable=broad-exception-caught
             _query_error(
+                config,
+                manifest,
                 query,
                 "You can debug issues with this query using `sqlfluff lint`, "
                 "or by executing the query directly against the database.\n"

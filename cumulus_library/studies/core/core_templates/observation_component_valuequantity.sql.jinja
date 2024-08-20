@@ -31,7 +31,7 @@ CREATE TABLE core__observation_component_valuequantity AS (
                     ('component', 'valueQuantity', 'value', 'value'),
                     ('component', 'valueQuantity', 'comparator', 'comparator'),
                     ('component', 'valueQuantity', 'unit', 'unit'),
-                    ('component', 'valueQuantity', 'system', 'code_system'),
+                    ('component', 'valueQuantity', 'system', 'system'),
                     ('component', 'valueQuantity', 'code', 'code'),
                 ],
                 schema
@@ -48,7 +48,7 @@ CREATE TABLE core__observation_component_valuequantity AS (
         CAST(f.value AS DOUBLE) AS value, -- noqa: disable=L029
         f.comparator,
         f.unit,
-        f.code_system,
+        f.system,
         f.code
     FROM flattened_quantities AS f
 
@@ -59,7 +59,7 @@ CREATE TABLE core__observation_component_valuequantity AS (
         CAST(NULL AS DOUBLE) AS value, -- noqa: disable=L029
         'x' AS comparator,
         'x' AS unit,
-        'x' AS code_system,
+        'x' AS system,
         'x' AS code
     WHERE 1=0 -- empty table
     {%- endif %}

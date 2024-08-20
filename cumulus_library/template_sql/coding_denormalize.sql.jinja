@@ -11,7 +11,7 @@ CREATE TABLE {{ target_table }} AS (
             {%- endif %}
             u.parent_col.{{ column_name }}.code,
             u.parent_col.{{ column_name }}.display,
-            u.parent_col.{{ column_name }}.system AS code_system
+            u.parent_col.{{ column_name }}.system
         FROM
             {{ source_table }} AS s,
             UNNEST(s.{{ parent_field }}) AS u (parent_col)
@@ -29,7 +29,7 @@ CREATE TABLE {{ target_table }} AS (
             {%- if filter_priority %}
             priority,
             {%- endif %}
-            code_system,
+            system,
             code,
             display
         FROM system_{{ column_name }}_{{ loop.index0 }}
@@ -42,7 +42,7 @@ CREATE TABLE {{ target_table }} AS (
         SELECT
             id,
             code,
-            code_system,
+            system,
             display,
             priority,
             ROW_NUMBER()
@@ -51,14 +51,14 @@ CREATE TABLE {{ target_table }} AS (
                     ORDER BY priority ASC
                 ) AS available_priority
         FROM union_table
-        GROUP BY id, priority, code_system, code, display
+        GROUP BY id, priority, system, code, display
         ORDER BY priority ASC
     )
 
     SELECT
         id,
         code,
-        code_system,
+        system,
         display
     FROM partitioned_table
     WHERE available_priority = 1
@@ -67,7 +67,7 @@ CREATE TABLE {{ target_table }} AS (
     SELECT
         id,
         code,
-        code_system,
+        system,
         display
     FROM union_table
 );

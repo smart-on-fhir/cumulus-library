@@ -42,7 +42,7 @@ def test_codeable_concept_denormalize_all_creation():
             s.row,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             flattened_rows AS s,
@@ -53,7 +53,7 @@ def test_codeable_concept_denormalize_all_creation():
         SELECT
             id,
             row,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -64,7 +64,7 @@ def test_codeable_concept_denormalize_all_creation():
         id,
         row,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM union_table
@@ -92,7 +92,7 @@ def test_codeable_concept_denormalize_filter_creation():
             '0' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             source AS s,
@@ -108,7 +108,7 @@ def test_codeable_concept_denormalize_filter_creation():
             '1' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             source AS s,
@@ -124,7 +124,7 @@ def test_codeable_concept_denormalize_filter_creation():
             '2' AS priority,
             u.coding.code,
             u.coding.display,
-            u.coding.system AS code_system,
+            u.coding.system,
             u.coding.userSelected
         FROM
             source AS s,
@@ -138,7 +138,7 @@ def test_codeable_concept_denormalize_filter_creation():
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -148,7 +148,7 @@ def test_codeable_concept_denormalize_filter_creation():
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -158,7 +158,7 @@ def test_codeable_concept_denormalize_filter_creation():
             id,
             row,
             priority,
-            code_system,
+            system,
             code,
             display,
             userSelected
@@ -171,7 +171,7 @@ def test_codeable_concept_denormalize_filter_creation():
             id,
             row,
             code,
-            code_system,
+            system,
             display,
             userSelected,
             priority,
@@ -182,14 +182,14 @@ def test_codeable_concept_denormalize_filter_creation():
                 ) AS available_priority
         FROM union_table
         GROUP BY
-            id, row, priority, code_system, code, display, userSelected
+            id, row, priority, system, code, display, userSelected
         ORDER BY priority ASC
     )
 
     SELECT
         id,
         code,
-        code_system,
+        system,
         display,
         userSelected
     FROM partitioned_table
@@ -240,7 +240,7 @@ def test_get_coding_denormalize_query():
             s.id AS id,
             u.parent_col.format.code,
             u.parent_col.format.display,
-            u.parent_col.format.system AS code_system
+            u.parent_col.format.system
         FROM
             documentreference AS s,
             UNNEST(s.content) AS u (parent_col)
@@ -249,7 +249,7 @@ def test_get_coding_denormalize_query():
     union_table AS (
         SELECT
             id,
-            code_system,
+            system,
             code,
             display
         FROM system_format_0
@@ -258,7 +258,7 @@ def test_get_coding_denormalize_query():
     SELECT
         id,
         code,
-        code_system,
+        system,
         display
     FROM union_table
 );

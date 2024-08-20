@@ -48,7 +48,7 @@ def test_core_med_all_types(tmp_path):
         "status": "active",
         "intent": "order",
         "category_code": "outpatient",
-        "category_code_system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+        "category_system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
         "category_display": "Outpatient",
         "reportedBoolean": False,
         "reported_ref": "Patient/Q",
@@ -58,7 +58,7 @@ def test_core_med_all_types(tmp_path):
         "authoredOn": int(datetime.datetime(2021, 10, 16, tzinfo=datetime.UTC).timestamp()),
         "authoredOn_month": int(datetime.datetime(2021, 10, 1, tzinfo=datetime.UTC).timestamp()),
         "medication_code": "c",
-        "medication_code_system": "letters",
+        "medication_system": "letters",
         "medication_display": "C",
     }
     assert [
