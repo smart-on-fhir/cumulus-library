@@ -6,6 +6,17 @@ import cumulus_library
 class CoreCountsBuilder(cumulus_library.CountsBuilder):
     display_text = "Creating core counts..."
 
+    def count_core_allergyintolerance(self, duration: str = "month"):
+        table_name = self.get_table_name("count_allergyintolerance", duration=duration)
+        from_table = self.get_table_name("allergyintolerance")
+        cols = [
+            ["category", "varchar", None],
+            [f"recordedDate_{duration}", "date", None],
+            ["code_display", "varchar", None],
+            ["reaction_manifestation_display", "varchar", None],
+        ]
+        return self.count_allergyintolerance(table_name, from_table, cols)
+
     def count_core_condition(self, duration: str = "month"):
         table_name = self.get_table_name("count_condition", duration=duration)
         from_table = self.get_table_name("condition")
@@ -105,6 +116,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
 
     def prepare_queries(self, *args, **kwargs):
         self.queries = [
+            self.count_core_allergyintolerance(duration="month"),
             self.count_core_condition(duration="month"),
             self.count_core_documentreference(duration="month"),
             self.count_core_encounter(duration="month"),

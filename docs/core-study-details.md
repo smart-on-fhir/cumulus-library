@@ -93,6 +93,17 @@ vital signs) instead.
 
 ## core count tables
 
+### core__count_allergyintolerance_month
+
+|            Column            | Type  |Description|
+|------------------------------|-------|-----------|
+|cnt                           |bigint |           |
+|category                      |varchar|           |
+|recordeddate_month            |varchar|           |
+|code_display                  |varchar|           |
+|reaction_manifestation_display|varchar|           |
+
+
 ### core__count_condition_month
 
 |      Column      | Type  |Description|
@@ -212,6 +223,36 @@ vital signs) instead.
 
 
 ## core base tables
+
+### core__allergyintolerance
+
+|            Column            | Type  |Description|
+|------------------------------|-------|-----------|
+|id                            |varchar|           |
+|allergyintolerance_ref        |varchar|           |
+|clinicalstatus_code           |varchar|           |
+|verificationstatus_code       |varchar|           |
+|type                          |varchar|           |
+|category                      |varchar|           |
+|criticality                   |varchar|           |
+|code_code                     |varchar|           |
+|code_system                   |varchar|           |
+|code_display                  |varchar|           |
+|patient_ref                   |varchar|           |
+|encounter_ref                 |varchar|           |
+|recordeddate                  |date   |           |
+|recordeddate_week             |date   |           |
+|recordeddate_month            |date   |           |
+|recordeddate_year             |date   |           |
+|reaction_row                  |bigint |           |
+|reaction_substance_code       |varchar|           |
+|reaction_substance_system     |varchar|           |
+|reaction_substance_display    |varchar|           |
+|reaction_manifestation_code   |varchar|           |
+|reaction_manifestation_system |varchar|           |
+|reaction_manifestation_display|varchar|           |
+|reaction_severity             |varchar|           |
+
 
 ### core__condition
 

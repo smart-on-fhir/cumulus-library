@@ -178,12 +178,11 @@ def test_codeable_concept_denormalize_filter_creation():
             ROW_NUMBER()
                 OVER (
                     PARTITION BY id
-                    ORDER BY priority ASC
+                    ORDER BY priority ASC, code ASC
                 ) AS available_priority
         FROM union_table
         GROUP BY
             id, row, priority, system, code, display, userSelected
-        ORDER BY priority ASC
     )
 
     SELECT

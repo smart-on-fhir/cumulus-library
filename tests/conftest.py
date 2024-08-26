@@ -1,6 +1,7 @@
 """pytest mocks and testing utility classes/methods"""
 
 import copy
+import datetime
 import json
 from pathlib import Path
 
@@ -79,6 +80,16 @@ def duckdb_args(args: list, tmp_path, stats=False):
             f"{tmp_path}/export",
         ]
     return [*args, "--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
+
+
+def date_to_epoch(year: int, month: int, day: int) -> int:
+    """Convert a date to a seconds-since-epoch count.
+
+    The round trip from duckdb to pandas seems to do a timestamp conversion and when
+    comparing against values pulled from duckdb/pandas, you can use this to get the right
+    number of seconds.
+    """
+    return int(datetime.datetime(year, month, day, tzinfo=datetime.UTC).timestamp())
 
 
 def ndjson_data_generator(source_dir: Path, target_dir: Path, iterations: int):

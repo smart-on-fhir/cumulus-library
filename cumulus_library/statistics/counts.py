@@ -79,6 +79,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
                 "where_clauses",
                 "fhir_resource",
                 "filter_resource",
+                "patient_link",
             ]:
                 raise errors.CountsBuilderError(f"count_query received unexpected key: {key}")
         return counts_templates.get_count_query(table_name, source_table, table_cols, **kwargs)
@@ -87,6 +88,33 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
     # The following function all wrap get_count_query as convenience methods.
     # We're not trying to be overly clever about this to persist the docstrings as the
     # primary interface that study authors would see when using these functions.
+
+    def count_allergyintolerance(
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: list,
+        where_clauses: list | None = None,
+        min_subject: int = 10,
+    ) -> str:
+        """wrapper method for constructing allergyintolerance counts tables
+
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :param where_clauses: An array of where clauses to use for filtering the data
+        :param min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        """
+        return self.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            where_clauses=where_clauses,
+            min_subject=min_subject,
+            fhir_resource="allergyintolerance",
+            patient_link="patient_ref",
+        )
 
     def count_condition(
         self,
@@ -112,7 +140,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="condition",
-            filter_resource="encounter",
+            filter_resource=True,
         )
 
     def count_documentreference(
@@ -139,7 +167,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="documentreference",
-            filter_resource="encounter",
+            filter_resource=True,
         )
 
     def count_encounter(

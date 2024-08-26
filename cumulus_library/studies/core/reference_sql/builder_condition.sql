@@ -100,12 +100,11 @@ CREATE TABLE core__condition_dn_clinical_status AS (
             ROW_NUMBER()
                 OVER (
                     PARTITION BY id
-                    ORDER BY priority ASC
+                    ORDER BY priority ASC, code ASC
                 ) AS available_priority
         FROM union_table
         GROUP BY
             id, row, priority, system, code, display, userSelected
-        ORDER BY priority ASC
     )
 
     SELECT
@@ -321,12 +320,11 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             ROW_NUMBER()
                 OVER (
                     PARTITION BY id
-                    ORDER BY priority ASC
+                    ORDER BY priority ASC, code ASC
                 ) AS available_priority
         FROM union_table
         GROUP BY
             id, row, priority, system, code, display, userSelected
-        ORDER BY priority ASC
     )
 
     SELECT
@@ -425,12 +423,11 @@ CREATE TABLE core__condition_dn_verification_status AS (
             ROW_NUMBER()
                 OVER (
                     PARTITION BY id
-                    ORDER BY priority ASC
+                    ORDER BY priority ASC, code ASC
                 ) AS available_priority
         FROM union_table
         GROUP BY
             id, row, priority, system, code, display, userSelected
-        ORDER BY priority ASC
     )
 
     SELECT

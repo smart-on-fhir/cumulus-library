@@ -15,6 +15,7 @@ class CountableFhirResource(Enum):
     ids.
     """
 
+    ALLERGYINTOLERANCE = "allergyintolerance"
     CONDITION = "condition"
     DOCUMENTREFERENCE = "documentreference"
     ENCOUNTER = "encounter"
@@ -40,6 +41,7 @@ def get_count_query(
     where_clauses: list | None = None,
     fhir_resource: str | None = None,
     filter_resource: bool | None = True,
+    patient_link: str = "subject_ref",
 ) -> str:
     """Generates count tables for generating study outputs"""
     path = Path(__file__).parent
@@ -67,6 +69,7 @@ def get_count_query(
         where_clauses=where_clauses,
         fhir_resource=fhir_resource,
         filter_resource=filter_resource,
+        patient_link=patient_link,
     )
     # workaround for conflicting sqlfluff enforcement
     return query.replace("-- noqa: disable=LT02\n", "")

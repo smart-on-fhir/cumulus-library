@@ -105,6 +105,20 @@ remote_location = s3://bucket/study/data/
 schema_name = test_schema
 schema = 
     {
+        'allergyintolerance': {
+            'category': True,
+            'criticality': True,
+            'encounter': {
+                'reference': True,
+            },
+            'id': True,
+            'patient': {
+                'reference': True,
+            },
+            'reaction': {
+                'severity': True,
+            },
+        },
         'condition': {
             'category': {
                 'coding': True, 'code': True, 'display': True, 'system': True, 'userSelected': True, 'version': True, 'text': True

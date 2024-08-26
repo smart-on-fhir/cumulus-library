@@ -6,4 +6,4 @@ from .statistics.counts import CountsBuilder
 from .study_manifest import StudyManifest
 
 __all__ = ["BaseTableBuilder", "CountsBuilder", "StudyConfig", "StudyManifest"]
-__version__ = "3.0.0"
+__version__ = "3.1.0"

@@ -2,6 +2,7 @@
 
 import pytest
 
+from cumulus_library import errors
 from cumulus_library.statistics.statistics_templates import counts_templates
 
 
@@ -205,3 +206,11 @@ def test_count_query(expected, kwargs):
     # with open("output.sql", "w") as f:
     #     f.write(query)
     assert query == expected
+
+
+def test_count_query_bad_resource():
+    with pytest.raises(
+        errors.CountsBuilderError,
+        match="Tried to create counts table for invalid resource Medication",
+    ):
+        counts_templates.get_count_query("table", "source", [], fhir_resource="Medication")

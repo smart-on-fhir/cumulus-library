@@ -11,6 +11,7 @@ from tests import conftest, testbed_utils
 @pytest.mark.parametrize(
     "table",
     [
+        ("core__allergyintolerance"),
         ("core__condition"),
         ("core__documentreference"),
         ("core__encounter"),
@@ -19,6 +20,7 @@ from tests import conftest, testbed_utils
         ("core__observation_lab"),
         ("core__observation_vital_signs"),
         ("core__patient"),
+        ("core__count_allergyintolerance_month"),
         ("core__count_condition_month"),
         ("core__count_documentreference_month"),
         ("core__count_encounter_month"),
@@ -125,12 +127,15 @@ def test_core_tiny_database(tmp_path):
     """Verify that we can generate core tables with some minimal data filled in"""
     testbed = testbed_utils.LocalTestbed(tmp_path)
     # Just add bare resources, with minimal data
+    testbed.add_allergy_intolerance("AllA")
     testbed.add_condition("ConA")
     testbed.add_encounter("EncA")
     testbed.add_medication_request("MedReqA")
     con = testbed.build()
     patients = con.sql("SELECT id FROM core__patient").fetchall()
     assert {e[0] for e in patients} == {"A"}
+    rows = con.sql("SELECT id FROM core__allergyintolerance").fetchall()
+    assert {r[0] for r in rows} == {"AllA"}
     conditions = con.sql("SELECT id FROM core__condition").fetchall()
     assert {c[0] for c in conditions} == {"ConA"}
     encounters = con.sql("SELECT id FROM core__encounter").fetchall()
