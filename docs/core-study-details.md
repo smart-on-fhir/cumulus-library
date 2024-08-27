@@ -61,29 +61,38 @@ making sure to include all associated resources.
 
 ## Optional fields
 
-The core study includes several fields that are considered optional by FHIR/US core.
+The `core` study includes several fields that are considered optional by US Core.
+Such fields are not even marked as "Must Support" in US Core
+and are defined in the base FHIR spec only.
+
 These are included due to their general utility in clinical informatics studies.
 In practice, we have found that this data is usually present in FHIR exports from
 EHR systems, but note that it is not guaranteed that a study relying on these
 fields will work across multiple institutions without some additional work.
 
 Per resource, the optional fields are as follows:
-- Condition
+- AllergyIntolerance
+  - type
+  - category
+  - criticality
+  - encounter
   - recordedDate
-  - encounter_ref
+  - reaction.substance
+  - reaction.severity
+- Condition
+  - encounter
+  - recordedDate
+- DocumentReference
+  - docStatus
 - Encounter
   - serviceType
   - priority
-  - reasonCode
-  - dischargeDisposition
-- Observation
-  - dataAbsentReason
+- Observation - laboratory
+  - encounter
 - Observation - vital signs
+  - encounter
   - valueCodeableConcept
   - interpretation
-- Patient
-  - US Core race extension
-  - US Core ethnicity extension
 
 ## Deprecation Notice
 
