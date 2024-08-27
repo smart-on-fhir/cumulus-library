@@ -111,6 +111,7 @@ class LocalTestbed:
         if include is None:
             include = {
                 # All required tables:
+                "allergyintolerance",
                 "condition",
                 "documentreference",
                 "medicationrequest",
