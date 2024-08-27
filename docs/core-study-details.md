@@ -61,29 +61,38 @@ making sure to include all associated resources.
 
 ## Optional fields
 
-The core study includes several fields that are considered optional by FHIR/US core.
+The `core` study includes several fields that are considered optional by US Core.
+Such fields are not even marked as "Must Support" in US Core
+and are defined in the base FHIR spec only.
+
 These are included due to their general utility in clinical informatics studies.
 In practice, we have found that this data is usually present in FHIR exports from
 EHR systems, but note that it is not guaranteed that a study relying on these
 fields will work across multiple institutions without some additional work.
 
 Per resource, the optional fields are as follows:
-- Condition
+- AllergyIntolerance
+  - type
+  - category
+  - criticality
+  - encounter
   - recordedDate
-  - encounter_ref
+  - reaction.substance
+  - reaction.severity
+- Condition
+  - encounter
+  - recordedDate
+- DocumentReference
+  - docStatus
 - Encounter
   - serviceType
   - priority
-  - reasonCode
-  - dischargeDisposition
-- Observation
-  - dataAbsentReason
+- Observation - laboratory
+  - encounter
 - Observation - vital signs
+  - encounter
   - valueCodeableConcept
   - interpretation
-- Patient
-  - US Core race extension
-  - US Core ethnicity extension
 
 ## Deprecation Notice
 
@@ -92,6 +101,17 @@ future version. When possible, use one of the targeted profile tables (labs,
 vital signs) instead.
 
 ## core count tables
+
+### core__count_allergyintolerance_month
+
+|            Column            | Type  |Description|
+|------------------------------|-------|-----------|
+|cnt                           |bigint |           |
+|category                      |varchar|           |
+|recordeddate_month            |varchar|           |
+|code_display                  |varchar|           |
+|reaction_manifestation_display|varchar|           |
+
 
 ### core__count_condition_month
 
@@ -212,6 +232,36 @@ vital signs) instead.
 
 
 ## core base tables
+
+### core__allergyintolerance
+
+|            Column            | Type  |Description|
+|------------------------------|-------|-----------|
+|id                            |varchar|           |
+|allergyintolerance_ref        |varchar|           |
+|clinicalstatus_code           |varchar|           |
+|verificationstatus_code       |varchar|           |
+|type                          |varchar|           |
+|category                      |varchar|           |
+|criticality                   |varchar|           |
+|code_code                     |varchar|           |
+|code_system                   |varchar|           |
+|code_display                  |varchar|           |
+|patient_ref                   |varchar|           |
+|encounter_ref                 |varchar|           |
+|recordeddate                  |date   |           |
+|recordeddate_week             |date   |           |
+|recordeddate_month            |date   |           |
+|recordeddate_year             |date   |           |
+|reaction_row                  |bigint |           |
+|reaction_substance_code       |varchar|           |
+|reaction_substance_system     |varchar|           |
+|reaction_substance_display    |varchar|           |
+|reaction_manifestation_code   |varchar|           |
+|reaction_manifestation_system |varchar|           |
+|reaction_manifestation_display|varchar|           |
+|reaction_severity             |varchar|           |
+
 
 ### core__condition
 

@@ -2,14 +2,13 @@
 {#- TODO: move secondary/tertiary resource declaration upstream to
 statistics/counts.py level -#}
 {%- macro secondary_resource(fhir_resource) -%}
-{%- if fhir_resource in ('encounter', 'condition') -%}
+{%- if fhir_resource in ('documentreference', 'encounter', 'observation') -%}
+{{ fhir_resource }}_ref
+{%- elif fhir_resource == 'condition' -%}
+{#- count condition by encounter, because they are often duplicated for billing purposes -#}
 encounter_ref
-{%- elif fhir_resource == 'documentreference' -%}
-documentreference_ref
-{%- elif fhir_resource == 'observation'-%}
-observation_ref
 {%- else -%}
-{#- implicit null -#}
+{#- implicit null, meaning "count by patient" -#}
 {%- endif -%}
 {%- endmacro -%}
 
@@ -65,7 +64,7 @@ CREATE TABLE {{ table_name }} AS (
     {%- if filter_resource %}
     filtered_table AS (
         SELECT
-            s.subject_ref,
+            s.{{ patient_link }},
             {%- if secondary %}
             s.{{ secondary }},
             {%- endif -%}
@@ -102,19 +101,19 @@ CREATE TABLE {{ table_name }} AS (
         {%- endif -%}
 
         {#- resource specific filtering conditions -#}
-        {%- if fhir_resource == 'documentreference' and filter_resource %}
+        {%- if fhir_resource == 'documentreference' %}
         WHERE (s.status = 'current')
         AND (s.docStatus IS null OR s.docStatus IN ('final', 'amended'))
-        {%- elif fhir_resource == 'encounter' and filter_resource %}
+        {%- elif fhir_resource == 'encounter' %}
         WHERE s.status = 'finished'
-        {%- elif fhir_resource == 'observation' and filter_resource %}
+        {%- elif fhir_resource == 'observation' %}
         WHERE (s.status = 'final' OR s.status= 'amended')
         {%- endif %}
     ),
     {% endif %}
     null_replacement AS (
         SELECT
-            subject_ref,
+            {{ patient_link }},
             {%- if secondary %}
             {{ secondary }},
             {%- endif -%}
@@ -177,7 +176,7 @@ CREATE TABLE {{ table_name }} AS (
 
     powerset AS (
         SELECT
-            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            count(DISTINCT {{ patient_link }}) AS cnt_subject_ref,
             {{-cols_delineated_list(table_cols, fhir_resource)}},
             concat_ws(
                 '-',

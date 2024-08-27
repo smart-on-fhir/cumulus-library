@@ -120,13 +120,12 @@ CREATE TABLE {{ target_table }} AS (
             ROW_NUMBER()
                 OVER (
                     PARTITION BY id
-                    ORDER BY priority ASC
+                    ORDER BY priority ASC, code ASC
                 ) AS available_priority
         FROM union_table
         GROUP BY
             id, row, priority, system, code, display, userSelected
             {%- for extra_field in extra_fields %}, {{ extra_field[1] }}{% endfor %}
-        ORDER BY priority ASC
     )
 
     SELECT

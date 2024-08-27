@@ -6,26 +6,198 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__patient_ext_race"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+CREATE TABLE core__patient_ext_race AS (
+    WITH
+
+    system_ombCategory AS (
+        SELECT DISTINCT
+            s.id AS id,
+            '0' AS priority,
+            'ombCategory' AS system, -- noqa: RF04
+            ext_child.ext.valuecoding.code AS race_code,
+            ext_child.ext.valuecoding.display AS race_display
+        FROM
+            patient AS s,
+            UNNEST(s.extension) AS ext_parent (ext),
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
+        WHERE
+            ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
+            AND ext_child.ext.url = 'ombCategory'
+            AND ext_child.ext.valuecoding.display != ''
+    ),
+
+    system_detailed AS (
+        SELECT DISTINCT
+            s.id AS id,
+            '1' AS priority,
+            'detailed' AS system, -- noqa: RF04
+            ext_child.ext.valuecoding.code AS race_code,
+            ext_child.ext.valuecoding.display AS race_display
+        FROM
+            patient AS s,
+            UNNEST(s.extension) AS ext_parent (ext),
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
+        WHERE
+            ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
+            AND ext_child.ext.url = 'detailed'
+            AND ext_child.ext.valuecoding.display != ''
+    ),
+
+    union_table AS (
+        SELECT
+            id,
+            priority,
+            system,
+            race_code,
+            race_display
+        FROM system_ombCategory
+        UNION
+        SELECT
+            id,
+            priority,
+            system,
+            race_code,
+            race_display
+        FROM system_detailed
+        
+        ORDER BY id, priority
     )
-        AS t ("id","system","race_code","race_display")
-    WHERE 1 = 0 -- ensure empty table
+
+    SELECT
+        id,
+        system,
+        race_code,
+        race_display
+    FROM (
+        SELECT
+            id,
+            system,
+            LOWER(
+                ARRAY_JOIN(
+                    ARRAY_SORT(
+                        ARRAY_AGG(
+                            race_code
+                        )
+                    ), '; '
+                )
+            )
+                AS race_code,
+            LOWER(
+                ARRAY_JOIN(
+                    ARRAY_SORT(
+                        ARRAY_AGG(
+                            race_display
+                        )
+                    ), '; '
+                )
+            ) AS race_display,
+            ROW_NUMBER()
+                OVER (
+                    PARTITION BY id
+                    ORDER BY priority ASC
+                ) AS available_priority
+        FROM union_table
+        GROUP BY id, system, priority
+    )
+    WHERE available_priority = 1
 );
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "cumulus_mhg_dev_db"."core__patient_ext_ethnicity"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar))
+CREATE TABLE core__patient_ext_ethnicity AS (
+    WITH
+
+    system_ombCategory AS (
+        SELECT DISTINCT
+            s.id AS id,
+            '0' AS priority,
+            'ombCategory' AS system, -- noqa: RF04
+            ext_child.ext.valuecoding.code AS ethnicity_code,
+            ext_child.ext.valuecoding.display AS ethnicity_display
+        FROM
+            patient AS s,
+            UNNEST(s.extension) AS ext_parent (ext),
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
+        WHERE
+            ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'
+            AND ext_child.ext.url = 'ombCategory'
+            AND ext_child.ext.valuecoding.display != ''
+    ),
+
+    system_detailed AS (
+        SELECT DISTINCT
+            s.id AS id,
+            '1' AS priority,
+            'detailed' AS system, -- noqa: RF04
+            ext_child.ext.valuecoding.code AS ethnicity_code,
+            ext_child.ext.valuecoding.display AS ethnicity_display
+        FROM
+            patient AS s,
+            UNNEST(s.extension) AS ext_parent (ext),
+            UNNEST(ext_parent.ext.extension) AS ext_child (ext)
+        WHERE
+            ext_parent.ext.url = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'
+            AND ext_child.ext.url = 'detailed'
+            AND ext_child.ext.valuecoding.display != ''
+    ),
+
+    union_table AS (
+        SELECT
+            id,
+            priority,
+            system,
+            ethnicity_code,
+            ethnicity_display
+        FROM system_ombCategory
+        UNION
+        SELECT
+            id,
+            priority,
+            system,
+            ethnicity_code,
+            ethnicity_display
+        FROM system_detailed
+        
+        ORDER BY id, priority
     )
-        AS t ("id","system","ethnicity_code","ethnicity_display")
-    WHERE 1 = 0 -- ensure empty table
+
+    SELECT
+        id,
+        system,
+        ethnicity_code,
+        ethnicity_display
+    FROM (
+        SELECT
+            id,
+            system,
+            LOWER(
+                ARRAY_JOIN(
+                    ARRAY_SORT(
+                        ARRAY_AGG(
+                            ethnicity_code
+                        )
+                    ), '; '
+                )
+            )
+                AS ethnicity_code,
+            LOWER(
+                ARRAY_JOIN(
+                    ARRAY_SORT(
+                        ARRAY_AGG(
+                            ethnicity_display
+                        )
+                    ), '; '
+                )
+            ) AS ethnicity_display,
+            ROW_NUMBER()
+                OVER (
+                    PARTITION BY id
+                    ORDER BY priority ASC
+                ) AS available_priority
+        FROM union_table
+        GROUP BY id, system, priority
+    )
+    WHERE available_priority = 1
 );
 
 -- ###########################################################

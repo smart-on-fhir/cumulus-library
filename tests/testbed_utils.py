@@ -45,6 +45,18 @@ class LocalTestbed:
     #
     # All other args can be specified as a kwarg, like add() itself does.
 
+    def add_allergy_intolerance(self, row_id: str, recorded: str = "2020", **kwargs) -> None:
+        """Adds a Condition with all the SQL-required fields filled out"""
+        self.add(
+            "allergyintolerance",
+            {
+                "resourceType": "AllergyIntolerance",
+                "id": row_id,
+                "recordedDate": recorded,
+                **kwargs,
+            },
+        )
+
     def add_condition(self, row_id: str, recorded: str = "2020", **kwargs) -> None:
         """Adds a Condition with all the SQL-required fields filled out"""
         self.add(
@@ -99,6 +111,7 @@ class LocalTestbed:
         if include is None:
             include = {
                 # All required tables:
+                "allergyintolerance",
                 "condition",
                 "documentreference",
                 "medicationrequest",

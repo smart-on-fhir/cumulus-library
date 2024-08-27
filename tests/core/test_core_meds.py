@@ -1,9 +1,8 @@
 """Tests for core__medicationrequest"""
 
-import datetime
 import json
 
-from tests import testbed_utils
+from tests import conftest, testbed_utils
 
 
 def test_core_med_all_types(tmp_path):
@@ -54,9 +53,8 @@ def test_core_med_all_types(tmp_path):
         "reported_ref": "Patient/Q",
         "subject_ref": "Patient/P",
         "encounter_ref": "Encounter/E",
-        # The round trip from duckdb to pandas seems to do a timestamp conversion on these
-        "authoredOn": int(datetime.datetime(2021, 10, 16, tzinfo=datetime.UTC).timestamp()),
-        "authoredOn_month": int(datetime.datetime(2021, 10, 1, tzinfo=datetime.UTC).timestamp()),
+        "authoredOn": conftest.date_to_epoch(2021, 10, 16),
+        "authoredOn_month": conftest.date_to_epoch(2021, 10, 1),
         "medication_code": "c",
         "medication_system": "letters",
         "medication_display": "C",

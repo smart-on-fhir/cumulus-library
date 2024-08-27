@@ -6,6 +6,9 @@ from pathlib import Path
 from cumulus_library import base_table_builder, errors, study_manifest
 from cumulus_library.statistics.statistics_templates import counts_templates
 
+# Defined here for easy overriding by tests
+DEFAULT_MIN_SUBJECT = 10
+
 
 class CountsBuilder(base_table_builder.BaseTableBuilder):
     """Extends BaseTableBuilder for counts-related use cases"""
@@ -39,13 +42,17 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         else:
             return f"{self.study_prefix}__{table_name}"
 
-    def get_where_clauses(self, clause: list | str | None = None, min_subject: int = 10) -> str:
+    def get_where_clauses(
+        self, clause: list | str | None = None, min_subject: int | None = None
+    ) -> str:
         """Convenience method for constructing arbitrary where clauses.
 
         :param clause: either a string or a list of sql where statements
         :param min_subject: if clause is none, the bin size for a cnt_subject_ref filter
             (deprecated, use count_[fhir_resource](min_subject) instead)
         """
+        if min_subject is None:
+            min_subject = DEFAULT_MIN_SUBJECT
         if clause is None:
             return [f"cnt_subject_ref >= {min_subject}"]
         elif isinstance(clause, str):
@@ -79,8 +86,11 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
                 "where_clauses",
                 "fhir_resource",
                 "filter_resource",
+                "patient_link",
             ]:
                 raise errors.CountsBuilderError(f"count_query received unexpected key: {key}")
+        if "min_subject" in kwargs and kwargs["min_subject"] is None:
+            kwargs["min_subject"] = DEFAULT_MIN_SUBJECT
         return counts_templates.get_count_query(table_name, source_table, table_cols, **kwargs)
 
     # ----------------------------------------------------------------------
@@ -88,13 +98,40 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
     # We're not trying to be overly clever about this to persist the docstrings as the
     # primary interface that study authors would see when using these functions.
 
+    def count_allergyintolerance(
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: list,
+        where_clauses: list | None = None,
+        min_subject: int | None = None,
+    ) -> str:
+        """wrapper method for constructing allergyintolerance counts tables
+
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :param where_clauses: An array of where clauses to use for filtering the data
+        :param min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        """
+        return self.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            where_clauses=where_clauses,
+            min_subject=min_subject,
+            fhir_resource="allergyintolerance",
+            patient_link="patient_ref",
+        )
+
     def count_condition(
         self,
         table_name: str,
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing condition counts tables
 
@@ -112,7 +149,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="condition",
-            filter_resource="encounter",
+            filter_resource=True,
         )
 
     def count_documentreference(
@@ -121,7 +158,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing documentreference counts tables
 
@@ -139,7 +176,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="documentreference",
-            filter_resource="encounter",
+            filter_resource=True,
         )
 
     def count_encounter(
@@ -148,7 +185,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing encounter counts tables
 
@@ -174,7 +211,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing medicationrequests counts tables
 
@@ -200,7 +237,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing observation counts tables
 
@@ -226,7 +263,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing patient counts tables
 

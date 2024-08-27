@@ -1,0 +1,138 @@
+{% import 'core_utils.jinja' as utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
+
+CREATE TABLE core__allergyintolerance AS
+WITH temp_allergyintolerance AS (
+    SELECT
+         {{-
+            utils.basic_cols(
+                'allergyintolerance',
+                'a',
+                [
+                    'id',
+                ]
+            )
+        }},
+        {{-
+            utils.nullable_cols(
+                'allergyintolerance',
+                'a',
+                [
+                    'type',
+                    'category',
+                    'criticality',
+                    ('patient', 'reference', 'patient_ref'),
+                    ('encounter', 'reference', 'encounter_ref'),
+                ],
+                schema
+            )
+        }},
+        {{-
+            utils.date_cols_from_str(
+                'allergyintolerance',
+                'a',
+                ['recordedDate'],
+                schema
+            )
+        }},
+        {{-
+            utils.truncate_date_cols(
+                'allergyintolerance',
+                'a',
+                [
+                    ('recordedDate', 'week'),
+                    ('recordedDate', 'month'),
+                    ('recordedDate', 'year'),
+                ],
+                schema
+            )
+        }}
+    FROM allergyintolerance AS a
+),
+
+temp_category AS (
+    SELECT
+        a.id,
+        t.category
+    FROM
+        allergyintolerance AS a,
+        UNNEST(a.category) AS t (category)
+),
+
+flattened_reaction AS ({{ unnest_utils.flatten('allergyintolerance', 'reaction') }}),
+
+temp_reaction AS (
+    SELECT
+        r.id,
+        r.row,
+        dn_subs.code AS substance_code,
+        dn_subs.system AS substance_system,
+        dn_subs.display AS substance_display,
+        dn_man.code AS manifestation_code,
+        dn_man.system AS manifestation_system,
+        dn_man.display AS manifestation_display,
+        {{-
+            utils.nullable_cols(
+                'allergyintolerance',
+                'r',
+                [
+                    ('reaction', 'severity', 'severity'),
+                ],
+                schema
+            )
+        }}
+    FROM flattened_reaction AS r
+    LEFT JOIN core__allergyintolerance_dn_reaction_substance AS dn_subs
+        ON r.id = dn_subs.id AND r.row = dn_subs.row
+    LEFT JOIN core__allergyintolerance_dn_reaction_manifestation AS dn_man
+        ON r.id = dn_man.id AND r.row = dn_man.row
+)
+
+SELECT
+    ta.id,
+    CONCAT('AllergyIntolerance/', ta.id) AS allergyintolerance_ref,
+
+    {#- We don't expose system for these next two since we filter
+        down to a single system in the denormalization table #}
+    dn_cstat.code AS clinicalStatus_code,
+    dn_vstat.code AS verificationStatus_code,
+
+    {#- type, category, and criticality are not in US Core.
+        But they are useful for clinical interpretation. #}
+    ta.type,
+    tcat.category,
+    ta.criticality,
+
+    dn_code.code AS code_code,
+    dn_code.system AS code_system,
+    dn_code.display AS code_display,
+
+    ta.patient_ref,
+    ta.encounter_ref,
+
+    {#- recordedDate is not in US Core.
+        But it's useful for looking at only a study period of data. #}
+    ta.recordedDate,
+    ta.recordedDate_week,
+    ta.recordedDate_month,
+    ta.recordedDate_year,
+
+    {#- reaction.substance and reaction.severity are not in US Core.
+        But they are useful for clinical interpretation. #}
+    tr.row AS reaction_row,
+    tr.substance_code AS reaction_substance_code,
+    tr.substance_system AS reaction_substance_system,
+    tr.substance_display AS reaction_substance_display,
+    tr.manifestation_code AS reaction_manifestation_code,
+    tr.manifestation_system AS reaction_manifestation_system,
+    tr.manifestation_display AS reaction_manifestation_display,
+    tr.severity AS reaction_severity
+
+FROM temp_allergyintolerance AS ta
+LEFT JOIN temp_reaction AS tr ON ta.id = tr.id
+LEFT JOIN core__allergyintolerance_dn_code AS dn_code ON ta.id = dn_code.id
+LEFT JOIN core__allergyintolerance_dn_clinical_status AS dn_cstat ON ta.id = dn_cstat.id
+LEFT JOIN core__allergyintolerance_dn_verification_status AS dn_vstat
+    ON ta.id = dn_vstat.id
+LEFT JOIN temp_category AS tcat ON ta.id = tcat.id
+WHERE ta.recordedDate BETWEEN DATE('2016-01-01') AND CURRENT_DATE;

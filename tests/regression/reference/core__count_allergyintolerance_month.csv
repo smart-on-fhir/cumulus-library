@@ -1,0 +1,33 @@
+"cnt","category","recordeddate_month","code_display","reaction_manifestation_display"
+20,,,,
+19,,,,"cumulus__none"
+17,,,,"Eruption of skin (disorder)"
+17,"environment",,,
+16,,,"Animal dander (substance)",
+16,"food",,,
+16,"environment",,,"cumulus__none"
+16,"environment",,"Animal dander (substance)",
+15,,,"Mold (organism)",
+15,,,"House dust mite (organism)",
+15,,,"House dust mite (organism)","cumulus__none"
+15,"environment",,"Mold (organism)",
+15,"environment",,"House dust mite (organism)",
+15,"environment",,"House dust mite (organism)","cumulus__none"
+13,,,,"Rhinoconjunctivitis (disorder)"
+12,,,,"Wheal (finding)"
+12,,,,"Cough (finding)"
+12,,,"Tree pollen (substance)",
+12,,,"Tree pollen (substance)","cumulus__none"
+12,,,"Grass pollen (substance)",
+12,,,"Grass pollen (substance)","cumulus__none"
+12,"food",,,"Eruption of skin (disorder)"
+12,"environment",,,"Rhinoconjunctivitis (disorder)"
+12,"environment",,,"Eruption of skin (disorder)"
+12,"environment",,"Tree pollen (substance)",
+12,"environment",,"Tree pollen (substance)","cumulus__none"
+12,"environment",,"Grass pollen (substance)",
+12,"environment",,"Grass pollen (substance)","cumulus__none"
+11,,,"Animal dander (substance)","Rhinoconjunctivitis (disorder)"
+11,,,"Animal dander (substance)","Eruption of skin (disorder)"
+11,"environment",,"Animal dander (substance)","Rhinoconjunctivitis (disorder)"
+11,"environment",,"Animal dander (substance)","Eruption of skin (disorder)"
