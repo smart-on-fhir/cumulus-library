@@ -3,6 +3,7 @@
 import functools
 import itertools
 import json
+from unittest import mock
 
 from tests import conftest, testbed_utils
 
@@ -237,3 +238,51 @@ def test_core_allergy_date_cutoff(tmp_path):
     con = testbed.build()
     df = con.sql("SELECT id FROM core__allergyintolerance").df()
     assert ["New"] == list(df.id)
+
+
+@mock.patch("cumulus_library.statistics.counts.DEFAULT_MIN_SUBJECT", new=1)
+def test_core_count_allergy_intolerance_by_patient(tmp_path):
+    """Verify that our basic allergy count is per-patient"""
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    testbed.add_allergy_intolerance(
+        "No Patient",
+        code={"coding": [{"display": "Peanuts"}]},
+    )
+    testbed.add_allergy_intolerance(
+        "Patient 1, eggs",
+        patient={"reference": "Patient/1"},
+        code={"coding": [{"display": "Eggs"}]},
+    )
+    testbed.add_allergy_intolerance(
+        "Patient 1, eggs (duplicate, ignored)",
+        patient={"reference": "Patient/1"},
+        code={"coding": [{"display": "Eggs"}]},
+    )
+    testbed.add_allergy_intolerance(
+        "Patient 2, eggs",
+        category=["food"],
+        patient={"reference": "Patient/2"},
+        code={"coding": [{"display": "Eggs"}]},
+        reaction=[{"manifestation": [{"coding": [{"display": "Rash"}]}]}],
+    )
+    testbed.add_allergy_intolerance(
+        "Patient 2, fish",
+        patient={"reference": "Patient/2"},
+        code={"coding": [{"display": "Fish"}]},
+    )
+
+    con = testbed.build()
+    rows = set(con.sql("SELECT * FROM core__count_allergyintolerance_month").fetchall())
+    expected = {
+        # Everything (note: two, not three overall results, because we count by patient)
+        (2, None, None, None, None),
+        # Eggs
+        (2, None, None, "Eggs", None),
+        (1, "food", "2020-01-01", "Eggs", "Rash"),
+        (1, "cumulus__none", "2020-01-01", "Eggs", "cumulus__none"),
+        # Fish
+        (1, None, None, "Fish", None),
+        (1, "cumulus__none", "2020-01-01", "Fish", "cumulus__none"),
+    }
+    assert expected.issubset(rows)
+    assert (1, None, None, None, "Peanuts") not in rows

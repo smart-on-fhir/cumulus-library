@@ -2,13 +2,13 @@
 {#- TODO: move secondary/tertiary resource declaration upstream to
 statistics/counts.py level -#}
 {%- macro secondary_resource(fhir_resource) -%}
-{%- if fhir_resource in ('allergyintolerance', 'documentreference', 'encounter', 'observation') -%}
+{%- if fhir_resource in ('documentreference', 'encounter', 'observation') -%}
 {{ fhir_resource }}_ref
 {%- elif fhir_resource == 'condition' -%}
 {#- count condition by encounter, because they are often duplicated for billing purposes -#}
 encounter_ref
 {%- else -%}
-{#- implicit null -#}
+{#- implicit null, meaning "count by patient" -#}
 {%- endif -%}
 {%- endmacro -%}
 

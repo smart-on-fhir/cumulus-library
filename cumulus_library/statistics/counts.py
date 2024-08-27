@@ -6,6 +6,9 @@ from pathlib import Path
 from cumulus_library import base_table_builder, errors, study_manifest
 from cumulus_library.statistics.statistics_templates import counts_templates
 
+# Defined here for easy overriding by tests
+DEFAULT_MIN_SUBJECT = 10
+
 
 class CountsBuilder(base_table_builder.BaseTableBuilder):
     """Extends BaseTableBuilder for counts-related use cases"""
@@ -39,13 +42,17 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         else:
             return f"{self.study_prefix}__{table_name}"
 
-    def get_where_clauses(self, clause: list | str | None = None, min_subject: int = 10) -> str:
+    def get_where_clauses(
+        self, clause: list | str | None = None, min_subject: int | None = None
+    ) -> str:
         """Convenience method for constructing arbitrary where clauses.
 
         :param clause: either a string or a list of sql where statements
         :param min_subject: if clause is none, the bin size for a cnt_subject_ref filter
             (deprecated, use count_[fhir_resource](min_subject) instead)
         """
+        if min_subject is None:
+            min_subject = DEFAULT_MIN_SUBJECT
         if clause is None:
             return [f"cnt_subject_ref >= {min_subject}"]
         elif isinstance(clause, str):
@@ -82,6 +89,8 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
                 "patient_link",
             ]:
                 raise errors.CountsBuilderError(f"count_query received unexpected key: {key}")
+        if "min_subject" in kwargs and kwargs["min_subject"] is None:
+            kwargs["min_subject"] = DEFAULT_MIN_SUBJECT
         return counts_templates.get_count_query(table_name, source_table, table_cols, **kwargs)
 
     # ----------------------------------------------------------------------
@@ -95,7 +104,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing allergyintolerance counts tables
 
@@ -122,7 +131,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing condition counts tables
 
@@ -149,7 +158,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing documentreference counts tables
 
@@ -176,7 +185,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing encounter counts tables
 
@@ -202,7 +211,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing medicationrequests counts tables
 
@@ -228,7 +237,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing observation counts tables
 
@@ -254,7 +263,7 @@ class CountsBuilder(base_table_builder.BaseTableBuilder):
         source_table: str,
         table_cols: list,
         where_clauses: list | None = None,
-        min_subject: int = 10,
+        min_subject: int | None = None,
     ) -> str:
         """wrapper method for constructing patient counts tables
 
