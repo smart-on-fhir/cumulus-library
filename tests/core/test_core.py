@@ -127,7 +127,7 @@ def test_core_tiny_database(tmp_path):
     """Verify that we can generate core tables with some minimal data filled in"""
     testbed = testbed_utils.LocalTestbed(tmp_path)
     # Just add bare resources, with minimal data
-    testbed.add_allergy_intolerance("AllA")
+    testbed.add_allergy_intolerance("Allergy")
     testbed.add_condition("ConA")
     testbed.add_encounter("EncA")
     testbed.add_medication_request("MedReqA")
@@ -135,7 +135,7 @@ def test_core_tiny_database(tmp_path):
     patients = con.sql("SELECT id FROM core__patient").fetchall()
     assert {e[0] for e in patients} == {"A"}
     rows = con.sql("SELECT id FROM core__allergyintolerance").fetchall()
-    assert {r[0] for r in rows} == {"AllA"}
+    assert {r[0] for r in rows} == {"Allergy"}
     conditions = con.sql("SELECT id FROM core__condition").fetchall()
     assert {c[0] for c in conditions} == {"ConA"}
     encounters = con.sql("SELECT id FROM core__encounter").fetchall()
