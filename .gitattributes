@@ -1,0 +1,2 @@
+# Ignore bsv files, else GitHub will detect the Bluespec language
+*.bsv linguist-vendored
