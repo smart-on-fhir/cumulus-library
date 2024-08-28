@@ -154,10 +154,6 @@ following order of preference is used to select credentials:
         epilog="See 'cumulus-library -h [action]' for usage of a specific action",
     )
 
-    parser.add_argument(
-        "--version", action="store_true", help="Display cumulus-library version number"
-    )
-
     actions = parser.add_subparsers(
         title="actions",
         help="Available library actions",
@@ -296,5 +292,10 @@ following order of preference is used to select credentials:
     add_study_dir_argument(markdown)
     add_target_argument(markdown)
     add_verbose_argument(markdown)
+
+    # Get study version
+
+    version = actions.add_parser("version", help="Gets the versions of the CLI and studies")
+    add_study_dir_argument(version)
 
     return parser

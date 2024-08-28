@@ -24,11 +24,18 @@ to any build/export call to tell it where to look for your work.
 
 ## Creating a new study
 
-If you're authoring a study, you just need to do two things to get started:
+If you're authoring a study, you just need to do three things to get started:
 
 - Make a new directory inside the directory you're keeping studies in. The name of this
 directory will be the name you use to run it using the `cumulus-library` cli command.
 In this document, we're calling this directory `my_study` as an example.
+- Make a new file, `__init__.py`, which contains the following:
+```python
+__version__='0.1.0'
+```
+The CLI will use this to display the study's version on demand. Consider using
+[semantic versioning rules](https://semver.org/#semantic-versioning-specification-semver)
+to update this value as appropriate.
 - Make a new file, `manifest.toml`. A
 [toml file](https://toml.io/en/)
 is a config file format - you don't need to worry too much about the details of this 
