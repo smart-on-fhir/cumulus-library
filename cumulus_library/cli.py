@@ -396,7 +396,7 @@ def main(cli_args=None):
 
     if args["version"]:
         print(f"cumulus-library version: {__version__}\n" "Installed studies:")
-        studies = get_study_dict(args["study_dir"])
+        studies = get_study_dict(args.get("study_dir"))
         for study in sorted(studies.keys()):
             try:
                 spec = importlib.util.spec_from_file_location(
