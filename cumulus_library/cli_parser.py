@@ -297,10 +297,4 @@ following order of preference is used to select credentials:
     add_target_argument(markdown)
     add_verbose_argument(markdown)
 
-    # Get study version
-
-    study_version = actions.add_parser("study-version", help="Gets the version of a specific study")
-    add_target_argument(study_version)
-    add_study_dir_argument(study_version)
-
     return parser
