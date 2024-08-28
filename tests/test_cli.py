@@ -62,7 +62,6 @@ def test_cli_early_exit(args):
     os.environ,
     clear=True,
 )
-@mock.patch("sysconfig.get_path")
 @mock.patch("json.load")
 @pytest.mark.parametrize(
     "args,raises,expected",
@@ -88,7 +87,7 @@ def test_cli_early_exit(args):
         ),
         (
             ["build", "-t", "study_bad_manifest"],
-            pytest.raises(errors.StudyManifestParsingError),
+            pytest.raises(SystemExit),
             "study_python_valid__count_table",
         ),
         (["build", "-t", "wrong"], pytest.raises(SystemExit), None),
@@ -107,15 +106,15 @@ def test_cli_early_exit(args):
         ),
     ],
 )
-def test_cli_path_mapping(mock_load_json, mock_path, tmp_path, args, raises, expected):  # pylint: disable=unused-argument
+def test_cli_path_mapping(mock_load_json, monkeypatch, tmp_path, args, raises, expected):
     with raises:
-        mock_path.return_value = f"{Path(__file__).resolve().parents[0]}/test_data/"
+        monkeypatch.syspath_prepend(f"{Path(__file__).resolve().parents[0]}/test_data/")
         mock_load_json.return_value = {
             "__desc__": "",
-            "allowlist": {
-                "study_python_valid": "study_python_valid",
-                "study_bad_manifest": "study_bad_manifest",
-            },
+            "allowlist": [
+                "study_python_valid",
+                "study_bad_manifest",
+            ],
         }
         args = duckdb_args(args, tmp_path)
         cli.main(cli_args=args)
@@ -127,9 +126,7 @@ def test_cli_path_mapping(mock_load_json, mock_path, tmp_path, args, raises, exp
     os.environ,
     clear=True,
 )
-@mock.patch("sysconfig.get_path")
-def test_count_builder_mapping(mock_path, tmp_path):
-    mock_path.return_value = f"{Path(__file__).resolve().parents[0]}/test_data/"
+def test_count_builder_mapping(tmp_path):
     with does_not_raise():
         args = duckdb_args(
             [
@@ -137,7 +134,7 @@ def test_count_builder_mapping(mock_path, tmp_path):
                 "-t",
                 "study_python_counts_valid",
                 "-s",
-                "./tests/test_data",
+                f"{Path(__file__).resolve().parents[0]}/test_data/",
             ],
             tmp_path,
         )
@@ -154,9 +151,7 @@ def test_count_builder_mapping(mock_path, tmp_path):
     os.environ,
     clear=True,
 )
-@mock.patch("sysconfig.get_path")
-def test_generate_sql(mock_path, tmp_path):
-    mock_path.return_value = f"{tmp_path}/study_python_valid/"
+def test_generate_sql(tmp_path):
     with does_not_raise():
         shutil.copytree(
             f"{Path(__file__).resolve().parents[0]}/test_data/study_python_valid",
@@ -188,9 +183,7 @@ def test_generate_sql(mock_path, tmp_path):
     os.environ,
     clear=True,
 )
-@mock.patch("sysconfig.get_path")
-def test_generate_md(mock_path, tmp_path):
-    mock_path.return_value = f"{tmp_path}/study_python_valid/"
+def test_generate_md(tmp_path):
     with does_not_raise():
         shutil.copytree(
             f"{Path(__file__).resolve().parents[0]}/test_data/study_python_valid",
@@ -230,7 +223,6 @@ def test_generate_md(mock_path, tmp_path):
     os.environ,
     clear=True,
 )
-@mock.patch("sysconfig.get_path")
 @pytest.mark.parametrize(
     "args,expected,raises",
     [
@@ -272,9 +264,8 @@ def test_generate_md(mock_path, tmp_path):
         ),
     ],
 )
-def test_clean(mock_path, tmp_path, args, expected, raises):  # pylint: disable=unused-argument
+def test_clean(tmp_path, args, expected, raises):
     with raises:
-        mock_path.return_value = f"{Path(__file__).resolve().parents[0]}/test_data/"
         cli.main(cli_args=duckdb_args(["build", "-t", "core"], tmp_path))
         with does_not_raise():
             with mock.patch.object(builtins, "input", lambda _: "y"):
