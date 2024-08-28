@@ -40,12 +40,15 @@ loading data into analytics packages.
 [Cumulus Aggregator](https://docs.smarthealthit.org/cumulus/aggregator/)
 - `generate-sql` and `generate-md` both create documentation artifacts, for
 users authoring studies
+- `--version` will provide the installed version of `cumulus-library`, and
+`--study-version [name]` will provide the version of a given study. 
 
-By default, all available studies will be used by build and export, but you can use
-or `--target` to specify a specific study to be run. You can use it multiple
-times to configure several studies in order. 
+You can use `--target` to specify a specific study to be run. You can use it multiple
+times to configure several studies in order. You can use `--study-dir` to target
+a directory where you are working on studies/working with studies that aren't
+available to install with `pip`
 
-Several pip installable studies will automatically be added to the list of available
+Several `pip` installable studies will automatically be added to the list of available
 studies to run. See [study list](./study-list.md) for more details.
 
 There are several other options - use `--help` to get a detailed list of commands.

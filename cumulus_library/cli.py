@@ -2,6 +2,7 @@
 """Utility for building/retrieving data views in AWS Athena"""
 
 import copy
+import importlib.util
 import json
 import os
 import pathlib
@@ -362,11 +363,8 @@ def main(cli_args=None):
     parser = cli_parser.get_parser()
     args = vars(parser.parse_args(cli_args))
     if args["version"]:
-        print(__version__)
+        print(f"Cumulus library version: {__version__}")
         sys.exit(0)
-    if args["action"] is None:
-        parser.print_usage()
-        sys.exit(1)
 
     arg_env_pairs = (
         ("data_path", "CUMULUS_LIBRARY_DATA_PATH"),
@@ -391,6 +389,35 @@ def main(cli_args=None):
             else:
                 args[pair[0]] = env_val
             read_env_vars.append([pair[1], env_val])
+
+    if args.get("study_dir"):
+        posix_paths = []
+        for path in args["study_dir"]:
+            posix_paths.append(get_abs_path(path))
+        args["study_dir"] = posix_paths
+
+    if study := args.get("study_version"):
+        if study in ("core", "discovery", "vocab"):
+            print(
+                f"{args['study_version']} distributed with Cumulus library.\n"
+                f"Cumulus library:  {__version__}"
+            )
+            sys.exit(0)
+        studies = get_study_dict(args["study_dir"])
+        if study in studies.keys():
+            spec = importlib.util.spec_from_file_location(
+                "study_init", studies[study] / "__init__.py"
+            )
+            study_init = importlib.util.module_from_spec(spec)
+            sys.modules["study_init"] = study_init
+            spec.loader.exec_module(study_init)
+            print(f"{study} version {study_init.__version__}")
+            sys.exit(0)
+        sys.exit(f"'{study}' is not an installed Cumulus study")
+
+    if args["action"] is None:
+        parser.print_usage()
+        sys.exit(1)
 
     if len(read_env_vars) > 0:
         table = rich.table.Table(title="Values read from environment variables")
@@ -418,12 +445,6 @@ def main(cli_args=None):
 
     if args.get("data_path"):
         args["data_path"] = get_abs_path(args["data_path"])
-
-    if args.get("study_dir"):
-        posix_paths = []
-        for path in args["study_dir"]:
-            posix_paths.append(get_abs_path(path))
-        args["study_dir"] = posix_paths
 
     return run_cli(args)
 

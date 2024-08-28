@@ -807,6 +807,25 @@ def test_version(capfd):
         assert out == __version__
 
 
+@pytest.mark.parametrize(
+    "study,msg",
+    [("core", "distributed_with"), ("study_valid", "version"), ("not_a_study", "not an installed")],
+)
+@mock.patch.dict(os.environ, clear=True)
+def test_study_version(capfd, study, msg):
+    with pytest.raises(SystemExit):
+        cli.main(
+            cli_args=[
+                "--study-version",
+                study,
+                "-s",
+                "tests/test_data/study_valid/",
+            ]
+        )
+        out, _ = capfd.readouterr()
+        assert msg in out
+
+
 @mock.patch.dict(os.environ, clear=True)
 def test_study_dir(tmp_path):
     os.environ["CUMULUS_LIBRARY_STUDY_DIR"] = str(
