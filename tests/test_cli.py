@@ -801,10 +801,11 @@ def test_sql_error_handling(mock_backend, tmp_path):
 
 @mock.patch.dict(os.environ, clear=True)
 def test_version(capfd):
+    out = None
     with pytest.raises(SystemExit):
         cli.main(
             cli_args=[
-                "--version",
+                "version",
                 "-s",
                 "tests/test_data/study_valid/",
                 "-s",
@@ -814,10 +815,10 @@ def test_version(capfd):
                 "tests/test_data/study_invalid_bad_query/",
             ]
         )
-        out, _ = capfd.readouterr()
-        assert f"cumulus-library version: {__version__}" in out
-        assert "study_valid: 1.0.0" in out
-        assert "study_invalid_bad_query: no version defined" in out
+    out, _ = capfd.readouterr()
+    assert f"cumulus-library version: {__version__}" in out
+    assert "study_valid: 1.0.0" in out
+    assert "study_invalid_bad_query: no version defined" in out
 
 
 @mock.patch.dict(os.environ, clear=True)

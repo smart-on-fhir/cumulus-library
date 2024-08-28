@@ -394,7 +394,11 @@ def main(cli_args=None):
             posix_paths.append(get_abs_path(path))
         args["study_dir"] = posix_paths
 
-    if args["version"]:
+    if args["action"] is None:
+        parser.print_usage()
+        sys.exit(1)
+
+    if args["action"] == "version":
         print(f"cumulus-library version: {__version__}\n" "Installed studies:")
         studies = get_study_dict(args.get("study_dir"))
         for study in sorted(studies.keys()):
@@ -409,10 +413,6 @@ def main(cli_args=None):
             except Exception:
                 print(f"  {study}: no version defined")
         sys.exit(0)
-
-    if args["action"] is None:
-        parser.print_usage()
-        sys.exit(1)
 
     if len(read_env_vars) > 0:
         table = rich.table.Table(title="Values read from environment variables")
