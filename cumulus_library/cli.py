@@ -362,9 +362,6 @@ def main(cli_args=None):
 
     parser = cli_parser.get_parser()
     args = vars(parser.parse_args(cli_args))
-    if args["version"]:
-        print(f"Cumulus library version: {__version__}")
-        sys.exit(0)
 
     arg_env_pairs = (
         ("data_path", "CUMULUS_LIBRARY_DATA_PATH"),
@@ -390,30 +387,27 @@ def main(cli_args=None):
                 args[pair[0]] = env_val
             read_env_vars.append([pair[1], env_val])
 
+    # We process this arg first, since version checking uses it
     if args.get("study_dir"):
         posix_paths = []
         for path in args["study_dir"]:
             posix_paths.append(get_abs_path(path))
         args["study_dir"] = posix_paths
 
-    if args.get("action") == "study-version":
+    if args["version"]:
+        print(f"cumulus-library version: {__version__}\n" "Installed studies:")
         studies = get_study_dict(args["study_dir"])
-        for target in args.get("target"):
-            if target in ("core", "discovery", "vocab"):
-                print(
-                    f"{target} distributed with Cumulus library.\n"
-                    f"Cumulus library:  {__version__}"
-                )
-            elif target in studies.keys():
+        for study in sorted(studies.keys()):
+            try:
                 spec = importlib.util.spec_from_file_location(
-                    "study_init", studies[target] / "__init__.py"
+                    "study_init", studies[study] / "__init__.py"
                 )
                 study_init = importlib.util.module_from_spec(spec)
                 sys.modules["study_init"] = study_init
                 spec.loader.exec_module(study_init)
-                print(f"{target} version {study_init.__version__}")
-            else:
-                print(f"'{target}' is not an installed Cumulus study")
+                print(f"  {study}: {study_init.__version__}")
+            except Exception:
+                print(f"  {study}: no version defined")
         sys.exit(0)
 
     if args["action"] is None:

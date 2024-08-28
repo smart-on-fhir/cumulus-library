@@ -40,7 +40,6 @@ loading data into analytics packages.
 [Cumulus Aggregator](https://docs.smarthealthit.org/cumulus/aggregator/)
 - `generate-sql` and `generate-md` both create documentation artifacts, for
 users authoring studies
-- 'study-version' can provide the versions of one or more individual studies
 - `--version` will provide the installed version of `cumulus-library`
 
 You can use `--target` to specify a specific study to be run. You can use it multiple
