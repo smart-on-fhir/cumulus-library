@@ -816,7 +816,8 @@ def test_study_version(capfd, study, msg):
     with pytest.raises(SystemExit):
         cli.main(
             cli_args=[
-                "--study-version",
+                "study-version",
+                "-t",
                 study,
                 "-s",
                 "tests/test_data/study_valid/",

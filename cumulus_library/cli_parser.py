@@ -158,8 +158,6 @@ following order of preference is used to select credentials:
         "--version", action="store_true", help="Display cumulus-library version number"
     )
 
-    parser.add_argument("--study-version", help="Display version of specific study")
-
     actions = parser.add_subparsers(
         title="actions",
         help="Available library actions",
@@ -298,5 +296,11 @@ following order of preference is used to select credentials:
     add_study_dir_argument(markdown)
     add_target_argument(markdown)
     add_verbose_argument(markdown)
+
+    # Get study version
+
+    study_version = actions.add_parser("study-version", help="Gets the version of a specific study")
+    add_target_argument(study_version)
+    add_study_dir_argument(study_version)
 
     return parser

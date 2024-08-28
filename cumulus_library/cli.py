@@ -396,24 +396,25 @@ def main(cli_args=None):
             posix_paths.append(get_abs_path(path))
         args["study_dir"] = posix_paths
 
-    if study := args.get("study_version"):
-        if study in ("core", "discovery", "vocab"):
-            print(
-                f"{args['study_version']} distributed with Cumulus library.\n"
-                f"Cumulus library:  {__version__}"
-            )
-            sys.exit(0)
+    if args.get("action") == "study-version":
         studies = get_study_dict(args["study_dir"])
-        if study in studies.keys():
-            spec = importlib.util.spec_from_file_location(
-                "study_init", studies[study] / "__init__.py"
-            )
-            study_init = importlib.util.module_from_spec(spec)
-            sys.modules["study_init"] = study_init
-            spec.loader.exec_module(study_init)
-            print(f"{study} version {study_init.__version__}")
-            sys.exit(0)
-        sys.exit(f"'{study}' is not an installed Cumulus study")
+        for target in args.get("target"):
+            if target in ("core", "discovery", "vocab"):
+                print(
+                    f"{target} distributed with Cumulus library.\n"
+                    f"Cumulus library:  {__version__}"
+                )
+            elif target in studies.keys():
+                spec = importlib.util.spec_from_file_location(
+                    "study_init", studies[target] / "__init__.py"
+                )
+                study_init = importlib.util.module_from_spec(spec)
+                sys.modules["study_init"] = study_init
+                spec.loader.exec_module(study_init)
+                print(f"{target} version {study_init.__version__}")
+            else:
+                print(f"'{target}' is not an installed Cumulus study")
+        sys.exit(0)
 
     if args["action"] is None:
         parser.print_usage()
