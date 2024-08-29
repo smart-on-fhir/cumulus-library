@@ -1,11 +1,13 @@
 {
     "desc" : 
         "this dict maps pip installable studies to expected paths inside site-packages",
-    "allowlist" : {
-        "covid_symptom" : "cumulus_library_covid",
-        "data_metrics" : "cumulus_library_data_metrics",
-        "rxnorm" : "cumulus_library_rxnorm",
-        "umls" : "cumulus_library_umls"
-
-    }
+    "allowlist" : [
+        "cumulus_library_covid",
+        "cumulus_library_data_metrics",
+        "cumulus_library_hypertension",
+        "cumulus_library_opioid",
+        "cumulus_library_rxnorm",
+        "cumulus_library_suicidality_los",
+        "cumulus_library_umls"
+    ]
 }

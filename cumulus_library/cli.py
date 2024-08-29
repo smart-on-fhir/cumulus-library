@@ -7,7 +7,6 @@ import json
 import os
 import pathlib
 import sys
-import sysconfig
 
 import requests
 import rich
@@ -222,22 +221,23 @@ def get_study_dict(alt_dir_paths: list) -> dict[str, pathlib.Path] | None:
     manifest_studies = {}
     cli_path = pathlib.Path(__file__).resolve().parents[0]
 
-    # first, we'll get any installed public studies
+    # first, we'll take note of our own internal studies
+    paths = [pathlib.Path(cli_path, "studies")]
+
+    # then, we'll get any installed public studies
     with open(
         pathlib.Path(cli_path, "./module_allowlist.json"), encoding="utf-8"
     ) as study_allowlist_json:
         study_allowlist = json.load(study_allowlist_json)["allowlist"]
-    site_packages_dir = sysconfig.get_path("purelib")
-    for study, subdir in study_allowlist.items():
-        study_path = pathlib.Path(site_packages_dir, subdir)
-        if study_path.exists():
-            manifest_studies[study] = study_path
+    for module_name in study_allowlist:
+        if spec := importlib.util.find_spec(module_name):
+            paths += [pathlib.Path(x) for x in spec.submodule_search_locations]
 
-    # then we'll get all studies inside the project directory, followed by
-    # any user supplied paths last. These take precedence.
-    paths = [pathlib.Path(cli_path, "studies")]
+    # lastly, any user supplied paths. These take precedence.
     if alt_dir_paths is not None:
         paths = paths + alt_dir_paths
+
+    # Now actually search all the paths for manifest.toml files
     for path in paths:
         found_studies = get_studies_by_manifest_path(path)
         manifest_studies.update(found_studies)

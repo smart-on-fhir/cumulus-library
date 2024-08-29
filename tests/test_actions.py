@@ -461,9 +461,7 @@ def test_upload_data(user, id_token, status, preview, login_error, raises):
 @pytest.mark.parametrize(
     "study,external", [("study_python_valid", False), ("study_python_s3", True)]
 )
-@mock.patch("sysconfig.get_path")
-def test_generate_sql(mock_path, mock_db_config, tmp_path, study, external):
-    mock_path.return_value = [f"{tmp_path}/{study}/"]
+def test_generate_sql(mock_db_config, tmp_path, study, external):
     with does_not_raise():
         shutil.copytree(
             f"{Path(__file__).resolve().parents[0]}/test_data/{study}",
@@ -486,9 +484,7 @@ def test_generate_sql(mock_path, mock_db_config, tmp_path, study, external):
             assert "bucket/db_path" in query
 
 
-@mock.patch("sysconfig.get_path")
-def test_generate_md(mock_path, mock_db_config, tmp_path):
-    mock_path.return_value = f"{tmp_path}/study_python_valid/"
+def test_generate_md(mock_db_config, tmp_path):
     with does_not_raise():
         shutil.copytree(
             f"{Path(__file__).resolve().parents[0]}/test_data/study_python_valid",
