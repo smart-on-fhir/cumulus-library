@@ -32,13 +32,13 @@ class StaticFileBuilder(cumulus_library.BaseTableBuilder):
         headers = ["CUI", "TTY", "CODE", "SAB", "STR"]
         header_types = ["STRING", "STRING", "STRING", "STRING", "STRING"]
         for file in icd_files:
-            parquet_path = path / f"icd/{file.stem}.parquet"
+            parquet_path = path / f"bsvs/{file.stem}.parquet"
             df = pandas.read_csv(file, delimiter="|", names=headers)
             df.to_parquet(parquet_path)
             remote_path = config.db.upload_file(
                 file=parquet_path,
-                study="vocab",
-                topic="icd",
+                study="study_static_file",
+                topic="static_file",
                 remote_filename=f"{file.stem}.parquet",
                 force_upload=config.force_upload,
             )
@@ -48,7 +48,7 @@ class StaticFileBuilder(cumulus_library.BaseTableBuilder):
             base_templates.get_ctas_from_parquet_query(
                 schema_name=config.schema,
                 table_name=table_name,
-                local_location=path / "icd",
+                local_location=path / "bsvs",
                 remote_location=remote_path,
                 table_cols=headers,
                 remote_table_cols_types=header_types,

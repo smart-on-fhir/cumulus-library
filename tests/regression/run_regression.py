@@ -85,19 +85,5 @@ def regress_core():
     print("✅ Core study reference and export matched ✅")
 
 
-def regress_vocab():
-    export_path = f"{Path(__file__).resolve().parent}/data_export/vocab"
-    with open(f"{export_path}/vocab__icd.csv") as f:
-        export_size = len(f.readlines())
-        # this is the value of
-        if export_size != VOCAB_ICD_ROW_COUNT:
-            sys.exit(
-                f"❌ Vocab tables built from parquets are not expected length."
-                f" Found rows: {export_size} ❌"
-            )
-        print("✅ Vocab tables built from parquets are expected length ✅")
-
-
 if __name__ == "__main__":
-    regress_vocab()
     regress_core()

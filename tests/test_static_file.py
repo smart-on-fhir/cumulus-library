@@ -9,7 +9,7 @@ from tests import conftest
     os.environ,
     clear=True,
 )
-def test_vocab(tmp_path):
+def test_static_file(tmp_path):
     cli.main(
         cli_args=conftest.duckdb_args(
             [

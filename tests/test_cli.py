@@ -316,7 +316,6 @@ def test_clean(tmp_path, args, expected, raises):
             3,
             does_not_raise(),
         ),
-        (["build", "-t", "vocab"], None, 3, does_not_raise()),
         (
             # checking that a study is loaded from the directory of a user-defined
             # path. we're also validating that the CLI accepts the statistics keyword
