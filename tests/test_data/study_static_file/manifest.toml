@@ -1,0 +1,11 @@
+study_prefix = "study_static_file"
+
+[table_builder_config]
+file_names = [
+    "static_file_builder.py",
+]
+
+[export_config]
+export_list = [
+    "study_static_file__table"
+]

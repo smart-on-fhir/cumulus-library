@@ -35,8 +35,6 @@ ID_PATHS = {
     "observation": [["id"], ["encounter", "reference"]],
     "patient": [["id"]],
 }
-VOCAB_ICD_ROW_COUNT = 403230
-
 # Utility functions
 
 

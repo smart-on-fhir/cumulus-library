@@ -10,6 +10,7 @@ output.sql
 MRCONSO.RRF
 *.zip
 coverage.xml
+*.parquet
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
