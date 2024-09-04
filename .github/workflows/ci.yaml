@@ -99,8 +99,8 @@ jobs:
           WG: cumulus
           DB: cumulus_library_regression_db
         run: |
-          cumulus-library build -t vocab -t core --profile $PROFILE --workgroup $WG --database $DB
-          cumulus-library export -t vocab -t core ./tests/regression/data_export/ --profile $PROFILE --workgroup $WG --database $DB
+          cumulus-library build -t core --profile $PROFILE --workgroup $WG --database $DB
+          cumulus-library export -t core ./tests/regression/data_export/ --profile $PROFILE --workgroup $WG --database $DB
       - name: Compare vs known data
         run: python ./tests/regression/run_regression.py
 
