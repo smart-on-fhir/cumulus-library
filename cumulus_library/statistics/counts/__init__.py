@@ -1,1 +1,1 @@
-from cumulus_library.builders import counts
+from cumulus_library.builders.counts import CountsBuilder  # pramga: no cover
