@@ -43,7 +43,7 @@ def test_core_med_all_types(tmp_path):
     df = con.sql("SELECT * FROM core__medicationrequest ORDER BY id").df()
     rows = json.loads(df.to_json(orient="records"))
 
-    expected_body = {
+    body = {
         "status": "active",
         "intent": "order",
         "category_code": "outpatient",
@@ -60,9 +60,9 @@ def test_core_med_all_types(tmp_path):
         "medication_display": "C",
     }
     assert [
-        {"id": "Contained", **expected_body},
-        {"id": "External", **expected_body},
-        {"id": "Inline", **expected_body},
+        {"id": "Contained", "medicationrequest_ref": "MedicationRequest/Contained", **body},
+        {"id": "External", "medicationrequest_ref": "MedicationRequest/External", **body},
+        {"id": "Inline", "medicationrequest_ref": "MedicationRequest/Inline", **body},
     ] == rows
 
 

@@ -154,54 +154,64 @@ CREATE TABLE core__medicationrequest AS (
         WHERE mr.med_ref IS NOT NULL AND REGEXP_LIKE(mr.med_ref, '^Medication/.*$')
     ),
 
-    mr_shared AS (
+    unified_codes AS (
+        
         SELECT
             mr.id,
-            mr.status,
-            mr.intent,
-            mrc.code AS category_code,
-            mrc.system AS category_system,
-            mrc.display AS category_display,
-            mr.reportedBoolean,
-            mr.reported_ref,
-            mr.subject_ref,
-            mr.encounter_ref,
-            mr.authoredOn,
-            mr.authoredOn_month
+            mric.code AS medication_code,
+            mric.system AS medication_system,
+            mric.display AS medication_display
         FROM mr_basics AS mr
-        LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
+        INNER JOIN core__medicationrequest_dn_inline_code AS mric ON mr.id = mric.id
+
+        
+        UNION
+        SELECT
+            mr.id,
+            mrcc.code AS medication_code,
+            mrcc.system AS medication_system,
+            mrcc.display AS medication_display
+        FROM mr_basics AS mr
+        INNER JOIN contained_refs AS cr ON mr.id = cr.id
+        INNER JOIN core__medicationrequest_dn_contained_code AS mrcc
+            ON cr.id = mrcc.id AND cr.medication_id = mrcc.contained_id
+        WHERE mrcc.resource_type = 'Medication'
+
+        
+        UNION
+        SELECT
+            mr.id,
+            mc.code AS medication_code,
+            mc.system AS medication_system,
+            mc.display AS medication_display
+        FROM mr_basics AS mr
+        INNER JOIN external_refs AS er ON mr.id = er.id
+        INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
     )
 
-    
     SELECT
-        mr.*,
-        mric.code AS medication_code,
-        mric.system AS medication_system,
-        mric.display AS medication_display
-    FROM mr_shared AS mr
-    INNER JOIN core__medicationrequest_dn_inline_code AS mric ON mr.id = mric.id
+        mr.id,
+        mr.status,
+        mr.intent,
 
-    
-    UNION
-    SELECT
-        mr.*,
-        mrcc.code AS medication_code,
-        mrcc.system AS medication_system,
-        mrcc.display AS medication_display
-    FROM mr_shared AS mr
-    INNER JOIN contained_refs AS cr ON mr.id = cr.id
-    INNER JOIN core__medicationrequest_dn_contained_code AS mrcc
-        ON cr.id = mrcc.id AND cr.medication_id = mrcc.contained_id
-    WHERE mrcc.resource_type = 'Medication'
+        mrc.code AS category_code,
+        mrc.system AS category_system,
+        mrc.display AS category_display,
 
-    
-    UNION
-    SELECT
-        mr.*,
-        mc.code AS medication_code,
-        mc.system AS medication_system,
-        mc.display AS medication_display
-    FROM mr_shared AS mr
-    INNER JOIN external_refs AS er ON mr.id = er.id
-    INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
+        mr.reportedBoolean,
+        mr.reported_ref,
+
+        uc.medication_code,
+        uc.medication_system,
+        uc.medication_display,
+
+        mr.authoredOn,
+        mr.authoredOn_month,
+
+        concat('MedicationRequest/', mr.id) AS medicationrequest_ref,
+        mr.subject_ref,
+        mr.encounter_ref
+    FROM mr_basics AS mr
+    LEFT JOIN unified_codes AS uc ON mr.id = uc.id
+    LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
 );

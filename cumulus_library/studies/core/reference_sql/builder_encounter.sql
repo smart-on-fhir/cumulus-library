@@ -582,7 +582,8 @@ temp_encounter_completion AS (
         SELECT
             ece.encounter_id,
             (
-                BOOL_OR(ec.table_name = 'condition')
+                BOOL_OR(ec.table_name = 'allergyintolerance')
+                AND BOOL_OR(ec.table_name = 'condition')
                 AND BOOL_OR(ec.table_name = 'documentreference')
                 AND BOOL_OR(ec.table_name = 'medicationrequest')
                 AND BOOL_OR(ec.table_name = 'observation')
@@ -734,7 +735,8 @@ temp_encounter_completion AS (
         SELECT
             ece.encounter_id,
             (
-                BOOL_OR(ec.table_name = 'condition')
+                BOOL_OR(ec.table_name = 'allergyintolerance')
+                AND BOOL_OR(ec.table_name = 'condition')
                 AND BOOL_OR(ec.table_name = 'documentreference')
                 AND BOOL_OR(ec.table_name = 'medicationrequest')
                 AND BOOL_OR(ec.table_name = 'observation')

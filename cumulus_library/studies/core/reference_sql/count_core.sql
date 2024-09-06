@@ -11,7 +11,6 @@ CREATE TABLE core__count_allergyintolerance_month AS (
     filtered_table AS (
         SELECT
             s.patient_ref,
-            s.allergyintolerance_ref,
             --noqa: disable=RF03, AL02
             s."category",
             s."recordedDate_month",
@@ -24,7 +23,6 @@ CREATE TABLE core__count_allergyintolerance_month AS (
     null_replacement AS (
         SELECT
             patient_ref,
-            allergyintolerance_ref,
             coalesce(
                 cast(category AS varchar),
                 'cumulus__none'
@@ -42,29 +40,6 @@ CREATE TABLE core__count_allergyintolerance_month AS (
                 'cumulus__none'
             ) AS reaction_manifestation_display
         FROM filtered_table
-    ),
-    secondary_powerset AS (
-        SELECT
-            count(DISTINCT allergyintolerance_ref) AS cnt_allergyintolerance_ref,
-            "category",
-            "recordedDate_month",
-            "code_display",
-            "reaction_manifestation_display",
-            concat_ws(
-                '-',
-                COALESCE("category",''),
-                COALESCE("recordedDate_month",''),
-                COALESCE("code_display",''),
-                COALESCE("reaction_manifestation_display",'')
-            ) AS id
-        FROM null_replacement
-        GROUP BY
-            cube(
-            "category",
-            "recordedDate_month",
-            "code_display",
-            "reaction_manifestation_display"
-            )
     ),
 
     powerset AS (
@@ -92,13 +67,12 @@ CREATE TABLE core__count_allergyintolerance_month AS (
     )
 
     SELECT
-        s.cnt_allergyintolerance_ref AS cnt,
+        p.cnt_subject_ref AS cnt,
         p."category",
         p."recordedDate_month",
         p."code_display",
         p."reaction_manifestation_display"
     FROM powerset AS p
-    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
         cnt_subject_ref >= 10
 );
