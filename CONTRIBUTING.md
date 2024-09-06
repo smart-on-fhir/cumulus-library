@@ -31,6 +31,14 @@ Things to keep in mind:
 - If the new resource links to Encounter,
   add it to the completion checking done in the Encounter code.
   (Though consider the effect this will have on existing encounters.)
+- Try to keep the columns in spec-order,
+  except please move any isolated reference fields to the end,
+  since they are not really human-readable and
+  this makes it nicer to visually scan the table.
+- Add a self-Reference field for easier joining.
+  For example, if you're adding a `condition` table, in addition to
+  the `id` field, add a `condition_ref` field defined like:
+  `concat('Condition/', id) AS condition_ref`
 
 ## Rebuilding the reference SQL
 

@@ -273,7 +273,7 @@ temp_category AS (
         t.category
     FROM
         allergyintolerance AS a,
-        UNNEST(a.category) AS t (category)
+        unnest(a.category) AS t (category)
 ),
 
 flattened_reaction AS (SELECT DISTINCT
@@ -304,7 +304,6 @@ temp_reaction AS (
 
 SELECT
     ta.id,
-    CONCAT('AllergyIntolerance/', ta.id) AS allergyintolerance_ref,
     dn_cstat.code AS clinicalStatus_code,
     dn_vstat.code AS verificationStatus_code,
     ta.type,
@@ -314,9 +313,6 @@ SELECT
     dn_code.code AS code_code,
     dn_code.system AS code_system,
     dn_code.display AS code_display,
-
-    ta.patient_ref,
-    ta.encounter_ref,
     ta.recordedDate,
     ta.recordedDate_week,
     ta.recordedDate_month,
@@ -328,7 +324,11 @@ SELECT
     tr.manifestation_code AS reaction_manifestation_code,
     tr.manifestation_system AS reaction_manifestation_system,
     tr.manifestation_display AS reaction_manifestation_display,
-    tr.severity AS reaction_severity
+    tr.severity AS reaction_severity,
+
+    concat('AllergyIntolerance/', ta.id) AS allergyintolerance_ref,
+    ta.patient_ref,
+    ta.encounter_ref
 
 FROM temp_allergyintolerance AS ta
 LEFT JOIN temp_reaction AS tr ON ta.id = tr.id
@@ -337,4 +337,4 @@ LEFT JOIN core__allergyintolerance_dn_clinical_status AS dn_cstat ON ta.id = dn_
 LEFT JOIN core__allergyintolerance_dn_verification_status AS dn_vstat
     ON ta.id = dn_vstat.id
 LEFT JOIN temp_category AS tcat ON ta.id = tcat.id
-WHERE ta.recordedDate BETWEEN DATE('2016-01-01') AND CURRENT_DATE;
+WHERE ta.recordedDate BETWEEN date('2016-01-01') AND current_date;
