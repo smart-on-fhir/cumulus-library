@@ -25,6 +25,21 @@ def test_get_table_name(name, duration, expected):
 
 
 @pytest.mark.parametrize(
+    "name,duration,expected",
+    [
+        ("table", None, "test__table"),
+        ("table", "month", "test__table_month"),
+    ],
+)
+def test_deprecation_patch(name, duration, expected):
+    from cumulus_library.statistics.counts import CountsBuilder
+
+    builder = CountsBuilder(study_prefix=TEST_PREFIX)
+    output = builder.get_table_name(name, duration)
+    assert output == expected
+
+
+@pytest.mark.parametrize(
     "clause,min_subject,expected,raises",
     [
         (None, None, ["cnt_subject_ref >= 10"], does_not_raise()),
