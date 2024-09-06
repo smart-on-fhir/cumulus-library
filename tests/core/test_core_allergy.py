@@ -240,7 +240,7 @@ def test_core_allergy_date_cutoff(tmp_path):
     assert ["New"] == list(df.id)
 
 
-@mock.patch("cumulus_library.statistics.counts.DEFAULT_MIN_SUBJECT", new=1)
+@mock.patch("cumulus_library.builders.counts.DEFAULT_MIN_SUBJECT", new=1)
 def test_core_count_allergy_intolerance_by_patient(tmp_path):
     """Verify that our basic allergy count is per-patient"""
     testbed = testbed_utils.LocalTestbed(tmp_path)

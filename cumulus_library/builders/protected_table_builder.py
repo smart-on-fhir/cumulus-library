@@ -1,7 +1,7 @@
 """Builder for creating tables for tracking state/logging changes"""
 
 from cumulus_library import (
-    base_table_builder,
+    BaseTableBuilder,
     base_utils,
     enums,
     study_manifest,
@@ -30,7 +30,7 @@ STATISTICS_COLS_TYPES = [
 ]
 
 
-class ProtectedTableBuilder(base_table_builder.BaseTableBuilder):
+class ProtectedTableBuilder(BaseTableBuilder):
     """Builder for tables that persist across study clean/build actions"""
 
     display_text = "Creating/updating system tables..."

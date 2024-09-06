@@ -16,7 +16,7 @@ from psmpy import PsmPy
 # these imports are mimicing PsmPy imports for re-implemented functions
 from psmpy.functions import cohenD
 
-from cumulus_library import base_table_builder, base_utils, databases
+from cumulus_library import BaseTableBuilder, base_utils, databases
 from cumulus_library.statistics.statistics_templates import psm_templates
 from cumulus_library.template_sql import base_templates
 
@@ -49,7 +49,7 @@ class PsmConfig:
     seed: int
 
 
-class PsmBuilder(base_table_builder.BaseTableBuilder):
+class PsmBuilder(BaseTableBuilder):
     """TableBuilder for creating PSM tables"""
 
     display_text = "Building PSM tables..."
