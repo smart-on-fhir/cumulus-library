@@ -11,15 +11,15 @@ import tomllib
 from rich.progress import Progress, TaskID
 
 from cumulus_library import (
-    base_table_builder,
+    BaseTableBuilder,
     base_utils,
     databases,
     enums,
     errors,
     log_utils,
-    protected_table_builder,
     study_manifest,
 )
+from cumulus_library.builders import protected_table_builder
 from cumulus_library.statistics import psm
 
 
@@ -72,10 +72,7 @@ def _load_and_execute_builder(
     # we'll punt.
     table_builder_subclasses = []
     for _, cls_obj in inspect.getmembers(table_builder_module, inspect.isclass):
-        if (
-            issubclass(cls_obj, base_table_builder.BaseTableBuilder)
-            and cls_obj != base_table_builder.BaseTableBuilder
-        ):
+        if issubclass(cls_obj, BaseTableBuilder) and cls_obj != BaseTableBuilder:
             table_builder_subclasses.append(cls_obj)
 
     if len(table_builder_subclasses) == 0:
