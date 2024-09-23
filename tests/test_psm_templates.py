@@ -5,7 +5,7 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 
 from cumulus_library import errors
-from cumulus_library.statistics.statistics_templates import psm_templates
+from cumulus_library.builders.statistics_templates import psm_templates
 
 
 @pytest.mark.parametrize(

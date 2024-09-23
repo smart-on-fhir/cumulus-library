@@ -19,8 +19,7 @@ from cumulus_library import (
     log_utils,
     study_manifest,
 )
-from cumulus_library.builders import protected_table_builder
-from cumulus_library.statistics import psm
+from cumulus_library.builders import protected_table_builder, psm_builder, valueset_builder
 
 
 @contextlib.contextmanager
@@ -214,10 +213,16 @@ def run_statistics_builders(
         if (target_table,) in existing_stats and not config.stats_build:
             continue
         if config_type == "psm":
-            builder = psm.PsmBuilder(
+            builder = psm_builder.PsmBuilder(
                 toml_config_path=toml_path,
                 config=stats_config,
                 data_path=manifest.data_path / f"{manifest.get_study_prefix()}/psm",
+            )
+        elif config_type == "valueset":
+            builder = valueset_builder.ValuesetBuilder(
+                toml_config_path=toml_path,
+                config=stats_config,
+                data_path=manifest.data_path / f"{manifest.get_study_prefix()}/valueset",
             )
         else:
             raise errors.StudyManifestParsingError(  # pragma: no cover

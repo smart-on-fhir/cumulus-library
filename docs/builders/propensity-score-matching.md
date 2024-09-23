@@ -1,6 +1,6 @@
 ---
 title: Propensity Score Matching
-parent: Statistics
+parent: Builders
 grand_parent: Library
 nav_order: 1
 # audience: clinical researchers, IRB reviewers

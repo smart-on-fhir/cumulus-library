@@ -6,7 +6,7 @@ from unittest import mock
 import pytest
 
 from cumulus_library import errors
-from cumulus_library.statistics import counts
+from cumulus_library.builders import counts
 
 TEST_PREFIX = "test"
 
@@ -32,7 +32,7 @@ def test_get_table_name(name, duration, expected):
     ],
 )
 def test_deprecation_patch(name, duration, expected):
-    from cumulus_library.statistics.counts import CountsBuilder
+    from cumulus_library.builders.counts import CountsBuilder
 
     builder = CountsBuilder(study_prefix=TEST_PREFIX)
     output = builder.get_table_name(name, duration)
@@ -102,7 +102,7 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
         ("table", "source", None, {}, pytest.raises(errors.CountsBuilderError)),
     ],
 )
-@mock.patch("cumulus_library.statistics.statistics_templates.counts_templates.get_count_query")
+@mock.patch("cumulus_library.builders.statistics_templates.counts_templates.get_count_query")
 def test_get_count_query(mock_count, table_name, source_table, table_cols, kwargs, raises):
     with raises:
         builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
@@ -170,7 +170,7 @@ def test_get_count_query(mock_count, table_name, source_table, table_cols, kwarg
         ),
     ],
 )
-@mock.patch("cumulus_library.statistics.statistics_templates.counts_templates.get_count_query")
+@mock.patch("cumulus_library.builders.statistics_templates.counts_templates.get_count_query")
 def test_count_wrappers(
     mock_count,
     table_name,

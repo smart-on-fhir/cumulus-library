@@ -17,7 +17,7 @@ from psmpy import PsmPy
 from psmpy.functions import cohenD
 
 from cumulus_library import BaseTableBuilder, base_utils, databases
-from cumulus_library.statistics.statistics_templates import psm_templates
+from cumulus_library.builders.statistics_templates import psm_templates
 from cumulus_library.template_sql import base_templates
 
 

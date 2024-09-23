@@ -27,7 +27,7 @@ def _create_table_from_parquet(archive, file, study_name, config):
         query = base_templates.get_ctas_from_parquet_query(
             schema_name=config.schema,
             table_name=parquet_path.stem.replace(".", "_"),
-            local_location=parquet_path.parent,
+            local_location=f"{parquet_path.parent}/*.parquet",
             remote_location=s3_path,
             table_cols=list(table_types.index),
             remote_table_cols_types=remote_types,

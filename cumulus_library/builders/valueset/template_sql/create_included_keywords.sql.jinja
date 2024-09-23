@@ -1,0 +1,18 @@
+{#- This query is an implicit version of 'get every potential rule
+that was found that matched a keyword-based rule' -#}
+CREATE OR REPLACE VIEW {{ study_prefix }}{{ table_prefix }}included_keywords AS
+SELECT
+    r.rxcui1,
+    r.rxcui2,
+    r.tty1,
+    r.tty2,
+    r.rui,
+    r.rel,
+    r.rela,
+    r.str1,
+    r.str2,
+    r.keyword
+FROM {{ study_prefix }}{{ table_prefix }}potential_rules AS r
+WHERE
+    r.REL NOT IN ('RB', 'PAR')
+    AND length(r.keyword) >= 0

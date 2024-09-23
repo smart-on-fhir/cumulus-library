@@ -443,7 +443,7 @@ def test_upload_data(user, id_token, status, preview, login_error, raises):
                 json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
             )
         args = {
-            "data_path": pathlib.Path.cwd() / "tests/test_data",
+            "data_path": pathlib.Path.cwd() / "tests/test_data/upload/",
             "id": id_token,
             "preview": preview,
             "target": "core",

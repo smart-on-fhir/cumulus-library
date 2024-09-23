@@ -1,0 +1,34 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+{#- skipping indentation validation for this file since sqlfluff wants both
+no indentation and one level of indentation for the contents of the with
+block -#}
+CREATE TABLE IF NOT EXISTS {{ table_name }} AS -- noqa: disable=LT02
+    WITH union_block AS (
+{%- for keyword in keywords %}
+SELECT
+    rxcui,
+    str,
+    tty,
+    sab,
+    code,
+    '{{ keyword }}' AS keyword
+FROM {{ source_table }}
+WHERE {{ syntax.ilike('str', '%'+keyword+'%') }}
+{{ syntax.union_delineate(loop) }}
+{%- endfor %}
+)
+
+SELECT DISTINCT
+    a.rxcui,
+    a.str,
+    a.tty,
+    a.sab,
+    a.code,
+    b.keyword
+FROM {{ source_table }} AS a
+LEFT JOIN union_block AS b
+    ON a.rxcui = b.rxcui
+    AND a.str = b.str
+    AND a.tty = b.tty
+    AND a.sab = b.sab
+    AND a.code = b.code

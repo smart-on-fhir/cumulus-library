@@ -1,0 +1,12 @@
+config_type = "valueset"
+keyword_file= "keywords.tsv"
+
+[vsac_stewards]
+acep ="2.16.840.1.113762.1.4.1106.68"
+
+[umls_stewards.medrt]
+sab="MED-RT"
+search_terms=["Opioid"]
+[umls_stewards.nonmedrt]
+sab="MED-RT"
+search_terms=["Benzodiazepine", "Barbiturate", "Nonsteroidal Anti-inflammatory Drug"]

@@ -3,7 +3,7 @@
 import pytest
 
 from cumulus_library import errors
-from cumulus_library.statistics.statistics_templates import counts_templates
+from cumulus_library.builders.statistics_templates import counts_templates
 
 
 @pytest.mark.parametrize(

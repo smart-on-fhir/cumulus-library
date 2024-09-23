@@ -8,7 +8,7 @@ import pytest
 from freezegun import freeze_time
 
 from cumulus_library import cli, study_manifest
-from cumulus_library.statistics import psm
+from cumulus_library.builders import psm_builder
 
 
 @freeze_time("2024-01-01")
@@ -66,7 +66,7 @@ def test_psm_create(
     manifest = study_manifest.StudyManifest(
         study_path=f"{pathlib.Path(__file__).parent}/test_data/psm/"
     )
-    psmbuilder = psm.PsmBuilder(
+    psmbuilder = psm_builder.PsmBuilder(
         f"{pathlib.Path(__file__).parent}/test_data/psm/{toml_def}",
         pathlib.Path(tmp_path),
     )
@@ -110,7 +110,7 @@ def test_psm_error_handling(mock_psm, error, tmp_path, mock_db_stats_config):
     manifest = study_manifest.StudyManifest(
         study_path=f"{pathlib.Path(__file__).parent}/test_data/psm/"
     )
-    psmbuilder = psm.PsmBuilder(
+    psmbuilder = psm_builder.PsmBuilder(
         f"{pathlib.Path(__file__).parent}/test_data/psm/psm_config.toml",
         pathlib.Path(tmp_path),
     )
