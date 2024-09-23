@@ -208,7 +208,7 @@ def run_statistics_builders(
         with open(toml_path, "rb") as file:
             stats_config = tomllib.load(file)
             config_type = stats_config["config_type"]
-            target_table = stats_config["target_table"]
+            target_table = stats_config.get("target_table", stats_config.get("table_prefix", ""))
 
         if (target_table,) in existing_stats and not config.stats_build:
             continue
