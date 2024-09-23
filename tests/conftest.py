@@ -272,11 +272,9 @@ def mock_db_config_rxnorm(mock_db):
     config = base_utils.StudyConfig(db=mock_db, schema="main")
     config.options = {"steward": "acep"}
     cursor = config.db.cursor()
-    mock_rxnorm_data = list(
-        (pathlib.Path(__file__).parent.parent / "test_data/valueset").glob("*.csv")
-    )
+    mock_rxnorm_data = list((pathlib.Path(__file__).parent / "test_data/valueset").glob("*.csv"))
     mock_umls_data = list(
-        (pathlib.Path(__file__).parent.parent / "test_data/valueset/umls_iteration").glob("*.csv")
+        (pathlib.Path(__file__).parent / "test_data/valueset/umls_iteration").glob("*.csv")
     )
     cursor = config.db.cursor()
     cursor.execute("CREATE SCHEMA rxnorm")

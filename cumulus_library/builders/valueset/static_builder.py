@@ -39,16 +39,17 @@ class StaticBuilder(BaseTableBuilder):
                     filtered_path=self.data_path / "./keywords.filtered.tsv",
                 )
             ]
-        if self.valueset_config.expansion_rules_file:
-            expansion_rules_path = self.study_path / self.valueset_config.expansion_rules_file
+        if self.valueset_config.rules_file:
+            rules_path = self.study_path / self.valueset_config.rules_file
         else:
-            expansion_rules_path = (
-                pathlib.Path(__file__).resolve().parents[0] / "expansion_rules.tsv"
+            rules_path = (
+                pathlib.Path(__file__).resolve().parents[0]
+                / "lookup_drug_from_ingredient_rules.tsv"
             )
         # TODO: get this table to write its parquet to the valueset_data folder
         configs += [
             TableConfig(
-                file_path=expansion_rules_path,
+                file_path=rules_path,
                 delimiter="\t",
                 table_name=f"{prefix}search_rules",
                 headers=[

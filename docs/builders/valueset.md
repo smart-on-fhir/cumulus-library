@@ -72,14 +72,18 @@ table_prefix = ""
 
 keyword_file = ""
 
-# expansion_rules_file allows you to specify a custom group of rules to use to
+# rules_file allows you to specify a custom group of rules to use to
 # traverse the UMLS MRREL tables, by allowing you to list relation types that
 # should be included.
 # Our default configuration is based on looking up drugs from their ingredients,
 # and that is our recommended use case for this, so you probably don't need to provide this
 # unless you are experimenting with a different kind of lookup topic.
-# Our default config is in cumulus_library/builders/valuesets/expansion_rules.tsv,
-# which you can use as a reference for starting your own.
+# Our default config is in 
+# cumulus_library/builders/valuesets/lookup_drug_from_ingredient_rules.tsv,
+# which you can use as a reference for starting your own. The column names corespond
+# to the column definitions in UMLS's MRREL table, with the exception of 'include'
+# which should be one of 'Yes' (use the rule), 'No' (Ingore the rule), or 'Keyword'
+# (Use the rule, but only if the seed was derived via keyword lookup).
 
 # For most cases, you should not need to supply this.
 # expansion_rules_file = "custom_rules.tsv"

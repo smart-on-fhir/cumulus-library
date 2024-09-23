@@ -27,7 +27,7 @@ def test_rxnorm_valueset_builder(mock_api, mock_db_config_rxnorm):
     with open(data_path / "valueset.toml", "rb") as file:
         toml_config = tomllib.load(file)
     valueset_config = valueset_utils.ValuesetConfig(
-        expansion_rules_file=toml_config.get("expansion_rules_file"),
+        rules_file=toml_config.get("rules_file"),
         keyword_file=toml_config.get("keyword_file"),
         table_prefix=toml_config.get("target_table", ""),
         umls_stewards=toml_config.get("umls_stewards"),
