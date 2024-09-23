@@ -492,7 +492,6 @@ def test_duckdb_date(mock_db, data, field_type, raises):
     [
         ("foo", True),
         ("bar", False),
-        (None, None),
     ],
 )
 def test_duckdb_regexp_like(mock_db, pattern, expects):

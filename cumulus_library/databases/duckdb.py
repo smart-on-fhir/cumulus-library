@@ -105,8 +105,6 @@ class DuckDatabaseBackend(base.DatabaseBackend):
 
     @staticmethod
     def _compat_regexp_like(string: str | None, pattern: str | None) -> bool:
-        if string is None or string == "None" or pattern is None or pattern == "None":
-            return None
         match = re.search(pattern, string)
         return match is not None
 
