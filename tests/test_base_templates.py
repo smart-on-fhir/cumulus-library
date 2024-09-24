@@ -576,7 +576,7 @@ def test_ctas_from_parquet(expected, db_type, schema, table, cols, remote_types)
     query = base_templates.get_ctas_from_parquet_query(
         schema_name=schema,
         table_name=table,
-        local_location="./tests/test_data",
+        local_location="./tests/test_data/*.parquet",
         remote_location="s3://bucket/data/",
         table_cols=cols,
         remote_table_cols_types=remote_types,

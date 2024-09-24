@@ -94,9 +94,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             self.connection.register(name, table)
 
     @staticmethod
-    def _compat_array_join(value: list[str | None] | None, delimiter: str | None) -> str | None:
-        if value is None:
-            return None
+    def _compat_array_join(value: list[str | None], delimiter: str | None) -> str:
         if delimiter is None or delimiter == "None":
             # This is exercised locally on unit tests but is not in CI. Not sure why,
             # and not sure it's worth debugging
@@ -105,18 +103,14 @@ class DuckDatabaseBackend(base.DatabaseBackend):
 
     @staticmethod
     def _compat_regexp_like(string: str | None, pattern: str | None) -> bool:
-        if string is None or string == "None" or pattern is None or pattern == "None":
-            return None
         match = re.search(pattern, string)
         return match is not None
 
     @staticmethod
     def _compat_date(
-        value: str | datetime.datetime | datetime.date | None,
-    ) -> datetime.date | None:
-        if value is None:
-            return None
-        elif isinstance(value, str):
+        value: str | datetime.datetime | datetime.date,
+    ) -> datetime.date:
+        if isinstance(value, str):
             return datetime.date.fromisoformat(value)
         elif isinstance(value, datetime.datetime):
             return value.date()
@@ -134,11 +128,8 @@ class DuckDatabaseBackend(base.DatabaseBackend):
 
     @staticmethod
     def _compat_from_iso8601_timestamp(
-        value: str | None,
-    ) -> datetime.datetime | None:
-        if value is None:
-            return None
-
+        value: str,
+    ) -> datetime.datetime:
         # handle partial dates like 1970 or 1980-12 (which spec allows)
         if len(value) < 10:
             pieces = value.split("-")

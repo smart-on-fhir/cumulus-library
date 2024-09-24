@@ -11,6 +11,7 @@ MRCONSO.RRF
 *.zip
 coverage.xml
 *.parquet
+valueset_data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

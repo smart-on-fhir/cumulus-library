@@ -4,7 +4,6 @@ import pathlib
 import shutil
 import zipfile
 from contextlib import nullcontext as does_not_raise
-from pathlib import Path
 from unittest import mock
 
 import pandas
@@ -286,11 +285,11 @@ def test_build_study(mock_db_config, study_path, verbose, expects, raises):
         ),
     ],
 )
-def test_run_statistics_builders(
+def test_run_psm_statistics_builders(
     tmp_path, mock_db_stats_config, study_path, stats, previous, expects, raises
 ):
     with raises:
-        manifest = study_manifest.StudyManifest(study_path, data_path=tmp_path)
+        manifest = study_manifest.StudyManifest(pathlib.Path(study_path), data_path=tmp_path)
         config = base_utils.StudyConfig(
             db=mock_db_stats_config.db,
             schema=mock_db_stats_config.schema,
@@ -321,9 +320,28 @@ def test_run_statistics_builders(
             assert expects in tables
 
 
+@mock.patch("cumulus_library.builders.valueset_builder.ValuesetBuilder.execute_queries")
+def test_invoke_valueset_builder(mock_builder, mock_db_config, tmp_path):
+    manifest = study_manifest.StudyManifest(
+        pathlib.Path(__file__).parent / "test_data/valueset", data_path=tmp_path
+    )
+    builder.run_protected_table_builder(
+        config=mock_db_config,
+        manifest=manifest,
+    )
+    config = base_utils.StudyConfig(
+        db=mock_db_config.db, schema=mock_db_config.schema, stats_build=True
+    )
+    builder.run_statistics_builders(
+        config=config,
+        manifest=manifest,
+    )
+    assert mock_builder.is_called()
+
+
 def test_export_study(tmp_path, mock_db_core_config):
     manifest = study_manifest.StudyManifest(
-        f"{Path(__file__).parent.parent}/cumulus_library/studies/core",
+        f"{pathlib.Path(__file__).parent.parent}/cumulus_library/studies/core",
         data_path=f"{tmp_path}/export",
     )
     exporter.export_study(
@@ -333,7 +351,7 @@ def test_export_study(tmp_path, mock_db_core_config):
         archive=False,
         chunksize=20,
     )
-    for file in Path(f"{tmp_path}/export").glob("*.*"):
+    for file in pathlib.Path(f"{tmp_path}/export").glob("*.*"):
         assert file in manifest.get_export_table_list()
 
 
@@ -443,7 +461,7 @@ def test_upload_data(user, id_token, status, preview, login_error, raises):
                 json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
             )
         args = {
-            "data_path": pathlib.Path.cwd() / "tests/test_data",
+            "data_path": pathlib.Path.cwd() / "tests/test_data/upload/",
             "id": id_token,
             "preview": preview,
             "target": "core",
@@ -464,7 +482,7 @@ def test_upload_data(user, id_token, status, preview, login_error, raises):
 def test_generate_sql(mock_db_config, tmp_path, study, external):
     with does_not_raise():
         shutil.copytree(
-            f"{Path(__file__).resolve().parents[0]}/test_data/{study}",
+            f"{pathlib.Path(__file__).resolve().parents[0]}/test_data/{study}",
             f"{tmp_path}/{study}/",
         )
         manifest = study_manifest.StudyManifest(study_path=pathlib.Path(f"{tmp_path}/{study}/"))
@@ -487,7 +505,7 @@ def test_generate_sql(mock_db_config, tmp_path, study, external):
 def test_generate_md(mock_db_config, tmp_path):
     with does_not_raise():
         shutil.copytree(
-            f"{Path(__file__).resolve().parents[0]}/test_data/study_python_valid",
+            f"{pathlib.Path(__file__).resolve().parents[0]}/test_data/study_python_valid",
             f"{tmp_path}/study_python_valid/",
         )
         manifest = study_manifest.StudyManifest(

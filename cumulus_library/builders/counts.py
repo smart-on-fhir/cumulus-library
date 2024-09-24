@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from cumulus_library import BaseTableBuilder, errors, study_manifest
-from cumulus_library.statistics.statistics_templates import counts_templates
+from cumulus_library.builders.statistics_templates import counts_templates
 
 # Defined here for easy overriding by tests
 DEFAULT_MIN_SUBJECT = 10

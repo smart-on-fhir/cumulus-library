@@ -3,7 +3,7 @@
 import copy
 import datetime
 import json
-from pathlib import Path
+import pathlib
 
 import numpy
 import pandas
@@ -15,7 +15,7 @@ from cumulus_library.databases import create_db_backend
 
 # Useful constants
 
-TESTS_ROOT = Path(__file__).parent
+TESTS_ROOT = pathlib.Path(__file__).parent
 LIBRARY_ROOT = TESTS_ROOT.parent / "cumulus_library"
 MOCK_DATA_DIR = f"{TESTS_ROOT}/test_data/duckdb_data"
 ID_PATHS = {
@@ -53,7 +53,7 @@ def get_sorted_table_data(cursor, table):
 def duckdb_args(args: list, tmp_path, stats=False):
     """Convenience function for adding duckdb args to a CLI mock"""
     if stats:
-        ndjson_data_generator(Path(MOCK_DATA_DIR), Path(f"{tmp_path}/stats_db"), 20)
+        ndjson_data_generator(pathlib.Path(MOCK_DATA_DIR), pathlib.Path(f"{tmp_path}/stats_db"), 20)
         target = f"{tmp_path}/stats_db"
     else:
         target = f"{MOCK_DATA_DIR}"
@@ -90,7 +90,7 @@ def date_to_epoch(year: int, month: int, day: int) -> int:
     return int(datetime.datetime(year, month, day, tzinfo=datetime.UTC).timestamp())
 
 
-def ndjson_data_generator(source_dir: Path, target_dir: Path, iterations: int):
+def ndjson_data_generator(source_dir: pathlib.Path, target_dir: pathlib.Path, iterations: int):
     """Uses the test data as a template to create large datasets
 
     Rather than a complex find/replace operation, we're just appending ints cast
@@ -116,7 +116,7 @@ def ndjson_data_generator(source_dir: Path, target_dir: Path, iterations: int):
         return obj
 
     for key in ID_PATHS:
-        for filepath in [f for f in Path(source_dir / key).iterdir()]:
+        for filepath in [f for f in pathlib.Path(source_dir / key).iterdir()]:
             ref_df = pandas.read_json(filepath, lines=True)
             output_df = pandas.DataFrame()
             for i in range(0, iterations):
@@ -141,7 +141,7 @@ def ndjson_data_generator(source_dir: Path, target_dir: Path, iterations: int):
                     output_df[null_bool_col] = output_df[null_bool_col].replace({0.0: False})
             output_df = output_df.replace({numpy.nan: None})
 
-            write_path = Path(str(target_dir) + f"/{key}/{filepath.name}")
+            write_path = pathlib.Path(str(target_dir) + f"/{key}/{filepath.name}")
             write_path.parent.mkdir(parents=True, exist_ok=True)
             # pandas.to_json() fails due to the datamodel complexity, so we'll manually
             # coerce to ndjson
@@ -226,7 +226,7 @@ def mock_db_core(tmp_path, mock_db):  # pylint: disable=redefined-outer-name
     )
     builder = cli.StudyRunner(config, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
-        Path(__file__).parent.parent / "cumulus_library/studies/core",
+        pathlib.Path(__file__).parent.parent / "cumulus_library/studies/core",
     )
     yield mock_db
 
@@ -241,7 +241,7 @@ def mock_db_core_config(mock_db_core):
 @pytest.fixture
 def mock_db_stats(tmp_path):
     """Provides a DuckDatabaseBackend with a larger dataset for sampling stats"""
-    ndjson_data_generator(Path(MOCK_DATA_DIR), f"{tmp_path}/mock_data", 20)
+    ndjson_data_generator(pathlib.Path(MOCK_DATA_DIR), f"{tmp_path}/mock_data", 20)
     db, schema = create_db_backend(
         {
             "db_type": "duckdb",
@@ -255,7 +255,7 @@ def mock_db_stats(tmp_path):
     )
     builder = cli.StudyRunner(config, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
-        Path(__file__).parent.parent / "cumulus_library/studies/core",
+        pathlib.Path(__file__).parent.parent / "cumulus_library/studies/core",
     )
     yield db
 
@@ -264,4 +264,27 @@ def mock_db_stats(tmp_path):
 def mock_db_stats_config(mock_db_stats):
     """Provides a DuckDatabaseBackend with core study inside a StudyConfig"""
     config = base_utils.StudyConfig(db=mock_db_stats, schema="main")
+    yield config
+
+
+@pytest.fixture
+def mock_db_config_rxnorm(mock_db):
+    config = base_utils.StudyConfig(db=mock_db, schema="main")
+    config.options = {"steward": "acep"}
+    cursor = config.db.cursor()
+    mock_rxnorm_data = list((pathlib.Path(__file__).parent / "test_data/valueset").glob("*.csv"))
+    mock_umls_data = list(
+        (pathlib.Path(__file__).parent / "test_data/valueset/umls_iteration").glob("*.csv")
+    )
+    cursor = config.db.cursor()
+    cursor.execute("CREATE SCHEMA rxnorm")
+    cursor.execute("CREATE SCHEMA umls")
+    for mock_table in mock_rxnorm_data:
+        cursor.execute(
+            f"CREATE TABLE rxnorm.{mock_table.stem} AS SELECT * FROM read_csv('{mock_table}')"
+        )
+    for mock_table in mock_umls_data:
+        cursor.execute(
+            f"CREATE TABLE umls.{mock_table.stem} AS SELECT * FROM read_csv('{mock_table}')"
+        )
     yield config

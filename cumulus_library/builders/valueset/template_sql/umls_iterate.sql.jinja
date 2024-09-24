@@ -1,0 +1,60 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+{%- if tier == 1 %}
+{%- if create_table  %}
+CREATE TABLE {{ prefix }}{{ table_prefix }}umls_valuesets_rels AS 
+{%- else %}
+INSERT INTO {{ prefix }}{{ table_prefix }}umls_valuesets_rels
+{%- endif %}
+WITH vocab AS (
+    SELECT cui, tty, code, str FROM umls.mrconso
+    WHERE sab = '{{ sab }}'
+    AND LAT = 'ENG'
+    AND tty NOT IN ('RB', 'PAR')
+    AND (
+        {%- for term in search_terms %}
+        {{ syntax.or_delineate(loop) }} {{ syntax.ilike('str', '%' + term + '%') }}
+        {%- endfor %}
+    )
+)
+SELECT DISTINCT 
+    cast('{{ steward }}' AS VARCHAR) AS steward, 
+    cast({{ tier }} AS INTEGER) AS tier,
+    m.cui1 AS cui,
+    m.cui1,
+    m.rel,
+    m.rela,
+    m.cui2,
+    m.sab,
+    v.tty,
+    v.code,
+    v.str
+FROM umls.mrrel_is_a AS m, vocab AS v
+WHERE m.cui1 = v.cui
+
+
+{%- else %}
+INSERT INTO {{ prefix }}{{ table_prefix }}umls_valuesets_rels
+SELECT DISTINCT
+    '{{ steward }}' AS steward,
+    {{ tier }} AS tier,
+    r.cui2 AS cui,
+    r.cui1,
+    r.rel,
+    r.rela,
+    r.cui2,
+    d.sab,
+    d.tty,
+    d.code,
+    d.str
+FROM
+    {{ prefix }}{{ table_prefix }}umls_valuesets_rels AS v,
+    umls.mrrel_is_a AS r,
+    umls.mrconso_drugs AS d
+WHERE
+    r.cui1 = v.cui
+    AND r.cui2 = d.cui
+    AND v.tier = {{ tier -1 }}
+    AND r.cui2 NOT IN (
+        SELECT DISTINCT cui FROM {{ prefix }}{{ table_prefix }}umls_valuesets_rels
+    )
+{%- endif %}

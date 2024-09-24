@@ -1,5 +1,5 @@
 ---
-title: Statistics
+title: Targeted Builders
 parent: Library
 nav_order: 8
 has_children: true
@@ -9,12 +9,13 @@ has_children: true
 
 # Statistics reference
 
-This page contains detailed documentation on statistics utilities provided 
+This page contains detailed documentation on table building utilities utilities provided 
 for use in Cumulus studies.
 
-## Specific stats modules
+## Specific builder modules
 
-- [Propensity Score Matching](statistics/propensity-score-matching.md).
+- [Propensity Score Matching](builders/propensity-score-matching.md).
+- [Valueset Compilation](builders/valueset.md).
 
 ## General usage guidelines
 

@@ -16,7 +16,9 @@ class StudyManifest:
     ):
         """Instantiates a StudyManifest.
 
-        :param study_path: A pathlib Path object, optional
+        :param study_path: A Path object pointing to the dir of the manifest, optional
+        :param data_path: A Path object pointing to the dir to save/load ancillary files from,
+            optional
         """
         self._study_path = None
         self._study_config = {}
