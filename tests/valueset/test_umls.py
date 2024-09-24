@@ -1,15 +1,18 @@
 import os
 from unittest import mock
 
+import pytest
+
 from cumulus_library import StudyManifest
 from cumulus_library.builders.valueset import umls, valueset_utils
 
 
+@pytest.mark.parametrize("prefix", [(""), ("foo")])
 @mock.patch.dict(
     os.environ,
     clear=True,
 )
-def test_umls_lookup(mock_db_config_rxnorm):
+def test_umls_lookup(mock_db_config_rxnorm, prefix):
     cursor = mock_db_config_rxnorm.db.cursor()
     manifest = StudyManifest()
     manifest._study_config = {"study_prefix": "test"}
@@ -17,9 +20,12 @@ def test_umls_lookup(mock_db_config_rxnorm):
     valueset_config = valueset_utils.ValuesetConfig(
         umls_stewards={"medrt": {"sab": "MED-RT", "search_terms": ["Opioid"]}}
     )
+    if prefix:
+        valueset_config.table_prefix = prefix
+        prefix += "_"
     umls.generate_umls_tables(mock_db_config_rxnorm, manifest, valueset_config)
 
-    res = cursor.execute("SELECT * FROM test__umls_valuesets_rels").fetchall()
+    res = cursor.execute(f"SELECT * FROM test__{prefix}umls_valuesets_rels").fetchall()
     expected = {
         (
             "medrt",
@@ -285,7 +291,7 @@ def test_umls_lookup(mock_db_config_rxnorm):
 
     assert set(res) == expected
 
-    res = cursor.execute("SELECT * FROM test__umls_valuesets").fetchall()
+    res = cursor.execute(f"SELECT * FROM test__{prefix}umls_valuesets").fetchall()
     expected = {
         (
             886627,

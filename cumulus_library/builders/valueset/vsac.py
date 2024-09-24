@@ -52,15 +52,15 @@ def download_oid_data(
 
 
 def main(cli_args=None):
-    """Temporary CLI interface"""
+    """Deprecated CLI interface"""
     parser = argparse.ArgumentParser()
     (
         parser.add_argument(
-            "steward", help="Human-friendly name for steward (used for filenames)", default=None
+            "--steward", help="Human-friendly name for steward (used for filenames)", default=None
         ),
     )
     parser.add_argument("--oid", help="oid to look up codes for", default=None)
-    parser.add_argument("--api_key", help="UMLS api key", default=None)
+    parser.add_argument("--api-key", help="UMLS api key", default=None)
     parser.add_argument(
         "--force-upload",
         help="Force redownloading of data even if it already exists",
@@ -78,4 +78,4 @@ def main(cli_args=None):
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no-cover

@@ -49,3 +49,11 @@ def test_download_oid_data(
             assert tsv[-1].strip() == "998213\t1 ML morphine sulfate 4 MG/ML Prefilled Syringe"
         redownload = vsac.download_oid_data(steward=steward, oid=oid, path=tmp_path, config=config)
         assert redownload == force
+
+
+@mock.patch("cumulus_library.builders.valueset.vsac.download_oid_data")
+def test_cli(mock_download):
+    vsac.main(
+        cli_args=["--steward=acep", "--oid=123", "--api-key=456", "--force-upload", "--path=/tmp"]
+    )
+    assert mock_download.is_called

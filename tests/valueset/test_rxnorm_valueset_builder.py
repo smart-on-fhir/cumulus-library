@@ -4,6 +4,8 @@ import pathlib
 import tomllib
 from unittest import mock
 
+import pytest
+
 from cumulus_library import study_manifest
 from cumulus_library.builders.valueset import (
     rxnorm_valueset_builder,
@@ -12,12 +14,13 @@ from cumulus_library.builders.valueset import (
 )
 
 
+@pytest.mark.parametrize("prefix", [(""), ("foo")])
 @mock.patch.dict(
     os.environ,
     clear=True,
 )
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
-def test_rxnorm_valueset_builder(mock_api, mock_db_config_rxnorm):
+def test_rxnorm_valueset_builder(mock_api, mock_db_config_rxnorm, prefix):
     data_path = pathlib.Path(__file__).parent.parent / "test_data/valueset/"
     with open(data_path / "vsac_resp.json") as f:
         resp = json.load(f)
@@ -33,6 +36,9 @@ def test_rxnorm_valueset_builder(mock_api, mock_db_config_rxnorm):
         umls_stewards=toml_config.get("umls_stewards"),
         vsac_stewards=toml_config.get("vsac_stewards"),
     )
+    if prefix:
+        valueset_config.table_prefix = prefix
+        prefix += "_"
 
     cursor = mock_db_config_rxnorm.db.cursor()
     s_builder = static_builder.StaticBuilder()
@@ -43,7 +49,7 @@ def test_rxnorm_valueset_builder(mock_api, mock_db_config_rxnorm):
     builder.execute_queries(
         config=mock_db_config_rxnorm, manifest=manifest, valueset_config=valueset_config
     )
-    res = cursor.execute("select * from test__rela ORDER BY 1,2,3,4,5").fetchall()
+    res = cursor.execute(f"select * from test__{prefix}rela ORDER BY 1,2,3,4,5").fetchall()
     assert len(res) == 1200
     assert res[0] == (
         1819,

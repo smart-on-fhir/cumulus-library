@@ -112,6 +112,7 @@ def test_clean_throws_error_on_missing_params(mock_db_config):
     [
         ("./tests/test_data/study_valid/", False),
         ("./tests/test_data/psm/", True),
+        ("./tests/test_data/valueset/", True),
     ],
 )
 def test_run_protected_table_builder(mock_db_config, study_path, stats):

@@ -34,13 +34,6 @@ from cumulus_library.builders.valueset import valueset_utils
 from cumulus_library.template_sql import base_templates
 
 
-def get_umls_stewards(
-    *, config: valueset_utils.ValuesetConfig | None = None, steward: str | None = None
-) -> list[str]:
-    """Gets the umls steward target(s) from the StudyConfig options"""
-    return config.umls_seeds.keys()
-
-
 def generate_umls_tables(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
