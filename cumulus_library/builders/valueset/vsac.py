@@ -29,7 +29,7 @@ def download_oid_data(
         api_key = config.umls_key
         force_upload = config.force_upload
     if not path:
-        path = pathlib.Path(__file__).parent.parent / "data"
+        path = pathlib.Path(__file__).parent.parent / "data"  # pragma: no cover
     path.mkdir(exist_ok=True, parents=True)
     if not (force_upload) and (path / f"{steward}.parquet").exists():
         print(f"{steward} data present at {path}, skipping download.")
@@ -78,4 +78,4 @@ def main(cli_args=None):
 
 
 if __name__ == "__main__":
-    main()  # pragma: no-cover
+    main()  # pragma: no cover

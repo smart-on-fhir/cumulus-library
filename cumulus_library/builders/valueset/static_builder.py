@@ -126,7 +126,6 @@ class StaticBuilder(BaseTableBuilder):
         prefix = self.valueset_config.table_prefix
         if prefix:
             prefix += "_"
-
         # fetch and add vsac tables
         self.tables = self.get_table_configs(prefix)
         vsac_df = pandas.DataFrame(columns=["rxcui", "display", "steward", "oid"])

@@ -8,13 +8,12 @@ from cumulus_library.builders.valueset import static_builder, valueset_utils
 
 
 @pytest.mark.parametrize(
-    "filtered,ignore_header,prefix_str,keyword_path,mapping,expected",
+    "filtered,ignore_header,prefix_str,mapping,expected",
     [
         (
             None,
             False,
             "",
-            None,
             None,
             {
                 "headers": ["foo", "bar"],
@@ -30,14 +29,12 @@ from cumulus_library.builders.valueset import static_builder, valueset_utils
             False,
             "",
             None,
-            None,
             {"headers": ["foo", "bar"], "data": [("val_2", None)]},
         ),
         (
             None,
             True,
             "",
-            "keywords.tsv",
             None,
             {
                 "headers": ["foo", "bar"],
@@ -48,7 +45,6 @@ from cumulus_library.builders.valueset import static_builder, valueset_utils
             None,
             None,
             "foo",
-            None,
             [{"from": "bar", "to": "baz", "map_dict": {"val_2": "val_5"}}],
             {
                 "headers": ["foo", "bar", "baz"],
@@ -62,9 +58,8 @@ from cumulus_library.builders.valueset import static_builder, valueset_utils
     ],
 )
 def test_static_tables(
-    tmp_path, mock_db_config, filtered, ignore_header, prefix_str, keyword_path, mapping, expected
+    tmp_path, mock_db_config, filtered, ignore_header, prefix_str, mapping, expected
 ):
-    mock_db_config.options = {"steward": "acep"}
     test_path = pathlib.Path(__file__).parent.parent / "test_data/valueset/"
     shutil.copy(test_path / "static/static_table.csv", tmp_path / "static_table.csv")
     shutil.copy(test_path / "static/filtered.csv", tmp_path / "filtered.csv")
@@ -74,8 +69,6 @@ def test_static_tables(
     if prefix_str:
         valueset_config.table_prefix = prefix_str
         prefix_str += "_"
-    if keyword_path:
-        valueset_config.keyword_path = keyword_path
     builder = static_builder.StaticBuilder()
     filtered = tmp_path / filtered if filtered else None
     builder.get_table_configs = lambda prefix: [
@@ -100,3 +93,23 @@ def test_static_tables(
     cols = [col[0] for col in result.description]
     assert cols == expected["headers"]
     assert result.fetchall() == expected["data"]
+
+
+def test_custom_rules(tmp_path, mock_db_config):
+    test_path = pathlib.Path(__file__).parent.parent / "test_data/valueset/"
+    shutil.copy(test_path / "static/static_table.csv", tmp_path / "static_table.csv")
+    shutil.copy(test_path / "static/filtered.csv", tmp_path / "filtered.csv")
+    valueset_config = valueset_utils.ValuesetConfig(
+        vsac_stewards={"acep": "2.16.840.1.113762.1.4.1106.68"},
+        rules_file="rules_file.tsv",
+        table_prefix="",
+    )
+    builder = static_builder.StaticBuilder()
+    builder.execute_queries(
+        config=mock_db_config,
+        manifest=study_manifest.StudyManifest(test_path),
+        valueset_config=valueset_config,
+    )
+    result = mock_db_config.db.cursor().execute("select * from test__search_rules").fetchall()
+    assert len(result) == 3
+    assert ("BN", "reformulated_to", "BN", "Yes", True) in result
