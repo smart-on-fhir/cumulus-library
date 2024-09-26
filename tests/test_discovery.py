@@ -46,18 +46,17 @@ def test_discovery(tmp_path):
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     cursor = db.cursor()
     table_rows, cols = conftest.get_sorted_table_data(cursor, "discovery__code_sources")
-    for i in range(0, len(table_rows)):
-        table_rows[i] = tuple([x if x else "" for x in table_rows[i]])
+    table_rows = [tuple(x or "" for x in row) for row in table_rows]
 
     # For regenerating test data
-    with open(
-        f"{pathlib.Path(__file__).resolve().parents[0]}"
-        "/test_data/discovery/discovery__code_sources.csv",
-        "w",
-    ) as f:
-        writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
-        for row in table_rows:
-            writer.writerow(row)
+    # with open(
+    #     f"{pathlib.Path(__file__).resolve().parents[0]}"
+    #     "/test_data/discovery/discovery__code_sources.csv",
+    #     "w",
+    # ) as f:
+    #     writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
+    #     for row in table_rows:
+    #         writer.writerow(row)
 
     try:
         with open(
