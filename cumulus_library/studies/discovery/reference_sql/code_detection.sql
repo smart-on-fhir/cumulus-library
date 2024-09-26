@@ -7,6 +7,90 @@
 -- ###########################################################
 
 CREATE TABLE discovery__code_sources AS
+SELECT *
+FROM (
+    VALUES (
+        'allergyintolerance',
+        'clinicalstatus',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'allergyintolerance',
+        'verificationtstatus',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'allergyintolerance',
+        'code',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'allergyintolerance',
+        'reaction.substance',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'allergyintolerance',
+        'reaction.manifestation',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'allergyintolerance',
+        'reaction.exposureroute',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
 SELECT DISTINCT
     'condition' AS table_name,
     'category' AS column_name,
@@ -19,14 +103,59 @@ UNNEST(col_1.coding) as table_2 (col_2)
 
 UNION
 
-SELECT DISTINCT
-    'condition' AS table_name,
-    'code' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM condition,
-UNNEST(code.coding) AS table_1 (col_1)
+SELECT *
+FROM (
+    VALUES (
+        'condition',
+        'code',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'diagnosticreport',
+        'category',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'diagnosticreport',
+        'code',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'diagnosticreport',
+        'conclusioncode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
 
 UNION
 
@@ -115,14 +244,17 @@ UNNEST(col_1.coding) as table_2 (col_2)
 
 UNION
 
-SELECT DISTINCT
-    'encounter' AS table_name,
-    'hospitalization.dischargedisposition' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM encounter,
-UNNEST(hospitalization.dischargedisposition.coding) AS table_1 (col_1)
+SELECT *
+FROM (
+    VALUES (
+        'encounter',
+        'hospitalization.dischargedisposition',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
 
 UNION
 
@@ -235,6 +367,155 @@ SELECT DISTINCT
     table_1.col_1.system
 FROM patient,
 UNNEST(maritalstatus.coding) AS table_1 (col_1)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'statusreason',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'category',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT DISTINCT
+    'procedure' AS table_name,
+    'code' AS column_name,
+    table_1.col_1.code,
+    table_1.col_1.display,
+    table_1.col_1.system
+FROM procedure,
+UNNEST(code.coding) AS table_1 (col_1)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'performer.function',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT DISTINCT
+    'procedure' AS table_name,
+    'reasoncode' AS column_name,
+    table_2.col_2.code,
+    table_2.col_2.display,
+    table_2.col_2.system
+FROM procedure,
+UNNEST(reasoncode) AS table_1 (col_1),
+UNNEST(col_1.coding) as table_2 (col_2)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'bodysite',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'outcome',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'complication',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'followup',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'focalDevice.action',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION
+
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'usedcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
 
 
 

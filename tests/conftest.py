@@ -178,6 +178,7 @@ def debug_table_head(cursor, table, rows=3, cols="*"):
 def debug_diff_tables(cols, found, ref, pos=0):
     cols = cols if len(cols) > 0 else []
     found = found[pos] if len(found) > pos else []
+    print(str(ref))
     ref = ref[pos] if len(ref) > pos else []
     max_size = max(len(found), len(ref))
     diff_table = table.Table(title=f"Row {pos} delta")

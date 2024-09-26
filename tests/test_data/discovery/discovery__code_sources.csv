@@ -1,0 +1,248 @@
+allergyintolerance,clinicalstatus,active,,http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical
+allergyintolerance,code,102263004,Eggs (edible) (substance),http://snomed.info/sct
+allergyintolerance,code,1191,Aspirin,http://www.nlm.nih.gov/research/umls/rxnorm
+allergyintolerance,code,256277009,Grass pollen (substance),http://snomed.info/sct
+allergyintolerance,code,260147004,House dust mite (organism),http://snomed.info/sct
+allergyintolerance,code,264287008,Animal dander (substance),http://snomed.info/sct
+allergyintolerance,code,288328004,Bee venom (substance),http://snomed.info/sct
+allergyintolerance,code,3718001,Cow's milk (substance),http://snomed.info/sct
+allergyintolerance,code,412071004,Wheat (substance),http://snomed.info/sct
+allergyintolerance,code,442571000124108,Tree nut (substance),http://snomed.info/sct
+allergyintolerance,code,735029006,Shellfish (substance),http://snomed.info/sct
+allergyintolerance,code,782576004,Tree pollen (substance),http://snomed.info/sct
+allergyintolerance,code,7984,Penicillin V,http://www.nlm.nih.gov/research/umls/rxnorm
+allergyintolerance,code,84489001,Mold (organism),http://snomed.info/sct
+allergyintolerance,reaction.exposureroute,,,
+allergyintolerance,reaction.manifestation,,,
+allergyintolerance,reaction.substance,,,
+allergyintolerance,verificationtstatus,,,
+condition,category,encounter-diagnosis,Encounter Diagnosis,http://terminology.hl7.org/CodeSystem/condition-category
+condition,code,10509002,Acute bronchitis (disorder),http://snomed.info/sct
+condition,code,160903007,Full-time employment (finding),http://snomed.info/sct
+condition,code,195662009,Acute viral pharyngitis (disorder),http://snomed.info/sct
+condition,code,33737001,Fracture of rib,http://snomed.info/sct
+condition,code,368581000119106,Neuropathy due to type 2 diabetes mellitus (disorder),http://snomed.info/sct
+condition,code,422650009,Social isolation (finding),http://snomed.info/sct
+condition,code,424393004,Reports of violence in the environment (finding),http://snomed.info/sct
+condition,code,44465007,Sprain of ankle,http://snomed.info/sct
+condition,code,444814009,Viral sinusitis (disorder),http://snomed.info/sct
+condition,code,73595000,Stress (finding),http://snomed.info/sct
+condition,code,741062008,Not in labor force (finding),http://snomed.info/sct
+diagnosticreport,category,34117-2,History and physical note,http://loinc.org
+diagnosticreport,category,51847-2,Evaluation + Plan note,http://loinc.org
+diagnosticreport,category,LAB,Laboratory,http://terminology.hl7.org/CodeSystem/v2-0074
+diagnosticreport,code,24321-2,Basic Metabolic 2000 Panel,http://loinc.org
+diagnosticreport,code,24321-2,Basic metabolic 2000 panel - Serum or Plasma,http://loinc.org
+diagnosticreport,code,24323-8,Comprehensive metabolic 2000 panel - Serum or Plasma,http://loinc.org
+diagnosticreport,code,24356-8,Urinalysis complete panel - Urine,http://loinc.org
+diagnosticreport,code,24357-6,Urinalysis macro (dipstick) panel - Urine,http://loinc.org
+diagnosticreport,code,34117-2,History and physical note,http://loinc.org
+diagnosticreport,code,44249-1,PHQ-9 quick depression assessment panel [Reported.PHQ],http://loinc.org
+diagnosticreport,code,51847-2,Evaluation + Plan note,http://loinc.org
+diagnosticreport,code,51990-0,Basic Metabolic Panel,http://loinc.org
+diagnosticreport,code,51990-0,Basic metabolic panel - Blood,http://loinc.org
+diagnosticreport,code,55757-9,Patient Health Questionnaire 2 item (PHQ-2) [Reported],http://loinc.org
+diagnosticreport,code,57698-3,Lipid panel with direct LDL - Serum or Plasma,http://loinc.org
+diagnosticreport,code,58410-2,CBC panel - Blood by Automated count,http://loinc.org
+diagnosticreport,code,58410-2,Complete blood count (hemogram) panel - Blood by Automated count,http://loinc.org
+diagnosticreport,code,59453-1,Morse Fall Scale panel,http://loinc.org
+diagnosticreport,code,69409-1,U.S. standard certificate of death - 2003 revision,http://loinc.org
+diagnosticreport,code,69737-5,Generalized anxiety disorder 7 item (GAD-7),http://loinc.org
+diagnosticreport,code,72109-2,Alcohol Use Disorder Identification Test - Consumption [AUDIT-C],http://loinc.org
+diagnosticreport,code,76499-3,"Humiliation, Afraid, Rape, and Kick questionnaire [HARK]",http://loinc.org
+diagnosticreport,code,80381-7,Influenza virus A and B Ag panel - Upper respiratory specimen by Rapid immunoassay,http://loinc.org
+diagnosticreport,code,82666-9,Drug Abuse Screening Test-10 [DAST-10],http://loinc.org
+diagnosticreport,code,89206-7,Patient Health Questionnaire-9: Modified for Teens [Reported.PHQ.Teen],http://loinc.org
+diagnosticreport,code,94531-1,SARS-CoV-2 RNA Pnl Resp NAA+probe,http://loinc.org
+diagnosticreport,conclusioncode,,,
+documentreference,category,clinical-note,Clinical Note,http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category
+documentreference,type,34111-5,Emergency department note,http://loinc.org
+documentreference,type,51847-2,Evaluation + Plan note,http://loinc.org
+encounter,class,AMB,,http://terminology.hl7.org/CodeSystem/v3-ActCode
+encounter,class,EMER,,http://terminology.hl7.org/CodeSystem/v3-ActCode
+encounter,hospitalization.dischargedisposition,01,Discharged to home care or self care (routine discharge),http://www.nubc.org/patient-discharge
+encounter,priority,,,
+encounter,reasoncode,10509002,Acute bronchitis (disorder),http://snomed.info/sct
+encounter,reasoncode,161665007,History of renal transplant (situation),http://snomed.info/sct
+encounter,reasoncode,195662009,Acute viral pharyngitis (disorder),http://snomed.info/sct
+encounter,reasoncode,271737000,Anemia (disorder),http://snomed.info/sct
+encounter,reasoncode,431857002,Chronic kidney disease stage 4 (disorder),http://snomed.info/sct
+encounter,reasoncode,444814009,Viral sinusitis (disorder),http://snomed.info/sct
+encounter,reasoncode,55680006,Drug overdose,http://snomed.info/sct
+encounter,reasoncode,72892002,Normal pregnancy,http://snomed.info/sct
+encounter,reasoncode,88805009,Chronic congestive heart failure (disorder),http://snomed.info/sct
+encounter,servicetype,,,
+encounter,type,162673000,General examination of patient (procedure),http://snomed.info/sct
+encounter,type,185345009,Encounter for symptom,http://snomed.info/sct
+encounter,type,185347001,Encounter for problem,http://snomed.info/sct
+encounter,type,185347001,Encounter for problem (procedure),http://snomed.info/sct
+encounter,type,185349003,Encounter for check up,http://snomed.info/sct
+encounter,type,185349003,Encounter for check up (procedure),http://snomed.info/sct
+encounter,type,308335008,Patient encounter procedure,http://snomed.info/sct
+encounter,type,371883000,Outpatient procedure,http://snomed.info/sct
+encounter,type,410620009,Well child visit (procedure),http://snomed.info/sct
+encounter,type,424619006,Prenatal visit,http://snomed.info/sct
+encounter,type,439740005,Postoperative follow-up visit (procedure),http://snomed.info/sct
+encounter,type,448337001,Telemedicine consultation with patient,http://snomed.info/sct
+encounter,type,50849002,Emergency room admission (procedure),http://snomed.info/sct
+encounter,type,698314001,Consultation for treatment,http://snomed.info/sct
+encounter,type,702927004,Urgent care clinic (environment),http://snomed.info/sct
+medication,codecodeableconcept,,,
+medication,medicationcode,,,
+medicationrequest,medicationcodeableconcept,1000126,1 ML medroxyPROGESTERone acetate 150 MG/ML Injection,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,106892,"insulin isophane, human 70 UNT/ML / insulin, regular, human 30 UNT/ML Injectable Suspension [Humulin]",http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,108515,1 ML tacrolimus 5 MG/ML Injection,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,1664463,24 HR tacrolimus 1 MG Extended Release Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,1860491,12 HR Hydrocodone Bitartrate 10 MG Extended Release Oral Capsule,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,205923,1 ML Epoetin Alfa 4000 UNT/ML Injection [Epogen],http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,245134,72 HR Fentanyl 0.025 MG/HR Transdermal System,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,2563431,aspirin 81 MG Oral Capsule,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,308136,amLODIPine 2.5 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,310798,Hydrochlorothiazide 25 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,310965,Ibuprofen 200 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,313782,Acetaminophen 325 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,313820,Acetaminophen 160 MG Chewable Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,314076,lisinopril 10 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,349094,budesonide 0.125 MG/ML Inhalation Suspension,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,630208,albuterol 0.83 MG/ML Inhalation Solution,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,705129,Nitroglycerin 0.4 MG/ACTUAT Mucosal Spray,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,748879,Levora 0.15/30 28 Day Pack,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,749762,Seasonique 91 Day Pack,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,855332,Warfarin Sodium 5 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,860975,24 HR Metformin hydrochloride 500 MG Extended Release Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,866412,24 HR metoprolol succinate 100 MG Extended Release Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+observation,category,laboratory,Laboratory,http://terminology.hl7.org/CodeSystem/observation-category
+observation,category,vital-signs,Vital signs,http://terminology.hl7.org/CodeSystem/observation-category
+observation,code,34533-0,Odor of Urine,http://loinc.org
+observation,code,39156-5,Body mass index (BMI) [Ratio],http://loinc.org
+observation,code,5778-6,Color of Urine,http://loinc.org
+observation,code,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,http://loinc.org
+observation,dataabsentreason,,,
+observation,interpretation,,,
+observation,valuecodeableconcept,167248002,Urine smell ammoniacal (finding),http://snomed.info/sct
+observation,valuecodeableconcept,371254008,Brown color (qualifier value),http://snomed.info/sct
+patient,maritalstatus,D,Divorced,http://terminology.hl7.org/CodeSystem/v3-MaritalStatus
+patient,maritalstatus,M,Married,http://terminology.hl7.org/CodeSystem/v3-MaritalStatus
+patient,maritalstatus,S,Never Married,http://terminology.hl7.org/CodeSystem/v3-MaritalStatus
+patient,maritalstatus,W,Widowed,http://terminology.hl7.org/CodeSystem/v3-MaritalStatus
+procedure,bodysite,,,
+procedure,category,,,
+procedure,code,103750000,Sleep apnea assessment (procedure),http://snomed.info/sct
+procedure,code,10383002,Counseling for termination of pregnancy,http://snomed.info/sct
+procedure,code,104091002,"Hemogram, automated, with RBC, WBC, Hgb, Hct, Indices, Platelet count, and manual WBC differential",http://snomed.info/sct
+procedure,code,104326007,Measurement of Varicella-zoster virus antibody,http://snomed.info/sct
+procedure,code,104375008,"Hepatitis C antibody, confirmatory test",http://snomed.info/sct
+procedure,code,11466000,Cesarean section,http://snomed.info/sct
+procedure,code,117010004,Urine culture,http://snomed.info/sct
+procedure,code,117015009,Throat culture (procedure),http://snomed.info/sct
+procedure,code,118001005,Streptococcus pneumoniae group B antigen assay,http://snomed.info/sct
+procedure,code,1225002,Upper arm X-ray,http://snomed.info/sct
+procedure,code,122548005,Biopsy of breast (procedure),http://snomed.info/sct
+procedure,code,14768001,Peripheral blood smear interpretation,http://snomed.info/sct
+procedure,code,1571000087109,Ultrasonography of bilateral breasts (procedure),http://snomed.info/sct
+procedure,code,162676008,Brief general examination (procedure),http://snomed.info/sct
+procedure,code,16335031000119103,High resolution computed tomography of chest without contrast (procedure),http://snomed.info/sct
+procedure,code,165829005,Gonorrhea infection titer test (procedure),http://snomed.info/sct
+procedure,code,167271000,Urine protein test,http://snomed.info/sct
+procedure,code,167995008,Sputum microscopy (procedure),http://snomed.info/sct
+procedure,code,169230002,Ultrasound scan for fetal viability,http://snomed.info/sct
+procedure,code,169553002,Insertion of subcutaneous contraceptive,http://snomed.info/sct
+procedure,code,169690007,Rubella screening,http://snomed.info/sct
+procedure,code,171207006,Depression screening,http://snomed.info/sct
+procedure,code,171207006,Depression screening (procedure),http://snomed.info/sct
+procedure,code,183519002,Referral to cardiology service (procedure),http://snomed.info/sct
+procedure,code,185087000,Notifications (procedure),http://snomed.info/sct
+procedure,code,18946005,Epidural anesthesia,http://snomed.info/sct
+procedure,code,19490002,Ankle X-ray,http://snomed.info/sct
+procedure,code,200619008,Comprehensive interview and evaluation (procedure),http://snomed.info/sct
+procedure,code,225158009,Auscultation of the fetal heart,http://snomed.info/sct
+procedure,code,225386006,Pre-discharge assessment (procedure),http://snomed.info/sct
+procedure,code,229064008,Movement therapy (regime/therapy),http://snomed.info/sct
+procedure,code,23426006,Measurement of respiratory function (procedure),http://snomed.info/sct
+procedure,code,236974004,Instrumental delivery,http://snomed.info/sct
+procedure,code,24623002,Screening mammography (procedure),http://snomed.info/sct
+procedure,code,252160004,Standard pregnancy test,http://snomed.info/sct
+procedure,code,261352009,Face mask (physical object),http://snomed.info/sct
+procedure,code,265764009,Renal dialysis (procedure),http://snomed.info/sct
+procedure,code,268556000,Urine screening for glucose,http://snomed.info/sct
+procedure,code,269828009,Syphilis infectious titer test (procedure),http://snomed.info/sct
+procedure,code,269911007,Sputum examination (procedure),http://snomed.info/sct
+procedure,code,271442007,Fetal anatomy study,http://snomed.info/sct
+procedure,code,274474001,Bone immobilization,http://snomed.info/sct
+procedure,code,274804006,Evaluation of uterine fundal height,http://snomed.info/sct
+procedure,code,275833003,AFP test - antenatal,http://snomed.info/sct
+procedure,code,28163009,"Skin test for tuberculosis, Tine test (procedure)",http://snomed.info/sct
+procedure,code,288086009,Suture open wound,http://snomed.info/sct
+procedure,code,301807007,Removal of subcutaneous contraceptive,http://snomed.info/sct
+procedure,code,306316000,Referral to transplant surgeon (procedure),http://snomed.info/sct
+procedure,code,310417005,Certification procedure (procedure),http://snomed.info/sct
+procedure,code,310861008,Chlamydia antigen test,http://snomed.info/sct
+procedure,code,311555007,Speech and language therapy regime (regime/therapy),http://snomed.info/sct
+procedure,code,315639002,Initial patient assessment (procedure),http://snomed.info/sct
+procedure,code,31676001,Human immunodeficiency virus antigen test,http://snomed.info/sct
+procedure,code,33367005,Angiography of coronary artery (procedure),http://snomed.info/sct
+procedure,code,370789001,Development of individualized plan of care (procedure),http://snomed.info/sct
+procedure,code,370995009,Health risks education (procedure),http://snomed.info/sct
+procedure,code,384700001,Injection of tetanus antitoxin,http://snomed.info/sct
+procedure,code,385763009,Hospice care (regime/therapy),http://snomed.info/sct
+procedure,code,386394001,Pregnancy termination care,http://snomed.info/sct
+procedure,code,386516004,Anticipatory guidance (procedure),http://snomed.info/sct
+procedure,code,392091000,Care regimes assessment (procedure),http://snomed.info/sct
+procedure,code,395123002,Urine screening test for diabetes,http://snomed.info/sct
+procedure,code,398171003,Hearing examination (procedure),http://snomed.info/sct
+procedure,code,399014008,"Administration of diphtheria, pertussis, and tetanus vaccine",http://snomed.info/sct
+procedure,code,399208008,Plain chest X-ray (procedure),http://snomed.info/sct
+procedure,code,409023009,Professional / ancillary services care (regime/therapy),http://snomed.info/sct
+procedure,code,410401003,Nursing care/supplementary surveillance (regime/therapy),http://snomed.info/sct
+procedure,code,415070008,Percutaneous coronary intervention (procedure),http://snomed.info/sct
+procedure,code,415300000,Review of systems (procedure),http://snomed.info/sct
+procedure,code,417511005,Referral to home health care service (procedure),http://snomed.info/sct
+procedure,code,418891003,Computed tomography of chest and abdomen,http://snomed.info/sct
+procedure,code,428211000124100,Assessment of substance use (procedure),http://snomed.info/sct
+procedure,code,428830000,Pretransplant evaluation of kidney recipient (procedure),http://snomed.info/sct
+procedure,code,430193006,Medication Reconciliation (procedure),http://snomed.info/sct
+procedure,code,433114000,Human epidermal growth factor receptor 2 gene detection by immunohistochemistry (procedure),http://snomed.info/sct
+procedure,code,434363004,Human epidermal growth factor receptor 2 gene detection by fluorescence in situ hybridization (procedure),http://snomed.info/sct
+procedure,code,443529005,Detection of chromosomal aneuploidy in prenatal amniotic fluid specimen using fluorescence in situ hybridization screening technique (procedure),http://snomed.info/sct
+procedure,code,44608003,Blood group typing (procedure),http://snomed.info/sct
+procedure,code,449381000124108,Discharge from skilled nursing facility (procedure),http://snomed.info/sct
+procedure,code,454711000124102,Depression screening using Patient Health Questionnaire Two-Item score (procedure),http://snomed.info/sct
+procedure,code,46706006,Replacement of contraceptive intrauterine device,http://snomed.info/sct
+procedure,code,473231009,Renal disorder medication review (procedure),http://snomed.info/sct
+procedure,code,47758006,Hepatitis B Surface Antigen Measurement,http://snomed.info/sct
+procedure,code,54550000,Electroencephalogram (procedure),http://snomed.info/sct
+procedure,code,58000006,Patient discharge (procedure),http://snomed.info/sct
+procedure,code,5880005,Physical examination procedure (procedure),http://snomed.info/sct
+procedure,code,63332003,History AND physical examination (procedure),http://snomed.info/sct
+procedure,code,65200003,Insertion of intrauterine contraceptive device,http://snomed.info/sct
+procedure,code,66348005,Childbirth,http://snomed.info/sct
+procedure,code,68254000,Removal of intrauterine device,http://snomed.info/sct
+procedure,code,698314001,Consultation for treatment (procedure),http://snomed.info/sct
+procedure,code,698354004,Magnetic resonance imaging for measurement of brain volume (procedure),http://snomed.info/sct
+procedure,code,698560000,Referral to sleep apnea clinic (procedure),http://snomed.info/sct
+procedure,code,703423002,Combined chemotherapy and radiation therapy (procedure),http://snomed.info/sct
+procedure,code,70536003,Transplant of kidney (procedure),http://snomed.info/sct
+procedure,code,710824005,Assessment of health and social care needs (procedure),http://snomed.info/sct
+procedure,code,710841007,Assessment of anxiety (procedure),http://snomed.info/sct
+procedure,code,711069006,Coordination of care plan (procedure),http://snomed.info/sct
+procedure,code,711446003,Transplantation of kidney regime (regime/therapy),http://snomed.info/sct
+procedure,code,713106006,Screening for drug abuse (procedure),http://snomed.info/sct
+procedure,code,714812005,Induced termination of pregnancy,http://snomed.info/sct
+procedure,code,715252007,Depression screening using Patient Health Questionnaire Nine Item score (procedure),http://snomed.info/sct
+procedure,code,736169004,Post anesthesia care management (procedure),http://snomed.info/sct
+procedure,code,73761001,Colonoscopy,http://snomed.info/sct
+procedure,code,762993000,Assessment using Morse Fall Scale (procedure),http://snomed.info/sct
+procedure,code,763302001,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),http://snomed.info/sct
+procedure,code,82808001,Sleep apnea monitoring with alarm (regime/therapy),http://snomed.info/sct
+procedure,code,84478008,Occupational therapy (regime/therapy),http://snomed.info/sct
+procedure,code,866148006,Screening for domestic abuse (procedure),http://snomed.info/sct
+procedure,code,868187001,"Assessment using Car, Relax, Alone, Forget, Friends, Trouble Screening Test (procedure)",http://snomed.info/sct
+procedure,code,90226004,"Cytopathology procedure, preparation of smear, genital source",http://snomed.info/sct
+procedure,complication,,,
+procedure,focalDevice.action,,,
+procedure,followup,,,
+procedure,outcome,,,
+procedure,performer.function,,,
+procedure,reasoncode,,,
+procedure,statusreason,,,
+procedure,usedcode,,,
