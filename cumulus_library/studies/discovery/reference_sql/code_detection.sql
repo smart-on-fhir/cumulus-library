@@ -7,17 +7,14 @@
 -- ###########################################################
 
 CREATE TABLE discovery__code_sources AS
-SELECT *
-FROM (
-    VALUES (
-        'allergyintolerance',
-        'clinicalstatus',
-        '',
-        '',
-        ''
-    )
-)
-    AS t (table_name, column_name, code, display, system)
+SELECT DISTINCT
+    'allergyintolerance' AS table_name,
+    'clinicalstatus' AS column_name,
+    table_1.col_1.code,
+    table_1.col_1.display,
+    table_1.col_1.system
+FROM allergyintolerance,
+UNNEST(clinicalstatus.coding) AS table_1 (col_1)
 
 UNION
 
@@ -35,17 +32,14 @@ FROM (
 
 UNION
 
-SELECT *
-FROM (
-    VALUES (
-        'allergyintolerance',
-        'code',
-        '',
-        '',
-        ''
-    )
-)
-    AS t (table_name, column_name, code, display, system)
+SELECT DISTINCT
+    'allergyintolerance' AS table_name,
+    'code' AS column_name,
+    table_1.col_1.code,
+    table_1.col_1.display,
+    table_1.col_1.system
+FROM allergyintolerance,
+UNNEST(code.coding) AS table_1 (col_1)
 
 UNION
 
@@ -103,45 +97,37 @@ UNNEST(col_1.coding) as table_2 (col_2)
 
 UNION
 
-SELECT *
-FROM (
-    VALUES (
-        'condition',
-        'code',
-        '',
-        '',
-        ''
-    )
-)
-    AS t (table_name, column_name, code, display, system)
+SELECT DISTINCT
+    'condition' AS table_name,
+    'code' AS column_name,
+    table_1.col_1.code,
+    table_1.col_1.display,
+    table_1.col_1.system
+FROM condition,
+UNNEST(code.coding) AS table_1 (col_1)
 
 UNION
 
-SELECT *
-FROM (
-    VALUES (
-        'diagnosticreport',
-        'category',
-        '',
-        '',
-        ''
-    )
-)
-    AS t (table_name, column_name, code, display, system)
+SELECT DISTINCT
+    'diagnosticreport' AS table_name,
+    'category' AS column_name,
+    table_2.col_2.code,
+    table_2.col_2.display,
+    table_2.col_2.system
+FROM diagnosticreport,
+UNNEST(category) AS table_1 (col_1),
+UNNEST(col_1.coding) as table_2 (col_2)
 
 UNION
 
-SELECT *
-FROM (
-    VALUES (
-        'diagnosticreport',
-        'code',
-        '',
-        '',
-        ''
-    )
-)
-    AS t (table_name, column_name, code, display, system)
+SELECT DISTINCT
+    'diagnosticreport' AS table_name,
+    'code' AS column_name,
+    table_1.col_1.code,
+    table_1.col_1.display,
+    table_1.col_1.system
+FROM diagnosticreport,
+UNNEST(code.coding) AS table_1 (col_1)
 
 UNION
 
@@ -244,17 +230,14 @@ UNNEST(col_1.coding) as table_2 (col_2)
 
 UNION
 
-SELECT *
-FROM (
-    VALUES (
-        'encounter',
-        'hospitalization.dischargedisposition',
-        '',
-        '',
-        ''
-    )
-)
-    AS t (table_name, column_name, code, display, system)
+SELECT DISTINCT
+    'encounter' AS table_name,
+    'hospitalization.dischargedisposition' AS column_name,
+    table_1.col_1.code,
+    table_1.col_1.display,
+    table_1.col_1.system
+FROM encounter,
+UNNEST(hospitalization.dischargedisposition.coding) AS table_1 (col_1)
 
 UNION
 
@@ -423,15 +406,17 @@ FROM (
 
 UNION
 
-SELECT DISTINCT
-    'procedure' AS table_name,
-    'reasoncode' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM procedure,
-UNNEST(reasoncode) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
+SELECT *
+FROM (
+    VALUES (
+        'procedure',
+        'reasoncode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
 
 UNION
 
