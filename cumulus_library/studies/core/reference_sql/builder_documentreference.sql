@@ -214,5 +214,4 @@ SELECT DISTINCT
     te.encounter_ref,
     concat('DocumentReference/', tdr.id) AS documentreference_ref
 FROM temp_documentreference AS tdr
-LEFT JOIN temp_encounters AS te ON tdr.id = te.id
-WHERE date(tdr.author_day) BETWEEN date('2016-06-01') AND current_date;
+LEFT JOIN temp_encounters AS te ON tdr.id = te.id;

@@ -229,17 +229,6 @@ def test_core_allergy_many_cases(tmp_path):
     assert expected_set == dict_set_from_list(rows)
 
 
-def test_core_allergy_date_cutoff(tmp_path):
-    """Verify that we ignore rows before 2016"""
-    testbed = testbed_utils.LocalTestbed(tmp_path)
-    testbed.add_allergy_intolerance("Old", recorded="2015")
-    testbed.add_allergy_intolerance("New", recorded="2016")
-
-    con = testbed.build()
-    df = con.sql("SELECT id FROM core__allergyintolerance").df()
-    assert ["New"] == list(df.id)
-
-
 @mock.patch("cumulus_library.builders.counts.DEFAULT_MIN_SUBJECT", new=1)
 def test_core_count_allergy_intolerance_by_patient(tmp_path):
     """Verify that our basic allergy count is per-patient"""

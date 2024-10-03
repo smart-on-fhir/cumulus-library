@@ -1,385 +1,457 @@
-cnt,class_display,type_display,servicetype_display,priority_display
-31669,,,,
-31669,,,,cumulus__none
-31669,,,cumulus__none,
-31669,,,cumulus__none,cumulus__none
-29698,ambulatory,,,
-29698,ambulatory,,,cumulus__none
-29698,ambulatory,,cumulus__none,
-29698,ambulatory,,cumulus__none,cumulus__none
-7618,,Encounter for problem (procedure),,
-7618,,Encounter for problem (procedure),,cumulus__none
-7618,,Encounter for problem (procedure),cumulus__none,
-7618,,Encounter for problem (procedure),cumulus__none,cumulus__none
-7602,ambulatory,Encounter for problem (procedure),,
-7602,ambulatory,Encounter for problem (procedure),,cumulus__none
-7602,ambulatory,Encounter for problem (procedure),cumulus__none,
-7602,ambulatory,Encounter for problem (procedure),cumulus__none,cumulus__none
-3852,,General examination of patient (procedure),,
-3852,,General examination of patient (procedure),,cumulus__none
-3852,,General examination of patient (procedure),cumulus__none,
-3852,,General examination of patient (procedure),cumulus__none,cumulus__none
-3852,ambulatory,General examination of patient (procedure),,
-3852,ambulatory,General examination of patient (procedure),,cumulus__none
-3852,ambulatory,General examination of patient (procedure),cumulus__none,
-3852,ambulatory,General examination of patient (procedure),cumulus__none,cumulus__none
-2561,,Well child visit (procedure),,
-2561,,Well child visit (procedure),,cumulus__none
-2561,,Well child visit (procedure),cumulus__none,
-2561,,Well child visit (procedure),cumulus__none,cumulus__none
-2561,ambulatory,Well child visit (procedure),,
-2561,ambulatory,Well child visit (procedure),,cumulus__none
-2561,ambulatory,Well child visit (procedure),cumulus__none,
-2561,ambulatory,Well child visit (procedure),cumulus__none,cumulus__none
-2423,,Encounter for check up (procedure),,
-2423,,Encounter for check up (procedure),,cumulus__none
-2423,,Encounter for check up (procedure),cumulus__none,
-2423,,Encounter for check up (procedure),cumulus__none,cumulus__none
-2423,ambulatory,Encounter for check up (procedure),,
-2423,ambulatory,Encounter for check up (procedure),,cumulus__none
-2423,ambulatory,Encounter for check up (procedure),cumulus__none,
-2423,ambulatory,Encounter for check up (procedure),cumulus__none,cumulus__none
-2079,,Urgent care clinic (environment),,
-2079,,Urgent care clinic (environment),,cumulus__none
-2079,,Urgent care clinic (environment),cumulus__none,
-2079,,Urgent care clinic (environment),cumulus__none,cumulus__none
-2079,ambulatory,Urgent care clinic (environment),,
-2079,ambulatory,Urgent care clinic (environment),,cumulus__none
-2079,ambulatory,Urgent care clinic (environment),cumulus__none,
-2079,ambulatory,Urgent care clinic (environment),cumulus__none,cumulus__none
-1979,,Encounter for symptom,,
-1979,,Encounter for symptom,,cumulus__none
-1979,,Encounter for symptom,cumulus__none,
-1979,,Encounter for symptom,cumulus__none,cumulus__none
-1975,ambulatory,Encounter for symptom,,
-1975,ambulatory,Encounter for symptom,,cumulus__none
-1975,ambulatory,Encounter for symptom,cumulus__none,
-1975,ambulatory,Encounter for symptom,cumulus__none,cumulus__none
-1602,,Prenatal visit,,
-1602,,Prenatal visit,,cumulus__none
-1602,,Prenatal visit,cumulus__none,
-1602,,Prenatal visit,cumulus__none,cumulus__none
-1602,ambulatory,Prenatal visit,,
-1602,ambulatory,Prenatal visit,,cumulus__none
-1602,ambulatory,Prenatal visit,cumulus__none,
-1602,ambulatory,Prenatal visit,cumulus__none,cumulus__none
-1288,emergency,,,
-1288,emergency,,,cumulus__none
-1288,emergency,,cumulus__none,
-1288,emergency,,cumulus__none,cumulus__none
-1270,,Administration of vaccine to produce active immunity (procedure),,
-1270,,Administration of vaccine to produce active immunity (procedure),,cumulus__none
-1270,,Administration of vaccine to produce active immunity (procedure),cumulus__none,
-1270,,Administration of vaccine to produce active immunity (procedure),cumulus__none,cumulus__none
-1270,ambulatory,Administration of vaccine to produce active immunity (procedure),,
-1270,ambulatory,Administration of vaccine to produce active immunity (procedure),,cumulus__none
-1270,ambulatory,Administration of vaccine to produce active immunity (procedure),cumulus__none,
-1270,ambulatory,Administration of vaccine to produce active immunity (procedure),cumulus__none,cumulus__none
-1141,,Patient encounter procedure,,
-1141,,Patient encounter procedure,,cumulus__none
-1141,,Patient encounter procedure,cumulus__none,
-1141,,Patient encounter procedure,cumulus__none,cumulus__none
-1141,ambulatory,Patient encounter procedure,,
-1141,ambulatory,Patient encounter procedure,,cumulus__none
-1141,ambulatory,Patient encounter procedure,cumulus__none,
-1141,ambulatory,Patient encounter procedure,cumulus__none,cumulus__none
-919,,Emergency room admission (procedure),,
-919,,Emergency room admission (procedure),,cumulus__none
-919,,Emergency room admission (procedure),cumulus__none,
-919,,Emergency room admission (procedure),cumulus__none,cumulus__none
-919,emergency,Emergency room admission (procedure),,
-919,emergency,Emergency room admission (procedure),,cumulus__none
-919,emergency,Emergency room admission (procedure),cumulus__none,
-919,emergency,Emergency room admission (procedure),cumulus__none,cumulus__none
-912,,Outpatient procedure,,
-912,,Outpatient procedure,,cumulus__none
-912,,Outpatient procedure,cumulus__none,
-912,,Outpatient procedure,cumulus__none,cumulus__none
-912,ambulatory,Outpatient procedure,,
-912,ambulatory,Outpatient procedure,,cumulus__none
-912,ambulatory,Outpatient procedure,cumulus__none,
-912,ambulatory,Outpatient procedure,cumulus__none,cumulus__none
-643,,Consultation for treatment,,
-643,,Consultation for treatment,,cumulus__none
-643,,Consultation for treatment,cumulus__none,
-643,,Consultation for treatment,cumulus__none,cumulus__none
-643,ambulatory,Consultation for treatment,,
-643,ambulatory,Consultation for treatment,,cumulus__none
-643,ambulatory,Consultation for treatment,cumulus__none,
-643,ambulatory,Consultation for treatment,cumulus__none,cumulus__none
-582,,Encounter for problem,,
-582,,Encounter for problem,,cumulus__none
-582,,Encounter for problem,cumulus__none,
-582,,Encounter for problem,cumulus__none,cumulus__none
-572,,Follow-up encounter,,
-572,,Follow-up encounter,,cumulus__none
-572,,Follow-up encounter,cumulus__none,
-572,,Follow-up encounter,cumulus__none,cumulus__none
-570,ambulatory,Follow-up encounter,,
-570,ambulatory,Follow-up encounter,,cumulus__none
-570,ambulatory,Follow-up encounter,cumulus__none,
-570,ambulatory,Follow-up encounter,cumulus__none,cumulus__none
-526,ambulatory,Encounter for problem,,
-526,ambulatory,Encounter for problem,,cumulus__none
-526,ambulatory,Encounter for problem,cumulus__none,
-526,ambulatory,Encounter for problem,cumulus__none,cumulus__none
-490,,Encounter for check up,,
-490,,Encounter for check up,,cumulus__none
-490,,Encounter for check up,cumulus__none,
-490,,Encounter for check up,cumulus__none,cumulus__none
-489,ambulatory,Encounter for check up,,
-489,ambulatory,Encounter for check up,,cumulus__none
-489,ambulatory,Encounter for check up,cumulus__none,
-489,ambulatory,Encounter for check up,cumulus__none,cumulus__none
-391,inpatient encounter,,,
-391,inpatient encounter,,,cumulus__none
-391,inpatient encounter,,cumulus__none,
-391,inpatient encounter,,cumulus__none,cumulus__none
-296,,Prenatal initial visit,,
-296,,Prenatal initial visit,,cumulus__none
-296,,Prenatal initial visit,cumulus__none,
-296,,Prenatal initial visit,cumulus__none,cumulus__none
-296,ambulatory,Prenatal initial visit,,
-296,ambulatory,Prenatal initial visit,,cumulus__none
-296,ambulatory,Prenatal initial visit,cumulus__none,
-296,ambulatory,Prenatal initial visit,cumulus__none,cumulus__none
-281,,Postoperative follow-up visit (procedure),,
-281,,Postoperative follow-up visit (procedure),,cumulus__none
-281,,Postoperative follow-up visit (procedure),cumulus__none,
-281,,Postoperative follow-up visit (procedure),cumulus__none,cumulus__none
-271,ambulatory,Postoperative follow-up visit (procedure),,
-271,ambulatory,Postoperative follow-up visit (procedure),,cumulus__none
-271,ambulatory,Postoperative follow-up visit (procedure),cumulus__none,
-271,ambulatory,Postoperative follow-up visit (procedure),cumulus__none,cumulus__none
-212,home health,,,
-212,home health,,,cumulus__none
-212,home health,,cumulus__none,
-212,home health,,cumulus__none,cumulus__none
-188,,Postnatal visit,,
-188,,Postnatal visit,,cumulus__none
-188,,Postnatal visit,cumulus__none,
-188,,Postnatal visit,cumulus__none,cumulus__none
-188,ambulatory,Postnatal visit,,
-188,ambulatory,Postnatal visit,,cumulus__none
-188,ambulatory,Postnatal visit,cumulus__none,
-188,ambulatory,Postnatal visit,cumulus__none,cumulus__none
-186,,Obstetric emergency hospital admission,,
-186,,Obstetric emergency hospital admission,,cumulus__none
-186,,Obstetric emergency hospital admission,cumulus__none,
-186,,Obstetric emergency hospital admission,cumulus__none,cumulus__none
-186,emergency,Obstetric emergency hospital admission,,
-186,emergency,Obstetric emergency hospital admission,,cumulus__none
-186,emergency,Obstetric emergency hospital admission,cumulus__none,
-186,emergency,Obstetric emergency hospital admission,cumulus__none,cumulus__none
-178,,Follow-up encounter (procedure),,
-178,,Follow-up encounter (procedure),,cumulus__none
-178,,Follow-up encounter (procedure),cumulus__none,
-178,,Follow-up encounter (procedure),cumulus__none,cumulus__none
-166,ambulatory,Follow-up encounter (procedure),,
-166,ambulatory,Follow-up encounter (procedure),,cumulus__none
-166,ambulatory,Follow-up encounter (procedure),cumulus__none,
-166,ambulatory,Follow-up encounter (procedure),cumulus__none,cumulus__none
-135,,Asthma follow-up,,
-135,,Asthma follow-up,,cumulus__none
-135,,Asthma follow-up,cumulus__none,
-135,,Asthma follow-up,cumulus__none,cumulus__none
-135,ambulatory,Asthma follow-up,,
-135,ambulatory,Asthma follow-up,,cumulus__none
-135,ambulatory,Asthma follow-up,cumulus__none,
-135,ambulatory,Asthma follow-up,cumulus__none,cumulus__none
-132,,Patient encounter procedure (procedure),,
-132,,Patient encounter procedure (procedure),,cumulus__none
-132,,Patient encounter procedure (procedure),cumulus__none,
-132,,Patient encounter procedure (procedure),cumulus__none,cumulus__none
-132,ambulatory,Patient encounter procedure (procedure),,
-132,ambulatory,Patient encounter procedure (procedure),,cumulus__none
-132,ambulatory,Patient encounter procedure (procedure),cumulus__none,
-132,ambulatory,Patient encounter procedure (procedure),cumulus__none,cumulus__none
-123,,Encounter for symptom (procedure),,
-123,,Encounter for symptom (procedure),,cumulus__none
-123,,Encounter for symptom (procedure),cumulus__none,
-123,,Encounter for symptom (procedure),cumulus__none,cumulus__none
-123,ambulatory,Encounter for symptom (procedure),,
-123,ambulatory,Encounter for symptom (procedure),,cumulus__none
-123,ambulatory,Encounter for symptom (procedure),cumulus__none,
-123,ambulatory,Encounter for symptom (procedure),cumulus__none,cumulus__none
-121,,Screening surveillance (regime/therapy),,
-121,,Screening surveillance (regime/therapy),,cumulus__none
-121,,Screening surveillance (regime/therapy),cumulus__none,
-121,,Screening surveillance (regime/therapy),cumulus__none,cumulus__none
-121,ambulatory,Screening surveillance (regime/therapy),,
-121,ambulatory,Screening surveillance (regime/therapy),,cumulus__none
-121,ambulatory,Screening surveillance (regime/therapy),cumulus__none,
-121,ambulatory,Screening surveillance (regime/therapy),cumulus__none,cumulus__none
-104,,Admission to skilled nursing facility (procedure),,
-104,,Admission to skilled nursing facility (procedure),,cumulus__none
-104,,Admission to skilled nursing facility (procedure),cumulus__none,
-104,,Admission to skilled nursing facility (procedure),cumulus__none,cumulus__none
-104,inpatient encounter,Admission to skilled nursing facility (procedure),,
-104,inpatient encounter,Admission to skilled nursing facility (procedure),,cumulus__none
-104,inpatient encounter,Admission to skilled nursing facility (procedure),cumulus__none,
-104,inpatient encounter,Admission to skilled nursing facility (procedure),cumulus__none,cumulus__none
-88,,Drug rehabilitation and detoxification,,
-88,,Drug rehabilitation and detoxification,,cumulus__none
-88,,Drug rehabilitation and detoxification,cumulus__none,
-88,,Drug rehabilitation and detoxification,cumulus__none,cumulus__none
-88,inpatient encounter,Drug rehabilitation and detoxification,,
-88,inpatient encounter,Drug rehabilitation and detoxification,,cumulus__none
-88,inpatient encounter,Drug rehabilitation and detoxification,cumulus__none,
-88,inpatient encounter,Drug rehabilitation and detoxification,cumulus__none,cumulus__none
-80,virtual,,,
-80,virtual,,,cumulus__none
-80,virtual,,cumulus__none,
-80,virtual,,cumulus__none,cumulus__none
-73,,Domiciliary or rest home patient evaluation and management,,
-73,,Domiciliary or rest home patient evaluation and management,,cumulus__none
-73,,Domiciliary or rest home patient evaluation and management,cumulus__none,
-73,,Domiciliary or rest home patient evaluation and management,cumulus__none,cumulus__none
-73,ambulatory,Domiciliary or rest home patient evaluation and management,,
-73,ambulatory,Domiciliary or rest home patient evaluation and management,,cumulus__none
-73,ambulatory,Domiciliary or rest home patient evaluation and management,cumulus__none,
-73,ambulatory,Domiciliary or rest home patient evaluation and management,cumulus__none,cumulus__none
-68,,Gynecology service (qualifier value),,
-68,,Gynecology service (qualifier value),,cumulus__none
-68,,Gynecology service (qualifier value),cumulus__none,
-68,,Gynecology service (qualifier value),cumulus__none,cumulus__none
-68,ambulatory,Gynecology service (qualifier value),,
-68,ambulatory,Gynecology service (qualifier value),,cumulus__none
-68,ambulatory,Gynecology service (qualifier value),cumulus__none,
-68,ambulatory,Gynecology service (qualifier value),cumulus__none,cumulus__none
-67,,Admission to hospice (procedure),,
-67,,Admission to hospice (procedure),,cumulus__none
-67,,Admission to hospice (procedure),cumulus__none,
-67,,Admission to hospice (procedure),cumulus__none,cumulus__none
-67,home health,Admission to hospice (procedure),,
-67,home health,Admission to hospice (procedure),,cumulus__none
-67,home health,Admission to hospice (procedure),cumulus__none,
-67,home health,Admission to hospice (procedure),cumulus__none,cumulus__none
-49,,Patient-initiated encounter,,
-49,,Patient-initiated encounter,,cumulus__none
-49,,Patient-initiated encounter,cumulus__none,
-49,,Patient-initiated encounter,cumulus__none,cumulus__none
-49,ambulatory,Patient-initiated encounter,,
-49,ambulatory,Patient-initiated encounter,,cumulus__none
-49,ambulatory,Patient-initiated encounter,cumulus__none,
-49,ambulatory,Patient-initiated encounter,cumulus__none,cumulus__none
-45,inpatient encounter,Encounter for problem,,
-45,inpatient encounter,Encounter for problem,,cumulus__none
-45,inpatient encounter,Encounter for problem,cumulus__none,
-45,inpatient encounter,Encounter for problem,cumulus__none,cumulus__none
-37,,Emergency hospital admission for asthma,,
-37,,Emergency hospital admission for asthma,,cumulus__none
-37,,Emergency hospital admission for asthma,cumulus__none,
-37,,Emergency hospital admission for asthma,cumulus__none,cumulus__none
-37,,Death Certification,,
-37,,Death Certification,,cumulus__none
-37,,Death Certification,cumulus__none,
-37,,Death Certification,cumulus__none,cumulus__none
-37,emergency,Emergency hospital admission for asthma,,
-37,emergency,Emergency hospital admission for asthma,,cumulus__none
-37,emergency,Emergency hospital admission for asthma,cumulus__none,
-37,emergency,Emergency hospital admission for asthma,cumulus__none,cumulus__none
-37,ambulatory,Death Certification,,
-37,ambulatory,Death Certification,,cumulus__none
-37,ambulatory,Death Certification,cumulus__none,
-37,ambulatory,Death Certification,cumulus__none,cumulus__none
-25,,Hospital admission (procedure),,
-25,,Hospital admission (procedure),,cumulus__none
-25,,Hospital admission (procedure),cumulus__none,
-25,,Hospital admission (procedure),cumulus__none,cumulus__none
-23,,Allergic disorder initial assessment,,
-23,,Allergic disorder initial assessment,,cumulus__none
-23,,Allergic disorder initial assessment,cumulus__none,
-23,,Allergic disorder initial assessment,cumulus__none,cumulus__none
-23,ambulatory,Allergic disorder initial assessment,,
-23,ambulatory,Allergic disorder initial assessment,,cumulus__none
-23,ambulatory,Allergic disorder initial assessment,cumulus__none,
-23,ambulatory,Allergic disorder initial assessment,cumulus__none,cumulus__none
-21,,Admission to surgical department,,
-21,,Admission to surgical department,,cumulus__none
-21,,Admission to surgical department,cumulus__none,
-21,,Admission to surgical department,cumulus__none,cumulus__none
-21,inpatient encounter,Admission to surgical department,,
-21,inpatient encounter,Admission to surgical department,,cumulus__none
-21,inpatient encounter,Admission to surgical department,cumulus__none,
-21,inpatient encounter,Admission to surgical department,cumulus__none,cumulus__none
-20,,Admission to intensive care unit (procedure),,
-20,,Admission to intensive care unit (procedure),,cumulus__none
-20,,Admission to intensive care unit (procedure),cumulus__none,
-20,,Admission to intensive care unit (procedure),cumulus__none,cumulus__none
-20,inpatient encounter,Admission to intensive care unit (procedure),,
-20,inpatient encounter,Admission to intensive care unit (procedure),,cumulus__none
-20,inpatient encounter,Admission to intensive care unit (procedure),cumulus__none,
-20,inpatient encounter,Admission to intensive care unit (procedure),cumulus__none,cumulus__none
-18,,Encounter for Problem,,
-18,,Encounter for Problem,,cumulus__none
-18,,Encounter for Problem,cumulus__none,
-18,,Encounter for Problem,cumulus__none,cumulus__none
-17,,Office Visit,,
-17,,Office Visit,,cumulus__none
-17,,Office Visit,cumulus__none,
-17,,Office Visit,cumulus__none,cumulus__none
-16,,Patient transfer to intensive care unit (procedure),,
-16,,Patient transfer to intensive care unit (procedure),,cumulus__none
-16,,Patient transfer to intensive care unit (procedure),cumulus__none,
-16,,Patient transfer to intensive care unit (procedure),cumulus__none,cumulus__none
-16,,Admission to ward (procedure),,
-16,,Admission to ward (procedure),,cumulus__none
-16,,Admission to ward (procedure),cumulus__none,
-16,,Admission to ward (procedure),cumulus__none,cumulus__none
-16,inpatient encounter,Patient transfer to intensive care unit (procedure),,
-16,inpatient encounter,Patient transfer to intensive care unit (procedure),,cumulus__none
-16,inpatient encounter,Patient transfer to intensive care unit (procedure),cumulus__none,
-16,inpatient encounter,Patient transfer to intensive care unit (procedure),cumulus__none,cumulus__none
-16,inpatient encounter,Hospital admission (procedure),,
-16,inpatient encounter,Hospital admission (procedure),,cumulus__none
-16,inpatient encounter,Hospital admission (procedure),cumulus__none,
-16,inpatient encounter,Hospital admission (procedure),cumulus__none,cumulus__none
-16,inpatient encounter,Encounter for problem (procedure),,
-16,inpatient encounter,Encounter for problem (procedure),,cumulus__none
-16,inpatient encounter,Encounter for problem (procedure),cumulus__none,
-16,inpatient encounter,Encounter for problem (procedure),cumulus__none,cumulus__none
-16,inpatient encounter,Admission to ward (procedure),,
-16,inpatient encounter,Admission to ward (procedure),,cumulus__none
-16,inpatient encounter,Admission to ward (procedure),cumulus__none,
-16,inpatient encounter,Admission to ward (procedure),cumulus__none,cumulus__none
-16,emergency,Encounter for Problem,,
-16,emergency,Encounter for Problem,,cumulus__none
-16,emergency,Encounter for Problem,cumulus__none,
-16,emergency,Encounter for Problem,cumulus__none,cumulus__none
-16,ambulatory,Office Visit,,
-16,ambulatory,Office Visit,,cumulus__none
-16,ambulatory,Office Visit,cumulus__none,
-16,ambulatory,Office Visit,cumulus__none,cumulus__none
-15,,Allergic disorder follow-up assessment,,
-15,,Allergic disorder follow-up assessment,,cumulus__none
-15,,Allergic disorder follow-up assessment,cumulus__none,
-15,,Allergic disorder follow-up assessment,cumulus__none,cumulus__none
-15,ambulatory,Allergic disorder follow-up assessment,,
-15,ambulatory,Allergic disorder follow-up assessment,,cumulus__none
-15,ambulatory,Allergic disorder follow-up assessment,cumulus__none,
-15,ambulatory,Allergic disorder follow-up assessment,cumulus__none,cumulus__none
-14,,Admission to surgical transplant department (procedure),,
-14,,Admission to surgical transplant department (procedure),,cumulus__none
-14,,Admission to surgical transplant department (procedure),cumulus__none,
-14,,Admission to surgical transplant department (procedure),cumulus__none,cumulus__none
-14,inpatient encounter,Admission to surgical transplant department (procedure),,
-14,inpatient encounter,Admission to surgical transplant department (procedure),,cumulus__none
-14,inpatient encounter,Admission to surgical transplant department (procedure),cumulus__none,
-14,inpatient encounter,Admission to surgical transplant department (procedure),cumulus__none,cumulus__none
-12,,Non-urgent orthopedic admission,,
-12,,Non-urgent orthopedic admission,,cumulus__none
-12,,Non-urgent orthopedic admission,cumulus__none,
-12,,Non-urgent orthopedic admission,cumulus__none,cumulus__none
-12,,Hospital admission for isolation (procedure),,
-12,,Hospital admission for isolation (procedure),,cumulus__none
-12,,Hospital admission for isolation (procedure),cumulus__none,
-12,,Hospital admission for isolation (procedure),cumulus__none,cumulus__none
-12,inpatient encounter,Non-urgent orthopedic admission,,
-12,inpatient encounter,Non-urgent orthopedic admission,,cumulus__none
-12,inpatient encounter,Non-urgent orthopedic admission,cumulus__none,
-12,inpatient encounter,Non-urgent orthopedic admission,cumulus__none,cumulus__none
-12,inpatient encounter,Hospital admission for isolation (procedure),,
-12,inpatient encounter,Hospital admission for isolation (procedure),,cumulus__none
-12,inpatient encounter,Hospital admission for isolation (procedure),cumulus__none,
-12,inpatient encounter,Hospital admission for isolation (procedure),cumulus__none,cumulus__none
+"cnt","class_display","type_display","servicetype_display","priority_display"
+87244,,,,
+87244,,,,"cumulus__none"
+87244,,,"cumulus__none",
+87244,,,"cumulus__none","cumulus__none"
+82406,"ambulatory",,,
+82406,"ambulatory",,,"cumulus__none"
+82406,"ambulatory",,"cumulus__none",
+82406,"ambulatory",,"cumulus__none","cumulus__none"
+24889,,"Encounter for problem (procedure)",,
+24889,,"Encounter for problem (procedure)",,"cumulus__none"
+24889,,"Encounter for problem (procedure)","cumulus__none",
+24889,,"Encounter for problem (procedure)","cumulus__none","cumulus__none"
+24803,"ambulatory","Encounter for problem (procedure)",,
+24803,"ambulatory","Encounter for problem (procedure)",,"cumulus__none"
+24803,"ambulatory","Encounter for problem (procedure)","cumulus__none",
+24803,"ambulatory","Encounter for problem (procedure)","cumulus__none","cumulus__none"
+16990,,"General examination of patient (procedure)",,
+16990,,"General examination of patient (procedure)",,"cumulus__none"
+16990,,"General examination of patient (procedure)","cumulus__none",
+16990,,"General examination of patient (procedure)","cumulus__none","cumulus__none"
+16990,"ambulatory","General examination of patient (procedure)",,
+16990,"ambulatory","General examination of patient (procedure)",,"cumulus__none"
+16990,"ambulatory","General examination of patient (procedure)","cumulus__none",
+16990,"ambulatory","General examination of patient (procedure)","cumulus__none","cumulus__none"
+8680,,"Encounter for check up (procedure)",,
+8680,,"Encounter for check up (procedure)",,"cumulus__none"
+8680,,"Encounter for check up (procedure)","cumulus__none",
+8680,,"Encounter for check up (procedure)","cumulus__none","cumulus__none"
+8680,"ambulatory","Encounter for check up (procedure)",,
+8680,"ambulatory","Encounter for check up (procedure)",,"cumulus__none"
+8680,"ambulatory","Encounter for check up (procedure)","cumulus__none",
+8680,"ambulatory","Encounter for check up (procedure)","cumulus__none","cumulus__none"
+6540,,"Urgent care clinic (environment)",,
+6540,,"Urgent care clinic (environment)",,"cumulus__none"
+6540,,"Urgent care clinic (environment)","cumulus__none",
+6540,,"Urgent care clinic (environment)","cumulus__none","cumulus__none"
+6540,"ambulatory","Urgent care clinic (environment)",,
+6540,"ambulatory","Urgent care clinic (environment)",,"cumulus__none"
+6540,"ambulatory","Urgent care clinic (environment)","cumulus__none",
+6540,"ambulatory","Urgent care clinic (environment)","cumulus__none","cumulus__none"
+4680,,"Well child visit (procedure)",,
+4680,,"Well child visit (procedure)",,"cumulus__none"
+4680,,"Well child visit (procedure)","cumulus__none",
+4680,,"Well child visit (procedure)","cumulus__none","cumulus__none"
+4680,"ambulatory","Well child visit (procedure)",,
+4680,"ambulatory","Well child visit (procedure)",,"cumulus__none"
+4680,"ambulatory","Well child visit (procedure)","cumulus__none",
+4680,"ambulatory","Well child visit (procedure)","cumulus__none","cumulus__none"
+3650,,"Encounter for symptom",,
+3650,,"Encounter for symptom",,"cumulus__none"
+3650,,"Encounter for symptom","cumulus__none",
+3650,,"Encounter for symptom","cumulus__none","cumulus__none"
+3646,"ambulatory","Encounter for symptom",,
+3646,"ambulatory","Encounter for symptom",,"cumulus__none"
+3646,"ambulatory","Encounter for symptom","cumulus__none",
+3646,"ambulatory","Encounter for symptom","cumulus__none","cumulus__none"
+3185,"emergency",,,
+3185,"emergency",,,"cumulus__none"
+3185,"emergency",,"cumulus__none",
+3185,"emergency",,"cumulus__none","cumulus__none"
+2557,,"Prenatal visit",,
+2557,,"Prenatal visit",,"cumulus__none"
+2557,,"Prenatal visit","cumulus__none",
+2557,,"Prenatal visit","cumulus__none","cumulus__none"
+2557,"ambulatory","Prenatal visit",,
+2557,"ambulatory","Prenatal visit",,"cumulus__none"
+2557,"ambulatory","Prenatal visit","cumulus__none",
+2557,"ambulatory","Prenatal visit","cumulus__none","cumulus__none"
+2330,,"Emergency room admission (procedure)",,
+2330,,"Emergency room admission (procedure)",,"cumulus__none"
+2330,,"Emergency room admission (procedure)","cumulus__none",
+2330,,"Emergency room admission (procedure)","cumulus__none","cumulus__none"
+2330,"emergency","Emergency room admission (procedure)",,
+2330,"emergency","Emergency room admission (procedure)",,"cumulus__none"
+2330,"emergency","Emergency room admission (procedure)","cumulus__none",
+2330,"emergency","Emergency room admission (procedure)","cumulus__none","cumulus__none"
+1930,,"Encounter for problem",,
+1930,,"Encounter for problem",,"cumulus__none"
+1930,,"Encounter for problem","cumulus__none",
+1930,,"Encounter for problem","cumulus__none","cumulus__none"
+1704,,"Follow-up encounter",,
+1704,,"Follow-up encounter",,"cumulus__none"
+1704,,"Follow-up encounter","cumulus__none",
+1704,,"Follow-up encounter","cumulus__none","cumulus__none"
+1702,"ambulatory","Follow-up encounter",,
+1702,"ambulatory","Follow-up encounter",,"cumulus__none"
+1702,"ambulatory","Follow-up encounter","cumulus__none",
+1702,"ambulatory","Follow-up encounter","cumulus__none","cumulus__none"
+1605,"ambulatory","Encounter for problem",,
+1605,"ambulatory","Encounter for problem",,"cumulus__none"
+1605,"ambulatory","Encounter for problem","cumulus__none",
+1605,"ambulatory","Encounter for problem","cumulus__none","cumulus__none"
+1590,,"Patient encounter procedure",,
+1590,,"Patient encounter procedure",,"cumulus__none"
+1590,,"Patient encounter procedure","cumulus__none",
+1590,,"Patient encounter procedure","cumulus__none","cumulus__none"
+1590,"ambulatory","Patient encounter procedure",,
+1590,"ambulatory","Patient encounter procedure",,"cumulus__none"
+1590,"ambulatory","Patient encounter procedure","cumulus__none",
+1590,"ambulatory","Patient encounter procedure","cumulus__none","cumulus__none"
+1494,,"Outpatient procedure",,
+1494,,"Outpatient procedure",,"cumulus__none"
+1494,,"Outpatient procedure","cumulus__none",
+1494,,"Outpatient procedure","cumulus__none","cumulus__none"
+1494,"ambulatory","Outpatient procedure",,
+1494,"ambulatory","Outpatient procedure",,"cumulus__none"
+1494,"ambulatory","Outpatient procedure","cumulus__none",
+1494,"ambulatory","Outpatient procedure","cumulus__none","cumulus__none"
+1270,,"Administration of vaccine to produce active immunity (procedure)",,
+1270,,"Administration of vaccine to produce active immunity (procedure)",,"cumulus__none"
+1270,,"Administration of vaccine to produce active immunity (procedure)","cumulus__none",
+1270,,"Administration of vaccine to produce active immunity (procedure)","cumulus__none","cumulus__none"
+1270,"ambulatory","Administration of vaccine to produce active immunity (procedure)",,
+1270,"ambulatory","Administration of vaccine to produce active immunity (procedure)",,"cumulus__none"
+1270,"ambulatory","Administration of vaccine to produce active immunity (procedure)","cumulus__none",
+1270,"ambulatory","Administration of vaccine to produce active immunity (procedure)","cumulus__none","cumulus__none"
+1128,"inpatient encounter",,,
+1128,"inpatient encounter",,,"cumulus__none"
+1128,"inpatient encounter",,"cumulus__none",
+1128,"inpatient encounter",,"cumulus__none","cumulus__none"
+1079,,"Consultation for treatment",,
+1079,,"Consultation for treatment",,"cumulus__none"
+1079,,"Consultation for treatment","cumulus__none",
+1079,,"Consultation for treatment","cumulus__none","cumulus__none"
+1079,"ambulatory","Consultation for treatment",,
+1079,"ambulatory","Consultation for treatment",,"cumulus__none"
+1079,"ambulatory","Consultation for treatment","cumulus__none",
+1079,"ambulatory","Consultation for treatment","cumulus__none","cumulus__none"
+1014,,"Patient encounter procedure (procedure)",,
+1014,,"Patient encounter procedure (procedure)",,"cumulus__none"
+1014,,"Patient encounter procedure (procedure)","cumulus__none",
+1014,,"Patient encounter procedure (procedure)","cumulus__none","cumulus__none"
+1014,"ambulatory","Patient encounter procedure (procedure)",,
+1014,"ambulatory","Patient encounter procedure (procedure)",,"cumulus__none"
+1014,"ambulatory","Patient encounter procedure (procedure)","cumulus__none",
+1014,"ambulatory","Patient encounter procedure (procedure)","cumulus__none","cumulus__none"
+886,,"Encounter for check up",,
+886,,"Encounter for check up",,"cumulus__none"
+886,,"Encounter for check up","cumulus__none",
+886,,"Encounter for check up","cumulus__none","cumulus__none"
+885,"ambulatory","Encounter for check up",,
+885,"ambulatory","Encounter for check up",,"cumulus__none"
+885,"ambulatory","Encounter for check up","cumulus__none",
+885,"ambulatory","Encounter for check up","cumulus__none","cumulus__none"
+699,,"Prenatal initial visit",,
+699,,"Prenatal initial visit",,"cumulus__none"
+699,,"Prenatal initial visit","cumulus__none",
+699,,"Prenatal initial visit","cumulus__none","cumulus__none"
+699,"ambulatory","Prenatal initial visit",,
+699,"ambulatory","Prenatal initial visit",,"cumulus__none"
+699,"ambulatory","Prenatal initial visit","cumulus__none",
+699,"ambulatory","Prenatal initial visit","cumulus__none","cumulus__none"
+695,,"Follow-up encounter (procedure)",,
+695,,"Follow-up encounter (procedure)",,"cumulus__none"
+695,,"Follow-up encounter (procedure)","cumulus__none",
+695,,"Follow-up encounter (procedure)","cumulus__none","cumulus__none"
+683,"ambulatory","Follow-up encounter (procedure)",,
+683,"ambulatory","Follow-up encounter (procedure)",,"cumulus__none"
+683,"ambulatory","Follow-up encounter (procedure)","cumulus__none",
+683,"ambulatory","Follow-up encounter (procedure)","cumulus__none","cumulus__none"
+520,,"Postoperative follow-up visit (procedure)",,
+520,,"Postoperative follow-up visit (procedure)",,"cumulus__none"
+520,,"Postoperative follow-up visit (procedure)","cumulus__none",
+520,,"Postoperative follow-up visit (procedure)","cumulus__none","cumulus__none"
+510,"ambulatory","Postoperative follow-up visit (procedure)",,
+510,"ambulatory","Postoperative follow-up visit (procedure)",,"cumulus__none"
+510,"ambulatory","Postoperative follow-up visit (procedure)","cumulus__none",
+510,"ambulatory","Postoperative follow-up visit (procedure)","cumulus__none","cumulus__none"
+445,"home health",,,
+445,"home health",,,"cumulus__none"
+445,"home health",,"cumulus__none",
+445,"home health",,"cumulus__none","cumulus__none"
+401,,"Telemedicine consultation with patient",,
+401,,"Telemedicine consultation with patient",,"cumulus__none"
+401,,"Telemedicine consultation with patient","cumulus__none",
+401,,"Telemedicine consultation with patient","cumulus__none","cumulus__none"
+401,"ambulatory","Telemedicine consultation with patient",,
+401,"ambulatory","Telemedicine consultation with patient",,"cumulus__none"
+401,"ambulatory","Telemedicine consultation with patient","cumulus__none",
+401,"ambulatory","Telemedicine consultation with patient","cumulus__none","cumulus__none"
+298,,"Obstetric emergency hospital admission",,
+298,,"Obstetric emergency hospital admission",,"cumulus__none"
+298,,"Obstetric emergency hospital admission","cumulus__none",
+298,,"Obstetric emergency hospital admission","cumulus__none","cumulus__none"
+298,"emergency","Obstetric emergency hospital admission",,
+298,"emergency","Obstetric emergency hospital admission",,"cumulus__none"
+298,"emergency","Obstetric emergency hospital admission","cumulus__none",
+298,"emergency","Obstetric emergency hospital admission","cumulus__none","cumulus__none"
+294,,"Postnatal visit",,
+294,,"Postnatal visit",,"cumulus__none"
+294,,"Postnatal visit","cumulus__none",
+294,,"Postnatal visit","cumulus__none","cumulus__none"
+294,"ambulatory","Postnatal visit",,
+294,"ambulatory","Postnatal visit",,"cumulus__none"
+294,"ambulatory","Postnatal visit","cumulus__none",
+294,"ambulatory","Postnatal visit","cumulus__none","cumulus__none"
+278,"inpatient encounter","Encounter for problem",,
+278,"inpatient encounter","Encounter for problem",,"cumulus__none"
+278,"inpatient encounter","Encounter for problem","cumulus__none",
+278,"inpatient encounter","Encounter for problem","cumulus__none","cumulus__none"
+274,,"Emergency treatment (procedure)",,
+274,,"Emergency treatment (procedure)",,"cumulus__none"
+274,,"Emergency treatment (procedure)","cumulus__none",
+274,,"Emergency treatment (procedure)","cumulus__none","cumulus__none"
+274,"emergency","Emergency treatment (procedure)",,
+274,"emergency","Emergency treatment (procedure)",,"cumulus__none"
+274,"emergency","Emergency treatment (procedure)","cumulus__none",
+274,"emergency","Emergency treatment (procedure)","cumulus__none","cumulus__none"
+248,,"Home visit (procedure)",,
+248,,"Home visit (procedure)",,"cumulus__none"
+248,,"Home visit (procedure)","cumulus__none",
+248,,"Home visit (procedure)","cumulus__none","cumulus__none"
+248,"home health","Home visit (procedure)",,
+248,"home health","Home visit (procedure)",,"cumulus__none"
+248,"home health","Home visit (procedure)","cumulus__none",
+248,"home health","Home visit (procedure)","cumulus__none","cumulus__none"
+228,,"Asthma follow-up",,
+228,,"Asthma follow-up",,"cumulus__none"
+228,,"Asthma follow-up","cumulus__none",
+228,,"Asthma follow-up","cumulus__none","cumulus__none"
+228,"ambulatory","Asthma follow-up",,
+228,"ambulatory","Asthma follow-up",,"cumulus__none"
+228,"ambulatory","Asthma follow-up","cumulus__none",
+228,"ambulatory","Asthma follow-up","cumulus__none","cumulus__none"
+200,,"Screening surveillance (regime/therapy)",,
+200,,"Screening surveillance (regime/therapy)",,"cumulus__none"
+200,,"Screening surveillance (regime/therapy)","cumulus__none",
+200,,"Screening surveillance (regime/therapy)","cumulus__none","cumulus__none"
+200,"ambulatory","Screening surveillance (regime/therapy)",,
+200,"ambulatory","Screening surveillance (regime/therapy)",,"cumulus__none"
+200,"ambulatory","Screening surveillance (regime/therapy)","cumulus__none",
+200,"ambulatory","Screening surveillance (regime/therapy)","cumulus__none","cumulus__none"
+197,,"Admission to hospice (procedure)",,
+197,,"Admission to hospice (procedure)",,"cumulus__none"
+197,,"Admission to hospice (procedure)","cumulus__none",
+197,,"Admission to hospice (procedure)","cumulus__none","cumulus__none"
+197,"home health","Admission to hospice (procedure)",,
+197,"home health","Admission to hospice (procedure)",,"cumulus__none"
+197,"home health","Admission to hospice (procedure)","cumulus__none",
+197,"home health","Admission to hospice (procedure)","cumulus__none","cumulus__none"
+191,,"Encounter for symptom (procedure)",,
+191,,"Encounter for symptom (procedure)",,"cumulus__none"
+191,,"Encounter for symptom (procedure)","cumulus__none",
+191,,"Encounter for symptom (procedure)","cumulus__none","cumulus__none"
+191,"ambulatory","Encounter for symptom (procedure)",,
+191,"ambulatory","Encounter for symptom (procedure)",,"cumulus__none"
+191,"ambulatory","Encounter for symptom (procedure)","cumulus__none",
+191,"ambulatory","Encounter for symptom (procedure)","cumulus__none","cumulus__none"
+159,,"Admission to skilled nursing facility (procedure)",,
+159,,"Admission to skilled nursing facility (procedure)",,"cumulus__none"
+159,,"Admission to skilled nursing facility (procedure)","cumulus__none",
+159,,"Admission to skilled nursing facility (procedure)","cumulus__none","cumulus__none"
+159,"inpatient encounter","Admission to skilled nursing facility (procedure)",,
+159,"inpatient encounter","Admission to skilled nursing facility (procedure)",,"cumulus__none"
+159,"inpatient encounter","Admission to skilled nursing facility (procedure)","cumulus__none",
+159,"inpatient encounter","Admission to skilled nursing facility (procedure)","cumulus__none","cumulus__none"
+147,,"Drug rehabilitation and detoxification",,
+147,,"Drug rehabilitation and detoxification",,"cumulus__none"
+147,,"Drug rehabilitation and detoxification","cumulus__none",
+147,,"Drug rehabilitation and detoxification","cumulus__none","cumulus__none"
+147,"inpatient encounter","Drug rehabilitation and detoxification",,
+147,"inpatient encounter","Drug rehabilitation and detoxification",,"cumulus__none"
+147,"inpatient encounter","Drug rehabilitation and detoxification","cumulus__none",
+147,"inpatient encounter","Drug rehabilitation and detoxification","cumulus__none","cumulus__none"
+138,,"Death Certification",,
+138,,"Death Certification",,"cumulus__none"
+138,,"Death Certification","cumulus__none",
+138,,"Death Certification","cumulus__none","cumulus__none"
+138,"ambulatory","Death Certification",,
+138,"ambulatory","Death Certification",,"cumulus__none"
+138,"ambulatory","Death Certification","cumulus__none",
+138,"ambulatory","Death Certification","cumulus__none","cumulus__none"
+131,,"Emergency hospital admission (procedure)",,
+131,,"Emergency hospital admission (procedure)",,"cumulus__none"
+131,,"Emergency hospital admission (procedure)","cumulus__none",
+131,,"Emergency hospital admission (procedure)","cumulus__none","cumulus__none"
+131,"emergency","Emergency hospital admission (procedure)",,
+131,"emergency","Emergency hospital admission (procedure)",,"cumulus__none"
+131,"emergency","Emergency hospital admission (procedure)","cumulus__none",
+131,"emergency","Emergency hospital admission (procedure)","cumulus__none","cumulus__none"
+129,,"Admission to surgical department",,
+129,,"Admission to surgical department",,"cumulus__none"
+129,,"Admission to surgical department","cumulus__none",
+129,,"Admission to surgical department","cumulus__none","cumulus__none"
+129,"inpatient encounter","Admission to surgical department",,
+129,"inpatient encounter","Admission to surgical department",,"cumulus__none"
+129,"inpatient encounter","Admission to surgical department","cumulus__none",
+129,"inpatient encounter","Admission to surgical department","cumulus__none","cumulus__none"
+125,,"Hospital admission (procedure)",,
+125,,"Hospital admission (procedure)",,"cumulus__none"
+125,,"Hospital admission (procedure)","cumulus__none",
+125,,"Hospital admission (procedure)","cumulus__none","cumulus__none"
+113,,"Gynecology service (qualifier value)",,
+113,,"Gynecology service (qualifier value)",,"cumulus__none"
+113,,"Gynecology service (qualifier value)","cumulus__none",
+113,,"Gynecology service (qualifier value)","cumulus__none","cumulus__none"
+113,"ambulatory","Gynecology service (qualifier value)",,
+113,"ambulatory","Gynecology service (qualifier value)",,"cumulus__none"
+113,"ambulatory","Gynecology service (qualifier value)","cumulus__none",
+113,"ambulatory","Gynecology service (qualifier value)","cumulus__none","cumulus__none"
+103,,"Domiciliary or rest home patient evaluation and management",,
+103,,"Domiciliary or rest home patient evaluation and management",,"cumulus__none"
+103,,"Domiciliary or rest home patient evaluation and management","cumulus__none",
+103,,"Domiciliary or rest home patient evaluation and management","cumulus__none","cumulus__none"
+103,"ambulatory","Domiciliary or rest home patient evaluation and management",,
+103,"ambulatory","Domiciliary or rest home patient evaluation and management",,"cumulus__none"
+103,"ambulatory","Domiciliary or rest home patient evaluation and management","cumulus__none",
+103,"ambulatory","Domiciliary or rest home patient evaluation and management","cumulus__none","cumulus__none"
+86,"inpatient encounter","Encounter for problem (procedure)",,
+86,"inpatient encounter","Encounter for problem (procedure)",,"cumulus__none"
+86,"inpatient encounter","Encounter for problem (procedure)","cumulus__none",
+86,"inpatient encounter","Encounter for problem (procedure)","cumulus__none","cumulus__none"
+85,"inpatient encounter","Hospital admission (procedure)",,
+85,"inpatient encounter","Hospital admission (procedure)",,"cumulus__none"
+85,"inpatient encounter","Hospital admission (procedure)","cumulus__none",
+85,"inpatient encounter","Hospital admission (procedure)","cumulus__none","cumulus__none"
+81,,"Patient-initiated encounter",,
+81,,"Patient-initiated encounter",,"cumulus__none"
+81,,"Patient-initiated encounter","cumulus__none",
+81,,"Patient-initiated encounter","cumulus__none","cumulus__none"
+81,"ambulatory","Patient-initiated encounter",,
+81,"ambulatory","Patient-initiated encounter",,"cumulus__none"
+81,"ambulatory","Patient-initiated encounter","cumulus__none",
+81,"ambulatory","Patient-initiated encounter","cumulus__none","cumulus__none"
+80,"virtual",,,
+80,"virtual",,,"cumulus__none"
+80,"virtual",,"cumulus__none",
+80,"virtual",,"cumulus__none","cumulus__none"
+63,,"Follow-up visit (procedure)",,
+63,,"Follow-up visit (procedure)",,"cumulus__none"
+63,,"Follow-up visit (procedure)","cumulus__none",
+63,,"Follow-up visit (procedure)","cumulus__none","cumulus__none"
+55,,"Encounter for Problem",,
+55,,"Encounter for Problem",,"cumulus__none"
+55,,"Encounter for Problem","cumulus__none",
+55,,"Encounter for Problem","cumulus__none","cumulus__none"
+55,,"Emergency hospital admission for asthma",,
+55,,"Emergency hospital admission for asthma",,"cumulus__none"
+55,,"Emergency hospital admission for asthma","cumulus__none",
+55,,"Emergency hospital admission for asthma","cumulus__none","cumulus__none"
+55,"emergency","Emergency hospital admission for asthma",,
+55,"emergency","Emergency hospital admission for asthma",,"cumulus__none"
+55,"emergency","Emergency hospital admission for asthma","cumulus__none",
+55,"emergency","Emergency hospital admission for asthma","cumulus__none","cumulus__none"
+54,,"Admission to surgical transplant department (procedure)",,
+54,,"Admission to surgical transplant department (procedure)",,"cumulus__none"
+54,,"Admission to surgical transplant department (procedure)","cumulus__none",
+54,,"Admission to surgical transplant department (procedure)","cumulus__none","cumulus__none"
+54,"inpatient encounter","Admission to surgical transplant department (procedure)",,
+54,"inpatient encounter","Admission to surgical transplant department (procedure)",,"cumulus__none"
+54,"inpatient encounter","Admission to surgical transplant department (procedure)","cumulus__none",
+54,"inpatient encounter","Admission to surgical transplant department (procedure)","cumulus__none","cumulus__none"
+51,,"Admission to intensive care unit (procedure)",,
+51,,"Admission to intensive care unit (procedure)",,"cumulus__none"
+51,,"Admission to intensive care unit (procedure)","cumulus__none",
+51,,"Admission to intensive care unit (procedure)","cumulus__none","cumulus__none"
+51,"inpatient encounter","Admission to intensive care unit (procedure)",,
+51,"inpatient encounter","Admission to intensive care unit (procedure)",,"cumulus__none"
+51,"inpatient encounter","Admission to intensive care unit (procedure)","cumulus__none",
+51,"inpatient encounter","Admission to intensive care unit (procedure)","cumulus__none","cumulus__none"
+47,,"Allergic disorder initial assessment",,
+47,,"Allergic disorder initial assessment",,"cumulus__none"
+47,,"Allergic disorder initial assessment","cumulus__none",
+47,,"Allergic disorder initial assessment","cumulus__none","cumulus__none"
+47,"ambulatory","Allergic disorder initial assessment",,
+47,"ambulatory","Allergic disorder initial assessment",,"cumulus__none"
+47,"ambulatory","Allergic disorder initial assessment","cumulus__none",
+47,"ambulatory","Allergic disorder initial assessment","cumulus__none","cumulus__none"
+46,"emergency","Encounter for Problem",,
+46,"emergency","Encounter for Problem",,"cumulus__none"
+46,"emergency","Encounter for Problem","cumulus__none",
+46,"emergency","Encounter for Problem","cumulus__none","cumulus__none"
+40,"ambulatory","Hospital admission (procedure)",,
+40,"ambulatory","Hospital admission (procedure)",,"cumulus__none"
+40,"ambulatory","Hospital admission (procedure)","cumulus__none",
+40,"ambulatory","Hospital admission (procedure)","cumulus__none","cumulus__none"
+38,,"Admission to ward (procedure)",,
+38,,"Admission to ward (procedure)",,"cumulus__none"
+38,,"Admission to ward (procedure)","cumulus__none",
+38,,"Admission to ward (procedure)","cumulus__none","cumulus__none"
+38,"inpatient encounter","Admission to ward (procedure)",,
+38,"inpatient encounter","Admission to ward (procedure)",,"cumulus__none"
+38,"inpatient encounter","Admission to ward (procedure)","cumulus__none",
+38,"inpatient encounter","Admission to ward (procedure)","cumulus__none","cumulus__none"
+38,"emergency","Encounter for problem",,
+38,"emergency","Encounter for problem",,"cumulus__none"
+38,"emergency","Encounter for problem","cumulus__none",
+38,"emergency","Encounter for problem","cumulus__none","cumulus__none"
+34,,"Office Visit",,
+34,,"Office Visit",,"cumulus__none"
+34,,"Office Visit","cumulus__none",
+34,,"Office Visit","cumulus__none","cumulus__none"
+33,"ambulatory","Office Visit",,
+33,"ambulatory","Office Visit",,"cumulus__none"
+33,"ambulatory","Office Visit","cumulus__none",
+33,"ambulatory","Office Visit","cumulus__none","cumulus__none"
+32,,"Patient transfer to intensive care unit (procedure)",,
+32,,"Patient transfer to intensive care unit (procedure)",,"cumulus__none"
+32,,"Patient transfer to intensive care unit (procedure)","cumulus__none",
+32,,"Patient transfer to intensive care unit (procedure)","cumulus__none","cumulus__none"
+32,"inpatient encounter","Patient transfer to intensive care unit (procedure)",,
+32,"inpatient encounter","Patient transfer to intensive care unit (procedure)",,"cumulus__none"
+32,"inpatient encounter","Patient transfer to intensive care unit (procedure)","cumulus__none",
+32,"inpatient encounter","Patient transfer to intensive care unit (procedure)","cumulus__none","cumulus__none"
+24,,"Allergic disorder follow-up assessment",,
+24,,"Allergic disorder follow-up assessment",,"cumulus__none"
+24,,"Allergic disorder follow-up assessment","cumulus__none",
+24,,"Allergic disorder follow-up assessment","cumulus__none","cumulus__none"
+24,"ambulatory","Allergic disorder follow-up assessment",,
+24,"ambulatory","Allergic disorder follow-up assessment",,"cumulus__none"
+24,"ambulatory","Allergic disorder follow-up assessment","cumulus__none",
+24,"ambulatory","Allergic disorder follow-up assessment","cumulus__none","cumulus__none"
+21,,"Non-urgent orthopedic admission",,
+21,,"Non-urgent orthopedic admission",,"cumulus__none"
+21,,"Non-urgent orthopedic admission","cumulus__none",
+21,,"Non-urgent orthopedic admission","cumulus__none","cumulus__none"
+21,"inpatient encounter","Non-urgent orthopedic admission",,
+21,"inpatient encounter","Non-urgent orthopedic admission",,"cumulus__none"
+21,"inpatient encounter","Non-urgent orthopedic admission","cumulus__none",
+21,"inpatient encounter","Non-urgent orthopedic admission","cumulus__none","cumulus__none"
+21,"inpatient encounter","Follow-up visit (procedure)",,
+21,"inpatient encounter","Follow-up visit (procedure)",,"cumulus__none"
+21,"inpatient encounter","Follow-up visit (procedure)","cumulus__none",
+21,"inpatient encounter","Follow-up visit (procedure)","cumulus__none","cumulus__none"
+12,,"Hospital admission for isolation (procedure)",,
+12,,"Hospital admission for isolation (procedure)",,"cumulus__none"
+12,,"Hospital admission for isolation (procedure)","cumulus__none",
+12,,"Hospital admission for isolation (procedure)","cumulus__none","cumulus__none"
+12,,"Admission to thoracic surgery department",,
+12,,"Admission to thoracic surgery department",,"cumulus__none"
+12,,"Admission to thoracic surgery department","cumulus__none",
+12,,"Admission to thoracic surgery department","cumulus__none","cumulus__none"
+12,"inpatient encounter","Hospital admission for isolation (procedure)",,
+12,"inpatient encounter","Hospital admission for isolation (procedure)",,"cumulus__none"
+12,"inpatient encounter","Hospital admission for isolation (procedure)","cumulus__none",
+12,"inpatient encounter","Hospital admission for isolation (procedure)","cumulus__none","cumulus__none"
+12,"inpatient encounter","Admission to thoracic surgery department",,
+12,"inpatient encounter","Admission to thoracic surgery department",,"cumulus__none"
+12,"inpatient encounter","Admission to thoracic surgery department","cumulus__none",
+12,"inpatient encounter","Admission to thoracic surgery department","cumulus__none","cumulus__none"
+11,,"Periodic reevaluation and management of healthy individual (procedure)",,
+11,,"Periodic reevaluation and management of healthy individual (procedure)",,"cumulus__none"
+11,,"Periodic reevaluation and management of healthy individual (procedure)","cumulus__none",
+11,,"Periodic reevaluation and management of healthy individual (procedure)","cumulus__none","cumulus__none"
+11,,"Discussion about treatment (procedure)",,
+11,,"Discussion about treatment (procedure)",,"cumulus__none"
+11,,"Discussion about treatment (procedure)","cumulus__none",
+11,,"Discussion about treatment (procedure)","cumulus__none","cumulus__none"
+11,"ambulatory","Periodic reevaluation and management of healthy individual (procedure)",,
+11,"ambulatory","Periodic reevaluation and management of healthy individual (procedure)",,"cumulus__none"
+11,"ambulatory","Periodic reevaluation and management of healthy individual (procedure)","cumulus__none",
+11,"ambulatory","Periodic reevaluation and management of healthy individual (procedure)","cumulus__none","cumulus__none"
+11,"ambulatory","Discussion about treatment (procedure)",,
+11,"ambulatory","Discussion about treatment (procedure)",,"cumulus__none"
+11,"ambulatory","Discussion about treatment (procedure)","cumulus__none",
+11,"ambulatory","Discussion about treatment (procedure)","cumulus__none","cumulus__none"

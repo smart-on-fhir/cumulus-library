@@ -705,9 +705,7 @@ FROM temp_encounter AS e
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
     ON e.class_code = eac.found
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
-INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref
-WHERE
-    e.period_start_day BETWEEN date('2016-06-01') AND current_date;
+INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref;
 
 -- ###########################################################
 

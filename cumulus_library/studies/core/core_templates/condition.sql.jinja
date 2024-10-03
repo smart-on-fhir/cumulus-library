@@ -80,5 +80,4 @@ SELECT
 FROM temp_condition AS tc
 LEFT JOIN core__condition_dn_category AS cdc ON tc.id = cdc.id
 LEFT JOIN core__condition_dn_clinical_status AS cdcs ON tc.id = cdcs.id
-LEFT JOIN core__condition_dn_verification_status AS cdvs ON tc.id = cdvs.id
-WHERE tc.recordedDate BETWEEN date('2016-01-01') AND current_date;
+LEFT JOIN core__condition_dn_verification_status AS cdvs ON tc.id = cdvs.id;
