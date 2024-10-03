@@ -14,7 +14,7 @@ def upload_data(
     progress: Progress,
     file_upload_progress: TaskID,
     file_path: Path,
-    version: int,
+    version: str,
     args: dict,
 ):
     """Fetches presigned url and uploads file to aggregator"""
@@ -71,7 +71,10 @@ def upload_files(args: dict):
     if args["target"]:
         filtered_paths = []
         for path in file_paths:
-            if any(study in str(path) for study in args["target"]):
+            if any(
+                path.parent.name == study and path.name.startswith(f"{study}__")
+                for study in args["target"]
+            ):
                 filtered_paths.append(path)
         file_paths = filtered_paths
 
