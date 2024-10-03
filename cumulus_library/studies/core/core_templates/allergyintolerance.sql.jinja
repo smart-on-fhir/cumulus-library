@@ -134,5 +134,4 @@ LEFT JOIN core__allergyintolerance_dn_code AS dn_code ON ta.id = dn_code.id
 LEFT JOIN core__allergyintolerance_dn_clinical_status AS dn_cstat ON ta.id = dn_cstat.id
 LEFT JOIN core__allergyintolerance_dn_verification_status AS dn_vstat
     ON ta.id = dn_vstat.id
-LEFT JOIN temp_category AS tcat ON ta.id = tcat.id
-WHERE ta.recordedDate BETWEEN date('2016-01-01') AND current_date;
+LEFT JOIN temp_category AS tcat ON ta.id = tcat.id;

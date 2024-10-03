@@ -403,11 +403,7 @@ SELECT
     subject_ref,
     encounter_ref,
     concat('Observation/', id) AS observation_ref
-FROM temp_observation
-WHERE
-    effectiveDateTime_day BETWEEN date(
-        from_iso8601_timestamp('2016-06-01')
-    ) AND current_date;
+FROM temp_observation;
 
 -- ###########################################################
 
