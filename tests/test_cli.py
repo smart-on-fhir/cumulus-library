@@ -601,8 +601,12 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
 def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls):
     mock_glob.side_effect = [
         [
-            Path(str(Path(__file__).parent) + "/test_data/count_synthea_patient.parquet"),
-            Path(str(Path(__file__).parent) + "/other_data/count_synthea_patient.parquet"),
+            Path(
+                str(Path(__file__).parent) + "/test_data/test_data__count_synthea_patient.parquet"
+            ),
+            Path(
+                str(Path(__file__).parent) + "/other_data/other_data__count_synthea_patient.parquet"
+            ),
         ],
     ]
     cli.main(cli_args=args)

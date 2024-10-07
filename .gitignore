@@ -10,8 +10,19 @@ output.sql
 MRCONSO.RRF
 *.zip
 coverage.xml
-*.parquet
 valueset_data/
+
+# parquet and csv files show up during an export, which devs might do a fair bit in odd places.
+# So for safety, ignore them both here, except in the tests dir where we use them for test data.
+*.csv
+*.parquet
+!/tests/**/*.csv
+!/tests/**/*.parquet
+# test artifacts (TODO: have the tests work in a tmpdir instead)
+/cumulus_library/builders/valueset/lookup_drug_from_ingredient_rules.parquet
+/tests/test_data/study_static_file/bsvs/ICD10CM_2023AA.parquet
+/tests/test_data/study_static_file/bsvs/ICD10PCS_2023AA.parquet
+/tests/test_data/valueset/rules_file.parquet
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

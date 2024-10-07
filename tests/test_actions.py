@@ -1,4 +1,5 @@
 import builtins
+import contextlib
 import datetime
 import pathlib
 import shutil
@@ -11,6 +12,7 @@ import pytest
 import requests
 import responses
 from freezegun import freeze_time
+from responses import matchers
 
 from cumulus_library import base_utils, enums, errors, log_utils, study_manifest
 from cumulus_library.actions import (
@@ -410,6 +412,52 @@ def test_import_study(tmp_path, mock_db_config):
         )
 
 
+def do_upload(
+    *,
+    login_error: bool = False,
+    user: str = "user",
+    id_token: str = "id",
+    preview: bool = True,
+    raises: contextlib.AbstractContextManager = does_not_raise(),
+    status: int = 204,
+    version: str = "12345.0",
+    data_path: pathlib.Path | None = pathlib.Path.cwd() / "tests/test_data/upload/",
+):
+    with raises:
+        if login_error:
+            responses.add(responses.POST, "https://upload.url.test/upload/", status=401)
+        else:
+            responses.add(
+                responses.POST,
+                "https://upload.url.test/upload/",
+                match=[
+                    matchers.json_params_matcher(
+                        {
+                            "study": "upload",
+                            "data_package": "upload__count_synthea_patient",
+                            "data_package_version": version,
+                            "filename": f"{user}_upload__count_synthea_patient.parquet",
+                        }
+                    )
+                ],
+                json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
+            )
+        args = {
+            "data_path": data_path,
+            "id": id_token,
+            "preview": preview,
+            "target": ["upload"],
+            "url": "https://upload.url.test/upload/",
+            "user": user,
+        }
+        responses.add(responses.POST, "https://presigned.url.test", status=status)
+        uploader.upload_files(args)
+        if preview:
+            responses.assert_call_count("https://upload.url.test/upload/", 1)
+        elif raises == does_not_raise():
+            responses.assert_call_count("https://upload.url.test/upload/", 2)
+
+
 @pytest.mark.parametrize(
     "user,id_token,status,login_error,preview,raises",
     [
@@ -451,29 +499,28 @@ def test_import_study(tmp_path, mock_db_config):
 )
 @responses.activate
 def test_upload_data(user, id_token, status, preview, login_error, raises):
-    with raises:
-        if login_error:
-            responses.add(responses.POST, "https://upload.url.test/upload/", status=401)
-        else:
-            responses.add(
-                responses.POST,
-                "https://upload.url.test/upload/",
-                json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
-            )
-        args = {
-            "data_path": pathlib.Path.cwd() / "tests/test_data/upload/",
-            "id": id_token,
-            "preview": preview,
-            "target": "core",
-            "url": "https://upload.url.test/upload/",
-            "user": user,
-        }
-        responses.add(responses.POST, "https://presigned.url.test", status=status)
-        uploader.upload_files(args)
-        if preview:
-            responses.assert_call_count("https://upload.url.test/upload/", 1)
-        elif raises == does_not_raise():
-            responses.assert_call_count("https://upload.url.test/upload/", 2)
+    do_upload(
+        user=user,
+        id_token=id_token,
+        status=status,
+        preview=preview,
+        login_error=login_error,
+        raises=raises,
+    )
+
+
+def test_upload_data_no_path():
+    with pytest.raises(SystemExit):
+        do_upload(data_path=None)
+
+
+@responses.activate
+def test_upload_data_no_version(tmp_path):
+    src = pathlib.Path.cwd() / "tests/test_data/upload/upload__count_synthea_patient.parquet"
+    dest = pathlib.Path(tmp_path) / "upload"
+    dest.mkdir()
+    shutil.copy(src, dest)
+    do_upload(data_path=dest, version="0")
 
 
 @pytest.mark.parametrize(
