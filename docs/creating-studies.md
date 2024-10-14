@@ -252,11 +252,15 @@ styling.
   `count_`, and otherwise the word `count` should not be used.
 
 #### Metadata tables
-  - Creating a table called `my_study__meta_date` with two `DATE` columns, `min_date`
+  - Create a table called `my_study__meta_date` with two `DATE` columns, `min_date`
   and `max_date`, and populating it with the start and end date of your study, will
   allow other Cumulus tools to detect study date ranges, and otherwise bakes the
   study date range into your SQL for future reference.
-  - Creating a `my_study__meta_version` with one column, `data_package_version`, and
+    - If you are pulling your dates from resources, it's recommended to cap `max_date` to the
+    current time (`LEAST(max_date, CURRENT_DATE)`), since resource data could have typos or
+    be planned events that put `max_date` in the future (which is both inaccurate and may cause
+    parsing issues if the date is too far forward).
+  - Create a `my_study__meta_version` with one column, `data_package_version`, and
   giving it an integer value as shown in this snippet:
   ```sql
   CREATE TABLE my_study__meta_version AS
@@ -266,6 +270,7 @@ styling.
   Cumulus Aggregator. Increment it when your counts output changes format,
   and thus third parties need to rerun your study from scratch. If this is not
   set, the version will implicitly be set to zero.
+  - Add these meta tables to `export_list` in your `manifest.toml`.
 
 ## Testing studies
 
