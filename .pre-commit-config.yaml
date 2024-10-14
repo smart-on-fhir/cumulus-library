@@ -11,7 +11,7 @@ repos:
         stages: [pre-push]
 
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 2.3.4
+    rev: 3.2.3
     hooks:
       - id: sqlfluff-lint
         types: []

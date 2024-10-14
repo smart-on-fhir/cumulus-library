@@ -1,4 +1,4 @@
-CREATE TABLE {{study_prefix}}{{table_prefix}}search_rules_descriptions AS
+CREATE TABLE {{ study_prefix }}{{ table_prefix }}search_rules_descriptions AS
 SELECT
     e.tty1,
     e.rela,
@@ -10,7 +10,7 @@ SELECT
 FROM
     umls.tty_description AS u1,
     umls.tty_description AS u2,
-    {{study_prefix}}{{table_prefix}}search_rules AS e
+    {{ study_prefix }}{{ table_prefix }}search_rules AS e
 WHERE
     u1.tty = e.tty1
     AND u2.tty = e.tty2
