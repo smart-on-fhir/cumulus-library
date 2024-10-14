@@ -3,6 +3,31 @@
 from cumulus_library.template_sql import sql_utils
 
 code_list = [
+    # AllergyIntolerance
+    {
+        "table_name": "allergyintolerance",
+        "column_hierarchy": [("clinicalstatus", dict), ("coding", list)],
+    },
+    {
+        "table_name": "allergyintolerance",
+        "column_hierarchy": [("verificationtstatus", dict), ("coding", list)],
+    },
+    {
+        "table_name": "allergyintolerance",
+        "column_hierarchy": [("code", dict), ("coding", list)],
+    },
+    {
+        "table_name": "allergyintolerance",
+        "column_hierarchy": [("reaction", list), ("substance", dict), ("coding", list)],
+    },
+    {
+        "table_name": "allergyintolerance",
+        "column_hierarchy": [("reaction", list), ("manifestation", list), ("coding", list)],
+    },
+    {
+        "table_name": "allergyintolerance",
+        "column_hierarchy": [("reaction", list), ("exposureroute", dict), ("coding", list)],
+    },
     # Condition
     {
         "table_name": "condition",
@@ -11,6 +36,19 @@ code_list = [
     {
         "table_name": "condition",
         "column_hierarchy": [("code", dict), ("coding", list)],
+    },
+    # DiagnosticReport
+    {
+        "table_name": "diagnosticreport",
+        "column_hierarchy": [("category", list), ("coding", list)],
+    },
+    {
+        "table_name": "diagnosticreport",
+        "column_hierarchy": [("code", dict), ("coding", list)],
+    },
+    {
+        "table_name": "diagnosticreport",
+        "column_hierarchy": [("conclusioncode", list), ("coding", list)],
     },
     # DocumentReference
     {
@@ -91,5 +129,50 @@ code_list = [
     {
         "table_name": "patient",
         "column_hierarchy": [("maritalstatus", dict), ("coding", list)],
+    },
+    # Procedure
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("statusreason", dict), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("category", dict), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("code", dict), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("performer", list), ("function", dict), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("reasoncode", list), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("bodysite", list), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("outcome", dict), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("complication", list), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("followup", list), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("focalDevice", list), ("action", dict), ("coding", list)],
+    },
+    {
+        "table_name": "procedure",
+        "column_hierarchy": [("usedcode", list), ("coding", list)],
     },
 ]

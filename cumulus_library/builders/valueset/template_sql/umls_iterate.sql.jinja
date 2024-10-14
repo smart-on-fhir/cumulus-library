@@ -1,6 +1,6 @@
 {%- import 'syntax.sql.jinja' as syntax -%}
 {%- if tier == 1 %}
-{%- if create_table  %}
+{%- if create_table %}
 CREATE TABLE {{ prefix }}{{ table_prefix }}umls_valuesets_rels AS 
 {%- else %}
 INSERT INTO {{ prefix }}{{ table_prefix }}umls_valuesets_rels
@@ -55,6 +55,6 @@ WHERE
     AND r.cui2 = d.cui
     AND v.tier = {{ tier -1 }}
     AND r.cui2 NOT IN (
-        SELECT DISTINCT cui FROM {{ prefix }}{{ table_prefix }}umls_valuesets_rels
+        SELECT DISTINCT u.cui FROM {{ prefix }}{{ table_prefix }}umls_valuesets_rels AS u
     )
 {%- endif %}

@@ -1,10 +1,10 @@
 {%- import 'syntax.sql.jinja' as syntax -%}
 
-CREATE TABLE {{ table_name }} AS
+CREATE TABLE {{ table_name }} AS -- noqa: disable=LT02
 {%- for table in tables %}
-SELECT 
+SELECT
 {%- for col in columns %}
-{{ col }}
+    {{ col }}
 {{- syntax.comma_delineate(loop) }}
 {%- endfor %}
 FROM {{ table }}

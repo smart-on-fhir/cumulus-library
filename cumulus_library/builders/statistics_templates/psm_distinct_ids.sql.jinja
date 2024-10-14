@@ -1,10 +1,10 @@
 SELECT DISTINCT 
-    {%- for column in columns %}
+{%- for column in columns %}
     "{{ source_table }}"."{{ column }}"
     {%- if not loop.last -%}
     , 
     {%- endif -%}
-    {%- endfor %}
+{%- endfor %}
 FROM {{ source_table }}
 {%- if join_id %}
 WHERE

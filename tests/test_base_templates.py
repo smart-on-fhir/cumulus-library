@@ -389,17 +389,17 @@ def test_create_table_from_tables(
 
 
 def test_get_create_table_from_union():
-    expected = """CREATE TABLE union_table AS
+    expected = """CREATE TABLE union_table AS -- noqa: disable=LT02
 SELECT
-foo,
-bar,
-baz
+    foo,
+    bar,
+    baz
 FROM table_a
 UNION
 SELECT
-foo,
-bar,
-baz
+    foo,
+    bar,
+    baz
 FROM view_b
 """
     query = base_templates.get_create_table_from_union(
