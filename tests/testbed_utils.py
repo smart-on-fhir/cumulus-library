@@ -245,5 +245,6 @@ class LocalTestbed:
         builder = cli.StudyRunner(config, data_path=str(self.path))
         builder.clean_and_build_study(
             Path(__file__).parent.parent / "cumulus_library/studies" / study,
+            options={},
         )
         return duckdb.connect(db_file)

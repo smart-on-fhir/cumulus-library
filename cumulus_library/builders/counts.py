@@ -20,6 +20,7 @@ class CountsBuilder(BaseTableBuilder):
             study_path = Path(sys.modules[self.__module__].__file__).parent
 
             try:
+                # FIXME: MIKE can we pass down options?
                 parser = study_manifest.StudyManifest(study_path)
                 self.study_prefix = parser.get_study_prefix()
             except Exception as e:
