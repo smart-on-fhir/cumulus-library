@@ -99,12 +99,12 @@ def test_create_schema(mock_client):
     assert mock_clientobj.create_database.called
 
 
-def test_dedicated_schema_namespacing():
-    manifest = study_manifest.StudyManifest()
-    manifest._study_config = manifest._study_config = {
-        "study_prefix": "foo",
-        "advanced_options": {"dedicated_schema": "foo"},
-    }
+def test_dedicated_schema_namespacing(tmp_path):
+    with open(f"{tmp_path}/manifest.toml", "w", encoding="utf8") as f:
+        f.write('study_prefix="foo"\n')
+        f.write("[advanced_options]\n")
+        f.write('dedicated_schema="foo"\n')
+    manifest = study_manifest.StudyManifest(tmp_path)
     query = "CREATE TABLE foo__bar"
     result = base_utils.update_query_if_schema_specified(query, manifest)
     assert result == "CREATE TABLE foo.bar"

@@ -37,11 +37,11 @@ class StudyRunner:
     verbose = False
     schema_name = None
 
-    def __init__(self, config: base_utils.StudyConfig, data_path: str):
+    def __init__(self, config: base_utils.StudyConfig, data_path: str | None):
         self.config = config
-        self.data_path = data_path
+        self.data_path = data_path and pathlib.Path(data_path)
 
-    def get_config(self, manifest=study_manifest.StudyManifest):
+    def get_config(self, manifest: study_manifest.StudyManifest):
         schema = base_utils.get_schema(self.config, manifest)
         if schema == self.config.schema:
             return self.config
@@ -57,6 +57,7 @@ class StudyRunner:
         targets: list[str],
         study_dict: dict,
         *,
+        options: dict[str, str],
         prefix: bool = False,
     ) -> None:
         """Removes study table/views from Athena.
@@ -65,8 +66,9 @@ class StudyRunner:
         this can be useful for cleaning up tables if a study prefix is changed
         for some reason.
 
-        :param target: The study prefix to use for IDing tables to remove
+        :param targets: The study prefixes to use for IDing tables to remove
         :param study_dict: The dictionary of available study targets
+        :param options: The dictionary of study-specific options
         :keyword prefix: If True, does a search by string prefix in place of study name
         """
         if targets is None:
@@ -77,26 +79,28 @@ class StudyRunner:
 
         for target in targets:
             if prefix:
-                manifest = study_manifest.StudyManifest()
+                manifest = study_manifest.StudyManifest(options=options)
                 cleaner.clean_study(
                     config=self.get_config(manifest), manifest=manifest, prefix=target
                 )
             else:
-                manifest = study_manifest.StudyManifest(study_dict[target])
+                manifest = study_manifest.StudyManifest(study_dict[target], options=options)
                 cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)
 
     def clean_and_build_study(
         self,
         target: pathlib.Path,
         *,
+        options: dict[str, str],
         continue_from: str | None = None,
     ) -> None:
         """Recreates study views/tables
 
         :param target: A path to the study directory
+        :param options: The dictionary of study-specific options
         :keyword continue_from: Restart a run from a specific sql file (for dev only)
         """
-        manifest = study_manifest.StudyManifest(target, self.data_path)
+        manifest = study_manifest.StudyManifest(target, self.data_path, options=options)
         try:
             builder.run_protected_table_builder(config=self.get_config(manifest), manifest=manifest)
             if not continue_from:
@@ -150,13 +154,16 @@ class StudyRunner:
         self,
         target: pathlib.Path,
         table_builder_name: str,
+        *,
+        options: dict[str, str],
     ) -> None:
         """Runs a single table builder
 
         :param target: A path to the study directory
         :param table_builder_name: a builder file referenced in the study's manifest
+        :param options: The dictionary of study-specific options
         """
-        manifest = study_manifest.StudyManifest(target)
+        manifest = study_manifest.StudyManifest(target, options=options)
         builder.run_matching_table_builder(
             config=self.get_config(manifest),
             manifest=manifest,
@@ -164,14 +171,22 @@ class StudyRunner:
         )
 
     ### Data exporters
-    def export_study(self, target: pathlib.Path, data_path: pathlib.Path, archive: bool) -> None:
+    def export_study(
+        self,
+        target: pathlib.Path,
+        data_path: pathlib.Path,
+        archive: bool,
+        *,
+        options: dict[str, str],
+    ) -> None:
         """Exports aggregates defined in a manifest
 
         :param target: A path to the study directory
-        :param datapath: The location to export data to
+        :param data_path: The location to export data to
         :param archive: If true, will export all tables, otherwise uses manifest list
+        :param options: The dictionary of study-specific options
         """
-        manifest = study_manifest.StudyManifest(target, data_path)
+        manifest = study_manifest.StudyManifest(target, data_path, options=options)
         exporter.export_study(
             config=self.get_config(manifest),
             manifest=manifest,
@@ -183,14 +198,14 @@ class StudyRunner:
         self,
         target: pathlib.Path,
         *,
-        builder: str | None = None,
+        options: dict[str, str],
     ) -> None:
         """Materializes study sql from templates
 
         :param target: A path to the study directory
-        :keyword builder: Specify a single builder to generate sql from
+        :param options: The dictionary of study-specific options
         """
-        manifest = study_manifest.StudyManifest(target)
+        manifest = study_manifest.StudyManifest(target, options=options)
         file_generator.run_generate_sql(config=self.get_config(manifest), manifest=manifest)
 
     def generate_study_markdown(
@@ -252,7 +267,8 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict[str, pathlib.Path]:
             manifest_paths.update(get_studies_by_manifest_path(child_path))
         elif child_path.name == "manifest.toml":
             try:
-                manifest = study_manifest.StudyManifest(path)
+                # Pass empty options, since we are not in a study-specific context
+                manifest = study_manifest.StudyManifest(path, options={})
                 manifest_paths[manifest.get_study_prefix()] = path
             except errors.StudyManifestParsingError as exc:
                 rich.print(f"[bold red] Ignoring study in '{path}': {exc}")
@@ -309,15 +325,19 @@ def run_cli(args: dict):
                     targets=args["target"],
                     study_dict=study_dict,
                     prefix=args["prefix"],
+                    options=args["options"],
                 )
             elif args["action"] == "build":
                 for target in args["target"]:
                     if args["builder"]:
-                        runner.run_matching_table_builder(study_dict[target], args["builder"])
+                        runner.run_matching_table_builder(
+                            study_dict[target], args["builder"], options=args["options"]
+                        )
                     else:
                         runner.clean_and_build_study(
                             study_dict[target],
                             continue_from=args["continue_from"],
+                            options=args["options"],
                         )
 
             elif args["action"] == "export":
@@ -337,7 +357,12 @@ def run_cli(args: dict):
                     if response.lower() != "y":
                         sys.exit()
                 for target in args["target"]:
-                    runner.export_study(study_dict[target], args["data_path"], args["archive"])
+                    runner.export_study(
+                        study_dict[target],
+                        args["data_path"],
+                        args["archive"],
+                        options=args["options"],
+                    )
 
             elif args["action"] == "import":
                 for archive in args["archive_path"]:
@@ -346,7 +371,7 @@ def run_cli(args: dict):
 
             elif args["action"] == "generate-sql":
                 for target in args["target"]:
-                    runner.generate_study_sql(study_dict[target], builder=args["builder"])
+                    runner.generate_study_sql(study_dict[target], options=args["options"])
 
             elif args["action"] == "generate-md":
                 for target in args["target"]:
@@ -429,7 +454,7 @@ def main(cli_args=None):
     options = {}
     cli_options = args.get("options") or []
     for c_arg in cli_options:
-        c_arg = c_arg.split(":", 2)
+        c_arg = c_arg.split(":", 1)
         if len(c_arg) == 1:
             sys.exit(
                 f"Custom argument '{c_arg}' is not validly formatted.\n"

@@ -199,9 +199,10 @@ def test_count_wrappers(
         assert call_kwargs["min_subject"] == min_subject
 
 
-def test_null_initialization():
+def test_null_study_prefix():
+    builder = counts.CountsBuilder()
     with pytest.raises(errors.CountsBuilderError):
-        counts.CountsBuilder()
+        builder.get_table_name("table")  # needs study_prefix to work
 
 
 def test_write_queries(tmp_path):
