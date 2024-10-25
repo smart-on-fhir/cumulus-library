@@ -1,6 +1,5 @@
 """Class for generating counts tables from templates"""
 
-import sys
 from pathlib import Path
 
 from cumulus_library import BaseTableBuilder, errors, study_manifest
@@ -14,22 +13,8 @@ class CountsBuilder(BaseTableBuilder):
     """Extends BaseTableBuilder for counts-related use cases"""
 
     def __init__(self, study_prefix: str | None = None):
-        if study_prefix is None:
-            # This slightly wonky approach will give us the path of the
-            # directory of a class extending the CountsBuilder
-            study_path = Path(sys.modules[self.__module__].__file__).parent
-
-            try:
-                parser = study_manifest.StudyManifest(study_path)
-                self.study_prefix = parser.get_study_prefix()
-            except Exception as e:
-                raise errors.CountsBuilderError(
-                    "CountsBuilder must be either initiated with a study prefix, "
-                    "or be in a directory with a valid manifest.toml"
-                ) from e
-        else:
-            self.study_prefix = study_prefix
         super().__init__()
+        self.study_prefix = study_prefix
 
     def get_table_name(self, table_name: str, duration=None) -> str:
         """Convenience method for constructing table name
@@ -37,6 +22,11 @@ class CountsBuilder(BaseTableBuilder):
         :param table_name: table name to add after the study prefix
         :param duration: a time period reflecting the table binning strategy
         """
+        if not self.study_prefix:
+            raise errors.CountsBuilderError(
+                "CountsBuilder must be either initiated with a study prefix, "
+                "or be in a directory with a valid manifest.toml"
+            )
         if duration:
             return f"{self.study_prefix}__{table_name}_{duration}"
         else:
@@ -44,7 +34,7 @@ class CountsBuilder(BaseTableBuilder):
 
     def get_where_clauses(
         self, clause: list | str | None = None, min_subject: int | None = None
-    ) -> str:
+    ) -> list[str]:
         """Convenience method for constructing arbitrary where clauses.
 
         :param clause: either a string or a list of sql where statements
@@ -295,10 +285,13 @@ class CountsBuilder(BaseTableBuilder):
         self.comment_queries()
         self.write_queries(path=Path(filepath))
 
-    def prepare_queries(self, cursor: object | None = None, schema: str | None = None):
-        """Stub implementing abstract base class
+    def prepare_queries(
+        self, *args, manifest: study_manifest.StudyManifest | None = None, **kwargs
+    ):
+        """Prepare count queries
 
         This should be overridden in any count generator. See studies/core/count_core.py
         for an example
         """
-        pass  # pragma: no cover
+        if manifest and not self.study_prefix:
+            self.study_prefix = manifest.get_study_prefix()

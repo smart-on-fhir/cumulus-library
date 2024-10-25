@@ -12,10 +12,11 @@ from cumulus_library.builders.valueset import umls, valueset_utils
     os.environ,
     clear=True,
 )
-def test_umls_lookup(mock_db_config_rxnorm, prefix):
+def test_umls_lookup(mock_db_config_rxnorm, prefix, tmp_path):
+    with open(f"{tmp_path}/manifest.toml", "w", encoding="utf8") as f:
+        f.write('study_prefix="test"')
     cursor = mock_db_config_rxnorm.db.cursor()
-    manifest = StudyManifest()
-    manifest._study_config = {"study_prefix": "test"}
+    manifest = StudyManifest(tmp_path)
     mock_db_config_rxnorm.options = {"umls_stewards": "medrt"}
     valueset_config = valueset_utils.ValuesetConfig(
         umls_stewards={"medrt": {"sab": "MED-RT", "search_terms": ["Opioid"]}}

@@ -48,7 +48,7 @@ def _load_and_execute_builder(
     :keyword filename: filename of a module implementing a TableBuilder
     :keyword db_parser: an object implementing DatabaseParser for the target database
     :keyword write_reference_sql: if true, writes sql to disk inside a study's directory
-    :keyword doc_string: A string to insert between queries written to disk
+    :keyword doc_str: A string to insert between queries written to disk
     """
 
     # Since we have to support arbitrary user-defined python files here, we

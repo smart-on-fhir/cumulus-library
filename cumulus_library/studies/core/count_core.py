@@ -115,6 +115,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
         return self.count_patient(table_name, from_table, cols)
 
     def prepare_queries(self, *args, **kwargs):
+        super().prepare_queries(*args, **kwargs)
         self.queries = [
             self.count_core_allergyintolerance(duration="month"),
             self.count_core_condition(duration="month"),

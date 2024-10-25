@@ -227,6 +227,7 @@ def mock_db_core(tmp_path, mock_db):  # pylint: disable=redefined-outer-name
     builder = cli.StudyRunner(config, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
         pathlib.Path(__file__).parent.parent / "cumulus_library/studies/core",
+        options={},
     )
     yield mock_db
 
@@ -256,6 +257,7 @@ def mock_db_stats(tmp_path):
     builder = cli.StudyRunner(config, data_path=f"{tmp_path}/data_path")
     builder.clean_and_build_study(
         pathlib.Path(__file__).parent.parent / "cumulus_library/studies/core",
+        options={},
     )
     yield db
 
