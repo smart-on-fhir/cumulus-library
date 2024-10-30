@@ -422,9 +422,10 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
             with open(f"{manifest_dir}/manifest.toml", "rb") as file:
                 config = tomllib.load(file)
             csv_files = glob.glob(f"{tmp_path}/export/{build_args[2]}/*.csv")
-            export_tables = config["export_config"]["export_list"]
-            for export_table in export_tables:
-                assert any(export_table in x for x in csv_files)
+            export_config = config["export_config"]
+            for export_list in export_config:
+                for export_table in export_list:
+                    assert any(export_table in x for x in csv_files)
 
 
 @mock.patch.dict(

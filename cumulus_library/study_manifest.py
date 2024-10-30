@@ -127,25 +127,34 @@ class StudyManifest:
         stats_config = self._study_config.get("statistics_config", {})
         return stats_config.get("file_names", [])
 
-    def get_export_table_list(self) -> list[str] | None:
+    def get_export_table_list(self) -> list[tuple] | None:
         """Reads the contents of the export_list array from the manifest
 
-        :returns: An array of tables to export from the manifest, or None if not found.
+        :returns: An array of tuples (table, export type) to export from the manifest,
+        or None if not found.
         """
         export_config = self._study_config.get("export_config", {})
         export_table_list = []
-        for table in export_config.get("export_list") or []:
-            if table.startswith(f"{self.get_study_prefix()}__"):
-                export_table_list.append(table)
-            elif "__" in table:  # has a prefix, just the wrong one
-                raise errors.StudyManifestParsingError(
-                    f"{table} in export list does not start with prefix "
-                    f"{self.get_study_prefix()}__ - check your manifest file."
-                )
-            else:
-                # Add the prefix for them (helpful in dynamic prefix cases where the prefix
-                # is not known ahead of time)
-                export_table_list.append(f"{self.get_study_prefix()}__{table}")
+
+        for section in [
+            ("export_list", "cube"),
+            ("count_list", "cube"),
+            ("flat_list", "flat"),
+            ("meta_list", "meta"),
+        ]:
+            section_list = export_config.get(section[0], []) or []
+            for table in section_list:
+                if table.startswith(f"{self.get_study_prefix()}__"):
+                    export_table_list.append(table)
+                elif "__" in table:  # has a prefix, just the wrong one
+                    raise errors.StudyManifestParsingError(
+                        f"{table} in export list does not start with prefix "
+                        f"{self.get_study_prefix()}__ - check your manifest file."
+                    )
+                else:
+                    # Add the prefix for them (helpful in dynamic prefix cases where the prefix
+                    # is not known ahead of time)
+                    export_table_list.append((table, section[1]))
 
         return export_table_list
 

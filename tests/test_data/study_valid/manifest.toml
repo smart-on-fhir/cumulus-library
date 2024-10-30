@@ -8,6 +8,14 @@ file_names = [
 
 [export_config]
 export_list = [
-    "study_valid__table",
+    "study_valid__table"
+]
+count_list = [
+    "study_valid__table2"
+]
+flat_list = [
+    "study_valid__table2"
+]
+meta_list = [
     "study_valid__table2"
 ]

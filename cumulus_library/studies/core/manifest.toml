@@ -24,7 +24,7 @@ file_names = [
 ]
 
 [export_config]
-export_list = [
+count_list = [
     "core__count_allergyintolerance_month",
     "core__count_condition_month",
     "core__count_documentreference_month",
@@ -37,6 +37,8 @@ export_list = [
     "core__count_medicationrequest_month",
     "core__count_observation_lab_month",
     "core__count_patient",
+]
+meta_list = [
     "core__meta_date",
     "core__meta_version",
 ]

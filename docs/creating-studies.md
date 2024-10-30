@@ -83,11 +83,30 @@ file_names = [
 
 [export_config]
 
-# The following tables will be output to disk when an export is run. In most cases,
-# only count tables should be output in this way.
+# The following tables will be exported and labeled as aggregate count tables.
+# In most cases, tables should go in this list.
 
-export_list = [
+count_list = [
     "my_study__count_influenza_test_month",
+]
+
+# Some specific tables (like those produced by data metrics) are a special type
+# of tables, that are flat summary statistics tables. They should go in this list.
+
+flat_list = [
+    "my_study__q_influenza",
+]
+
+# Tables that shouldn't go through aggregation, but instead contain data about
+# the export itself, should be marked as metadata. Two types are expected as of this
+# writing: a `meta_date` table, outlining the period over which the study extends,
+# and a `meta_version` table, which should be incremented whenever the format of
+# your export tables changes. See the core study for examples of how to structure
+# these tables.
+
+meta_list = [
+  "my_study__meta_date",
+  "my_study__meta_version",
 ]
 
 # For generating counts table in a more standardized manner, we have a class in the 

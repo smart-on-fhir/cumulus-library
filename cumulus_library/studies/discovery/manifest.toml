@@ -7,6 +7,6 @@ file_names = [
 
 
 [export_config]
-export_list = [
+count_list = [
     "discovery__code_sources",
 ]
