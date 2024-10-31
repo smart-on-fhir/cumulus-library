@@ -48,7 +48,6 @@ def test_load_manifest(manifest_path, expected, raises):
         else:
             path = None
         manifest = study_manifest.StudyManifest(path)
-        print(str(manifest))
         assert str(manifest) == expected
 
 
