@@ -18,11 +18,7 @@ from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
             (
                 "{'study_prefix': 'study_valid', 'sql_config': {'file_names': "
                 "['test.sql', 'test2.sql']}, 'export_config': {"
-                "'export_list': ['study_valid__table'], "
-                "'count_list': ['study_valid__table2'], "
-                "'flat_list': ['study_valid__table2'], "
-                "'meta_list': ['study_valid__table2']}"
-                "}"
+                "'count_list': ['study_valid__table', 'study_valid__table2']}}"
             ),
             does_not_raise(),
         ),
