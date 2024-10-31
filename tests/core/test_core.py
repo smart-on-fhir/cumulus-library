@@ -103,8 +103,8 @@ def test_core_count_missing_data(tmp_path):
 def test_core_counts_exported(mock_db_core):
     with open(f"{conftest.LIBRARY_ROOT}/studies/core/manifest.toml", "rb") as f:
         manifest = tomllib.load(f)
-    manifest["export_config"]["export_list"].remove("core__meta_version")
-    manifest["export_config"]["export_list"].remove("core__meta_date")
+    manifest["export_config"]["meta_list"].remove("core__meta_version")
+    manifest["export_config"]["meta_list"].remove("core__meta_date")
     count_tables = (
         mock_db_core.cursor()
         .execute(
@@ -114,7 +114,7 @@ def test_core_counts_exported(mock_db_core):
         .fetchall()
     )
     count_tables = [x[0] for x in count_tables]
-    assert set(manifest["export_config"]["export_list"]) == set(count_tables)
+    assert set(manifest["export_config"]["count_list"]) == set(count_tables)
 
 
 def test_core_empty_database(tmp_path):

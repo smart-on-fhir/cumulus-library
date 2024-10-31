@@ -390,6 +390,42 @@ def test_clean(tmp_path, args, expected, raises):
             4,
             does_not_raise(),
         ),
+        (
+            [
+                "build",
+                "-t",
+                "study_valid_all_exports",
+                "-s",
+                "tests/test_data/study_valid_all_exports/",
+            ],
+            [
+                "export",
+                "-t",
+                "study_valid_all_exports",
+                "-s",
+                "tests/test_data/study_valid_all_exports/",
+            ],
+            5,
+            does_not_raise(),
+        ),
+        (
+            [
+                "build",
+                "-t",
+                "study_invalid_duplicate_exports",
+                "-s",
+                "tests/test_data/study_invalid_duplicate_exports/",
+            ],
+            [
+                "export",
+                "-t",
+                "study_invalid_duplicate_exports",
+                "-s",
+                "tests/test_data/study_invalid_duplicate_exports/",
+            ],
+            2,
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
     ],
 )
 def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables, raises):
@@ -454,8 +490,8 @@ def test_cli_export_archive(tmp_path, args, input_txt, expects_files, raises):
             assert len(export_paths) == 1
             archive = zipfile.ZipFile(export_paths[0])
             for file in [
-                "core__encounter.csv",
-                "core__count_encounter_type_month.csv",
+                "core__encounter.archive.csv",
+                "core__count_encounter_type_month.archive.csv",
                 "stats/test.txt",
             ]:
                 assert file in archive.namelist()
