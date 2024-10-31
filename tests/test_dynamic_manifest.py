@@ -20,6 +20,10 @@ STUDY_ARGS = [
 ]
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 @pytest.mark.parametrize(
     "options,result",
     [
@@ -41,6 +45,10 @@ def test_manifest_with_dynamic_prefix(options, result):
         assert manifest.get_study_prefix() == result
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 @mock.patch("sys.executable", new=None)
 def test_manifest_with_dynamic_prefix_and_no_executable():
     """sys.executable must be valid for us to run a Python script"""
@@ -48,6 +56,10 @@ def test_manifest_with_dynamic_prefix_and_no_executable():
         study_manifest.StudyManifest(pathlib.Path("tests/test_data/study_dynamic_prefix"))
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 def test_cli_clean_with_dynamic_prefix(tmp_path):
     cli.main(cli_args=duckdb_args(["build", *STUDY_ARGS, "--option=prefix:dynamic2"], tmp_path))
     cli.main(cli_args=duckdb_args(["build", *STUDY_ARGS], tmp_path))
@@ -68,18 +80,26 @@ def test_cli_clean_with_dynamic_prefix(tmp_path):
     assert "dynamic2__meta_version" not in tables
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 def test_cli_export_with_dynamic_prefix(tmp_path):
     cli.main(cli_args=duckdb_args(["build", *STUDY_ARGS, "--option=prefix:abc"], tmp_path))
     cli.main(cli_args=duckdb_args(["export", *STUDY_ARGS, "--option=prefix:abc"], tmp_path))
     assert set(os.listdir(f"{tmp_path}/export")) == {"abc"}
     assert set(os.listdir(f"{tmp_path}/export/abc")) == {
-        "abc__counts.csv",
-        "abc__counts.parquet",
-        "abc__meta_version.csv",
-        "abc__meta_version.parquet",
+        "abc__counts.cube.csv",
+        "abc__counts.cube.parquet",
+        "abc__meta_version.cube.csv",
+        "abc__meta_version.cube.parquet",
     }
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 def test_cli_generate_sql_with_dynamic_prefix(tmp_path):
     shutil.copytree(
         pathlib.Path(__file__).parent / "test_data/study_dynamic_prefix",

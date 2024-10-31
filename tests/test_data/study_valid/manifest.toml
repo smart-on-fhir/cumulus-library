@@ -7,7 +7,7 @@ file_names = [
 ]
 
 [export_config]
-export_list = [
+count_list = [
     "study_valid__table",
     "study_valid__table2"
 ]

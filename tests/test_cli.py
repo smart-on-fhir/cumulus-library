@@ -390,6 +390,42 @@ def test_clean(tmp_path, args, expected, raises):
             4,
             does_not_raise(),
         ),
+        (
+            [
+                "build",
+                "-t",
+                "study_valid_all_exports",
+                "-s",
+                "tests/test_data/study_valid_all_exports/",
+            ],
+            [
+                "export",
+                "-t",
+                "study_valid_all_exports",
+                "-s",
+                "tests/test_data/study_valid_all_exports/",
+            ],
+            5,
+            does_not_raise(),
+        ),
+        (
+            [
+                "build",
+                "-t",
+                "study_invalid_duplicate_exports",
+                "-s",
+                "tests/test_data/study_invalid_duplicate_exports/",
+            ],
+            [
+                "export",
+                "-t",
+                "study_invalid_duplicate_exports",
+                "-s",
+                "tests/test_data/study_invalid_duplicate_exports/",
+            ],
+            2,
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
     ],
 )
 def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables, raises):
@@ -422,9 +458,10 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
             with open(f"{manifest_dir}/manifest.toml", "rb") as file:
                 config = tomllib.load(file)
             csv_files = glob.glob(f"{tmp_path}/export/{build_args[2]}/*.csv")
-            export_tables = config["export_config"]["export_list"]
-            for export_table in export_tables:
-                assert any(export_table in x for x in csv_files)
+            export_config = config["export_config"]
+            for export_list in export_config:
+                for export_table in export_list:
+                    assert any(export_table in x for x in csv_files)
 
 
 @mock.patch.dict(
@@ -453,8 +490,8 @@ def test_cli_export_archive(tmp_path, args, input_txt, expects_files, raises):
             assert len(export_paths) == 1
             archive = zipfile.ZipFile(export_paths[0])
             for file in [
-                "core__encounter.csv",
-                "core__count_encounter_type_month.csv",
+                "core__encounter.archive.csv",
+                "core__count_encounter_type_month.archive.csv",
                 "stats/test.txt",
             ]:
                 assert file in archive.namelist()

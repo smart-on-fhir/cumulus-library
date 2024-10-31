@@ -58,24 +58,28 @@ def export_study(
     if archive:
         table_query = base_templates.get_show_tables(config.schema, prefix)
         result = config.db.cursor().execute(table_query).fetchall()
-        table_list = [row[0] for row in result]
+        table_list = manifest.get_export_table_list()
+        for row in result:
+            if row[0] not in table_list:
+                table_list.append(study_manifest.ManifestExport(name=row[0], export_type="archive"))
     else:
         table_list = manifest.get_export_table_list()
-
     queries = []
     path = pathlib.Path(f"{data_path}/{manifest.get_study_prefix()}/")
     for table in track(
         table_list,
         description=f"Exporting {manifest.get_study_prefix()} data...",
     ):
-        query = f"SELECT * FROM {table}"  # noqa: S608
+        query = f"SELECT * FROM {table.name}"  # noqa: S608
         query = base_utils.update_query_if_schema_specified(query, manifest)
         dataframe_chunks, db_schema = config.db.execute_as_pandas(query, chunksize=chunksize)
         path.mkdir(parents=True, exist_ok=True)
         arrow_schema = pyarrow.schema(config.db.col_pyarrow_types_from_sql(db_schema))
-        with parquet.ParquetWriter(f"{path}/{table}.parquet", arrow_schema) as p_writer:
+        with parquet.ParquetWriter(
+            f"{path}/{table.name}.{table.export_type}.parquet", arrow_schema
+        ) as p_writer:
             with csv.CSVWriter(
-                f"{path}/{table}.csv",
+                f"{path}/{table.name}.{table.export_type}.csv",
                 arrow_schema,
                 write_options=csv.WriteOptions(
                     # Note that this quoting style is not exactly csv.QUOTE_MINIMAL

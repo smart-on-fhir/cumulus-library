@@ -17,8 +17,8 @@ from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
             "test_data/study_valid",
             (
                 "{'study_prefix': 'study_valid', 'sql_config': {'file_names': "
-                "['test.sql', 'test2.sql']}, 'export_config': {'export_list': "
-                "['study_valid__table', 'study_valid__table2']}}"
+                "['test.sql', 'test2.sql']}, 'export_config': {"
+                "'count_list': ['study_valid__table', 'study_valid__table2']}}"
             ),
             does_not_raise(),
         ),
@@ -80,7 +80,8 @@ def test_manifest_data(mock_load, mock_open, manifest_key, raises):
             if expected["export_config"]["export_list"] is None:
                 assert manifest.get_export_table_list() == []
             else:
-                assert manifest.get_export_table_list() == expected["export_config"]["export_list"]
+                table_list = [x.name for x in manifest.get_export_table_list()]
+                assert table_list == expected["export_config"]["export_list"]
         else:
             assert manifest.get_export_table_list() == []
 

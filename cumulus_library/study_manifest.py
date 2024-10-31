@@ -1,5 +1,6 @@
 """Class for loading study configuration data from manifest.toml files"""
 
+import dataclasses
 import pathlib
 import re
 import subprocess
@@ -7,6 +8,12 @@ import sys
 import tomllib
 
 from cumulus_library import errors
+
+
+@dataclasses.dataclass(kw_only=True)
+class ManifestExport:
+    name: str
+    export_type: str
 
 
 class StudyManifest:
@@ -127,26 +134,47 @@ class StudyManifest:
         stats_config = self._study_config.get("statistics_config", {})
         return stats_config.get("file_names", [])
 
-    def get_export_table_list(self) -> list[str] | None:
+    def get_export_table_list(self) -> list[ManifestExport] | None:
         """Reads the contents of the export_list array from the manifest
 
-        :returns: An array of tables to export from the manifest, or None if not found.
+        :returns: An array of tuples (table, export type) to export from the manifest,
+        or None if not found.
         """
         export_config = self._study_config.get("export_config", {})
         export_table_list = []
-        for table in export_config.get("export_list") or []:
-            if table.startswith(f"{self.get_study_prefix()}__"):
-                export_table_list.append(table)
-            elif "__" in table:  # has a prefix, just the wrong one
+
+        for section in [
+            ("export_list", "cube"),
+            ("count_list", "cube"),
+            ("flat_list", "flat"),
+            ("meta_list", "meta"),
+        ]:
+            section_list = export_config.get(section[0], []) or []
+            for table in section_list:
+                if table.startswith(f"{self.get_study_prefix()}__"):
+                    export_table_list.append(ManifestExport(name=table, export_type=section[1]))
+                elif "__" in table:  # has a prefix, just the wrong one
+                    raise errors.StudyManifestParsingError(
+                        f"{table} in export list does not start with prefix "
+                        f"{self.get_study_prefix()}__ - check your manifest file."
+                    )
+                else:
+                    # Add the prefix for them (helpful in dynamic prefix cases where the prefix
+                    # is not known ahead of time)
+                    export_table_list.append(
+                        ManifestExport(
+                            name=f"{self.get_study_prefix()}__{table}", export_type=section[1]
+                        )
+                    )
+        found_name = set()
+        for export in export_table_list:
+            if export.name in found_name:
                 raise errors.StudyManifestParsingError(
-                    f"{table} in export list does not start with prefix "
-                    f"{self.get_study_prefix()}__ - check your manifest file."
+                    f"Table {export.name} is defined in multiple export sections. Tables should "
+                    "only be defined in one export section in the study manifest"
                 )
             else:
-                # Add the prefix for them (helpful in dynamic prefix cases where the prefix
-                # is not known ahead of time)
-                export_table_list.append(f"{self.get_study_prefix()}__{table}")
-
+                found_name.add(export.name)
         return export_table_list
 
     def get_all_generators(self) -> list[str]:
