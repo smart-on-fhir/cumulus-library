@@ -355,6 +355,16 @@ def test_export_study(tmp_path, mock_db_core_config):
     )
     for file in pathlib.Path(f"{tmp_path}/export").glob("*.*"):
         assert file in manifest.get_export_table_list()
+    # Do this a second time to check that cleanup happens
+    exporter.export_study(
+        config=mock_db_core_config,
+        manifest=manifest,
+        data_path=f"{tmp_path}/export",
+        archive=False,
+        chunksize=20,
+    )
+    for file in pathlib.Path(f"{tmp_path}/export").glob("*.*"):
+        assert file in manifest.get_export_table_list()
 
 
 @freeze_time("2024-01-01")
