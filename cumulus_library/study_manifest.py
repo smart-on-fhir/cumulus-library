@@ -123,7 +123,7 @@ class StudyManifest:
         """
         sql_config = self._study_config.get("sql_config", {})
         sql_files = sql_config.get("file_names", []) or []
-        if continue_from:
+        if continue_from:  # pragma: no cover
             for pos, file in enumerate(sql_files):
                 if continue_from.replace(".sql", "") == file.replace(".sql", ""):
                     sql_files = sql_files[pos:]
@@ -204,15 +204,18 @@ class StudyManifest:
                 found_name.add(export.name)
         return export_table_list
 
-    def get_all_generators(self) -> list[str]:
-        """Convenience method for getting files that generate sql queries"""
+    def get_all_files(self, file_type: str):
+        """Convenience method for getting files of a type from a manifest"""
         files = self.get_file_list()
-        return [file for file in files if file.endswith(".py")]
+        return [file for file in files if file.endswith(file_type)]
+
+    def get_all_generators(self) -> list[str]:
+        """Convenience method for getting builder-based files"""
+        return self.get_all_files(".py")
 
     def get_all_workflows(self) -> list[str]:
-        """Convenience method for getting config files"""
-        files = self.get_file_list()
-        return [file for file in files if file.endswith(".toml")]
+        """Convenience method for getting workflow config files"""
+        return self.get_all_files(".toml")
 
     def get_prefix_with_seperator(self) -> str:
         """Convenience method for getting the appropriate prefix for tables"""

@@ -1,6 +1,6 @@
 study_prefix = "discovery"
 
-[table_builder_config]
+[file_config]
 file_names = [
     "code_detection.py",
 ]

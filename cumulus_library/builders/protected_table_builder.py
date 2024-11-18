@@ -67,11 +67,14 @@ class ProtectedTableBuilder(BaseTableBuilder):
                 TRANSACTION_COLS_TYPES,
             )
         )
-        files = manifest.get_file_list()
-        files = [file for file in files if file.endswith(".toml")]
+        files = manifest.get_all_workflows()
         if len(files) == 0:
             return
         stats_types = set(item.value for item in enums.StatisticsTypes)
+        # In this loop, we are just checking to see if :any: workflow is a stats
+        # type workflow - if so, we'll create a table to hold data of stats runs
+        # (if it doesn't already exist) outside of the study lifecycle for
+        # persistence reasons
         for file in files:
             toml_path = pathlib.Path(f"{manifest._study_path}/{file}")
             with open(toml_path, "rb") as file:

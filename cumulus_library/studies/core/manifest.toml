@@ -1,6 +1,6 @@
 study_prefix = "core"
 
-[table_builder_config]
+[file_config]
 file_names = [
     "builder_prereq_tables.py",
     "builder_allergyintolerance.py",
@@ -9,17 +9,9 @@ file_names = [
     "builder_encounter.py",
     "builder_documentreference.py",
     "builder_medicationrequest.py",
-    "builder_observation.py"
-]
-
-[sql_config]
-file_names = [
+    "builder_observation.py",
     "observation_type.sql",
     "meta_date.sql",
-]
-
-[counts_builder_config]
-file_names = [
     "count_core.py"
 ]
 

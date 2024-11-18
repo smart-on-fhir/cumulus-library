@@ -178,8 +178,8 @@ def _run_workflow(
                 config=workflow_config,
                 data_path=manifest.data_path / f"{manifest.get_study_prefix()}/valueset",
             )
-        case _:
-            raise errors.StudyManifestParsingError(  # pragma: no cover
+        case _:  # pragma: no cover
+            raise errors.StudyManifestParsingError(
                 f"{toml_path} references an invalid workflow type {config_type}."
             )
     builder.execute_queries(
@@ -201,7 +201,7 @@ def build_matching_files(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
     *,
-    builder: str,
+    builder: str | None,
     db_parser: databases.DatabaseParser = None,
 ):
     """targets all table builders matching a target string for running
@@ -212,9 +212,12 @@ def build_matching_files(
     :keyword db_parser: an object implementing DatabaseParser for the target database"""
     all_generators = manifest.get_all_generators()
     matches = []
-    for file in all_generators:
-        if builder and file.find(builder) != -1:
-            matches.append(file)
+    if not builder:  # pragma: no cover
+        matches = all_generators
+    else:
+        for file in all_generators:
+            if file.find(builder) != -1:
+                matches.append(file)
     build_study(config, manifest, db_parser=db_parser, file_list=matches)
 
 
@@ -257,8 +260,6 @@ def _run_raw_queries(
     queries = []
     for query in base_utils.parse_sql(base_utils.load_text(f"{manifest._study_path}/{filename}")):
         queries.append([query, filename])
-    if len(queries) == 0:
-        return []
     for query in queries:
         query[0] = base_utils.update_query_if_schema_specified(query[0], manifest)
         query[0] = query[0].replace(
