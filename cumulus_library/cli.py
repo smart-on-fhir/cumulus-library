@@ -113,7 +113,6 @@ class StudyRunner:
                     config=self.get_config(manifest),
                     manifest=manifest,
                 )
-                builder.run_table_builder(config=self.get_config(manifest), manifest=manifest)
 
             else:
                 log_utils.log_transaction(
@@ -126,11 +125,6 @@ class StudyRunner:
                 config=self.get_config(manifest),
                 manifest=manifest,
                 continue_from=continue_from,
-            )
-            builder.run_counts_builders(config=self.get_config(manifest), manifest=manifest)
-            builder.run_statistics_builders(
-                config=self.get_config(manifest),
-                manifest=manifest,
             )
             log_utils.log_transaction(
                 config=self.get_config(manifest),
@@ -150,7 +144,7 @@ class StudyRunner:
             )
             raise e
 
-    def run_matching_table_builder(
+    def build_matching_files(
         self,
         target: pathlib.Path,
         table_builder_name: str,
@@ -164,7 +158,7 @@ class StudyRunner:
         :param options: The dictionary of study-specific options
         """
         manifest = study_manifest.StudyManifest(target, options=options)
-        builder.run_matching_table_builder(
+        builder.build_matching_files(
             config=self.get_config(manifest),
             manifest=manifest,
             builder=table_builder_name,
@@ -330,7 +324,7 @@ def run_cli(args: dict):
             elif args["action"] == "build":
                 for target in args["target"]:
                     if args["builder"]:
-                        runner.run_matching_table_builder(
+                        runner.build_matching_files(
                             study_dict[target], args["builder"], options=args["options"]
                         )
                     else:

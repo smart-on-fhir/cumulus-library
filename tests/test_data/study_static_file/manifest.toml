@@ -1,6 +1,6 @@
 study_prefix = "study_static_file"
 
-[table_builder_config]
+[file_config]
 file_names = [
     "static_file_builder.py",
 ]

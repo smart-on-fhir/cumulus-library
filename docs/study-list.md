@@ -21,6 +21,8 @@ for more details and any associated publications.
 - [Hypertension](https://github.com/smart-on-fhir/cumulus-library-hypertension)
 - [UMLS vocabulary](https://github.com/smart-on-fhir/cumulus-library-umls)
 - [Data Metrics](https://github.com/smart-on-fhir/cumulus-library-data-metrics)
+- [RxNorm vocabulary](https://github.com/smart-on-fhir/cumulus-library-rxnorm)
+- [ICD-10 accuracy for suicidal ideation](https://github.com/smart-on-fhir/cumulus-library-suicidality-icd10)
 
 ## Third party studies
 

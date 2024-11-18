@@ -1,5 +1,8 @@
 """Builder for creating tables for tracking state/logging changes"""
 
+import pathlib
+import tomllib
+
 from cumulus_library import (
     BaseTableBuilder,
     base_utils,
@@ -64,12 +67,22 @@ class ProtectedTableBuilder(BaseTableBuilder):
                 TRANSACTION_COLS_TYPES,
             )
         )
-        if manifest._study_config.get("statistics_config"):
-            self.queries.append(
-                base_templates.get_ctas_empty_query(
-                    db_schema,
-                    statistics,
-                    STATISTICS_COLS,
-                    STATISTICS_COLS_TYPES,
-                )
-            )
+        files = manifest.get_file_list()
+        files = [file for file in files if file.endswith(".toml")]
+        if len(files) == 0:
+            return
+        stats_types = set(item.value for item in enums.StatisticsTypes)
+        for file in files:
+            toml_path = pathlib.Path(f"{manifest._study_path}/{file}")
+            with open(toml_path, "rb") as file:
+                workflow_config = tomllib.load(file)
+                if workflow_config["config_type"] in stats_types:
+                    self.queries.append(
+                        base_templates.get_ctas_empty_query(
+                            db_schema,
+                            statistics,
+                            STATISTICS_COLS,
+                            STATISTICS_COLS_TYPES,
+                        )
+                    )
+                    return

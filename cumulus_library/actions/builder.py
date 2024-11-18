@@ -135,60 +135,14 @@ def run_protected_table_builder(
     )
 
 
-def run_table_builder(
-    config: base_utils.StudyConfig,
-    manifest: study_manifest.StudyManifest,
-    *,
-    db_parser: databases.DatabaseParser = None,
+def _run_workflow(
+    config: base_utils.StudyConfig, manifest: study_manifest.StudyManifest, filename: str
 ) -> None:
-    """Loads modules from a manifest and executes code via BaseTableBuilder
-
-    :param config: a StudyConfig object
-    :param manifest: a StudyManifest object
-    :keyword db_parser: an object implementing DatabaseParser for the target database
-    """
-    for file in manifest.get_table_builder_file_list():
-        _load_and_execute_builder(
-            config=config,
-            manifest=manifest,
-            filename=file,
-            db_parser=db_parser,
-        )
-
-
-def run_counts_builders(
-    config: base_utils.StudyConfig,
-    manifest: study_manifest.StudyManifest,
-) -> None:
-    """Loads counts modules from a manifest and executes code via BaseTableBuilder
-
-    While a count is a form of statistics, it is treated separately from other
-    statistics because it is, by design, always going to be static against a
-    given dataset, where other statistical methods may use sampling techniques
-    or adjustable input parameters that may need to be preserved for later review.
+    """Loads workflow config from toml definitions and executes workflow
 
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
     """
-    for file in manifest.get_counts_builder_file_list():
-        _load_and_execute_builder(
-            config=config,
-            manifest=manifest,
-            filename=file,
-        )
-
-
-def run_statistics_builders(
-    config: base_utils.StudyConfig,
-    manifest: study_manifest.StudyManifest,
-) -> None:
-    """Loads statistics modules from toml definitions and executes
-
-    :param config: a StudyConfig object
-    :param manifest: a StudyManifest object
-    """
-    if len(manifest.get_statistics_file_list()) == 0:
-        return
     existing_stats = []
     if not config.stats_build:
         existing_stats = (
@@ -199,40 +153,41 @@ def run_statistics_builders(
             )
             .fetchall()
         )
-    for file in manifest.get_statistics_file_list():
-        # This open is a bit redundant with the open inside of the PSM builder,
-        # but we're letting it slide so that builders function similarly
-        # across the board
-        safe_timestamp = base_utils.get_tablename_safe_iso_timestamp()
-        toml_path = pathlib.Path(f"{manifest._study_path}/{file}")
-        with open(toml_path, "rb") as file:
-            stats_config = tomllib.load(file)
-            config_type = stats_config["config_type"]
-            target_table = stats_config.get("target_table", stats_config.get("table_prefix", ""))
+    # This open is a bit redundant with the open inside of the PSM builder,
+    # but we're letting it slide so that builders function similarly
+    # across the board
+    safe_timestamp = base_utils.get_tablename_safe_iso_timestamp()
+    toml_path = pathlib.Path(f"{manifest._study_path}/{filename}")
+    with open(toml_path, "rb") as file:
+        workflow_config = tomllib.load(file)
+        config_type = workflow_config["config_type"]
+        target_table = workflow_config.get("target_table", workflow_config.get("table_prefix", ""))
 
-        if (target_table,) in existing_stats and not config.stats_build:
-            continue
-        if config_type == "psm":
+    if (target_table,) in existing_stats and not config.stats_build:
+        return
+    match config_type:
+        case "psm":
             builder = psm_builder.PsmBuilder(
                 toml_config_path=toml_path,
-                config=stats_config,
+                config=workflow_config,
                 data_path=manifest.data_path / f"{manifest.get_study_prefix()}/psm",
             )
-        elif config_type == "valueset":
+        case "valueset":
             builder = valueset_builder.ValuesetBuilder(
                 toml_config_path=toml_path,
-                config=stats_config,
+                config=workflow_config,
                 data_path=manifest.data_path / f"{manifest.get_study_prefix()}/valueset",
             )
-        else:
+        case _:
             raise errors.StudyManifestParsingError(  # pragma: no cover
-                f"{toml_path} references an invalid statistics type {config_type}."
+                f"{toml_path} references an invalid workflow type {config_type}."
             )
-        builder.execute_queries(
-            config=config,
-            manifest=manifest,
-            table_suffix=safe_timestamp,
-        )
+    builder.execute_queries(
+        config=config,
+        manifest=manifest,
+        table_suffix=safe_timestamp,
+    )
+    if config_type in set(item.value for item in enums.StatisticsTypes):
         log_utils.log_statistics(
             config=config,
             manifest=manifest,
@@ -242,7 +197,7 @@ def run_statistics_builders(
         )
 
 
-def run_matching_table_builder(
+def build_matching_files(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
     *,
@@ -256,34 +211,52 @@ def run_matching_table_builder(
     :keyword builder: filename of a module implementing a TableBuilder
     :keyword db_parser: an object implementing DatabaseParser for the target database"""
     all_generators = manifest.get_all_generators()
+    matches = []
     for file in all_generators:
-        if builder and file.find(builder) == -1:
-            continue
-        _load_and_execute_builder(
-            config=config,
-            manifest=manifest,
-            filename=file,
-            db_parser=db_parser,
-        )
+        if builder and file.find(builder) != -1:
+            matches.append(file)
+    build_study(config, manifest, db_parser=db_parser, file_list=matches)
 
 
 def build_study(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
     *,
+    db_parser: databases.DatabaseParser = None,
     continue_from: str | None = None,
+    file_list: list | None = None,
 ) -> list:
     """Creates tables in the schema by iterating through the sql_config.file_names
 
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
-    :keyword continue_from: Name of a sql file to resume table creation from
+    :keyword continue_from: Name of a file to resume table creation from
     :returns: loaded queries (for unit testing only)
     """
+    if file_list is None:
+        file_list = manifest.get_file_list(continue_from)
+    for file in file_list:
+        if file.endswith(".py"):
+            _load_and_execute_builder(
+                config=config,
+                manifest=manifest,
+                filename=file,
+                db_parser=db_parser,
+            )
+        elif file.endswith(".toml"):
+            _run_workflow(config=config, manifest=manifest, filename=file)
+        elif file.endswith(".sql"):
+            _run_raw_queries(config=config, manifest=manifest, filename=file)
+        else:
+            raise errors.StudyManifestParsingError
+
+
+def _run_raw_queries(
+    config: base_utils.StudyConfig, manifest: study_manifest.StudyManifest, filename: str
+):
     queries = []
-    for file in manifest.get_sql_file_list(continue_from):
-        for query in base_utils.parse_sql(base_utils.load_text(f"{manifest._study_path}/{file}")):
-            queries.append([query, file])
+    for query in base_utils.parse_sql(base_utils.load_text(f"{manifest._study_path}/{filename}")):
+        queries.append([query, filename])
     if len(queries) == 0:
         return []
     for query in queries:
@@ -298,7 +271,7 @@ def build_study(
     # We want to only show a progress bar if we are :not: printing SQL lines
     with base_utils.get_progress_bar(disable=config.verbose) as progress:
         task = progress.add_task(
-            f"Creating {manifest.get_study_prefix()} study in db...",
+            f"Building tables from {filename}...",
             total=len(queries),
             visible=not config.verbose,
         )

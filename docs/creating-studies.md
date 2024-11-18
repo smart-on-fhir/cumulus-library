@@ -50,33 +50,28 @@ what each section does:
 # be the same name as the folder the study definition is in.
 study_prefix = "my_study"
 
-# For most use cases, this should not be required, but if you need to programmatically
-# build tables, you can provide a list of files implementing BaseTableBuilder.
-# See the core study for examples of this pattern. These run before
-# any SQL execution
-
-# [table_builder_config]
-# file_names = [
-#     "my_table_builder.py",
-# ]
 
 # The following section describes all tables that should be generated directly
 # from SQL files.
 
-[sql_config]
+[file_config]
 
-# 'file_names' defines a list of sql files to execute, in order, in this folder.
-# Recommended order: Any ancillary config (like a list of condition codes),
-# tables/view selecting subsets of data from FHIR data, tables/views creating 
-# summary statistics.
+# 'file_names' defines a list of files to execute, in order, in this folder.
+# Three file types are supported:
+#   - Raw SQL files
+#   - Python files, which should contain a class that is based off of
+#       BaseTableBuilder (or a derivative) from builders/base_table_builder.py
+#   - TOML files, which provide a set of configuration params to a workflow
+# These files will be executed in the order provided.
 
 file_names = [
     "setup.sql",
+    "builder.py",
     "lab_observations.sql",
     "counts.sql",
-    "date_range.sql"
+    "date_range.sql",
+    "stats_config.toml"
 ]
-
 
 # The following section defines parameters related to exporting study data from
 # your athena database
@@ -108,30 +103,6 @@ meta_list = [
   "my_study__meta_date",
   "my_study__meta_version",
 ]
-
-# For generating counts table in a more standardized manner, we have a class in the 
-# main library you can extend that will handle most of the logic of assembling 
-# queries for you. We use this pattern for generating the core tables, as well
-# other studies authored inside BCH. These will always be run after any other
-# SQL queries have been generated
-
-# [counts_builder_config]
-# file_names = [
-#    "count.py"
-# ]
-
-# For more specialized statistics, we provide a toml-based config entrypoint. The
-# details of these configs will vary, depending on which statistical method you're
-# invoking. For more details, see the statistics section of the docs for a list of
-# supported approaches.
-# These will run last, so all the data in your study will exist by the time these
-# are invoked.
-
-# [statistics_config]
-# file_names = 
-# [
-#    "psm_config.toml"
-# ]
 
 # The following section is for advanced/unusual study use cases
 

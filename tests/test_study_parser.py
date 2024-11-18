@@ -16,7 +16,7 @@ from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
         (
             "test_data/study_valid",
             (
-                "{'study_prefix': 'study_valid', 'sql_config': {'file_names': "
+                "{'study_prefix': 'study_valid', 'file_config': {'file_names': "
                 "['test.sql', 'test2.sql']}, 'export_config': {"
                 "'count_list': ['study_valid__table', 'study_valid__table2']}}"
             ),
