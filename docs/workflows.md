@@ -1,5 +1,5 @@
 ---
-title: Targeted Builders
+title: Workflows
 parent: Library
 nav_order: 8
 has_children: true
