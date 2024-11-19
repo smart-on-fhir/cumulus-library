@@ -426,6 +426,24 @@ def test_clean(tmp_path, args, expected, raises):
             2,
             pytest.raises(errors.StudyManifestParsingError),
         ),
+        (
+            [
+                "build",
+                "-t",
+                "study_invalid_unsupported_file",
+                "-s",
+                "tests/test_data/study_invalid_unsupported_file/",
+            ],
+            [
+                "export",
+                "-t",
+                "study_invalid_unsupported_file",
+                "-s",
+                "tests/test_data/study_invalid_unsupported_file/",
+            ],
+            2,
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
     ],
 )
 def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables, raises):

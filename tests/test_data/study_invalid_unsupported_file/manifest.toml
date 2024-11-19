@@ -1,0 +1,7 @@
+study_prefix = "study_invalid_unsupported_file"
+
+[file_config]
+file_names = ["test.txt"]
+
+[export_config]
+export_list = ["study_invalid_unsupported_file__table"]

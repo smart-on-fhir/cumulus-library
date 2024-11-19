@@ -18,6 +18,12 @@ class ProtectedTables(enum.Enum):
     TRANSACTIONS = "lib_transactions"
 
 
+class StatisticsTypes(enum.Enum):
+    """A subset of workflows that create statistics sampling artifacts"""
+
+    PSM = "psm"
+
+
 class LogStatuses(enum.Enum):
     DEBUG = "debug"
     ERROR = "error"

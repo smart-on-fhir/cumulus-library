@@ -91,6 +91,31 @@ class StudyManifest:
         options = self._study_config.get("advanced_options", {})
         return options.get("dedicated_schema")
 
+    def get_file_list(self, continue_from: str | None = None) -> list[str] | None:
+        """Reads the contents of the file_config array from the manifest
+
+        :returns: An array of files from the manifest, or None if not found.
+        """
+        config = self._study_config.get("file_config", {})
+        files = config.get("file_names", []) or []
+        if not files:
+            files = (
+                self.get_table_builder_file_list()
+                + self.get_sql_file_list()
+                + self.get_counts_builder_file_list()
+                + self.get_statistics_file_list()
+            )
+        if continue_from:
+            for pos, file in enumerate(files):
+                if continue_from.split(".", 1)[0] == file.split(".", 1)[0]:
+                    files = files[pos:]
+                    break
+            else:
+                raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
+        return files
+
+    # The following four functions are considered deprecated, and can be removed
+    # after we update studies to use the new methodology
     def get_sql_file_list(self, continue_from: str | None = None) -> list[str] | None:
         """Reads the contents of the sql_config array from the manifest
 
@@ -98,7 +123,7 @@ class StudyManifest:
         """
         sql_config = self._study_config.get("sql_config", {})
         sql_files = sql_config.get("file_names", []) or []
-        if continue_from:
+        if continue_from:  # pragma: no cover
             for pos, file in enumerate(sql_files):
                 if continue_from.replace(".sql", "") == file.replace(".sql", ""):
                     sql_files = sql_files[pos:]
@@ -133,6 +158,8 @@ class StudyManifest:
         """
         stats_config = self._study_config.get("statistics_config", {})
         return stats_config.get("file_names", [])
+
+    # End of deprecated section
 
     def get_export_table_list(self) -> list[ManifestExport] | None:
         """Reads the contents of the export_list array from the manifest
@@ -177,13 +204,18 @@ class StudyManifest:
                 found_name.add(export.name)
         return export_table_list
 
+    def get_all_files(self, file_type: str):
+        """Convenience method for getting files of a type from a manifest"""
+        files = self.get_file_list()
+        return [file for file in files if file.endswith(file_type)]
+
     def get_all_generators(self) -> list[str]:
-        """Convenience method for getting files that generate sql queries"""
-        return (
-            self.get_table_builder_file_list()
-            + self.get_counts_builder_file_list()
-            + self.get_statistics_file_list()
-        )
+        """Convenience method for getting builder-based files"""
+        return self.get_all_files(".py")
+
+    def get_all_workflows(self) -> list[str]:
+        """Convenience method for getting workflow config files"""
+        return self.get_all_files(".toml")
 
     def get_prefix_with_seperator(self) -> str:
         """Convenience method for getting the appropriate prefix for tables"""
