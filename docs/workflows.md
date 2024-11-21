@@ -9,7 +9,7 @@ has_children: true
 
 # Workflow reference
 
-This page contains detailed documentation on table building utilities utilities provided 
+This page contains detailed documentation on table building utilities provided 
 for use in Cumulus studies.
 
 ## Specific workflows

@@ -10,7 +10,7 @@ nav_order: 1
 
 ## Prerequisites
 
-1. Python 3.10 or later.
+1. Python 3.11 or later.
 2. Access to an AWS cloud services account.
 See the [AWS setup guide](./aws-setup.md) for more information on this.
 3. An Athena database populated by
