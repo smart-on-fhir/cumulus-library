@@ -98,4 +98,4 @@ FROM {study_prefix}{table_prefix}umls_valuesets_rels as v, rxnorm.RXNCONSO as r
 WHERE v.code = r.code
 AND v.sab=r.sab
 --AND v.tty=r.tty
-""")
+""")  # noqa: S608
