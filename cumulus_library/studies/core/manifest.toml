@@ -5,6 +5,7 @@ file_names = [
     "builder_prereq_tables.py",
     "builder_allergyintolerance.py",
     "builder_condition.py",
+    "builder_diagnosticreport.py",
     "builder_patient.py",
     "builder_encounter.py",
     "builder_documentreference.py",
@@ -19,6 +20,7 @@ file_names = [
 count_list = [
     "core__count_allergyintolerance_month",
     "core__count_condition_month",
+    "core__count_diagnosticreport_month",
     "core__count_documentreference_month",
     "core__count_encounter_month",
     "core__count_encounter_all_types",

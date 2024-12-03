@@ -139,6 +139,21 @@ schema =
                 'reference': True, 'display': False, 'type': True
             }
         }, 
+        'diagnosticreport': {
+            'effectivePeriod': {
+              'start': True, 'end': True,
+            },
+            'encounter': {
+                'reference': True,
+            },
+            'id': True,
+            'result': {
+                'reference': True,
+            },
+            'subject': {
+                'reference': True,
+            },
+        },
         'documentreference': {
             'id': True, 
             'type': True, 

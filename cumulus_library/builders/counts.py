@@ -142,6 +142,32 @@ class CountsBuilder(BaseTableBuilder):
             filter_resource=True,
         )
 
+    def count_diagnosticreport(
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: list,
+        where_clauses: list | None = None,
+        min_subject: int | None = None,
+    ) -> str:
+        """wrapper method for constructing diagnosticreport counts tables
+
+        :param table_name: The name of the table to create. Must start with study prefix
+        :param source_table: The table to create counts data from
+        :param table_cols: The columns from the source table to add to the count table
+        :param where_clauses: An array of where clauses to use for filtering the data
+        :param min_subject: An integer setting the minimum bin size for inclusion
+            (default: 10)
+        """
+        return self.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            where_clauses=where_clauses,
+            min_subject=min_subject,
+            fhir_resource="diagnosticreport",
+        )
+
     def count_documentreference(
         self,
         table_name: str,

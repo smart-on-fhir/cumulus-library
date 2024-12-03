@@ -27,6 +27,21 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
         ]
         return self.count_condition(table_name, from_table, cols)
 
+    def count_core_diagnosticreport(self, duration: str = "month"):
+        table_name = self.get_table_name("count_diagnosticreport", duration=duration)
+        from_table = self.get_table_name("diagnosticreport")
+        cols = [
+            ["category_display", "varchar", None],
+            ["code_display", "varchar", None],
+            # Issued is not the _preferred_ time to pull, since it is an administrative time,
+            # not a clinical one. But the clinical dates are annoyingly spread across three
+            # fields: effectiveDateTime, effectivePeriod.start, and effectivePeriod.end.
+            # So rather than do some fancy collation, just use issued. These core counts are
+            # just a rough idea of the data, not a polished final product.
+            [f"issued_{duration}", "date", None],
+        ]
+        return self.count_diagnosticreport(table_name, from_table, cols)
+
     def count_core_documentreference(self, duration: str = "month"):
         table_name = self.get_table_name("count_documentreference", duration=duration)
         from_table = self.get_table_name("documentreference")
@@ -119,6 +134,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
         self.queries = [
             self.count_core_allergyintolerance(duration="month"),
             self.count_core_condition(duration="month"),
+            self.count_core_diagnosticreport(duration="month"),
             self.count_core_documentreference(duration="month"),
             self.count_core_encounter(duration="month"),
             self.count_core_encounter_all_types(),

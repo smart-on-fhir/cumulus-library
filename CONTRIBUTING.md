@@ -40,6 +40,16 @@ Things to keep in mind:
   the `id` field, add a `condition_ref` field defined like:
   `concat('Condition/', id) AS condition_ref`
 
+## DateTime fields
+
+In general:
+- Expand a Date/DateTime/Instant field into four versions:
+  day/week/month/year, with appropriate suffixes (look for examples).
+- If the field is a Date field, leave the `_day` suffix off the day version,
+  since the end result is not actually a modified value.
+- Add start & end versions of Period fields,
+  since EHRs are truly wild out there and may fill only start or only end.
+
 ## Rebuilding the reference SQL
 
 We keep some reference SQL in git,

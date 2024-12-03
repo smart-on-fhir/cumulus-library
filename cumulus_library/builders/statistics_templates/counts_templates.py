@@ -17,6 +17,7 @@ class CountableFhirResource(Enum):
 
     ALLERGYINTOLERANCE = "allergyintolerance"
     CONDITION = "condition"
+    DIAGNOSTICREPORT = "diagnosticreport"
     DOCUMENTREFERENCE = "documentreference"
     ENCOUNTER = "encounter"
     NONE = None

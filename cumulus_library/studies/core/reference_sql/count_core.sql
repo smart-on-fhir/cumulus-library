@@ -166,6 +166,70 @@ CREATE TABLE core__count_condition_month AS (
 
 -- ###########################################################
 
+CREATE TABLE core__count_diagnosticreport_month AS (
+    WITH
+    filtered_table AS (
+        SELECT
+            s.subject_ref,
+            --noqa: disable=RF03, AL02
+            s."category_display",
+            s."code_display",
+            s."issued_month"
+            --noqa: enable=RF03, AL02
+        FROM core__diagnosticreport AS s
+    ),
+    
+    null_replacement AS (
+        SELECT
+            subject_ref,
+            coalesce(
+                cast(category_display AS varchar),
+                'cumulus__none'
+            ) AS category_display,
+            coalesce(
+                cast(code_display AS varchar),
+                'cumulus__none'
+            ) AS code_display,
+            coalesce(
+                cast(issued_month AS varchar),
+                'cumulus__none'
+            ) AS issued_month
+        FROM filtered_table
+    ),
+
+    powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "category_display",
+            "code_display",
+            "issued_month",
+            concat_ws(
+                '-',
+                COALESCE("category_display",''),
+                COALESCE("code_display",''),
+                COALESCE("issued_month",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+            "category_display",
+            "code_display",
+            "issued_month"
+            )
+    )
+
+    SELECT
+        p.cnt_subject_ref AS cnt,
+        p."category_display",
+        p."code_display",
+        p."issued_month"
+    FROM powerset AS p
+    WHERE 
+        cnt_subject_ref >= 10
+);
+
+-- ###########################################################
+
 CREATE TABLE core__count_documentreference_month AS (
     WITH
     filtered_table AS (
