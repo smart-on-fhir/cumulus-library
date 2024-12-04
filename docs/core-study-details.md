@@ -355,36 +355,39 @@ vital signs) instead.
 
 ### core__diagnosticreport
 
-|          Column           | Type  |Description|
-|---------------------------|-------|-----------|
-|id                         |varchar|           |
-|status                     |varchar|           |
-|category_code              |varchar|           |
-|category_system            |varchar|           |
-|category_display           |varchar|           |
-|code_code                  |varchar|           |
-|code_system                |varchar|           |
-|code_display               |varchar|           |
-|effectivedatetime_day      |date   |           |
-|effectivedatetime_week     |date   |           |
-|effectivedatetime_month    |date   |           |
-|effectivedatetime_year     |date   |           |
-|effectiveperiod_start_day  |date   |           |
-|effectiveperiod_start_week |date   |           |
-|effectiveperiod_start_month|date   |           |
-|effectiveperiod_start_year |date   |           |
-|effectiveperiod_end_day    |date   |           |
-|effectiveperiod_end_week   |date   |           |
-|effectiveperiod_end_month  |date   |           |
-|effectiveperiod_end_year   |date   |           |
-|issued_day                 |date   |           |
-|issued_week                |date   |           |
-|issued_month               |date   |           |
-|issued_year                |date   |           |
-|diagnosticreport_ref       |varchar|           |
-|subject_ref                |varchar|           |
-|encounter_ref              |varchar|           |
-|result_ref                 |varchar|           |
+| Column                      | Type  |Description|
+|-----------------------------|-------|-----------|
+| id                          |varchar|           |
+| status                      |varchar|           |
+| category_code               |varchar|           |
+| category_system             |varchar|           |
+| category_display            |varchar|           |
+| code_code                   |varchar|           |
+| code_system                 |varchar|           |
+| code_display                |varchar|           |
+| effectivedatetime_day       |date   |           |
+| effectivedatetime_week      |date   |           |
+| effectivedatetime_month     |date   |           |
+| effectivedatetime_year      |date   |           |
+| effectiveperiod_start_day   |date   |           |
+| effectiveperiod_start_week  |date   |           |
+| effectiveperiod_start_month |date   |           |
+| effectiveperiod_start_year  |date   |           |
+| effectiveperiod_end_day     |date   |           |
+| effectiveperiod_end_week    |date   |           |
+| effectiveperiod_end_month   |date   |           |
+| effectiveperiod_end_year    |date   |           |
+| issued_day                  |date   |           |
+| issued_week                 |date   |           |
+| issued_month                |date   |           |
+| issued_year                 |date   |           |
+| conclusionCode_code         |varchar|           |
+| conclusionCode_system       |varchar|           |
+| conclusionCode_display      |varchar|           |
+| diagnosticreport_ref        |varchar|           |
+| subject_ref                 |varchar|           |
+| encounter_ref               |varchar|           |
+| result_ref                  |varchar|           |
 
 
 ### core__diagnosticreport_dn_category
