@@ -31,6 +31,11 @@ class CoreDiagnosticReportBuilder(cumulus_library.BaseTableBuilder):
                 column_hierarchy=[("code", dict)],
                 target_table="core__diagnosticreport_dn_code",
             ),
+            sql_utils.CodeableConceptConfig(
+                source_table="diagnosticreport",
+                column_hierarchy=[("conclusionCode", list)],
+                target_table="core__diagnosticreport_dn_conclusioncode",
+            ),
         ]
         self.queries += sql_utils.denormalize_complex_objects(config.db, code_sources)
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)

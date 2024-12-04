@@ -82,6 +82,8 @@ Per resource, the optional fields are as follows:
 - Condition
   - encounter
   - recordedDate
+- DiagnosticReport
+  - conclusionCode
 - DocumentReference
   - docStatus
 - Encounter
@@ -402,6 +404,18 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__diagnosticreport_dn_conclusioncode
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |

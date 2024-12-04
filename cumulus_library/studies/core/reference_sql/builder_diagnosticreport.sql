@@ -95,6 +95,18 @@ CREATE TABLE core__diagnosticreport_dn_code AS (
 
 -- ###########################################################
 
+CREATE TABLE IF NOT EXISTS "main"."core__diagnosticreport_dn_conclusioncode"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
 
 
 
@@ -103,6 +115,9 @@ CREATE TABLE core__diagnosticreport_dn_code AS (
 -- * the 'presentedForm' field, which is an attachment array that is stripped out by the ETL.
 -- * the `reporter` field, simply due to it not likely being interesting to consumers
 --   and being an array field, which would require a lot of row duplication.
+--
+-- AND ADDING:
+-- * the `conclusionCode` field, because it has clinical relevance
 --
 -- US Core profiles for reference:
 -- * https://hl7.org/fhir/us/core/STU4/StructureDefinition-us-core-diagnosticreport-lab.html
@@ -192,6 +207,10 @@ SELECT
     td.issued_month,
     td.issued_year,
 
+    dn_conclusion.code AS conclusionCode_code,
+    dn_conclusion.system AS conclusionCode_system,
+    dn_conclusion.display AS conclusionCode_display,
+
     concat('DiagnosticReport/', td.id) AS diagnosticreport_ref,
     td.subject_ref,
     td.encounter_ref,
@@ -200,4 +219,6 @@ SELECT
 FROM temp_diagnosticreport AS td
 LEFT JOIN core__diagnosticreport_dn_code AS dn_code ON td.id = dn_code.id
 LEFT JOIN core__diagnosticreport_dn_category AS dn_category ON td.id = dn_category.id
+LEFT JOIN core__diagnosticreport_dn_conclusioncode AS dn_conclusion
+    ON td.id = dn_conclusion.id
 LEFT JOIN temp_result AS tr ON td.id = tr.id;

@@ -42,13 +42,16 @@ def test_core_diag_report_many_cases(tmp_path):
             {"reference": "Observation/result1"},
             {"reference": "Observation/result2"},
         ],
+        conclusionCode=[
+            {"coding": [{"code": "conc1", "system": "sys:conc", "display": "Conclusion One"}]},
+            {"coding": [{"code": "conc2", "system": "sys:conc", "display": "Conclusion Two"}]},
+        ],
     )
 
     con = testbed.build()
     df = con.sql("SELECT * FROM core__diagnosticreport").df()
     rows = json.loads(df.to_json(orient="records"))
-
-    assert 8 == len(rows)
+    assert len(rows) == 16
 
     combos = combine_dictionaries(
         # Start with a list of size one - all the consistent elements across all rows
@@ -86,11 +89,23 @@ def test_core_diag_report_many_cases(tmp_path):
             {"code_code": "code2", "code_system": "sys:code", "code_display": "Code Two"},
         ],
         [
+            {
+                "conclusionCode_code": "conc1",
+                "conclusionCode_system": "sys:conc",
+                "conclusionCode_display": "Conclusion One",
+            },
+            {
+                "conclusionCode_code": "conc2",
+                "conclusionCode_system": "sys:conc",
+                "conclusionCode_display": "Conclusion Two",
+            },
+        ],
+        [
             {"result_ref": "Observation/result1"},
             {"result_ref": "Observation/result2"},
         ],
     )
-    assert 8 == len(combos)  # sanity check our product math
+    assert len(combos) == 16  # sanity check our product math
 
     assert dict_set_from_list(rows) == dict_set_from_list(combos)
 
@@ -134,6 +149,9 @@ def test_core_diag_report_minimal(tmp_path):
             "issued_month": None,
             "issued_year": None,
             "result_ref": None,
+            "conclusionCode_code": None,
+            "conclusionCode_system": None,
+            "conclusionCode_display": None,
         }
     ]
 
