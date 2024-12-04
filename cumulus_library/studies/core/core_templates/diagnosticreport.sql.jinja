@@ -1,0 +1,111 @@
+{% import 'core_utils.jinja' as utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
+
+-- This table includes all fields of interest to the US Core DiagnosticReport profiles.
+-- EXCEPT FOR:
+-- * the 'presentedForm' field, which is an attachment array that is stripped out by the ETL.
+-- * the `reporter` field, simply due to it not likely being interesting to consumers
+--   and being an array field, which would require a lot of row duplication.
+--
+-- AND ADDING:
+-- * the `conclusionCode` field, because it has clinical relevance
+--
+-- US Core profiles for reference:
+-- * https://hl7.org/fhir/us/core/STU4/StructureDefinition-us-core-diagnosticreport-lab.html
+-- * https://hl7.org/fhir/us/core/STU4/StructureDefinition-us-core-diagnosticreport-note.html
+
+CREATE TABLE core__diagnosticreport AS
+WITH temp_diagnosticreport AS (
+    SELECT
+        {{- utils.basic_cols('diagnosticreport', 'd', ['id']) }},
+        {{-
+            utils.nullable_cols(
+                'diagnosticreport',
+                'd',
+                [
+                    'status',
+                    ('subject', 'reference', 'subject_ref'),
+                    ('encounter', 'reference', 'encounter_ref'),
+                ],
+                schema
+            )
+        }},
+        {{-
+            utils.truncate_date_cols(
+                'diagnosticreport',
+                'd',
+                [
+                    ('effectiveDateTime', 'day'),
+                    ('effectiveDateTime', 'week'),
+                    ('effectiveDateTime', 'month'),
+                    ('effectiveDateTime', 'year'),
+                    ('effectivePeriod', 'start', 'effectivePeriod_start_day', 'day'),
+                    ('effectivePeriod', 'start', 'effectivePeriod_start_week', 'week'),
+                    ('effectivePeriod', 'start', 'effectivePeriod_start_month', 'month'),
+                    ('effectivePeriod', 'start', 'effectivePeriod_start_year', 'year'),
+                    ('effectivePeriod', 'end', 'effectivePeriod_end_day', 'day'),
+                    ('effectivePeriod', 'end', 'effectivePeriod_end_week', 'week'),
+                    ('effectivePeriod', 'end', 'effectivePeriod_end_month', 'month'),
+                    ('effectivePeriod', 'end', 'effectivePeriod_end_year', 'year'),
+                    ('issued', 'day'),
+                    ('issued', 'week'),
+                    ('issued', 'month'),
+                    ('issued', 'year'),
+                ],
+                schema
+            )
+        }}
+    FROM diagnosticreport AS d
+),
+
+temp_result AS (
+    {{ unnest_utils.flatten('diagnosticreport', 'reference', parent_field='result') }}
+)
+
+SELECT
+    td.id,
+    td.status,
+
+    dn_category.code AS category_code,
+    dn_category.system AS category_system,
+    dn_category.display AS category_display,
+
+    dn_code.code AS code_code,
+    dn_code.system AS code_system,
+    dn_code.display AS code_display,
+
+    td.effectiveDateTime_day,
+    td.effectiveDateTime_week,
+    td.effectiveDateTime_month,
+    td.effectiveDateTime_year,
+
+    td.effectivePeriod_start_day,
+    td.effectivePeriod_start_week,
+    td.effectivePeriod_start_month,
+    td.effectivePeriod_start_year,
+
+    td.effectivePeriod_end_day,
+    td.effectivePeriod_end_week,
+    td.effectivePeriod_end_month,
+    td.effectivePeriod_end_year,
+
+    td.issued_day,
+    td.issued_week,
+    td.issued_month,
+    td.issued_year,
+
+    dn_conclusion.code AS conclusionCode_code,
+    dn_conclusion.system AS conclusionCode_system,
+    dn_conclusion.display AS conclusionCode_display,
+
+    concat('DiagnosticReport/', td.id) AS diagnosticreport_ref,
+    td.subject_ref,
+    td.encounter_ref,
+    tr.reference AS result_ref
+
+FROM temp_diagnosticreport AS td
+LEFT JOIN core__diagnosticreport_dn_code AS dn_code ON td.id = dn_code.id
+LEFT JOIN core__diagnosticreport_dn_category AS dn_category ON td.id = dn_category.id
+LEFT JOIN core__diagnosticreport_dn_conclusioncode AS dn_conclusion
+    ON td.id = dn_conclusion.id
+LEFT JOIN temp_result AS tr ON td.id = tr.id;

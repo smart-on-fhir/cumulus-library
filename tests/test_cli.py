@@ -285,7 +285,7 @@ def test_clean(tmp_path, args, expected, raises):
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
-            64,
+            69,
             does_not_raise(),
         ),
         (
@@ -477,7 +477,7 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
                 config = tomllib.load(file)
             csv_files = glob.glob(f"{tmp_path}/export/{build_args[2]}/*.csv")
             export_config = config["export_config"]
-            for export_list in export_config:
+            for export_list in export_config.values():
                 for export_table in export_list:
                     assert any(export_table in x for x in csv_files)
 
