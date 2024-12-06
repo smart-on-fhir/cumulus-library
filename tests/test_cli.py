@@ -673,7 +673,6 @@ def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls):
 
 
 @pytest.mark.parametrize("mode", ["cli", "env"])
-@mock.patch.dict(os.environ, clear=True)
 # early exit with a dumb error
 @mock.patch("cumulus_library.base_utils.StudyConfig", side_effect=ZeroDivisionError)
 def test_cli_umls_parsing(mock_config, mode, tmp_path):
@@ -688,7 +687,6 @@ def test_cli_umls_parsing(mock_config, mode, tmp_path):
     assert mock_config.call_args[1]["umls_key"] == "MY-KEY"
 
 
-@mock.patch.dict(os.environ, clear=True)
 def test_cli_single_builder(tmp_path):
     cli.main(cli_args=duckdb_args(["build", "--builder=patient", "--target=core"], tmp_path))
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
@@ -700,7 +698,6 @@ def test_cli_single_builder(tmp_path):
     } == tables
 
 
-@mock.patch.dict(os.environ, clear=True)
 def test_cli_finds_study_from_manifest_prefix(tmp_path):
     # This study is located inside a folder called `study_different_dir`,
     # but we're going to find it using its real study prefix from the manifest.
@@ -715,7 +712,6 @@ def test_cli_finds_study_from_manifest_prefix(tmp_path):
     assert "study_different_name__table" in tables
 
 
-@mock.patch.dict(os.environ, clear=True)
 @pytest.mark.parametrize(
     "option,raises",
     [
@@ -745,7 +741,6 @@ def test_cli_custom_args(mock_config, tmp_path, option, raises):
         assert called_options[option.split(":")[0]] == option.split(":")[1]
 
 
-@mock.patch.dict(os.environ, clear=True)
 @mock.patch("cumulus_library.base_utils.StudyConfig")
 def test_cli_no_custom_args_yields_empty_dict(mock_config, tmp_path):
     mock_config.return_value.stats_clean = False
@@ -765,7 +760,6 @@ def test_cli_no_custom_args_yields_empty_dict(mock_config, tmp_path):
     assert {} == called_options
 
 
-@mock.patch.dict(os.environ, clear=True)
 def test_cli_import_study(tmp_path):
     test_data = {"string": ["a", "b", None]}
     df = pandas.DataFrame(test_data)
@@ -790,7 +784,6 @@ def test_cli_import_study(tmp_path):
     )
 
 
-@mock.patch.dict(os.environ, clear=True)
 def test_dedicated_schema(tmp_path):
     core_build_args = duckdb_args(
         [
@@ -827,7 +820,6 @@ def test_dedicated_schema(tmp_path):
         assert table in tables
 
 
-@mock.patch.dict(os.environ, clear=True)
 @mock.patch("cumulus_library.databases.duckdb.DuckDatabaseBackend")
 def test_sql_error_handling(mock_backend, tmp_path):
     mock_backend.return_value.cursor.return_value.execute.side_effect = [
@@ -848,7 +840,6 @@ def test_sql_error_handling(mock_backend, tmp_path):
         cli.main(cli_args=build_args)
 
 
-@mock.patch.dict(os.environ, clear=True)
 def test_version(capfd):
     out = None
     with pytest.raises(SystemExit):
@@ -870,7 +861,10 @@ def test_version(capfd):
     assert "study_invalid_bad_query: no version defined" in out
 
 
-@mock.patch.dict(os.environ, clear=True)
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 def test_study_dir(tmp_path):
     os.environ["CUMULUS_LIBRARY_STUDY_DIR"] = str(
         pathlib.Path(__file__).resolve().parent / "test_data/"
@@ -885,3 +879,84 @@ def test_study_dir(tmp_path):
     )
     with does_not_raise():
         cli.main(cli_args=build_args)
+
+
+@pytest.mark.parametrize(
+    "study,expected_queries,generated_query,toml_file",
+    [
+        (
+            "study_valid",
+            [
+                "0000.test.00.create_table_study_valid__table.sql",
+                "0001.test2.00.create_table_study_valid__table2.sql",
+            ],
+            "CREATE TABLE study_valid__table (test int)",
+            None,
+        ),
+        (
+            "study_python_counts_valid",
+            [
+                "0000.module1.00.create_table_if_not_exists_study_python_counts_valid__table1.sql",
+                "0001.module1.00.create_table_if_not_exists_study_python_counts_valid__table1.sql",
+                "0002.module2.00.create_table_if_not_exists_study_python_counts_valid__table2.sql",
+            ],
+            "CREATE TABLE IF NOT EXISTS study_python_counts_valid__table1 (test int);",
+            None,
+        ),
+        (
+            "psm_test",
+            ["0000.psm_cohort.00.create_table_psm_test__psm_cohort.sql"],
+            """CREATE TABLE psm_test__psm_cohort AS (
+    SELECT * FROM core__condition ORDER BY id DESC LIMIT 100 --noqa: AM04
+)""",
+            [
+                "0001.psm_config.00.config.toml",
+                """config_type = "psm"
+classification_json = "dsm5_classifications.json"
+pos_source_table = "psm_test__psm_cohort"
+neg_source_table = "core__condition"
+target_table = "psm_test__psm_encounter_covariate"
+primary_ref = 'encounter_ref'
+count_ref = 'subject_ref'
+count_table = 'core__condition'
+dependent_variable = "example_diagnosis"
+pos_sample_size = 20
+neg_sample_size = 100
+seed = 1234567890
+[join_cols_by_table.core__encounter]
+join_id = "encounter_ref"
+included_cols = [
+    ["gender"], 
+    ["race_display", "race"]
+]
+""",
+            ],
+        ),
+    ],
+)
+def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_file):
+    build_args = duckdb_args(
+        [
+            "build",
+            "-t",
+            study,
+            "-s",
+            "tests/test_data/",
+            "--data_path",
+            str(tmp_path),
+            "--prepare",
+        ],
+        tmp_path,
+    )
+    with does_not_raise():
+        cli.main(cli_args=build_args)
+    queries = list(pathlib.Path(tmp_path).glob("**/*.sql"))
+    for query in queries:
+        assert query.name in expected_queries
+    with open(queries[0]) as f:
+        assert f.read() == generated_query
+    if toml_file:
+        config = next(pathlib.Path(tmp_path).glob("**/*.toml"))
+        assert config.name == toml_file[0]
+        with open(config) as f:
+            assert f.read() == toml_file[1]

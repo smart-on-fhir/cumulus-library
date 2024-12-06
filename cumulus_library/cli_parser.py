@@ -38,7 +38,7 @@ def add_custom_option(parser: argparse.ArgumentParser) -> None:
 def add_data_path_argument(parser: argparse.ArgumentParser) -> None:
     """Adds path arg to a subparser"""
     parser.add_argument(
-        "data_path",
+        "--data_path",
         default="./",
         nargs="?",
         help=(
@@ -207,6 +207,11 @@ following order of preference is used to select credentials:
         "--force-upload",
         action="store_true",
         help="Forces file downloads/uploads to occur, even if they already exist",
+    )
+    build.add_argument(
+        "--prepare",
+        action="store_true",
+        help=("Prepares queries for remote execution."),
     )
     build.add_argument(
         "--statistics",

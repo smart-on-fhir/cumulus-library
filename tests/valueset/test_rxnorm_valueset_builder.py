@@ -1,5 +1,4 @@
 import json
-import os
 import pathlib
 import tomllib
 from unittest import mock
@@ -15,10 +14,6 @@ from cumulus_library.builders.valueset import (
 
 
 @pytest.mark.parametrize("prefix", [(""), ("foo")])
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
 def test_rxnorm_valueset_builder(mock_api, mock_db_config_rxnorm, prefix):
     data_path = pathlib.Path(__file__).parent.parent / "test_data/valueset/"
