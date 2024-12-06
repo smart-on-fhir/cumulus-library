@@ -1,14 +1,7 @@
-import os
-from unittest import mock
-
 from cumulus_library import cli, databases
 from tests import conftest
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 def test_static_file(tmp_path):
     cli.main(
         cli_args=conftest.duckdb_args(

@@ -28,10 +28,6 @@ DUCKDB_KWARGS = {
 }
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @pytest.mark.parametrize(
     "db,data,expected,raises",
     [
@@ -77,10 +73,6 @@ def test_col_types_from_pandas(db, data, expected, raises):
         assert set(expected) == set(vals)
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @pytest.mark.parametrize(
     "db,data,expected,raises",
     [
@@ -222,10 +214,6 @@ def test_pyarrow_types_from_sql(db, data, expected, raises):
             assert vals[index][-1] == expected[index][-1]
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @pytest.mark.parametrize(
     "args,expected_type, raises",
     [
@@ -273,10 +261,6 @@ def test_create_db_backend(args, expected_type, raises):
 ### Database-specific edge case testing
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @pytest.mark.parametrize(
     "args,sse,keycount,expected,raises",
     [
@@ -375,10 +359,6 @@ def test_upload_file_athena(mock_botocore, args, sse, keycount, expected, raises
                 assert kwargs["Key"].endswith(args["file"].name)
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @mock.patch("pyathena.connect")
 def test_athena_pandas_cursor(mock_pyathena):
     mock_as_pandas = mock.MagicMock()
@@ -415,10 +395,6 @@ def test_athena_pandas_cursor(mock_pyathena):
     )
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @mock.patch("pyathena.connect")
 def test_athena_parser(mock_pyathena):
     db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
@@ -426,6 +402,8 @@ def test_athena_parser(mock_pyathena):
     assert isinstance(parser, databases.AthenaParser)
 
 
+# Since this test creates an environment variable, create a dedicated
+# mock for it
 @mock.patch.dict(
     os.environ,
     clear=True,

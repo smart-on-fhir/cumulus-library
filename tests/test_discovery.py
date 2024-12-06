@@ -10,10 +10,6 @@ from cumulus_library.studies.discovery.discovery_templates import discovery_temp
 from tests import conftest
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 def test_discovery(tmp_path):
     cli.main(
         cli_args=conftest.duckdb_args(

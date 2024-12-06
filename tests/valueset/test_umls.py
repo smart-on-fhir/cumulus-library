@@ -1,6 +1,3 @@
-import os
-from unittest import mock
-
 import pytest
 
 from cumulus_library import StudyManifest
@@ -8,10 +5,6 @@ from cumulus_library.builders.valueset import umls, valueset_utils
 
 
 @pytest.mark.parametrize("prefix", [(""), ("foo")])
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 def test_umls_lookup(mock_db_config_rxnorm, prefix, tmp_path):
     with open(f"{tmp_path}/manifest.toml", "w", encoding="utf8") as f:
         f.write('study_prefix="test"')

@@ -1,7 +1,6 @@
 import os
 import pathlib
 from contextlib import nullcontext as does_not_raise
-from unittest import mock
 
 import pytest
 import responses
@@ -18,10 +17,6 @@ DEFINITION_INCLUDE_VALUESET_OID = "2.16.840.1.113883.3.3616.200.110.102.7001"
 EXPANSION_VALUESET_OID = "2.16.840.1.113762.1.4.1106.68"
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @pytest.mark.parametrize(
     "api_key,validator_key,res_text,res_status,raises",
     [
@@ -45,10 +40,6 @@ def test_auth(api_key, validator_key, res_text, res_status, raises):
             assert api.validator_key == api_key
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @responses.activate
 def test_auth_reads_env_var():
     responses.add(responses.GET, AUTH_URL, body="true", status=200)
@@ -63,10 +54,6 @@ def get_valueset_data(file_name):
         return f.read()
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @pytest.mark.parametrize(
     "action,url,oid,expected_oids,raises",
     [
@@ -159,10 +146,6 @@ def test_get_valueset(action, url, oid, expected_oids, raises):
             assert data[i]["id"] == expected_oids[i]
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @responses.activate
 def test_download_umls(tmp_path):
     # this zip file is just an archive made by targeting the other .json files
