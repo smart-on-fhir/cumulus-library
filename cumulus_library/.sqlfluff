@@ -6,6 +6,7 @@ exclude_rules=
     # these rule overfires on athena nested arrays
     references.from,
     structure.column_order,
+    structure.unused_join,
     aliasing.unused,
     # this rule interferes with FHIR naming conventions
     capitalisation.identifiers

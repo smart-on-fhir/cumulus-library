@@ -907,7 +907,8 @@ def test_study_dir(tmp_path):
             "psm_test",
             ["0000.psm_cohort.00.create_table_psm_test__psm_cohort.sql"],
             """CREATE TABLE psm_test__psm_cohort AS (
-    SELECT * FROM core__condition ORDER BY id DESC LIMIT 100 --noqa: AM04
+    SELECT * FROM core__condition --noqa: AM04
+    ORDER BY id DESC LIMIT 100
 )""",
             [
                 "0001.psm_config.00.config.toml",
