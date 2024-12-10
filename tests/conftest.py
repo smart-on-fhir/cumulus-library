@@ -3,7 +3,9 @@
 import copy
 import datetime
 import json
+import os
 import pathlib
+from unittest import mock
 
 import numpy
 import pandas
@@ -195,6 +197,12 @@ def debug_diff_tables(cols, found, ref, pos=0):
 
 
 # Database fixtures
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_env():
+    with mock.patch.dict(os.environ, clear=True):
+        yield
 
 
 @pytest.fixture

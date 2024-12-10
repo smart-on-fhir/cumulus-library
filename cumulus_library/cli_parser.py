@@ -209,6 +209,11 @@ following order of preference is used to select credentials:
         help="Forces file downloads/uploads to occur, even if they already exist",
     )
     build.add_argument(
+        "--prepare",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
+    build.add_argument(
         "--statistics",
         action="store_true",
         help=(

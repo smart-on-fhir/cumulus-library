@@ -1,7 +1,6 @@
 """Edge case testing for Athena database support"""
 
 import json
-import os
 import pathlib
 from unittest import mock
 
@@ -46,10 +45,6 @@ def test_schema_parsing():
     assert expected == parser.parse_found_schema(schema)
 
 
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
 @mock.patch("botocore.session.Session")
 def test_upload_parquet_response_handling(mock_session):
     path = pathlib.Path(__file__).resolve().parent

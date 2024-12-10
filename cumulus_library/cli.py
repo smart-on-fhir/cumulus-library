@@ -93,55 +93,68 @@ class StudyRunner:
         *,
         options: dict[str, str],
         continue_from: str | None = None,
+        prepare: bool = False,
+        data_path: pathlib.Path | None = None,
     ) -> None:
         """Recreates study views/tables
 
         :param target: A path to the study directory
-        :param options: The dictionary of study-specific options
+        :keyword options: The dictionary of study-specific options
         :keyword continue_from: Restart a run from a specific sql file (for dev only)
+        :keyword prepare: If true, will render query instead of executing
+        :keyword data_path: If prepare is true, the path to write rendered data to
         """
         manifest = study_manifest.StudyManifest(target, self.data_path, options=options)
         try:
-            builder.run_protected_table_builder(config=self.get_config(manifest), manifest=manifest)
-            if not continue_from:
-                log_utils.log_transaction(
-                    config=self.get_config(manifest),
-                    manifest=manifest,
-                    status=enums.LogStatuses.STARTED,
+            print("prep", prepare)
+            print("cont", continue_from)
+            if not prepare:
+                builder.run_protected_table_builder(
+                    config=self.get_config(manifest), manifest=manifest
                 )
-                cleaner.clean_study(
-                    config=self.get_config(manifest),
-                    manifest=manifest,
-                )
-
-            else:
-                log_utils.log_transaction(
-                    config=self.get_config(manifest),
-                    manifest=manifest,
-                    status=enums.LogStatuses.RESUMED,
-                )
+                if not continue_from:
+                    print("continue")
+                    log_utils.log_transaction(
+                        config=self.get_config(manifest),
+                        manifest=manifest,
+                        status=enums.LogStatuses.STARTED,
+                    )
+                    cleaner.clean_study(
+                        config=self.get_config(manifest),
+                        manifest=manifest,
+                    )
+                else:
+                    log_utils.log_transaction(
+                        config=self.get_config(manifest),
+                        manifest=manifest,
+                        status=enums.LogStatuses.RESUMED,
+                    )
 
             builder.build_study(
                 config=self.get_config(manifest),
                 manifest=manifest,
                 continue_from=continue_from,
+                data_path=data_path,
+                prepare=prepare,
             )
-            log_utils.log_transaction(
-                config=self.get_config(manifest),
-                manifest=manifest,
-                status=enums.LogStatuses.FINISHED,
-            )
+            if not prepare:
+                log_utils.log_transaction(
+                    config=self.get_config(manifest),
+                    manifest=manifest,
+                    status=enums.LogStatuses.FINISHED,
+                )
 
         except errors.StudyManifestFilesystemError as e:
             # This should be thrown prior to any database connections, so
             # skipping logging
             raise e  # pragma: no cover
         except Exception as e:
-            log_utils.log_transaction(
-                config=self.get_config(manifest),
-                manifest=manifest,
-                status=enums.LogStatuses.ERROR,
-            )
+            if not prepare:
+                log_utils.log_transaction(
+                    config=self.get_config(manifest),
+                    manifest=manifest,
+                    status=enums.LogStatuses.ERROR,
+                )
             raise e
 
     def build_matching_files(
@@ -150,18 +163,24 @@ class StudyRunner:
         table_builder_name: str,
         *,
         options: dict[str, str],
+        prepare: bool = False,
+        data_path: pathlib.Path,
     ) -> None:
         """Runs a single table builder
 
         :param target: A path to the study directory
         :param table_builder_name: a builder file referenced in the study's manifest
-        :param options: The dictionary of study-specific options
+        :keyword options: The dictionary of study-specific options
+        :keyword prepare: If true, will render query instead of executing
+        :keyword data_path: If prepare is true, the path to write rendered data to
         """
         manifest = study_manifest.StudyManifest(target, options=options)
         builder.build_matching_files(
             config=self.get_config(manifest),
             manifest=manifest,
             builder=table_builder_name,
+            prepare=prepare,
+            data_path=data_path,
         )
 
     ### Data exporters
@@ -325,13 +344,19 @@ def run_cli(args: dict):
                 for target in args["target"]:
                     if args["builder"]:
                         runner.build_matching_files(
-                            study_dict[target], args["builder"], options=args["options"]
+                            study_dict[target],
+                            args["builder"],
+                            options=args["options"],
+                            prepare=args["prepare"],
+                            data_path=args["data_path"],
                         )
                     else:
                         runner.clean_and_build_study(
                             study_dict[target],
                             continue_from=args["continue_from"],
                             options=args["options"],
+                            prepare=args["prepare"],
+                            data_path=args["data_path"],
                         )
 
             elif args["action"] == "export":

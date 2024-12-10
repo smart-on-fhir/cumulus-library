@@ -172,10 +172,7 @@ def test_run_protected_table_builder(mock_db_config, study_path, stats):
 def test_table_builder(mock_db_config, study_path, verbose, expects, raises):
     with raises:
         manifest = study_manifest.StudyManifest(pathlib.Path(study_path))
-        builder.build_study(
-            config=mock_db_config,
-            manifest=manifest,
-        )
+        builder.build_study(config=mock_db_config, manifest=manifest, data_path=None, prepare=False)
         tables = (
             mock_db_config.db.cursor()
             .execute("SELECT distinct(table_name) FROM information_schema.tables ")
@@ -248,10 +245,7 @@ def test_build_study(mock_db_config, study_path, verbose, expects, raises):
             table_cols_types=table.column_types,
         )
         mock_db_config.db.cursor().execute(query)
-        builder.build_study(
-            config=mock_db_config,
-            manifest=manifest,
-        )
+        builder.build_study(config=mock_db_config, manifest=manifest, data_path=None, prepare=False)
         tables = (
             mock_db_config.db.cursor()
             .execute("SELECT distinct(table_name) FROM information_schema.tables ")
@@ -309,7 +303,7 @@ def test_run_psm_statistics_builders(
                 table_name="psm_test__psm_encounter_2023_06_15",
                 view_name="psm_test__psm_encounter_covariate",
             )
-        builder.build_study(config=config, manifest=manifest)
+        builder.build_study(config=config, manifest=manifest, prepare=False, data_path=None)
         tables = (
             mock_db_stats_config.db.cursor()
             .execute("SELECT distinct(table_name) FROM information_schema.tables")
@@ -333,10 +327,7 @@ def test_invoke_valueset_builder(mock_builder, mock_db_config, tmp_path):
     config = base_utils.StudyConfig(
         db=mock_db_config.db, schema=mock_db_config.schema, stats_build=True
     )
-    builder.build_study(
-        config=config,
-        manifest=manifest,
-    )
+    builder.build_study(config=config, manifest=manifest, prepare=False, data_path=None)
     assert mock_builder.is_called()
 
 
@@ -567,7 +558,7 @@ def test_generate_md(mock_db_config, tmp_path):
         manifest = study_manifest.StudyManifest(
             study_path=pathlib.Path(f"{tmp_path}/study_python_valid/")
         )
-        builder.build_study(config=mock_db_config, manifest=manifest)
+        builder.build_study(config=mock_db_config, manifest=manifest, prepare=False, data_path=None)
         file_generator.run_generate_markdown(config=mock_db_config, manifest=manifest)
         with open(f"{tmp_path}/study_python_valid/study_python_valid_generated.md") as f:
             generated_md = f.read()
