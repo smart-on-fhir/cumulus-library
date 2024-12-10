@@ -882,7 +882,7 @@ def test_study_dir(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "study,expected_queries,generated_query,toml_file",
+    "study,expected_queries,generated_query,toml_file, raises",
     [
         (
             "study_valid",
@@ -892,6 +892,7 @@ def test_study_dir(tmp_path):
             ],
             "CREATE TABLE study_valid__table (test int)",
             None,
+            does_not_raise(),
         ),
         (
             "study_python_counts_valid",
@@ -902,6 +903,7 @@ def test_study_dir(tmp_path):
             ],
             "CREATE TABLE IF NOT EXISTS study_python_counts_valid__table1 (test int);",
             None,
+            does_not_raise(),
         ),
         (
             "psm_test",
@@ -932,31 +934,34 @@ included_cols = [
 ]
 """,
             ],
+            does_not_raise(),
         ),
+        ("core", [], "", None, pytest.raises(SystemExit)),
     ],
 )
-def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_file):
-    build_args = duckdb_args(
-        [
-            "build",
-            "-t",
-            study,
-            "-s",
-            "tests/test_data/",
-            str(tmp_path),
-            "--prepare",
-        ],
-        tmp_path,
-    )
-    with does_not_raise():
-        cli.main(cli_args=build_args)
-    queries = list(pathlib.Path(tmp_path).glob("**/*.sql"))
-    for query in queries:
-        assert query.name in expected_queries
-    with open(queries[0]) as f:
-        assert f.read() == generated_query
-    if toml_file:
-        config = next(pathlib.Path(tmp_path).glob("**/*.toml"))
-        assert config.name == toml_file[0]
-        with open(config) as f:
-            assert f.read() == toml_file[1]
+def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_file, raises):
+    with raises:
+        build_args = duckdb_args(
+            [
+                "build",
+                "-t",
+                study,
+                "-s",
+                "tests/test_data/",
+                str(tmp_path),
+                "--prepare",
+            ],
+            tmp_path,
+        )
+        with does_not_raise():
+            cli.main(cli_args=build_args)
+        queries = list(pathlib.Path(tmp_path).glob("**/*.sql"))
+        for query in queries:
+            assert query.name in expected_queries
+        with open(queries[0]) as f:
+            assert f.read() == generated_query
+        if toml_file:
+            config = next(pathlib.Path(tmp_path).glob("**/*.toml"))
+            assert config.name == toml_file[0]
+            with open(config) as f:
+                assert f.read() == toml_file[1]

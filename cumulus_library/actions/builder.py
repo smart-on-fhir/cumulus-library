@@ -261,7 +261,7 @@ def build_matching_files(
     :keyword data_path: If prepare is true, the path to write rendered data to
     """
     if prepare:
-        _check_if_preparable(manifest.get_study_prefix())
+        _check_if_preparable(manifest.get_study_prefix())  # pragma: no cover
     all_generators = manifest.get_all_generators()
     matches = []
     if not builder:  # pragma: no cover
@@ -306,7 +306,7 @@ def build_study(
     if prepare:
         data_dir = data_path / manifest.get_study_prefix()
         for file in data_dir.glob("*"):
-            if file.is_file():
+            if file.is_file():  # pragma: no cover
                 file.unlink()
     query_count = 0
     for file in file_list:

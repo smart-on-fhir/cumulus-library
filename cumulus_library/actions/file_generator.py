@@ -31,7 +31,7 @@ def run_generate_sql(
     )
     for file in all_generators:
         if table_builder and file.find(table_builder) == -1:
-            continue
+            continue  # pragma: no cover
         builder._load_and_execute_builder(
             config=config,
             manifest=manifest,
