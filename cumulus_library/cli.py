@@ -106,27 +106,29 @@ class StudyRunner:
         """
         manifest = study_manifest.StudyManifest(target, self.data_path, options=options)
         try:
+            print("prep", prepare)
+            print("cont", continue_from)
             if not prepare:
                 builder.run_protected_table_builder(
                     config=self.get_config(manifest), manifest=manifest
                 )
-            if not continue_from and not prepare:
-                log_utils.log_transaction(
-                    config=self.get_config(manifest),
-                    manifest=manifest,
-                    status=enums.LogStatuses.STARTED,
-                )
-                cleaner.clean_study(
-                    config=self.get_config(manifest),
-                    manifest=manifest,
-                )
-
-            elif not prepare:
-                log_utils.log_transaction(
-                    config=self.get_config(manifest),
-                    manifest=manifest,
-                    status=enums.LogStatuses.RESUMED,
-                )
+                if not continue_from:
+                    print("continue")
+                    log_utils.log_transaction(
+                        config=self.get_config(manifest),
+                        manifest=manifest,
+                        status=enums.LogStatuses.STARTED,
+                    )
+                    cleaner.clean_study(
+                        config=self.get_config(manifest),
+                        manifest=manifest,
+                    )
+                else:
+                    log_utils.log_transaction(
+                        config=self.get_config(manifest),
+                        manifest=manifest,
+                        status=enums.LogStatuses.RESUMED,
+                    )
 
             builder.build_study(
                 config=self.get_config(manifest),
@@ -147,11 +149,12 @@ class StudyRunner:
             # skipping logging
             raise e  # pragma: no cover
         except Exception as e:
-            log_utils.log_transaction(
-                config=self.get_config(manifest),
-                manifest=manifest,
-                status=enums.LogStatuses.ERROR,
-            )
+            if not prepare:
+                log_utils.log_transaction(
+                    config=self.get_config(manifest),
+                    manifest=manifest,
+                    status=enums.LogStatuses.ERROR,
+                )
             raise e
 
     def build_matching_files(

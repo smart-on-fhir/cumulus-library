@@ -39,6 +39,7 @@ def run_generate_sql(
             db_parser=db_parser,
             write_reference_sql=True,
             doc_str=doc_str,
+            data_path=None,
         )
 
 

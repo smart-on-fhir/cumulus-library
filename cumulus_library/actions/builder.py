@@ -43,7 +43,7 @@ def _load_and_execute_builder(
     write_reference_sql: bool = False,
     doc_str: str | None = None,
     prepare: bool = False,
-    data_path: pathlib.Path | None = None,
+    data_path: pathlib.Path,
     query_count: int | None = None,
 ) -> int:
     """Loads a table builder from a file.
@@ -177,10 +177,15 @@ def _run_workflow(
     """
     toml_path = pathlib.Path(f"{manifest._study_path}/{filename}")
     if prepare:
-        with open(toml_path) as file:
+        with open(toml_path, encoding="utf-8") as file:
             workflow_config = file.read()
         _render_output(
-            manifest.get_study_prefix(), [workflow_config], data_path, filename, query_count, True
+            manifest.get_study_prefix(),
+            [workflow_config],
+            data_path,
+            filename,
+            query_count,
+            is_toml=True,
         )
         return 1
     existing_stats = []
@@ -243,7 +248,7 @@ def build_matching_files(
     *,
     builder: str | None,
     db_parser: databases.DatabaseParser = None,
-    prepare: bool = False,
+    prepare: bool,
     data_path: pathlib.Path,
 ):
     """targets all table builders matching a target string for running
@@ -255,11 +260,8 @@ def build_matching_files(
     :keyword prepare: If true, will render query instead of executing
     :keyword data_path: If prepare is true, the path to write rendered data to
     """
-    if prepare and manifest.get_study_prefix() in ["core", "discovery", "data-metrics"]:
-        sys.exit(
-            f"{manifest.get_study_prefix()} does not support prepare mode. It must be run "
-            "directly against a target database."
-        )
+    if prepare:
+        _check_if_preparable(manifest.get_study_prefix())
     all_generators = manifest.get_all_generators()
     matches = []
     if not builder:  # pragma: no cover
@@ -285,8 +287,8 @@ def build_study(
     db_parser: databases.DatabaseParser = None,
     continue_from: str | None = None,
     file_list: list | None = None,
-    prepare: bool = False,
-    data_path: pathlib.Path | None = None,
+    prepare: bool,
+    data_path: pathlib.Path | None,
 ) -> None:
     """Creates tables in the schema by iterating through the sql_config.file_names
 
@@ -297,17 +299,15 @@ def build_study(
     :keyword prepare: If true, will render query instead of executing
     :keyword data_path: If prepare is true, the path to write rendered data to
     """
-    if prepare and manifest.get_study_prefix() in ["core", "discovery", "data-metrics"]:
-        sys.exit(
-            f"{manifest.get_study_prefix()} does not support prepare mode. It must be run "
-            "directly against a target database."
-        )
+    if prepare:
+        _check_if_preparable(manifest.get_study_prefix())
     if file_list is None:
         file_list = manifest.get_file_list(continue_from)
     if prepare:
         data_dir = data_path / manifest.get_study_prefix()
-        files = data_dir.glob("*")
-        [file.unlink() for file in files if file.is_file()]
+        for file in data_dir.glob("*"):
+            if file.is_file():
+                file.unlink()
     query_count = 0
     for file in file_list:
         if file.endswith(".py"):
@@ -316,8 +316,8 @@ def build_study(
                 manifest=manifest,
                 filename=file,
                 db_parser=db_parser,
-                prepare=prepare,
                 data_path=data_path,
+                prepare=prepare,
                 query_count=query_count,
             )
         elif file.endswith(".toml"):
@@ -325,8 +325,8 @@ def build_study(
                 config=config,
                 manifest=manifest,
                 filename=file,
-                prepare=prepare,
                 data_path=data_path,
+                prepare=prepare,
                 query_count=query_count,
             )
         elif file.endswith(".sql"):
@@ -334,8 +334,8 @@ def build_study(
                 config=config,
                 manifest=manifest,
                 filename=file,
-                prepare=prepare,
                 data_path=data_path,
+                prepare=prepare,
                 query_count=query_count,
             )
         else:
@@ -344,7 +344,7 @@ def build_study(
         with zipfile.ZipFile(
             f"{data_path}/{manifest.get_study_prefix()}.zip", "w", zipfile.ZIP_DEFLATED
         ) as z:
-            for file in data_dir.glob("*"):
+            for file in data_dir.iterdir():
                 z.write(file, file.relative_to(data_dir))
 
 
@@ -352,8 +352,9 @@ def _run_raw_queries(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
     filename: str,
+    *,
+    data_path: pathlib.Path | None,
     prepare: bool,
-    data_path: pathlib.Path,
     query_count: int,
 ) -> int:
     """Creates tables in the schema by iterating through the sql_config.file_names
@@ -401,23 +402,49 @@ def _run_raw_queries(
     return len(queries)
 
 
-def _render_output(study_name, outputs, data_path, filename, count, is_toml=False):
+def _render_output(
+    study_name: str,
+    outputs: list,
+    data_path: pathlib.Path,
+    filename: str,
+    count: int,
+    *,
+    is_toml: bool = False,
+):
     if is_toml:
         suffix = "toml"
     else:
         suffix = "sql"
-    for output in enumerate(outputs):
+    for index, output in enumerate(outputs):
         if is_toml:
             name = "config"
         else:
-            name = re.search(r"(.*)__\w*", output[1])[0].lower().replace(" ", "_")
-        file_path = data_path / (
-            f"{study_name}/{count+output[0]:04d}.{filename.rsplit('.', 1)[0]}"
-            f".{output[0]:02d}.{name}.{suffix}"
-        )
+            # This regex attempts to discover the table name, via looking for the first
+            # dunder, and then gets the start of the line its on as a non-quote requiring
+            # part of a file name. So for example, finding SQL that looks like this:
+            #   CREATE TABLE foo__bar AS (varchar baz)
+            # would result in `create_table_foo__bar` being assigned to name. The goal
+            # is to make this at least mildly parsable at the file system level if someone
+            # is reviewing a prepared study
+            name = re.search(r"(.*)__\w*", output)[0].lower().replace(" ", "_")
+        total_index = count + index
+        new_filename = f"{total_index:04d}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
+        file_path = data_path / f"{study_name}/{new_filename}"
+
         file_path.parent.mkdir(exist_ok=True, parents=True)
-        with open(file_path, "w") as f:
-            f.write(output[1])
+        with open(file_path, "w", encoding="UTF-8") as f:
+            f.write(output)
+
+
+def _check_if_preparable(prefix):
+    # This list should include any study which requires interrogating the database to
+    # find if data is available to query (outside of a toml-driven workflow),
+    # which isn't doable as a distributed query
+    if prefix in ["core", "discovery", "data-metrics"]:
+        sys.exit(
+            f"Study '{prefix}'' does not support prepare mode. It must be run "
+            "directly against a target database."
+        )
 
 
 def _query_error(

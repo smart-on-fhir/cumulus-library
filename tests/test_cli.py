@@ -942,7 +942,6 @@ def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_
             study,
             "-s",
             "tests/test_data/",
-            "--data_path",
             str(tmp_path),
             "--prepare",
         ],
