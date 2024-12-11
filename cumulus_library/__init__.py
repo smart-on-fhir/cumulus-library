@@ -6,4 +6,4 @@ from cumulus_library.builders.counts import CountsBuilder
 from cumulus_library.study_manifest import StudyManifest
 
 __all__ = ["BaseTableBuilder", "CountsBuilder", "StudyConfig", "StudyManifest"]
-__version__ = "4.1.0"
+__version__ = "4.1.1"
