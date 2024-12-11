@@ -106,14 +106,11 @@ class StudyRunner:
         """
         manifest = study_manifest.StudyManifest(target, self.data_path, options=options)
         try:
-            print("prep", prepare)
-            print("cont", continue_from)
             if not prepare:
                 builder.run_protected_table_builder(
                     config=self.get_config(manifest), manifest=manifest
                 )
                 if not continue_from:
-                    print("continue")
                     log_utils.log_transaction(
                         config=self.get_config(manifest),
                         manifest=manifest,
