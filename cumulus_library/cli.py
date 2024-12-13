@@ -317,8 +317,9 @@ def run_cli(args: dict):
         )
         try:
             runner = StudyRunner(config, data_path=args.get("data_path"))
-            console.print("[italic] Connecting to database...")
-            runner.config.db.cursor().execute("SHOW DATABASES")
+            if not args.get("prepare"):
+                console.print("[italic] Connecting to database...")
+                runner.config.db.cursor().execute("SHOW DATABASES")
             study_dict = get_study_dict(args.get("study_dir"))
             if "prefix" not in args.keys():
                 if args.get("target"):
@@ -481,7 +482,6 @@ def main(cli_args=None):
 
     if args.get("data_path"):
         args["data_path"] = get_abs_path(args["data_path"])
-
     return run_cli(args)
 
 
