@@ -40,6 +40,7 @@ def test_discovery(tmp_path):
         )
     )
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db.connect()
     cursor = db.cursor()
     table_rows, cols = conftest.get_sorted_table_data(cursor, "discovery__code_sources")
     table_rows = [tuple(x or "" for x in row) for row in table_rows]

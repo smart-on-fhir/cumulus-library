@@ -59,6 +59,7 @@ def test_duckdb_core_build_and_export(tmp_path):
 )
 def test_duckdb_from_iso8601_timestamp(timestamp, expected):
     db = databases.DuckDatabaseBackend(":memory:")
+    db.connect()
     parsed = db.cursor().execute(f"select from_iso8601_timestamp('{timestamp}')").fetchone()[0]
     assert parsed == expected
 
@@ -95,6 +96,7 @@ def test_duckdb_load_ndjson_dir(tmp_path):
 def test_duckdb_table_schema():
     """Verify we can detect schemas correctly, even for nested camel case fields"""
     db = databases.DuckDatabaseBackend(":memory:")
+    db.connect()
 
     with tempfile.TemporaryDirectory() as tmpdir:
         os.mkdir(f"{tmpdir}/observation")

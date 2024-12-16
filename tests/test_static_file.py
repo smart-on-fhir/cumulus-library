@@ -18,6 +18,7 @@ def test_static_file(tmp_path):
         )
     )
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db.connect()
     cursor = db.cursor()
     table_rows, cols = conftest.get_sorted_table_data(cursor, "study_static_file__table")
     expected_cols = {"CUI", "TTY", "CODE", "SAB", "STR"}

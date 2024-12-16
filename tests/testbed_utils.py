@@ -247,6 +247,7 @@ class LocalTestbed:
                 "db_type": "duckdb",
                 "database": db_file,
                 "load_ndjson_dir": str(self.path),
+                "prepare": False,
             }
         )
         config = base_utils.StudyConfig(

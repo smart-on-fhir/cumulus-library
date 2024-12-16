@@ -121,6 +121,10 @@ class DatabaseBackend(abc.ABC):
         self.db_type = None
 
     @abc.abstractmethod
+    def connect(self):
+        """Initiates connection configuration of the database"""
+
+    @abc.abstractmethod
     def cursor(self) -> DatabaseCursor:
         """Returns a connection to the backing database"""
 

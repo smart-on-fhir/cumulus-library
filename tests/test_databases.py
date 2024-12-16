@@ -223,22 +223,25 @@ def test_pyarrow_types_from_sql(db, data, expected, raises):
             does_not_raise(),
         ),
         (
-            {**{"db_type": "athena"}, **ATHENA_KWARGS},
+            {**{"db_type": "athena", "prepare": False}, **ATHENA_KWARGS},
             databases.AthenaDatabaseBackend,
             does_not_raise(),
         ),
         (
-            {**{"db_type": "athena", "database": "test"}, **ATHENA_KWARGS},
+            {**{"db_type": "athena", "database": "test", "prepare": False}, **ATHENA_KWARGS},
             databases.AthenaDatabaseBackend,
             does_not_raise(),
         ),
         (
-            {**{"db_type": "athena", "database": "testtwo"}, **ATHENA_KWARGS},
+            {**{"db_type": "athena", "database": "testtwo", "prepare": False}, **ATHENA_KWARGS},
             databases.AthenaDatabaseBackend,
             pytest.raises(SystemExit),
         ),
         (
-            {**{"db_type": "athena", "load_ndjson_dir": "file.json"}, **ATHENA_KWARGS},
+            {
+                **{"db_type": "athena", "load_ndjson_dir": "file.json", "prepare": False},
+                **ATHENA_KWARGS,
+            },
             databases.AthenaDatabaseBackend,
             pytest.raises(SystemExit),
         ),
@@ -253,6 +256,7 @@ def test_pyarrow_types_from_sql(db, data, expected, raises):
 def test_create_db_backend(args, expected_type, raises):
     with raises:
         db, schema = databases.create_db_backend(args)
+        db.connect()
         assert isinstance(db, expected_type)
         if args.get("schema_name"):
             assert args["schema_name"] == schema
@@ -347,6 +351,7 @@ def test_upload_file_athena(mock_botocore, args, sse, keycount, expected, raises
     mock_clientobj.get_work_group.return_value = mock_data
     mock_clientobj.list_objects_v2.return_value = {"KeyCount": keycount}
     db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
+    db.connect()
     with raises:
         location = db.upload_file(**args)
         assert location == expected
@@ -383,6 +388,7 @@ def test_athena_pandas_cursor(mock_pyathena):
         (None, "B", None, None, None),
     )
     db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
+    db.connect()
     res, desc = db.execute_as_pandas("ignored query")
     assert res.equals(
         pandas.DataFrame(
@@ -398,6 +404,7 @@ def test_athena_pandas_cursor(mock_pyathena):
 @mock.patch("pyathena.connect")
 def test_athena_parser(mock_pyathena):
     db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
+    db.connect()
     parser = db.parser()
     assert isinstance(parser, databases.AthenaParser)
 
@@ -411,7 +418,8 @@ def test_athena_parser(mock_pyathena):
 @mock.patch("pyathena.connect")
 def test_athena_env_var_priority(mock_pyathena):
     os.environ["AWS_ACCESS_KEY_ID"] = "secret"
-    databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
+    db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
+    db.connect()
     assert mock_pyathena.call_args[1]["aws_access_key_id"] == "secret"
 
 

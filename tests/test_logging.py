@@ -151,6 +151,7 @@ def test_migrate_transactions_athena(mock_pyathena):
         profile="test",
         schema_name="test",
     )
+    db.connect()
     manifest = study_manifest.StudyManifest("./tests/test_data/study_valid/")
     config = base_utils.StudyConfig(schema="test", db=db)
     log_utils.log_transaction(
