@@ -54,6 +54,7 @@ def test_upload_parquet_response_handling(mock_session):
         profile="profile",
         schema_name="db_schema",
     )
+    db.connect()
     client = mock.MagicMock()
     with open(path / "test_data/aws/boto3.client.athena.get_work_group.json") as f:
         client.get_work_group.return_value = json.load(f)

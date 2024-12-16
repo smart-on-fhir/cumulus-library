@@ -25,12 +25,16 @@ class DuckDatabaseBackend(base.DatabaseBackend):
     def __init__(self, db_file: str, schema_name: str | None = None):
         super().__init__("main")
         self.db_type = "duckdb"
+        self.db_file = db_file
+        self.connection = None
+
+    def connect(self):
+        """Connects to the local duckdb database"""
         # As of the 1.0 duckdb release, local scopes, where schema names can be provided
         # as configuration to duckdb.connect, are not supported.
         # https://duckdb.org/docs/sql/statements/set.html#syntax
-
         # This is where the connection config would be supplied when it is supported
-        self.connection = duckdb.connect(db_file)
+        self.connection = duckdb.connect(self.db_file)
         # Aliasing Athena's as_pandas to duckDB's df cast
         duckdb.DuckDBPyConnection.as_pandas = duckdb.DuckDBPyConnection.df
 
@@ -208,7 +212,8 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             self.connection.sql(f"CREATE SCHEMA {schema_name}")
 
     def close(self) -> None:
-        self.connection.close()
+        if self.connection is not None:
+            self.connection.close()
 
 
 class DuckDbParser(base.DatabaseParser):

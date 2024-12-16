@@ -78,14 +78,12 @@ def create_db_backend(args: dict[str, str]) -> (base.DatabaseBackend, str):
         # TODO: reevaluate as DuckDB's local schema support evolves.
         # https://duckdb.org/docs/sql/statements/set.html#syntax
         if not (args.get("schema_name") is None or args["schema_name"] == "main"):
-            print(
+            print(  # pragma: no cover
                 "Warning - local schema names are not yet supported by duckDB's "
                 "python library - using 'main' instead"
             )
         schema_name = "main"
         backend = duckdb.DuckDatabaseBackend(args["database"])
-        if load_ndjson_dir:
-            backend.insert_tables(read_ndjson_dir(load_ndjson_dir))
     elif db_config.db_type == "athena":
         if (
             args.get("schema_name") is not None
@@ -110,5 +108,10 @@ def create_db_backend(args: dict[str, str]) -> (base.DatabaseBackend, str):
             sys.exit("Loading an ndjson dir is not supported with --db-type=athena.")
     else:
         raise errors.CumulusLibraryError(f"'{db_config.db_type}' is not a supported database.")
-
+    if "prepare" not in args.keys():
+        backend.connect()
+    elif not args["prepare"]:
+        backend.connect()
+    if backend.connection is not None and db_config.db_type == "duckdb" and load_ndjson_dir:
+        backend.insert_tables(read_ndjson_dir(load_ndjson_dir))
     return (backend, schema_name)

@@ -32,12 +32,14 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.work_group = work_group
         self.profile = profile
         self.schema_name = schema_name
+        self.connection = None
+
+    def connect(self):
         # the profile may not be required, provided the above three AWS env vars
         # are set. If both are present, the env vars take precedence
         connect_kwargs = {}
         if self.profile is not None:
             connect_kwargs["profile_name"] = self.profile
-
         for aws_env_name in [
             "AWS_ACCESS_KEY_ID",
             "AWS_SECRET_ACCESS_KEY",
@@ -45,6 +47,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         ]:
             if aws_env_val := os.environ.get(aws_env_name):
                 connect_kwargs[aws_env_name.lower()] = aws_env_val
+
         self.connection = pyathena.connect(
             region_name=self.region,
             work_group=self.work_group,
@@ -102,8 +105,11 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     output.append((column[0], pyarrow.int64()))
                 case "double":
                     output.append((column[0], pyarrow.float64()))
+                # This is future proofing - we don't see this type currently.
                 case "decimal":
-                    output.append((column[0], pyarrow.decimal128(column[4], column[5])))
+                    output.append(  # pragma: no cover
+                        (column[0], pyarrow.decimal128(column[4], column[5]))
+                    )
                 case "boolean":
                     output.append((column[0], pyarrow.bool_()))
                 case "date":
@@ -168,7 +174,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             glue_client.create_database(DatabaseInput={"Name": schema_name})
 
     def close(self) -> None:
-        return self.connection.close()  # pragma: no cover
+        if self.connection is not None:  # pragma: no cover
+            self.connection.close()
 
 
 class AthenaParser(base.DatabaseParser):

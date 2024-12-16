@@ -119,6 +119,7 @@ def test_cli_path_mapping(mock_load_json, monkeypatch, tmp_path, args, raises, e
         args = duckdb_args(args, tmp_path)
         cli.main(cli_args=args)
         db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        db.connect()
         assert (expected,) in db.cursor().execute("show tables").fetchall()
 
 
@@ -140,6 +141,7 @@ def test_count_builder_mapping(tmp_path):
         )
         cli.main(cli_args=args)
         db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        db.connect()
         assert [
             ("study_python_counts_valid__lib_transactions",),
             ("study_python_counts_valid__table1",),
@@ -271,6 +273,7 @@ def test_clean(tmp_path, args, expected, raises):
             with mock.patch.object(builtins, "input", lambda _: "y"):
                 cli.main(cli_args=duckdb_args(args, tmp_path))
                 db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+                db.connect()
                 for table in db.cursor().execute("show tables").fetchall():
                     assert expected not in table
 
@@ -455,6 +458,7 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
             cli.main(cli_args=export_args)
 
         db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+        db.connect()
         found_tables = (
             db.cursor()
             .execute("SELECT table_schema,table_name FROM information_schema.tables")
@@ -541,6 +545,7 @@ def test_cli_transactions(tmp_path, study, finishes, raises):
         ]
         cli.main(cli_args=args)
     db = databases.DuckDatabaseBackend(f"{tmp_path}/{study}_duck.db")
+    db.connect()
     query = db.cursor().execute(f"SELECT * from {study}__lib_transactions").fetchall()
     assert query[0][2] == "started"
     if finishes:
@@ -579,6 +584,7 @@ def test_cli_stats_rebuild(tmp_path):
     cli.main(cli_args=[*arg_list, f"{tmp_path}/export"])
     cli.main(cli_args=[*arg_list, f"{tmp_path}/export", "--statistics"])
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db.connect()
     expected = (
         db.cursor()
         .execute(
@@ -690,6 +696,7 @@ def test_cli_umls_parsing(mock_config, mode, tmp_path):
 def test_cli_single_builder(tmp_path):
     cli.main(cli_args=duckdb_args(["build", "--builder=patient", "--target=core"], tmp_path))
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db.connect()
     tables = {x[0] for x in db.cursor().execute("show tables").fetchall()}
     assert {
         "core__patient",
@@ -708,6 +715,7 @@ def test_cli_finds_study_from_manifest_prefix(tmp_path):
         )
     )
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db.connect()
     tables = {x[0] for x in db.cursor().execute("show tables").fetchall()}
     assert "study_different_name__table" in tables
 
@@ -806,6 +814,7 @@ def test_dedicated_schema(tmp_path):
     cli.main(cli_args=core_build_args)
     cli.main(cli_args=build_args)
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    db.connect()
     tables = (
         db.cursor()
         .execute("SELECT table_schema,table_name FROM information_schema.tables")
