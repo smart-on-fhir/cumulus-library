@@ -78,7 +78,7 @@ def create_db_backend(args: dict[str, str]) -> (base.DatabaseBackend, str):
         # TODO: reevaluate as DuckDB's local schema support evolves.
         # https://duckdb.org/docs/sql/statements/set.html#syntax
         if not (args.get("schema_name") is None or args["schema_name"] == "main"):
-            print(
+            print(  # pragma: no cover
                 "Warning - local schema names are not yet supported by duckDB's "
                 "python library - using 'main' instead"
             )

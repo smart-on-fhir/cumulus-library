@@ -105,8 +105,11 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     output.append((column[0], pyarrow.int64()))
                 case "double":
                     output.append((column[0], pyarrow.float64()))
+                # This is future proofing - we don't see this type currently.
                 case "decimal":
-                    output.append((column[0], pyarrow.decimal128(column[4], column[5])))
+                    output.append(  # pragma: no cover
+                        (column[0], pyarrow.decimal128(column[4], column[5]))
+                    )
                 case "boolean":
                     output.append((column[0], pyarrow.bool_()))
                 case "date":
@@ -171,8 +174,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             glue_client.create_database(DatabaseInput={"Name": schema_name})
 
     def close(self) -> None:
-        if self.connection is not None:
-            self.connection.close()  # pragma: no cover
+        if self.connection is not None:  # pragma: no cover
+            self.connection.close()
 
 
 class AthenaParser(base.DatabaseParser):
