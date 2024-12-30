@@ -588,6 +588,7 @@ temp_encounter_completion AS (
                 AND BOOL_OR(ec.table_name = 'documentreference')
                 AND BOOL_OR(ec.table_name = 'medicationrequest')
                 AND BOOL_OR(ec.table_name = 'observation')
+                AND BOOL_OR(ec.table_name = 'procedure')
             ) AS is_complete
         FROM etl__completion_encounters AS ece
         INNER JOIN temp_completion_times AS tct ON tct.encounter_id = ece.encounter_id
@@ -740,6 +741,7 @@ temp_encounter_completion AS (
                 AND BOOL_OR(ec.table_name = 'documentreference')
                 AND BOOL_OR(ec.table_name = 'medicationrequest')
                 AND BOOL_OR(ec.table_name = 'observation')
+                AND BOOL_OR(ec.table_name = 'procedure')
             ) AS is_complete
         FROM etl__completion_encounters AS ece
         INNER JOIN temp_completion_times AS tct ON tct.encounter_id = ece.encounter_id

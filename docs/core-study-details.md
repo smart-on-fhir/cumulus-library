@@ -95,6 +95,9 @@ Per resource, the optional fields are as follows:
   - encounter
   - valueCodeableConcept
   - interpretation
+- Procedure
+  - category
+  - encounter
 
 ## Deprecation Notice
 
@@ -241,6 +244,15 @@ vital signs) instead.
 |gender           |varchar|Biological sex at birth|
 |race_display     |varchar|Patient reported race|
 |ethnicity_display|varchar|Patient reported ethnicity|
+
+
+### core__count_procedure_month
+
+|        Column         | Type  |Description|
+|-----------------------|-------|-----------|
+|cnt                    |bigint |           |
+|code_display           |varchar|           |
+|performeddatetime_month|varchar|           |
 
 
 ## core base tables
@@ -988,4 +1000,55 @@ vital signs) instead.
 |doc_type_code        |varchar    |           |
 |doc_type_display     |varchar    |           |
 |ed_note              |boolean    |           |
+
+
+### core__procedure
+
+|          Column           | Type  |Description|
+|---------------------------|-------|-----------|
+|id                         |varchar|           |
+|status                     |varchar|           |
+|category_code              |varchar|           |
+|category_system            |varchar|           |
+|category_display           |varchar|           |
+|code_code                  |varchar|           |
+|code_system                |varchar|           |
+|code_display               |varchar|           |
+|performeddatetime_day      |date   |           |
+|performeddatetime_week     |date   |           |
+|performeddatetime_month    |date   |           |
+|performeddatetime_year     |date   |           |
+|performedperiod_start_day  |date   |           |
+|performedperiod_start_week |date   |           |
+|performedperiod_start_month|date   |           |
+|performedperiod_start_year |date   |           |
+|performedperiod_end_day    |date   |           |
+|performedperiod_end_week   |date   |           |
+|performedperiod_end_month  |date   |           |
+|performedperiod_end_year   |date   |           |
+|procedure_ref              |varchar|           |
+|subject_ref                |varchar|           |
+|encounter_ref              |varchar|           |
+
+
+### core__procedure_dn_category
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__procedure_dn_code
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
 

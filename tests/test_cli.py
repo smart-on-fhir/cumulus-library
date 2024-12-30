@@ -288,7 +288,7 @@ def test_clean(tmp_path, args, expected, raises):
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
-            69,
+            73,
             does_not_raise(),
         ),
         (
@@ -964,7 +964,7 @@ def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_
         )
         with does_not_raise():
             cli.main(cli_args=build_args)
-        queries = list(pathlib.Path(tmp_path).glob("**/*.sql"))
+        queries = sorted(pathlib.Path(tmp_path).glob("**/*.sql"))
         for query in queries:
             assert query.name in expected_queries
         with open(queries[0]) as f:

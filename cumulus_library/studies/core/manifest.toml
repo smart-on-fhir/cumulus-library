@@ -11,6 +11,7 @@ file_names = [
     "builder_documentreference.py",
     "builder_medicationrequest.py",
     "builder_observation.py",
+    "builder_procedure.py",
     "observation_type.sql",
     "meta_date.sql",
     "count_core.py"
@@ -31,6 +32,7 @@ count_list = [
     "core__count_medicationrequest_month",
     "core__count_observation_lab_month",
     "core__count_patient",
+    "core__count_procedure_month",
 ]
 meta_list = [
     "core__meta_date",

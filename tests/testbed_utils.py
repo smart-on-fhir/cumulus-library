@@ -128,6 +128,7 @@ class LocalTestbed:
                 "documentreference",
                 "medicationrequest",
                 "observation",
+                "procedure",
             }
         else:
             include = set(include)
@@ -236,6 +237,17 @@ class LocalTestbed:
                 "id": row_id,
                 "birthDate": birth_date,
                 "gender": gender,
+                **kwargs,
+            },
+        )
+
+    def add_procedure(self, row_id: str, **kwargs) -> None:
+        """Adds a Procedure with all the SQL-required fields filled out"""
+        self.add(
+            "procedure",
+            {
+                "resourceType": "Procedure",
+                "id": row_id,
                 **kwargs,
             },
         )

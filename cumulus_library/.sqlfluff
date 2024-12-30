@@ -250,6 +250,18 @@ schema =
             'gender': True, 
             'address': True, 
             'birthdate': True
+        },
+        'procedure': {
+            'encounter': {
+                'reference': True,
+            },
+            'id': True,
+            'performedPeriod': {
+              'start': True, 'end': True,
+            },
+            'subject': {
+                'reference': True,
+            },
         }
     }
 source_table = source_table

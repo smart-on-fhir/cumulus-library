@@ -47,7 +47,7 @@ def get_sorted_table_data(cursor, table):
     if num_cols == 0:
         return [], []
     data = cursor.execute(
-        f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols)))}"
+        f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols+1)))}"
     ).fetchall()
     return data, cursor.description
 
