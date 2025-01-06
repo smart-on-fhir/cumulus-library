@@ -129,6 +129,21 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
         cols = ["gender", "race_display", "ethnicity_display"]
         return self.count_patient(table_name, from_table, cols)
 
+    def count_core_procedure(self, duration: str = "month"):
+        table_name = self.get_table_name("count_procedure", duration=duration)
+        from_table = self.get_table_name("procedure")
+        cols = [
+            ["category_display", "varchar", None],
+            ["code_display", "varchar", None],
+            # The performed date is annoyingly spread across three fields: performedDateTime,
+            # performedPeriod.start, and performedPeriod.end.
+            # Rather than do some fancy collation, we just use performedDateTime.
+            # It's the only "must support" performed field, and period seems less common.
+            # These core counts are just a rough idea of the data, not a polished final product.
+            [f"performedDateTime_{duration}", "date", None],
+        ]
+        return self.count_procedure(table_name, from_table, cols)
+
     def prepare_queries(self, *args, **kwargs):
         super().prepare_queries(*args, **kwargs)
         self.queries = [
@@ -144,6 +159,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
             self.count_core_encounter_priority(duration="month"),
             self.count_core_medicationrequest(duration="month"),
             self.count_core_observation_lab(duration="month"),
+            self.count_core_procedure(duration="month"),
             self.count_core_patient(),
         ]
 

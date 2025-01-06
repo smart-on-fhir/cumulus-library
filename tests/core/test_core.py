@@ -13,6 +13,7 @@ from tests import conftest, testbed_utils
     [
         ("core__allergyintolerance"),
         ("core__condition"),
+        ("core__diagnosticreport"),
         ("core__documentreference"),
         ("core__encounter"),
         ("core__medicationrequest"),
@@ -20,14 +21,17 @@ from tests import conftest, testbed_utils
         ("core__observation_lab"),
         ("core__observation_vital_signs"),
         ("core__patient"),
+        ("core__procedure"),
         ("core__count_allergyintolerance_month"),
         ("core__count_condition_month"),
+        ("core__count_diagnosticreport_month"),
         ("core__count_documentreference_month"),
         ("core__count_encounter_month"),
         ("core__count_encounter_all_types_month"),
         ("core__count_observation_lab_month"),
         ("core__count_medicationrequest_month"),
         ("core__count_patient"),
+        ("core__count_procedure_month"),
     ],
 )
 def test_core_tables(mock_db_core, table):
