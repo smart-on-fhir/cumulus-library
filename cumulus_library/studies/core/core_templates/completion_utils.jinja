@@ -39,6 +39,7 @@ in this table.
         SELECT
             ece.encounter_id,
             (
+                -- Every time you add a resource here, update core-study-details.md
                 BOOL_OR(ec.table_name = 'allergyintolerance')
                 AND BOOL_OR(ec.table_name = 'condition')
                 AND BOOL_OR(ec.table_name = 'diagnosticreport')

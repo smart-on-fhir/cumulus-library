@@ -56,8 +56,15 @@ that encounter is considered "incomplete" and may be left out of the core tables
 You can see which encounters were ignored as incomplete by examining the
 `core__incomplete_encounters` table which holds the ID of all incomplete encounters.
 
-Usually, you can resolve this by running the ETL process again for the encounters,
-making sure to include all associated resources.
+Usually, you can resolve this by making sure you've run the ETL process
+for each of the following encounter-linked resources:
+- AllergyIntolerance
+- Condition
+- DiagnosticReport
+- DocumentReference
+- MedicationRequest
+- Observation
+- Procedure
 
 ## Optional fields
 
