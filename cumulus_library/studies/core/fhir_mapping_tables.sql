@@ -118,23 +118,31 @@ SELECT * FROM
 
 -- ############################################################
 -- FHIR mapping of as found Encounter codes to the expected encounter code from
--- http://hl7.org/fhir/STU3/v3/ActEncounterCode/vs.html
+-- http://hl7.org/fhir/R4/v3/ActEncounterCode/vs.html
 
 CREATE TABLE core__fhir_mapping_expected_act_encounter_code_v3 AS
 SELECT * FROM
     (
         VALUES
-        ('AMB', 'AMB'),
-        ('AMB', 'R'),
-        ('AMB', 'O'),
-        ('EMER', 'EMER'),
-        ('EMER', 'E'),
-        ('FLD', 'FLD'),
-        ('HH', 'HH'),
-        ('IMP', 'IMP'),
-        ('ACUTE', 'ACUTE'),
-        ('NONAC', 'NONAC'),
-        ('PRENC', 'PRENC'),
-        ('SS', 'SS'),
-        ('VR', 'VR')
-    ) AS t (expected, found);
+        -- http://hl7.org/fhir/R4/v3/ActEncounterCode/vs.html
+        -- This is the modern, expected class system.
+        ('AMB', 'AMB', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('EMER', 'EMER', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('FLD', 'FLD', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('HH', 'HH', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('IMP', 'IMP', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('ACUTE', 'ACUTE', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('NONAC', 'NONAC', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('OBSENC', 'OBSENC', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('PRENC', 'PRENC', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('SS', 'SS', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        ('VR', 'VR', 'http://terminology.hl7.org/CodeSystem/v3-ActCode'),
+        -- http://terminology.hl7.org/CodeSystem/v2-0004
+        -- This is an older class system, still in active use apparently (at BCH Cerner).
+        -- Unmapped codes: B (obstetrics), C (commercial), N (not applicable), U (unknown)
+        ('EMER', 'E', 'http://terminology.hl7.org/CodeSystem/v2-0004'),
+        ('IMP', 'I', 'http://terminology.hl7.org/CodeSystem/v2-0004'),
+        ('AMB', 'O', 'http://terminology.hl7.org/CodeSystem/v2-0004'),
+        ('PRENC', 'P', 'http://terminology.hl7.org/CodeSystem/v2-0004'),
+        ('AMB', 'R', 'http://terminology.hl7.org/CodeSystem/v2-0004')  -- recurring patient
+    ) AS t (expected, found, found_system);

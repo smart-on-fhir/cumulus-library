@@ -582,6 +582,7 @@ temp_encounter_completion AS (
         SELECT
             ece.encounter_id,
             (
+                -- Every time you add a resource here, update core-study-details.md
                 BOOL_OR(ec.table_name = 'allergyintolerance')
                 AND BOOL_OR(ec.table_name = 'condition')
                 AND BOOL_OR(ec.table_name = 'diagnosticreport')
@@ -705,7 +706,7 @@ SELECT DISTINCT
     concat('Encounter/', e.id) AS encounter_ref
 FROM temp_encounter AS e
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
-    ON e.class_code = eac.found
+    ON e.class_code = eac.found AND e.class_system = eac.found_system
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
 INNER JOIN core__patient AS p ON e.subject_ref = p.subject_ref;
 
@@ -735,6 +736,7 @@ temp_encounter_completion AS (
         SELECT
             ece.encounter_id,
             (
+                -- Every time you add a resource here, update core-study-details.md
                 BOOL_OR(ec.table_name = 'allergyintolerance')
                 AND BOOL_OR(ec.table_name = 'condition')
                 AND BOOL_OR(ec.table_name = 'diagnosticreport')
