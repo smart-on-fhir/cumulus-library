@@ -35,6 +35,7 @@ from cumulus_library.template_sql import base_templates, sql_utils
         (None, None, None, False, "study_valid__etl_table", does_not_raise()),
         (None, None, None, False, "study_valid__nlp_table", does_not_raise()),
         (None, None, None, False, "study_valid__lib_table", does_not_raise()),
+        (None, None, None, False, "study_valid__lib", does_not_raise()),
         (None, "foo", "y", False, "foo_table", does_not_raise()),
         (None, "foo", "n", False, "foo_table", pytest.raises(SystemExit)),
         (True, None, "y", True, "study_valid__table", does_not_raise()),
@@ -121,7 +122,6 @@ def test_clean_dedicated_schema(mock_db_config):
             .execute("select distinct(table_name) from information_schema.tables")
             .fetchall()
         )
-        print(remaining_tables)
         assert (f"{enums.ProtectedTables.TRANSACTIONS.value}",) in remaining_tables
         assert ("table_1",) not in remaining_tables
         assert ("view_2",) not in remaining_tables
