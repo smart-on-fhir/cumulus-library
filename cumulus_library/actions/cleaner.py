@@ -1,5 +1,6 @@
 import sys
 
+import duckdb
 from rich.progress import Progress, TaskID
 
 from cumulus_library import base_utils, databases, enums, errors, study_manifest
@@ -27,7 +28,11 @@ def _execute_drop_queries(
             name=view_table[0], view_or_table=view_table[1]
         )
         with base_utils.query_console_output(verbose, drop_view_table, progress, task):
-            cursor.execute(drop_view_table)
+            try:
+                cursor.execute(drop_view_table)
+            # did we hit an exception in unit testing on athena-specific quoting?
+            except duckdb.duckdb.ParserException:
+                cursor.execute(drop_view_table.replace("`", '"'))
 
 
 def _get_unprotected_stats_view_table(
@@ -147,7 +152,10 @@ def clean_study(
     if dedicated := manifest.get_dedicated_schema():
         view_table_list = [
             (
-                f"`{dedicated}`.`{x[0]}`",
+                # Athena uses different quoting strategies for drop view statements
+                # versus drop table statements. -_-
+                # TODO: Consider moving this logic to a database object?
+                f'"{dedicated}"."{x[0]}"' if x[1] == "VIEW" else f"`{dedicated}`.`{x[0]}`",
                 x[1],
             )
             for x in view_table_list
