@@ -822,7 +822,7 @@ def test_dedicated_schema(tmp_path):
     )
     for table in [
         ("dedicated", "table_1"),
-        ("dedicated", "table_2"),
+        ("dedicated", "view_2"),
         ("dedicated", "table_raw_sql"),
         ("main", "core__condition"),
     ]:

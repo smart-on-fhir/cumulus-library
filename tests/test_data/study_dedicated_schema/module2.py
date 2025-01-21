@@ -6,5 +6,6 @@ class ModuleTwoRunner(cumulus_library.BaseTableBuilder):
 
     def prepare_queries(self, *args, **kwargs):
         self.queries.append(
-            "CREATE TABLE IF NOT EXISTS study_dedicated_schema__table_2 (test int);"
+            """CREATE VIEW IF NOT EXISTS study_dedicated_schema__view_2 AS 
+            SELECT * FROM dedicated.table_1;"""
         )

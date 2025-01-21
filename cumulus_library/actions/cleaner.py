@@ -147,7 +147,12 @@ def clean_study(
     if dedicated := manifest.get_dedicated_schema():
         view_table_list = [
             (
-                f"`{dedicated}`.`{x[0]}`",
+                # Athena uses different quoting strategies for drop view statements
+                # versus drop table statements. -_-
+                # TODO: Consider moving this logic to a database object?
+                f"`{dedicated}`.`{x[0]}`"
+                if (x[1] == "TABLE" and config.db.db_type == "athena")
+                else f'"{dedicated}"."{x[0]}"',
                 x[1],
             )
             for x in view_table_list
