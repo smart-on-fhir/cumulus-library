@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from rich.console import Console
+
 from cumulus_library import BaseTableBuilder, errors, study_manifest
 from cumulus_library.builders.statistics_templates import counts_templates
 
@@ -12,9 +14,23 @@ DEFAULT_MIN_SUBJECT = 10
 class CountsBuilder(BaseTableBuilder):
     """Extends BaseTableBuilder for counts-related use cases"""
 
-    def __init__(self, study_prefix: str | None = None):
+    def __init__(
+        self, study_prefix: str | None = None, manifest: study_manifest.StudyManifest | None = None
+    ):
         super().__init__()
-        self.study_prefix = study_prefix
+        if manifest:
+            self.study_prefix = manifest.get_study_prefix()
+        elif study_prefix:
+            console = Console()
+            console.print(
+                "[yellow]Warning: providing study_prefix to a CountsBuilder is deprecated"
+                " and will be removed in a future version"
+            )
+            self.study_prefix = study_prefix
+        else:
+            raise errors.CountsBuilderError(
+                "CountsBuilder should be initiated with a valid manifest.toml"
+            )
 
     def get_table_name(self, table_name: str, duration=None) -> str:
         """Convenience method for constructing table name
@@ -22,11 +38,6 @@ class CountsBuilder(BaseTableBuilder):
         :param table_name: table name to add after the study prefix
         :param duration: a time period reflecting the table binning strategy
         """
-        if not self.study_prefix:
-            raise errors.CountsBuilderError(
-                "CountsBuilder must be either initiated with a study prefix, "
-                "or be in a directory with a valid manifest.toml"
-            )
         if duration:
             return f"{self.study_prefix}__{table_name}_{duration}"
         else:
@@ -64,7 +75,7 @@ class CountsBuilder(BaseTableBuilder):
         :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
         :keyword fhir_resource: The type of FHIR resource to count (see
-            statistics/statistics_templates/count_templates.CountableFhirResource)
+            builders/statistics_templates/count_templates.CountableFhirResource)
         """
         if not table_name or not source_table or not table_cols:
             raise errors.CountsBuilderError(
@@ -345,5 +356,4 @@ class CountsBuilder(BaseTableBuilder):
         This should be overridden in any count generator. See studies/core/count_core.py
         for an example
         """
-        if manifest and not self.study_prefix:
-            self.study_prefix = manifest.get_study_prefix()
+        pass

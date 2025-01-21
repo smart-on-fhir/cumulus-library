@@ -1,5 +1,5 @@
 {%- import 'syntax.sql.jinja' as syntax -%}
-INSERT INTO {{ schema_name }}.{{ table_name }}
+INSERT INTO "{{ schema_name }}"."{{ table_name }}"
 (
     {%- for col in table_cols -%}
     "{{ col }}"

@@ -61,7 +61,7 @@ def get_count_query(
             table_col_classed.append(CountColumn(name=item, db_type="varchar", alias=None))
     table_cols = table_col_classed
 
-    query = base_templates.get_base_template(
+    query = base_templates.get_template(
         "count",
         path,
         table_name=table_name,
