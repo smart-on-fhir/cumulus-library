@@ -19,6 +19,8 @@ class TableView(enum.Enum):
 
 def get_base_template(*args, **kwargs):
     """Legacy wrapper for get_template"""
+    # TODO: Isolate this as sole library entrypoint after cutting over studies to use
+    # the public get_template
     return get_template(*args, **kwargs)
 
 

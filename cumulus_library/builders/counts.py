@@ -20,7 +20,7 @@ class CountsBuilder(BaseTableBuilder):
         super().__init__()
         if manifest:
             self.study_prefix = manifest.get_study_prefix()
-        else:
+        elif study_prefix:
             console = Console()
             console.print(
                 "[yellow]Warning: providing study_prefix to a CountsBuilder is deprecated"
