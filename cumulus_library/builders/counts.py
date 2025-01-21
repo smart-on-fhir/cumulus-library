@@ -27,6 +27,10 @@ class CountsBuilder(BaseTableBuilder):
                 " and will be removed in a future version"
             )
             self.study_prefix = study_prefix
+        else:
+            raise errors.CountsBuilderError(
+                "CountsBuilder should be initiated with a valid manifest.toml"
+            )
 
     def get_table_name(self, table_name: str, duration=None) -> str:
         """Convenience method for constructing table name
@@ -34,11 +38,6 @@ class CountsBuilder(BaseTableBuilder):
         :param table_name: table name to add after the study prefix
         :param duration: a time period reflecting the table binning strategy
         """
-        if not self.study_prefix:
-            raise errors.CountsBuilderError(
-                "CountsBuilder must be either initiated with a study prefix, "
-                "or be in a directory with a valid manifest.toml"
-            )
         if duration:
             return f"{self.study_prefix}__{table_name}_{duration}"
         else:
@@ -357,5 +356,4 @@ class CountsBuilder(BaseTableBuilder):
         This should be overridden in any count generator. See studies/core/count_core.py
         for an example
         """
-        if manifest and not self.study_prefix:
-            self.study_prefix = manifest.get_study_prefix()
+        pass

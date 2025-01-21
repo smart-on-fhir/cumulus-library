@@ -1,12 +1,11 @@
 """tests for outputs of counts_builder module"""
 
-import pathlib
 from contextlib import nullcontext as does_not_raise
 from unittest import mock
 
 import pytest
 
-from cumulus_library import StudyManifest, errors
+from cumulus_library import errors
 from cumulus_library.builders import counts
 
 TEST_PREFIX = "test"
@@ -201,18 +200,8 @@ def test_count_wrappers(
 
 
 def test_null_study_prefix():
-    builder = counts.CountsBuilder()
     with pytest.raises(errors.CountsBuilderError):
-        builder.get_table_name("table")  # needs study_prefix to work
-
-
-def test_implicit_study_prefix():
-    builder = counts.CountsBuilder()
-    manifest = StudyManifest(pathlib.Path("./tests/test_data/study_python_valid"))
-
-    assert builder.study_prefix is None
-    builder.prepare_queries(manifest=manifest)
-    assert builder.study_prefix == "study_python_valid"
+        counts.CountsBuilder()
 
 
 def test_write_queries(tmp_path):
