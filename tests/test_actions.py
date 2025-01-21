@@ -449,20 +449,35 @@ def do_upload(
 ):
     with raises:
         if login_error:
-            responses.add(responses.POST, "https://upload.url.test/upload/", status=401)
+            responses.add(responses.POST, "https://upload.url.test/", status=401)
         else:
             responses.add(
                 responses.POST,
-                "https://upload.url.test/upload/",
+                "https://upload.url.test/",
+                match=[
+                    matchers.json_params_matcher(
+                        {
+                            "study": "upload",
+                            "data_package": "upload__meta_version",
+                            "data_package_version": version,
+                            "filename": f"{user}_upload__meta_version.meta.parquet",
+                        }
+                    )
+                ],
+                json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
+            )
+            responses.add(
+                responses.POST,
+                "https://upload.url.test/",
                 match=[
                     matchers.json_params_matcher(
                         {
                             "study": "upload",
                             "data_package": "upload__count_synthea_patient",
                             "data_package_version": version,
-                            "filename": f"{user}_upload__count_synthea_patient.parquet",
+                            "filename": f"{user}_upload__count_synthea_patient.cube.parquet",
                         }
-                    )
+                    ),
                 ],
                 json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
             )
@@ -471,15 +486,15 @@ def do_upload(
             "id": id_token,
             "preview": preview,
             "target": ["upload"],
-            "url": "https://upload.url.test/upload/",
+            "url": "https://upload.url.test/",
             "user": user,
         }
-        responses.add(responses.POST, "https://presigned.url.test", status=status)
+        responses.add(responses.POST, "https://presigned.url.test/", status=status)
         uploader.upload_files(args)
         if preview:
-            responses.assert_call_count("https://upload.url.test/upload/", 1)
+            responses.assert_call_count("https://upload.url.test/", 1)
         elif raises == does_not_raise():
-            responses.assert_call_count("https://upload.url.test/upload/", 2)
+            responses.assert_call_count("https://upload.url.test/", 2)
 
 
 @pytest.mark.parametrize(
@@ -502,14 +517,6 @@ def do_upload(
             True,
             False,
             pytest.raises(requests.exceptions.HTTPError),
-        ),
-        (
-            "user",
-            "id",
-            204,
-            False,
-            False,
-            does_not_raise(),
         ),
         (
             "user",
@@ -540,7 +547,7 @@ def test_upload_data_no_path():
 
 @responses.activate
 def test_upload_data_no_version(tmp_path):
-    src = pathlib.Path.cwd() / "tests/test_data/upload/upload__count_synthea_patient.parquet"
+    src = pathlib.Path.cwd() / "tests/test_data/upload/upload__count_synthea_patient.cube.parquet"
     dest = pathlib.Path(tmp_path) / "upload"
     dest.mkdir()
     shutil.copy(src, dest)

@@ -1,5 +1,6 @@
 import json
 import pathlib
+import shutil
 import tomllib
 from unittest import mock
 
@@ -16,14 +17,16 @@ from cumulus_library.builders.valueset import (
 
 @pytest.mark.parametrize("prefix", [(""), ("foo")])
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
-def test_additional_rules(mock_api, mock_db_config_rxnorm, prefix):
+def test_additional_rules(mock_api, mock_db_config_rxnorm, prefix, tmp_path):
     data_path = pathlib.Path(__file__).parent.parent / "test_data/valueset/"
-    with open(data_path / "vsac_resp.json") as f:
+    test_path = tmp_path / "valueset"
+    shutil.copytree(data_path, test_path)
+    with open(test_path / "vsac_resp.json") as f:
         resp = json.load(f)
     mock_api.return_value.get_vsac_valuesets.return_value = resp
-    manifest = study_manifest.StudyManifest(data_path)
+    manifest = study_manifest.StudyManifest(test_path)
 
-    with open(data_path / "valueset.toml", "rb") as file:
+    with open(test_path / "valueset.toml", "rb") as file:
         toml_config = tomllib.load(file)
     valueset_config = valueset_utils.ValuesetConfig(
         rules_file=toml_config.get("rules_file"),
@@ -38,7 +41,7 @@ def test_additional_rules(mock_api, mock_db_config_rxnorm, prefix):
     cursor = mock_db_config_rxnorm.db.cursor()
     query = (
         f"""CREATE TABLE umls.tty_description AS SELECT * FROM 
-read_csv('{data_path}/tty.tsv',"""
+read_csv('{test_path}/tty.tsv',"""
         """    columns ={'tty': 'VARCHAR', 'tty_str': 'varchar'},
     delim = '\t',
     header = true

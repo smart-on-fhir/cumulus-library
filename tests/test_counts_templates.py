@@ -60,7 +60,7 @@ from cumulus_library.builders.statistics_templates import counts_templates
         p."sex"
     FROM powerset AS p
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
 );""",
             {},
         ),
@@ -106,7 +106,7 @@ from cumulus_library.builders.statistics_templates import counts_templates
         p."sex"
     FROM powerset AS p
     WHERE 
-        cnt_subject_ref >= 5
+        p.cnt_subject_ref >= 5
 );""",
             {
                 "filter_resource": False,
@@ -155,6 +155,7 @@ from cumulus_library.builders.statistics_templates import counts_templates
                 COALESCE("sex",'')
             ) AS id
         FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
         GROUP BY
             cube(
             "age",

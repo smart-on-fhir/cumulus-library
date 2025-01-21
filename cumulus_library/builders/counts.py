@@ -1,8 +1,8 @@
 """Class for generating counts tables from templates"""
 
-from pathlib import Path
+import pathlib
 
-from rich.console import Console
+from rich import console
 
 from cumulus_library import BaseTableBuilder, errors, study_manifest
 from cumulus_library.builders.statistics_templates import counts_templates
@@ -21,8 +21,8 @@ class CountsBuilder(BaseTableBuilder):
         if manifest:
             self.study_prefix = manifest.get_study_prefix()
         elif study_prefix:
-            console = Console()
-            console.print(
+            c = console.Console()
+            c.print(
                 "[yellow]Warning: providing study_prefix to a CountsBuilder is deprecated"
                 " and will be removed in a future version"
             )
@@ -42,6 +42,51 @@ class CountsBuilder(BaseTableBuilder):
             return f"{self.study_prefix}__{table_name}_{duration}"
         else:
             return f"{self.study_prefix}__{table_name}"
+
+    # def coerce_table_name(self, table_name, fhir_resource: str | None) -> str:
+    #     """Attempts to make counts tables match expected format
+
+    #     The dashboard uses name inspection to create things like default names of charts.
+    #     This tries to non-destructively get a table to be named something like
+    #     'study__count_resource_[everything else]'
+    #     """
+    #     c = console.Console()
+    #     if f"__count_{fhir_resource}" in table_name:
+    #         return table_name
+    #     name_parts = table_name.split("__")[-1].split("_")
+    #     if name_parts[0] != "count":
+    #         if "count" in name_parts:
+    #             name_parts.remove("count")
+    #         name_parts.insert(0, "count")
+    #     if fhir_resource is None:
+    #         found_resources = []
+    #         unparsable_name = False
+    #         for resource in enums.ResourceTypes:
+    #             instances = name_parts.count(resource)
+    #             if instances > 1:
+    #                 unparsable_name = True
+    #             elif instances == 1:
+    #                 found_resources.append(resource)
+    #         if unparsable_name or len(found_resources) != 1:
+    #             c.print(
+    #                 f"[yellow]WARNING: '{table_name}' does not have a standard count name, "
+    #                 "and a correct form can't be determined.\n"
+    #                 "[white]Count tables should be named like 'study__count_resource_[context].\n"
+    #                 "Some dashboard features may not work with the current name."
+    #             )
+    #             return table_name
+    #         name_parts.remove(found_resources[0])
+    #         name_parts.insert(1, found_resources[0])
+    #     else:
+    #         if fhir_resource in name_parts:
+    #             name_parts.remove(fhir_resource)
+    #         name_parts.insert(1, fhir_resource)
+    #     new_name = f"{self.study_prefix}__{'_'.join(name_parts)}"
+    #     c.print(
+    #         f"Changing invalid count table name {table_name} to {new_name}. "
+    #         "Consider updating table generation to match this format."
+    #     )
+    #     return new_name
 
     def get_where_clauses(
         self, clause: list | str | None = None, min_subject: int | None = None
@@ -81,6 +126,9 @@ class CountsBuilder(BaseTableBuilder):
             raise errors.CountsBuilderError(
                 f"count_query missing required arguments. output table: {table_name}"
             )
+        ### TODO: removing this for now pending architectural discussions
+        # if not table_name.startswith(f"{self.study_prefix}__count_{kwargs.get('fhir_resource')}"):
+        #    table_name = self.coerce_table_name(table_name, kwargs.get("fhir_resource"))
         for key in kwargs:
             if key not in [
                 "min_subject",
@@ -346,7 +394,7 @@ class CountsBuilder(BaseTableBuilder):
         """
         self.prepare_queries()
         self.comment_queries()
-        self.write_queries(path=Path(filepath))
+        self.write_queries(path=pathlib.Path(filepath))
 
     def prepare_queries(
         self, *args, manifest: study_manifest.StudyManifest | None = None, **kwargs

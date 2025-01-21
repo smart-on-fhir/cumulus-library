@@ -66,6 +66,7 @@ def export_study(
         table_list = manifest.get_export_table_list()
     queries = []
     path = pathlib.Path(f"{data_path}/{manifest.get_study_prefix()}/")
+    path.mkdir(parents=True, exist_ok=True)
     for table in track(
         table_list,
         description=f"Exporting {manifest.get_study_prefix()} data...",

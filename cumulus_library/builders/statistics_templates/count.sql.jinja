@@ -150,6 +150,7 @@ CREATE TABLE {{ table_name }} AS (
                 {{-cols_coalesced_list(table_cols, fhir_resource)}}
             ) AS id
         FROM null_replacement
+        WHERE {{ tertiary }} IS NOT NULL
         GROUP BY
             cube(
                 {{-cols_delineated_list(table_cols, fhir_resource)}}
@@ -167,6 +168,7 @@ CREATE TABLE {{ table_name }} AS (
                 {{-cols_coalesced_list(table_cols, fhir_resource)}}
             ) AS id
         FROM null_replacement
+        WHERE {{ secondary }} IS NOT NULL
         GROUP BY
             cube(
                 {{-cols_delineated_list(table_cols, fhir_resource)}}
@@ -218,6 +220,13 @@ CREATE TABLE {{ table_name }} AS (
         {%- endfor -%}
     {%- else %}
     WHERE 
-        cnt_subject_ref >= {{ min_subject }}
+        p.cnt_subject_ref >= {{ min_subject }}
+    {%- if secondary %}
+        AND s.cnt_{{ secondary }} >= {{ min_subject }}
+    {%- endif %}
+    {%- if tertiary %}
+        AND t.cnt_{{ tertiary }} >= {{ min_subject }}
+    {%- endif %}
+
     {%- endif %}
 );

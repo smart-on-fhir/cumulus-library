@@ -5,14 +5,14 @@ from pathlib import Path
 
 import requests
 from pandas import read_parquet
-from rich.progress import Progress, TaskID
+from rich import console, progress
 
 from cumulus_library import base_utils
 
 
 def upload_data(
-    progress: Progress,
-    file_upload_progress: TaskID,
+    progress_bar: progress.Progress,
+    file_upload_progress: progress.TaskID,
     file_path: Path,
     version: str,
     args: dict,
@@ -20,7 +20,8 @@ def upload_data(
     """Fetches presigned url and uploads file to aggregator"""
     study = file_path.parts[-2]
     file_name = file_path.parts[-1]
-    progress.update(file_upload_progress, description=f"Uploading {study}/{file_name}")
+    c = console.Console()
+    progress_bar.update(file_upload_progress, description=f"Uploading {study}/{file_name}")
     data_package = file_name.split(".")[0]
     prefetch_res = requests.post(
         args["url"],
@@ -34,13 +35,13 @@ def upload_data(
         timeout=60,
     )
     if args["preview"]:
-        print("prefetch request")
-        print("headers", prefetch_res.request.headers)
-        print("body", prefetch_res.request.body, "\n")
-        print("response")
-        print(prefetch_res.json(), "\n")
+        c.print("prefetch request")
+        c.print("headers", prefetch_res.request.headers)
+        c.print("body", prefetch_res.request.body, "\n")
+        c.print("response")
+        c.print(prefetch_res.json(), "\n")
     if prefetch_res.status_code != 200:
-        print("Invalid user/site id")
+        c.print("Invalid user/site id")
         prefetch_res.raise_for_status()
     res_body = prefetch_res.json()
     with open(file_path, "rb") as data_file:
@@ -52,13 +53,13 @@ def upload_data(
             s = requests.Session()
             upload_res = s.send(upload_req, timeout=60)
             if upload_res.status_code != 204:
-                print(f"Error uploading {study}/{file_name}")
+                c.print(f"Error uploading {study}/{file_name}")
                 upload_res.raise_for_status()
         else:
-            print("upload_req")
-            print("headers", upload_req.headers)
-            print("body", upload_req.body, "\n")
-    progress.update(file_upload_progress, advance=1)
+            c.print("upload_req")
+            c.print("headers", upload_req.headers)
+            c.print("body", upload_req.body, "\n")
+    progress_bar.update(file_upload_progress, advance=1)
 
 
 def upload_files(args: dict):
@@ -79,13 +80,15 @@ def upload_files(args: dict):
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
     try:
-        meta_version = next(filter(lambda x: str(x).endswith("__meta_version.parquet"), file_paths))
+        meta_version = next(
+            filter(lambda x: str(x).endswith("__meta_version.meta.parquet"), file_paths)
+        )
         version = str(read_parquet(meta_version)["data_package_version"][0])
         file_paths.remove(meta_version)
     except StopIteration:
         version = "0"
     num_uploads = len(file_paths)
-    with base_utils.get_progress_bar() as progress:
-        file_upload_progress = progress.add_task("Uploading", total=num_uploads)
+    with base_utils.get_progress_bar() as progress_bar:
+        file_upload_progress = progress_bar.add_task("Uploading", total=num_uploads)
         for file_path in file_paths:
-            upload_data(progress, file_upload_progress, file_path, version, args)
+            upload_data(progress_bar, file_upload_progress, file_path, version, args)

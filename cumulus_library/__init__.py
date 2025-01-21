@@ -17,4 +17,4 @@ from cumulus_library.template_sql.base_templates import get_template
 # is all code level. See template_sql for more information.
 
 __all__ = ["BaseTableBuilder", "CountsBuilder", "StudyConfig", "StudyManifest", "get_template"]
-__version__ = "4.2.0"
+__version__ = "4.3.0"
