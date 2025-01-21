@@ -399,7 +399,7 @@ def test_import_study(tmp_path, mock_db_config):
         archive.write(tmp_path / "archive/test__table.csv")
     (tmp_path / "archive/test__table.parquet").unlink()
     (tmp_path / "archive/test__table.csv").unlink()
-    mock_db_config.schema = "schema_name"
+    mock_db_config.schema = "main"
     importer.import_archive(config=mock_db_config, archive_path=tmp_path / "archive/test.zip")
     assert len(list((tmp_path / "archive").glob("*"))) == 1
     test_table = mock_db_config.db.cursor().execute("SELECT * FROM test__table").fetchall()

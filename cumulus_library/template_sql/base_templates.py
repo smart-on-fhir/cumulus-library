@@ -17,7 +17,12 @@ class TableView(enum.Enum):
     VIEW = "VIEW"
 
 
-def get_base_template(filename_stem: str, path: pathlib.Path | None = None, **kwargs: dict) -> str:
+def get_base_template(*args, **kwargs):
+    """Legacy wrapper for get_template"""
+    return get_template(*args, **kwargs)
+
+
+def get_template(filename_stem: str, path: pathlib.Path | None = None, **kwargs: dict) -> str:
     """Abstract renderer for jinja templates
 
     You can use this renderer directly, but if you are designing a function

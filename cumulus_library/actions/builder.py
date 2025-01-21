@@ -13,7 +13,6 @@ from rich.progress import Progress, TaskID
 
 from cumulus_library import (
     BaseTableBuilder,
-    CountsBuilder,
     base_utils,
     databases,
     enums,
@@ -97,10 +96,7 @@ def _load_and_execute_builder(
     # remove it so it doesn't interfere with the next python module to
     # execute, since the subclass would otherwise hang around.
     table_builder_class = table_builder_subclasses[0]
-    if issubclass(table_builder_class, CountsBuilder):
-        table_builder = table_builder_class(study_prefix=manifest.get_study_prefix())
-    else:
-        table_builder = table_builder_class()
+    table_builder = table_builder_class(manifest=manifest)
     if write_reference_sql:
         prefix = manifest.get_study_prefix()
         table_builder.prepare_queries(config=config, manifest=manifest, parser=db_parser)

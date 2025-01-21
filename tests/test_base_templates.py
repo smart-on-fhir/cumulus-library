@@ -557,7 +557,7 @@ tblproperties ("parquet.compression"="SNAPPY");""",
             ["String", "Int"],
         ),
         (
-            """CREATE TABLE IF NOT EXISTS "local_table" AS SELECT "a", "b"
+            """CREATE TABLE IF NOT EXISTS "test_duckdb"."local_table" AS SELECT "a", "b"
 FROM read_parquet('./tests/test_data/*.parquet')""",
             "duckdb",
             "test_duckdb",
@@ -728,7 +728,7 @@ def test_extension_denormalize_creation():
 
 
 def test_insert_into_query_creation():
-    expected = """INSERT INTO test.test_table
+    expected = """INSERT INTO "test"."test_table"
 ("a","b")
 VALUES
 ('foo','foo'),
@@ -740,7 +740,7 @@ VALUES
         dataset=[["foo", "foo"], ["bar", "bar"]],
     )
     assert query == expected
-    expected = """INSERT INTO test.test_table
+    expected = """INSERT INTO "test"."test_table"
 ("a","b")
 VALUES
 ('foo',VARCHAR 'foo'),

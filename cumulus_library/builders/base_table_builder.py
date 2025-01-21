@@ -18,7 +18,7 @@ class BaseTableBuilder(abc.ABC):
 
     display_text = "Building custom tables..."
 
-    def __init__(self):
+    def __init__(self, manifest: study_manifest.StudyManifest | None = None):
         self.queries = []
 
     @abc.abstractmethod

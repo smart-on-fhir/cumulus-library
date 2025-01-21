@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from rich.console import Console
+
 from cumulus_library import BaseTableBuilder, errors, study_manifest
 from cumulus_library.builders.statistics_templates import counts_templates
 
@@ -12,9 +14,19 @@ DEFAULT_MIN_SUBJECT = 10
 class CountsBuilder(BaseTableBuilder):
     """Extends BaseTableBuilder for counts-related use cases"""
 
-    def __init__(self, study_prefix: str | None = None):
+    def __init__(
+        self, study_prefix: str | None = None, manifest: study_manifest.StudyManifest | None = None
+    ):
         super().__init__()
-        self.study_prefix = study_prefix
+        if manifest:
+            self.study_prefix = manifest.get_study_prefix()
+        else:
+            console = Console()
+            console.print(
+                "[yellow]Warning: providing study_prefix to a CountsBuilder is deprecated"
+                " and will be removed in a future version"
+            )
+            self.study_prefix = study_prefix
 
     def get_table_name(self, table_name: str, duration=None) -> str:
         """Convenience method for constructing table name
@@ -64,7 +76,7 @@ class CountsBuilder(BaseTableBuilder):
         :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
         :keyword fhir_resource: The type of FHIR resource to count (see
-            statistics/statistics_templates/count_templates.CountableFhirResource)
+            builders/statistics_templates/count_templates.CountableFhirResource)
         """
         if not table_name or not source_table or not table_cols:
             raise errors.CountsBuilderError(

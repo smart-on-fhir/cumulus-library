@@ -2,7 +2,7 @@
 {%- if db_type == 'athena' -%}
 CREATE EXTERNAL TABLE IF NOT EXISTS `{{ schema_name }}`.`{{ table_name }}` (
 {%-  elif db_type == 'duckdb' -%}
-CREATE TABLE IF NOT EXISTS "{{ table_name }}" AS SELECT  
+CREATE TABLE IF NOT EXISTS "{{schema_name}}"."{{ table_name }}" AS SELECT  
 {%- endif %}
 {%- for col in table_cols %}
     {%- if db_type == 'athena' %} {{ col }} {{ remote_table_cols_types[loop.index0] }}
