@@ -220,12 +220,12 @@ CREATE TABLE {{ table_name }} AS (
         {%- endfor -%}
     {%- else %}
     WHERE 
-        cnt_subject_ref >= {{ min_subject }}
+        p.cnt_subject_ref >= {{ min_subject }}
     {%- if secondary %}
-        AND {{ secondary }} >= {{ min_subject }}
+        AND s.cnt_{{ secondary }} >= {{ min_subject }}
     {%- endif %}
     {%- if tertiary %}
-        AND {{ tertiary }} >= {{ min_subject }}
+        AND t.cnt_{{ tertiary }} >= {{ min_subject }}
     {%- endif %}
 
     {%- endif %}
