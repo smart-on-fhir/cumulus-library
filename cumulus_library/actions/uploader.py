@@ -22,6 +22,7 @@ def upload_data(
     file_name = file_path.parts[-1]
     progress.update(file_upload_progress, description=f"Uploading {study}/{file_name}")
     data_package = file_name.split(".")[0]
+    print(args)
     prefetch_res = requests.post(
         args["url"],
         json={
