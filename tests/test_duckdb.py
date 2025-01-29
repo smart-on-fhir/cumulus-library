@@ -75,7 +75,7 @@ def test_duckdb_load_ndjson_dir(tmp_path):
     for index, (filename, valid) in enumerate(filenames.items()):
         with open(f"{tmp_path}/{filename}", "w", encoding="utf8") as f:
             row_id = f"Good{index}" if valid else f"Bad{index}"
-            f.write(f'{{"id":"{row_id}", "resourceType": "Patient"}}')
+            f.write(f'{{"id":"{row_id}", "resourceType": "Patient"}}\n')
 
     db, _ = databases.create_db_backend(
         {
