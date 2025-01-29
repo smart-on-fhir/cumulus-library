@@ -70,7 +70,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def parser(self) -> base.DatabaseParser:
         return AthenaParser()
 
-    def operational_errors(self) -> tuple[Exception]:
+    def operational_errors(self) -> tuple[type[Exception], ...]:
         return (pyathena.OperationalError,)
 
     def col_parquet_types_from_pandas(self, field_types: list) -> list:
