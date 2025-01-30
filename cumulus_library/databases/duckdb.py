@@ -14,6 +14,7 @@ import re
 import duckdb
 import pandas
 import pyarrow
+import pyarrow.dataset
 
 from cumulus_library import errors
 from cumulus_library.databases import base
@@ -90,7 +91,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             duckdb.typing.VARCHAR,
         )
 
-    def insert_tables(self, tables: dict[str, pyarrow.Table]) -> None:
+    def insert_tables(self, tables: dict[str, pyarrow.dataset.Dataset]) -> None:
         """Ingests all ndjson data from a folder tree.
 
         This is often the output folder of Cumulus ETL"""
@@ -197,7 +198,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
     def parser(self) -> base.DatabaseParser:
         return DuckDbParser()
 
-    def operational_errors(self) -> tuple[Exception]:
+    def operational_errors(self) -> tuple[type[Exception], ...]:
         return (
             duckdb.OperationalError,
             duckdb.BinderException,
