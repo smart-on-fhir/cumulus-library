@@ -33,6 +33,7 @@ class LocalTestbed:
 
         with open(table_dir / f"{index}.ndjson", "w", encoding="utf8") as f:
             json.dump(obj, f)
+            f.write("\n")
 
     # ** Now a bunch of resource-specific "add" functions.
     # They each take some kwargs that should:

@@ -146,7 +146,7 @@ class DatabaseBackend(abc.ABC):
     def parser(self) -> DatabaseParser:
         """Returns parser object for interrogating DB schemas"""
 
-    def operational_errors(self) -> tuple[Exception]:
+    def operational_errors(self) -> tuple[type[Exception], ...]:
         """Returns a tuple of operational exception classes
 
         An operational error is something that went wrong while performing a database
