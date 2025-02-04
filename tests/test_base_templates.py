@@ -22,18 +22,44 @@ def test_select_all():
     assert query == expected
 
 
-def test_codeable_concept_denormalize_all_creation():
-    expected = """CREATE TABLE target__concepts AS (
-    WITH
-
-    flattened_rows AS (
-        SELECT DISTINCT
+@pytest.mark.parametrize(
+    "db_type,flattening",
+    [
+        (
+            "athena",
+            """SELECT
             t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
+            row,
             r."code_col"
         FROM
             source AS t,
-            UNNEST(t."code_col") AS r ("code_col")
+            UNNEST(t."code_col") WITH ORDINALITY AS r ("code_col", row)""",
+        ),
+        (
+            "duckdb",
+            """WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."code_col", 1) AS row,
+                UNNEST(t."code_col") AS "code_col" -- must unnest in SELECT here
+            FROM source AS t
+        )
+        SELECT
+            id,
+            row,
+            "code_col"
+        FROM data_and_row_num""",
+        ),
+    ],
+)
+def test_codeable_concept_denormalize_all_creation(db_type, flattening):
+    db_config.db_type = db_type
+    expected = f"""CREATE TABLE target__concepts AS (
+    WITH
+
+    flattened_rows AS (
+        {flattening}
     ),
 
     system_code_col_0 AS (

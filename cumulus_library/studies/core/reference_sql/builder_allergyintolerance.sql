@@ -189,13 +189,19 @@ CREATE TABLE core__allergyintolerance_dn_reaction_manifestation AS (
     WITH
 
     flattened_rows AS (
-        SELECT DISTINCT
-            t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
-            r."manifestation"
-        FROM
-            allergyintolerance AS t,
-            UNNEST(t."reaction") AS parent (r)
+        WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."reaction", 1) AS row,
+                UNNEST(t."reaction") AS data -- must unnest in SELECT here
+            FROM allergyintolerance AS t
+        )
+        SELECT
+            id,
+            row,
+            data."manifestation"
+        FROM data_and_row_num
     ),
 
     child_flattened_rows AS (
@@ -276,13 +282,19 @@ temp_category AS (
         unnest(a.category) AS t (category)
 ),
 
-flattened_reaction AS (SELECT DISTINCT
-            t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
-            r."reaction"
-        FROM
-            allergyintolerance AS t,
-            UNNEST(t."reaction") AS r ("reaction")),
+flattened_reaction AS (WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."reaction", 1) AS row,
+                UNNEST(t."reaction") AS "reaction" -- must unnest in SELECT here
+            FROM allergyintolerance AS t
+        )
+        SELECT
+            id,
+            row,
+            "reaction"
+        FROM data_and_row_num),
 
 temp_reaction AS (
     SELECT

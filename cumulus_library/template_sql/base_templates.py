@@ -42,7 +42,8 @@ def get_template(filename_stem: str, path: pathlib.Path | None = None, **kwargs:
             macro_paths.append(path)
         loader = jinja2.FileSystemLoader(macro_paths)
         env = jinja2.Environment(loader=loader).from_string(template)  # noqa: S701
-        return env.render(**kwargs, db_type=db_config.db_type)
+        env.globals["db_type"] = db_config.db_type
+        return env.render(**kwargs)
 
 
 # All remaining functions are context-specific calls aimed at providing
