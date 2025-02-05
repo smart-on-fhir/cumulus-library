@@ -10,13 +10,19 @@ CREATE TABLE core__encounter_dn_type AS (
     WITH
 
     flattened_rows AS (
-        SELECT DISTINCT
-            t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
-            r."type"
-        FROM
-            encounter AS t,
-            UNNEST(t."type") AS r ("type")
+        WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."type", 1) AS row,
+                UNNEST(t."type") AS "type" -- must unnest in SELECT here
+            FROM encounter AS t
+        )
+        SELECT
+            id,
+            row,
+            "type"
+        FROM data_and_row_num
     ),
 
     system_type_0 AS (
@@ -317,13 +323,19 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
     WITH
 
     flattened_rows AS (
-        SELECT DISTINCT
-            t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
-            r."reasoncode"
-        FROM
-            encounter AS t,
-            UNNEST(t."reasoncode") AS r ("reasoncode")
+        WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."reasoncode", 1) AS row,
+                UNNEST(t."reasoncode") AS "reasoncode" -- must unnest in SELECT here
+            FROM encounter AS t
+        )
+        SELECT
+            id,
+            row,
+            "reasoncode"
+        FROM data_and_row_num
     ),
 
     system_reasoncode_0 AS (

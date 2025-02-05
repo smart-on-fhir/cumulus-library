@@ -49,13 +49,19 @@ CREATE TABLE core__documentreference_dn_category AS (
     WITH
 
     flattened_rows AS (
-        SELECT DISTINCT
-            t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
-            r."category"
-        FROM
-            documentreference AS t,
-            UNNEST(t."category") AS r ("category")
+        WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."category", 1) AS row,
+                UNNEST(t."category") AS "category" -- must unnest in SELECT here
+            FROM documentreference AS t
+        )
+        SELECT
+            id,
+            row,
+            "category"
+        FROM data_and_row_num
     ),
 
     system_category_0 AS (

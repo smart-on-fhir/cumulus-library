@@ -10,13 +10,19 @@ CREATE TABLE core__observation_dn_category AS (
     WITH
 
     flattened_rows AS (
-        SELECT DISTINCT
-            t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
-            r."category"
-        FROM
-            observation AS t,
-            UNNEST(t."category") AS r ("category")
+        WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."category", 1) AS row,
+                UNNEST(t."category") AS "category" -- must unnest in SELECT here
+            FROM observation AS t
+        )
+        SELECT
+            id,
+            row,
+            "category"
+        FROM data_and_row_num
     ),
 
     system_category_0 AS (
@@ -99,13 +105,19 @@ CREATE TABLE core__observation_component_code AS (
     WITH
 
     flattened_rows AS (
-        SELECT DISTINCT
-            t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
-            r."code"
-        FROM
-            observation AS t,
-            UNNEST(t."component") AS parent (r)
+        WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."component", 1) AS row,
+                UNNEST(t."component") AS data -- must unnest in SELECT here
+            FROM observation AS t
+        )
+        SELECT
+            id,
+            row,
+            data."code"
+        FROM data_and_row_num
     ),
 
     system_code_0 AS (
@@ -149,13 +161,19 @@ CREATE TABLE core__observation_component_dataabsentreason AS (
     WITH
 
     flattened_rows AS (
-        SELECT DISTINCT
-            t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
-            r."dataabsentreason"
-        FROM
-            observation AS t,
-            UNNEST(t."component") AS parent (r)
+        WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."component", 1) AS row,
+                UNNEST(t."component") AS data -- must unnest in SELECT here
+            FROM observation AS t
+        )
+        SELECT
+            id,
+            row,
+            data."dataabsentreason"
+        FROM data_and_row_num
     ),
 
     system_dataabsentreason_0 AS (
@@ -199,13 +217,19 @@ CREATE TABLE core__observation_component_interpretation AS (
     WITH
 
     flattened_rows AS (
-        SELECT DISTINCT
-            t.id AS id,
-            ROW_NUMBER() OVER (PARTITION BY id) AS row,
-            r."interpretation"
-        FROM
-            observation AS t,
-            UNNEST(t."component") AS parent (r)
+        WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."component", 1) AS row,
+                UNNEST(t."component") AS data -- must unnest in SELECT here
+            FROM observation AS t
+        )
+        SELECT
+            id,
+            row,
+            data."interpretation"
+        FROM data_and_row_num
     ),
 
     child_flattened_rows AS (
