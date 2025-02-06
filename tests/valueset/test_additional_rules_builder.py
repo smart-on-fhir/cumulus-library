@@ -181,7 +181,7 @@ read_csv('{data_path}/tty.tsv',"""
     ]:
         res = cursor.execute(
             f"Select * from {table_conf['name']} order by "
-            f"{','.join([str(x+1) for x in range(table_conf['columns'])])}"
+            f"{','.join([str(x + 1) for x in range(table_conf['columns'])])}"
         )
         data = res.fetchall()
         assert len(data) == table_conf["count"]

@@ -142,7 +142,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 "AWS KMS encryption is expected for Cumulus buckets"
             )
         kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
-        s3_key = f"{key_prefix}cumulus_user_uploads/{self.schema_name}/" f"{study}/{topic}"
+        s3_key = f"{key_prefix}cumulus_user_uploads/{self.schema_name}/{study}/{topic}"
         if not remote_filename:
             remote_filename = file.name
 

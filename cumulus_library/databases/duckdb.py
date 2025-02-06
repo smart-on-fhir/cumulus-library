@@ -191,7 +191,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
                     output.append((column[0], pyarrow.timestamp("s")))
                 case _:
                     raise errors.CumulusLibraryError(
-                        f"{column[0],column[1]} does not have a conversion type"
+                        f"{column[0], column[1]} does not have a conversion type"
                     )
         return output
 

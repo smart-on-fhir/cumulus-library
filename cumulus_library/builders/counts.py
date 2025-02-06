@@ -79,7 +79,7 @@ class CountsBuilder(BaseTableBuilder):
         """
         if not table_name or not source_table or not table_cols:
             raise errors.CountsBuilderError(
-                "count_query missing required arguments. " f"output table: {table_name}"
+                f"count_query missing required arguments. output table: {table_name}"
             )
         for key in kwargs:
             if key not in [

@@ -441,7 +441,7 @@ def main(cli_args=None):
         sys.exit(1)
 
     if args["action"] == "version":
-        print(f"cumulus-library version: {__version__}\n" "Installed studies:")
+        print(f"cumulus-library version: {__version__}\nInstalled studies:")
         studies = get_study_dict(args.get("study_dir"))
         for study in sorted(studies.keys()):
             try:

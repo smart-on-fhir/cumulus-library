@@ -80,9 +80,7 @@ class BaseTableBuilder(abc.ABC):
                     with base_utils.query_console_output(config.verbose, query, progress, task):
                         cursor.execute(query)
                 except Exception as e:  # pylint: disable=broad-exception-caught
-                    sys.exit(
-                        "An error occured executing this query:\n----\n" f"{query}\n----\n" f"{e}"
-                    )
+                    sys.exit(f"An error occurred executing this query:\n----\n{query}\n----\n{e}")
 
         self.post_execution(config, *args, **kwargs)
 

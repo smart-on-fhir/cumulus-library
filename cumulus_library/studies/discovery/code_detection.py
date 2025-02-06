@@ -49,7 +49,7 @@ class CodeDetectionBuilder(cumulus_library.BaseTableBuilder):
         for code_definition in code_definitions.code_list:
             if not required_keys.issubset(code_definition):
                 raise KeyError(
-                    "Expected table_name and column_hierarchy keys in " f"{code_definition!s}"
+                    f"Expected table_name and column_hierarchy keys in {code_definition!s}"
                 )
             code_source = {
                 "has_data": False,
