@@ -5,6 +5,7 @@ from collections.abc import Iterable
 import cumulus_fhir_support
 import pyarrow
 import pyarrow.dataset
+import pyarrow.json
 
 from cumulus_library import base_utils, db_config, errors
 from cumulus_library.databases import athena, base, duckdb
@@ -26,6 +27,16 @@ def _list_files_for_resource(path: pathlib.Path, resource: str) -> list[str]:
 def _rows_from_files(files: list[str]) -> Iterable[dict]:
     for file in files:
         yield from cumulus_fhir_support.read_multiline_json(file)
+
+
+def _json_format():
+    """Returns a Dataset format object suitable for reading FHIR NDJSON."""
+    # FHIR can have very long JSON lines (think DocRefs with inlined notes). And unfortunately,
+    # the way PyArrow's JSON parser works is that each entire line must fit inside a single read
+    # block, or an exception is raised. I've seen 13MB JSON lines in the wild, at least.
+    # So let's be generous here and allow 50MB lines. And cross our fingers that it's enough.
+    read_options = pyarrow.json.ReadOptions(block_size=50 * 2**20)
+    return pyarrow.dataset.JsonFileFormat(read_options=read_options)
 
 
 def _load_custom_etl_table(path: str) -> pyarrow.dataset.Dataset | None:
@@ -53,7 +64,7 @@ def _load_custom_etl_table(path: str) -> pyarrow.dataset.Dataset | None:
 
     # Now let PyArrow load the rest of the data from disk on demand, rather than loading it all
     # into memory, but using the detected schema rather than inferring it with timestamps.
-    return pyarrow.dataset.dataset(files, schema=schema, format="json")
+    return pyarrow.dataset.dataset(files, schema=schema, format=_json_format())
 
 
 def read_ndjson_dir(path: str) -> dict[str, pyarrow.dataset.Dataset]:
@@ -89,7 +100,9 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.dataset.Dataset]:
         # Make a pyarrow table with full schema from the data
         schema = cumulus_fhir_support.pyarrow_schema_from_rows(resource, _rows_from_files(files))
         # Use a PyArrow Dataset (vs a Table) to avoid loading all the files in memory.
-        all_tables[table_name] = pyarrow.dataset.dataset(files, schema=schema, format="json")
+        all_tables[table_name] = pyarrow.dataset.dataset(
+            files, schema=schema, format=_json_format()
+        )
 
     # And now some special support for a few ETL tables.
     metadata_tables = [
