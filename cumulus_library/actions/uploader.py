@@ -64,9 +64,7 @@ def upload_data(
 def upload_files(args: dict):
     """Wrapper to prep files & console output"""
     if args["data_path"] is None:
-        sys.exit(
-            "No data directory provided - please provide a path to your" "study export folder."
-        )
+        sys.exit("No data directory provided - please provide a path to your study export folder.")
     file_paths = list(args["data_path"].glob("**/*.parquet"))
     if args["target"]:
         filtered_paths = []

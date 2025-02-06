@@ -319,8 +319,7 @@ def is_field_populated(
             source_field.append(element[0])
         else:
             raise ValueError(
-                "sql_utils.is_field_populated: Unexpected type "
-                f"{element[1]} for field {element[0]}"
+                f"sql_utils.is_field_populated: Unexpected type {element[1]} for field {element[0]}"
             )
     query = base_templates.get_is_table_not_empty_query(
         source_table=source_table, field=".".join(source_field), unnests=unnests

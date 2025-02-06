@@ -336,7 +336,7 @@ class PsmBuilder(BaseTableBuilder):
             )
         except ValueError:
             sys.exit(
-                "Encountered a value error during KNN matching. Try increasing " "your sample size."
+                "Encountered a value error during KNN matching. Try increasing your sample size."
             )
 
     def prepare_queries(self, config: base_utils.StudyConfig, *args, table_suffix: str, **kwargs):

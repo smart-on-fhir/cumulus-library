@@ -175,7 +175,7 @@ class UmlsApi:
                     progress.update(
                         task,
                         description=(
-                            f"Downloading {file_meta['fileName']}: " f"{chunks_read/1000} MB"
+                            f"Downloading {file_meta['fileName']}: {chunks_read / 1000} MB"
                         ),
                     )
         if unzip:

@@ -450,7 +450,7 @@ def _query_error(
     exit_message: str,
 ) -> None:
     print(
-        "An error occured executing the following query in ",
+        "An error occurred executing the following query in ",
         f"{query_and_filename[1]}:",
         file=sys.stderr,
     )

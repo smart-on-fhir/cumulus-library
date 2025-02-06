@@ -185,7 +185,7 @@ def test_core_observation_component(tmp_path):
     ] == rows
 
     df = con.sql(
-        "SELECT * FROM core__observation_component_dataabsentreason " "ORDER BY id, row, code"
+        "SELECT * FROM core__observation_component_dataabsentreason ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [
@@ -216,7 +216,7 @@ def test_core_observation_component(tmp_path):
     ] == rows
 
     df = con.sql(
-        "SELECT * FROM core__observation_component_interpretation " "ORDER BY id, row, code"
+        "SELECT * FROM core__observation_component_interpretation ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [
@@ -263,7 +263,7 @@ def test_core_observation_component(tmp_path):
     ] == rows
 
     df = con.sql(
-        "SELECT * FROM core__observation_component_valuecodeableconcept " "ORDER BY id, row, code"
+        "SELECT * FROM core__observation_component_valuecodeableconcept ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [
@@ -286,7 +286,7 @@ def test_core_observation_component(tmp_path):
     ] == rows
 
     df = con.sql(
-        "SELECT * FROM core__observation_component_valuequantity " "ORDER BY id, row, code"
+        "SELECT * FROM core__observation_component_valuequantity ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [

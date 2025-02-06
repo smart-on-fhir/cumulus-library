@@ -47,7 +47,7 @@ def get_sorted_table_data(cursor, table):
     if num_cols == 0:
         return [], []
     data = cursor.execute(
-        f"SELECT * FROM '{table}' ORDER BY " f"{','.join(map(str, range(1,num_cols+1)))}"
+        f"SELECT * FROM '{table}' ORDER BY {','.join(map(str, range(1, num_cols + 1)))}"
     ).fetchall()
     return data, cursor.description
 
@@ -158,8 +158,7 @@ def ndjson_data_generator(source_dir: pathlib.Path, target_dir: pathlib.Path, it
 
 def debug_table_schema(cursor, table):
     table_schema = cursor.execute(
-        "select column_name, data_type from information_schema.columns "
-        f"where table_name='{table}'"
+        f"select column_name, data_type from information_schema.columns where table_name='{table}'"
     ).fetchall()
     for line in table_schema:
         print(line)

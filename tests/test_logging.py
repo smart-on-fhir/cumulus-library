@@ -160,7 +160,7 @@ def test_migrate_transactions_athena(mock_pyathena):
         status="debug",
         message="message",
     )
-    expected = "ALTER TABLE test.study_valid__lib_transactions" " ADD COLUMNS(message string)"
+    expected = "ALTER TABLE test.study_valid__lib_transactions ADD COLUMNS(message string)"
     call_args = mock_pyathena.return_value.cursor.return_value.execute.call_args_list
     assert expected == call_args[2][0][0]
 
