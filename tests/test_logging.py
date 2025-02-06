@@ -3,6 +3,7 @@ from contextlib import nullcontext as does_not_raise
 from datetime import datetime
 from unittest import mock
 
+import duckdb
 import pyathena
 import pytest
 from freezegun import freeze_time
@@ -163,6 +164,19 @@ def test_migrate_transactions_athena(mock_pyathena):
     expected = "ALTER TABLE test.study_valid__lib_transactions ADD COLUMNS(message string)"
     call_args = mock_pyathena.return_value.cursor.return_value.execute.call_args_list
     assert expected == call_args[2][0][0]
+
+
+def test_statistics_failure_gets_raised(mock_db_config):
+    mock_db_config.db.cursor = mock.MagicMock()
+    mock_db_config.db.cursor.return_value.execute.side_effect = duckdb.OperationalError
+    with pytest.raises(duckdb.OperationalError):
+        log_utils.log_statistics(
+            config=mock_db_config,
+            manifest=study_manifest.StudyManifest(),
+            table_type="test1",
+            table_name="test2",
+            view_name="test3",
+        )
 
 
 @freeze_time("2024-01-01")

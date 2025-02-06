@@ -132,3 +132,50 @@ def test_psm_error_handling(mock_psm, error, tmp_path, mock_db_stats_config):
             drop_table=True,
             table_suffix=safe_timestamp,
         )
+
+
+def test_psm_missing_file(tmp_path):
+    with pytest.raises(SystemExit, match="PSM configuration not found"):
+        psm_builder.PsmBuilder(f"{tmp_path}/does-not-exist.toml", pathlib.Path(tmp_path))
+
+
+def test_psm_missing_keys(tmp_path):
+    toml_file = pathlib.Path(f"{tmp_path}/empty.toml")
+    toml_file.touch()
+    with pytest.raises(SystemExit, match="contains missing/invalid keys"):
+        psm_builder.PsmBuilder(str(toml_file), pathlib.Path(tmp_path))
+
+
+def test_psm_bad_include_cols(tmp_path, mock_db_stats_config):
+    """Provide too many include_cols"""
+    psm_root = f"{pathlib.Path(__file__).parent}/test_data/psm/"
+    with open(f"{tmp_path}/psm.toml", "w", encoding="utf8") as f:
+        f.write(f"""config_type = "psm"
+classification_json = "{psm_root}/dsm5_classifications.json"
+pos_source_table = "psm_test__psm_cohort"
+neg_source_table = "core__condition"
+target_table = "psm_test__psm_encounter_covariate"
+primary_ref = 'encounter_ref'
+dependent_variable = "example_diagnosis"
+pos_sample_size = 20
+neg_sample_size = 100
+[join_cols_by_table.core__encounter]
+join_id = "encounter_ref"
+included_cols = [
+    ["race_display", "race", "age_at_visit"],  # too many columns
+]
+""")
+    builder = cli.StudyRunner(mock_db_stats_config, data_path=tmp_path)
+    manifest = study_manifest.StudyManifest(study_path=psm_root)
+    psmbuilder = psm_builder.PsmBuilder(f"{tmp_path}/psm.toml", tmp_path)
+    builder.config.db.cursor().execute(
+        "create table psm_test__psm_cohort as (select * from core__condition "
+        f"ORDER BY {psmbuilder.config.primary_ref} limit 100)"
+    )
+    with pytest.raises(SystemExit, match="unexpected SQL column definition"):
+        psmbuilder.execute_queries(
+            builder.config,
+            manifest,
+            drop_table=True,
+            table_suffix="test",
+        )

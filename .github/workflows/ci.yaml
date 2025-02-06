@@ -45,11 +45,11 @@ jobs:
           coverage report -m --skip-covered
       - name: Generate coverage report
         if: github.ref != 'refs/heads/main'
-        uses: orgoro/coverage@v3.1
+        uses: orgoro/coverage@v3.2
         with:
             coverageFile: coverage.xml
             token: ${{ secrets.GITHUB_TOKEN }}
-            thresholdAll: .9
+            thresholdAll: 1
             thresholdNew: 1
             thresholdModified: 1
 

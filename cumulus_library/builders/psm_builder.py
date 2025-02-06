@@ -67,8 +67,9 @@ class PsmBuilder(BaseTableBuilder):
         except OSError:
             sys.exit(f"PSM configuration not found at {self.toml_path}")
         try:
+            toml_dir = pathlib.Path(self.toml_path).parent
             self.config = PsmConfig(
-                classification_json=f"{pathlib.Path(self.toml_path).parent}/{toml_config['classification_json']}",
+                classification_json=str(toml_dir.joinpath(toml_config["classification_json"])),
                 pos_source_table=toml_config["pos_source_table"],
                 neg_source_table=toml_config["neg_source_table"],
                 target_table=toml_config["target_table"],
@@ -256,15 +257,15 @@ class PsmBuilder(BaseTableBuilder):
     def generate_psm_analysis(
         self, cursor: databases.DatabaseCursor, schema: str, table_suffix: str
     ):
-        stats_table = f"{self.config.target_table}_{table_suffix}"
         """Runs PSM statistics on generated tables"""
+        stats_table = f"{self.config.target_table}_{table_suffix}"
         cursor.execute(base_templates.get_alias_table_query(stats_table, self.config.target_table))
         df = cursor.execute(
             base_templates.get_select_all_query(self.config.target_table)
         ).as_pandas()
         symptoms_dict = self._get_symptoms_dict(self.config.classification_json)
         for dependent_variable, codes in symptoms_dict.items():
-            df[dependent_variable] = df["code"].apply(lambda x, codes=codes: 1 if x in codes else 0)
+            df[dependent_variable] = df["code"].apply(lambda x: 1 if x in codes else 0)
         df = df.drop(columns="code")
         # instance_count present but unused for PSM if table contains a count_ref input
         # (it's intended for manual review)
