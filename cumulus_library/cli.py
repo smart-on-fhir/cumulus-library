@@ -441,7 +441,7 @@ def main(cli_args=None):
         sys.exit(1)
 
     if args["action"] == "version":
-        table = rich.table.Table(title=f"cumulus library version: {__version__}")
+        table = rich.table.Table(title=f"cumulus-library version: {__version__}")
         table.add_column("Study Name", style="green")
         table.add_column("Version", style="blue")
         studies = get_study_dict(args.get("study_dir"))
