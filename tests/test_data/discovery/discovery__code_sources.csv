@@ -15,7 +15,7 @@ allergyintolerance,code,84489001,Mold (organism),http://snomed.info/sct
 allergyintolerance,reaction.exposureroute,,,
 allergyintolerance,reaction.manifestation,,,
 allergyintolerance,reaction.substance,,,
-allergyintolerance,verificationtstatus,,,
+allergyintolerance,verificationstatus,confirmed,,http://terminology.hl7.org/CodeSystem/allergyintolerance-verification
 condition,category,encounter-diagnosis,Encounter Diagnosis,http://terminology.hl7.org/CodeSystem/condition-category
 condition,code,10509002,Acute bronchitis (disorder),http://snomed.info/sct
 condition,code,160903007,Full-time employment (finding),http://snomed.info/sct
