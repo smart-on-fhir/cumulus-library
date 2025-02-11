@@ -16,21 +16,18 @@ SELECT DISTINCT
 FROM allergyintolerance,
 UNNEST(clinicalstatus.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
-SELECT *
-FROM (
-    VALUES (
-        'allergyintolerance',
-        'verificationtstatus',
-        '',
-        '',
-        ''
-    )
-)
-    AS t (table_name, column_name, code, display, system)
+SELECT DISTINCT
+    'allergyintolerance' AS table_name,
+    'verificationstatus' AS column_name,
+    table_1.col_1.code,
+    table_1.col_1.display,
+    table_1.col_1.system
+FROM allergyintolerance,
+UNNEST(verificationstatus.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'allergyintolerance' AS table_name,
@@ -41,7 +38,7 @@ SELECT DISTINCT
 FROM allergyintolerance,
 UNNEST(code.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -55,7 +52,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -69,7 +66,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -83,7 +80,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'condition' AS table_name,
@@ -95,7 +92,7 @@ FROM condition,
 UNNEST(category) AS table_1 (col_1),
 UNNEST(col_1.coding) as table_2 (col_2)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'condition' AS table_name,
@@ -106,7 +103,7 @@ SELECT DISTINCT
 FROM condition,
 UNNEST(code.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'diagnosticreport' AS table_name,
@@ -118,7 +115,7 @@ FROM diagnosticreport,
 UNNEST(category) AS table_1 (col_1),
 UNNEST(col_1.coding) as table_2 (col_2)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'diagnosticreport' AS table_name,
@@ -129,7 +126,7 @@ SELECT DISTINCT
 FROM diagnosticreport,
 UNNEST(code.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -143,7 +140,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'documentreference' AS table_name,
@@ -154,7 +151,7 @@ SELECT DISTINCT
 FROM documentreference,
 UNNEST(type.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'documentreference' AS table_name,
@@ -166,7 +163,7 @@ FROM documentreference,
 UNNEST(category) AS table_1 (col_1),
 UNNEST(col_1.coding) as table_2 (col_2)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'encounter' AS table_name,
@@ -176,7 +173,7 @@ SELECT DISTINCT
     class.system
 FROM encounter
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'encounter' AS table_name,
@@ -188,7 +185,7 @@ FROM encounter,
 UNNEST(type) AS table_1 (col_1),
 UNNEST(col_1.coding) as table_2 (col_2)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -202,7 +199,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -216,7 +213,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'encounter' AS table_name,
@@ -228,7 +225,7 @@ FROM encounter,
 UNNEST(reasoncode) AS table_1 (col_1),
 UNNEST(col_1.coding) as table_2 (col_2)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'encounter' AS table_name,
@@ -239,7 +236,7 @@ SELECT DISTINCT
 FROM encounter,
 UNNEST(hospitalization.dischargedisposition.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -253,7 +250,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -267,7 +264,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'medicationrequest' AS table_name,
@@ -278,7 +275,7 @@ SELECT DISTINCT
 FROM medicationrequest,
 UNNEST(medicationcodeableconcept.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'observation' AS table_name,
@@ -290,7 +287,7 @@ FROM observation,
 UNNEST(category) AS table_1 (col_1),
 UNNEST(col_1.coding) as table_2 (col_2)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'observation' AS table_name,
@@ -301,7 +298,7 @@ SELECT DISTINCT
 FROM observation,
 UNNEST(code.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -315,7 +312,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'observation' AS table_name,
@@ -326,7 +323,7 @@ SELECT DISTINCT
 FROM observation,
 UNNEST(valuecodeableconcept.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -340,7 +337,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'patient' AS table_name,
@@ -351,7 +348,7 @@ SELECT DISTINCT
 FROM patient,
 UNNEST(maritalstatus.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -365,7 +362,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -379,7 +376,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'procedure' AS table_name,
@@ -390,7 +387,7 @@ SELECT DISTINCT
 FROM procedure,
 UNNEST(code.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -404,7 +401,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -418,7 +415,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -432,7 +429,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -446,7 +443,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -460,7 +457,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -474,7 +471,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
@@ -488,7 +485,7 @@ FROM (
 )
     AS t (table_name, column_name, code, display, system)
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (
