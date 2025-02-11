@@ -1,6 +1,7 @@
 import sys
 
-from rich.progress import Progress, TaskID
+import rich
+from rich import progress
 
 from cumulus_library import base_utils, databases, enums, errors, study_manifest
 from cumulus_library.template_sql import base_templates
@@ -10,8 +11,8 @@ def _execute_drop_queries(
     cursor: databases.DatabaseCursor,
     verbose: bool,
     view_table_list: list,
-    progress: Progress,
-    task: TaskID,
+    progress: progress.Progress,
+    task: progress.TaskID,
 ) -> None:
     """Handler for executing drop view/table queries and displaying console output.
 
@@ -138,9 +139,9 @@ def clean_study(
         ):
             view_table_list.remove(view_table)
     if prefix:
-        print("The following views/tables were selected by prefix:")
+        rich.print("The following views/tables were selected by prefix:")
         for view_table in view_table_list:
-            print(f"  {view_table[0]}")
+            rich.print(f"  {view_table[0]}")
         confirm = input("Remove these tables? (y/N)")
         if confirm.lower() not in ("y", "yes"):
             sys.exit("Table cleaning aborted")

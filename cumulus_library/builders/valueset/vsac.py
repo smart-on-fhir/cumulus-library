@@ -3,6 +3,7 @@ import json
 import pathlib
 
 import pandas
+import rich
 
 from cumulus_library import base_utils
 from cumulus_library.apis import umls
@@ -32,9 +33,9 @@ def download_oid_data(
         path = pathlib.Path(__file__).parent.parent / "data"  # pragma: no cover
     path.mkdir(exist_ok=True, parents=True)
     if not (force_upload) and (path / f"{steward}.parquet").exists():
-        print(f"{steward} data present at {path}, skipping download.")
+        rich.print(f"{steward} data present at {path}, skipping download.")
         return False
-    print(f"Downloading {steward} to {path}")
+    rich.print(f"Downloading {steward} to {path}")
     api = umls.UmlsApi(api_key=api_key or api_key)
     output = []
 

@@ -4,15 +4,15 @@ import sys
 from pathlib import Path
 
 import requests
+import rich
 from pandas import read_parquet
-from rich import console, progress
 
 from cumulus_library import base_utils
 
 
 def upload_data(
-    progress_bar: progress.Progress,
-    file_upload_progress: progress.TaskID,
+    progress_bar: rich.progress.Progress,
+    file_upload_progress: rich.progress.TaskID,
     file_path: Path,
     version: str,
     args: dict,
@@ -20,7 +20,7 @@ def upload_data(
     """Fetches presigned url and uploads file to aggregator"""
     study = file_path.parts[-2]
     file_name = file_path.parts[-1]
-    c = console.Console()
+    c = rich.get_console()
     progress_bar.update(file_upload_progress, description=f"Uploading {study}/{file_name}")
     data_package = file_name.split(".")[0]
     prefetch_res = requests.post(

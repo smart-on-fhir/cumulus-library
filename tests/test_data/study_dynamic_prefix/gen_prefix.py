@@ -1,7 +1,9 @@
 import argparse
 
+import rich
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--prefix", default="dynamic")
 args, _rest = parser.parse_known_args()
 
-print(args.prefix)
+rich.print(args.prefix)

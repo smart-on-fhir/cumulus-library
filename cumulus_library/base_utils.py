@@ -7,6 +7,7 @@ import shutil
 import zipfile
 from contextlib import contextmanager
 
+import rich
 from rich import progress
 
 from cumulus_library import databases, study_manifest
@@ -80,8 +81,8 @@ def query_console_output(
 ):
     """Convenience context manager for handling console output"""
     if verbose:
-        print()
-        print(query)
+        rich.print()
+        rich.print(query)
     yield
     if not verbose:
         progress_bar.advance(task)
