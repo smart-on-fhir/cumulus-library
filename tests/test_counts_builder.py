@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 
-from cumulus_library import errors
+from cumulus_library import errors, study_manifest
 from cumulus_library.builders import counts
 
 TEST_PREFIX = "test"
@@ -62,12 +62,37 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
         assert output == expected
 
 
+# @pytest.mark.parametrize(
+#     "table_name,fhir_resource,new_name,warns",
+#     [
+#         ("count_encounter_table", None, "test__count_encounter_table", False),
+#         ("count_encounter_table", "encounter", "test__count_encounter_table", False),
+#         ("count_encounter_table", "condition", "test__count_encounter_table", True),
+#         ("table", "encounter", "test__count_encounter_table", True),
+#         ("table_count_encounter", None, "test__count_encounter_table", True),
+#     ],
+# )
+# @mock.patch("rich.console.Console")
+# def test_coerce_name(mock_console, table_name, fhir_resource, new_name, warns):
+#     builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
+#     name = builder.coerce_table_name(table_name, fhir_resource)
+#     assert name == new_name
+#     for thing in mock_console.mock_calls:
+#         print(thing)
+#         print(type(thing))
+#     print("------")
+#     for thing in mock_console.print().mock_calls:
+#         print(thing)
+#         print(type(thing))
+#     assert mock_console.print.called == warns
+
+
 @pytest.mark.parametrize(
     "table_name,source_table,table_cols,kwargs,raises",
     [
-        ("table", "source", ["a", "b"], {}, does_not_raise()),
+        ("count_encounter_table", "source", ["a", "b"], {}, does_not_raise()),
         (
-            "table",
+            "count_encounter_table",
             "source",
             ["a", "b"],
             {
@@ -78,7 +103,7 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
             does_not_raise(),
         ),
         (
-            "table",
+            "count_encounter_table",
             "source",
             ["a", "b"],
             {"bad_key": True},
@@ -92,20 +117,22 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
             pytest.raises(errors.CountsBuilderError),
         ),
         (
-            "table",
+            "count_encounter_table",
             None,
             ["a", "b"],
             {},
             pytest.raises(errors.CountsBuilderError),
         ),
-        ("table", "source", [], {}, pytest.raises(errors.CountsBuilderError)),
-        ("table", "source", None, {}, pytest.raises(errors.CountsBuilderError)),
+        ("count_encounter_table", "source", [], {}, pytest.raises(errors.CountsBuilderError)),
+        ("count_encounter_table", "source", None, {}, pytest.raises(errors.CountsBuilderError)),
     ],
 )
 @mock.patch("cumulus_library.builders.statistics_templates.counts_templates.get_count_query")
 def test_get_count_query(mock_count, table_name, source_table, table_cols, kwargs, raises):
     with raises:
-        builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
+        manifest = study_manifest.StudyManifest()
+        manifest._study_prefix = TEST_PREFIX
+        builder = counts.CountsBuilder(manifest=manifest)
         builder.get_count_query(table_name, source_table, table_cols, **kwargs)
         assert mock_count.called
         call_args, call_kwargs = mock_count.call_args
@@ -116,10 +143,18 @@ def test_get_count_query(mock_count, table_name, source_table, table_cols, kwarg
 @pytest.mark.parametrize(
     "table_name,source_table,table_cols,where,min_subject,method,fhir_resource",
     [
-        ("table", "source", ["a", "b"], None, None, "count_condition", "condition"),
-        ("table", "source", ["a", "b"], "a = True", 5, "count_condition", "condition"),
+        ("count_condition_table", "source", ["a", "b"], None, None, "count_condition", "condition"),
         (
-            "table",
+            "count_condition_table",
+            "source",
+            ["a", "b"],
+            "a = True",
+            5,
+            "count_condition",
+            "condition",
+        ),
+        (
+            "count_documentreference_table",
             "source",
             ["a", "b"],
             None,
@@ -128,7 +163,7 @@ def test_get_count_query(mock_count, table_name, source_table, table_cols, kwarg
             "documentreference",
         ),
         (
-            "table",
+            "count_documentreference_table",
             "source",
             ["a", "b"],
             "a = True",
@@ -136,10 +171,18 @@ def test_get_count_query(mock_count, table_name, source_table, table_cols, kwarg
             "count_documentreference",
             "documentreference",
         ),
-        ("table", "source", ["a", "b"], None, None, "count_encounter", "encounter"),
-        ("table", "source", ["a", "b"], "a = True", 5, "count_encounter", "encounter"),
+        ("count_encounter_table", "source", ["a", "b"], None, None, "count_encounter", "encounter"),
         (
-            "table",
+            "count_encounter_table",
+            "source",
+            ["a", "b"],
+            "a = True",
+            5,
+            "count_encounter",
+            "encounter",
+        ),
+        (
+            "count_medicationrequest_table",
             "source",
             ["a", "b"],
             None,
@@ -148,7 +191,7 @@ def test_get_count_query(mock_count, table_name, source_table, table_cols, kwarg
             "medicationrequest",
         ),
         (
-            "table",
+            "count_medicationrequest_table",
             "source",
             ["a", "b"],
             "a = True",
@@ -156,11 +199,19 @@ def test_get_count_query(mock_count, table_name, source_table, table_cols, kwarg
             "count_medicationrequest",
             "medicationrequest",
         ),
-        ("table", "source", ["a", "b"], None, None, "count_patient", "patient"),
-        ("table", "source", ["a", "b"], "a = True", 5, "count_patient", "patient"),
-        ("table", "source", ["a", "b"], None, None, "count_observation", "observation"),
+        ("count_patient_table", "source", ["a", "b"], None, None, "count_patient", "patient"),
+        ("count_patient_table", "source", ["a", "b"], "a = True", 5, "count_patient", "patient"),
         (
-            "table",
+            "count_observation_table",
+            "source",
+            ["a", "b"],
+            None,
+            None,
+            "count_observation",
+            "observation",
+        ),
+        (
+            "count_observation_table",
             "source",
             ["a", "b"],
             "a = True",
@@ -186,7 +237,9 @@ def test_count_wrappers(
         kwargs["where_clauses"] = where
     if min_subject is not None:
         kwargs["min_subject"] = min_subject
-    builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
+    manifest = study_manifest.StudyManifest()
+    manifest._study_prefix = TEST_PREFIX
+    builder = counts.CountsBuilder(manifest=manifest)
     wrapper = getattr(builder, method)
     wrapper(table_name, source_table, table_cols, **kwargs)
     assert mock_count.called

@@ -151,7 +151,7 @@ following order of preference is used to select credentials:
   - explicit command line arguments
   - cumulus environment variables (see docs for more info)
   - Normal boto profile order (AWS env vars, ~/.aws/credentials, ~/.aws/config)""",
-        epilog="See 'cumulus-library -h [action]' for usage of a specific action",
+        epilog="See 'cumulus-library [action] -h' for usage of a specific action",
     )
 
     actions = parser.add_subparsers(
@@ -272,7 +272,7 @@ following order of preference is used to select credentials:
             "Upload URL. Default is value of CUMULUS_AGGREGATOR_URL if present, "
             "or smart cumulus instance"
         ),
-        default="https://aggregator.smartcumulus.org/upload/",
+        default="https://aggregator.smartcumulus.org/",
     )
     upload.add_argument("--user", help="Cumulus user. Default is value of CUMULUS_AGGREGATOR_USER")
 
