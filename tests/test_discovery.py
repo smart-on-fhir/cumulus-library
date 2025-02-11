@@ -80,7 +80,7 @@ FROM arrays,
 UNNEST(acol) AS table_1 (col_1),
 UNNEST(col_1.coding) as table_2 (col_2)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'dictarray' AS table_name,
@@ -91,7 +91,7 @@ SELECT DISTINCT
 FROM dictarray,
 UNNEST(col.coding) AS table_1 (col_1)
 
-UNION
+UNION ALL
 
 SELECT DISTINCT
     'bare' AS table_name,
@@ -101,7 +101,7 @@ SELECT DISTINCT
     bcol.coding.system
 FROM bare
 
-UNION
+UNION ALL
 
 SELECT *
 FROM (

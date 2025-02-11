@@ -48,5 +48,5 @@ FROM (
     AS t (table_name, column_name, code, display, system)
 {%- endif %}
 
-{{ syntax.union_delineate(loop) }}
+{{ syntax.union_all_delineate(loop) }}
 {% endfor %}

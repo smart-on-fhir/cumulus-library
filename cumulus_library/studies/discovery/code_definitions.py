@@ -10,7 +10,7 @@ code_list = [
     },
     {
         "table_name": "allergyintolerance",
-        "column_hierarchy": [("verificationtstatus", dict), ("coding", list)],
+        "column_hierarchy": [("verificationstatus", dict), ("coding", list)],
     },
     {
         "table_name": "allergyintolerance",
