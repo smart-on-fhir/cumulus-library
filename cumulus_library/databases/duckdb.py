@@ -129,7 +129,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         """See the create_function() call for to_utf8 for more background"""
         # This is exercised locally on unit tests but is not in CI. Not sure why,
         # and not sure it's worth debugging
-        return value
+        return value  # pragma: no cover
 
     @staticmethod
     def _compat_from_iso8601_timestamp(

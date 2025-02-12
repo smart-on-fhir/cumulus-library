@@ -2,7 +2,7 @@
 
 import pathlib
 
-from rich import console
+import rich
 
 from cumulus_library import BaseTableBuilder, errors, study_manifest
 from cumulus_library.builders.statistics_templates import counts_templates
@@ -21,7 +21,7 @@ class CountsBuilder(BaseTableBuilder):
         if manifest:
             self.study_prefix = manifest.get_study_prefix()
         elif study_prefix:
-            c = console.Console()
+            c = rich.get_console()
             c.print(
                 "[yellow]Warning: providing study_prefix to a CountsBuilder is deprecated"
                 " and will be removed in a future version"
@@ -50,7 +50,7 @@ class CountsBuilder(BaseTableBuilder):
     #     This tries to non-destructively get a table to be named something like
     #     'study__count_resource_[everything else]'
     #     """
-    #     c = console.Console()
+    #     c = rich.get_console()
     #     if f"__count_{fhir_resource}" in table_name:
     #         return table_name
     #     name_parts = table_name.split("__")[-1].split("_")

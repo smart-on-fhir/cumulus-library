@@ -46,7 +46,6 @@ def import_archive(config: base_utils.StudyConfig, *, archive_path: pathlib.Path
     """
 
     # Ensure we've got something that looks like a valid database export
-    print(archive_path)
     if not archive_path.exists():
         raise errors.StudyImportError(f"File {archive_path} not found.")
     try:

@@ -4,6 +4,17 @@ This document is intended for users contributing/maintaining this repository.
 It is not comprehensive, but aims to capture items relevant to architecture
 that are not covered in another document.
 
+## Writing to the console
+
+Since the person writing this paragraph is **extremely** guilty of inserting print debug
+statements and then missing them during cleanup, we are using the following rules 
+for writing console output:
+
+- When developing CLI UI, use one of two approaches: either use `rich.print()` for
+basic output, or `rich.get_console()` if you want access to styling features
+- When debugging, use the stdlib `print()` function, which ruff will flag as part of
+the precommit hook. 
+
 ## Intended usage and database schemas
 
 Since these terms are used somewhat haphazardly in different database implementations, 
@@ -71,15 +82,16 @@ You should print your desired prefix to stdout.
 Example:
 ```python
 import argparse
+import rich
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--study")
 args, _rest = parser.parse_known_args()
 
 if args.study:
-  print(f"data_metrics_{args.study}")
+  rich.print(f"data_metrics_{args.study}")
 else:
-  print("data_metrics")
+  rich.print("data_metrics")
 ```
 
 #### Usage

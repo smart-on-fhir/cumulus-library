@@ -10,7 +10,7 @@ from unittest import mock
 import numpy
 import pandas
 import pytest
-from rich import console, table
+import rich
 
 from cumulus_library import base_utils, cli
 from cumulus_library.databases import create_db_backend
@@ -161,7 +161,7 @@ def debug_table_schema(cursor, table):
         f"select column_name, data_type from information_schema.columns where table_name='{table}'"
     ).fetchall()
     for line in table_schema:
-        print(line)
+        rich.print(line)
 
 
 def debug_table_head(cursor, table, rows=3, cols="*"):
@@ -172,8 +172,8 @@ def debug_table_head(cursor, table, rows=3, cols="*"):
     for field in cursor.description:
         col_names.append(field[0])
     for line in table_schema:
-        print(line)
-    print()
+        rich.print(line)
+    rich.print()
 
 
 def debug_diff_tables(cols, found, ref, pos=0):
@@ -181,7 +181,7 @@ def debug_diff_tables(cols, found, ref, pos=0):
     found = found[pos] if len(found) > pos else []
     ref = ref[pos] if len(ref) > pos else []
     max_size = max(len(found), len(ref))
-    diff_table = table.Table(title=f"Row {pos} delta")
+    diff_table = rich.table.Table(title=f"Row {pos} delta")
     diff_table.add_column("DB Column")
     diff_table.add_column("Found in DB")
     diff_table.add_column("Reference")
@@ -191,7 +191,7 @@ def debug_diff_tables(cols, found, ref, pos=0):
             str(found[i]) if i < len(found) else "**None**",
             str(ref[i]) if i < len(ref) else "**None**",
         )
-    output = console.Console()
+    output = rich.get_console()
     output.print(diff_table)
 
 

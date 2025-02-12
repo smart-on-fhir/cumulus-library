@@ -287,12 +287,12 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict[str, pathlib.Path]:
 
 def run_cli(args: dict):
     """Controls which library tasks are run based on CLI arguments"""
-    console = rich.console.Console()
+    console = rich.get_console()
     if args["action"] == "upload":
         try:
             uploader.upload_files(args)
         except requests.RequestException as e:
-            print(str(e))
+            rich.print(str(e))
             sys.exit()
 
     # all other actions require connecting to the database
@@ -404,7 +404,7 @@ def main(cli_args=None):
 
     parser = cli_parser.get_parser()
     args = vars(parser.parse_args(cli_args))
-
+    console = rich.get_console()
     arg_env_pairs = (
         ("data_path", "CUMULUS_LIBRARY_DATA_PATH"),
         ("db_type", "CUMULUS_LIBRARY_DB_TYPE"),
@@ -441,7 +441,9 @@ def main(cli_args=None):
         sys.exit(1)
 
     if args["action"] == "version":
-        print(f"cumulus-library version: {__version__}\nInstalled studies:")
+        table = rich.table.Table(title=f"cumulus-library version: {__version__}")
+        table.add_column("Study Name", style="green")
+        table.add_column("Version", style="blue")
         studies = get_study_dict(args.get("study_dir"))
         for study in sorted(studies.keys()):
             try:
@@ -451,9 +453,10 @@ def main(cli_args=None):
                 study_init = importlib.util.module_from_spec(spec)
                 sys.modules["study_init"] = study_init
                 spec.loader.exec_module(study_init)
-                print(f"  {study}: {study_init.__version__}")
+                table.add_row(study, study_init.__version__)
             except Exception:
-                print(f"  {study}: no version defined")
+                table.add_row(study, "No version defined")
+        console.print(table)
         sys.exit(0)
 
     if len(read_env_vars) > 0:
@@ -465,7 +468,7 @@ def main(cli_args=None):
                 table.add_row(row[0], "#########")  # pragma: no cover
             else:
                 table.add_row(row[0], row[1])
-        console = rich.console.Console()
+
         console.print(table)
 
     options = {}

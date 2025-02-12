@@ -15,17 +15,18 @@ trusted OIDC token AWS endpoint. See .github/workflows/ci.yaml for more info on
 this approach."""
 
 import os
+import pathlib
 import sys
-from pathlib import Path
 
+import rich
 from pandas import read_parquet
 
 VOCAB_ICD_ROW_COUNT = 403231
 
 
 def regress_core():
-    ref_path = f"{Path(__file__).resolve().parent}/reference"
-    export_path = f"{Path(__file__).resolve().parent}/data_export/core"
+    ref_path = f"{pathlib.Path(__file__).resolve().parent}/reference"
+    export_path = f"{pathlib.Path(__file__).resolve().parent}/data_export/core"
 
     references = set(os.listdir(ref_path))
     exports = set(os.listdir(export_path))
@@ -79,10 +80,10 @@ def regress_core():
                 )
     if len(diffs) > 0:
         for row in diffs:
-            print(f"--- {row[0]} ---")
-            print(row[1])
+            rich.print(f"--- {row[0]} ---")
+            rich.print(row[1])
         sys.exit(f"❌ Found {len(diffs)} difference(s) in core study. ❌")
-    print("✅ Core study reference and export matched ✅")
+    rich.print("✅ Core study reference and export matched ✅")
 
 
 if __name__ == "__main__":

@@ -866,8 +866,13 @@ def test_version(capfd):
         )
     out, _ = capfd.readouterr()
     assert f"cumulus-library version: {__version__}" in out
-    assert "study_valid: 1.0.0" in out
-    assert "study_invalid_bad_query: no version defined" in out
+    out = out.split("\n")
+    valid = list(filter(lambda x: " study_valid " in x, out))
+    assert len(valid) == 1
+    assert " 1.0.0 " in valid[0]
+    invalid = list(filter(lambda x: " study_invalid_bad_query " in x, out))
+    assert len(invalid) == 1
+    assert " No version defined " in invalid[0]
 
 
 @mock.patch.dict(

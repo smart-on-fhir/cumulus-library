@@ -9,7 +9,8 @@ import sys
 import tomllib
 import zipfile
 
-from rich.progress import Progress, TaskID
+import rich
+from rich import progress
 
 from cumulus_library import (
     BaseTableBuilder,
@@ -449,14 +450,14 @@ def _query_error(
     query_and_filename: list,
     exit_message: str,
 ) -> None:
-    print(
+    rich.print(
         "An error occurred executing the following query in ",
         f"{query_and_filename[1]}:",
         file=sys.stderr,
     )
-    print("--------", file=sys.stderr)
-    print(query_and_filename[0], file=sys.stderr)
-    print("--------", file=sys.stderr)
+    rich.print("--------", file=sys.stderr)
+    rich.print(query_and_filename[0], file=sys.stderr)
+    rich.print("--------", file=sys.stderr)
     log_utils.log_transaction(config=config, manifest=manifest, status=enums.LogStatuses.ERROR)
     sys.exit(exit_message)
 
@@ -467,8 +468,8 @@ def _execute_build_queries(
     *,
     cursor: databases.DatabaseCursor,
     queries: list,
-    progress: Progress,
-    task: TaskID,
+    progress: progress.Progress,
+    task: progress.TaskID,
 ) -> None:
     """Handler for executing create table queries and displaying console output.
 

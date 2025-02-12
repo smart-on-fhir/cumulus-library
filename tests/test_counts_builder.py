@@ -78,12 +78,12 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
 #     name = builder.coerce_table_name(table_name, fhir_resource)
 #     assert name == new_name
 #     for thing in mock_console.mock_calls:
-#         print(thing)
-#         print(type(thing))
-#     print("------")
+#         rich.print(thing)
+#         rich.print(type(thing))
+#     rich.print("------")
 #     for thing in mock_console.print().mock_calls:
-#         print(thing)
-#         print(type(thing))
+#         rich.print(thing)
+#         rich.print(type(thing))
 #     assert mock_console.print.called == warns
 
 
