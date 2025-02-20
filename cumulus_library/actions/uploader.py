@@ -28,7 +28,7 @@ def upload_data(
         json={
             "study": study,
             "data_package": data_package,
-            "data_package_version": version,
+            "data_package_version": int(float(version)),
             "filename": f"{args['user']}_{file_name}",
         },
         auth=(args["user"], args["id"]),

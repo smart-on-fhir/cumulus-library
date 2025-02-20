@@ -459,7 +459,7 @@ def do_upload(
                         {
                             "study": "upload",
                             "data_package": "upload__meta_version",
-                            "data_package_version": version,
+                            "data_package_version": int(float(version)),
                             "filename": f"{user}_upload__meta_version.meta.parquet",
                         }
                     )
@@ -474,7 +474,7 @@ def do_upload(
                         {
                             "study": "upload",
                             "data_package": "upload__count_synthea_patient",
-                            "data_package_version": version,
+                            "data_package_version": int(float(version)),
                             "filename": f"{user}_upload__count_synthea_patient.cube.parquet",
                         }
                     ),
