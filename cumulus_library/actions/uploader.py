@@ -77,6 +77,8 @@ def upload_files(args: dict):
                 filtered_paths.append(path)
         file_paths = filtered_paths
 
+    if len(file_paths) == 0:
+        sys.exit("No files found for upload. Is your data path/target specified correctly?")
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
     try:

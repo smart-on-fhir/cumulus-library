@@ -646,11 +646,19 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
 
 
 @pytest.mark.parametrize(
-    "args,calls",
+    "args,calls,raises",
     [
-        (["upload", "--user", "user", "--id", "id", "./foo"], 2),
-        (["upload", "--user", "user", "--id", "id", "./foo", "-t", "test_data"], 1),
-        (["upload", "--user", "user", "--id", "id", "./foo", "-t", "not_found"], 0),
+        (["upload", "--user", "user", "--id", "id", "./foo"], 2, does_not_raise()),
+        (
+            ["upload", "--user", "user", "--id", "id", "./foo", "-t", "test_data"],
+            1,
+            does_not_raise(),
+        ),
+        (
+            ["upload", "--user", "user", "--id", "id", "./foo", "-t", "not_found"],
+            0,
+            pytest.raises(SystemExit),
+        ),
     ],
 )
 @mock.patch.dict(
@@ -659,23 +667,26 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
 )
 @mock.patch("pathlib.Path.glob")
 @mock.patch("cumulus_library.actions.uploader.upload_data")
-def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls):
-    mock_glob.side_effect = [
-        [
-            Path(
-                str(Path(__file__).parent) + "/test_data/test_data__count_synthea_patient.parquet"
-            ),
-            Path(
-                str(Path(__file__).parent) + "/other_data/other_data__count_synthea_patient.parquet"
-            ),
-        ],
-    ]
-    cli.main(cli_args=args)
-    if len(mock_upload_data.call_args_list) == 1:
-        target = args[args.index("-t") + 1]
-        # filepath is in the third argument position in the upload data arg list
-        assert target in str(mock_upload_data.call_args[0][2])
-    assert mock_upload_data.call_count == calls
+def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls, raises):
+    with raises:
+        mock_glob.side_effect = [
+            [
+                Path(
+                    str(Path(__file__).parent)
+                    + "/test_data/test_data__count_synthea_patient.parquet"
+                ),
+                Path(
+                    str(Path(__file__).parent)
+                    + "/other_data/other_data__count_synthea_patient.parquet"
+                ),
+            ],
+        ]
+        cli.main(cli_args=args)
+        if len(mock_upload_data.call_args_list) == 1:
+            target = args[args.index("-t") + 1]
+            # filepath is in the third argument position in the upload data arg list
+            assert target in str(mock_upload_data.call_args[0][2])
+        assert mock_upload_data.call_count == calls
 
 
 @pytest.mark.parametrize("mode", ["cli", "env"])
