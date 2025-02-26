@@ -1,6 +1,7 @@
 import builtins
 import contextlib
 import datetime
+import io
 import pathlib
 import shutil
 import zipfile
@@ -434,6 +435,18 @@ def test_import_study(tmp_path, mock_db_config):
         importer.import_archive(
             config=mock_db_config, archive_path=tmp_path / "archive/no_dunder.zip"
         )
+
+
+def test_builder_init_error(mock_db_config):
+    manifest = study_manifest.StudyManifest(pathlib.Path(__file__).parent / "test_data/study_valid")
+    builder.run_protected_table_builder(config=mock_db_config, manifest=manifest)
+    console_output = io.StringIO()
+    with pytest.raises(SystemExit):
+        with contextlib.redirect_stdout(console_output):
+            builder._query_error(
+                mock_db_config, manifest, ["mock query", "mock_file.txt"], "Catalog Error"
+            )
+    assert "https://docs.smarthealthit.org/" in console_output.getvalue()
 
 
 def do_upload(

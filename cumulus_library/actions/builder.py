@@ -459,7 +459,14 @@ def _query_error(
     rich.print(query_and_filename[0], file=sys.stderr)
     rich.print("--------", file=sys.stderr)
     log_utils.log_transaction(config=config, manifest=manifest, status=enums.LogStatuses.ERROR)
-    sys.exit(exit_message)
+    rich.print(exit_message)
+
+    if any(init_error in exit_message for init_error in config.db.init_errors()):
+        rich.print(
+            "Have you initialized your database?\n"
+            "https://docs.smarthealthit.org/cumulus/etl/setup/initialization.html"
+        )
+    sys.exit()
 
 
 def _execute_build_queries(
