@@ -29,6 +29,9 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         self.db_file = db_file
         self.connection = None
 
+    def init_errors(self):
+        return ["Binder Error", "Catalog Error"]
+
     def connect(self):
         """Connects to the local duckdb database"""
         # As of the 1.0 duckdb release, local scopes, where schema names can be provided

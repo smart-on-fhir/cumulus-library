@@ -34,6 +34,9 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.schema_name = schema_name
         self.connection = None
 
+    def init_errors(self):  # pragma: no cover
+        return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
+
     def connect(self):
         # the profile may not be required, provided the above three AWS env vars
         # are set. If both are present, the env vars take precedence

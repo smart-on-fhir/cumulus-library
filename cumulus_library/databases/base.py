@@ -121,6 +121,10 @@ class DatabaseBackend(abc.ABC):
         self.db_type = None
 
     @abc.abstractmethod
+    def init_errors(self) -> list:
+        """A list of errors indicating a database may not have been initialized with the ETL"""
+
+    @abc.abstractmethod
     def connect(self):
         """Initiates connection configuration of the database"""
 
