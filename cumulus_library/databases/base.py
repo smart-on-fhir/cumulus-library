@@ -205,6 +205,7 @@ class DatabaseBackend(abc.ABC):
         have an API for file upload (i.e. cloud databases)"""
         return None
 
+    @abc.abstractmethod
     def export_table_as_parquet(
         self, table_name: str, table_type: str, location: pathlib.Path, *args, **kwargs
     ) -> pathlib.Path | None:
@@ -213,7 +214,6 @@ class DatabaseBackend(abc.ABC):
         This is intended as a way to get the most database native parquet export possible,
         so we don't have to infer schema information. Only do schema inferring if your
         DB engine does not support parquet natively. If a table is empty, return None."""
-        return None
 
     @abc.abstractmethod
     def create_schema(self, schema_name):

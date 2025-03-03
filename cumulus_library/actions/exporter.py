@@ -1,7 +1,6 @@
 import pathlib
 
 import pandas
-import pyarrow
 from rich import console
 from rich.progress import track
 
@@ -23,16 +22,6 @@ def reset_counts_exports(
         # subdirectories are left alone by this call
         for file in path.glob("*.*"):
             file.unlink()
-
-
-def _write_chunk(writer, chunk, arrow_schema):
-    writer.write(
-        pyarrow.Table.from_pandas(
-            chunk.sort_values(by=list(chunk.columns), ascending=False, na_position="first"),
-            preserve_index=False,
-            schema=arrow_schema,
-        )
-    )
 
 
 def export_study(
