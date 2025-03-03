@@ -283,13 +283,14 @@ def test_clean(tmp_path, args, expected, raises):
     clear=True,
 )
 @pytest.mark.parametrize(
-    "build_args,export_args,expected_tables,raises",
+    "build_args,export_args,expected_tables,raises,expected_missing",
     [
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
             73,
             does_not_raise(),
+            [],
         ),
         (
             # checking that a study is loaded from a child directory
@@ -304,6 +305,10 @@ def test_clean(tmp_path, args, expected, raises):
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
             3,
             does_not_raise(),
+            [
+                "study_valid__table",
+                "study_valid__table2",
+            ],
         ),
         (
             # checking that a study is loaded from a child directory
@@ -318,6 +323,10 @@ def test_clean(tmp_path, args, expected, raises):
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
             3,
             does_not_raise(),
+            [
+                "study_valid__table",
+                "study_valid__table2",
+            ],
         ),
         (
             # checking that a study is loaded from the directory of a user-defined
@@ -333,6 +342,10 @@ def test_clean(tmp_path, args, expected, raises):
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
             3,
             does_not_raise(),
+            [
+                "study_valid__table",
+                "study_valid__table2",
+            ],
         ),
         (
             [
@@ -346,6 +359,11 @@ def test_clean(tmp_path, args, expected, raises):
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
             3,
             does_not_raise(),
+            [
+                "study_valid__table",
+                "study_valid__table2",
+                "study_valid__table",
+            ],
         ),
         (
             [
@@ -360,6 +378,7 @@ def test_clean(tmp_path, args, expected, raises):
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
             2,
             pytest.raises(duckdb.duckdb.CatalogException),
+            [],
         ),
         (
             [
@@ -374,6 +393,7 @@ def test_clean(tmp_path, args, expected, raises):
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
             2,
             pytest.raises(errors.StudyManifestParsingError),
+            [],
         ),
         (
             [
@@ -392,6 +412,7 @@ def test_clean(tmp_path, args, expected, raises):
             ],
             4,
             does_not_raise(),
+            ["study_dedicated_schema__table_raw_sql"],
         ),
         (
             [
@@ -410,6 +431,12 @@ def test_clean(tmp_path, args, expected, raises):
             ],
             5,
             does_not_raise(),
+            [
+                "study_valid_all_exports__table",
+                "study_valid_all_exports__table2",
+                "study_valid_all_exports__table3",
+                "study_valid_all_exports__table4",
+            ],
         ),
         (
             [
@@ -428,6 +455,7 @@ def test_clean(tmp_path, args, expected, raises):
             ],
             2,
             pytest.raises(errors.StudyManifestParsingError),
+            [],
         ),
         (
             [
@@ -446,10 +474,13 @@ def test_clean(tmp_path, args, expected, raises):
             ],
             2,
             pytest.raises(errors.StudyManifestParsingError),
+            [],
         ),
     ],
 )
-def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables, raises):
+def test_cli_executes_queries(
+    tmp_path, build_args, export_args, expected_tables, raises, expected_missing
+):
     with raises:
         build_args = duckdb_args(build_args, tmp_path)
         cli.main(cli_args=build_args)
@@ -483,7 +514,8 @@ def test_cli_executes_queries(tmp_path, build_args, export_args, expected_tables
             export_config = config["export_config"]
             for export_list in export_config.values():
                 for export_table in export_list:
-                    assert any(export_table in x for x in csv_files)
+                    if export_table not in expected_missing:
+                        assert any(export_table in x for x in csv_files)
 
 
 @mock.patch.dict(

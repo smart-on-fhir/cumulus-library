@@ -8,11 +8,11 @@ import collections
 import os
 import pathlib
 
+import awswrangler
 import boto3
 import botocore
 import numpy
 import pandas
-import pyarrow
 import pyathena
 from pyathena.common import BaseCursor as AthenaCursor
 from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
@@ -96,33 +96,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     )
         return output
 
-    def col_pyarrow_types_from_sql(self, columns: list[tuple]) -> list:
-        output = []
-        for column in columns:
-            match column[1]:
-                case "varchar":
-                    output.append((column[0], pyarrow.string()))
-                case "bigint":
-                    output.append((column[0], pyarrow.int64()))
-                case "integer":
-                    output.append((column[0], pyarrow.int64()))
-                case "double":
-                    output.append((column[0], pyarrow.float64()))
-                # This is future proofing - we don't see this type currently.
-                case "decimal":
-                    output.append(  # pragma: no cover
-                        (column[0], pyarrow.decimal128(column[4], column[5]))
-                    )
-                case "boolean":
-                    output.append((column[0], pyarrow.bool_()))
-                case "date":
-                    output.append((column[0], pyarrow.date64()))
-                case "timestamp":
-                    output.append((column[0], pyarrow.timestamp("s")))
-                case _:
-                    raise errors.CumulusLibraryError(f"Unsupported SQL type '{column[1]}' found.")
-        return output
-
     def upload_file(
         self,
         *,
@@ -167,6 +140,46 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 SSEKMSKeyId=kms_arn,
             )
         return f"s3://{bucket}/{s3_key}"
+
+    def export_table_as_parquet(
+        self, table_name: str, table_type: str, location: pathlib.Path, *args, **kwargs
+    ) -> str | None:
+        s3_client = boto3.client("s3")
+        output_path = location / f"{table_name}.parquet"
+        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
+        wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
+        s3_path = wg_conf["OutputLocation"]
+        bucket = "/".join(s3_path.split("/")[2:3])
+        output_path = location / f"{table_name}.{table_type}.parquet"
+        s3_path = f"s3://{bucket}/export/{table_name}.{table_type}.parquet"
+
+        # Cleanup location in case there was an error of some kind
+        res = s3_client.list_objects_v2(
+            Bucket=bucket, Prefix=f"export/{table_name}.{table_type}.parquet"
+        )
+        if "Contents" in res:
+            for file in res["Contents"]:
+                s3_client.delete_object(Bucket=bucket, Key=file["Key"])
+
+        self.connection.cursor().execute(f"""UNLOAD
+            (SELECT * FROM {table_name})
+            TO '{s3_path}'
+            WITH (format='PARQUET', compression='SNAPPY')
+            """)  # noqa: S608
+        # UNLOAD is not guaranteed to create a single file. AWS Wrangler's read_parquet
+        # allows us to ignore that wrinkle
+        try:
+            df = awswrangler.s3.read_parquet(s3_path)
+        except awswrangler.exceptions.NoFilesFound:
+            return None
+        df = df.sort_values(by=list(df.columns), ascending=False, na_position="first")
+        df.to_parquet(output_path)
+        res = s3_client.list_objects_v2(
+            Bucket=bucket, Prefix=f"export/{table_name}.{table_type}.parquet"
+        )
+        for file in res["Contents"]:
+            s3_client.delete_object(Bucket=bucket, Key=file["Key"])
+        return output_path
 
     def create_schema(self, schema_name) -> None:
         """Creates a new schema object inside the database"""

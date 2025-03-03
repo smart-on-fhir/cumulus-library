@@ -208,6 +208,16 @@ class DatabaseBackend(abc.ABC):
         have an API for file upload (i.e. cloud databases)"""
         return None
 
+    def export_table_as_parquet(
+        self, table_name: str, table_type: str, location: pathlib.Path, *args, **kwargs
+    ) -> pathlib.Path:
+        """Gets a parquet file from a specified table.
+
+        This is intended as a way to get the most database native parquet export possible,
+        so we don't have to infer schema information. Only do schema inferring if your
+        DB engine does not support parquet natively."""
+        return pathlib.Path("/dev/null")
+
     @abc.abstractmethod
     def create_schema(self, schema_name):
         """Creates a new schema object inside the catalog"""

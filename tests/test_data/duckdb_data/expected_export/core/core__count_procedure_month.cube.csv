@@ -1,33 +1,33 @@
-"cnt","category_display","code_display","performedDateTime_month"
+cnt,category_display,code_display,performedDateTime_month
+13,cumulus__none,Medication Reconciliation (procedure),cumulus__none
+13,cumulus__none,Medication Reconciliation (procedure),
+13,cumulus__none,,cumulus__none
+13,cumulus__none,,
+13,,Medication Reconciliation (procedure),cumulus__none
+13,,Medication Reconciliation (procedure),
+13,,,cumulus__none
 13,,,
-13,,,"cumulus__none"
-13,,"Medication Reconciliation (procedure)",
-13,,"Medication Reconciliation (procedure)","cumulus__none"
-13,"cumulus__none",,
-13,"cumulus__none",,"cumulus__none"
-13,"cumulus__none","Medication Reconciliation (procedure)",
-13,"cumulus__none","Medication Reconciliation (procedure)","cumulus__none"
-11,,"Depression screening (procedure)",
-11,,"Depression screening (procedure)","cumulus__none"
-11,,"Assessment of substance use (procedure)",
-11,,"Assessment of substance use (procedure)","cumulus__none"
-11,,"Assessment of anxiety (procedure)",
-11,,"Assessment of anxiety (procedure)","cumulus__none"
-11,"cumulus__none","Depression screening (procedure)",
-11,"cumulus__none","Depression screening (procedure)","cumulus__none"
-11,"cumulus__none","Assessment of substance use (procedure)",
-11,"cumulus__none","Assessment of substance use (procedure)","cumulus__none"
-11,"cumulus__none","Assessment of anxiety (procedure)",
-11,"cumulus__none","Assessment of anxiety (procedure)","cumulus__none"
-10,,"Depression screening using Patient Health Questionnaire Two-Item score (procedure)",
-10,,"Depression screening using Patient Health Questionnaire Two-Item score (procedure)","cumulus__none"
-10,,"Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure)",
-10,,"Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure)","cumulus__none"
-10,,"Assessment of health and social care needs (procedure)",
-10,,"Assessment of health and social care needs (procedure)","cumulus__none"
-10,"cumulus__none","Depression screening using Patient Health Questionnaire Two-Item score (procedure)",
-10,"cumulus__none","Depression screening using Patient Health Questionnaire Two-Item score (procedure)","cumulus__none"
-10,"cumulus__none","Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure)",
-10,"cumulus__none","Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure)","cumulus__none"
-10,"cumulus__none","Assessment of health and social care needs (procedure)",
-10,"cumulus__none","Assessment of health and social care needs (procedure)","cumulus__none"
+11,cumulus__none,Depression screening (procedure),cumulus__none
+11,cumulus__none,Depression screening (procedure),
+11,cumulus__none,Assessment of substance use (procedure),cumulus__none
+11,cumulus__none,Assessment of substance use (procedure),
+11,cumulus__none,Assessment of anxiety (procedure),cumulus__none
+11,cumulus__none,Assessment of anxiety (procedure),
+11,,Depression screening (procedure),cumulus__none
+11,,Depression screening (procedure),
+11,,Assessment of substance use (procedure),cumulus__none
+11,,Assessment of substance use (procedure),
+11,,Assessment of anxiety (procedure),cumulus__none
+11,,Assessment of anxiety (procedure),
+10,cumulus__none,Depression screening using Patient Health Questionnaire Two-Item score (procedure),cumulus__none
+10,cumulus__none,Depression screening using Patient Health Questionnaire Two-Item score (procedure),
+10,cumulus__none,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),cumulus__none
+10,cumulus__none,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),
+10,cumulus__none,Assessment of health and social care needs (procedure),cumulus__none
+10,cumulus__none,Assessment of health and social care needs (procedure),
+10,,Depression screening using Patient Health Questionnaire Two-Item score (procedure),cumulus__none
+10,,Depression screening using Patient Health Questionnaire Two-Item score (procedure),
+10,,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),cumulus__none
+10,,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),
+10,,Assessment of health and social care needs (procedure),cumulus__none
+10,,Assessment of health and social care needs (procedure),

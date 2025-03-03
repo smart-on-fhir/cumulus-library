@@ -1,7 +1,8 @@
 import pathlib
 
+import pandas
 import pyarrow
-from pyarrow import csv, parquet
+from rich import console
 from rich.progress import track
 
 from cumulus_library import base_utils, study_manifest
@@ -41,15 +42,16 @@ def export_study(
     data_path: pathlib.Path,
     archive: bool,
     chunksize: int = 1000000,
-) -> list:
+):
     """Exports csvs/parquet extracts of tables listed in export_list
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
     :keyword data_path: the path to the place on disk to save data
     :keyword archive: If true, get all study data and zip with timestamp
     :keyword chunksize: number of rows to export in a single transaction
-    :returns: a list of queries, (only for unit tests)
     """
+
+    skipped_tables = []
     reset_counts_exports(manifest)
     if manifest.get_dedicated_schema():
         prefix = f"{manifest.get_dedicated_schema()}."
@@ -64,34 +66,27 @@ def export_study(
                 table_list.append(study_manifest.ManifestExport(name=row[0], export_type="archive"))
     else:
         table_list = manifest.get_export_table_list()
-    queries = []
     path = pathlib.Path(f"{data_path}/{manifest.get_study_prefix()}/")
     path.mkdir(parents=True, exist_ok=True)
     for table in track(
         table_list,
         description=f"Exporting {manifest.get_study_prefix()} data...",
     ):
-        query = f"SELECT * FROM {table.name}"  # noqa: S608
-        query = base_utils.update_query_if_schema_specified(query, manifest)
-        dataframe_chunks, db_schema = config.db.execute_as_pandas(query, chunksize=chunksize)
-        path.mkdir(parents=True, exist_ok=True)
-        arrow_schema = pyarrow.schema(config.db.col_pyarrow_types_from_sql(db_schema))
-        with parquet.ParquetWriter(
-            f"{path}/{table.name}.{table.export_type}.parquet", arrow_schema
-        ) as p_writer:
-            with csv.CSVWriter(
-                f"{path}/{table.name}.{table.export_type}.csv",
-                arrow_schema,
-                write_options=csv.WriteOptions(
-                    # Note that this quoting style is not exactly csv.QUOTE_MINIMAL
-                    # https://github.com/apache/arrow/issues/42032
-                    quoting_style="needed"
-                ),
-            ) as c_writer:
-                for chunk in dataframe_chunks:
-                    _write_chunk(p_writer, chunk, arrow_schema)  # pragma: no cover
-                    _write_chunk(c_writer, chunk, arrow_schema)  # pragma: no cover
-        queries.append(query)
+        table.name = base_utils.update_query_if_schema_specified(table.name, manifest)
+        parquet_path = config.db.export_table_as_parquet(table.name, table.export_type, path)
+        if parquet_path:
+            df = pandas.read_parquet(parquet_path)
+            df.to_csv(
+                parquet_path.with_suffix(".csv"),
+                index=False,
+            )
+        else:
+            skipped_tables.append(table.name)
+
+    if len(skipped_tables) > 0:
+        c = console.Console()
+        c.print("The following tables were empty and were not exported:")
+        for table in skipped_tables:
+            c.print(table)
     if archive:
         base_utils.zip_dir(path, data_path, manifest.get_study_prefix())
-    return queries

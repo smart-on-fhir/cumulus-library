@@ -1,9 +1,9 @@
-"cnt","class_display","type_display","serviceType_display","priority_display"
+cnt,class_display,type_display,serviceType_display,priority_display
+50,,,cumulus__none,cumulus__none
+50,,,cumulus__none,
+50,,,,cumulus__none
 50,,,,
-50,,,,"cumulus__none"
-50,,,"cumulus__none",
-50,,,"cumulus__none","cumulus__none"
-46,"ambulatory",,,
-46,"ambulatory",,,"cumulus__none"
-46,"ambulatory",,"cumulus__none",
-46,"ambulatory",,"cumulus__none","cumulus__none"
+46,ambulatory,,cumulus__none,cumulus__none
+46,ambulatory,,cumulus__none,
+46,ambulatory,,,cumulus__none
+46,ambulatory,,,
