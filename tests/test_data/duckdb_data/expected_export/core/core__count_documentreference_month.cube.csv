@@ -1,19 +1,19 @@
 cnt,type_display,author_month,class_display
+50,,,
 50,Evaluation + Plan note,,
 50,Emergency department note,,
-50,,,
+46,,,ambulatory
 46,Evaluation + Plan note,,ambulatory
 46,Emergency department note,,ambulatory
-46,,,ambulatory
+26,,2018-07-01,
 26,Evaluation + Plan note,2018-07-01,
 26,Emergency department note,2018-07-01,
-26,,2018-07-01,
+24,,2018-07-01,ambulatory
+24,,2018-06-01,
 24,Evaluation + Plan note,2018-07-01,ambulatory
 24,Evaluation + Plan note,2018-06-01,
 24,Emergency department note,2018-07-01,ambulatory
 24,Emergency department note,2018-06-01,
-24,,2018-07-01,ambulatory
-24,,2018-06-01,
+22,,2018-06-01,ambulatory
 22,Evaluation + Plan note,2018-06-01,ambulatory
 22,Emergency department note,2018-06-01,ambulatory
-22,,2018-06-01,ambulatory
