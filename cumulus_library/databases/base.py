@@ -190,9 +190,6 @@ class DatabaseBackend(abc.ABC):
         #             )
         return []
 
-    def col_pyarrow_types_from_sql(self, columns: list[tuple]) -> list:
-        return columns  # pragma: no cover
-
     def upload_file(
         self,
         *,
@@ -210,13 +207,13 @@ class DatabaseBackend(abc.ABC):
 
     def export_table_as_parquet(
         self, table_name: str, table_type: str, location: pathlib.Path, *args, **kwargs
-    ) -> pathlib.Path:
+    ) -> pathlib.Path | None:
         """Gets a parquet file from a specified table.
 
         This is intended as a way to get the most database native parquet export possible,
         so we don't have to infer schema information. Only do schema inferring if your
-        DB engine does not support parquet natively."""
-        return pathlib.Path("/dev/null")
+        DB engine does not support parquet natively. If a table is empty, return None."""
+        return None
 
     @abc.abstractmethod
     def create_schema(self, schema_name):
