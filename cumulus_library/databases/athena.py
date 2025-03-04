@@ -141,25 +141,24 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             )
         return f"s3://{bucket}/{s3_key}"
 
+    def _clean_bucket_path(self, client, bucket, res):
+        for file in res["Contents"]:
+            client.delete_object(Bucket=bucket, Key=file["Key"])
+
     def export_table_as_parquet(
-        self, table_name: str, table_type: str, location: pathlib.Path, *args, **kwargs
-    ) -> str | None:
+        self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
+    ) -> bool:
         s3_client = boto3.client("s3")
-        output_path = location / f"{table_name}.parquet"
         workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
         wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
         s3_path = wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
-        output_path = location / f"{table_name}.{table_type}.parquet"
-        s3_path = f"s3://{bucket}/export/{table_name}.{table_type}.parquet"
-
+        output_path = location / f"{file_name}"
+        s3_path = f"s3://{bucket}/export/{file_name}"
         # Cleanup location in case there was an error of some kind
-        res = s3_client.list_objects_v2(
-            Bucket=bucket, Prefix=f"export/{table_name}.{table_type}.parquet"
-        )
+        res = s3_client.list_objects_v2(Bucket=bucket, Prefix=f"export/{file_name}")
         if "Contents" in res:
-            for file in res["Contents"]:
-                s3_client.delete_object(Bucket=bucket, Key=file["Key"])
+            self._clean_bucket_path(s3_client, bucket, res)
 
         self.connection.cursor().execute(f"""UNLOAD
             (SELECT * FROM {table_name})
@@ -171,15 +170,12 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         try:
             df = awswrangler.s3.read_parquet(s3_path)
         except awswrangler.exceptions.NoFilesFound:
-            return None
+            return False
         df = df.sort_values(by=list(df.columns), ascending=False, na_position="first")
         df.to_parquet(output_path)
-        res = s3_client.list_objects_v2(
-            Bucket=bucket, Prefix=f"export/{table_name}.{table_type}.parquet"
-        )
-        for file in res["Contents"]:
-            s3_client.delete_object(Bucket=bucket, Key=file["Key"])
-        return output_path
+        res = s3_client.list_objects_v2(Bucket=bucket, Prefix=f"export/{file_name}")
+        self._clean_bucket_path(s3_client, bucket, res)
+        return True
 
     def create_schema(self, schema_name) -> None:
         """Creates a new schema object inside the database"""

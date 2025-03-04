@@ -55,6 +55,7 @@ def test_load_manifest(manifest_path, expected, raises):
         ("valid_null_arrays", does_not_raise()),
         ("valid_only_prefix", does_not_raise()),
         ("invalid_bad_export_names", pytest.raises(errors.StudyManifestParsingError)),
+        ("invalid_bad_table_names", pytest.raises(errors.StudyManifestParsingError)),
         ("invalid_none", pytest.raises(TypeError)),
     ],
 )

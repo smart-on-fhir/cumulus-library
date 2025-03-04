@@ -207,7 +207,7 @@ class DatabaseBackend(abc.ABC):
 
     @abc.abstractmethod
     def export_table_as_parquet(
-        self, table_name: str, table_type: str, location: pathlib.Path, *args, **kwargs
+        self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
     ) -> pathlib.Path | None:
         """Gets a parquet file from a specified table.
 

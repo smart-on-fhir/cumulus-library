@@ -4,7 +4,9 @@ import json
 import pathlib
 from unittest import mock
 
+import awswrangler
 import botocore
+import pandas
 
 from cumulus_library import base_utils, databases, study_manifest
 
@@ -107,3 +109,39 @@ def test_dedicated_schema_namespacing(tmp_path):
     query = "CREATE EXTERNAL TABLE foo.foo__bar"
     result = base_utils.update_query_if_schema_specified(query, manifest)
     assert result == "CREATE EXTERNAL TABLE foo.bar"
+
+
+@mock.patch("botocore.client")
+@mock.patch("awswrangler.s3")
+def test_export_table(mock_wrangler, mock_client, tmp_path):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+    db.connection = mock.MagicMock()
+    bucket_info = {
+        "WorkGroup": {
+            "Configuration": {"ResultConfiguration": {"OutputLocation": "s3://testbucket/athena"}}
+        }
+    }
+    db.connection._client.get_work_group.side_effect = [bucket_info, bucket_info]
+    mock_clientobj = mock_client.ClientCreator.return_value.create_client.return_value
+    mock_clientobj.list_objects_v2.side_effect = [
+        # first pass: delete found file and then cleanup
+        {"Contents": [{"Key": "export/file_to_delete"}]},
+        {"Contents": [{"Key": "export/table.flat.parquet"}]},
+        # second pass: skip deletion
+        {},
+    ]
+    # file found
+    mock_wrangler.read_parquet.return_value = pandas.DataFrame({"A": [1, 2], "B": ["x", "y"]})
+    res = db.export_table_as_parquet("table", "flat", tmp_path)
+    assert res is True
+    assert mock_clientobj.delete_object.call_args[1]["Key"] == "export/table.flat.parquet"
+
+    # file not found
+    mock_wrangler.read_parquet.side_effect = awswrangler.exceptions.NoFilesFound
+    res = db.export_table_as_parquet("table", "flat", tmp_path)
+    assert res is False

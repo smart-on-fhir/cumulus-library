@@ -34,5 +34,10 @@ mock_manifests = {
         "sql_config": {"file_names": ["test1.sql", "test2.sql"]},
         "export_config": {"export_list": ["wrong__table1", "wrong__table2"]},
     },
+    "invalid_bad_table_names": {
+        "study_prefix": "valid",
+        "sql_config": {"file_names": ["test1.sql", "Robert'); DROP TABLE Students;--"]},
+        "export_config": {"export_list": ["wrong__table1", "wrong__table2"]},
+    },
     "invalid_none": "",
 }

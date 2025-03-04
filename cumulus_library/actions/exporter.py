@@ -1,7 +1,7 @@
 import pathlib
 
 import pandas
-from rich import console
+import rich
 from rich.progress import track
 
 from cumulus_library import base_utils, study_manifest
@@ -62,20 +62,20 @@ def export_study(
         description=f"Exporting {manifest.get_study_prefix()} data...",
     ):
         table.name = base_utils.update_query_if_schema_specified(table.name, manifest)
-        parquet_path = config.db.export_table_as_parquet(table.name, table.export_type, path)
-        if parquet_path:
+        file_name = f"{table.name}.{table.export_type}.parquet"
+        if config.db.export_table_as_parquet(table.name, file_name, path):
+            parquet_path = path / file_name
             df = pandas.read_parquet(parquet_path)
             df.to_csv(
-                parquet_path.with_suffix(".csv"),
+                (parquet_path).with_suffix(".csv"),
                 index=False,
             )
         else:
             skipped_tables.append(table.name)
 
     if len(skipped_tables) > 0:
-        c = console.Console()
-        c.print("The following tables were empty and were not exported:")
+        rich.print("The following tables were empty and were not exported:")
         for table in skipped_tables:
-            c.print(table)
+            rich.print(f"  - {table}")
     if archive:
         base_utils.zip_dir(path, data_path, manifest.get_study_prefix())

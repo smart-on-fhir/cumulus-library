@@ -183,13 +183,12 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         )
 
     def export_table_as_parquet(
-        self, table_name: str, table_type: str, location: pathlib.Path, *args, **kwargs
-    ) -> str | None:
-        parquet_path = location / f"{table_name}.{table_type}.parquet"
-        parquet_path.parent.mkdir(exist_ok=True, parents=True)
+        self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
+    ) -> bool:
+        parquet_path = location / f"{file_name}"
         table_size = self.connection.execute(f"SELECT count(*) FROM {table_name}").fetchone()  # noqa: S608
         if table_size[0] == 0:
-            return None
+            return False
         query = f"""COPY
             (SELECT * FROM {table_name})
             TO '{parquet_path}'
@@ -202,7 +201,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             by=list(df.columns), ascending=False, ignore_index=True, na_position="first"
         )
         df.to_parquet(parquet_path)
-        return parquet_path
+        return True
 
     def create_schema(self, schema_name):
         """Creates a new schema object inside the database"""
