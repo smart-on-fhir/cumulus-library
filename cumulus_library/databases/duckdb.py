@@ -195,12 +195,6 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             (FORMAT parquet)
             """  # noqa: S608
         self.connection.execute(query)
-
-        df = pandas.read_parquet(parquet_path)
-        df = df.sort_values(
-            by=list(df.columns), ascending=False, ignore_index=True, na_position="first"
-        )
-        df.to_parquet(parquet_path)
         return True
 
     def create_schema(self, schema_name):

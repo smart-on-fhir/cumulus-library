@@ -31,7 +31,7 @@ def export_study(
     data_path: pathlib.Path,
     archive: bool,
     chunksize: int = 1000000,
-):
+) -> None:
     """Exports csvs/parquet extracts of tables listed in export_list
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
@@ -65,7 +65,12 @@ def export_study(
         file_name = f"{table.name}.{table.export_type}.parquet"
         if config.db.export_table_as_parquet(table.name, file_name, path):
             parquet_path = path / file_name
+
             df = pandas.read_parquet(parquet_path)
+            df = df.sort_values(
+                by=list(df.columns), ascending=False, ignore_index=True, na_position="first"
+            )
+            df.to_parquet(parquet_path)
             df.to_csv(
                 (parquet_path).with_suffix(".csv"),
                 index=False,
