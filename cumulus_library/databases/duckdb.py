@@ -9,14 +9,13 @@ pattern here to get sql flavors in alignment.
 
 import collections
 import datetime
+import pathlib
 import re
 
 import duckdb
 import pandas
-import pyarrow
 import pyarrow.dataset
 
-from cumulus_library import errors
 from cumulus_library.databases import base
 
 
@@ -174,30 +173,6 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             return iter([result.df().convert_dtypes()]), result.description
         return result.df().convert_dtypes(), result.description
 
-    def col_pyarrow_types_from_sql(self, columns: list[tuple]) -> list:
-        output = []
-        for column in columns:
-            match column[1]:
-                case "STRING":
-                    output.append((column[0], pyarrow.string()))
-                case "INTEGER":
-                    output.append((column[0], pyarrow.int64()))
-                case "NUMBER":
-                    output.append((column[0], pyarrow.float64()))
-                case "DOUBLE":
-                    output.append((column[0], pyarrow.float64()))
-                case "boolean" | "bool":
-                    output.append((column[0], pyarrow.bool_()))
-                case "Date":
-                    output.append((column[0], pyarrow.date64()))
-                case "TIMESTAMP" | "DATETIME":
-                    output.append((column[0], pyarrow.timestamp("s")))
-                case _:
-                    raise errors.CumulusLibraryError(
-                        f"{column[0], column[1]} does not have a conversion type"
-                    )
-        return output
-
     def parser(self) -> base.DatabaseParser:
         return DuckDbParser()
 
@@ -206,6 +181,21 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             duckdb.OperationalError,
             duckdb.BinderException,
         )
+
+    def export_table_as_parquet(
+        self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
+    ) -> bool:
+        parquet_path = location / f"{file_name}"
+        table_size = self.connection.execute(f"SELECT count(*) FROM {table_name}").fetchone()  # noqa: S608
+        if table_size[0] == 0:
+            return False
+        query = f"""COPY
+            (SELECT * FROM {table_name})
+            TO '{parquet_path}'
+            (FORMAT parquet)
+            """  # noqa: S608
+        self.connection.execute(query)
+        return True
 
     def create_schema(self, schema_name):
         """Creates a new schema object inside the database"""

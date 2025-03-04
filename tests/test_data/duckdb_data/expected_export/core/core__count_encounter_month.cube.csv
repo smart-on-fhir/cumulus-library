@@ -1,65 +1,65 @@
-"cnt","period_start_month","class_display","age_at_visit","gender","race_display","ethnicity_display"
+cnt,period_start_month,class_display,age_at_visit,gender,race_display,ethnicity_display
 50,,,,,,
-47,,,,,"white",
-46,,"ambulatory",,,,
-45,,,,,,"not hispanic or latino"
-43,,,,,"white","not hispanic or latino"
-43,,"ambulatory",,,"white",
-42,,"ambulatory",,,,"not hispanic or latino"
-40,,"ambulatory",,,"white","not hispanic or latino"
-29,,,,"female",,
-28,,,,"female","white",
-27,,,,"female",,"not hispanic or latino"
-27,,"ambulatory",,"female",,
-26,,,,"female","white","not hispanic or latino"
-26,,"ambulatory",,"female","white",
-26,"2018-07-01",,,,,
-26,"2018-07-01",,,,"white",
-25,,"ambulatory",,"female",,"not hispanic or latino"
-24,,"ambulatory",,"female","white","not hispanic or latino"
-24,"2018-07-01",,,,,"not hispanic or latino"
-24,"2018-07-01",,,,"white","not hispanic or latino"
-24,"2018-07-01","ambulatory",,,,
-24,"2018-07-01","ambulatory",,,"white",
-24,"2018-06-01",,,,,
-23,"2018-07-01","ambulatory",,,,"not hispanic or latino"
-23,"2018-07-01","ambulatory",,,"white","not hispanic or latino"
-22,"2018-06-01","ambulatory",,,,
-21,,,,"male",,
-21,"2018-06-01",,,,,"not hispanic or latino"
-21,"2018-06-01",,,,"white",
-19,,,,"male","white",
-19,,"ambulatory",,"male",,
-19,"2018-06-01",,,,"white","not hispanic or latino"
-19,"2018-06-01","ambulatory",,,,"not hispanic or latino"
-19,"2018-06-01","ambulatory",,,"white",
-18,,,,"male",,"not hispanic or latino"
-17,,,,"male","white","not hispanic or latino"
-17,,"ambulatory",,"male",,"not hispanic or latino"
-17,,"ambulatory",,"male","white",
-17,"2018-06-01","ambulatory",,,"white","not hispanic or latino"
-16,,"ambulatory",,"male","white","not hispanic or latino"
-15,"2018-06-01",,,"female",,
-14,"2018-07-01",,,"female",,
-14,"2018-07-01",,,"female",,"not hispanic or latino"
-14,"2018-07-01",,,"female","white",
-14,"2018-07-01",,,"female","white","not hispanic or latino"
-14,"2018-06-01",,,"female","white",
-14,"2018-06-01","ambulatory",,"female",,
-13,"2018-07-01","ambulatory",,"female",,
-13,"2018-07-01","ambulatory",,"female",,"not hispanic or latino"
-13,"2018-07-01","ambulatory",,"female","white",
-13,"2018-07-01","ambulatory",,"female","white","not hispanic or latino"
-13,"2018-06-01",,,"female",,"not hispanic or latino"
-13,"2018-06-01","ambulatory",,"female","white",
-12,"2018-07-01",,,"male",,
-12,"2018-07-01",,,"male","white",
-12,"2018-06-01",,,"female","white","not hispanic or latino"
-12,"2018-06-01","ambulatory",,"female",,"not hispanic or latino"
-11,"2018-07-01","ambulatory",,"male",,
-11,"2018-07-01","ambulatory",,"male","white",
-11,"2018-06-01","ambulatory",,"female","white","not hispanic or latino"
-10,"2018-07-01",,,"male",,"not hispanic or latino"
-10,"2018-07-01",,,"male","white","not hispanic or latino"
-10,"2018-07-01","ambulatory",,"male",,"not hispanic or latino"
-10,"2018-07-01","ambulatory",,"male","white","not hispanic or latino"
+47,,,,,white,
+46,,ambulatory,,,,
+45,,,,,,not hispanic or latino
+43,,,,,white,not hispanic or latino
+43,,ambulatory,,,white,
+42,,ambulatory,,,,not hispanic or latino
+40,,ambulatory,,,white,not hispanic or latino
+29,,,,female,,
+28,,,,female,white,
+27,,,,female,,not hispanic or latino
+27,,ambulatory,,female,,
+26,,,,female,white,not hispanic or latino
+26,,ambulatory,,female,white,
+26,2018-07-01,,,,,
+26,2018-07-01,,,,white,
+25,,ambulatory,,female,,not hispanic or latino
+24,,ambulatory,,female,white,not hispanic or latino
+24,2018-07-01,,,,,not hispanic or latino
+24,2018-07-01,,,,white,not hispanic or latino
+24,2018-07-01,ambulatory,,,,
+24,2018-07-01,ambulatory,,,white,
+24,2018-06-01,,,,,
+23,2018-07-01,ambulatory,,,,not hispanic or latino
+23,2018-07-01,ambulatory,,,white,not hispanic or latino
+22,2018-06-01,ambulatory,,,,
+21,,,,male,,
+21,2018-06-01,,,,,not hispanic or latino
+21,2018-06-01,,,,white,
+19,,,,male,white,
+19,,ambulatory,,male,,
+19,2018-06-01,,,,white,not hispanic or latino
+19,2018-06-01,ambulatory,,,,not hispanic or latino
+19,2018-06-01,ambulatory,,,white,
+18,,,,male,,not hispanic or latino
+17,,,,male,white,not hispanic or latino
+17,,ambulatory,,male,,not hispanic or latino
+17,,ambulatory,,male,white,
+17,2018-06-01,ambulatory,,,white,not hispanic or latino
+16,,ambulatory,,male,white,not hispanic or latino
+15,2018-06-01,,,female,,
+14,2018-07-01,,,female,,
+14,2018-07-01,,,female,,not hispanic or latino
+14,2018-07-01,,,female,white,
+14,2018-07-01,,,female,white,not hispanic or latino
+14,2018-06-01,,,female,white,
+14,2018-06-01,ambulatory,,female,,
+13,2018-07-01,ambulatory,,female,,
+13,2018-07-01,ambulatory,,female,,not hispanic or latino
+13,2018-07-01,ambulatory,,female,white,
+13,2018-07-01,ambulatory,,female,white,not hispanic or latino
+13,2018-06-01,,,female,,not hispanic or latino
+13,2018-06-01,ambulatory,,female,white,
+12,2018-07-01,,,male,,
+12,2018-07-01,,,male,white,
+12,2018-06-01,,,female,white,not hispanic or latino
+12,2018-06-01,ambulatory,,female,,not hispanic or latino
+11,2018-07-01,ambulatory,,male,,
+11,2018-07-01,ambulatory,,male,white,
+11,2018-06-01,ambulatory,,female,white,not hispanic or latino
+10,2018-07-01,,,male,,not hispanic or latino
+10,2018-07-01,,,male,white,not hispanic or latino
+10,2018-07-01,ambulatory,,male,,not hispanic or latino
+10,2018-07-01,ambulatory,,male,white,not hispanic or latino

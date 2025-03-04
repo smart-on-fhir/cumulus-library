@@ -1,15 +1,15 @@
-"cnt","effectiveDateTime_month","observation_code","valueCodeableConcept_display","class_display"
+cnt,effectiveDateTime_month,observation_code,valueCodeableConcept_display,class_display
 20,,,,
-20,,,,"ambulatory"
-10,,,"Urine smell ammoniacal (finding)",
-10,,,"Urine smell ammoniacal (finding)","ambulatory"
-10,,,"Brown color (qualifier value)",
-10,,,"Brown color (qualifier value)","ambulatory"
-10,,"5778-6",,
-10,,"5778-6",,"ambulatory"
-10,,"5778-6","Brown color (qualifier value)",
-10,,"5778-6","Brown color (qualifier value)","ambulatory"
-10,,"34533-0",,
-10,,"34533-0",,"ambulatory"
-10,,"34533-0","Urine smell ammoniacal (finding)",
-10,,"34533-0","Urine smell ammoniacal (finding)","ambulatory"
+20,,,,ambulatory
+10,,,Urine smell ammoniacal (finding),
+10,,,Urine smell ammoniacal (finding),ambulatory
+10,,,Brown color (qualifier value),
+10,,,Brown color (qualifier value),ambulatory
+10,,5778-6,,
+10,,5778-6,,ambulatory
+10,,5778-6,Brown color (qualifier value),
+10,,5778-6,Brown color (qualifier value),ambulatory
+10,,34533-0,,
+10,,34533-0,,ambulatory
+10,,34533-0,Urine smell ammoniacal (finding),
+10,,34533-0,Urine smell ammoniacal (finding),ambulatory

@@ -8,11 +8,11 @@ import collections
 import os
 import pathlib
 
+import awswrangler
 import boto3
 import botocore
 import numpy
 import pandas
-import pyarrow
 import pyathena
 from pyathena.common import BaseCursor as AthenaCursor
 from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
@@ -33,6 +33,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.profile = profile
         self.schema_name = schema_name
         self.connection = None
+        self.connect_kwargs = {}
 
     def init_errors(self):  # pragma: no cover
         return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
@@ -40,22 +41,21 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def connect(self):
         # the profile may not be required, provided the above three AWS env vars
         # are set. If both are present, the env vars take precedence
-        connect_kwargs = {}
         if self.profile is not None:
-            connect_kwargs["profile_name"] = self.profile
+            self.connect_kwargs["profile_name"] = self.profile
         for aws_env_name in [
             "AWS_ACCESS_KEY_ID",
             "AWS_SECRET_ACCESS_KEY",
             "AWS_SESSION_TOKEN",
         ]:
             if aws_env_val := os.environ.get(aws_env_name):
-                connect_kwargs[aws_env_name.lower()] = aws_env_val
+                self.connect_kwargs[aws_env_name.lower()] = aws_env_val
 
         self.connection = pyathena.connect(
             region_name=self.region,
             work_group=self.work_group,
             schema_name=self.schema_name,
-            **connect_kwargs,
+            **self.connect_kwargs,
         )
 
     def cursor(self) -> AthenaCursor:
@@ -94,33 +94,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     raise errors.CumulusLibraryError(
                         f"Unsupported pandas type {type(field)} found."
                     )
-        return output
-
-    def col_pyarrow_types_from_sql(self, columns: list[tuple]) -> list:
-        output = []
-        for column in columns:
-            match column[1]:
-                case "varchar":
-                    output.append((column[0], pyarrow.string()))
-                case "bigint":
-                    output.append((column[0], pyarrow.int64()))
-                case "integer":
-                    output.append((column[0], pyarrow.int64()))
-                case "double":
-                    output.append((column[0], pyarrow.float64()))
-                # This is future proofing - we don't see this type currently.
-                case "decimal":
-                    output.append(  # pragma: no cover
-                        (column[0], pyarrow.decimal128(column[4], column[5]))
-                    )
-                case "boolean":
-                    output.append((column[0], pyarrow.bool_()))
-                case "date":
-                    output.append((column[0], pyarrow.date64()))
-                case "timestamp":
-                    output.append((column[0], pyarrow.timestamp("s")))
-                case _:
-                    raise errors.CumulusLibraryError(f"Unsupported SQL type '{column[1]}' found.")
         return output
 
     def upload_file(
@@ -167,6 +140,45 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 SSEKMSKeyId=kms_arn,
             )
         return f"s3://{bucket}/{s3_key}"
+
+    def _clean_bucket_path(self, client, bucket, res):
+        for file in res["Contents"]:
+            client.delete_object(Bucket=bucket, Key=file["Key"])
+
+    def export_table_as_parquet(
+        self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
+    ) -> bool:
+        session = boto3.session.Session(
+            **self.connect_kwargs,
+        )
+        s3_client = session.client("s3")
+        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
+        wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
+        s3_path = wg_conf["OutputLocation"]
+        bucket = "/".join(s3_path.split("/")[2:3])
+        output_path = location / f"{file_name}"
+        s3_path = f"s3://{bucket}/export/{file_name}"
+        # Cleanup location in case there was an error of some kind
+        res = s3_client.list_objects_v2(Bucket=bucket, Prefix=f"export/{file_name}")
+        if "Contents" in res:
+            self._clean_bucket_path(s3_client, bucket, res)
+
+        self.connection.cursor().execute(f"""UNLOAD
+            (SELECT * FROM {table_name})
+            TO '{s3_path}'
+            WITH (format='PARQUET', compression='SNAPPY')
+            """)  # noqa: S608
+        # UNLOAD is not guaranteed to create a single file. AWS Wrangler's read_parquet
+        # allows us to ignore that wrinkle
+        try:
+            df = awswrangler.s3.read_parquet(s3_path, boto3_session=session)
+        except awswrangler.exceptions.NoFilesFound:
+            return False
+        df = df.sort_values(by=list(df.columns), ascending=False, na_position="first")
+        df.to_parquet(output_path)
+        res = s3_client.list_objects_v2(Bucket=bucket, Prefix=f"export/{file_name}")
+        self._clean_bucket_path(s3_client, bucket, res)
+        return True
 
     def create_schema(self, schema_name) -> None:
         """Creates a new schema object inside the database"""
