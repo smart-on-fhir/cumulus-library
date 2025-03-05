@@ -26,6 +26,24 @@ in a `CUMULUS_LIBRARY_DATA_PATH` variable. The library will create subfolders in
 this directory based on the names studies you are exporting. These will be emptied
 before each export run.
 
+If you are exporting data from Amazon Athena, it is assumed that you will have permissions
+to get/put/list/delete files in a folder called export at the root level of the
+bucket containing your Athena data, like in the following IAM policy:
+
+```json
+{
+            "Sid": "ManageExportStagingLocation",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:ListBucket",
+            ],
+            "Resource": "arn:aws:s3:::my-athena-bucket-123456789012-us-east-1/export/*"
+        }
+```
+
 ## Uploading data to Cumulus Aggregator
 
 As part of the Cumulus framework, we have a middleware application called
