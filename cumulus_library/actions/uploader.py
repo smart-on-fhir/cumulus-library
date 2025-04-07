@@ -25,7 +25,8 @@ def upload_data(
     data_package = file_name.split(".")[0]
     url = args["url"]
     if args["network"]:
-        url += args["network"]
+        # coercion to handle optional presence of trailing slash in the url
+        url = url.rstrip("/") + "/" + args["network"]
     prefetch_res = requests.post(
         args["url"],
         json={
