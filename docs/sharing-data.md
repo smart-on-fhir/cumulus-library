@@ -56,6 +56,7 @@ We recommend configuring the following environment variables for using this scri
 
 - `CUMULUS_AGGREGATOR_USER`
 - `CUMULUS_AGGREGATOR_ID`
+- `CUMULUS_AGGREGATOR_NETWORK`
 
 The administrator of your Aggregator instance can help you with generating the values for
 these variables; reach out to them for more details.
