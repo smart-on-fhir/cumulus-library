@@ -23,6 +23,10 @@ def upload_data(
     c = rich.get_console()
     progress_bar.update(file_upload_progress, description=f"Uploading {study}/{file_name}")
     data_package = file_name.split(".")[0]
+    url = args["url"]
+    if args["network"]:
+        # coercion to handle optional presence of trailing slash in the url
+        url = url.rstrip("/") + "/" + args["network"]
     prefetch_res = requests.post(
         args["url"],
         json={

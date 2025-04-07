@@ -418,6 +418,7 @@ def main(cli_args=None):
         ("umls_key", "UMLS_API_KEY"),
         ("url", "CUMULUS_AGGREGATOR_URL"),
         ("user", "CUMULUS_AGGREGATOR_USER"),
+        ("network", "CUMULUS_AGGREGATOR_NETWORK"),
         ("work_group", "CUMULUS_LIBRARY_WORKGROUP"),
     )
     read_env_vars = []

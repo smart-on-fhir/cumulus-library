@@ -454,19 +454,23 @@ def do_upload(
     login_error: bool = False,
     user: str = "user",
     id_token: str = "id",
+    network: str | None = None,
     preview: bool = True,
     raises: contextlib.AbstractContextManager = does_not_raise(),
     status: int = 204,
     version: str = "12345.0",
     data_path: pathlib.Path | None = pathlib.Path.cwd() / "tests/test_data/upload/",
 ):
+    url = "https://upload.url.test/"
+    if network:
+        url += network
     with raises:
         if login_error:
-            responses.add(responses.POST, "https://upload.url.test/", status=401)
+            responses.add(responses.POST, url, status=401)
         else:
             responses.add(
                 responses.POST,
-                "https://upload.url.test/",
+                url,
                 match=[
                     matchers.json_params_matcher(
                         {
@@ -481,7 +485,7 @@ def do_upload(
             )
             responses.add(
                 responses.POST,
-                "https://upload.url.test/",
+                url,
                 match=[
                     matchers.json_params_matcher(
                         {
@@ -499,26 +503,29 @@ def do_upload(
             "id": id_token,
             "preview": preview,
             "target": ["upload"],
-            "url": "https://upload.url.test/",
+            "network": network,
+            "url": url,
             "user": user,
         }
         responses.add(responses.POST, "https://presigned.url.test/", status=status)
         uploader.upload_files(args)
         if preview:
-            responses.assert_call_count("https://upload.url.test/", 1)
+            responses.assert_call_count(url, 1)
         elif raises == does_not_raise():
-            responses.assert_call_count("https://upload.url.test/", 2)
+            responses.assert_call_count(url, 2)
 
 
 @pytest.mark.parametrize(
-    "user,id_token,status,login_error,preview,raises",
+    "user,id_token,status,network,login_error,preview,raises",
     [
-        (None, None, 204, False, False, pytest.raises(SystemExit)),
-        ("user", "id", 204, False, False, does_not_raise()),
+        (None, None, 204, None, False, False, pytest.raises(SystemExit)),
+        ("user", "id", 204, None, False, False, does_not_raise()),
+        ("user", "id", 204, "network", False, False, does_not_raise()),
         (
             "user",
             "id",
             500,
+            None,
             False,
             False,
             pytest.raises(requests.exceptions.HTTPError),
@@ -527,6 +534,7 @@ def do_upload(
             "baduser",
             "badid",
             204,
+            None,
             True,
             False,
             pytest.raises(requests.exceptions.HTTPError),
@@ -535,6 +543,7 @@ def do_upload(
             "user",
             "id",
             204,
+            None,
             False,
             True,
             does_not_raise(),
@@ -542,11 +551,12 @@ def do_upload(
     ],
 )
 @responses.activate
-def test_upload_data(user, id_token, status, preview, login_error, raises):
+def test_upload_data(user, id_token, status, network, preview, login_error, raises):
     do_upload(
         user=user,
         id_token=id_token,
         status=status,
+        network=network,
         preview=preview,
         login_error=login_error,
         raises=raises,

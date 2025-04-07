@@ -274,6 +274,12 @@ following order of preference is used to select credentials:
         ),
         default="https://aggregator.smartcumulus.org/",
     )
+    upload.add_argument(
+        "--network",
+        help=(
+            "Network name. Reach out to your aggregator administrator for the appropriate value."
+        ),
+    )
     upload.add_argument("--user", help="Cumulus user. Default is value of CUMULUS_AGGREGATOR_USER")
 
     # Generate a study's template-driven sql
