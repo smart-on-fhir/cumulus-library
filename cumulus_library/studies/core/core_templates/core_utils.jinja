@@ -64,20 +64,20 @@ targets is an array expecting a data type of the following:
         {#- depth one nested column-#}
         {%- if col is not string and col|length ==3%}
         {%- if schema[table][col[0]][col[1]] %}
-        date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }})) AS {{ col[2] }}
+        cast(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}) AS date) AS {{ col[2] }}
         {%- else %}
         cast(NULL AS date) AS {{ col[1] }}
         {% endif %}
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==4%}
         {%- if schema[table][col[0]][col[1]][col[2]] %}
-        date(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }})) AS {{col[3]}}
+        cast(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }}) AS date) AS {{col[3]}}
         {%- else %}
         cast(NULL AS date) AS {{ col[3] }}
         {%- endif %}
         {#- SQL primitive column column-#}
         {%- elif schema[table][col] %}
-        date(from_iso8601_timestamp({{ alias }}.{{ col }})) AS {{ col }}
+        cast(from_iso8601_timestamp({{ alias }}.{{ col }}) AS date) AS {{ col }}
         {%- else %}
         cast(NULL AS date) AS {{ col }}
         {%- endif %}    
@@ -96,7 +96,7 @@ targets is assumed to be a list of tuples of one of the following format:
         {%- for col in targets %}
         {%- if col is not string and col|length ==4%}
         {%- if schema[table][col[0]][col[1]] %}
-        date_trunc('{{ col[3] }}', date(from_iso8601_timestamp({{ alias }}."{{ col[0] }}"."{{ col[1] }}")))
+        date_trunc('{{ col[3] }}', cast(from_iso8601_timestamp({{ alias }}."{{ col[0] }}"."{{ col[1] }}") AS date))
             AS {{ col[2] }}
         {%- else %}
         cast(NULL AS date) AS {{col[2]}}
@@ -104,14 +104,14 @@ targets is assumed to be a list of tuples of one of the following format:
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==5%}
         {%- if schema[table][col[0]][col[1]][col[2]] %}
-        date_trunc('{{ col[4] }}', date(from_iso8601_timestamp({{ alias }}."{{ col[0] }}"."{{ col[1] }}"."{{col[2]}}")))
+        date_trunc('{{ col[4] }}', cast(from_iso8601_timestamp({{ alias }}."{{ col[0] }}"."{{ col[1] }}"."{{col[2]}}") AS date))
             AS {{ col[3] }}
         {%- else %}
         cast(NULL AS date) AS {{col[3]}}
         {%- endif %}
         {#- SQL primitive column column-#}
         {%- elif schema[table][col[0]] %}
-        date_trunc('{{ col[1] }}', date(from_iso8601_timestamp({{ alias }}."{{ col[0] }}")))
+        date_trunc('{{ col[1] }}', cast(from_iso8601_timestamp({{ alias }}."{{ col[0] }}") AS date))
             AS {{ col[0] }}_{{ col[1] }}
         {%- else %}
         cast(NULL AS date) AS {{ col[0] }}_{{ col[1] }}
