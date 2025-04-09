@@ -41,6 +41,9 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         # Aliasing Athena's as_pandas to duckDB's df cast
         duckdb.DuckDBPyConnection.as_pandas = duckdb.DuckDBPyConnection.df
 
+        # Ignore order of NDJSON that we load in. It saves memory and order doesn't matter for us.
+        self.connection.execute("SET preserve_insertion_order = false;")
+
         # Paper over some syntax differences between Athena and DuckDB
         self.connection.create_function(
             # DuckDB's version is array_to_string -- seems there is no standard here.
@@ -144,9 +147,6 @@ class DuckDatabaseBackend(base.DatabaseBackend):
                 return datetime.datetime(int(pieces[0]), 1, 1)
             else:
                 return datetime.datetime(int(pieces[0]), int(pieces[1]), 1)
-
-        # Until we depend on Python 3.11+, manually handle Z
-        value = value.replace("Z", "+00:00")
 
         # TODO: return timezone-aware datetimes, like Athena does
         #       (this currently generates naive datetimes, in UTC local time)
