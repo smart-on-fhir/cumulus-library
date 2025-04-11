@@ -115,6 +115,11 @@ code_list = [
     },
     {
         "table_name": "observation",
+        "column_hierarchy": [("component", list), ("code", dict), ("coding", dict)],
+        "expected": {"code": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "observation",
         "column_hierarchy": [("interpretation", list), ("coding", list)],
     },
     {
