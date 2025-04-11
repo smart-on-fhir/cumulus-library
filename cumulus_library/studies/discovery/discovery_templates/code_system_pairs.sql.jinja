@@ -32,6 +32,9 @@ UNNEST({{ table.column_hierarchy[0][0] }}) AS table_1 (col_1)
 {%- for index in range(1,table.column_hierarchy|length) %}
 {%- if table.column_hierarchy[index][1].__name__ == 'list' -%},
 UNNEST(col_{{ index }}.{{ table.column_hierarchy[index][0].split('.')[0] }}) as table_{{ index +1 }} (col_{{ index +1 }})
+{#- Does the last element in the list contain a bare coding? -#}
+{%- elif table.column_hierarchy[index][1].__name__ == 'dict' and index +1 == table.column_hierarchy|length -%},
+UNNEST(col_{{ index }}.{{ table.column_hierarchy[index][0].split('.')[0] }}.coding) as table_{{ index +1 }} (col_{{ index +1 }})
 {%- endif %}
 {%- endfor %}
 {%- else %}
