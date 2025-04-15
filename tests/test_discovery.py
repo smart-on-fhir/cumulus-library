@@ -103,6 +103,18 @@ FROM bare
 
 UNION ALL
 
+SELECT DISTINCT
+    'bare_nested_coding' AS table_name,
+    'dcol.code' AS column_name,
+    table_2.col_2.code,
+    table_2.col_2.display,
+    table_2.col_2.system
+FROM bare_nested_coding,
+UNNEST(dcol) AS table_1 (col_1),
+UNNEST(col_1.code.coding) as table_2 (col_2)
+
+UNION ALL
+
 SELECT *
 FROM (
     VALUES (
@@ -133,6 +145,11 @@ FROM (
             {
                 "table_name": "bare",
                 "column_hierarchy": [("bcol", dict), ("coding", dict)],
+                "has_data": True,
+            },
+            {
+                "table_name": "bare_nested_coding",
+                "column_hierarchy": [("dcol", list), ("code", dict), ("coding", dict)],
                 "has_data": True,
             },
             {
