@@ -104,7 +104,7 @@ jobs:
         env:
           PROFILE: cumulus-library-ci
           WG: cumulus
-          DB: cumulus-aggregator-test-regression
+          DB: cumulus_library_regression_db
         run: |
           cumulus-library build -t core --profile $PROFILE --workgroup $WG --database $DB
           cumulus-library export -t core ./tests/regression/data_export/ --profile $PROFILE --workgroup $WG --database $DB
