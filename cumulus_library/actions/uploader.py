@@ -28,7 +28,7 @@ def upload_data(
         # coercion to handle optional presence of trailing slash in the url
         url = url.rstrip("/") + "/" + args["network"]
     prefetch_res = requests.post(
-        args["url"],
+        url,
         json={
             "study": study,
             "data_package": data_package,
