@@ -504,7 +504,7 @@ def do_upload(
             "preview": preview,
             "target": ["upload"],
             "network": network,
-            "url": url,
+            "url": "https://upload.url.test/",
             "user": user,
         }
         responses.add(responses.POST, "https://presigned.url.test/", status=status)
