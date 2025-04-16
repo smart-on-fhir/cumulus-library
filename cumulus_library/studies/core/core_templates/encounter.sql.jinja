@@ -121,7 +121,7 @@ SELECT DISTINCT
     e.dischargeDisposition_code,
     e.dischargeDisposition_system,
     e.dischargeDisposition_display,
-    date_diff('year', date(p.birthdate), e.period_start_day) AS age_at_visit,
+    date_diff('year', cast(p.birthdate AS date), e.period_start_day) AS age_at_visit,
     p.gender,
     p.race_display,
     p.ethnicity_display,
