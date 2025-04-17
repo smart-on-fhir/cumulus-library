@@ -36,6 +36,7 @@ UNNEST(col_{{ index }}.{{ table.column_hierarchy[index][0].split('.')[0] }}) as 
 {%- elif table.column_hierarchy[index][1].__name__ == 'dict' and index +1 == table.column_hierarchy|length -%},
 UNNEST(col_{{ index }}.{{ table.column_hierarchy[index][0].split('.')[0] }}.coding) as table_{{ index +1 }} (col_{{ index +1 }})
 {%- endif %}
+WHERE REGEXP_LIKE({{ get_source_col(table.column_hierarchy) }}.code, '^((?!1.2.840.1.114350).)*$')
 {%- endfor %}
 {%- else %}
 SELECT *
