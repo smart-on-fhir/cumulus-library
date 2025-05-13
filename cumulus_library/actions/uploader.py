@@ -70,19 +70,26 @@ def upload_files(args: dict):
     """Wrapper to prep files & console output"""
     if args["data_path"] is None:
         sys.exit("No data directory provided - please provide a path to your study export folder.")
+    if not args["target"]:
+        sys.exit("Please specify one or more studies to upload using '--target [NAME]'")
     file_paths = list(args["data_path"].glob("**/*.parquet"))
-    if args["target"]:
-        filtered_paths = []
-        for path in file_paths:
-            if any(
-                path.parent.name == study and path.name.startswith(f"{study}__")
-                for study in args["target"]
-            ):
-                filtered_paths.append(path)
-        file_paths = filtered_paths
-
+    filtered_paths = []
+    for path in file_paths:
+        if any(
+            path.parent.name == study and path.name.startswith(f"{study}__")
+            for study in args["target"]
+        ):
+            filtered_paths.append(path)
+    file_paths = filtered_paths
     if len(file_paths) == 0:
         sys.exit("No files found for upload. Is your data path/target specified correctly?")
+    for study in args["target"]:
+        if not any(f"{study}__meta_date.meta.parquet" == x.name for x in file_paths):
+            sys.exit(
+                f"Study '{study}' does not contain a {study}__meta_date table.\n"
+                "See the documentation for more information about this required table.\n"
+                "https://docs.smarthealthit.org/cumulus/library/creating-studies.html#metadata-tables"
+            )
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
     try:

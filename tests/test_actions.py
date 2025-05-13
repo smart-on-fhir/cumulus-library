@@ -459,6 +459,7 @@ def do_upload(
     raises: contextlib.AbstractContextManager = does_not_raise(),
     status: int = 204,
     version: str = "12345.0",
+    call_count: int = 2,
     data_path: pathlib.Path | None = pathlib.Path.cwd() / "tests/test_data/upload/",
 ):
     url = "https://upload.url.test/"
@@ -490,6 +491,21 @@ def do_upload(
                     matchers.json_params_matcher(
                         {
                             "study": "upload",
+                            "data_package": "upload__meta_date",
+                            "data_package_version": int(float(version)),
+                            "filename": f"{user}_upload__meta_date.meta.parquet",
+                        }
+                    )
+                ],
+                json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
+            )
+            responses.add(
+                responses.POST,
+                url,
+                match=[
+                    matchers.json_params_matcher(
+                        {
+                            "study": "upload",
                             "data_package": "upload__count_synthea_patient",
                             "data_package_version": int(float(version)),
                             "filename": f"{user}_upload__count_synthea_patient.cube.parquet",
@@ -509,18 +525,15 @@ def do_upload(
         }
         responses.add(responses.POST, "https://presigned.url.test/", status=status)
         uploader.upload_files(args)
-        if preview:
-            responses.assert_call_count(url, 1)
-        elif raises == does_not_raise():
-            responses.assert_call_count(url, 2)
+        responses.assert_call_count(url, call_count)
 
 
 @pytest.mark.parametrize(
-    "user,id_token,status,network,login_error,preview,raises",
+    "user,id_token,status,network,login_error,preview,call_count,raises",
     [
-        (None, None, 204, None, False, False, pytest.raises(SystemExit)),
-        ("user", "id", 204, None, False, False, does_not_raise()),
-        ("user", "id", 204, "network", False, False, does_not_raise()),
+        (None, None, 204, None, False, False, None, pytest.raises(SystemExit)),
+        ("user", "id", 204, None, False, False, 2, does_not_raise()),
+        ("user", "id", 204, "network", False, False, 2, does_not_raise()),
         (
             "user",
             "id",
@@ -528,6 +541,7 @@ def do_upload(
             None,
             False,
             False,
+            None,
             pytest.raises(requests.exceptions.HTTPError),
         ),
         (
@@ -537,6 +551,7 @@ def do_upload(
             None,
             True,
             False,
+            None,
             pytest.raises(requests.exceptions.HTTPError),
         ),
         (
@@ -546,12 +561,13 @@ def do_upload(
             None,
             False,
             True,
+            2,
             does_not_raise(),
         ),
     ],
 )
 @responses.activate
-def test_upload_data(user, id_token, status, network, preview, login_error, raises):
+def test_upload_data(user, id_token, status, network, preview, login_error, call_count, raises):
     do_upload(
         user=user,
         id_token=id_token,
@@ -559,6 +575,7 @@ def test_upload_data(user, id_token, status, network, preview, login_error, rais
         network=network,
         preview=preview,
         login_error=login_error,
+        call_count=call_count,
         raises=raises,
     )
 
@@ -570,11 +587,11 @@ def test_upload_data_no_path():
 
 @responses.activate
 def test_upload_data_no_version(tmp_path):
-    src = pathlib.Path.cwd() / "tests/test_data/upload/upload__count_synthea_patient.cube.parquet"
+    src = pathlib.Path.cwd() / "tests/test_data/upload/upload__meta_date.meta.parquet"
     dest = pathlib.Path(tmp_path) / "upload"
     dest.mkdir()
     shutil.copy(src, dest)
-    do_upload(data_path=dest, version="0")
+    do_upload(data_path=dest, version="0", call_count=1)
 
 
 @pytest.mark.parametrize(
