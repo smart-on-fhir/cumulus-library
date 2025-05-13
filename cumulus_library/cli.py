@@ -291,7 +291,7 @@ def run_cli(args: dict):
     if args["action"] == "upload":
         try:
             uploader.upload_files(args)
-        except requests.RequestException as e:  # pragma: no cover
+        except requests.RequestException as e:
             rich.print(str(e))
             sys.exit()
 

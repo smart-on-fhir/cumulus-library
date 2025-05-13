@@ -18,6 +18,7 @@ from unittest import mock
 import duckdb
 import pandas
 import pytest
+import requests
 import responses
 
 from cumulus_library import __version__, cli, databases, errors
@@ -694,6 +695,13 @@ def test_cli_upload_studies(args, status, login_error, raises):
             )
         responses.add(responses.POST, "https://presigned.url.test", status=status)
         cli.main(cli_args=[*args, "--url", "https://upload.url.test/upload/"])
+
+
+@mock.patch("cumulus_library.actions.uploader.upload_files")
+def test_cli_upload_error(mock_upload):
+    with pytest.raises(SystemExit):
+        mock_upload.side_effect = requests.RequestException()
+        cli.main(cli_args=["upload"])
 
 
 @pytest.mark.parametrize(
