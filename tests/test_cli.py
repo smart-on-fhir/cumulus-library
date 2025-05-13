@@ -664,6 +664,21 @@ def test_cli_stats_rebuild(tmp_path):
             False,
             does_not_raise(),
         ),
+        (
+            [
+                "upload",
+                "--user",
+                "user",
+                "--id",
+                "id",
+                "--target",
+                "upload_no_date",
+                str(pathlib.Path(__file__).resolve().parent / "test_data"),
+            ],
+            204,
+            False,
+            pytest.raises(SystemExit),
+        ),
     ],
 )
 @responses.activate
