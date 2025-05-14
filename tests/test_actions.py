@@ -594,6 +594,18 @@ def test_upload_data_no_version(tmp_path):
     do_upload(data_path=dest, version="0", call_count=1)
 
 
+@responses.activate
+def test_upload_data_no_meta_date(tmp_path):
+    with pytest.raises(SystemExit):
+        src = (
+            pathlib.Path.cwd() / "tests/test_data/upload/upload__count_synthea_patient.cube.parquet"
+        )
+        dest = pathlib.Path(tmp_path) / "upload"
+        dest.mkdir()
+        shutil.copy(src, dest)
+        do_upload(data_path=dest, version="0", call_count=1)
+
+
 @pytest.mark.parametrize(
     "study,external", [("study_python_valid", False), ("study_python_s3", True)]
 )
