@@ -18,6 +18,7 @@ from unittest import mock
 import duckdb
 import pandas
 import pytest
+import requests
 import responses
 
 from cumulus_library import __version__, cli, databases, errors
@@ -632,12 +633,11 @@ def test_cli_stats_rebuild(tmp_path):
     os.environ,
     clear=True,
 )
-@mock.patch("pathlib.Path.glob")
 @pytest.mark.parametrize(
     "args,status,login_error,raises",
     [
         (["upload"], 204, False, pytest.raises(SystemExit)),
-        (["upload", "--user", "user", "--id", "id"], 204, False, does_not_raise()),
+        (["upload", "--user", "user", "--id", "id"], 204, False, pytest.raises(SystemExit)),
         (
             ["upload", "--user", "user", "--id", "id"],
             500,
@@ -651,19 +651,39 @@ def test_cli_stats_rebuild(tmp_path):
             pytest.raises(SystemExit),
         ),
         (
-            ["upload", "--user", "user", "--id", "id", "./foo"],
+            [
+                "upload",
+                "--user",
+                "user",
+                "--id",
+                "id",
+                "--target",
+                "upload",
+                str(pathlib.Path(__file__).resolve().parent / "test_data"),
+            ],
             204,
             False,
             does_not_raise(),
         ),
+        (
+            [
+                "upload",
+                "--user",
+                "user",
+                "--id",
+                "id",
+                "--target",
+                "upload_no_date",
+                str(pathlib.Path(__file__).resolve().parent / "test_data"),
+            ],
+            204,
+            False,
+            pytest.raises(SystemExit),
+        ),
     ],
 )
 @responses.activate
-def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
-    mock_glob.side_effect = [
-        [Path(__file__)],
-        [Path(str(Path(__file__).parent) + "/test_data/count_synthea_patient.parquet")],
-    ]
+def test_cli_upload_studies(args, status, login_error, raises):
     with raises:
         if login_error:
             responses.add(responses.POST, "https://upload.url.test/upload/", status=401)
@@ -677,17 +697,24 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
         cli.main(cli_args=[*args, "--url", "https://upload.url.test/upload/"])
 
 
+@mock.patch("cumulus_library.actions.uploader.upload_files")
+def test_cli_upload_error(mock_upload):
+    with pytest.raises(SystemExit):
+        mock_upload.side_effect = requests.RequestException()
+        cli.main(cli_args=["upload"])
+
+
 @pytest.mark.parametrize(
     "args,calls,raises",
     [
-        (["upload", "--user", "user", "--id", "id", "./foo"], 2, does_not_raise()),
+        (["upload", "--user", "user", "--id", "id"], 0, pytest.raises(SystemExit)),
         (
-            ["upload", "--user", "user", "--id", "id", "./foo", "-t", "test_data"],
-            1,
+            ["upload", "--user", "user", "--id", "id", "-t", "upload"],
+            2,
             does_not_raise(),
         ),
         (
-            ["upload", "--user", "user", "--id", "id", "./foo", "-t", "not_found"],
+            ["upload", "--user", "user", "--id", "id", "-t", "not_found"],
             0,
             pytest.raises(SystemExit),
         ),
@@ -697,23 +724,17 @@ def test_cli_upload_studies(mock_glob, args, status, login_error, raises):
     os.environ,
     clear=True,
 )
-@mock.patch("pathlib.Path.glob")
 @mock.patch("cumulus_library.actions.uploader.upload_data")
-def test_cli_upload_filter(mock_upload_data, mock_glob, args, calls, raises):
+def test_cli_upload_filter(mock_upload_data, args, calls, raises):
     with raises:
-        mock_glob.side_effect = [
-            [
-                Path(
-                    str(Path(__file__).parent)
-                    + "/test_data/test_data__count_synthea_patient.parquet"
-                ),
-                Path(
-                    str(Path(__file__).parent)
-                    + "/other_data/other_data__count_synthea_patient.parquet"
-                ),
-            ],
-        ]
-        cli.main(cli_args=args)
+        cli.main(
+            cli_args=[
+                *args,
+                "--url",
+                "https://upload.url.test/upload/",
+                str(pathlib.Path(__file__).resolve().parent / "test_data"),
+            ]
+        )
         if len(mock_upload_data.call_args_list) == 1:
             target = args[args.index("-t") + 1]
             # filepath is in the third argument position in the upload data arg list

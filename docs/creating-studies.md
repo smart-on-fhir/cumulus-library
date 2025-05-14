@@ -245,7 +245,7 @@ styling.
   - Create a table called `my_study__meta_date` with two `DATE` columns, `min_date`
   and `max_date`, and populating it with the start and end date of your study, will
   allow other Cumulus tools to detect study date ranges, and otherwise bakes the
-  study date range into your SQL for future reference.
+  study date range into your SQL for future reference. This table is required.
     - If you are pulling your dates from resources, it's recommended to cap `max_date` to the
     current time (`LEAST(max_date, CURRENT_DATE)`), since resource data could have typos or
     be planned events that put `max_date` in the future (which is both inaccurate and may cause
