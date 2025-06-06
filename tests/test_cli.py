@@ -92,6 +92,7 @@ def test_cli_early_exit(args):
             "study_python_valid__count_table",
         ),
         (["build", "-t", "wrong"], pytest.raises(SystemExit), None),
+        (["build"], pytest.raises(SystemExit), None),
         (
             [
                 "build",
@@ -749,10 +750,14 @@ def test_cli_umls_parsing(mock_config, mode, tmp_path):
     with pytest.raises(ZeroDivisionError):
         match mode:
             case "cli":
-                cli.main(cli_args=duckdb_args(["build", "--umls-key=MY-KEY"], tmp_path))
+                cli.main(
+                    cli_args=duckdb_args(
+                        ["build", "--umls-key=MY-KEY", "-t", "study_valid"], tmp_path
+                    )
+                )
             case "env":
                 with mock.patch.dict(os.environ, {"UMLS_API_KEY": "MY-KEY"}):
-                    cli.main(cli_args=duckdb_args(["build"], tmp_path))
+                    cli.main(cli_args=duckdb_args(["build", "-t", "study_valid"], tmp_path))
 
     assert mock_config.call_args[1]["umls_key"] == "MY-KEY"
 

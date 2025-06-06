@@ -288,6 +288,8 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict[str, pathlib.Path]:
 def run_cli(args: dict):
     """Controls which library tasks are run based on CLI arguments"""
     console = rich.get_console()
+    if args["action"] != "import" and args.get("target") is None:
+        sys.exit("Please specify one or more studies with `-t [study_name]`.")
     if args["action"] == "upload":
         try:
             uploader.upload_files(args)
