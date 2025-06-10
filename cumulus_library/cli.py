@@ -71,12 +71,6 @@ class StudyRunner:
         :param options: The dictionary of study-specific options
         :keyword prefix: If True, does a search by string prefix in place of study name
         """
-        if targets is None:
-            sys.exit(
-                "Explicit targets for cleaning not provided. "
-                "Provide one or more explicit study prefixes to remove."
-            )
-
         for target in targets:
             if prefix:
                 manifest = study_manifest.StudyManifest(options=options)
@@ -288,10 +282,12 @@ def get_studies_by_manifest_path(path: pathlib.Path) -> dict[str, pathlib.Path]:
 def run_cli(args: dict):
     """Controls which library tasks are run based on CLI arguments"""
     console = rich.get_console()
+    if args["action"] != "import" and not args.get("target"):
+        sys.exit("Please specify one or more studies with `-t [study_name]`.")
     if args["action"] == "upload":
         try:
             uploader.upload_files(args)
-        except requests.RequestException as e:
+        except requests.RequestException as e:  # pragma: no cover
             rich.print(str(e))
             sys.exit()
 
