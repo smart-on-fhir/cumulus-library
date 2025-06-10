@@ -71,12 +71,6 @@ class StudyRunner:
         :param options: The dictionary of study-specific options
         :keyword prefix: If True, does a search by string prefix in place of study name
         """
-        if targets is None:
-            sys.exit(
-                "Explicit targets for cleaning not provided. "
-                "Provide one or more explicit study prefixes to remove."
-            )
-
         for target in targets:
             if prefix:
                 manifest = study_manifest.StudyManifest(options=options)

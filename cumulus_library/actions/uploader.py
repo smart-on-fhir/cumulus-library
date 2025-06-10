@@ -74,34 +74,33 @@ def upload_files(args: dict):
         sys.exit("Please specify one or more studies to upload using '--target [NAME]'")
     file_paths = list(args["data_path"].glob("**/*.parquet"))
     filtered_paths = []
-    for path in file_paths:
-        if any(
-            path.parent.name == study and path.name.startswith(f"{study}__")
-            for study in args["target"]
-        ):
-            filtered_paths.append(path)
-    file_paths = filtered_paths
-    if len(file_paths) == 0:
-        sys.exit("No files found for upload. Is your data path/target specified correctly?")
-    for study in args["target"]:
-        if not any(f"{study}__meta_date.meta.parquet" == x.name for x in file_paths):
+    if not args["user"] or not args["id"]:
+        sys.exit("user/id not provided, please pass --user and --id")
+    for target in args["target"]:
+        for path in file_paths:
+            if any(path.parent.name == target and path.name.startswith(f"{target}__")):
+                filtered_paths.append(path)
+        file_paths = filtered_paths
+        if len(file_paths) == 0:
+            sys.exit("No files found for upload. Is your data path/target specified correctly?")
+        if not any(f"{target}__meta_date.meta.parquet" == x.name for x in file_paths):
             sys.exit(
-                f"Study '{study}' does not contain a {study}__meta_date table.\n"
+                f"Study '{target}' does not contain a {target}__meta_date table.\n"
                 "See the documentation for more information about this required table.\n"
                 "https://docs.smarthealthit.org/cumulus/library/creating-studies.html#metadata-tables"
             )
-    if not args["user"] or not args["id"]:
-        sys.exit("user/id not provided, please pass --user and --id")
-    try:
-        meta_version = next(
-            filter(lambda x: str(x).endswith("__meta_version.meta.parquet"), file_paths)
-        )
-        version = str(read_parquet(meta_version)["data_package_version"][0])
-        file_paths.remove(meta_version)
-    except StopIteration:
-        version = "0"
-    num_uploads = len(file_paths)
-    with base_utils.get_progress_bar() as progress_bar:
-        file_upload_progress = progress_bar.add_task("Uploading", total=num_uploads)
-        for file_path in file_paths:
-            upload_data(progress_bar, file_upload_progress, file_path, version, args)
+        try:
+            meta_version = next(
+                filter(lambda x: str(x).endswith("__meta_version.meta.parquet"), file_paths)
+            )
+            version = str(read_parquet(meta_version)["data_package_version"][0])
+            file_paths.remove(meta_version)
+        except StopIteration:
+            version = "0"
+        num_uploads = len(file_paths)
+        with base_utils.get_progress_bar() as progress_bar:
+            file_upload_progress = progress_bar.add_task(
+                f"Uploading {target} data...", total=num_uploads
+            )
+            for file_path in file_paths:
+                upload_data(progress_bar, file_upload_progress, file_path, version, args)
