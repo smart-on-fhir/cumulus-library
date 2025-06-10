@@ -70,15 +70,13 @@ def upload_files(args: dict):
     """Wrapper to prep files & console output"""
     if args["data_path"] is None:
         sys.exit("No data directory provided - please provide a path to your study export folder.")
-    if not args["target"]:
-        sys.exit("Please specify one or more studies to upload using '--target [NAME]'")
     file_paths = list(args["data_path"].glob("**/*.parquet"))
     filtered_paths = []
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
     for target in args["target"]:
         for path in file_paths:
-            if any(path.parent.name == target and path.name.startswith(f"{target}__")):
+            if path.parent.name == target and path.name.startswith(f"{target}__"):
                 filtered_paths.append(path)
         file_paths = filtered_paths
         if len(file_paths) == 0:
