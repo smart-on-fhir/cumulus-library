@@ -81,12 +81,13 @@ def upload_files(args: dict):
         file_paths = filtered_paths
         if len(file_paths) == 0:
             sys.exit("No files found for upload. Is your data path/target specified correctly?")
-        if not any(f"{target}__meta_date.meta.parquet" == x.name for x in file_paths):
-            sys.exit(
-                f"Study '{target}' does not contain a {target}__meta_date table.\n"
-                "See the documentation for more information about this required table.\n"
-                "https://docs.smarthealthit.org/cumulus/library/creating-studies.html#metadata-tables"
-            )
+        if target != "discovery":
+            if not any(f"{target}__meta_date.meta.parquet" == x.name for x in file_paths):
+                sys.exit(
+                    f"Study '{target}' does not contain a {target}__meta_date table.\n"
+                    "See the documentation for more information about this required table.\n"
+                    "https://docs.smarthealthit.org/cumulus/library/creating-studies.html#metadata-tables"
+                )
         try:
             meta_version = next(
                 filter(lambda x: str(x).endswith("__meta_version.meta.parquet"), file_paths)

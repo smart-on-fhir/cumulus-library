@@ -461,6 +461,7 @@ def do_upload(
     version: str = "12345.0",
     call_count: int = 2,
     data_path: pathlib.Path | None = pathlib.Path.cwd() / "tests/test_data/upload/",
+    study: str = "upload",
 ):
     url = "https://upload.url.test/"
     if network:
@@ -475,10 +476,10 @@ def do_upload(
                 match=[
                     matchers.json_params_matcher(
                         {
-                            "study": "upload",
-                            "data_package": "upload__meta_version",
+                            "study": study,
+                            "data_package": f"{study}__meta_version",
                             "data_package_version": int(float(version)),
-                            "filename": f"{user}_upload__meta_version.meta.parquet",
+                            "filename": f"{user}_{study}__meta_version.meta.parquet",
                         }
                     )
                 ],
@@ -490,10 +491,10 @@ def do_upload(
                 match=[
                     matchers.json_params_matcher(
                         {
-                            "study": "upload",
-                            "data_package": "upload__meta_date",
+                            "study": study,
+                            "data_package": f"{study}__meta_date",
                             "data_package_version": int(float(version)),
-                            "filename": f"{user}_upload__meta_date.meta.parquet",
+                            "filename": f"{user}_{study}__meta_date.meta.parquet",
                         }
                     )
                 ],
@@ -505,10 +506,10 @@ def do_upload(
                 match=[
                     matchers.json_params_matcher(
                         {
-                            "study": "upload",
-                            "data_package": "upload__count_synthea_patient",
+                            "study": study,
+                            "data_package": f"{study}__count_synthea_patient",
                             "data_package_version": int(float(version)),
-                            "filename": f"{user}_upload__count_synthea_patient.cube.parquet",
+                            "filename": f"{user}_{study}__count_synthea_patient.cube.parquet",
                         }
                     ),
                 ],
@@ -518,7 +519,7 @@ def do_upload(
             "data_path": data_path,
             "id": id_token,
             "preview": preview,
-            "target": ["upload"],
+            "target": [study],
             "network": network,
             "url": "https://upload.url.test/",
             "user": user,
@@ -604,6 +605,15 @@ def test_upload_data_no_meta_date(tmp_path):
         dest.mkdir()
         shutil.copy(src, dest)
         do_upload(data_path=dest, version="0", call_count=1)
+
+
+@responses.activate
+def test_upload_discovery(tmp_path):
+    src = pathlib.Path.cwd() / "tests/test_data/upload/upload__count_synthea_patient.cube.parquet"
+    dest = pathlib.Path(tmp_path) / "discovery/discovery__count_synthea_patient.cube.parquet"
+    dest.parent.mkdir()
+    shutil.copyfile(src, dest)
+    do_upload(data_path=dest.parent, version="0", call_count=1, study="discovery")
 
 
 @pytest.mark.parametrize(
