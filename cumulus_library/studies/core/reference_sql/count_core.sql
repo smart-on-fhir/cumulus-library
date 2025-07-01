@@ -74,7 +74,7 @@ CREATE TABLE core__count_allergyintolerance_month AS (
         p."reaction_manifestation_display"
     FROM powerset AS p
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -88,7 +88,8 @@ CREATE TABLE core__count_condition_month AS (
             --noqa: disable=RF03, AL02
             s."category_code",
             s."recordedDate_month",
-            s."code_display"
+            s."code_display",
+            s."code"
             --noqa: enable=RF03, AL02
         FROM core__condition AS s
     ),
@@ -108,7 +109,11 @@ CREATE TABLE core__count_condition_month AS (
             coalesce(
                 cast(code_display AS varchar),
                 'cumulus__none'
-            ) AS code_display
+            ) AS code_display,
+            coalesce(
+                cast(code AS varchar),
+                'cumulus__none'
+            ) AS code
         FROM filtered_table
     ),
     secondary_powerset AS (
@@ -117,18 +122,22 @@ CREATE TABLE core__count_condition_month AS (
             "category_code",
             "recordedDate_month",
             "code_display",
+            "code",
             concat_ws(
                 '-',
                 COALESCE("category_code",''),
                 COALESCE("recordedDate_month",''),
-                COALESCE("code_display",'')
+                COALESCE("code_display",''),
+                COALESCE("code",'')
             ) AS id
         FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
         GROUP BY
             cube(
             "category_code",
             "recordedDate_month",
-            "code_display"
+            "code_display",
+            "code"
             )
     ),
 
@@ -138,18 +147,21 @@ CREATE TABLE core__count_condition_month AS (
             "category_code",
             "recordedDate_month",
             "code_display",
+            "code",
             concat_ws(
                 '-',
                 COALESCE("category_code",''),
                 COALESCE("recordedDate_month",''),
-                COALESCE("code_display",'')
+                COALESCE("code_display",''),
+                COALESCE("code",'')
             ) AS id
         FROM null_replacement
         GROUP BY
             cube(
             "category_code",
             "recordedDate_month",
-            "code_display"
+            "code_display",
+            "code"
             )
     )
 
@@ -157,11 +169,13 @@ CREATE TABLE core__count_condition_month AS (
         s.cnt_encounter_ref AS cnt,
         p."category_code",
         p."recordedDate_month",
-        p."code_display"
+        p."code_display",
+        p."code"
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_encounter_ref >= 10
 );
 
 -- ###########################################################
@@ -225,7 +239,7 @@ CREATE TABLE core__count_diagnosticreport_month AS (
         p."issued_month"
     FROM powerset AS p
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -281,6 +295,7 @@ CREATE TABLE core__count_documentreference_month AS (
                 
             ) AS id
         FROM null_replacement
+        WHERE documentreference_ref IS NOT NULL
         GROUP BY
             cube(
             "type_display",
@@ -322,7 +337,8 @@ CREATE TABLE core__count_documentreference_month AS (
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_documentreference_ref >= 10
 );
 
 -- ###########################################################
@@ -394,6 +410,7 @@ CREATE TABLE core__count_encounter_month AS (
                 COALESCE("ethnicity_display",'')
             ) AS id
         FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
         GROUP BY
             cube(
             "period_start_month",
@@ -446,7 +463,8 @@ CREATE TABLE core__count_encounter_month AS (
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_encounter_ref >= 10
 );
 
 -- ###########################################################
@@ -504,6 +522,7 @@ CREATE TABLE core__count_encounter_all_types AS (
                 COALESCE("priority_display",'')
             ) AS id
         FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
         GROUP BY
             cube(
             "class_display",
@@ -546,7 +565,8 @@ CREATE TABLE core__count_encounter_all_types AS (
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_encounter_ref >= 10
 );
 
 -- ###########################################################
@@ -611,6 +631,7 @@ CREATE TABLE core__count_encounter_all_types_month AS (
                 COALESCE("period_start_month",'')
             ) AS id
         FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
         GROUP BY
             cube(
             "class_display",
@@ -658,7 +679,8 @@ CREATE TABLE core__count_encounter_all_types_month AS (
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_encounter_ref >= 10
 );
 
 -- ###########################################################
@@ -709,6 +731,7 @@ CREATE TABLE core__count_encounter_type_month AS (
                 COALESCE("period_start_month",'')
             ) AS id
         FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
         GROUP BY
             cube(
             "class_display",
@@ -746,7 +769,8 @@ CREATE TABLE core__count_encounter_type_month AS (
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_encounter_ref >= 10
 );
 
 -- ###########################################################
@@ -797,6 +821,7 @@ CREATE TABLE core__count_encounter_service_month AS (
                 COALESCE("period_start_month",'')
             ) AS id
         FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
         GROUP BY
             cube(
             "class_display",
@@ -834,7 +859,8 @@ CREATE TABLE core__count_encounter_service_month AS (
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_encounter_ref >= 10
 );
 
 -- ###########################################################
@@ -885,6 +911,7 @@ CREATE TABLE core__count_encounter_priority_month AS (
                 COALESCE("period_start_month",'')
             ) AS id
         FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
         GROUP BY
             cube(
             "class_display",
@@ -922,7 +949,8 @@ CREATE TABLE core__count_encounter_priority_month AS (
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_encounter_ref >= 10
 );
 
 -- ###########################################################
@@ -995,7 +1023,7 @@ CREATE TABLE core__count_medicationrequest_month AS (
         p."medication_display"
     FROM powerset AS p
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -1057,6 +1085,7 @@ CREATE TABLE core__count_observation_lab_month AS (
                 
             ) AS id
         FROM null_replacement
+        WHERE observation_ref IS NOT NULL
         GROUP BY
             cube(
             "effectiveDateTime_month",
@@ -1103,7 +1132,8 @@ CREATE TABLE core__count_observation_lab_month AS (
     FROM powerset AS p
     JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_observation_ref >= 10
 );
 
 -- ###########################################################
@@ -1167,7 +1197,7 @@ CREATE TABLE core__count_procedure_month AS (
         p."performedDateTime_month"
     FROM powerset AS p
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
@@ -1231,5 +1261,5 @@ CREATE TABLE core__count_patient AS (
         p."ethnicity_display"
     FROM powerset AS p
     WHERE 
-        cnt_subject_ref >= 10
+        p.cnt_subject_ref >= 10
 );

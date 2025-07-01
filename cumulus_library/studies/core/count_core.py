@@ -24,6 +24,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
             ["category_code", "varchar", None],
             [f"recordedDate_{duration}", "date", None],
             ["code_display", "varchar", None],
+            ["code", "varchar", None],
         ]
         return self.count_condition(table_name, from_table, cols)
 

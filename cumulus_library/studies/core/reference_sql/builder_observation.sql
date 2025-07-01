@@ -369,13 +369,13 @@ WITH temp_observation AS (
         o.valueQuantity.unit AS valueQuantity_unit,
         o.valueQuantity.system AS valueQuantity_system,
         o.valueQuantity.code AS valueQuantity_code,
-        date_trunc('day', date(from_iso8601_timestamp(o."effectiveDateTime")))
+        date_trunc('day', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
             AS effectiveDateTime_day,
-        date_trunc('week', date(from_iso8601_timestamp(o."effectiveDateTime")))
+        date_trunc('week', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
             AS effectiveDateTime_week,
-        date_trunc('month', date(from_iso8601_timestamp(o."effectiveDateTime")))
+        date_trunc('month', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
             AS effectiveDateTime_month,
-        date_trunc('year', date(from_iso8601_timestamp(o."effectiveDateTime")))
+        date_trunc('year', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
             AS effectiveDateTime_year,
         odc.code AS observation_code,
         odc.system AS observation_system,

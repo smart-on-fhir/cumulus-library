@@ -3,6 +3,7 @@
 from cumulus_library.base_utils import StudyConfig
 from cumulus_library.builders.base_table_builder import BaseTableBuilder
 from cumulus_library.builders.counts import CountsBuilder
+from cumulus_library.builders.statistics_templates.counts_templates import CountAnnotation
 from cumulus_library.study_manifest import StudyManifest
 from cumulus_library.template_sql.base_templates import get_template
 
@@ -16,5 +17,12 @@ from cumulus_library.template_sql.base_templates import get_template
 # This API should be usable for your own study efforts - but the documentation
 # is all code level. See template_sql for more information.
 
-__all__ = ["BaseTableBuilder", "CountsBuilder", "StudyConfig", "StudyManifest", "get_template"]
+__all__ = [
+    "BaseTableBuilder",
+    "CountAnnotation",
+    "CountsBuilder",
+    "StudyConfig",
+    "StudyManifest",
+    "get_template",
+]
 __version__ = "1!0.0.0"

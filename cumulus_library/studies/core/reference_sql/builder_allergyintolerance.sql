@@ -263,12 +263,12 @@ WITH temp_allergyintolerance AS (
         a.criticality,
         a.patient.reference AS patient_ref,
         a.encounter.reference AS encounter_ref,
-        date(from_iso8601_timestamp(a.recordedDate)) AS recordedDate,
-        date_trunc('week', date(from_iso8601_timestamp(a."recordedDate")))
+        cast(from_iso8601_timestamp(a.recordedDate) AS date) AS recordedDate,
+        date_trunc('week', cast(from_iso8601_timestamp(a."recordedDate") AS date))
             AS recordedDate_week,
-        date_trunc('month', date(from_iso8601_timestamp(a."recordedDate")))
+        date_trunc('month', cast(from_iso8601_timestamp(a."recordedDate") AS date))
             AS recordedDate_month,
-        date_trunc('year', date(from_iso8601_timestamp(a."recordedDate")))
+        date_trunc('year', cast(from_iso8601_timestamp(a."recordedDate") AS date))
             AS recordedDate_year
     FROM allergyintolerance AS a
 ),

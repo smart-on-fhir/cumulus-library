@@ -627,16 +627,16 @@ temp_encounter_nullable AS (
         e.class.code AS class_code,
         e.class.system AS class_system,
         e.subject.reference AS subject_ref,
-        date(from_iso8601_timestamp(e.period.start)) AS period_start,
-        date_trunc('day', date(from_iso8601_timestamp(e."period"."end")))
+        cast(from_iso8601_timestamp(e.period.start) AS date) AS period_start,
+        date_trunc('day', cast(from_iso8601_timestamp(e."period"."end") AS date))
             AS period_end_day,
-        date_trunc('day', date(from_iso8601_timestamp(e."period"."start")))
+        date_trunc('day', cast(from_iso8601_timestamp(e."period"."start") AS date))
             AS period_start_day,
-        date_trunc('week', date(from_iso8601_timestamp(e."period"."start")))
+        date_trunc('week', cast(from_iso8601_timestamp(e."period"."start") AS date))
             AS period_start_week,
-        date_trunc('month', date(from_iso8601_timestamp(e."period"."start")))
+        date_trunc('month', cast(from_iso8601_timestamp(e."period"."start") AS date))
             AS period_start_month,
-        date_trunc('year', date(from_iso8601_timestamp(e."period"."start")))
+        date_trunc('year', cast(from_iso8601_timestamp(e."period"."start") AS date))
             AS period_start_year
     FROM encounter AS e
     LEFT JOIN temp_encounter_completion AS tec ON tec.id = e.id
@@ -704,7 +704,7 @@ SELECT DISTINCT
     e.dischargeDisposition_code,
     e.dischargeDisposition_system,
     e.dischargeDisposition_display,
-    date_diff('year', date(p.birthdate), e.period_start_day) AS age_at_visit,
+    date_diff('year', cast(p.birthdate AS date), e.period_start_day) AS age_at_visit,
     p.gender,
     p.race_display,
     p.ethnicity_display,

@@ -34,7 +34,7 @@ def test_duckdb_core_build_and_export(tmp_path):
         ]
     )
 
-    # Now check each csv file - we'll assume the parquest are alright
+    # Now check each csv file - we'll assume the parquets are alright
     csv_files = glob.glob(f"{tmp_path}/counts/core/*.csv")
     for csv_file in csv_files:
         basename = Path(csv_file).name

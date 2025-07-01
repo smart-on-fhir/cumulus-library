@@ -175,6 +175,7 @@ class StudyManifest:
             ("count_list", "cube"),
             ("flat_list", "flat"),
             ("meta_list", "meta"),
+            ("annotated_count_list", "annotated_cube"),
         ]:
             section_list = export_config.get(section[0], []) or []
             for table in section_list:
