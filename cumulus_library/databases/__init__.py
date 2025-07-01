@@ -1,4 +1,3 @@
-# ruff: noqa: F401
 from .athena import AthenaDatabaseBackend, AthenaParser
 from .base import DatabaseBackend, DatabaseCursor, DatabaseParser
 from .duckdb import DuckDatabaseBackend, DuckDbParser
