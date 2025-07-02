@@ -574,9 +574,7 @@ def test_cli_transactions(tmp_path, study, finishes, raises):
             ["build", "-t", study, "-s", "tests/test_data/"],
             f"{tmp_path}",
         )
-        args = args[:-1] + [
-            f"{tmp_path}/{study}_duck.db",
-        ]
+        args = [*args[:-1], f"{tmp_path}/{study}_duck.db"]
         cli.main(cli_args=args)
     db = databases.DuckDatabaseBackend(f"{tmp_path}/{study}_duck.db")
     db.connect()

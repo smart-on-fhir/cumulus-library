@@ -170,14 +170,14 @@ WITH temp_documentreference AS (
         dr.docStatus,
         dr.context,
         dr.subject.reference AS subject_ref,
-        date(from_iso8601_timestamp(dr.date)) AS date,
-        date_trunc('day', date(from_iso8601_timestamp(dr."context"."period"."start")))
+        cast(from_iso8601_timestamp(dr.date) AS date) AS date,
+        date_trunc('day', cast(from_iso8601_timestamp(dr."context"."period"."start") AS date))
             AS author_day,
-        date_trunc('week', date(from_iso8601_timestamp(dr."context"."period"."start")))
+        date_trunc('week', cast(from_iso8601_timestamp(dr."context"."period"."start") AS date))
             AS author_week,
-        date_trunc('month', date(from_iso8601_timestamp(dr."context"."period"."start")))
+        date_trunc('month', cast(from_iso8601_timestamp(dr."context"."period"."start") AS date))
             AS author_month,
-        date_trunc('year', date(from_iso8601_timestamp(dr."context"."period"."start")))
+        date_trunc('year', cast(from_iso8601_timestamp(dr."context"."period"."start") AS date))
             AS author_year,
         cdrt.code as type_code,
         cdrt.system as type_system,

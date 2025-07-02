@@ -132,7 +132,8 @@ vital signs) instead.
 |cnt               |bigint |count      |
 |category_code     |varchar|Encounter Code (Healthcare Setting)|
 |recordeddate_month|varchar|Month condition recorded|
-|code_display      |varchar|Condition code|
+|code_display      |varchar|Condition code display|
+|code              |varchar|Condition code|
 
 
 ### core__count_diagnosticreport_month

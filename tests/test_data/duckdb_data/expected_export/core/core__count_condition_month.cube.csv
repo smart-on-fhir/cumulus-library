@@ -1,3 +1,3 @@
-cnt,category_code,recordedDate_month,code_display
-15,,,
-15,encounter-diagnosis,,
+cnt,category_code,recordedDate_month,code_display,code
+15,,,,
+15,encounter-diagnosis,,,

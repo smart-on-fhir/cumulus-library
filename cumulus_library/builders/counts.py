@@ -43,51 +43,6 @@ class CountsBuilder(BaseTableBuilder):
         else:
             return f"{self.study_prefix}__{table_name}"
 
-    # def coerce_table_name(self, table_name, fhir_resource: str | None) -> str:
-    #     """Attempts to make counts tables match expected format
-
-    #     The dashboard uses name inspection to create things like default names of charts.
-    #     This tries to non-destructively get a table to be named something like
-    #     'study__count_resource_[everything else]'
-    #     """
-    #     c = rich.get_console()
-    #     if f"__count_{fhir_resource}" in table_name:
-    #         return table_name
-    #     name_parts = table_name.split("__")[-1].split("_")
-    #     if name_parts[0] != "count":
-    #         if "count" in name_parts:
-    #             name_parts.remove("count")
-    #         name_parts.insert(0, "count")
-    #     if fhir_resource is None:
-    #         found_resources = []
-    #         unparsable_name = False
-    #         for resource in enums.ResourceTypes:
-    #             instances = name_parts.count(resource)
-    #             if instances > 1:
-    #                 unparsable_name = True
-    #             elif instances == 1:
-    #                 found_resources.append(resource)
-    #         if unparsable_name or len(found_resources) != 1:
-    #             c.print(
-    #                 f"[yellow]WARNING: '{table_name}' does not have a standard count name, "
-    #                 "and a correct form can't be determined.\n"
-    #                 "[white]Count tables should be named like 'study__count_resource_[context].\n"
-    #                 "Some dashboard features may not work with the current name."
-    #             )
-    #             return table_name
-    #         name_parts.remove(found_resources[0])
-    #         name_parts.insert(1, found_resources[0])
-    #     else:
-    #         if fhir_resource in name_parts:
-    #             name_parts.remove(fhir_resource)
-    #         name_parts.insert(1, fhir_resource)
-    #     new_name = f"{self.study_prefix}__{'_'.join(name_parts)}"
-    #     c.print(
-    #         f"Changing invalid count table name {table_name} to {new_name}. "
-    #         "Consider updating table generation to match this format."
-    #     )
-    #     return new_name
-
     def get_where_clauses(
         self, clause: list | str | None = None, min_subject: int | None = None
     ) -> list[str]:
@@ -126,9 +81,7 @@ class CountsBuilder(BaseTableBuilder):
             raise errors.CountsBuilderError(
                 f"count_query missing required arguments. output table: {table_name}"
             )
-        ### TODO: removing this for now pending architectural discussions
-        # if not table_name.startswith(f"{self.study_prefix}__count_{kwargs.get('fhir_resource')}"):
-        #    table_name = self.coerce_table_name(table_name, kwargs.get("fhir_resource"))
+
         for key in kwargs:
             if key not in [
                 "min_subject",
@@ -136,6 +89,7 @@ class CountsBuilder(BaseTableBuilder):
                 "fhir_resource",
                 "filter_resource",
                 "patient_link",
+                "annotation",
             ]:
                 raise errors.CountsBuilderError(f"count_query received unexpected key: {key}")
         if "min_subject" in kwargs and kwargs["min_subject"] is None:
@@ -154,6 +108,7 @@ class CountsBuilder(BaseTableBuilder):
         table_cols: list,
         where_clauses: list | None = None,
         min_subject: int | None = None,
+        annotation: counts_templates.CountAnnotation | None = None,
     ) -> str:
         """wrapper method for constructing allergyintolerance counts tables
 
@@ -172,6 +127,7 @@ class CountsBuilder(BaseTableBuilder):
             min_subject=min_subject,
             fhir_resource="allergyintolerance",
             patient_link="patient_ref",
+            annotation=annotation,
         )
 
     def count_condition(
@@ -181,6 +137,7 @@ class CountsBuilder(BaseTableBuilder):
         table_cols: list,
         where_clauses: list | None = None,
         min_subject: int | None = None,
+        annotation: counts_templates.CountAnnotation | None = None,
     ) -> str:
         """wrapper method for constructing condition counts tables
 
@@ -199,6 +156,7 @@ class CountsBuilder(BaseTableBuilder):
             min_subject=min_subject,
             fhir_resource="condition",
             filter_resource=True,
+            annotation=annotation,
         )
 
     def count_diagnosticreport(
@@ -208,6 +166,7 @@ class CountsBuilder(BaseTableBuilder):
         table_cols: list,
         where_clauses: list | None = None,
         min_subject: int | None = None,
+        annotation: counts_templates.CountAnnotation | None = None,
     ) -> str:
         """wrapper method for constructing diagnosticreport counts tables
 
@@ -225,6 +184,7 @@ class CountsBuilder(BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="diagnosticreport",
+            annotation=annotation,
         )
 
     def count_documentreference(
@@ -234,6 +194,7 @@ class CountsBuilder(BaseTableBuilder):
         table_cols: list,
         where_clauses: list | None = None,
         min_subject: int | None = None,
+        annotation: counts_templates.CountAnnotation | None = None,
     ) -> str:
         """wrapper method for constructing documentreference counts tables
 
@@ -252,6 +213,7 @@ class CountsBuilder(BaseTableBuilder):
             min_subject=min_subject,
             fhir_resource="documentreference",
             filter_resource=True,
+            annotation=annotation,
         )
 
     def count_encounter(
@@ -261,6 +223,7 @@ class CountsBuilder(BaseTableBuilder):
         table_cols: list,
         where_clauses: list | None = None,
         min_subject: int | None = None,
+        annotation: counts_templates.CountAnnotation | None = None,
     ) -> str:
         """wrapper method for constructing encounter counts tables
 
@@ -278,6 +241,7 @@ class CountsBuilder(BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="encounter",
+            annotation=annotation,
         )
 
     def count_medicationrequest(
@@ -287,6 +251,7 @@ class CountsBuilder(BaseTableBuilder):
         table_cols: list,
         where_clauses: list | None = None,
         min_subject: int | None = None,
+        annotation: counts_templates.CountAnnotation | None = None,
     ) -> str:
         """wrapper method for constructing medicationrequests counts tables
 
@@ -304,6 +269,7 @@ class CountsBuilder(BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="medicationrequest",
+            annotation=annotation,
         )
 
     def count_observation(
@@ -313,6 +279,7 @@ class CountsBuilder(BaseTableBuilder):
         table_cols: list,
         where_clauses: list | None = None,
         min_subject: int | None = None,
+        annotation: counts_templates.CountAnnotation | None = None,
     ) -> str:
         """wrapper method for constructing observation counts tables
 
@@ -330,6 +297,7 @@ class CountsBuilder(BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="observation",
+            annotation=annotation,
         )
 
     def count_patient(
@@ -339,6 +307,7 @@ class CountsBuilder(BaseTableBuilder):
         table_cols: list,
         where_clauses: list | None = None,
         min_subject: int | None = None,
+        annotation: counts_templates.CountAnnotation | None = None,
     ) -> str:
         """wrapper method for constructing patient counts tables
 
@@ -356,6 +325,7 @@ class CountsBuilder(BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="patient",
+            annotation=annotation,
         )
 
     def count_procedure(
@@ -365,6 +335,7 @@ class CountsBuilder(BaseTableBuilder):
         table_cols: list,
         where_clauses: list | None = None,
         min_subject: int | None = None,
+        annotation: counts_templates.CountAnnotation | None = None,
     ) -> str:
         """wrapper method for constructing procedure counts tables
 
@@ -382,6 +353,7 @@ class CountsBuilder(BaseTableBuilder):
             where_clauses=where_clauses,
             min_subject=min_subject,
             fhir_resource="procedure",
+            annotation=annotation,
         )
 
     # End of wrapper section

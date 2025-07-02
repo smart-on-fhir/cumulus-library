@@ -136,37 +136,37 @@ WITH temp_diagnosticreport AS (
         d.status,
         d.subject.reference AS subject_ref,
         d.encounter.reference AS encounter_ref,
-        date_trunc('day', date(from_iso8601_timestamp(d."effectiveDateTime")))
+        date_trunc('day', cast(from_iso8601_timestamp(d."effectiveDateTime") AS date))
             AS effectiveDateTime_day,
-        date_trunc('week', date(from_iso8601_timestamp(d."effectiveDateTime")))
+        date_trunc('week', cast(from_iso8601_timestamp(d."effectiveDateTime") AS date))
             AS effectiveDateTime_week,
-        date_trunc('month', date(from_iso8601_timestamp(d."effectiveDateTime")))
+        date_trunc('month', cast(from_iso8601_timestamp(d."effectiveDateTime") AS date))
             AS effectiveDateTime_month,
-        date_trunc('year', date(from_iso8601_timestamp(d."effectiveDateTime")))
+        date_trunc('year', cast(from_iso8601_timestamp(d."effectiveDateTime") AS date))
             AS effectiveDateTime_year,
-        date_trunc('day', date(from_iso8601_timestamp(d."effectivePeriod"."start")))
+        date_trunc('day', cast(from_iso8601_timestamp(d."effectivePeriod"."start") AS date))
             AS effectivePeriod_start_day,
-        date_trunc('week', date(from_iso8601_timestamp(d."effectivePeriod"."start")))
+        date_trunc('week', cast(from_iso8601_timestamp(d."effectivePeriod"."start") AS date))
             AS effectivePeriod_start_week,
-        date_trunc('month', date(from_iso8601_timestamp(d."effectivePeriod"."start")))
+        date_trunc('month', cast(from_iso8601_timestamp(d."effectivePeriod"."start") AS date))
             AS effectivePeriod_start_month,
-        date_trunc('year', date(from_iso8601_timestamp(d."effectivePeriod"."start")))
+        date_trunc('year', cast(from_iso8601_timestamp(d."effectivePeriod"."start") AS date))
             AS effectivePeriod_start_year,
-        date_trunc('day', date(from_iso8601_timestamp(d."effectivePeriod"."end")))
+        date_trunc('day', cast(from_iso8601_timestamp(d."effectivePeriod"."end") AS date))
             AS effectivePeriod_end_day,
-        date_trunc('week', date(from_iso8601_timestamp(d."effectivePeriod"."end")))
+        date_trunc('week', cast(from_iso8601_timestamp(d."effectivePeriod"."end") AS date))
             AS effectivePeriod_end_week,
-        date_trunc('month', date(from_iso8601_timestamp(d."effectivePeriod"."end")))
+        date_trunc('month', cast(from_iso8601_timestamp(d."effectivePeriod"."end") AS date))
             AS effectivePeriod_end_month,
-        date_trunc('year', date(from_iso8601_timestamp(d."effectivePeriod"."end")))
+        date_trunc('year', cast(from_iso8601_timestamp(d."effectivePeriod"."end") AS date))
             AS effectivePeriod_end_year,
-        date_trunc('day', date(from_iso8601_timestamp(d."issued")))
+        date_trunc('day', cast(from_iso8601_timestamp(d."issued") AS date))
             AS issued_day,
-        date_trunc('week', date(from_iso8601_timestamp(d."issued")))
+        date_trunc('week', cast(from_iso8601_timestamp(d."issued") AS date))
             AS issued_week,
-        date_trunc('month', date(from_iso8601_timestamp(d."issued")))
+        date_trunc('month', cast(from_iso8601_timestamp(d."issued") AS date))
             AS issued_month,
-        date_trunc('year', date(from_iso8601_timestamp(d."issued")))
+        date_trunc('year', cast(from_iso8601_timestamp(d."issued") AS date))
             AS issued_year
     FROM diagnosticreport AS d
 ),

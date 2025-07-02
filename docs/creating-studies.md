@@ -85,6 +85,17 @@ count_list = [
     "my_study__count_influenza_test_month",
 ]
 
+# In some cases, you may want to annotate count data with metadata from another
+# source. Most commonly, this is used to add data related to a code (like its
+# display value or code system) from another source. These tables should go
+# in this section.
+
+# TODO: Link to API docs when ready
+
+annotated_count_list = [
+    "my_study__count_influenza_test_month_annotated",
+]
+
 # Some specific tables (like those produced by data metrics) are a special type
 # of tables, that are flat summary statistics tables. They should go in this list.
 

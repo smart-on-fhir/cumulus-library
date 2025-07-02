@@ -83,29 +83,29 @@ WITH temp_procedure AS (
         src.status,
         src.subject.reference AS subject_ref,
         src.encounter.reference AS encounter_ref,
-        date_trunc('day', date(from_iso8601_timestamp(src."performedDateTime")))
+        date_trunc('day', cast(from_iso8601_timestamp(src."performedDateTime") AS date))
             AS performedDateTime_day,
-        date_trunc('week', date(from_iso8601_timestamp(src."performedDateTime")))
+        date_trunc('week', cast(from_iso8601_timestamp(src."performedDateTime") AS date))
             AS performedDateTime_week,
-        date_trunc('month', date(from_iso8601_timestamp(src."performedDateTime")))
+        date_trunc('month', cast(from_iso8601_timestamp(src."performedDateTime") AS date))
             AS performedDateTime_month,
-        date_trunc('year', date(from_iso8601_timestamp(src."performedDateTime")))
+        date_trunc('year', cast(from_iso8601_timestamp(src."performedDateTime") AS date))
             AS performedDateTime_year,
-        date_trunc('day', date(from_iso8601_timestamp(src."performedPeriod"."start")))
+        date_trunc('day', cast(from_iso8601_timestamp(src."performedPeriod"."start") AS date))
             AS performedPeriod_start_day,
-        date_trunc('week', date(from_iso8601_timestamp(src."performedPeriod"."start")))
+        date_trunc('week', cast(from_iso8601_timestamp(src."performedPeriod"."start") AS date))
             AS performedPeriod_start_week,
-        date_trunc('month', date(from_iso8601_timestamp(src."performedPeriod"."start")))
+        date_trunc('month', cast(from_iso8601_timestamp(src."performedPeriod"."start") AS date))
             AS performedPeriod_start_month,
-        date_trunc('year', date(from_iso8601_timestamp(src."performedPeriod"."start")))
+        date_trunc('year', cast(from_iso8601_timestamp(src."performedPeriod"."start") AS date))
             AS performedPeriod_start_year,
-        date_trunc('day', date(from_iso8601_timestamp(src."performedPeriod"."end")))
+        date_trunc('day', cast(from_iso8601_timestamp(src."performedPeriod"."end") AS date))
             AS performedPeriod_end_day,
-        date_trunc('week', date(from_iso8601_timestamp(src."performedPeriod"."end")))
+        date_trunc('week', cast(from_iso8601_timestamp(src."performedPeriod"."end") AS date))
             AS performedPeriod_end_week,
-        date_trunc('month', date(from_iso8601_timestamp(src."performedPeriod"."end")))
+        date_trunc('month', cast(from_iso8601_timestamp(src."performedPeriod"."end") AS date))
             AS performedPeriod_end_month,
-        date_trunc('year', date(from_iso8601_timestamp(src."performedPeriod"."end")))
+        date_trunc('year', cast(from_iso8601_timestamp(src."performedPeriod"."end") AS date))
             AS performedPeriod_end_year
     FROM "procedure" AS src
 )

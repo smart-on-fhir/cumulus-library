@@ -460,12 +460,12 @@ WITH temp_condition AS (
         cca.code,
         cca.system,
         cca.display,
-        date(from_iso8601_timestamp(c.recordedDate)) AS recordedDate,
-        date_trunc('week', date(from_iso8601_timestamp(c."recordedDate")))
+        cast(from_iso8601_timestamp(c.recordedDate) AS date) AS recordedDate,
+        date_trunc('week', cast(from_iso8601_timestamp(c."recordedDate") AS date))
             AS recordedDate_week,
-        date_trunc('month', date(from_iso8601_timestamp(c."recordedDate")))
+        date_trunc('month', cast(from_iso8601_timestamp(c."recordedDate") AS date))
             AS recordedDate_month,
-        date_trunc('year', date(from_iso8601_timestamp(c."recordedDate")))
+        date_trunc('year', cast(from_iso8601_timestamp(c."recordedDate") AS date))
             AS recordedDate_year
     FROM condition AS c
     LEFT JOIN core__condition_codable_concepts_all AS cca ON c.id = cca.id

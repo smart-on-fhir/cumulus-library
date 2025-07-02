@@ -99,7 +99,6 @@ CREATE TABLE {{ table_name }} AS (
         INNER JOIN core__encounter AS e
             ON s.encounter_ref = e.encounter_ref
         {%- endif -%}
-
         {#- resource specific filtering conditions -#}
         {%- if fhir_resource == 'documentreference' %}
         WHERE (s.status = 'current')
@@ -206,6 +205,16 @@ CREATE TABLE {{ table_name }} AS (
         {%- if fhir_resource in ('documentreference', 'observation' ) -%},
         p.class_display
         {%- endif %}
+        {%- if annotation is not none %},
+        {%- for col in annotation.columns %}
+        {%- if col[1] is not none %}
+        j."{{ col[0] }}" AS "{{ col[1] }}"
+        {%- else %}
+        j."{{ col[0] }}"
+        {%- endif %}
+        {{- syntax.comma_delineate(loop) }}
+        {%- endfor %}
+        {%- endif %}
     FROM powerset AS p
     {%- if secondary %}
     JOIN secondary_powerset AS s on s.id = p.id 
@@ -213,6 +222,9 @@ CREATE TABLE {{ table_name }} AS (
     {%- if tertiary %}
     JOIN tertiary_powerset AS t on t.id = p.id 
     {%- endif %}
+    {%- if annotation %}
+        JOIN {{ annotation.join_table }} j ON p.{{ annotation.field }} = j.{{ annotation.join_field }}
+    {%- endif -%}
     {%- if where_clauses %}
     WHERE
         {% for clause in where_clauses %}{{ clause }}
