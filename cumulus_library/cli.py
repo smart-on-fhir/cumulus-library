@@ -434,8 +434,7 @@ def main(cli_args=None):
         args["study_dir"] = posix_paths
 
     if args["action"] is None:
-        parser.print_usage()
-        sys.exit(1)
+        sys.exit("No actions selected. Run 'cumulus-library -h' for details about actions.")
 
     if args["action"] == "version":
         table = rich.table.Table(title=f"cumulus-library version: {__version__}")

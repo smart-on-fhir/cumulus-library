@@ -146,8 +146,8 @@ def get_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="""Generates study tables and views from post-Cumulus ETL data.
 
-cumulus-library will attempt to create a connection to AWS Athena. The
-following order of preference is used to select credentials:
+cumulus-library will attempt to create a connection to a databse. If using 
+AWS Athena, the following order of preference is used to select credentials:
   - explicit command line arguments
   - cumulus environment variables (see docs for more info)
   - Normal boto profile order (AWS env vars, ~/.aws/credentials, ~/.aws/config)""",
