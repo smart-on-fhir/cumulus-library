@@ -35,6 +35,7 @@ class BaseTableBuilder(abc.ABC):
         statements to execute. This array will the be read by execute_queries.
 
         :param config: A study configuration object
+        :param manifest: A study manifest object
         """
         raise NotImplementedError  # pragma: no cover
 
@@ -49,6 +50,7 @@ class BaseTableBuilder(abc.ABC):
         """Executes queries set up by a prepare_queries call
 
         :param config: A study configuration object
+        :param manifest: A study manifest object
         """
         self.prepare_queries(*args, config=config, manifest=manifest, **kwargs)
         cursor = config.db.cursor()
@@ -93,7 +95,7 @@ class BaseTableBuilder(abc.ABC):
         """Hook for any additional actions to run after execute_queries"""
         pass
 
-    def comment_queries(self, doc_str=None):
+    def comment_queries(self, doc_str: str | None = None):
         """Convenience method for annotating outputs of template generators to disk"""
         commented_queries = ["-- noqa: disable=all"]
         if doc_str:

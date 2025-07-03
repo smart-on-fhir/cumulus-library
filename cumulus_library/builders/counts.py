@@ -117,6 +117,7 @@ class CountsBuilder(BaseTableBuilder):
         :param table_cols: The columns from the source table to add to the count table
         :param where_clauses: An array of where clauses to use for filtering the data
         :param min_subject: An integer setting the minimum bin size for inclusion
+        :param annotation: A CountAnnotation definining an external annotation source
             (default: 10)
         """
         return self.get_count_query(
@@ -147,6 +148,7 @@ class CountsBuilder(BaseTableBuilder):
         :param where_clauses: An array of where clauses to use for filtering the data
         :param min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
+        :param annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -176,6 +178,7 @@ class CountsBuilder(BaseTableBuilder):
         :param where_clauses: An array of where clauses to use for filtering the data
         :param min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
+        :param annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -204,6 +207,7 @@ class CountsBuilder(BaseTableBuilder):
         :param where_clauses: An array of where clauses to use for filtering the data
         :param min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
+        :param annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -233,6 +237,7 @@ class CountsBuilder(BaseTableBuilder):
         :param where_clauses: An array of where clauses to use for filtering the data
         :param min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
+        :param annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -261,6 +266,7 @@ class CountsBuilder(BaseTableBuilder):
         :param where_clauses: An array of where clauses to use for filtering the data
         :param min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
+        :param annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -289,6 +295,7 @@ class CountsBuilder(BaseTableBuilder):
         :param where_clauses: An array of where clauses to use for filtering the data
         :param min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
+        :param annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -317,6 +324,7 @@ class CountsBuilder(BaseTableBuilder):
         :param where_clauses: An array of where clauses to use for filtering the data
         :param min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
+        :param annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -345,6 +353,7 @@ class CountsBuilder(BaseTableBuilder):
         :param where_clauses: An array of where clauses to use for filtering the data
         :param min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
+        :param annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
