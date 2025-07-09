@@ -8,6 +8,7 @@
         "cumulus_library_opioid",
         "cumulus_library_rxnorm",
         "cumulus_library_suicidality_los",
-        "cumulus_library_umls"
+        "cumulus_library_umls",
+        "cumulus_library_catalog"
     ]
 }
