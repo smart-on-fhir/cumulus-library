@@ -28,6 +28,7 @@ temp_encounter_nullable AS (
                     'status',
                     ('class', 'code', 'class_code'),
                     ('class', 'system', 'class_system'),
+                    ('class', 'display', 'class_display'),
                     ('subject', 'reference', 'subject_ref'),
                 ], 
                 schema
@@ -70,6 +71,7 @@ temp_encounter AS (
         e.status,
         e.class_code,
         e.class_system,
+        e.class_display,
         e.subject_ref,
         e.period_start,
         e.period_start_day,
@@ -104,8 +106,12 @@ temp_encounter AS (
 SELECT DISTINCT
     e.id,
     e.status,
+{#-
     ac.code AS class_code,
     ac.display AS class_display,
+#}
+    COALESCE (ac.code, e.class_code) AS class_code,
+    COALESCE (ac.display, e.class_display) AS class_display,
     e.type_code,
     e.type_system,
     e.type_display,

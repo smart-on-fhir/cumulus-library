@@ -21,5 +21,5 @@ def test_core_enc_class(tmp_path):
     assert rows == [
         {"id": "o", "class_code": "AMB", "class_display": "ambulatory"},
         {"id": "obsenc", "class_code": "OBSENC", "class_display": "observation encounter"},
-        {"id": "unsupported", "class_code": None, "class_display": None},
+        {"id": "unsupported", "class_code": "?", "class_display": None},
     ]
