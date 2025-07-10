@@ -178,7 +178,7 @@ The `CountsBuilder` makes the following assumptions:
   - Document references, encounters, and observations will count their own associated IDs
   - All other resources will count patients
 
-# count_\[resource]
+## count_\[resource]
 *self, table_name: str, source_table: str, table_cols: list, where_clauses: list | None = None, min_subject: int | None = None, annotation: counts_templates.CountAnnotation | None = None,) -> str*
 
 Every cumulus-supported resource has a similarly structured count generator function.

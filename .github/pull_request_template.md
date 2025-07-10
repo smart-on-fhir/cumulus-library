@@ -7,3 +7,4 @@
 - [ ] If you've updated the `core` or `discovery` tables, regenerate the reference sql
 - [ ] Consider if tests should be added
 - [ ] Update template repo if there are changes to study configuration in `manifest.toml`
+- [ ] If you're preparing to cut a pip release of a study, add that study to module_allowlist.json
