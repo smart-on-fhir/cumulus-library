@@ -111,11 +111,13 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         s3_path = wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
         key_prefix = "/".join(s3_path.split("/")[3:])
-        encryption_type = wg_conf.get("EncryptionConfiguration", {}).get("EncryptionOption", {})
-        if encryption_type != "SSE_KMS":
+        encryption_type = wg_conf.get("EncryptionConfiguration", {}).get("EncryptionOption")
+        if encryption_type is None:
             raise errors.AWSError(
-                f"Bucket {bucket} has unexpected encryption type {encryption_type}."
-                "AWS KMS encryption is expected for Cumulus buckets"
+                f"The workgroup {self.work_group} is not reporting an encrypted status. "
+                f"Either bucket {bucket} is not encrypted, or the workgroup is overriding the "
+                "bucket's default encryption. Please confirm the encryption status of both. "
+                "Cumulus requires encryption as part of ensuring safety for limited data sets"
             )
         kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
         s3_key = f"{key_prefix}cumulus_user_uploads/{self.schema_name}/{study}/{topic}"

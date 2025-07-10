@@ -163,6 +163,19 @@ def test_create_db_backend(args, expected_type, raises):
             "SSE-S3",
             0,
             "s3://test_bucket/test_location/cumulus_user_uploads/test/study/table",
+            does_not_raise(),
+        ),
+        (
+            {
+                "file": pathlib.Path(__file__).resolve(),
+                "study": "study",
+                "topic": "table",
+                "remote_filename": None,
+                "force_upload": False,
+            },
+            None,
+            0,
+            "s3://test_bucket/test_location/cumulus_user_uploads/test/study/table",
             pytest.raises(errors.AWSError),
         ),
         (
