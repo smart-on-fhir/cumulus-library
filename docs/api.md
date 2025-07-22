@@ -220,7 +220,7 @@ class MyBuilder(CountsBuilder):
 This would count instances of condition codes by year.
 
 ## CountAnnotation
-*field: str, join_table: str, join_field: str, columns: list\[tuple\[str, str | None]]*
+*field: str, join_table: str, join_field: str, columns: list\[tuple\[str, str | None]],alt_target: str | None*
 
 A CountAnnotation object can be supplied to a `count[resource]` function to indicate
 a table that should be joined to it post-counting. The intended purpose of this is
@@ -235,6 +235,9 @@ In detail, the expected arguments are as follows:
 - *columns* A list of tuples, describing column to join from *join_table*. 
   The first value in the tuple is the name of the column or a string literal,
   and the second value, if supplied, is the alias to use for that column.
+- *alt_target* Optionally, a column, which should be in *columns*, to be the new target for counting,
+  causing *field* to only be used for joining. Multiple values for *field* will be
+  summed based on the value in *alt_target*.
 
 Using our example from `CountsBuilder` above, here's an example of how we'd use this
 to annotate data:

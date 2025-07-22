@@ -106,10 +106,6 @@ temp_encounter AS (
 SELECT DISTINCT
     e.id,
     e.status,
-{#-
-    ac.code AS class_code,
-    ac.display AS class_display,
-#}
     COALESCE (ac.code, e.class_code) AS class_code,
     COALESCE (ac.display, e.class_display) AS class_display,
     e.type_code,

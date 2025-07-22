@@ -191,6 +191,15 @@ CREATE TABLE {{ table_name }} AS (
     )
 
     SELECT
+    {%- if annotation is not none and annotation.alt_target is not none %}
+        {%- if tertiary %}
+        sum(t.cnt_{{ tertiary }}) AS cnt,
+        {%- elif secondary %}
+        sum(s.cnt_{{ secondary }}) AS cnt,
+        {%- else %}
+        sum(p.cnt_subject_ref) AS cnt
+        {%- endif %}
+    {%- else %}   
         {%- if tertiary %}
         t.cnt_{{ tertiary }} AS cnt,
         {%- elif secondary %}
@@ -202,10 +211,11 @@ CREATE TABLE {{ table_name }} AS (
         p."{{ column_or_alias(col) }}"
         {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
-        {%- if fhir_resource in ('documentreference', 'observation' ) -%},
+    {%- endif %}
+    {%- if fhir_resource in ('documentreference', 'observation' ) -%},
         p.class_display
-        {%- endif %}
-        {%- if annotation is not none %},
+    {%- endif %}
+    {%- if annotation is not none %},
         {%- for col in annotation.columns %}
         {%- if col[1] is not none %}
         j."{{ col[0] }}" AS "{{ col[1] }}"
@@ -214,7 +224,7 @@ CREATE TABLE {{ table_name }} AS (
         {%- endif %}
         {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
-        {%- endif %}
+    {%- endif %}
     FROM powerset AS p
     {%- if secondary %}
     JOIN secondary_powerset AS s on s.id = p.id 
@@ -239,6 +249,13 @@ CREATE TABLE {{ table_name }} AS (
     {%- if tertiary %}
         AND t.cnt_{{ tertiary }} >= {{ min_subject }}
     {%- endif %}
-
+    {%- endif %}
+    {%- if annotation is not none and annotation.alt_target is not none %}
+    GROUP BY
+    {%- for col in annotation.columns %}
+        j."{{ col[0] }}"
+        {{- syntax.comma_delineate(loop) }}
+    {%- endfor %}
+    ORDER BY {{ annotation.alt_target }} ASC
     {%- endif %}
 );

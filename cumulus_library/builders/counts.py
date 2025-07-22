@@ -76,6 +76,9 @@ class CountsBuilder(BaseTableBuilder):
             (default: 10)
         :keyword fhir_resource: The type of FHIR resource to count (see
             builders/statistics_templates/count_templates.CountableFhirResource)
+        :keyword patient_link:
+        :keyword annotation: A CountsAnnotation object describing a table to use as
+            a metadata annotation source
         """
         if not table_name or not source_table or not table_cols:
             raise errors.CountsBuilderError(

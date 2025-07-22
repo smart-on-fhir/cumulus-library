@@ -46,6 +46,8 @@ class CountAnnotation:
     :keyword join_field: the column in the table to join on
     :keyword list: a list of tuples like ('column_name', 'alias' or None) to
         define columns to add to your dataset.
+    :keyword alt_target: if present, a column to use from the annotation table
+        instead of the one defined in `field` as the primary countable target
 
     """
 
@@ -53,6 +55,7 @@ class CountAnnotation:
     join_table: str
     join_field: str
     columns: list[tuple[str, str | None]]
+    alt_target: str | None = None
 
 
 def get_count_query(
@@ -81,7 +84,6 @@ def get_count_query(
         else:
             table_col_classed.append(CountColumn(name=item, db_type="varchar", alias=None))
     table_cols = table_col_classed
-
     query = base_templates.get_template(
         "count",
         path,
