@@ -237,7 +237,8 @@ In detail, the expected arguments are as follows:
   and the second value, if supplied, is the alias to use for that column.
 - *alt_target* Optionally, a column, which should be in *columns*, to be the new target for counting,
   causing *field* to only be used for joining. Multiple values for *field* will be
-  summed based on the value in *alt_target*.
+  summed based on the value in *columns*, and sorted by *alt_target*. It's intended
+  that *alt_target* have the highest granularity of any column in *columns*.
 
 Using our example from `CountsBuilder` above, here's an example of how we'd use this
 to annotate data:

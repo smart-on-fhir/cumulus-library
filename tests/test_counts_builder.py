@@ -5,8 +5,10 @@ from unittest import mock
 
 import pytest
 
-from cumulus_library import errors, study_manifest
+import cumulus_library
+from cumulus_library import base_utils, errors, study_manifest
 from cumulus_library.builders import counts
+from tests import testbed_utils
 
 TEST_PREFIX = "test"
 
@@ -60,31 +62,6 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
         builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
         output = builder.get_where_clauses(**kwargs)
         assert output == expected
-
-
-# @pytest.mark.parametrize(
-#     "table_name,fhir_resource,new_name,warns",
-#     [
-#         ("count_encounter_table", None, "test__count_encounter_table", False),
-#         ("count_encounter_table", "encounter", "test__count_encounter_table", False),
-#         ("count_encounter_table", "condition", "test__count_encounter_table", True),
-#         ("table", "encounter", "test__count_encounter_table", True),
-#         ("table_count_encounter", None, "test__count_encounter_table", True),
-#     ],
-# )
-# @mock.patch("rich.console.Console")
-# def test_coerce_name(mock_console, table_name, fhir_resource, new_name, warns):
-#     builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
-#     name = builder.coerce_table_name(table_name, fhir_resource)
-#     assert name == new_name
-#     for thing in mock_console.mock_calls:
-#         rich.print(thing)
-#         rich.print(type(thing))
-#     rich.print("------")
-#     for thing in mock_console.print().mock_calls:
-#         rich.print(thing)
-#         rich.print(type(thing))
-#     assert mock_console.print.called == warns
 
 
 @pytest.mark.parametrize(
@@ -271,3 +248,58 @@ SELECT * FROM FOO
 SELECT * FROM BAR
 """
     assert found == expected
+
+
+@pytest.mark.parametrize(
+    "annotation,expected",
+    [
+        (None, [(2, "female"), (3, None), (1, "male")]),
+        (
+            cumulus_library.CountAnnotation(
+                field="gender",
+                join_table="code_map",
+                join_field="gender",
+                columns=[("label", None), ("description", None)],
+            ),
+            [(2, "female", "label_1", "desc_1"), (1, "male", "label_2", "desc_1")],
+        ),
+        (
+            cumulus_library.CountAnnotation(
+                field="gender",
+                join_table="code_map",
+                join_field="gender",
+                columns=[("label", None), ("description", None)],
+                alt_target="label",
+            ),
+            [(2, "label_1", "desc_1"), (1, "label_2", "desc_1")],
+        ),
+    ],
+)
+def test_count_annotation(tmp_path, annotation, expected):
+    testbed = testbed_utils.LocalTestbed(path=tmp_path, with_patient=False)
+    for p in [("A", "female"), ("B", "female"), ("C", "male")]:
+        testbed.add_patient(row_id=p[0], gender=p[1])
+    db = testbed.build()
+    db.cursor().execute("""CREATE TABLE code_map AS SELECT * FROM
+    (VALUES 
+        ('female', 'label_1','desc_1'), 
+        ('male', 'label_2','desc_1')
+    ) AS code_map(gender,label,description)
+""")
+    config = base_utils.StudyConfig(db=db, schema="main")
+    manifest = study_manifest.StudyManifest()
+    manifest._study_prefix = TEST_PREFIX
+    builder = counts.CountsBuilder(manifest=manifest)
+    builder.queries.append(
+        builder.count_patient(
+            table_name=f"{TEST_PREFIX}__annotation",
+            source_table="core__patient",
+            table_cols=["gender"],
+            min_subject=1,
+            annotation=annotation,
+        )
+    )
+    builder.execute_queries(config=config, manifest=manifest)
+    results = db.cursor().execute("select * from test__annotation").fetchall()
+    for line in expected:
+        assert line in results

@@ -44,10 +44,13 @@ class CountAnnotation:
     :keyword join_table: the name of the table to join from. If the table is
         in a different schema, use '"schema"."table' as the format
     :keyword join_field: the column in the table to join on
-    :keyword list: a list of tuples like ('column_name', 'alias' or None) to
+    :keyword columns: a list of tuples like ('column_name', 'alias' or None) to
         define columns to add to your dataset.
     :keyword alt_target: if present, a column to use from the annotation table
-        instead of the one defined in `field` as the primary countable target
+        instead of the one defined in `field` as the primary column in the
+        annotated power set. This is intended to be the column representing
+        the field of highest granularity, but functionally treats the combination
+        of all fields in columns as a unique key.
 
     """
 
