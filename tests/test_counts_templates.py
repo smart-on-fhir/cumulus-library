@@ -282,6 +282,90 @@ from cumulus_library.builders.statistics_templates import counts_templates
                 ),
             },
         ),
+        (
+            """CREATE TABLE test_table AS (
+    WITH
+    null_replacement AS (
+        SELECT
+            subject_ref,
+            encounter_ref,
+            coalesce(
+                cast(age AS varchar),
+                'cumulus__none'
+            ) AS age,
+            coalesce(
+                cast(sex AS varchar),
+                'cumulus__none'
+            ) AS sex
+        FROM test_source
+        
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            "age",
+            "sex",
+            concat_ws(
+                '-',
+                COALESCE("age",''),
+                COALESCE("sex",'')
+            ) AS id
+        FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
+        GROUP BY
+            cube(
+            "age",
+            "sex"
+            )
+    ),
+
+    powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "age",
+            "sex",
+            concat_ws(
+                '-',
+                COALESCE("age",''),
+                COALESCE("sex",'')
+            ) AS id
+        FROM null_replacement
+        GROUP BY
+            cube(
+            "age",
+            "sex"
+            )
+    )
+
+    SELECT
+        sum(s.cnt_encounter_ref) AS cnt,,
+        j."A",
+        j."B" AS "y"
+    FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
+        JOIN other_table j ON p.code = j.other_field
+    WHERE 
+        p.cnt_subject_ref >= None
+        AND s.cnt_encounter_ref >= None
+    GROUP BY
+        j."A",
+        j."B"
+    ORDER BY A ASC
+);""",
+            {
+                "filter_resource": False,
+                "where_clauses": None,
+                "fhir_resource": "encounter",
+                "min_subject": None,
+                "annotation": CountAnnotation(
+                    field="code",
+                    join_table="other_table",
+                    join_field="other_field",
+                    columns=[("A", None), ("B", "y")],
+                    alt_target="A",
+                ),
+            },
+        ),
     ],
 )
 def test_count_query(expected, kwargs):
