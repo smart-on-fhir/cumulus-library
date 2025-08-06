@@ -2,6 +2,7 @@ import builtins
 import contextlib
 import datetime
 import io
+import json
 import pathlib
 import shutil
 import zipfile
@@ -472,7 +473,9 @@ def do_upload(
         if login_error:
             responses.add(responses.POST, url, status=401)
         elif transaction_mismatch:
-            responses.add(responses.POST, url, status=412)
+            responses.add(
+                responses.POST, url, status=412, json=json.dumps("Study in processing, try again")
+            )
         else:
             responses.add(
                 responses.POST,
