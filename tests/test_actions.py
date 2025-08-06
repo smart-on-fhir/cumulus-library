@@ -462,8 +462,8 @@ def do_upload(
     call_count: int = 2,
     data_path: pathlib.Path | None = pathlib.Path.cwd() / "tests/test_data/upload/",
     study: str = "upload",
-    lock=None,
-    lock_mismatch: bool = False,
+    transaction=None,
+    transaction_mismatch: bool = False,
 ):
     url = "https://upload.url.test/"
     if network:
@@ -471,7 +471,7 @@ def do_upload(
     with raises:
         if login_error:
             responses.add(responses.POST, url, status=401)
-        elif lock_mismatch:
+        elif transaction_mismatch:
             responses.add(responses.POST, url, status=412)
         else:
             responses.add(
@@ -531,7 +531,7 @@ def do_upload(
                             "filename": f"{user}_{study}__count_synthea_patient.cube.parquet",
                         }
                     ),
-                    matchers.header_matcher({"lock_id": "ABCDEF"}),
+                    matchers.header_matcher({"transaction_id": "ABCDEF"}),
                 ],
                 json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
             )
@@ -597,8 +597,8 @@ def test_upload_data(
     login_error,
     call_count,
     raises,
-    lock=None,
-    lock_mismatch=None,
+    transaction=None,
+    transaction_mismatch=None,
 ):
     do_upload(
         user=user,
@@ -609,8 +609,8 @@ def test_upload_data(
         login_error=login_error,
         call_count=call_count,
         raises=raises,
-        lock=lock,
-        lock_mismatch=lock_mismatch,
+        transaction=transaction,
+        transaction_mismatch=transaction_mismatch,
     )
 
 
@@ -657,16 +657,21 @@ def test_upload_discovery(tmp_path):
 
 
 @responses.activate
-def test_upload_lock(tmp_path):
+def test_upload_transaction(tmp_path):
     dest = pathlib.Path(tmp_path) / "upload"
     dest.mkdir()
     for file in ("upload__count_synthea_patient.cube.parquet", "upload__meta_date.meta.parquet"):
         src = pathlib.Path(__file__).resolve().parents[0] / f"test_data/upload/{file}"
         shutil.copy(src, dest)
-    do_upload(data_path=dest, version="0", call_count=2, preview=False, lock="ABCDEF")
+    do_upload(data_path=dest, version="0", call_count=2, preview=False, transaction="ABCDEF")
     with pytest.raises(SystemExit):
         do_upload(
-            data_path=dest, version="0", call_count=1, preview=False, lock="bad", lock_mismatch=True
+            data_path=dest,
+            version="0",
+            call_count=1,
+            preview=False,
+            transaction="bad",
+            transaction_mismatch=True,
         )
 
 

@@ -16,7 +16,7 @@ def upload_data(
     file_path: Path,
     version: str,
     args: dict,
-    lock_id: str | None,
+    transaction_id: str | None,
 ) -> str:
     """Fetches presigned url and uploads file to aggregator"""
     study = file_path.parts[-2]
@@ -37,7 +37,7 @@ def upload_data(
             "filename": f"{args['user']}_{file_name}",
         },
         auth=(args["user"], args["id"]),
-        headers={"lock_id": lock_id},
+        headers={"transaction_id": transaction_id},
         timeout=60,
     )
     if args["preview"]:
@@ -47,15 +47,11 @@ def upload_data(
         c.print("response")
         c.print(prefetch_res.json(), "\n")
     if prefetch_res.status_code == 412:
-        c.print(
-            f"An upload of {study} is already queued for processing. Please wait and try again."
-        )
-        sys.exit()
-
+        sys.exit(prefetch_res.request.body)
     elif prefetch_res.status_code != 200:
         c.print("Invalid user/site id")
         prefetch_res.raise_for_status()
-    lock_id = prefetch_res.headers.get("lock_id")
+    transaction_id = prefetch_res.headers.get("transaction-id")
     res_body = prefetch_res.json()
     with open(file_path, "rb") as data_file:
         files = {"file": (file_name, data_file)}
@@ -73,7 +69,7 @@ def upload_data(
             c.print("headers", upload_req.headers)
             c.print("body", upload_req.body, "\n")
     progress_bar.update(file_upload_progress, advance=1)
-    return lock_id
+    return transaction_id
 
 
 def upload_files(args: dict):
@@ -111,8 +107,8 @@ def upload_files(args: dict):
             file_upload_progress = progress_bar.add_task(
                 f"Uploading {target} data...", total=num_uploads
             )
-            lock_id = None
+            transaction_id = None
             for file_path in file_paths:
-                lock_id = upload_data(
-                    progress_bar, file_upload_progress, file_path, version, args, lock_id
+                transaction_id = upload_data(
+                    progress_bar, file_upload_progress, file_path, version, args, transaction_id
                 )
