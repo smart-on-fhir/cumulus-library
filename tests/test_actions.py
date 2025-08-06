@@ -2,6 +2,7 @@ import builtins
 import contextlib
 import datetime
 import io
+import json
 import pathlib
 import shutil
 import zipfile
@@ -462,6 +463,8 @@ def do_upload(
     call_count: int = 2,
     data_path: pathlib.Path | None = pathlib.Path.cwd() / "tests/test_data/upload/",
     study: str = "upload",
+    transaction=None,
+    transaction_mismatch: bool = False,
 ):
     url = "https://upload.url.test/"
     if network:
@@ -469,6 +472,10 @@ def do_upload(
     with raises:
         if login_error:
             responses.add(responses.POST, url, status=401)
+        elif transaction_mismatch:
+            responses.add(
+                responses.POST, url, status=412, json=json.dumps("Study in processing, try again")
+            )
         else:
             responses.add(
                 responses.POST,
@@ -512,6 +519,22 @@ def do_upload(
                             "filename": f"{user}_{study}__count_synthea_patient.cube.parquet",
                         }
                     ),
+                ],
+                json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
+            )
+            responses.add(
+                responses.POST,
+                url,
+                match=[
+                    matchers.json_params_matcher(
+                        {
+                            "study": study,
+                            "data_package": f"{study}__count_synthea_patient",
+                            "data_package_version": int(float(version)),
+                            "filename": f"{user}_{study}__count_synthea_patient.cube.parquet",
+                        }
+                    ),
+                    matchers.header_matcher({"transaction_id": "ABCDEF"}),
                 ],
                 json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
             )
@@ -568,7 +591,18 @@ def do_upload(
     ],
 )
 @responses.activate
-def test_upload_data(user, id_token, status, network, preview, login_error, call_count, raises):
+def test_upload_data(
+    user,
+    id_token,
+    status,
+    network,
+    preview,
+    login_error,
+    call_count,
+    raises,
+    transaction=None,
+    transaction_mismatch=None,
+):
     do_upload(
         user=user,
         id_token=id_token,
@@ -578,6 +612,8 @@ def test_upload_data(user, id_token, status, network, preview, login_error, call
         login_error=login_error,
         call_count=call_count,
         raises=raises,
+        transaction=transaction,
+        transaction_mismatch=transaction_mismatch,
     )
 
 
@@ -588,7 +624,10 @@ def test_upload_data_no_path():
 
 @responses.activate
 def test_upload_data_no_version(tmp_path):
-    src = pathlib.Path.cwd() / "tests/test_data/upload/upload__meta_date.meta.parquet"
+    src = (
+        pathlib.Path(__file__).resolve().parents[0]
+        / "test_data/upload/upload__meta_date.meta.parquet"
+    )
     dest = pathlib.Path(tmp_path) / "upload"
     dest.mkdir()
     shutil.copy(src, dest)
@@ -599,7 +638,8 @@ def test_upload_data_no_version(tmp_path):
 def test_upload_data_no_meta_date(tmp_path):
     with pytest.raises(SystemExit):
         src = (
-            pathlib.Path.cwd() / "tests/test_data/upload/upload__count_synthea_patient.cube.parquet"
+            pathlib.Path(__file__).resolve().parents[0]
+            / "test_data/upload/upload__count_synthea_patient.cube.parquet"
         )
         dest = pathlib.Path(tmp_path) / "upload"
         dest.mkdir()
@@ -609,11 +649,33 @@ def test_upload_data_no_meta_date(tmp_path):
 
 @responses.activate
 def test_upload_discovery(tmp_path):
-    src = pathlib.Path.cwd() / "tests/test_data/upload/upload__count_synthea_patient.cube.parquet"
+    src = (
+        pathlib.Path(__file__).resolve().parents[0]
+        / "test_data/upload/upload__count_synthea_patient.cube.parquet"
+    )
     dest = pathlib.Path(tmp_path) / "discovery/discovery__count_synthea_patient.cube.parquet"
     dest.parent.mkdir()
     shutil.copyfile(src, dest)
     do_upload(data_path=dest.parent, version="0", call_count=1, study="discovery")
+
+
+@responses.activate
+def test_upload_transaction(tmp_path):
+    dest = pathlib.Path(tmp_path) / "upload"
+    dest.mkdir()
+    for file in ("upload__count_synthea_patient.cube.parquet", "upload__meta_date.meta.parquet"):
+        src = pathlib.Path(__file__).resolve().parents[0] / f"test_data/upload/{file}"
+        shutil.copy(src, dest)
+    do_upload(data_path=dest, version="0", call_count=2, preview=False, transaction="ABCDEF")
+    with pytest.raises(SystemExit):
+        do_upload(
+            data_path=dest,
+            version="0",
+            call_count=1,
+            preview=False,
+            transaction="bad",
+            transaction_mismatch=True,
+        )
 
 
 @pytest.mark.parametrize(
