@@ -37,7 +37,7 @@ def upload_data(
             "filename": f"{args['user']}_{file_name}",
         },
         auth=(args["user"], args["id"]),
-        headers={"transaction_id": transaction_id},
+        headers={"transaction-id": transaction_id},
         timeout=60,
     )
     if args["preview"]:
@@ -47,7 +47,7 @@ def upload_data(
         c.print("response")
         c.print(prefetch_res.json(), "\n")
     if prefetch_res.status_code == 412:
-        sys.exit(prefetch_res.request.body)
+        sys.exit(str(prefetch_res.json()))
     elif prefetch_res.status_code != 200:
         c.print("Invalid user/site id")
         prefetch_res.raise_for_status()
