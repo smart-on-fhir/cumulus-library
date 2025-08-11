@@ -3,6 +3,7 @@ import contextlib
 import datetime
 import io
 import json
+import os
 import pathlib
 import shutil
 import zipfile
@@ -357,30 +358,47 @@ def test_invoke_valueset_builder(mock_builder, mock_db_config, tmp_path):
     assert mock_builder.is_called()
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 def test_export_study(tmp_path, mock_db_core_config):
     manifest = study_manifest.StudyManifest(
-        f"{pathlib.Path(__file__).parent.parent}/cumulus_library/studies/core",
-        data_path=f"{tmp_path}/export",
+        pathlib.Path(__file__).parent.parent / "cumulus_library/studies/core",
+        data_path=tmp_path / "export",
     )
+    export_path = tmp_path / "export/core/"
+    export_path.mkdir(exist_ok=True, parents=True)
+    with open(export_path / "to_be_deleted.file", "w") as f:
+        f.write("foo")
     exporter.export_study(
         config=mock_db_core_config,
         manifest=manifest,
-        data_path=f"{tmp_path}/export",
+        data_path=tmp_path / "export",
         archive=False,
         chunksize=20,
     )
-    for file in pathlib.Path(f"{tmp_path}/export").glob("*.*"):
-        assert file in manifest.get_export_table_list()
-    # Do this a second time to check that cleanup happens
-    exporter.export_study(
-        config=mock_db_core_config,
-        manifest=manifest,
-        data_path=f"{tmp_path}/export",
-        archive=False,
-        chunksize=20,
-    )
-    for file in pathlib.Path(f"{tmp_path}/export").glob("*.*"):
-        assert file in manifest.get_export_table_list()
+
+    for file in pathlib.Path(tmp_path / "export/core").glob("*.*"):
+        if file.suffix == ".csv":
+            assert any(
+                file.name.split(".")[0] == entry.name for entry in manifest.get_export_table_list()
+            )
+
+        elif file.suffix == ".zip":
+            archive = zipfile.ZipFile(export_path / "core.zip")
+            archive_list = archive.namelist()
+            assert len(archive_list) == len(manifest.get_export_table_list()) + 1
+            for name in archive_list:
+                assert (
+                    any(
+                        name.split(".")[0] == entry.name
+                        for entry in manifest.get_export_table_list()
+                    )
+                    or name == "manifest.toml"
+                )
+        else:
+            raise Exception("Unexpected file type in export dir")
 
 
 @freeze_time("2024-01-01")
@@ -484,57 +502,10 @@ def do_upload(
                     matchers.json_params_matcher(
                         {
                             "study": study,
-                            "data_package": f"{study}__meta_version",
                             "data_package_version": int(float(version)),
-                            "filename": f"{user}_{study}__meta_version.meta.parquet",
+                            "filename": f"{user}_{study}.zip",
                         }
                     )
-                ],
-                json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
-            )
-            responses.add(
-                responses.POST,
-                url,
-                match=[
-                    matchers.json_params_matcher(
-                        {
-                            "study": study,
-                            "data_package": f"{study}__meta_date",
-                            "data_package_version": int(float(version)),
-                            "filename": f"{user}_{study}__meta_date.meta.parquet",
-                        }
-                    )
-                ],
-                json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
-            )
-            responses.add(
-                responses.POST,
-                url,
-                match=[
-                    matchers.json_params_matcher(
-                        {
-                            "study": study,
-                            "data_package": f"{study}__count_synthea_patient",
-                            "data_package_version": int(float(version)),
-                            "filename": f"{user}_{study}__count_synthea_patient.cube.parquet",
-                        }
-                    ),
-                ],
-                json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
-            )
-            responses.add(
-                responses.POST,
-                url,
-                match=[
-                    matchers.json_params_matcher(
-                        {
-                            "study": study,
-                            "data_package": f"{study}__count_synthea_patient",
-                            "data_package_version": int(float(version)),
-                            "filename": f"{user}_{study}__count_synthea_patient.cube.parquet",
-                        }
-                    ),
-                    matchers.header_matcher({"transaction_id": "ABCDEF"}),
                 ],
                 json={"url": "https://presigned.url.test", "fields": {"a": "b"}},
             )
@@ -556,8 +527,8 @@ def do_upload(
     "user,id_token,status,network,login_error,preview,call_count,raises",
     [
         (None, None, 204, None, False, False, None, pytest.raises(SystemExit)),
-        ("user", "id", 204, None, False, False, 2, does_not_raise()),
-        ("user", "id", 204, "network", False, False, 2, does_not_raise()),
+        ("user", "id", 204, None, False, False, 1, does_not_raise()),
+        ("user", "id", 204, "network", False, False, 1, does_not_raise()),
         (
             "user",
             "id",
@@ -585,7 +556,7 @@ def do_upload(
             None,
             False,
             True,
-            2,
+            1,
             does_not_raise(),
         ),
     ],
@@ -624,10 +595,7 @@ def test_upload_data_no_path():
 
 @responses.activate
 def test_upload_data_no_version(tmp_path):
-    src = (
-        pathlib.Path(__file__).resolve().parents[0]
-        / "test_data/upload/upload__meta_date.meta.parquet"
-    )
+    src = pathlib.Path(__file__).resolve().parents[0] / "test_data/upload/upload.zip"
     dest = pathlib.Path(tmp_path) / "upload"
     dest.mkdir()
     shutil.copy(src, dest)
@@ -639,7 +607,7 @@ def test_upload_data_no_meta_date(tmp_path):
     with pytest.raises(SystemExit):
         src = (
             pathlib.Path(__file__).resolve().parents[0]
-            / "test_data/upload/upload__count_synthea_patient.cube.parquet"
+            / "test_data/upload_no_date/upload_no_date.zip"
         )
         dest = pathlib.Path(tmp_path) / "upload"
         dest.mkdir()
@@ -649,31 +617,25 @@ def test_upload_data_no_meta_date(tmp_path):
 
 @responses.activate
 def test_upload_discovery(tmp_path):
-    src = (
-        pathlib.Path(__file__).resolve().parents[0]
-        / "test_data/upload/upload__count_synthea_patient.cube.parquet"
-    )
-    dest = pathlib.Path(tmp_path) / "discovery/discovery__count_synthea_patient.cube.parquet"
+    src = pathlib.Path(__file__).resolve().parents[0] / "test_data/upload/upload.zip"
+    dest = pathlib.Path(tmp_path) / "discovery/discovery.zip"
     dest.parent.mkdir()
     shutil.copyfile(src, dest)
-    do_upload(data_path=dest.parent, version="0", call_count=1, study="discovery")
+    do_upload(data_path=dest.parent, call_count=1, study="discovery")
 
 
 @responses.activate
-def test_upload_transaction(tmp_path):
+def test_upload_transaction_in_progress(tmp_path):
+    src = pathlib.Path(__file__).resolve().parents[0] / "test_data/upload/upload.zip"
     dest = pathlib.Path(tmp_path) / "upload"
     dest.mkdir()
-    for file in ("upload__count_synthea_patient.cube.parquet", "upload__meta_date.meta.parquet"):
-        src = pathlib.Path(__file__).resolve().parents[0] / f"test_data/upload/{file}"
-        shutil.copy(src, dest)
-    do_upload(data_path=dest, version="0", call_count=2, preview=False, transaction="ABCDEF")
+    shutil.copy(src, dest)
     with pytest.raises(SystemExit):
         do_upload(
             data_path=dest,
             version="0",
             call_count=1,
             preview=False,
-            transaction="bad",
             transaction_mismatch=True,
         )
 

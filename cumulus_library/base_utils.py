@@ -88,13 +88,15 @@ def query_console_output(
         progress_bar.advance(task)
 
 
-def get_progress_bar(**kwargs) -> progress.Progress:
+def get_progress_bar(
+    bar_type=progress.TaskProgressColumn(), metric=progress.TimeElapsedColumn(), **kwargs
+) -> progress.Progress:
     # The default columns don't change to elapsed time when finished.
     return progress.Progress(
         progress.TextColumn("[progress.description]{task.description}"),
         progress.BarColumn(),
-        progress.TaskProgressColumn(),
-        progress.TimeElapsedColumn(),
+        bar_type,
+        metric,
         **kwargs,
     )
 
@@ -110,19 +112,27 @@ def get_tablename_safe_iso_timestamp() -> str:
     return safe_timestamp
 
 
-def zip_dir(read_path, write_path, archive_name):
+def zip_dir(read_path, write_path, archive_name, archive_csvs=False):
     """Moves a directory to an archive"""
     file_list = [file for file in read_path.glob("**/*") if file.is_file()]
     timestamp = get_utc_datetime().isoformat().replace("+00:00", "Z")
+    if archive_csvs:
+        # archives including csvs are meant to be permanent and are kept outside the study data dirs
+        archive_path = f"{write_path}/{archive_name}__{timestamp}.zip"
+    else:
+        # otherwise archives are for upload and are ephemeral, and will be replaced each export
+        archive_path = f"{write_path}/{archive_name}/{archive_name}.zip"
     with zipfile.ZipFile(
-        f"{write_path}/{archive_name}_{timestamp}.zip",
+        archive_path,
         "w",
         zipfile.ZIP_DEFLATED,
     ) as f:
         for file in file_list:
-            f.write(file, file.relative_to(read_path))
-            file.unlink()
-        shutil.rmtree(read_path)
+            if (not file.suffix == ".csv" and archive_csvs is False) or archive_csvs is True:
+                f.write(file, file.relative_to(read_path))
+                file.unlink()
+        if archive_csvs:
+            shutil.rmtree(read_path)
 
 
 def update_query_if_schema_specified(query: str, manifest: study_manifest.StudyManifest):

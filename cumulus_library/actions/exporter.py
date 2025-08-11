@@ -39,7 +39,6 @@ def export_study(
     :keyword archive: If true, get all study data and zip with timestamp
     :keyword chunksize: number of rows to export in a single transaction
     """
-
     skipped_tables = []
     reset_counts_exports(manifest)
     if manifest.get_dedicated_schema():
@@ -82,5 +81,5 @@ def export_study(
         rich.print("The following tables were empty and were not exported:")
         for table in skipped_tables:
             rich.print(f"  - {table}")
-    if archive:
-        base_utils.zip_dir(path, data_path, manifest.get_study_prefix())
+    manifest.write_manifest(data_path)
+    base_utils.zip_dir(path, data_path, manifest.get_study_prefix(), archive_csvs=archive)
