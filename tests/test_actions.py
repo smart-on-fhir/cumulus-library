@@ -477,7 +477,7 @@ def do_upload(
     preview: bool = True,
     raises: contextlib.AbstractContextManager = does_not_raise(),
     status: int = 204,
-    version: str = "12345.0",
+    version: str | None = "12345.0",
     call_count: int = 2,
     data_path: pathlib.Path | None = pathlib.Path.cwd() / "tests/test_data/upload/",
     study: str = "upload",
@@ -593,26 +593,50 @@ def test_upload_data_no_path():
         do_upload(data_path=None)
 
 
+def remove_from_zip(src, dest, files):
+    with zipfile.ZipFile(src) as old:
+        with zipfile.ZipFile(dest, "w") as new:
+            for info in old.infolist():
+                if info.filename not in files:
+                    new.writestr(info, old.read(info))
+    src.unlink()
+
+
 @responses.activate
 def test_upload_data_no_version(tmp_path):
     src = pathlib.Path(__file__).resolve().parents[0] / "test_data/upload/upload.zip"
     dest = pathlib.Path(tmp_path) / "upload"
     dest.mkdir()
-    shutil.copy(src, dest)
+    shutil.copy(src, dest / "upload_tmp.zip")
+    remove_from_zip(
+        dest / "upload_tmp.zip", dest / "upload.zip", "upload__meta_version.meta.parquet"
+    )
     do_upload(data_path=dest, version="0", call_count=1)
 
 
 @responses.activate
 def test_upload_data_no_meta_date(tmp_path):
     with pytest.raises(SystemExit):
-        src = (
-            pathlib.Path(__file__).resolve().parents[0]
-            / "test_data/upload_no_date/upload_no_date.zip"
-        )
+        src = pathlib.Path(__file__).resolve().parents[0] / "test_data/upload/upload.zip"
         dest = pathlib.Path(tmp_path) / "upload"
         dest.mkdir()
-        shutil.copy(src, dest)
-        do_upload(data_path=dest, version="0", call_count=1)
+        shutil.copy(src, dest / "upload_tmp.zip")
+        remove_from_zip(
+            dest / "upload_tmp.zip", dest / "upload.zip", "upload__meta_date.meta.parquet"
+        )
+        do_upload(data_path=dest, version="12345", call_count=1)
+
+
+@responses.activate
+def test_upload_data_unexpected_data(tmp_path):
+    with pytest.raises(SystemExit):
+        src = pathlib.Path(__file__).resolve().parents[0] / "test_data/upload/upload.zip"
+        dest = pathlib.Path(tmp_path) / "upload"
+        dest.mkdir()
+        shutil.copy(src, dest / "upload.zip")
+        with zipfile.ZipFile(dest / "upload.zip", "a") as f:
+            f.writestr("foo", "test.txt")
+        do_upload(data_path=dest, version="12345", call_count=1)
 
 
 @responses.activate
