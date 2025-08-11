@@ -118,7 +118,7 @@ def upload_files(args: dict):
             )
         except StopIteration:
             version = "0"
-        # Note: I looked into monitoring upload progress instead of completed files and it is
+        # TODO: I looked into monitoring upload progress instead of completed files and it is
         # non-trivial - potential point for improvement later
         with base_utils.get_progress_bar() as progress_bar:
             file_upload_progress = progress_bar.add_task(f"Uploading {target}...", total=1)
