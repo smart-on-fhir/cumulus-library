@@ -16,9 +16,13 @@ which is suitable for sharing with other institutions via federated networks.
 
 We talk about the mechanics of this a little bit in the 
 [First time setup guide](./first-time-setup.md), but a study can be configured with a
-subset of tables set as being exportable to disk. By default, we export two file
-formats: csv, and parquet. The former is intended for things like SME verification,
-while the latter is intended for transport/programmatic consumption/type safety.
+subset of tables set as being exportable to disk. By default, we export two kinds of
+data:
+- An archive containing the exported tables (in parquet format) and a copy of the
+manifest used by the study, which we will use when 
+[uploading data](#uploading-data-to-cumulus-aggregator).
+- CSVs, created from the parquet files, which can be used for human evaluation of the
+datasets, or importing into other tools. 
 
 When exporting/uploading data, you need to provide a path to a data directory for
 local reading and writing. Optionally, you can specify a path value to use for this

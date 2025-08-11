@@ -73,8 +73,8 @@ def test_cli_export_with_dynamic_prefix(tmp_path):
     cli.main(cli_args=duckdb_args(["export", *STUDY_ARGS, "--option=prefix:abc"], tmp_path))
     assert set(os.listdir(f"{tmp_path}/export")) == {"abc"}
     assert set(os.listdir(f"{tmp_path}/export/abc")) == {
+        "abc.zip",
         "abc__meta_version.cube.csv",
-        "abc__meta_version.cube.parquet",
     }
 
 

@@ -20,6 +20,7 @@ import pandas
 import pytest
 import requests
 import responses
+from freezegun import freeze_time
 
 from cumulus_library import __version__, cli, databases, errors
 from tests.conftest import duckdb_args
@@ -524,17 +525,25 @@ def test_cli_executes_queries(
     os.environ,
     clear=True,
 )
+@freeze_time("2024-01-01")
 @pytest.mark.parametrize(
-    "args,input_txt,expects_files, raises",
+    "args,input_txt, raises",
     [
-        (["export", "-t", "core", "--archive"], "Y", True, does_not_raise()),
-        (["export", "-t", "core", "--archive"], "N", True, pytest.raises(SystemExit)),
+        (["export", "-t", "core", "--archive"], "Y", does_not_raise()),
+        (["export", "-t", "core", "--archive"], "N", pytest.raises(SystemExit)),
     ],
 )
-def test_cli_export_archive(tmp_path, args, input_txt, expects_files, raises):
+def test_cli_export_archive(tmp_path, args, input_txt, raises):
     with raises:
         with mock_stdin(io.StringIO(input_txt)):
-            build_args = duckdb_args(["build", "-t", "core"], tmp_path)
+            build_args = duckdb_args(
+                [
+                    "build",
+                    "-t",
+                    "core",
+                ],
+                tmp_path,
+            )
             stats_mock = pathlib.Path(f"{tmp_path}/export/core/stats")
             stats_mock.mkdir(parents=True, exist_ok=True)
             with open(stats_mock / "test.txt", "w") as f:
@@ -542,15 +551,22 @@ def test_cli_export_archive(tmp_path, args, input_txt, expects_files, raises):
             export_args = duckdb_args(args, tmp_path)
             cli.main(cli_args=build_args)
             cli.main(cli_args=export_args)
-            export_paths = list(pathlib.Path(f"{tmp_path}/export").glob("*"))
-            assert len(export_paths) == 1
-            archive = zipfile.ZipFile(export_paths[0])
-            for file in [
-                "core__encounter.archive.csv",
-                "core__count_encounter_type_month.archive.csv",
-                "stats/test.txt",
-            ]:
-                assert file in archive.namelist()
+            if input_txt == "Y":
+                archive = zipfile.ZipFile(tmp_path / "export/core__2024-01-01T00:00:00Z.zip")
+                for file in [
+                    "core__encounter.archive.parquet",
+                    "core__count_encounter_type_month.archive.parquet",
+                    "stats/test.txt",
+                ]:
+                    assert file in archive.namelist()
+            else:
+                archive = zipfile.ZipFile(tmp_path / "export/core/core.zip")
+                for file in [
+                    "core__encounter.archive.parquet",
+                    "core__count_encounter_type_month.archive.parquet",
+                ]:
+                    assert file in archive.namelist()
+                assert "stats/test.txt" not in archive.namelist()
 
 
 @mock.patch.dict(
@@ -709,7 +725,7 @@ def test_cli_upload_error(mock_upload):
         (["upload", "--user", "user", "--id", "id"], 0, pytest.raises(SystemExit)),
         (
             ["upload", "--user", "user", "--id", "id", "-t", "upload"],
-            2,
+            1,
             does_not_raise(),
         ),
         (

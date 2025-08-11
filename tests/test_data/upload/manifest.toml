@@ -1,0 +1,7 @@
+study_prefix = "upload"
+
+
+[export_config]
+count_list = [
+    "upload__count_synthea_patient",
+]
