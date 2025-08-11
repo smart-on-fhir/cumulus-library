@@ -83,11 +83,6 @@ def upload_files(args: dict):
                 filtered_paths.append(path)
         if len(filtered_paths) == 0:
             sys.exit("No files found for upload. Is your data path/target specified correctly?")
-        elif len(filtered_paths) > 1:
-            sys.exit(
-                f"More than one zipfile found in {args['data_path'] + '/' + args['target']}. "
-                "Make sure you haven't manually modified the contents of your export directory."
-            )
         archive_path = filtered_paths[0]
         upload_archive = zipfile.ZipFile(archive_path)
         archive_contents = upload_archive.namelist()
