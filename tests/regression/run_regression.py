@@ -17,6 +17,7 @@ this approach."""
 import os
 import pathlib
 import sys
+import zipfile
 
 import rich
 from pandas import read_parquet
@@ -27,6 +28,9 @@ VOCAB_ICD_ROW_COUNT = 403231
 def regress_core():
     ref_path = f"{pathlib.Path(__file__).resolve().parent}/reference"
     export_path = f"{pathlib.Path(__file__).resolve().parent}/data_export/core"
+    with zipfile.ZipFile(export_path / "core.zip", "r") as f:
+        f.extractall(export_path)
+    (export_path / "core.zip").unlink()
 
     references = set(os.listdir(ref_path))
     exports = set(os.listdir(export_path))
