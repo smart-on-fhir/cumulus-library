@@ -26,8 +26,8 @@ VOCAB_ICD_ROW_COUNT = 403231
 
 
 def regress_core():
-    ref_path = f"{pathlib.Path(__file__).resolve().parent}/reference"
-    export_path = f"{pathlib.Path(__file__).resolve().parent}/data_export/core"
+    ref_path = pathlib.Path(__file__).resolve().parent / "reference"
+    export_path = pathlib.Path(__file__).resolve().parent / "data_export/core"
     with zipfile.ZipFile(export_path / "core.zip", "r") as f:
         f.extractall(export_path)
     (export_path / "core.zip").unlink()

@@ -1,0 +1,40 @@
+study_prefix = "core"
+
+[file_config]
+file_names = [
+    "builder_prereq_tables.py",
+    "builder_allergyintolerance.py",
+    "builder_condition.py",
+    "builder_diagnosticreport.py",
+    "builder_patient.py",
+    "builder_encounter.py",
+    "builder_documentreference.py",
+    "builder_medicationrequest.py",
+    "builder_observation.py",
+    "builder_procedure.py",
+    "observation_type.sql",
+    "meta_date.sql",
+    "count_core.py"
+]
+
+[export_config]
+count_list = [
+    "core__count_allergyintolerance_month",
+    "core__count_condition_month",
+    "core__count_diagnosticreport_month",
+    "core__count_documentreference_month",
+    "core__count_encounter_month",
+    "core__count_encounter_all_types",
+    "core__count_encounter_all_types_month",
+    "core__count_encounter_service_month",
+    "core__count_encounter_priority_month",
+    "core__count_encounter_type_month",
+    "core__count_medicationrequest_month",
+    "core__count_observation_lab_month",
+    "core__count_patient",
+    "core__count_procedure_month",
+]
+meta_list = [
+    "core__meta_date",
+    "core__meta_version",
+]
