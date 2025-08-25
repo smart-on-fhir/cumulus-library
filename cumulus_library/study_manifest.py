@@ -3,6 +3,7 @@
 import dataclasses
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 import tomllib
@@ -223,6 +224,17 @@ class StudyManifest:
         if dedicated := self.get_dedicated_schema():
             return f"{dedicated}."
         return f"{self.get_study_prefix()}__"
+
+    def write_manifest(self, path: pathlib.Path):
+        """Writes a copy of the manifest to the provided path.
+
+        A manifest is expected to be a read only artifact, so the intent of this is
+        to get a copy of the manifest at runtime and copy it for purposes of exporting
+        as part of an upload.
+        """
+        shutil.copy(
+            self._study_path / "manifest.toml", path / f"{self._study_prefix}/manifest.toml"
+        )
 
     ### Dynamic Python code support
 

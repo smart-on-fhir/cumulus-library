@@ -1,13 +1,14 @@
 """Handles pushing data to the aggregator"""
 
 import sys
+import zipfile
 from pathlib import Path
 
 import requests
 import rich
 from pandas import read_parquet
 
-from cumulus_library import base_utils
+from cumulus_library import base_utils, const
 
 
 def upload_data(
@@ -16,14 +17,12 @@ def upload_data(
     file_path: Path,
     version: str,
     args: dict,
-    transaction_id: str | None,
 ) -> str:
     """Fetches presigned url and uploads file to aggregator"""
     study = file_path.parts[-2]
     file_name = file_path.parts[-1]
     c = rich.get_console()
     progress_bar.update(file_upload_progress, description=f"Uploading {study}/{file_name}")
-    data_package = file_name.split(".")[0]
     url = args["url"]
     if args["network"]:
         # coercion to handle optional presence of trailing slash in the url
@@ -32,12 +31,10 @@ def upload_data(
         url,
         json={
             "study": study,
-            "data_package": data_package,
             "data_package_version": int(float(version)),
             "filename": f"{args['user']}_{file_name}",
         },
         auth=(args["user"], args["id"]),
-        headers={"transaction-id": transaction_id},
         timeout=60,
     )
     if args["preview"]:
@@ -76,19 +73,32 @@ def upload_files(args: dict):
     """Wrapper to prep files & console output"""
     if args["data_path"] is None:
         sys.exit("No data directory provided - please provide a path to your study export folder.")
-    file_paths = list(args["data_path"].glob("**/*.parquet"))
+    file_paths = list(args["data_path"].glob("**/*.zip"))
     filtered_paths = []
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
     for target in args["target"]:
         for path in file_paths:
-            if path.parent.name == target and path.name.startswith(f"{target}__"):
+            if path.parent.name == target and path.name == f"{target}.zip":
                 filtered_paths.append(path)
-        file_paths = filtered_paths
-        if len(file_paths) == 0:
+        if len(filtered_paths) == 0:
             sys.exit("No files found for upload. Is your data path/target specified correctly?")
+        archive_path = filtered_paths[0]
+        upload_archive = zipfile.ZipFile(archive_path)
+        archive_contents = upload_archive.namelist()
+        invalid_contents = []
+        for file in archive_contents:
+            if not any(x in file for x in const.ALLOWED_UPLOADS):
+                invalid_contents.append(file)
+        if len(invalid_contents) > 0:
+            sys.exit(
+                f"{archive_path} contains files that are not allowed:"
+                f"  {invalid_contents}"
+                "This likely means you tried to upload an archive containing line level data, "
+                "but may also be a bug related to your study export names."
+            )
         if target != "discovery":
-            if not any(f"{target}__meta_date.meta.parquet" == x.name for x in file_paths):
+            if not any(f"{target}__meta_date.meta.parquet" == x for x in archive_contents):
                 sys.exit(
                     f"Study '{target}' does not contain a {target}__meta_date table.\n"
                     "See the documentation for more information about this required table.\n"
@@ -96,19 +106,15 @@ def upload_files(args: dict):
                 )
         try:
             meta_version = next(
-                filter(lambda x: str(x).endswith("__meta_version.meta.parquet"), file_paths)
+                filter(lambda x: str(x).endswith("__meta_version.meta.parquet"), archive_contents)
             )
-            version = str(read_parquet(meta_version)["data_package_version"][0])
-            file_paths.remove(meta_version)
+            version = str(
+                read_parquet(upload_archive.open(meta_version))["data_package_version"][0]
+            )
         except StopIteration:
             version = "0"
-        num_uploads = len(file_paths)
+        # TODO: I looked into monitoring upload progress instead of completed files and it is
+        # non-trivial - potential point for improvement later
         with base_utils.get_progress_bar() as progress_bar:
-            file_upload_progress = progress_bar.add_task(
-                f"Uploading {target} data...", total=num_uploads
-            )
-            transaction_id = None
-            for file_path in file_paths:
-                transaction_id = upload_data(
-                    progress_bar, file_upload_progress, file_path, version, args, transaction_id
-                )
+            file_upload_progress = progress_bar.add_task(f"Uploading {target}...", total=1)
+            upload_data(progress_bar, file_upload_progress, filtered_paths[0], version, args)
