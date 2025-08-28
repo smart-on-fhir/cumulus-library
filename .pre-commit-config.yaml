@@ -1,7 +1,7 @@
 default_install_hook_types: [pre-commit, pre-push]
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.1  # if you update this, also update pyproject.toml
+    rev: v0.12.10  # if you update this, also update pyproject.toml
     hooks:
       - name: Ruff formatting
         id: ruff-format
@@ -11,7 +11,7 @@ repos:
         stages: [pre-push]
 
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 3.2.3
+    rev: 3.4.2
     hooks:
       - id: sqlfluff-lint
         types: []

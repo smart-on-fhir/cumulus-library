@@ -300,6 +300,18 @@ UNNEST(code.coding) AS table_1 (col_1)
 
 UNION ALL
 
+SELECT DISTINCT
+    'observation' AS table_name,
+    'component.code' AS column_name,
+    table_2.col_2.code,
+    table_2.col_2.display,
+    table_2.col_2.system
+FROM observation,
+UNNEST(component) AS table_1 (col_1),
+UNNEST(col_1.code.coding) as table_2 (col_2)
+
+UNION ALL
+
 SELECT *
 FROM (
     VALUES (
