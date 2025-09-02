@@ -1,0 +1,34 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+
+CREATE TABLE example_nlp__range_labels AS
+{%- if table_names %}
+{%- for table_name in table_names %}
+SELECT
+    src.note_ref,
+    src.subject_ref,
+    CASE
+        -- Based on MeSH age groups: https://www.ncbi.nlm.nih.gov/mesh/68009273
+        WHEN src.result.age < 0 OR src.result.age > 120 THEN 'unknown'
+        WHEN src.result.age < 2 THEN 'infant (0-1)'
+        WHEN src.result.age < 13 THEN 'child (2-12)'
+        WHEN src.result.age < 19 THEN 'adolescent (13-18)'
+        WHEN src.result.age < 25 THEN 'young adult (19-24)'
+        WHEN src.result.age < 45 THEN 'adult (25-44)'
+        WHEN src.result.age < 65 THEN 'middle aged (45-64)'
+        ELSE 'aged (65+)'
+    END AS label,
+    CONCAT(CAST(u.span[1] AS VARCHAR), ':', CAST(u.span[2] AS VARCHAR)) AS span,
+    '{{ table_name }}' AS origin
+FROM {{ table_name }} AS src,
+    UNNEST(src.result.spans) AS u (span)
+{{ syntax.union_all_delineate(loop) }}
+{%- endfor %}
+{%- else %}
+SELECT
+    'x' AS note_ref,
+    'x' AS subject_ref,
+    'x' AS label,
+    'x' AS span,
+    'x' AS origin
+WHERE 1=0 -- empty table
+{%- endif %}

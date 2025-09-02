@@ -1,0 +1,9 @@
+# This study is used as an example (but realistic) workflow a user can follow to see how NLP data
+# flows through the Cumulus pipeline.
+
+study_prefix = "example_nlp"
+
+[file_config]
+file_names = [
+    "calculate_ranges.py",
+]

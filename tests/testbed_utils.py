@@ -253,8 +253,11 @@ class LocalTestbed:
             },
         )
 
-    def build(self, study="core") -> duckdb.DuckDBPyConnection:
-        db_file = f"{self.path}/{study}.db"
+    def get_db_file(self, study: str = "core") -> str:
+        return f"{self.path}/{study}.db"
+
+    def build(self, study: str = "core") -> duckdb.DuckDBPyConnection:
+        db_file = self.get_db_file(study)
         db, _ = create_db_backend(
             {
                 "db_type": "duckdb",

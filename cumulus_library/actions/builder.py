@@ -437,7 +437,7 @@ def _check_if_preparable(prefix):
     # This list should include any study which requires interrogating the database to
     # find if data is available to query (outside of a toml-driven workflow),
     # which isn't doable as a distributed query
-    if prefix in ["core", "discovery", "data-metrics"]:
+    if prefix in ["core", "discovery", "data_metrics", "example_nlp"]:
         sys.exit(
             f"Study '{prefix}'' does not support prepare mode. It must be run "
             "directly against a target database."
