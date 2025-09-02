@@ -64,7 +64,8 @@ cumulus-library generate-sql \
   --database :memory: \
   --load-ndjson-dir tests/test_data/duckdb_data \
   --target core \
-  --target discovery
+  --target discovery \
+  --target example_nlp
 ```
 
 ## Rebuilding the Markdown table docs

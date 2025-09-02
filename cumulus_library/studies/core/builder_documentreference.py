@@ -46,7 +46,7 @@ class CoreDocumentreferenceBuilder(cumulus_library.BaseTableBuilder):
                     filter_priority=True,
                     target_table="core__documentreference_dn_category",
                     code_systems=[
-                        "http://hl7.org/fhir/us/core/ValueSet/us-core-documentreference-category"
+                        "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category"
                     ],
                 ),
                 sql_utils.CodingConfig(
