@@ -71,6 +71,7 @@ def get_count_query(
     filter_resource: bool | None = True,
     patient_link: str = "subject_ref",
     annotation: CountAnnotation | None = None,
+    skip_status_filter: bool | None = False,
 ) -> str:
     """Generates count tables for generating study outputs"""
     path = Path(__file__).parent
@@ -99,6 +100,7 @@ def get_count_query(
         filter_resource=filter_resource,
         patient_link=patient_link,
         annotation=annotation,
+        skip_status_filter=skip_status_filter,
     )
     # workaround for conflicting sqlfluff enforcement
     return query.replace("-- noqa: disable=LT02\n", "")

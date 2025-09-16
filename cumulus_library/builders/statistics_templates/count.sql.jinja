@@ -101,8 +101,10 @@ CREATE TABLE {{ table_name }} AS (
         {%- endif -%}
         {#- resource specific filtering conditions -#}
         {%- if fhir_resource == 'documentreference' %}
+        {%- if skip_status_filter is false %}
         WHERE (s.status = 'current')
         AND (s.docStatus IS null OR s.docStatus IN ('final', 'amended'))
+        {%- endif%}
         {%- elif fhir_resource == 'encounter' %}
         WHERE s.status = 'finished'
         {%- elif fhir_resource == 'observation' %}

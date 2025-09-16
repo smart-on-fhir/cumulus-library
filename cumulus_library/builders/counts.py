@@ -79,6 +79,8 @@ class CountsBuilder(BaseTableBuilder):
         :keyword patient_link:
         :keyword annotation: A CountsAnnotation object describing a table to use as
             a metadata annotation source
+        :keyword skip_status_filter: Skips status/docStatus fields in docrefs (see
+            count_documentference for context)
         """
         if not table_name or not source_table or not table_cols:
             raise errors.CountsBuilderError(
@@ -93,6 +95,7 @@ class CountsBuilder(BaseTableBuilder):
                 "filter_resource",
                 "patient_link",
                 "annotation",
+                "skip_status_filter",
             ]:
                 raise errors.CountsBuilderError(f"count_query received unexpected key: {key}")
         if "min_subject" in kwargs and kwargs["min_subject"] is None:
@@ -201,6 +204,7 @@ class CountsBuilder(BaseTableBuilder):
         where_clauses: list | None = None,
         min_subject: int | None = None,
         annotation: counts_templates.CountAnnotation | None = None,
+        skip_status_filter: bool | None = False,
     ) -> str:
         """wrapper method for constructing documentreference counts tables
 
@@ -211,6 +215,11 @@ class CountsBuilder(BaseTableBuilder):
         :param min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
         :param annotation: A CountAnnotation definining an external annotation source
+        :param skip_status_filter: Skips the normal filtering of status/docstatus fields.
+            Note: documentrefs often have cancelled/entered in error statuses, which
+            we normally filter out for counting. When setting this flag, we assume
+            you have taken some action to properly select documents within the context
+            of a study ahead of counting.
         """
         return self.get_count_query(
             table_name,
@@ -221,6 +230,7 @@ class CountsBuilder(BaseTableBuilder):
             fhir_resource="documentreference",
             filter_resource=True,
             annotation=annotation,
+            skip_status_filter=skip_status_filter,
         )
 
     def count_encounter(
