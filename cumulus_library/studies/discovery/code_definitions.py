@@ -90,6 +90,11 @@ code_list = [
         ],
         "expected": {"dischargedisposition": sql_utils.CODEABLE_CONCEPT},
     },
+    # Location
+    {
+        "table_name": "location",
+        "column_hierarchy": [("type", list), ("coding", list)],
+    },
     # Medication
     {
         "table_name": "medication",
@@ -130,10 +135,29 @@ code_list = [
         "table_name": "observation",
         "column_hierarchy": [("dataabsentreason", dict), ("coding", list)],
     },
+    # Organization
+    {
+        "table_name": "organization",
+        "column_hierarchy": [("type", list), ("coding", list)],
+    },
     # Patient
     {
         "table_name": "patient",
         "column_hierarchy": [("maritalstatus", dict), ("coding", list)],
+    },
+    # Practitioner
+    {
+        "table_name": "practitioner",
+        "column_hierarchy": [("qualification", list), ("code", dict), ("coding", list)],
+    },
+    # PractitionerRole
+    {
+        "table_name": "practitionerrole",
+        "column_hierarchy": [("code", list), ("coding", list)],
+    },
+    {
+        "table_name": "practitionerrole",
+        "column_hierarchy": [("specialty", list), ("coding", list)],
     },
     # Procedure
     {

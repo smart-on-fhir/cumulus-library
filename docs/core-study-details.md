@@ -96,12 +96,23 @@ Per resource, the optional fields are as follows:
 - Encounter
   - serviceType
   - priority
+- Location
+  - type
+  - partOf
 - Observation - laboratory
   - encounter
 - Observation - vital signs
   - encounter
   - valueCodeableConcept
   - interpretation
+- Organization
+  - type
+  - partOf
+- Practitioner
+  - active
+  - qualification.code
+- PractitionerRole
+  - active
 - Procedure
   - category
   - encounter
