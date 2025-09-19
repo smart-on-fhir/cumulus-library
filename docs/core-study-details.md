@@ -97,6 +97,8 @@ Per resource, the optional fields are as follows:
   - serviceType
   - priority
 - Location
+  - identifier
+  - alias
   - type
   - partOf
 - Observation - laboratory
@@ -106,12 +108,16 @@ Per resource, the optional fields are as follows:
   - valueCodeableConcept
   - interpretation
 - Organization
+  - identifier
   - type
+  - alias
   - partOf
 - Practitioner
+  - identifier
   - active
   - qualification.code
 - PractitionerRole
+  - identifier
   - active
 - Procedure
   - category

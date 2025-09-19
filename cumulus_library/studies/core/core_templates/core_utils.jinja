@@ -120,3 +120,21 @@ targets is assumed to be a list of tuples of one of the following format:
         {%- endfor %}
 {%- endmacro %}
 
+{#- makes an array of one #}
+{% macro make_array(item) -%}
+{%- if db_type == 'duckdb' -%}
+    [{{ item }}]
+{%- else -%}
+    array[{{ item }}]
+{%- endif -%}
+{%- endmacro %}
+
+{#- prepends an item into another array, handling either side being null #}
+{% macro prepend_to_array(item, array) -%}
+    CASE
+        WHEN {{ item }} IS NULL AND {{ array }} IS NULL THEN NULL
+        WHEN {{ item }} IS NULL THEN {{ array }}
+        WHEN {{ array }} IS NULL THEN {{ make_array(item) }}
+        ELSE {{ make_array(item) }} || {{ array }}
+    END
+{%- endmacro %}

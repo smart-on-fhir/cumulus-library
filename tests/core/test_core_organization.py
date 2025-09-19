@@ -18,6 +18,7 @@ def test_core_organization_simple(tmp_path):
                 {"coding": [{"system": "type-sys", "code": "type-code", "display": "type-dis"}]}
             ],
             "name": "Test Organization",
+            "alias": ["second name"],
             "partOf": {"reference": "Organization/parent"},
         },
     )
@@ -36,6 +37,7 @@ def test_core_organization_simple(tmp_path):
             "type_system": "type-sys",
             "type_display": "type-dis",
             "name": "Test Organization",
+            "alias": "Test Organization, second name",
             "organization_ref": "Organization/simple",
             "part_of_ref": "Organization/parent",
         }
@@ -60,6 +62,7 @@ def test_core_organization_minimal(tmp_path):
             "type_system": None,
             "type_display": None,
             "name": None,
+            "alias": None,
             "organization_ref": "Organization/nothing",
             "part_of_ref": None,
         }

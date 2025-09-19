@@ -3,6 +3,8 @@
 
 -- This table includes all fields of interest to the US Core Location profile.
 -- BUT ADDING:
+-- * the `identifier` field
+-- * the `alias` field, because it's similarly useful as name
 -- * the `type` field, because it's helpful for classification
 -- * the `partOf` field, because it could be helpful for classification
 --
@@ -12,7 +14,7 @@
 CREATE TABLE core__location AS
 WITH flat AS (
     SELECT
-        {{- utils.basic_cols('location', 'src', ['id']) }},
+        {{- utils.basic_cols('location', 'src', ['id', 'alias']) }},
         {{-
             utils.nullable_cols(
                 'location',
@@ -39,6 +41,10 @@ SELECT
 
     flat.status,
     flat.name,
+    -- Combine name and aliases into one big comma delineated list, for convenience of searching
+    array_join(
+        {{ utils.prepend_to_array("flat.name", "flat.alias") }}, ', '
+    ) AS "alias", -- noqa: RF06
 
     dn_type.code AS type_code,
     dn_type.system AS type_system,
