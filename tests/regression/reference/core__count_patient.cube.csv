@@ -1,36 +1,36 @@
-"cnt","gender","race_display","ethnicity_display"
+cnt,gender,race_display,ethnicity_display
 1144,,,
-1040,,,"not hispanic or latino"
-1021,,"white",
-930,,"white","not hispanic or latino"
-578,"female",,
-566,"male",,
-527,"female","white",
-524,"female",,"not hispanic or latino"
-516,"male",,"not hispanic or latino"
-494,"male","white",
-479,"female","white","not hispanic or latino"
-451,"male","white","not hispanic or latino"
-104,,,"hispanic or latino"
-91,,"white","hispanic or latino"
-65,,"black or african american",
-54,,"black or african american","not hispanic or latino"
-54,"female",,"hispanic or latino"
-50,"male",,"hispanic or latino"
-48,"female","white","hispanic or latino"
-43,"male","white","hispanic or latino"
-43,"male","black or african american",
-36,"male","black or african american","not hispanic or latino"
-22,"female","black or african american",
-20,,"asian",
-19,,"asian","not hispanic or latino"
-18,"female","black or african american","not hispanic or latino"
-15,,"unknown",
-15,,"unknown","not hispanic or latino"
-14,,"native hawaiian or other pacific islander",
-13,,"native hawaiian or other pacific islander","not hispanic or latino"
-12,"female","asian",
-11,,"black or african american","hispanic or latino"
-11,"female","asian","not hispanic or latino"
-10,"male","unknown",
-10,"male","unknown","not hispanic or latino"
+1040,,,not hispanic or latino
+1021,,white,
+930,,white,not hispanic or latino
+578,female,,
+566,male,,
+527,female,white,
+524,female,,not hispanic or latino
+516,male,,not hispanic or latino
+494,male,white,
+479,female,white,not hispanic or latino
+451,male,white,not hispanic or latino
+104,,,hispanic or latino
+91,,white,hispanic or latino
+65,,black or african american,
+54,,black or african american,not hispanic or latino
+54,female,,hispanic or latino
+50,male,,hispanic or latino
+48,female,white,hispanic or latino
+43,male,white,hispanic or latino
+43,male,black or african american,
+36,male,black or african american,not hispanic or latino
+22,female,black or african american,
+20,,asian,
+19,,asian,not hispanic or latino
+18,female,black or african american,not hispanic or latino
+15,,unknown,
+15,,unknown,not hispanic or latino
+14,,native hawaiian or other pacific islander,
+13,,native hawaiian or other pacific islander,not hispanic or latino
+12,female,asian,
+11,,black or african american,hispanic or latino
+11,female,asian,not hispanic or latino
+10,male,unknown,
+10,male,unknown,not hispanic or latino

@@ -186,6 +186,11 @@ schema =
         'etl__completion_encounters': {
             'group_name': True,
         },
+        'location': {
+            'id': True,
+            'managingOrganization': True,
+            'partOf': True,
+        },
         'medicationrequest': {
             'id': True, 
             'status': True, 
@@ -245,11 +250,23 @@ schema =
                 'reference': True
             }
         },
+        'organization': {
+            'id': True,
+            'partOf': True,
+        },
         'patient': {
             'id': True, 
             'gender': True, 
             'address': True, 
             'birthdate': True
+        },
+        'practitioner': {
+            'id': True,
+        },
+        'practitionerrole': {
+            'id': True,
+            'organization': True,
+            'practitioner': True,
         },
         'procedure': {
             'encounter': {

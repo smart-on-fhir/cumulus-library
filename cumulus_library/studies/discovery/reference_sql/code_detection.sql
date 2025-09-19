@@ -241,6 +241,20 @@ UNION ALL
 SELECT *
 FROM (
     VALUES (
+        'location',
+        'type',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION ALL
+
+SELECT *
+FROM (
+    VALUES (
         'medication',
         'codecodeableconcept',
         '',
@@ -352,6 +366,18 @@ FROM (
 UNION ALL
 
 SELECT DISTINCT
+    'organization' AS table_name,
+    'type' AS column_name,
+    table_2.col_2.code,
+    table_2.col_2.display,
+    table_2.col_2.system
+FROM organization,
+UNNEST(type) AS table_1 (col_1),
+UNNEST(col_1.coding) as table_2 (col_2)
+
+UNION ALL
+
+SELECT DISTINCT
     'patient' AS table_name,
     'maritalstatus' AS column_name,
     table_1.col_1.code,
@@ -359,6 +385,44 @@ SELECT DISTINCT
     table_1.col_1.system
 FROM patient,
 UNNEST(maritalstatus.coding) AS table_1 (col_1)
+
+UNION ALL
+
+SELECT *
+FROM (
+    VALUES (
+        'practitioner',
+        'qualification.code',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+UNION ALL
+
+SELECT DISTINCT
+    'practitionerrole' AS table_name,
+    'code' AS column_name,
+    table_2.col_2.code,
+    table_2.col_2.display,
+    table_2.col_2.system
+FROM practitionerrole,
+UNNEST(code) AS table_1 (col_1),
+UNNEST(col_1.coding) as table_2 (col_2)
+
+UNION ALL
+
+SELECT DISTINCT
+    'practitionerrole' AS table_name,
+    'specialty' AS column_name,
+    table_2.col_2.code,
+    table_2.col_2.display,
+    table_2.col_2.system
+FROM practitionerrole,
+UNNEST(specialty) AS table_1 (col_1),
+UNNEST(col_1.coding) as table_2 (col_2)
 
 UNION ALL
 

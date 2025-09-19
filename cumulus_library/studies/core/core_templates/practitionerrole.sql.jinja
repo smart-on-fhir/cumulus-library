@@ -1,0 +1,68 @@
+{% import 'core_utils.jinja' as utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
+
+-- This table includes all fields of interest to the US Core PractitionerRole profile.
+-- BUT ADDING:
+-- * the `identifier` field
+-- * the `active` field, because it lets us know to even look at the row
+--
+-- AND REMOVING:
+-- * the `healthcareService` field, because the profile doesn't require it to be supported, it
+--   just references it, and it points to a resource we don't support in `core` yet
+-- * the `telecom` field for PHI reasons
+-- * the `endpoint` field because we don't use it
+--
+-- US Core profile for reference:
+-- * https://hl7.org/fhir/us/core/STU4/StructureDefinition-us-core-practitionerrole.html
+
+CREATE TABLE core__practitionerrole AS
+WITH flat AS (
+    SELECT
+        {{- utils.basic_cols('practitionerrole', 'src', ['id']) }},
+        {{-
+            utils.nullable_cols(
+                'practitionerrole',
+                'src',
+                [
+                    'active',
+                    ('practitioner', 'reference', 'practitioner_ref'),
+                    ('organization', 'reference', 'organization_ref'),
+                ],
+                schema
+            )
+        }}
+    FROM practitionerrole AS src
+),
+
+identifiers AS ({{ unnest_utils.flatten('practitionerrole', 'identifier') }}),
+
+locations AS ({{ unnest_utils.flatten('practitionerrole', 'location') }})
+
+SELECT
+    flat.id,
+
+    identifiers.identifier.value AS identifier_value,
+    identifiers.identifier.system AS identifier_system,
+
+    flat.active,
+
+    dn_code.code AS code_code,
+    dn_code.system AS code_system,
+    dn_code.display AS code_display,
+
+    dn_specialty.code AS specialty_code,
+    dn_specialty.system AS specialty_system,
+    dn_specialty.display AS specialty_display,
+
+    concat('PractitionerRole/', flat.id) AS practitionerrole_ref,
+    flat.practitioner_ref,
+    flat.organization_ref,
+    CASE
+        WHEN locations.location IS NOT NULL THEN locations.location.reference
+    END AS location_ref
+
+FROM flat
+LEFT JOIN core__practitionerrole_dn_code AS dn_code ON flat.id = dn_code.id
+LEFT JOIN core__practitionerrole_dn_specialty AS dn_specialty ON flat.id = dn_specialty.id
+LEFT JOIN identifiers ON flat.id = identifiers.id
+LEFT JOIN locations ON flat.id = locations.id;

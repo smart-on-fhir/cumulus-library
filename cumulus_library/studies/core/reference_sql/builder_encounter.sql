@@ -626,6 +626,7 @@ temp_encounter_nullable AS (
         e.status,
         e.class.code AS class_code,
         e.class.system AS class_system,
+        e.class.display AS class_display,
         e.subject.reference AS subject_ref,
         cast(from_iso8601_timestamp(e.period.start) AS date) AS period_start,
         date_trunc('day', cast(from_iso8601_timestamp(e."period"."end") AS date))
@@ -653,6 +654,7 @@ temp_encounter AS (
         e.status,
         e.class_code,
         e.class_system,
+        e.class_display,
         e.subject_ref,
         e.period_start,
         e.period_start_day,
@@ -687,8 +689,8 @@ temp_encounter AS (
 SELECT DISTINCT
     e.id,
     e.status,
-    ac.code AS class_code,
-    ac.display AS class_display,
+    COALESCE (ac.code, e.class_code) AS class_code,
+    COALESCE (ac.display, e.class_display) AS class_display,
     e.type_code,
     e.type_system,
     e.type_display,

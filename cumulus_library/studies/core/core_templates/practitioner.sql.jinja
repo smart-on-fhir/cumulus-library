@@ -1,0 +1,48 @@
+{% import 'core_utils.jinja' as utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
+
+-- This table includes all fields of interest to the US Core Practitioner profile.
+-- BUT ADDING:
+-- * the `identifier` field
+-- * the `active` field, because it lets us know to even look at the row
+-- * the `qualification.code` field, because it could be helpful for classification
+--
+-- US Core profile for reference:
+-- * https://hl7.org/fhir/us/core/STU4/StructureDefinition-us-core-practitioner.html
+
+CREATE TABLE core__practitioner AS
+WITH flat AS (
+    SELECT
+        {{- utils.basic_cols('practitioner', 'src', ['id']) }},
+        {{-
+            utils.nullable_cols(
+                'practitioner',
+                'src',
+                [
+                    'active',
+                ],
+                schema
+            )
+        }}
+    FROM practitioner AS src
+),
+
+identifiers AS ({{ unnest_utils.flatten('practitioner', 'identifier') }})
+
+SELECT
+    flat.id,
+
+    identifiers.identifier.value AS identifier_value,
+    identifiers.identifier.system AS identifier_system,
+
+    flat.active,
+
+    dn_code.code AS qualification_code_code,
+    dn_code.system AS qualification_code_system,
+    dn_code.display AS qualification_code_display,
+
+    concat('Practitioner/', flat.id) AS practitioner_ref
+
+FROM flat
+LEFT JOIN core__practitioner_dn_qualification_code AS dn_code ON flat.id = dn_code.id
+LEFT JOIN identifiers ON flat.id = identifiers.id;
