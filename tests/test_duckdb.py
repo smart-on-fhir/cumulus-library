@@ -68,10 +68,12 @@ def test_duckdb_load_ndjson_dir(tmp_path):
     filenames = {
         "blarg.ndjson": True,
         "blarg.nope": False,
+        "subdir/deeply/nested/blarg.ndjson": True,
         "patient/blarg.ndjson": True,
         "patient/blarg.meta": False,
     }
     os.mkdir(f"{tmp_path}/patient")
+    os.makedirs(f"{tmp_path}/subdir/deeply/nested")
     for index, (filename, valid) in enumerate(filenames.items()):
         with open(f"{tmp_path}/{filename}", "w", encoding="utf8") as f:
             row_id = f"Good{index}" if valid else f"Bad{index}"

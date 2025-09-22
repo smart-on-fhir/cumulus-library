@@ -13,16 +13,7 @@ from cumulus_library.databases import athena, base, duckdb
 
 
 def _list_files_for_resource(path: pathlib.Path, resource: str) -> list[str]:
-    files = []
-
-    # Support any ndjson files from the target folder directly
-    files += list(cumulus_fhir_support.list_multiline_json_in_dir(path, resource))
-
-    # Also support being given an ETL output folder, and look in the table subdir
-    subdir = path / resource.lower()
-    files += list(cumulus_fhir_support.list_multiline_json_in_dir(subdir, resource))
-
-    return files
+    return list(cumulus_fhir_support.list_multiline_json_in_dir(path, resource, recursive=True))
 
 
 def _rows_from_files(files: list[str]) -> Iterable[dict]:
@@ -137,7 +128,7 @@ def _handle_load_ndjson_dir(args: dict[str, str], backend: base.DatabaseBackend)
         backend.insert_tables(read_ndjson_dir(load_ndjson_dir))
 
 
-def create_db_backend(args: dict[str, str]) -> (base.DatabaseBackend, str):
+def create_db_backend(args: dict[str, str]) -> tuple[base.DatabaseBackend, str]:
     """Retrieves a database backend and target schema from CLI args"""
     db_config.db_type = args["db_type"]
 
