@@ -260,7 +260,7 @@ def test_athena_pandas_cursor(mock_pyathena):
     )
     db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
     db.connect()
-    res, desc = db.execute_as_pandas("ignored query")
+    res, _desc = db.execute_as_pandas("ignored query")
     assert res.equals(
         pandas.DataFrame(
             [

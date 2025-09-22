@@ -250,7 +250,7 @@ def mock_db_core_config(mock_db_core):
 def mock_db_stats(tmp_path):
     """Provides a DuckDatabaseBackend with a larger dataset for sampling stats"""
     ndjson_data_generator(pathlib.Path(MOCK_DATA_DIR), f"{tmp_path}/mock_data", 20)
-    db, schema = create_db_backend(
+    db, _schema = create_db_backend(
         {
             "db_type": "duckdb",
             "database": f"{tmp_path}/stats.db",

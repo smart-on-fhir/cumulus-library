@@ -1,172 +1,172 @@
-"cnt","category","recordeddate_month","code_display","reaction_manifestation_display"
+cnt,category,recordeddate_month,code_display,reaction_manifestation_display
 172,,,,
-139,,,,"cumulus__none"
-132,"food",,,
-124,"environment",,,
-115,,,,"Eruption of skin (disorder)"
-111,,,,"Wheal (finding)"
-108,"environment",,,"cumulus__none"
-104,,,"Mold (organism)",
-104,"environment",,"Mold (organism)",
-100,,,"Animal dander (substance)",
-100,"environment",,"Animal dander (substance)",
-90,,,,"Rhinoconjunctivitis (disorder)"
-87,,,"Tree pollen (substance)",
-87,,,"Tree pollen (substance)","cumulus__none"
-87,"environment",,"Tree pollen (substance)",
-87,"environment",,"Tree pollen (substance)","cumulus__none"
-85,"environment",,,"Rhinoconjunctivitis (disorder)"
-84,,,"Animal dander (substance)","Rhinoconjunctivitis (disorder)"
-84,"environment",,"Animal dander (substance)","Rhinoconjunctivitis (disorder)"
-80,,,"Grass pollen (substance)",
-80,,,"Grass pollen (substance)","cumulus__none"
-80,"environment",,"Grass pollen (substance)",
-80,"environment",,"Grass pollen (substance)","cumulus__none"
-79,,,"House dust mite (organism)",
-79,,,"House dust mite (organism)","cumulus__none"
-79,"environment",,"House dust mite (organism)",
-79,"environment",,"House dust mite (organism)","cumulus__none"
-78,"food",,,"Eruption of skin (disorder)"
-77,"medication",,,
-72,"food",,,"Wheal (finding)"
-70,,,,"Dyspnea (finding)"
-65,,,,"Allergic angioedema (disorder)"
-62,"environment",,,"Eruption of skin (disorder)"
-58,"food",,,"Dyspnea (finding)"
-57,,,"Animal dander (substance)","Eruption of skin (disorder)"
-57,"food",,,"Allergic angioedema (disorder)"
-57,"environment",,"Animal dander (substance)","Eruption of skin (disorder)"
-55,"environment",,,"Wheal (finding)"
-52,,,,"Cough (finding)"
-51,,,,"Itching (finding)"
-50,"food",,,"cumulus__none"
-46,,,"Mold (organism)","cumulus__none"
-46,"environment",,"Mold (organism)","cumulus__none"
-44,,,"Shellfish (substance)",
-44,"food",,,"Itching (finding)"
-44,"food",,"Shellfish (substance)",
-43,"medication",,,"cumulus__none"
-42,,,"Animal dander (substance)","Wheal (finding)"
-42,"environment",,"Animal dander (substance)","Wheal (finding)"
-41,,,,"Anaphylaxis (disorder)"
-38,,,"Wheat (substance)",
-38,,,"Wheat (substance)","cumulus__none"
-38,"food",,"Wheat (substance)",
-38,"food",,"Wheat (substance)","cumulus__none"
-37,,,"Bee venom (substance)",
-37,"environment",,"Bee venom (substance)",
-36,,,"Shellfish (substance)","Eruption of skin (disorder)"
-36,"food",,,"Anaphylaxis (disorder)"
-36,"food",,"Shellfish (substance)","Eruption of skin (disorder)"
-34,,,"Aspirin",
-34,"medication",,"Aspirin",
-32,,,,"Allergic skin rash"
-32,,,"Mold (organism)","Allergic skin rash"
-32,,,"Fish (substance)",
-32,,,"Eggs (edible) (substance)",
-32,"food",,,"Cough (finding)"
-32,"food",,"Fish (substance)",
-32,"food",,"Eggs (edible) (substance)",
-32,"environment",,,"Allergic skin rash"
-32,"environment",,"Mold (organism)","Allergic skin rash"
-30,,,,"Finding of vomiting (finding)"
-30,,,,"Diarrhea (finding)"
-30,,,"Fish (substance)","Eruption of skin (disorder)"
-30,"food",,,"Finding of vomiting (finding)"
-30,"food",,,"Diarrhea (finding)"
-30,"food",,"Fish (substance)","Eruption of skin (disorder)"
-28,,,"Latex (substance)",
-28,,,"Fish (substance)","Dyspnea (finding)"
-28,"food",,"Fish (substance)","Dyspnea (finding)"
-28,"environment",,"Latex (substance)",
-27,,,"Bee venom (substance)","cumulus__none"
-27,"environment",,"Bee venom (substance)","cumulus__none"
-26,,,"Tree nut (substance)",
-26,,,"Tree nut (substance)","Wheal (finding)"
-26,,,"Tree nut (substance)","Eruption of skin (disorder)"
-26,,,"Tree nut (substance)","Allergic angioedema (disorder)"
-26,,,"Peanut (substance)",
-26,"food",,"Tree nut (substance)",
-26,"food",,"Tree nut (substance)","Wheal (finding)"
-26,"food",,"Tree nut (substance)","Eruption of skin (disorder)"
-26,"food",,"Tree nut (substance)","Allergic angioedema (disorder)"
-26,"food",,"Peanut (substance)",
-24,,,"Tree nut (substance)","Itching (finding)"
-24,,,"Shellfish (substance)","Wheal (finding)"
-24,"medication",,,"Wheal (finding)"
-24,"food",,"Tree nut (substance)","Itching (finding)"
-24,"food",,"Shellfish (substance)","Wheal (finding)"
-23,,,"Shellfish (substance)","Allergic angioedema (disorder)"
-23,,,"Lisinopril",
-23,"medication",,"Lisinopril",
-23,"food",,"Shellfish (substance)","Allergic angioedema (disorder)"
-22,,,"Peanut (substance)","Wheal (finding)"
-22,,,"Cow's milk (substance)",
-22,,,"Animal dander (substance)","Cough (finding)"
-22,"food",,"Peanut (substance)","Wheal (finding)"
-22,"food",,"Cow's milk (substance)",
-22,"environment",,,"Dyspnea (finding)"
-22,"environment",,,"Cough (finding)"
-22,"environment",,"Animal dander (substance)","Cough (finding)"
-21,,,"Shellfish (substance)","Itching (finding)"
-21,,,"Latex (substance)","Wheal (finding)"
-21,"food",,,"Rhinoconjunctivitis (disorder)"
-21,"food",,"Shellfish (substance)","Itching (finding)"
-21,"environment",,"Latex (substance)","Wheal (finding)"
-19,,,"Tree nut (substance)","Anaphylaxis (disorder)"
-19,,,"Aspirin","cumulus__none"
-19,,,"Animal dander (substance)","Dyspnea (finding)"
-19,"medication",,"Aspirin","cumulus__none"
-19,"food",,"Tree nut (substance)","Anaphylaxis (disorder)"
-19,"environment",,"Animal dander (substance)","Dyspnea (finding)"
-18,,,"Shellfish (substance)","Diarrhea (finding)"
-18,,,"Shellfish (substance)","Cough (finding)"
-18,,,"Penicillin V",
-18,,,"Lisinopril","cumulus__none"
-18,"medication",,"Penicillin V",
-18,"medication",,"Lisinopril","cumulus__none"
-18,"food",,"Shellfish (substance)","Diarrhea (finding)"
-18,"food",,"Shellfish (substance)","Cough (finding)"
-17,,,"Cow's milk (substance)","Wheal (finding)"
-17,"food",,"Cow's milk (substance)","Wheal (finding)"
-16,,,"Peanut (substance)","Allergic angioedema (disorder)"
-16,"medication",,,"Eruption of skin (disorder)"
-16,"food",,"Peanut (substance)","Allergic angioedema (disorder)"
-15,,,"Shellfish (substance)","Anaphylaxis (disorder)"
-15,,,"Fish (substance)","Rhinoconjunctivitis (disorder)"
-15,"food",,"Shellfish (substance)","Anaphylaxis (disorder)"
-15,"food",,"Fish (substance)","Rhinoconjunctivitis (disorder)"
-14,,,,"Sneezing"
-14,,,"Shellfish (substance)","Dyspnea (finding)"
-14,,,"Mold (organism)","Sneezing"
-14,,,"Eggs (edible) (substance)","cumulus__none"
-14,"food",,"Shellfish (substance)","Dyspnea (finding)"
-14,"food",,"Eggs (edible) (substance)","cumulus__none"
-14,"environment",,,"Sneezing"
-14,"environment",,"Mold (organism)","Sneezing"
-13,,,,"Nose running"
-13,,,"Mold (organism)","Nose running"
-13,,,"Eggs (edible) (substance)","Wheal (finding)"
-13,"food",,"Eggs (edible) (substance)","Wheal (finding)"
-13,"environment",,,"Nose running"
-13,"environment",,"Mold (organism)","Nose running"
-12,,,,"Wheezing (finding)"
-12,,,,"Nausea (finding)"
-12,,,"Tree nut (substance)","Finding of vomiting (finding)"
-12,,,"Tree nut (substance)","Dyspnea (finding)"
-12,,,"Sulfamethoxazole / Trimethoprim",
-12,,,"Shellfish (substance)","Nausea (finding)"
-12,"medication",,"Sulfamethoxazole / Trimethoprim",
-12,"food",,,"Wheezing (finding)"
-12,"food",,,"Nausea (finding)"
-12,"food",,"Tree nut (substance)","Finding of vomiting (finding)"
-12,"food",,"Tree nut (substance)","Dyspnea (finding)"
-12,"food",,"Shellfish (substance)","Nausea (finding)"
-11,,,"Tree nut (substance)","Cough (finding)"
-11,"food",,"Tree nut (substance)","Cough (finding)"
-10,,,"Peanut (substance)","Eruption of skin (disorder)"
-10,,,"Peanut (substance)","Dyspnea (finding)"
-10,,,"Bee venom (substance)","Eruption of skin (disorder)"
-10,"food",,"Peanut (substance)","Eruption of skin (disorder)"
-10,"food",,"Peanut (substance)","Dyspnea (finding)"
-10,"environment",,"Bee venom (substance)","Eruption of skin (disorder)"
+139,,,,cumulus__none
+132,food,,,
+124,environment,,,
+115,,,,Eruption of skin (disorder)
+111,,,,Wheal (finding)
+108,environment,,,cumulus__none
+104,,,Mold (organism),
+104,environment,,Mold (organism),
+100,,,Animal dander (substance),
+100,environment,,Animal dander (substance),
+90,,,,Rhinoconjunctivitis (disorder)
+87,,,Tree pollen (substance),
+87,,,Tree pollen (substance),cumulus__none
+87,environment,,Tree pollen (substance),
+87,environment,,Tree pollen (substance),cumulus__none
+85,environment,,,Rhinoconjunctivitis (disorder)
+84,,,Animal dander (substance),Rhinoconjunctivitis (disorder)
+84,environment,,Animal dander (substance),Rhinoconjunctivitis (disorder)
+80,,,Grass pollen (substance),
+80,,,Grass pollen (substance),cumulus__none
+80,environment,,Grass pollen (substance),
+80,environment,,Grass pollen (substance),cumulus__none
+79,,,House dust mite (organism),
+79,,,House dust mite (organism),cumulus__none
+79,environment,,House dust mite (organism),
+79,environment,,House dust mite (organism),cumulus__none
+78,food,,,Eruption of skin (disorder)
+77,medication,,,
+72,food,,,Wheal (finding)
+70,,,,Dyspnea (finding)
+65,,,,Allergic angioedema (disorder)
+62,environment,,,Eruption of skin (disorder)
+58,food,,,Dyspnea (finding)
+57,,,Animal dander (substance),Eruption of skin (disorder)
+57,food,,,Allergic angioedema (disorder)
+57,environment,,Animal dander (substance),Eruption of skin (disorder)
+55,environment,,,Wheal (finding)
+52,,,,Cough (finding)
+51,,,,Itching (finding)
+50,food,,,cumulus__none
+48,,,Mold (organism),cumulus__none
+48,environment,,Mold (organism),cumulus__none
+44,,,Shellfish (substance),
+44,food,,,Itching (finding)
+44,food,,Shellfish (substance),
+43,medication,,,cumulus__none
+42,,,Animal dander (substance),Wheal (finding)
+42,environment,,Animal dander (substance),Wheal (finding)
+41,,,,Anaphylaxis (disorder)
+38,,,Wheat (substance),
+38,,,Wheat (substance),cumulus__none
+38,food,,Wheat (substance),
+38,food,,Wheat (substance),cumulus__none
+37,,,Bee venom (substance),
+37,environment,,Bee venom (substance),
+36,,,Shellfish (substance),Eruption of skin (disorder)
+36,food,,,Anaphylaxis (disorder)
+36,food,,Shellfish (substance),Eruption of skin (disorder)
+34,,,Aspirin,
+34,medication,,Aspirin,
+32,,,Fish (substance),
+32,,,Eggs (edible) (substance),
+32,food,,,Cough (finding)
+32,food,,Fish (substance),
+32,food,,Eggs (edible) (substance),
+31,,,,Allergic skin rash
+31,,,Mold (organism),Allergic skin rash
+31,environment,,,Allergic skin rash
+31,environment,,Mold (organism),Allergic skin rash
+30,,,,Finding of vomiting (finding)
+30,,,,Diarrhea (finding)
+30,,,Fish (substance),Eruption of skin (disorder)
+30,food,,,Finding of vomiting (finding)
+30,food,,,Diarrhea (finding)
+30,food,,Fish (substance),Eruption of skin (disorder)
+28,,,Latex (substance),
+28,,,Fish (substance),Dyspnea (finding)
+28,food,,Fish (substance),Dyspnea (finding)
+28,environment,,Latex (substance),
+27,,,Bee venom (substance),cumulus__none
+27,environment,,Bee venom (substance),cumulus__none
+26,,,Tree nut (substance),
+26,,,Tree nut (substance),Wheal (finding)
+26,,,Tree nut (substance),Eruption of skin (disorder)
+26,,,Tree nut (substance),Allergic angioedema (disorder)
+26,,,Peanut (substance),
+26,food,,Tree nut (substance),
+26,food,,Tree nut (substance),Wheal (finding)
+26,food,,Tree nut (substance),Eruption of skin (disorder)
+26,food,,Tree nut (substance),Allergic angioedema (disorder)
+26,food,,Peanut (substance),
+24,,,Tree nut (substance),Itching (finding)
+24,,,Shellfish (substance),Wheal (finding)
+24,medication,,,Wheal (finding)
+24,food,,Tree nut (substance),Itching (finding)
+24,food,,Shellfish (substance),Wheal (finding)
+23,,,Shellfish (substance),Allergic angioedema (disorder)
+23,,,Lisinopril,
+23,medication,,Lisinopril,
+23,food,,Shellfish (substance),Allergic angioedema (disorder)
+22,,,Peanut (substance),Wheal (finding)
+22,,,Cow's milk (substance),
+22,,,Animal dander (substance),Cough (finding)
+22,food,,Peanut (substance),Wheal (finding)
+22,food,,Cow's milk (substance),
+22,environment,,,Dyspnea (finding)
+22,environment,,,Cough (finding)
+22,environment,,Animal dander (substance),Cough (finding)
+21,,,Shellfish (substance),Itching (finding)
+21,,,Latex (substance),Wheal (finding)
+21,food,,,Rhinoconjunctivitis (disorder)
+21,food,,Shellfish (substance),Itching (finding)
+21,environment,,Latex (substance),Wheal (finding)
+19,,,Tree nut (substance),Anaphylaxis (disorder)
+19,,,Aspirin,cumulus__none
+19,,,Animal dander (substance),Dyspnea (finding)
+19,medication,,Aspirin,cumulus__none
+19,food,,Tree nut (substance),Anaphylaxis (disorder)
+19,environment,,Animal dander (substance),Dyspnea (finding)
+18,,,Shellfish (substance),Diarrhea (finding)
+18,,,Shellfish (substance),Cough (finding)
+18,,,Penicillin V,
+18,,,Lisinopril,cumulus__none
+18,medication,,Penicillin V,
+18,medication,,Lisinopril,cumulus__none
+18,food,,Shellfish (substance),Diarrhea (finding)
+18,food,,Shellfish (substance),Cough (finding)
+17,,,Cow's milk (substance),Wheal (finding)
+17,food,,Cow's milk (substance),Wheal (finding)
+16,,,Peanut (substance),Allergic angioedema (disorder)
+16,medication,,,Eruption of skin (disorder)
+16,food,,Peanut (substance),Allergic angioedema (disorder)
+15,,,Shellfish (substance),Anaphylaxis (disorder)
+15,,,Fish (substance),Rhinoconjunctivitis (disorder)
+15,food,,Shellfish (substance),Anaphylaxis (disorder)
+15,food,,Fish (substance),Rhinoconjunctivitis (disorder)
+14,,,,Sneezing
+14,,,Shellfish (substance),Dyspnea (finding)
+14,,,Mold (organism),Sneezing
+14,,,Eggs (edible) (substance),cumulus__none
+14,food,,Shellfish (substance),Dyspnea (finding)
+14,food,,Eggs (edible) (substance),cumulus__none
+14,environment,,,Sneezing
+14,environment,,Mold (organism),Sneezing
+13,,,Eggs (edible) (substance),Wheal (finding)
+13,food,,Eggs (edible) (substance),Wheal (finding)
+12,,,,Wheezing (finding)
+12,,,,Nose running
+12,,,,Nausea (finding)
+12,,,Tree nut (substance),Finding of vomiting (finding)
+12,,,Tree nut (substance),Dyspnea (finding)
+12,,,Sulfamethoxazole / Trimethoprim,
+12,,,Shellfish (substance),Nausea (finding)
+12,,,Mold (organism),Nose running
+12,medication,,Sulfamethoxazole / Trimethoprim,
+12,food,,,Wheezing (finding)
+12,food,,,Nausea (finding)
+12,food,,Tree nut (substance),Finding of vomiting (finding)
+12,food,,Tree nut (substance),Dyspnea (finding)
+12,food,,Shellfish (substance),Nausea (finding)
+12,environment,,,Nose running
+12,environment,,Mold (organism),Nose running
+11,,,Tree nut (substance),Cough (finding)
+11,food,,Tree nut (substance),Cough (finding)
+10,,,Peanut (substance),Eruption of skin (disorder)
+10,,,Peanut (substance),Dyspnea (finding)
+10,,,Bee venom (substance),Eruption of skin (disorder)
+10,food,,Peanut (substance),Eruption of skin (disorder)
+10,food,,Peanut (substance),Dyspnea (finding)
+10,environment,,Bee venom (substance),Eruption of skin (disorder)

@@ -1,0 +1,58 @@
+{% import 'core_utils.jinja' as utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
+
+-- This table includes all fields of interest to the US Core Organization profile.
+-- BUT ADDING:
+-- * the `identifier` field
+-- * the `type` field, because it's helpful for classification
+-- * the `alias` field, because it's similarly useful as name
+-- * the `partOf` field, because it could be helpful for classification
+--
+-- US Core profile for reference:
+-- * https://hl7.org/fhir/us/core/STU4/StructureDefinition-us-core-organization.html
+
+CREATE TABLE core__organization AS
+WITH flat AS (
+    SELECT
+        {{- utils.basic_cols('organization', 'src', ['id', 'alias']) }},
+        {{-
+            utils.nullable_cols(
+                'organization',
+                'src',
+                [
+                    'active',
+                    'name',
+                    ('partOf', 'reference', 'part_of_ref'),
+                ],
+                schema
+            )
+        }}
+    FROM organization AS src
+),
+
+identifiers AS ({{ unnest_utils.flatten('organization', 'identifier') }})
+
+SELECT
+    flat.id,
+
+    identifiers.identifier.value AS identifier_value,
+    identifiers.identifier.system AS identifier_system,
+
+    flat.active,
+
+    dn_type.code AS type_code,
+    dn_type.system AS type_system,
+    dn_type.display AS type_display,
+
+    flat.name,
+    -- Combine name and aliases into one big comma delineated list, for convenience of searching
+    array_join(
+        {{ utils.prepend_to_array("flat.name", "flat.alias") }}, ', '
+    ) AS "alias", -- noqa: RF06
+
+    concat('Organization/', flat.id) AS organization_ref,
+    flat.part_of_ref
+
+FROM flat
+LEFT JOIN core__organization_dn_type AS dn_type ON flat.id = dn_type.id
+LEFT JOIN identifiers ON flat.id = identifiers.id;

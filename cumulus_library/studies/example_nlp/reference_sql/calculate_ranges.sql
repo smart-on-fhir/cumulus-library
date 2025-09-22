@@ -12,5 +12,5 @@ SELECT
     'x' AS subject_ref,
     'x' AS label,
     'x' AS span,
-    'x' AS source_table
+    'x' AS origin
 WHERE 1=0 -- empty table
