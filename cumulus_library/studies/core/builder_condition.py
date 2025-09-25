@@ -45,9 +45,9 @@ class CoreConditionBuilder(cumulus_library.BaseTableBuilder):
                     "http://hl7.org/fhir/sid/icd-10-cm",
                     "http://hl7.org/fhir/sid/icd-9-cm",
                     "http://hl7.org/fhir/sid/icd-9-cm/diagnosis",
-                    # EPIC specific systems
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.2.728286",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.4.698084.10375",
+                    # EPIC specific systems (missing bit is "713.3" for BCH, for example)
+                    "urn:oid:1.2.840.114350.1.13.%.7.2.728286",
+                    "urn:oid:1.2.840.114350.1.13.%.7.4.698084.10375",
                     # Spec allowed code of last resort
                     "http://terminology.hl7.org/CodeSystem/data-absent-reason",
                 ],

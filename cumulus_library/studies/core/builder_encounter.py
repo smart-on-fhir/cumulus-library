@@ -45,15 +45,17 @@ class CoreEncounterBuilder(cumulus_library.BaseTableBuilder):
                 code_systems=[
                     "http://terminology.hl7.org/CodeSystem/encounter-type",
                     "http://terminology.hl7.org/CodeSystem/v2-0004",
-                    "urn:oid:2.16.840.1.113883.4.642.3.248",
                     "http://snomed.info/sct",
+                    "http://www.ama-assn.org/go/cpt",
+                    # HL7 OID version of http://hl7.org/fhir/ValueSet/encounter-type
+                    "urn:oid:2.16.840.1.113883.4.642.3.248",
                     # Cerner specific systems
                     "https://fhir.cerner.com/%/codeSet/71",
-                    # EPIC specific systems
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.10110",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.18875",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.30",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.2.808267",
+                    # EPIC specific systems (missing bit is "713.3" for BCH, for example)
+                    "urn:oid:1.2.840.114350.1.13.%.7.10.698084.10110",
+                    "urn:oid:1.2.840.114350.1.13.%.7.10.698084.18875",
+                    "urn:oid:1.2.840.114350.1.13.%.7.10.698084.30",
+                    "urn:oid:1.2.840.114350.1.13.%.7.2.808267",
                 ],
             ),
             EncConfig(
@@ -62,11 +64,12 @@ class CoreEncounterBuilder(cumulus_library.BaseTableBuilder):
                 code_systems=[
                     "http://terminology.hl7.org/CodeSystem/service-type",
                     "http://snomed.info/sct",
+                    # HL7 OID version of http://hl7.org/fhir/ValueSet/service-type
+                    "urn:oid:2.16.840.1.113883.4.642.3.518",
                     # Cerner specific systems
                     "https://fhir.cerner.com/%/codeSet/34",
-                    # EPIC specific systems
-                    "urn:oid:2.16.840.1.113883.4.642.3.518",
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.18886",
+                    # EPIC specific systems (missing bit is "713.3" for BCH, for example)
+                    "urn:oid:1.2.840.114350.1.13.%.7.10.698084.18886",
                 ],
             ),
             EncConfig(
@@ -77,8 +80,8 @@ class CoreEncounterBuilder(cumulus_library.BaseTableBuilder):
                     "http://snomed.info/sct",
                     # Cerner specific systems
                     "https://fhir.cerner.com/%/codeSet/3",
-                    # EPIC specific systems
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.10.698084.410",
+                    # EPIC specific systems (missing bit is "713.3" for BCH, for example)
+                    "urn:oid:1.2.840.114350.1.13.%.7.10.698084.410",
                 ],
             ),
             EncConfig(
@@ -91,8 +94,8 @@ class CoreEncounterBuilder(cumulus_library.BaseTableBuilder):
                     "http://hl7.org/fhir/sid/icd-9-cm",
                     # Cerner specific systems
                     "https://fhir.cerner.com/%/nomenclature",
-                    # EPIC specific systems
-                    "urn:oid:1.2.840.114350.1.13.71.2.7.2.728286",
+                    # EPIC specific systems (missing bit is "713.3" for BCH, for example)
+                    "urn:oid:1.2.840.114350.1.13.%.7.2.728286",
                 ],
             ),
             EncConfig(
