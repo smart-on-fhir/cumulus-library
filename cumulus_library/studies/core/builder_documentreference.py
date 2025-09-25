@@ -32,22 +32,11 @@ class CoreDocumentreferenceBuilder(cumulus_library.BaseTableBuilder):
                     column_hierarchy=[("type", dict)],
                     target_table="core__documentreference_dn_type",
                 ),
-                # TODO: The US core profile allows an extensible code for category, but
-                # it's unclear what the possible extended codes would be. For the time
-                # being, we select the spec's preferred code system (which is a set of
-                # one value, 'clinical-note').
-                # It may be worth confirming the values in this field with either the
-                # quality or discovery studies on an ongoing basis to find other uses
-                # for this field.
                 sql_utils.CodeableConceptConfig(
                     source_table="documentreference",
                     source_id="id",
                     column_hierarchy=[("category", list)],
-                    filter_priority=True,
                     target_table="core__documentreference_dn_category",
-                    code_systems=[
-                        "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category"
-                    ],
                 ),
                 sql_utils.CodingConfig(
                     source_table="documentreference",
