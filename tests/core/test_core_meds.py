@@ -34,6 +34,7 @@ def test_core_med_all_types(tmp_path):
         "reportedReference": {"reference": "Patient/Q"},
         "status": "active",
         "subject": {"reference": "Patient/P"},
+        "requester": {"reference": "Practitioner/P"},
     }
     testbed.add_medication_request("Inline", mode="inline", **med_args)
     testbed.add_medication_request("Contained", mode="contained", **med_args)
@@ -58,6 +59,7 @@ def test_core_med_all_types(tmp_path):
         "medication_code": "c",
         "medication_system": "letters",
         "medication_display": "C",
+        "requester_ref": "Practitioner/P",
     }
     assert [
         {"id": "Contained", "medicationrequest_ref": "MedicationRequest/Contained", **body},

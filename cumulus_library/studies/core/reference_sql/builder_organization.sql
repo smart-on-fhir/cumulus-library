@@ -67,7 +67,9 @@ CREATE TABLE core__organization_dn_type AS (
 
 -- This table includes all fields of interest to the US Core Organization profile.
 -- BUT ADDING:
+-- * the `identifier` field
 -- * the `type` field, because it's helpful for classification
+-- * the `alias` field, because it's similarly useful as name
 -- * the `partOf` field, because it could be helpful for classification
 --
 -- US Core profile for reference:
@@ -77,6 +79,7 @@ CREATE TABLE core__organization AS
 WITH flat AS (
     SELECT
         src.id,
+        src.alias,
         src.active,
         src.name,
         src.partOf.reference AS part_of_ref
@@ -110,6 +113,15 @@ SELECT
     dn_type.display AS type_display,
 
     flat.name,
+    -- Combine name and aliases into one big comma delineated list, for convenience of searching
+    array_join(
+        CASE
+        WHEN flat.name IS NULL AND flat.alias IS NULL THEN NULL
+        WHEN flat.name IS NULL THEN flat.alias
+        WHEN flat.alias IS NULL THEN [flat.name]
+        ELSE [flat.name] || flat.alias
+    END, ', '
+    ) AS "alias", -- noqa: RF06
 
     concat('Organization/', flat.id) AS organization_ref,
     flat.part_of_ref

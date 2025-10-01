@@ -14,6 +14,10 @@ expected_table_cols = {
         ],
         "class": sql_utils.CODING,
         "subject": sql_utils.REFERENCE,
+        "participant": {
+            "individual": sql_utils.REFERENCE,
+        },
+        "serviceProvider": sql_utils.REFERENCE,
     },
     "etl__completion": {
         "group_name": [],

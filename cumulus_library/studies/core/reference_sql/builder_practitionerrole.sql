@@ -123,6 +123,7 @@ CREATE TABLE core__practitionerrole_dn_specialty AS (
 
 -- This table includes all fields of interest to the US Core PractitionerRole profile.
 -- BUT ADDING:
+-- * the `identifier` field
 -- * the `active` field, because it lets us know to even look at the row
 --
 -- AND REMOVING:

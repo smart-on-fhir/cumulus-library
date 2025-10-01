@@ -38,6 +38,7 @@ def test_core_diag_report_many_cases(tmp_path):
         encounter={"reference": "Encounter/E1"},
         effectiveDateTime="2019-12-11T10:10:10+05:00",
         issued="2019-12-12T10:10:10+05:00",
+        performer=[{"reference": "Practitioner/P1"}, {"reference": "Practitioner/P2"}],
         result=[
             {"reference": "Observation/result1"},
             {"reference": "Observation/result2"},
@@ -51,7 +52,7 @@ def test_core_diag_report_many_cases(tmp_path):
     con = testbed.build()
     df = con.sql("SELECT * FROM core__diagnosticreport").df()
     rows = json.loads(df.to_json(orient="records"))
-    assert len(rows) == 16
+    assert len(rows) == 32
 
     combos = combine_dictionaries(
         # Start with a list of size one - all the consistent elements across all rows
@@ -104,8 +105,12 @@ def test_core_diag_report_many_cases(tmp_path):
             {"result_ref": "Observation/result1"},
             {"result_ref": "Observation/result2"},
         ],
+        [
+            {"performer_ref": "Practitioner/P1"},
+            {"performer_ref": "Practitioner/P2"},
+        ],
     )
-    assert len(combos) == 16  # sanity check our product math
+    assert len(combos) == 32  # sanity check our product math
 
     assert dict_set_from_list(rows) == dict_set_from_list(combos)
 
@@ -148,6 +153,7 @@ def test_core_diag_report_minimal(tmp_path):
             "issued_week": None,
             "issued_month": None,
             "issued_year": None,
+            "performer_ref": None,
             "result_ref": None,
             "conclusionCode_code": None,
             "conclusionCode_system": None,

@@ -23,6 +23,7 @@ AS (
 
 -- This table includes all fields of interest to the US Core Practitioner profile.
 -- BUT ADDING:
+-- * the `identifier` field
 -- * the `active` field, because it lets us know to even look at the row
 -- * the `qualification.code` field, because it could be helpful for classification
 --

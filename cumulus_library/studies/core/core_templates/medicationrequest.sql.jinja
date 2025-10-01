@@ -25,6 +25,7 @@ CREATE TABLE core__medicationrequest AS (
                         ('encounter', 'reference', 'encounter_ref'),
                         ('subject', 'reference', 'subject_ref'),
                         ('medicationReference', 'reference', 'med_ref'),
+                        ('requester', 'reference', 'requester_ref'),
                     ],
                     schema
                 )
@@ -125,7 +126,8 @@ CREATE TABLE core__medicationrequest AS (
 
         concat('MedicationRequest/', mr.id) AS medicationrequest_ref,
         mr.subject_ref,
-        mr.encounter_ref
+        mr.encounter_ref,
+        mr.requester_ref
     FROM mr_basics AS mr
     LEFT JOIN unified_codes AS uc ON mr.id = uc.id
     LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id

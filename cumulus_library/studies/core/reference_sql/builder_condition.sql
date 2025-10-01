@@ -206,7 +206,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             condition AS s,
             UNNEST(s.code.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.2\.728286$')
+            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\..*\.7\.2\.728286$')
     ), --noqa: LT07
 
     system_code_5 AS (
@@ -222,7 +222,7 @@ CREATE TABLE core__condition_codable_concepts_display AS (
             condition AS s,
             UNNEST(s.code.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.4\.698084\.10375$')
+            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\..*\.7\.4\.698084\.10375$')
     ), --noqa: LT07
 
     system_code_6 AS (

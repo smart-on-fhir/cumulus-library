@@ -1,5 +1,6 @@
 {% import 'core_utils.jinja' as utils %}
 {% import 'completion_utils.jinja' as completion_utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
 {#- Unlike some of the other core templates, in order to get easier access
 to the nested dates in the period, we'll do the preliminary querying in
 two steps.
@@ -30,6 +31,7 @@ temp_encounter_nullable AS (
                     ('class', 'system', 'class_system'),
                     ('class', 'display', 'class_display'),
                     ('subject', 'reference', 'subject_ref'),
+                    ('serviceProvider', 'reference', 'serviceProvider_ref'),
                 ], 
                 schema
             ) 
@@ -65,6 +67,23 @@ temp_encounter_nullable AS (
     )
 ),
 
+temp_participant AS (
+    SELECT
+        id,
+
+{% if schema["encounter"]["participant"]["individual"]["reference"] %}
+        u.participant.individual.reference AS participant_ref
+    FROM encounter,
+         unnest(participant) AS u (participant) --noqa
+
+{% else %}
+        cast('' AS varchar) AS participant_ref
+    FROM encounter
+    WHERE 1=0 -- forces an empty table
+
+{% endif %}
+),
+
 temp_encounter AS (
     SELECT DISTINCT
         e.id,
@@ -79,6 +98,7 @@ temp_encounter AS (
         e.period_start_week,
         e.period_start_month,
         e.period_start_year,
+        e.serviceProvider_ref,
         edt.code AS type_code,
         edt.system AS type_system,
         edt.display AS type_display,
@@ -134,8 +154,11 @@ SELECT DISTINCT
     e.period_start_month AS period_start_month,
     e.period_start_year AS period_start_year,
     e.subject_ref,
+    tp.participant_ref,
+    e.serviceProvider_ref,
     concat('Encounter/', e.id) AS encounter_ref
 FROM temp_encounter AS e
+LEFT JOIN temp_participant AS tp ON e.id = tp.id
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
     ON e.class_code = eac.found AND e.class_system = eac.found_system
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code

@@ -1,4 +1,5 @@
 {% import 'core_utils.jinja' as utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
 -- noqa: PRS
 CREATE TABLE core__documentreference AS
 WITH temp_documentreference AS (
@@ -54,6 +55,10 @@ WITH temp_documentreference AS (
     LEFT JOIN core__documentreference_dn_format AS cdrf ON dr.id = cdrf.id
 ),
 
+temp_author AS (
+    {{ unnest_utils.flatten('documentreference', 'reference', parent_field='author') }}
+),
+
 temp_encounters AS (
     SELECT
         tdr.id,
@@ -87,6 +92,8 @@ SELECT DISTINCT
     tdr.format_code,
     tdr.subject_ref,
     te.encounter_ref,
+    ta.reference AS author_ref,
     concat('DocumentReference/', tdr.id) AS documentreference_ref
 FROM temp_documentreference AS tdr
+LEFT JOIN temp_author AS ta ON tdr.id = ta.id
 LEFT JOIN temp_encounters AS te ON tdr.id = te.id;
