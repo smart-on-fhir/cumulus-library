@@ -209,6 +209,9 @@ schema =
             'medicationReference': {
                 'reference': True
             },
+            'requester': {
+                'reference': True
+            },
             'subject': {
                 'reference': True
             }, 

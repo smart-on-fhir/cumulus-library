@@ -23,6 +23,8 @@ AS (
 
 -- This table includes all fields of interest to the US Core Location profile.
 -- BUT ADDING:
+-- * the `identifier` field
+-- * the `alias` field, because it's similarly useful as name
 -- * the `type` field, because it's helpful for classification
 -- * the `partOf` field, because it could be helpful for classification
 --
@@ -33,6 +35,7 @@ CREATE TABLE core__location AS
 WITH flat AS (
     SELECT
         src.id,
+        src.alias,
         src.status,
         src.name,
         src.managingOrganization.reference AS managing_organization_ref,
@@ -62,6 +65,15 @@ SELECT
 
     flat.status,
     flat.name,
+    -- Combine name and aliases into one big comma delineated list, for convenience of searching
+    array_join(
+        CASE
+        WHEN flat.name IS NULL AND flat.alias IS NULL THEN NULL
+        WHEN flat.name IS NULL THEN flat.alias
+        WHEN flat.alias IS NULL THEN [flat.name]
+        ELSE [flat.name] || flat.alias
+    END, ', '
+    ) AS "alias", -- noqa: RF06
 
     dn_type.code AS type_code,
     dn_type.system AS type_system,

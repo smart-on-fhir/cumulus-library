@@ -138,6 +138,7 @@ CREATE TABLE core__medicationrequest AS (
         mr.encounter.reference AS encounter_ref,
         mr.subject.reference AS subject_ref,
         mr.medicationReference.reference AS med_ref,
+        mr.requester.reference AS requester_ref,
         cast(from_iso8601_timestamp(mr.authoredOn) AS date) AS authoredOn,
         date_trunc('month', cast(from_iso8601_timestamp(mr."authoredOn") AS date))
             AS authoredOn_month
@@ -216,7 +217,8 @@ CREATE TABLE core__medicationrequest AS (
 
         concat('MedicationRequest/', mr.id) AS medicationrequest_ref,
         mr.subject_ref,
-        mr.encounter_ref
+        mr.encounter_ref,
+        mr.requester_ref
     FROM mr_basics AS mr
     LEFT JOIN unified_codes AS uc ON mr.id = uc.id
     LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id

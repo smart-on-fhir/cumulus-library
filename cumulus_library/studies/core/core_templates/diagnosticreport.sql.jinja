@@ -4,8 +4,6 @@
 -- This table includes all fields of interest to the US Core DiagnosticReport profiles.
 -- EXCEPT FOR:
 -- * the 'presentedForm' field, which is an attachment array that is stripped out by the ETL.
--- * the `reporter` field, simply due to it not likely being interesting to consumers
---   and being an array field, which would require a lot of row duplication.
 --
 -- AND ADDING:
 -- * the `conclusionCode` field, because it has clinical relevance
@@ -58,6 +56,10 @@ WITH temp_diagnosticreport AS (
     FROM diagnosticreport AS d
 ),
 
+temp_performer AS (
+    {{ unnest_utils.flatten('diagnosticreport', 'reference', parent_field='performer') }}
+),
+
 temp_result AS (
     {{ unnest_utils.flatten('diagnosticreport', 'reference', parent_field='result') }}
 )
@@ -101,6 +103,7 @@ SELECT
     concat('DiagnosticReport/', td.id) AS diagnosticreport_ref,
     td.subject_ref,
     td.encounter_ref,
+    tp.reference AS performer_ref,
     tr.reference AS result_ref
 
 FROM temp_diagnosticreport AS td
@@ -108,4 +111,5 @@ LEFT JOIN core__diagnosticreport_dn_code AS dn_code ON td.id = dn_code.id
 LEFT JOIN core__diagnosticreport_dn_category AS dn_category ON td.id = dn_category.id
 LEFT JOIN core__diagnosticreport_dn_conclusioncode AS dn_conclusion
     ON td.id = dn_conclusion.id
+LEFT JOIN temp_performer AS tp ON td.id = tp.id
 LEFT JOIN temp_result AS tr ON td.id = tr.id;

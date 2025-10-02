@@ -356,6 +356,7 @@ AS (
 
 
 
+
 CREATE TABLE core__observation AS
 WITH temp_observation AS (
     SELECT
@@ -396,38 +397,56 @@ WITH temp_observation AS (
     LEFT JOIN core__observation_dn_interpretation AS odi ON o.id = odi.id
     LEFT JOIN core__observation_dn_valuecodeableconcept AS odvcc ON o.id = odvcc.id
     LEFT JOIN core__observation_dn_dataabsentreason AS odda ON o.id = odda.id
+),
+
+temp_performer AS (
+    WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."performer", 1) AS row,
+                UNNEST(t."performer") AS data -- must unnest in SELECT here
+            FROM observation AS t
+        )
+        SELECT
+            id,
+            row,
+            data."reference"
+        FROM data_and_row_num
 )
 
 SELECT
-    id,
-    category_code,
-    category_system,
-    status,
-    observation_code,
-    observation_system,
-    interpretation_code,
-    interpretation_system,
-    interpretation_display,
-    effectiveDateTime_day,
-    effectiveDateTime_week,
-    effectiveDateTime_month,
-    effectiveDateTime_year,
-    valueCodeableConcept_code,
-    valueCodeableConcept_system,
-    valueCodeableConcept_display,
-    valueQuantity_value,
-    valueQuantity_comparator,
-    valueQuantity_unit,
-    valueQuantity_system,
-    valueQuantity_code,
-    valueString,
-    dataAbsentReason_code,
-    dataAbsentReason_system,
-    dataAbsentReason_display,
-    subject_ref,
-    encounter_ref,
-    concat('Observation/', id) AS observation_ref
-FROM temp_observation;
+    o.id,
+    o.category_code,
+    o.category_system,
+    o.status,
+    o.observation_code,
+    o.observation_system,
+    o.interpretation_code,
+    o.interpretation_system,
+    o.interpretation_display,
+    o.effectiveDateTime_day,
+    o.effectiveDateTime_week,
+    o.effectiveDateTime_month,
+    o.effectiveDateTime_year,
+    o.valueCodeableConcept_code,
+    o.valueCodeableConcept_system,
+    o.valueCodeableConcept_display,
+    o.valueQuantity_value,
+    o.valueQuantity_comparator,
+    o.valueQuantity_unit,
+    o.valueQuantity_system,
+    o.valueQuantity_code,
+    o.valueString,
+    o.dataAbsentReason_code,
+    o.dataAbsentReason_system,
+    o.dataAbsentReason_display,
+    o.subject_ref,
+    o.encounter_ref,
+    tp.reference AS performer_ref,
+    concat('Observation/', o.id) AS observation_ref
+FROM temp_observation AS o
+LEFT JOIN temp_performer AS tp ON o.id = tp.id;
 
 -- ###########################################################
 

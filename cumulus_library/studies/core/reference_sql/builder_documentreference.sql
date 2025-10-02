@@ -68,7 +68,6 @@ CREATE TABLE core__documentreference_dn_category AS (
         SELECT DISTINCT
             s.id AS id,
             s.row,
-            '0' AS priority,
             u.coding.code,
             u.coding.display,
             u.coding.system,
@@ -76,42 +75,19 @@ CREATE TABLE core__documentreference_dn_category AS (
         FROM
             flattened_rows AS s,
             UNNEST(s.category.coding) AS u (coding)
-        WHERE
-            REGEXP_LIKE(u.coding.system, '^http://hl7\.org/fhir/us/core/CodeSystem/us-core-documentreference-category$')
     ), --noqa: LT07
 
     union_table AS (
         SELECT
             id,
             row,
-            priority,
             system,
             code,
             display,
             userSelected
         FROM system_category_0
         
-    ),
-
-    partitioned_table AS (
-        SELECT
-            id,
-            row,
-            code,
-            system,
-            display,
-            userSelected,
-            priority,
-            ROW_NUMBER()
-                OVER (
-                    PARTITION BY id
-                    ORDER BY priority ASC, code ASC
-                ) AS available_priority
-        FROM union_table
-        GROUP BY
-            id, row, priority, system, code, display, userSelected
     )
-
     SELECT
         id,
         row,
@@ -119,8 +95,7 @@ CREATE TABLE core__documentreference_dn_category AS (
         system,
         display,
         userSelected
-    FROM partitioned_table
-    WHERE available_priority = 1
+    FROM union_table
 );
 
 
@@ -161,6 +136,7 @@ CREATE TABLE core__documentreference_dn_format AS (
 -- ###########################################################
 
 
+
 -- noqa: PRS
 CREATE TABLE core__documentreference AS
 WITH temp_documentreference AS (
@@ -188,6 +164,22 @@ WITH temp_documentreference AS (
     LEFT JOIN core__documentreference_dn_type AS cdrt ON dr.id = cdrt.id
     LEFT JOIN core__documentreference_dn_category AS cdrc ON dr.id = cdrc.id
     LEFT JOIN core__documentreference_dn_format AS cdrf ON dr.id = cdrf.id
+),
+
+temp_author AS (
+    WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."author", 1) AS row,
+                UNNEST(t."author") AS data -- must unnest in SELECT here
+            FROM documentreference AS t
+        )
+        SELECT
+            id,
+            row,
+            data."reference"
+        FROM data_and_row_num
 ),
 
 temp_encounters AS (
@@ -218,6 +210,8 @@ SELECT DISTINCT
     tdr.format_code,
     tdr.subject_ref,
     te.encounter_ref,
+    ta.reference AS author_ref,
     concat('DocumentReference/', tdr.id) AS documentreference_ref
 FROM temp_documentreference AS tdr
+LEFT JOIN temp_author AS ta ON tdr.id = ta.id
 LEFT JOIN temp_encounters AS te ON tdr.id = te.id;

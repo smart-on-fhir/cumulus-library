@@ -70,7 +70,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^urn:oid:2\.16\.840\.1\.113883\.4\.642\.3\.248$')
+            REGEXP_LIKE(u.coding.system, '^http://snomed\.info/sct$')
     ), --noqa: LT07
 
     system_type_3 AS (
@@ -86,7 +86,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^http://snomed\.info/sct$')
+            REGEXP_LIKE(u.coding.system, '^http://www\.ama-assn\.org/go/cpt$')
     ), --noqa: LT07
 
     system_type_4 AS (
@@ -102,7 +102,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^https://fhir\.cerner\.com/.*/codeSet/71$')
+            REGEXP_LIKE(u.coding.system, '^urn:oid:2\.16\.840\.1\.113883\.4\.642\.3\.248$')
     ), --noqa: LT07
 
     system_type_5 AS (
@@ -118,7 +118,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.10\.698084\.10110$')
+            REGEXP_LIKE(u.coding.system, '^https://fhir\.cerner\.com/.*/codeSet/71$')
     ), --noqa: LT07
 
     system_type_6 AS (
@@ -134,7 +134,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.10\.698084\.18875$')
+            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\..*\.7\.10\.698084\.10110$')
     ), --noqa: LT07
 
     system_type_7 AS (
@@ -150,7 +150,7 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.10\.698084\.30$')
+            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\..*\.7\.10\.698084\.18875$')
     ), --noqa: LT07
 
     system_type_8 AS (
@@ -166,7 +166,23 @@ CREATE TABLE core__encounter_dn_type AS (
             flattened_rows AS s,
             UNNEST(s.type.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.2\.808267$')
+            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\..*\.7\.10\.698084\.30$')
+    ), --noqa: LT07
+
+    system_type_9 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            s.row,
+            '9' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            flattened_rows AS s,
+            UNNEST(s.type.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\..*\.7\.2\.808267$')
     ), --noqa: LT07
 
     union_table AS (
@@ -259,6 +275,16 @@ CREATE TABLE core__encounter_dn_type AS (
             display,
             userSelected
         FROM system_type_8
+        UNION
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_type_9
         
     ),
 
@@ -431,7 +457,7 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
             flattened_rows AS s,
             UNNEST(s.reasoncode.coding) AS u (coding)
         WHERE
-            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\.71\.2\.7\.2\.728286$')
+            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\..*\.7\.2\.728286$')
     ), --noqa: LT07
 
     union_table AS (
@@ -570,6 +596,7 @@ CREATE TABLE core__encounter_dn_dischargedisposition AS (
 -- ###########################################################
 
 
+
 CREATE TABLE core__encounter AS
 WITH
 
@@ -628,6 +655,7 @@ temp_encounter_nullable AS (
         e.class.system AS class_system,
         e.class.display AS class_display,
         e.subject.reference AS subject_ref,
+        e.serviceProvider.reference AS serviceProvider_ref,
         cast(from_iso8601_timestamp(e.period.start) AS date) AS period_start,
         date_trunc('day', cast(from_iso8601_timestamp(e."period"."end") AS date))
             AS period_end_day,
@@ -648,6 +676,18 @@ temp_encounter_nullable AS (
     )
 ),
 
+temp_participant AS (
+    SELECT
+        id,
+
+
+        u.participant.individual.reference AS participant_ref
+    FROM encounter,
+         unnest(participant) AS u (participant) --noqa
+
+
+),
+
 temp_encounter AS (
     SELECT DISTINCT
         e.id,
@@ -662,6 +702,7 @@ temp_encounter AS (
         e.period_start_week,
         e.period_start_month,
         e.period_start_year,
+        e.serviceProvider_ref,
         edt.code AS type_code,
         edt.system AS type_system,
         edt.display AS type_display,
@@ -717,8 +758,11 @@ SELECT DISTINCT
     e.period_start_month AS period_start_month,
     e.period_start_year AS period_start_year,
     e.subject_ref,
+    tp.participant_ref,
+    e.serviceProvider_ref,
     concat('Encounter/', e.id) AS encounter_ref
 FROM temp_encounter AS e
+LEFT JOIN temp_participant AS tp ON e.id = tp.id
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
     ON e.class_code = eac.found AND e.class_system = eac.found_system
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code

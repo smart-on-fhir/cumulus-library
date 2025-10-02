@@ -119,8 +119,6 @@ AS (
 -- This table includes all fields of interest to the US Core DiagnosticReport profiles.
 -- EXCEPT FOR:
 -- * the 'presentedForm' field, which is an attachment array that is stripped out by the ETL.
--- * the `reporter` field, simply due to it not likely being interesting to consumers
---   and being an array field, which would require a lot of row duplication.
 --
 -- AND ADDING:
 -- * the `conclusionCode` field, because it has clinical relevance
@@ -169,6 +167,22 @@ WITH temp_diagnosticreport AS (
         date_trunc('year', cast(from_iso8601_timestamp(d."issued") AS date))
             AS issued_year
     FROM diagnosticreport AS d
+),
+
+temp_performer AS (
+    WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."performer", 1) AS row,
+                UNNEST(t."performer") AS data -- must unnest in SELECT here
+            FROM diagnosticreport AS t
+        )
+        SELECT
+            id,
+            row,
+            data."reference"
+        FROM data_and_row_num
 ),
 
 temp_result AS (
@@ -226,6 +240,7 @@ SELECT
     concat('DiagnosticReport/', td.id) AS diagnosticreport_ref,
     td.subject_ref,
     td.encounter_ref,
+    tp.reference AS performer_ref,
     tr.reference AS result_ref
 
 FROM temp_diagnosticreport AS td
@@ -233,4 +248,5 @@ LEFT JOIN core__diagnosticreport_dn_code AS dn_code ON td.id = dn_code.id
 LEFT JOIN core__diagnosticreport_dn_category AS dn_category ON td.id = dn_category.id
 LEFT JOIN core__diagnosticreport_dn_conclusioncode AS dn_conclusion
     ON td.id = dn_conclusion.id
+LEFT JOIN temp_performer AS tp ON td.id = tp.id
 LEFT JOIN temp_result AS tr ON td.id = tr.id;

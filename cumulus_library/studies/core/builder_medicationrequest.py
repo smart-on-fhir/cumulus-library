@@ -10,6 +10,7 @@ expected_table_cols = {
         "status": [],
         "intent": [],
         "authoredOn": [],
+        "requester": sql_utils.REFERENCE,
         "reportedBoolean": [],
         "reportedReference": sql_utils.REFERENCE,
         "subject": sql_utils.REFERENCE,
