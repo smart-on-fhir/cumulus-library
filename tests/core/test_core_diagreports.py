@@ -79,6 +79,7 @@ def test_core_diag_report_many_cases(tmp_path):
                 "issued_week": conftest.date_to_epoch(2019, 12, 9),
                 "issued_month": conftest.date_to_epoch(2019, 12, 1),
                 "issued_year": conftest.date_to_epoch(2019, 1, 1),
+                "aux_has_text": False,
             },
         ],
         [
@@ -153,6 +154,7 @@ def test_core_diag_report_minimal(tmp_path):
             "issued_week": None,
             "issued_month": None,
             "issued_year": None,
+            "aux_has_text": False,
             "performer_ref": None,
             "result_ref": None,
             "conclusionCode_code": None,
@@ -192,4 +194,43 @@ def test_core_diag_report_period(tmp_path):
         "effectivePeriod_end_week": conftest.date_to_epoch(2023, 10, 2),
         "effectivePeriod_end_month": conftest.date_to_epoch(2023, 10, 1),
         "effectivePeriod_end_year": conftest.date_to_epoch(2023, 1, 1),
+    }
+
+
+def test_core_diag_report_aux_has_text(tmp_path):
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    testbed.add_diagnostic_report(
+        "has-data-ext",
+        presentedForm=[
+            {
+                "contentType": "text/html",
+                "_data": {
+                    "extension": [
+                        {"url": "bogus"},
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                            "valueCode": "masked",
+                        },
+                    ],
+                },
+            },
+        ],
+    )
+    testbed.add_diagnostic_report(
+        "has-data",
+        presentedForm=[{"contentType": "text/html", "data": "blarg"}],
+    )
+    testbed.add_diagnostic_report("no-data", presentedForm=[{"contentType": "text/html"}])
+    testbed.add_diagnostic_report("no-content")
+
+    con = testbed.build()
+    df = con.sql("SELECT * FROM core__diagnosticreport").df()
+    rows = json.loads(df.to_json(orient="records"))
+    fields = {row["id"]: row["aux_has_text"] for row in rows}
+
+    assert fields == {
+        "has-data-ext": True,
+        "has-data": True,
+        "no-data": False,
+        "no-content": False,
     }

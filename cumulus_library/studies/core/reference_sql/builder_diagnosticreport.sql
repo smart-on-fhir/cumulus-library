@@ -199,6 +199,35 @@ temp_result AS (
             row,
             data."reference"
         FROM data_and_row_num
+),
+
+temp_has_text AS (
+    WITH
+    temp_has_text_from_ext AS (
+        SELECT
+        'empty' AS id, FALSE AS has_text WHERE 1=0 -- forces an empty table
+    ),
+
+    temp_has_text_from_data AS (
+        SELECT
+            src.id,
+            u.presentedForm.data IS NOT NULL AS has_text
+        FROM diagnosticreport AS src,
+             unnest(presentedForm) AS u (presentedForm)
+        WHERE split_part(u.presentedForm.contentType, ';', 1) IN ('text/html', 'text/plain', 'application/xhtml+xml')
+    ),
+
+    temp_has_text_combined AS (
+        SELECT id, has_text FROM temp_has_text_from_ext
+        UNION ALL
+        SELECT id, has_text FROM temp_has_text_from_data
+    )
+
+    SELECT
+        id,
+        BOOL_OR(has_text) AS has_text
+    FROM temp_has_text_combined
+    GROUP BY id
 )
 
 SELECT
@@ -237,6 +266,8 @@ SELECT
     dn_conclusion.system AS conclusionCode_system,
     dn_conclusion.display AS conclusionCode_display,
 
+    (tht.has_text IS NOT NULL AND tht.has_text) AS aux_has_text,
+
     concat('DiagnosticReport/', td.id) AS diagnosticreport_ref,
     td.subject_ref,
     td.encounter_ref,
@@ -249,4 +280,5 @@ LEFT JOIN core__diagnosticreport_dn_category AS dn_category ON td.id = dn_catego
 LEFT JOIN core__diagnosticreport_dn_conclusioncode AS dn_conclusion
     ON td.id = dn_conclusion.id
 LEFT JOIN temp_performer AS tp ON td.id = tp.id
+LEFT JOIN temp_has_text AS tht ON td.id = tht.id
 LEFT JOIN temp_result AS tr ON td.id = tr.id;

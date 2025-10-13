@@ -41,6 +41,7 @@ Common exceptions to this rule:
   and the US Core race and ethnicity extensions) that are commonly used in informatics analysis
 - Fields that contain date values are presented by different rounding methods (day, week, month, year) for convenience for various binning strategies
 - We construct `*_ref` fields from a resource's base id field (i.e creating a `Patient/123456` `patient_ref` field from an `id` of `123456`), to make it easier to join data with reference fields in other resources.
+- `aux_*` fields are additional calculated fields, derived from the raw FHIR data
 
 The core tables include all FHIR required/must support fields noted in the
 [FHIR resource profiles(http://hl7.org/fhir/us/core/STU4/artifacts.html#structures-resource-profiles).
@@ -198,7 +199,7 @@ vital signs) instead.
 
 ### core__count_encounter_month
 
-|     Column       | Type  |Description|
+|      Column      | Type  |Description|
 |------------------|-------|-----------|
 |cnt               |bigint |Count      |
 |period_start_month|varchar|Month encounter recorded|
@@ -241,7 +242,7 @@ vital signs) instead.
 
 ### core__count_medicationrequest_month
 
-|     Column       | Type  |Description|
+|      Column      | Type  |Description|
 |------------------|-------|-----------|
 |cnt               |bigint |Count      |
 |status            |varchar|Perscribing event state|
@@ -276,6 +277,7 @@ vital signs) instead.
 |        Column         | Type  |Description|
 |-----------------------|-------|-----------|
 |cnt                    |bigint |           |
+|category_display       |varchar|           |
 |code_display           |varchar|           |
 |performeddatetime_month|varchar|           |
 
@@ -287,7 +289,6 @@ vital signs) instead.
 |            Column            | Type  |Description|
 |------------------------------|-------|-----------|
 |id                            |varchar|           |
-|allergyintolerance_ref        |varchar|           |
 |clinicalstatus_code           |varchar|           |
 |verificationstatus_code       |varchar|           |
 |type                          |varchar|           |
@@ -296,8 +297,6 @@ vital signs) instead.
 |code_code                     |varchar|           |
 |code_system                   |varchar|           |
 |code_display                  |varchar|           |
-|patient_ref                   |varchar|           |
-|encounter_ref                 |varchar|           |
 |recordeddate                  |date   |           |
 |recordeddate_week             |date   |           |
 |recordeddate_month            |date   |           |
@@ -310,6 +309,66 @@ vital signs) instead.
 |reaction_manifestation_system |varchar|           |
 |reaction_manifestation_display|varchar|           |
 |reaction_severity             |varchar|           |
+|allergyintolerance_ref        |varchar|           |
+|patient_ref                   |varchar|           |
+|encounter_ref                 |varchar|           |
+
+
+### core__allergyintolerance_dn_clinical_status
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__allergyintolerance_dn_code
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__allergyintolerance_dn_reaction_manifestation
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__allergyintolerance_dn_reaction_substance
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__allergyintolerance_dn_verification_status
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
 
 
 ### core__condition
@@ -392,39 +451,41 @@ vital signs) instead.
 
 ### core__diagnosticreport
 
-| Column                      | Type  |Description|
-|-----------------------------|-------|-----------|
-| id                          |varchar|           |
-| status                      |varchar|           |
-| category_code               |varchar|           |
-| category_system             |varchar|           |
-| category_display            |varchar|           |
-| code_code                   |varchar|           |
-| code_system                 |varchar|           |
-| code_display                |varchar|           |
-| effectivedatetime_day       |date   |           |
-| effectivedatetime_week      |date   |           |
-| effectivedatetime_month     |date   |           |
-| effectivedatetime_year      |date   |           |
-| effectiveperiod_start_day   |date   |           |
-| effectiveperiod_start_week  |date   |           |
-| effectiveperiod_start_month |date   |           |
-| effectiveperiod_start_year  |date   |           |
-| effectiveperiod_end_day     |date   |           |
-| effectiveperiod_end_week    |date   |           |
-| effectiveperiod_end_month   |date   |           |
-| effectiveperiod_end_year    |date   |           |
-| issued_day                  |date   |           |
-| issued_week                 |date   |           |
-| issued_month                |date   |           |
-| issued_year                 |date   |           |
-| conclusionCode_code         |varchar|           |
-| conclusionCode_system       |varchar|           |
-| conclusionCode_display      |varchar|           |
-| diagnosticreport_ref        |varchar|           |
-| subject_ref                 |varchar|           |
-| encounter_ref               |varchar|           |
-| result_ref                  |varchar|           |
+|          Column           | Type  |Description|
+|---------------------------|-------|-----------|
+|id                         |varchar|           |
+|status                     |varchar|           |
+|category_code              |varchar|           |
+|category_system            |varchar|           |
+|category_display           |varchar|           |
+|code_code                  |varchar|           |
+|code_system                |varchar|           |
+|code_display               |varchar|           |
+|effectivedatetime_day      |date   |           |
+|effectivedatetime_week     |date   |           |
+|effectivedatetime_month    |date   |           |
+|effectivedatetime_year     |date   |           |
+|effectiveperiod_start_day  |date   |           |
+|effectiveperiod_start_week |date   |           |
+|effectiveperiod_start_month|date   |           |
+|effectiveperiod_start_year |date   |           |
+|effectiveperiod_end_day    |date   |           |
+|effectiveperiod_end_week   |date   |           |
+|effectiveperiod_end_month  |date   |           |
+|effectiveperiod_end_year   |date   |           |
+|issued_day                 |date   |           |
+|issued_week                |date   |           |
+|issued_month               |date   |           |
+|issued_year                |date   |           |
+|conclusioncode_code        |varchar|           |
+|conclusioncode_system      |varchar|           |
+|conclusioncode_display     |varchar|           |
+|aux_has_text               |boolean|           |
+|diagnosticreport_ref       |varchar|           |
+|subject_ref                |varchar|           |
+|encounter_ref              |varchar|           |
+|performer_ref              |varchar|           |
+|result_ref                 |varchar|           |
 
 
 ### core__diagnosticreport_dn_category
@@ -479,8 +540,10 @@ vital signs) instead.
 |author_month         |date   |           |
 |author_year          |date   |           |
 |format_code          |varchar|           |
+|aux_has_text         |boolean|           |
 |subject_ref          |varchar|           |
 |encounter_ref        |varchar|           |
+|author_ref           |varchar|           |
 |documentreference_ref|varchar|           |
 
 
@@ -531,39 +594,41 @@ vital signs) instead.
 
 ### core__encounter
 
-|           Column           |   Type    |Description|
-|----------------------------|-----------|-----------|
-|id                          |varchar    |           |
-|status                      |varchar    |           |
-|class_code                  |varchar(6) |           |
-|class_display               |varchar(21)|           |
-|type_code                   |varchar    |           |
-|type_system                 |varchar    |           |
-|type_display                |varchar    |           |
-|servicetype_code            |varchar    |           |
-|servicetype_system          |varchar    |           |
-|servicetype_display         |varchar    |           |
-|priority_code               |varchar    |           |
-|priority_system             |varchar    |           |
-|priority_display            |varchar    |           |
-|reasoncode_code             |varchar    |           |
-|reasoncode_system           |varchar    |           |
-|reasoncode_display          |varchar    |           |
-|dischargedisposition_code   |varchar    |           |
-|dischargedisposition_system |varchar    |           |
-|dischargedisposition_display|varchar    |           |
-|age_at_visit                |bigint     |           |
-|gender                      |varchar    |           |
-|race_display                |varchar    |           |
-|ethnicity_display           |varchar    |           |
-|postalcode_3                |varchar    |           |
-|period_start_day            |date       |           |
-|period_end_day              |date       |           |
-|period_start_week           |date       |           |
-|period_start_month          |date       |           |
-|period_start_year           |date       |           |
-|subject_ref                 |varchar    |           |
-|encounter_ref               |varchar    |           |
+|           Column           | Type  |Description|
+|----------------------------|-------|-----------|
+|id                          |varchar|           |
+|status                      |varchar|           |
+|class_code                  |varchar|           |
+|class_display               |varchar|           |
+|type_code                   |varchar|           |
+|type_system                 |varchar|           |
+|type_display                |varchar|           |
+|servicetype_code            |varchar|           |
+|servicetype_system          |varchar|           |
+|servicetype_display         |varchar|           |
+|priority_code               |varchar|           |
+|priority_system             |varchar|           |
+|priority_display            |varchar|           |
+|reasoncode_code             |varchar|           |
+|reasoncode_system           |varchar|           |
+|reasoncode_display          |varchar|           |
+|dischargedisposition_code   |varchar|           |
+|dischargedisposition_system |varchar|           |
+|dischargedisposition_display|varchar|           |
+|age_at_visit                |bigint |           |
+|gender                      |varchar|           |
+|race_display                |varchar|           |
+|ethnicity_display           |varchar|           |
+|postalcode_3                |varchar|           |
+|period_start_day            |date   |           |
+|period_end_day              |date   |           |
+|period_start_week           |date   |           |
+|period_start_month          |date   |           |
+|period_start_year           |date   |           |
+|subject_ref                 |varchar|           |
+|participant_ref             |varchar|           |
+|serviceprovider_ref         |varchar|           |
+|encounter_ref               |varchar|           |
 
 
 ### core__encounter_dn_dischargedisposition
@@ -571,7 +636,6 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
-|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
@@ -583,7 +647,6 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
-|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
@@ -607,7 +670,6 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
-|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
@@ -644,10 +706,11 @@ vital signs) instead.
 
 ### core__fhir_mapping_expected_act_encounter_code_v3
 
-| Column |   Type   |Description|
-|--------|----------|-----------|
-|expected|varchar(5)|           |
-|found   |varchar(5)|           |
+|   Column   |   Type    |Description|
+|------------|-----------|-----------|
+|expected    |varchar(6) |           |
+|found       |varchar(6) |           |
+|found_system|varchar(48)|           |
 
 
 ### core__fhir_mapping_resource_uri
@@ -676,7 +739,25 @@ vital signs) instead.
 |message        |varchar     |           |
 
 
-### core__medication_dn_code
+### core__location
+
+|         Column          | Type  |Description|
+|-------------------------|-------|-----------|
+|id                       |varchar|           |
+|identifier_value         |varchar|           |
+|identifier_system        |varchar|           |
+|status                   |varchar|           |
+|name                     |varchar|           |
+|alias                    |varchar|           |
+|type_code                |varchar|           |
+|type_system              |varchar|           |
+|type_display             |varchar|           |
+|location_ref             |varchar|           |
+|managing_organization_ref|varchar|           |
+|part_of_ref              |varchar|           |
+
+
+### core__location_dn_type
 
 |   Column   | Type  |Description|
 |------------|-------|-----------|
@@ -688,25 +769,38 @@ vital signs) instead.
 |userselected|boolean|           |
 
 
+### core__medication_dn_code
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
 ### core__medicationrequest
 
-|      Column      | Type  |Description|
-|------------------|-------|-----------|
-|id                |varchar|           |
-|status            |varchar|           |
-|intent            |varchar|           |
-|category_code     |varchar|           |
-|category_system   |varchar|           |
-|category_display  |varchar|           |
-|reportedboolean   |boolean|           |
-|reported_ref      |varchar|           |
-|subject_ref       |varchar|           |
-|encounter_ref     |varchar|           |
-|authoredon        |date   |           |
-|authoredon_month  |date   |           |
-|medication_code   |varchar|           |
-|medication_system |varchar|           |
-|medication_display|varchar|           |
+|       Column        | Type  |Description|
+|---------------------|-------|-----------|
+|id                   |varchar|           |
+|status               |varchar|           |
+|intent               |varchar|           |
+|category_code        |varchar|           |
+|category_system      |varchar|           |
+|category_display     |varchar|           |
+|reportedboolean      |boolean|           |
+|reported_ref         |varchar|           |
+|medication_code      |varchar|           |
+|medication_system    |varchar|           |
+|medication_display   |varchar|           |
+|authoredon           |date   |           |
+|authoredon_month     |date   |           |
+|medicationrequest_ref|varchar|           |
+|subject_ref          |varchar|           |
+|encounter_ref        |varchar|           |
+|requester_ref        |varchar|           |
 
 
 ### core__medicationrequest_dn_category
@@ -884,7 +978,6 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
-|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
@@ -966,6 +1059,35 @@ vital signs) instead.
 |observation_ref             |varchar|           |
 
 
+### core__organization
+
+|     Column      | Type  |Description|
+|-----------------|-------|-----------|
+|id               |varchar|           |
+|identifier_value |varchar|           |
+|identifier_system|varchar|           |
+|active           |boolean|           |
+|type_code        |varchar|           |
+|type_system      |varchar|           |
+|type_display     |varchar|           |
+|name             |varchar|           |
+|alias            |varchar|           |
+|organization_ref |varchar|           |
+|part_of_ref      |varchar|           |
+
+
+### core__organization_dn_type
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
 ### core__patient
 
 |     Column      | Type  |Description|
@@ -981,50 +1103,92 @@ vital signs) instead.
 
 ### core__patient_ext_ethnicity
 
-|     Column      | Type  |Description|
-|-----------------|-------|-----------|
-|id               |varchar|           |
-|system           |varchar|           |
-|ethnicity_code   |varchar|           |
-|ethnicity_display|varchar|           |
+|     Column      |   Type    |Description|
+|-----------------|-----------|-----------|
+|id               |varchar    |           |
+|system           |varchar(11)|           |
+|ethnicity_code   |varchar    |           |
+|ethnicity_display|varchar    |           |
 
 
 ### core__patient_ext_race
 
+|   Column   |   Type    |Description|
+|------------|-----------|-----------|
+|id          |varchar    |           |
+|system      |varchar(11)|           |
+|race_code   |varchar    |           |
+|race_display|varchar    |           |
+
+
+### core__practitioner
+
+|          Column          | Type  |Description|
+|--------------------------|-------|-----------|
+|id                        |varchar|           |
+|identifier_value          |varchar|           |
+|identifier_system         |varchar|           |
+|active                    |boolean|           |
+|qualification_code_code   |varchar|           |
+|qualification_code_system |varchar|           |
+|qualification_code_display|varchar|           |
+|practitioner_ref          |varchar|           |
+
+
+### core__practitioner_dn_qualification_code
+
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
 |system      |varchar|           |
-|race_code   |varchar|           |
-|race_display|varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
 
 
-### core__study_period
+### core__practitionerrole
 
-|       Column        |   Type    |Description|
-|---------------------|-----------|-----------|
-|period_start_day     |date       |           |
-|period_start_week    |date       |           |
-|period_start_month   |date       |           |
-|period_end_day       |date       |           |
-|age_at_visit         |bigint     |           |
-|author_day           |date       |           |
-|author_week          |date       |           |
-|author_month         |date       |           |
-|author_year          |date       |           |
-|gender               |varchar    |           |
-|race_display         |varchar    |           |
-|ethnicity_display    |varchar    |           |
-|subject_ref          |varchar    |           |
-|encounter_ref        |varchar    |           |
-|status               |varchar    |           |
-|documentreference_ref|varchar    |           |
-|diff_enc_note_days   |bigint     |           |
-|enc_class_code       |varchar(6) |           |
-|enc_class_display    |varchar(21)|           |
-|doc_type_code        |varchar    |           |
-|doc_type_display     |varchar    |           |
-|ed_note              |boolean    |           |
+|       Column       | Type  |Description|
+|--------------------|-------|-----------|
+|id                  |varchar|           |
+|identifier_value    |varchar|           |
+|identifier_system   |varchar|           |
+|active              |boolean|           |
+|code_code           |varchar|           |
+|code_system         |varchar|           |
+|code_display        |varchar|           |
+|specialty_code      |varchar|           |
+|specialty_system    |varchar|           |
+|specialty_display   |varchar|           |
+|practitionerrole_ref|varchar|           |
+|practitioner_ref    |varchar|           |
+|organization_ref    |varchar|           |
+|location_ref        |varchar|           |
+
+
+### core__practitionerrole_dn_code
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__practitionerrole_dn_specialty
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
 
 
 ### core__procedure

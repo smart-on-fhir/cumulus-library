@@ -154,6 +154,11 @@ schema =
             'subject': {
                 'reference': True,
             },
+            'presentedForm': {
+                'contentType': True,
+                'data': True,
+                '_data': {'extension': {'url': True, 'valueCode': True}},
+            },
         },
         'documentreference': {
             'id': True, 

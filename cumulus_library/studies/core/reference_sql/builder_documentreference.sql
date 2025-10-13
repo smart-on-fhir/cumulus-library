@@ -184,14 +184,43 @@ temp_author AS (
 
 temp_encounters AS (
     SELECT
-        tdr.id,
+        dr.id,
 
 
         context_encounter.encounter.reference AS encounter_ref
-    FROM temp_documentreference AS tdr,
+    FROM documentreference AS dr,
          unnest(context.encounter) AS context_encounter (encounter) --noqa
 
 
+),
+
+temp_has_text AS (
+    WITH
+    temp_has_text_from_ext AS (
+        SELECT
+        'empty' AS id, FALSE AS has_text WHERE 1=0 -- forces an empty table
+    ),
+
+    temp_has_text_from_data AS (
+        SELECT
+            src.id,
+            u.content.attachment.data IS NOT NULL AS has_text
+        FROM documentreference AS src,
+             unnest(content) AS u (content)
+        WHERE split_part(u.content.attachment.contentType, ';', 1) IN ('text/html', 'text/plain', 'application/xhtml+xml')
+    ),
+
+    temp_has_text_combined AS (
+        SELECT id, has_text FROM temp_has_text_from_ext
+        UNION ALL
+        SELECT id, has_text FROM temp_has_text_from_data
+    )
+
+    SELECT
+        id,
+        BOOL_OR(has_text) AS has_text
+    FROM temp_has_text_combined
+    GROUP BY id
 )
 
 SELECT DISTINCT
@@ -208,10 +237,12 @@ SELECT DISTINCT
     tdr.author_month,
     tdr.author_year,
     tdr.format_code,
+    (tht.has_text IS NOT NULL AND tht.has_text) AS aux_has_text,
     tdr.subject_ref,
     te.encounter_ref,
     ta.reference AS author_ref,
     concat('DocumentReference/', tdr.id) AS documentreference_ref
 FROM temp_documentreference AS tdr
 LEFT JOIN temp_author AS ta ON tdr.id = ta.id
-LEFT JOIN temp_encounters AS te ON tdr.id = te.id;
+LEFT JOIN temp_encounters AS te ON tdr.id = te.id
+LEFT JOIN temp_has_text AS tht ON tdr.id = tht.id;

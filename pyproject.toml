@@ -30,7 +30,7 @@ dynamic=["version"]
 [project.optional-dependencies]
 dev = [
     # if you update the ruff version, also update .pre-commit-config.yaml
-    "ruff < 0.14",
+    "ruff < 0.15",
     "pre-commit",
 ]
 test = [

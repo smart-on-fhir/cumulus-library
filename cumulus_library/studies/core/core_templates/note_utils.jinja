@@ -1,0 +1,59 @@
+{% macro _is_text_type(attachment_field) -%}
+    split_part(u.{{ attachment_field }}.contentType, ';', 1) IN ('text/html', 'text/plain', 'application/xhtml+xml')
+{%- endmacro %}
+
+{#- detects whether attachments already have inlined textual data #}
+{% macro note_has_text(src, attachment_schema, unnest_field, attachment_field) -%}
+(
+    {% set schema_has_content_type = attachment_schema["contentType"] -%}
+    {% set schema_has_data = attachment_schema["data"] -%}
+    {% set schema_has_data_ext = (
+        attachment_schema["_data"]["extension"]["url"] and
+        attachment_schema["_data"]["extension"]["valueCode"]
+    ) -%}
+
+    WITH
+    temp_has_text_from_ext AS (
+        SELECT
+    {%- if schema_has_content_type and schema_has_data_ext %}
+            src.id,
+            -- This is a marker that Cumulus ETL will drop, if it strips data during its de-identification step
+            (
+                e.extension.url = 'http://hl7.org/fhir/StructureDefinition/data-absent-reason'
+                AND e.extension.valueCode = 'masked'
+            ) AS has_text
+        FROM {{ src }} AS src,
+             unnest({{ unnest_field }}) AS u ({{ unnest_field }}),
+             unnest(u.{{ attachment_field }}._data.extension) AS e (extension)
+        WHERE {{ _is_text_type(attachment_field) }}
+    {%- else %}
+        'empty' AS id, FALSE AS has_text WHERE 1=0 -- forces an empty table
+    {%- endif %}
+    ),
+
+    temp_has_text_from_data AS (
+        SELECT
+    {%- if schema_has_content_type and schema_has_data %}
+            src.id,
+            u.{{ attachment_field }}.data IS NOT NULL AS has_text
+        FROM {{ src }} AS src,
+             unnest({{ unnest_field }}) AS u ({{ unnest_field }})
+        WHERE {{ _is_text_type(attachment_field) }}
+    {%- else %}
+        'empty' AS id, FALSE AS has_text WHERE 1=0 -- forces an empty table
+    {%- endif %}
+    ),
+
+    temp_has_text_combined AS (
+        SELECT id, has_text FROM temp_has_text_from_ext
+        UNION ALL
+        SELECT id, has_text FROM temp_has_text_from_data
+    )
+
+    SELECT
+        id,
+        BOOL_OR(has_text) AS has_text
+    FROM temp_has_text_combined
+    GROUP BY id
+)
+{%- endmacro %}
