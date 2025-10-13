@@ -12,6 +12,11 @@ expected_table_cols = {
         "effectivePeriod": ["start", "end"],
         "issued": [],
         "result": sql_utils.REFERENCE,
+        "presentedForm": {
+            "contentType": [],
+            "data": [],
+            "_data": {"extension": ["url", "valueCode"]},
+        },
     }
 }
 

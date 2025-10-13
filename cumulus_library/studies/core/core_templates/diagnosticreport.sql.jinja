@@ -1,4 +1,5 @@
 {% import 'core_utils.jinja' as utils %}
+{% import 'note_utils.jinja' as note_utils -%}
 {% import 'unnest_utils.jinja' as unnest_utils %}
 
 -- This table includes all fields of interest to the US Core DiagnosticReport profiles.
@@ -62,7 +63,16 @@ temp_performer AS (
 
 temp_result AS (
     {{ unnest_utils.flatten('diagnosticreport', 'reference', parent_field='result') }}
-)
+),
+
+temp_has_text AS {{
+    note_utils.note_has_text(
+        "diagnosticreport",
+        schema["diagnosticreport"]["presentedForm"],
+        "presentedForm",
+        "presentedForm"
+    )
+}}
 
 SELECT
     td.id,
@@ -100,6 +110,8 @@ SELECT
     dn_conclusion.system AS conclusionCode_system,
     dn_conclusion.display AS conclusionCode_display,
 
+    (tht.has_text IS NOT NULL AND tht.has_text) AS aux_has_text,
+
     concat('DiagnosticReport/', td.id) AS diagnosticreport_ref,
     td.subject_ref,
     td.encounter_ref,
@@ -112,4 +124,5 @@ LEFT JOIN core__diagnosticreport_dn_category AS dn_category ON td.id = dn_catego
 LEFT JOIN core__diagnosticreport_dn_conclusioncode AS dn_conclusion
     ON td.id = dn_conclusion.id
 LEFT JOIN temp_performer AS tp ON td.id = tp.id
+LEFT JOIN temp_has_text AS tht ON td.id = tht.id
 LEFT JOIN temp_result AS tr ON td.id = tr.id;

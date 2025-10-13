@@ -10,6 +10,13 @@ expected_table_cols = {
         "docStatus": [],
         "subject": sql_utils.REFERENCE,
         "context": {"encounter": sql_utils.REFERENCE, "period": ["start"]},
+        "content": {
+            "attachment": {
+                "contentType": [],
+                "data": [],
+                "_data": {"extension": ["url", "valueCode"]},
+            },
+        },
     }
 }
 
