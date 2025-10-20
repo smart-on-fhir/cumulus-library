@@ -80,7 +80,7 @@ class LoincApi:
             version, download_url = self.get_download_info(version=version)
         path.mkdir(parents=True, exist_ok=True)
 
-        if any(str(x).endswith(version) for x in path.glob("*.*")):
+        if (path / f"{version}.zip").exists() or (path / version).exists():
             rich.print(f"Loinc version {version} already exists at {path}, skipping download")
         else:
             download_res = self.session.get(download_url, stream=True)
