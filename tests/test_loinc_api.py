@@ -161,7 +161,7 @@ def test_download_dataset(mock_url, tmp_path):
     mock_url.return_value = ("1.0", "http://mock_url")
     api = loinc.LoincApi(user="user", password="password")
     api.download_loinc_dataset(path=tmp_path)
-    files = list(tmp_path.glob("1.0/*.*"))
+    files = list(tmp_path.glob("1.0/*"))
     assert any("manifest.toml" == x.name for x in files)
     for file in files:
         file.unlink()
@@ -170,10 +170,10 @@ def test_download_dataset(mock_url, tmp_path):
     api.download_loinc_dataset(
         version="1.0", download_url="http://mock_url", path=tmp_path, unzip=False
     )
-    files = tmp_path.glob("*.*")
+    files = tmp_path.glob("*")
     assert any("1.0.zip" == x.name for x in files)
 
-    # since we've got a download, we should abort before starting a new one
+    # since we've got a download, should just unzip it
     api.download_loinc_dataset(path=tmp_path)
-    files = list(tmp_path.glob("*.*"))
+    files = list(tmp_path.glob("*"))
     assert not any("manifest.toml" == x.name for x in files)

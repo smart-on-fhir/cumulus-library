@@ -1,4 +1,4 @@
-"""Class for communicating with the umls API"""
+"""Class for communicating with the Loinc API"""
 
 import os
 import pathlib
@@ -36,13 +36,10 @@ class LoincApi:
         """returns all available versions available for download"""
         versions = []
         res = self.session.get(f"{BASE_URL}Loinc/All")
-        if res.status_code == 401:
-            raise errors.ApiError("Invalid LOINC credentials")
-        for record in res.json():
-            versions.append(record["version"])
+        res.raise_for_status()
         return versions
 
-    def get_download_info(self, version: str | None = None) -> (str, str):
+    def get_download_info(self, version: str | None = None) -> tuple[str, str]:
         """gets the download info of the latest release, or the specified version
         :param version: a specific verson you'd like to download
         :returns: a tuple of the version (useful if not provided) and the download url
@@ -51,10 +48,7 @@ class LoincApi:
         if version is not None:
             url = f"{url}?version={version}"
         res = self.session.get(url)
-        if res.status_code == 401:
-            raise errors.ApiError("Invalid LOINC credentials")
-        elif res.status_code == 404:
-            raise errors.ApiError(f"Loinc version {version} not found")
+        res.raise_for_status()
         res = res.json()
         return res["version"], res["downloadUrl"]
 
@@ -68,8 +62,9 @@ class LoincApi:
     ):
         """Downloads a dataset from the LOINC API
         :keyword version: the data version to download
+        :keyword download_url: the url to download the zipfile from. Gets from API if not provided.
         :keyword path: the path on disk to write to
-        :keyword unzip: if True, extracts the archive after download
+        :keyword unzip: if True, extracts the archive after download (or a pre-existing download)
         """
 
         path = path or pathlib.Path.cwd()
@@ -78,22 +73,25 @@ class LoincApi:
         path.mkdir(parents=True, exist_ok=True)
 
         if any(str(x).endswith(version) for x in path.glob("*.*")):
-            console = rich.get_console()
-            console.print(f"Loinc version {version} already exists at {path}, skipping download")
-            return
-        download_res = self.session.get(download_url, stream=True)
-        with open(path / f"{version}.zip", "wb") as f:
-            chunks_read = 0
-            with base_utils.get_progress_bar() as progress:
-                task = progress.add_task(f"Downloading {version}.zip", total=None)
-                for chunk in download_res.iter_content(chunk_size=1024):
-                    f.write(chunk)
-                    chunks_read += 1
-                    progress.update(
-                        task,
-                        description=(f"Downloading {version}.zip: {chunks_read / 1000} MB"),
+            rich.print(f"Loinc version {version} already exists at {path}, skipping download")
+        else:
+            download_res = self.session.get(download_url, stream=True)
+            with open(path / f"{version}.zip", "wb") as f:
+                chunks_read = 0
+                with base_utils.get_progress_bar() as progress:
+                    task = progress.add_task(
+                        f"Downloading {version}.zip",
+                        total=(int(download_res.headers["Content-Length"]) / 1024),
                     )
-        (path / version).mkdir(parents=True, exist_ok=True)
-        if unzip:
+                    for chunk in download_res.iter_content(chunk_size=1024):
+                        f.write(chunk)
+                        chunks_read += 1
+                        progress.update(
+                            task,
+                            description=(f"Downloading {version}.zip: {chunks_read / 1000} MB"),
+                            advance=1,
+                        )
+        if unzip and (path / f"{version}.zip").exists():
+            (path / version).mkdir(parents=True, exist_ok=True)
             base_utils.unzip_file(path / f"{version}.zip", path / version)
             (path / f"{version}.zip").unlink()
