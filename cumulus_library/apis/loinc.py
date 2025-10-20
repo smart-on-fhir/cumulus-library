@@ -36,6 +36,10 @@ class LoincApi:
         """returns all available versions available for download"""
         versions = []
         res = self.session.get(f"{BASE_URL}Loinc/All")
+        if res.status_code == 401:
+            raise errors.ApiError("Invalid LOINC credentials")
+        for record in res.json():
+            versions.append(record["version"])
         res.raise_for_status()
         return versions
 
@@ -48,6 +52,10 @@ class LoincApi:
         if version is not None:
             url = f"{url}?version={version}"
         res = self.session.get(url)
+        if res.status_code == 401:
+            raise errors.ApiError("Invalid LOINC credentials")
+        elif res.status_code == 404:
+            raise errors.ApiError(f"Loinc version {version} not found")
         res.raise_for_status()
         res = res.json()
         return res["version"], res["downloadUrl"]

@@ -70,7 +70,8 @@ def test_all_versions(status, expected, raises):
     with raises:
         api = loinc.LoincApi(user="user", password="password")
         versions = api.get_all_download_versions()
-        assert versions == expected
+        if status == 200:
+            assert versions == expected
 
 
 @responses.activate
@@ -157,12 +158,18 @@ def test_download_dataset(mock_url, tmp_path):
             status=200,
             body=f.read(),
             match=[responses.matchers.request_kwargs_matcher({"stream": True})],
+            headers={"Content-Length": "1024"},
         )
     mock_url.return_value = ("1.0", "http://mock_url")
     api = loinc.LoincApi(user="user", password="password")
     api.download_loinc_dataset(path=tmp_path)
     files = list(tmp_path.glob("1.0/*"))
-    assert any("manifest.toml" == x.name for x in files)
+    assert [x.name for x in files] == [
+        "upload__meta_date.meta.parquet",
+        "manifest.toml",
+        "upload__count_synthea_patient.cube.parquet",
+        "upload__meta_version.meta.parquet",
+    ]
     for file in files:
         file.unlink()
     (tmp_path / "1.0").rmdir()
