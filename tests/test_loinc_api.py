@@ -164,10 +164,10 @@ def test_download_dataset(mock_url, tmp_path):
     api = loinc.LoincApi(user="user", password="password")
     api.download_loinc_dataset(path=tmp_path)
     files = list(tmp_path.glob("1.0/*"))
-    assert [x.name for x in files] == [
-        "upload__meta_date.meta.parquet",
+    assert sorted([x.name for x in files]) == [
         "manifest.toml",
         "upload__count_synthea_patient.cube.parquet",
+        "upload__meta_date.meta.parquet",
         "upload__meta_version.meta.parquet",
     ]
     for file in files:
