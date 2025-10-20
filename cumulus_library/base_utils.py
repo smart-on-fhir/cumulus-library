@@ -44,6 +44,8 @@ class StudyConfig:
     stats_build: bool = False
     stats_clean: bool = False
     umls_key: str | None = None
+    loinc_user: str | None = None
+    loinc_password: str | None = None
     options: dict | None = None
 
 

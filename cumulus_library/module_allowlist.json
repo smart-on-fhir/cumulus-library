@@ -6,6 +6,8 @@
         "cumulus_library_covid",
         "cumulus_library_data_metrics",
         "cumulus_library_hypertension",
+        "cumulus_library_irae",
+        "cumulus_library_loinc",
         "cumulus_library_opioid",
         "cumulus_library_rxnorm",
         "cumulus_library_suicidality_los",
