@@ -158,7 +158,7 @@ def test_download_dataset(mock_url, tmp_path):
             status=200,
             body=f.read(),
             match=[responses.matchers.request_kwargs_matcher({"stream": True})],
-            headers={"Content-Length": "1024"},
+            headers={"Content-Length": "3656"},
         )
     mock_url.return_value = ("1.0", "http://mock_url")
     api = loinc.LoincApi(user="user", password="password")

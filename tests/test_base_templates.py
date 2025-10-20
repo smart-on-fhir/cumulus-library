@@ -788,7 +788,7 @@ FROM
     table_name
 WHERE
     field_name IS NOT NULL
-LIMIT 1;"""
+LIMIT 1; --noqa: disable=AM09"""
     query = base_templates.get_is_table_not_empty_query(
         source_table="table_name", field="field_name"
     )
@@ -802,7 +802,7 @@ FROM
     UNNEST(x) AS y (z)
 WHERE
     field_name IS NOT NULL
-LIMIT 1;"""
+LIMIT 1; --noqa: disable=AM09"""
     query = base_templates.get_is_table_not_empty_query(
         source_table="table_name",
         field="field_name",
@@ -821,7 +821,7 @@ WHERE
     field_name IS NOT NULL
     AND field_name LIKE 's%' --noqa: LT02
     AND field_name IS NOT NULL --noqa: LT02
-LIMIT 1;"""
+LIMIT 1; --noqa: disable=AM09"""
 
     query = base_templates.get_is_table_not_empty_query(
         source_table="table_name",
