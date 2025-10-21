@@ -226,6 +226,14 @@ AWS Athena, the following order of preference is used to select credentials:
         "--umls-key",
         help="An API Key for the UMLS API",
     )
+    build.add_argument(
+        "--loinc-user",
+        help="A username for the LOINC API",
+    )
+    build.add_argument(
+        "--loinc-password",
+        help="An password for the LOINC API",
+    )
 
     # Database export
 

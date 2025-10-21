@@ -309,6 +309,8 @@ def run_cli(args: dict):
             stats_build=args.get("stats_build", False),
             stats_clean=args.get("stats_clean", False),
             umls_key=args.get("umls_key"),
+            loinc_user=args.get("loinc_user"),
+            loinc_password=args.get("loinc_password"),
             options=args.get("options"),
         )
         try:
@@ -412,6 +414,8 @@ def main(cli_args=None):
         ("database", "CUMULUS_LIBRARY_DATABASE"),
         ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
         ("umls_key", "UMLS_API_KEY"),
+        ("loinc_user", "LOINC_USER"),
+        ("loinc_password", "LOINC_PASSWORD"),
         ("url", "CUMULUS_AGGREGATOR_URL"),
         ("user", "CUMULUS_AGGREGATOR_USER"),
         ("network", "CUMULUS_AGGREGATOR_NETWORK"),
@@ -460,7 +464,7 @@ def main(cli_args=None):
         table.add_column("Environment Variable", style="green")
         table.add_column("Value", style="cyan")
         for row in read_env_vars:
-            if row[0] == "CUMULUS_AGGREGATOR_ID":
+            if row[0] in ["CUMULUS_AGGREGATOR_ID", "LOINC_PASSWORD"]:
                 table.add_row(row[0], "#########")  # pragma: no cover
             else:
                 table.add_row(row[0], row[1])
