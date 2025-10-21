@@ -17,4 +17,5 @@ WHERE
     AND {{ condition }} --noqa: LT02
 {%- endfor %}
 {%- endif %}
-LIMIT 1; --noqa: disable=AM09
+--noqa: disable=AM09
+LIMIT 1;
