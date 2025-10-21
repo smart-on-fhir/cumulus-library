@@ -56,7 +56,7 @@ class UmlsApi:
             raise errors.ApiError("Invalid UMLS API key")
         self.session.auth = requests.auth.HTTPBasicAuth("apikey", api_key)
         self.cache_dir = base_utils.get_user_cache_dir() / "umls"
-        self.download_dir = base_utils.get_user_cache_dir() / "downloads"
+        self.download_dir = self.cache_dir / "downloads"
 
     def get_vsac_valuesets(
         self,
