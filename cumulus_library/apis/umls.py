@@ -55,6 +55,8 @@ class UmlsApi:
         if response.text != "true":
             raise errors.ApiError("Invalid UMLS API key")
         self.session.auth = requests.auth.HTTPBasicAuth("apikey", api_key)
+        self.cache_dir = base_utils.get_user_cache_dir() / "umls"
+        self.download_dir = base_utils.get_user_cache_dir() / "downloads"
 
     def get_vsac_valuesets(
         self,
@@ -152,7 +154,7 @@ class UmlsApi:
                 f"'{target}' is not a valid umls download type.\n\n"
                 f"Expected values: {','.join(VALID_UMLS_DOWNLOADS)}"
             )
-        path = path or pathlib.Path.cwd()
+        path = path or self.download_dir
         file_meta = self.get_latest_umls_file_release(target)
 
         # This particular endpoint requires the API key as a param rather than a

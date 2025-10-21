@@ -82,3 +82,8 @@ REGEXP_LIKE({{ field }}, '^(?i:{{ wildcard_to_regex(match_string) }})$')
     AND {{ field }} <> CHR(0)
 )
 {%- endmacro %}
+
+{#- converts a string to be safe for use in table/column names -#}
+{% macro sql_safe_string(field) -%}
+{{ field|lower|replace('.', '_') }}
+{%- endmacro%}

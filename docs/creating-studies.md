@@ -90,8 +90,6 @@ count_list = [
 # display value or code system) from another source. These tables should go
 # in this section.
 
-# TODO: Link to API docs when ready
-
 annotated_count_list = [
     "my_study__count_influenza_test_month_annotated",
 ]
@@ -117,7 +115,7 @@ meta_list = [
 
 # The following section is for advanced/unusual study use cases
 
-# [options]
+# [advanced_options]
 
 # If you want to override the default schema name to an explicit one, you can define
 # the name of this schema here. 99% of the time, this is not the behavior you want -
