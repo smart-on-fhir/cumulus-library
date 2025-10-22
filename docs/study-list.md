@@ -24,6 +24,11 @@ for more details and any associated publications.
 - [RxNorm vocabulary](https://github.com/smart-on-fhir/cumulus-library-rxnorm)
 - [ICD-10 accuracy for suicidal ideation](https://github.com/smart-on-fhir/cumulus-library-suicidality-icd10)
 
+### 2025
+- [Opioid Valueset](https://github.com/smart-on-fhir/cumulus-library-opioid-valueset)
+- [Kidney Transplant](https://github.com/smart-on-fhir/cumulus-library-kidney-transplant)
+- [Loinc Database](github.com/smart-on-fhir/cumulus-library-loinc)
+
 ## Third party studies
 
 If you are using Cumulus to manage your own clinical studies and would like

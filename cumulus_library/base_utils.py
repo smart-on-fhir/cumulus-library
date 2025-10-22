@@ -7,6 +7,7 @@ import shutil
 import zipfile
 from contextlib import contextmanager
 
+import platformdirs
 import rich
 from rich import progress
 
@@ -162,3 +163,7 @@ def unzip_file(file_path: pathlib.Path, write_path: pathlib.Path):
     with zipfile.ZipFile(file_path, mode="r") as z:
         for file in z.namelist():
             z.extract(file, write_path)
+
+
+def get_user_cache_dir() -> pathlib.Path:
+    return pathlib.Path(platformdirs.user_cache_dir("cumulus-library", "smart-on-fhir"))

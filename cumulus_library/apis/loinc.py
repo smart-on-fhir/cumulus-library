@@ -31,6 +31,8 @@ class LoincApi:
 
         self.session = requests.Session()
         self.session.auth = requests.auth.HTTPBasicAuth(user, password)
+        self.cache_dir = base_utils.get_user_cache_dir() / "loinc"
+        self.download_dir = self.cache_dir / "downloads"
 
     def get_all_download_versions(self) -> list:
         """returns all available versions available for download"""
@@ -71,11 +73,11 @@ class LoincApi:
         """Downloads a dataset from the LOINC API
         :keyword version: the data version to download
         :keyword download_url: the url to download the zipfile from. Gets from API if not provided.
-        :keyword path: the path on disk to write to
+        :keyword path: the path on disk to write to (uses user cache dir if not provided)
         :keyword unzip: if True, extracts the archive after download (or a pre-existing download)
         """
 
-        path = path or pathlib.Path.cwd()
+        path = path or self.download_dir
         if download_url is None:
             version, download_url = self.get_download_info(version=version)
         path.mkdir(parents=True, exist_ok=True)

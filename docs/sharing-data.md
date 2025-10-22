@@ -53,8 +53,9 @@ bucket containing your Athena data, like in the following IAM policy:
 As part of the Cumulus framework, we have a middleware application called
 [Cumulus Aggregator](https://docs.smarthealthit.org/cumulus/aggregator/) 
 configured to receive and combine datasets from multiple organizations,
-which can then be loaded into the dashboard for SME analysis.
-(As of this writing, that dashboard is not yet available as open source.)
+which can then be loaded into the 
+[Cumulus Dashboard](https://github.com/smart-on-fhir/cumulus-app)
+for SME analysis.
 
 We recommend configuring the following environment variables for using this script:
 

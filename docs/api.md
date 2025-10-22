@@ -122,7 +122,7 @@ SELECT bar FROM TABLE;
 ```
 
 ## StudyConfig
-*db: databases.DatabaseBackend,schema: str, drop_table: bool = False, force_upload: bool = False, verbose: bool = False, stats_build: bool = False, stats_clean: bool = False, umls_key: str | None = None, options: dict | None = None*
+*db: databases.DatabaseBackend,schema: str, drop_table: bool = False, force_upload: bool = False, verbose: bool = False, stats_build: bool = False, stats_clean: bool = False, loinc_user: str | None == None, loinc_passwor: str | None == None, umls_key: str | None = None, options: dict | None = None*
 
 The StudyConfig object is passed to every class based off BaseStudyBuilder. It's a 
 repository of things that the CLI may think a study needs to perform a particular

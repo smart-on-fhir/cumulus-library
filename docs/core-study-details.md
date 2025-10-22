@@ -25,6 +25,29 @@ use the core study as the starting point for your own work. See
 [Creating Studies](./creating-studies.md)
 for more information.
 
+## Design philosophy
+
+One of the main goals of the core study is to abstract away complex sql details, and to
+make some basic joins between tables to make it easy for someone who does not speak FHIR
+to intuit what information is in tables.
+
+As a result, we've made several intentional decisions about how the tables in this study
+are structured:
+
+- We never include nested data directly, instead always extracting data from the FHIR data
+  in a safe way.
+  - We often store these nested contents seperately in a denormalized table, with `_dn_` in
+    the name - analysts can safely ignore these tables in most cases
+  - Flattening the nested data means there will often be more than one row per unique ID.
+    You should take this into account when doing statistics, and make sure you're counting
+    unique IDs, not bare rows
+- We prefer optimizing for access speed over space efficiency
+  - Many of our tables are effectively materialized views, joined from two or more tables
+    and stored as a unique instance. Since some of these operations take a long time
+    (5 minutes for large observation tables), we'll do it once rather than on access.
+    - This means that if you update the base FHIR tables, you should rerun the core study
+      as well to update the data.
+
 # Table format
 
 Unless otherwise noted, column names correspond to a FHIR path relative to the resource
