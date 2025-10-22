@@ -60,7 +60,7 @@ from cumulus_library.builders.valueset import static_builder, valueset_utils
 def test_static_tables(
     tmp_path, mock_db_config, filtered, ignore_header, prefix_str, mapping, expected
 ):
-    test_path = pathlib.Path(__file__).parent.parent / "test_data/valueset/"
+    test_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     shutil.copy(test_path / "static/static_table.csv", tmp_path / "static_table.csv")
     shutil.copy(test_path / "static/filtered.csv", tmp_path / "filtered.csv")
     valueset_config = valueset_utils.ValuesetConfig(
@@ -96,7 +96,7 @@ def test_static_tables(
 
 
 def test_custom_rules(tmp_path, mock_db_config):
-    test_path = pathlib.Path(__file__).parent.parent / "test_data/valueset/"
+    test_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     shutil.copy(test_path / "static/static_table.csv", tmp_path / "static_table.csv")
     shutil.copy(test_path / "static/filtered.csv", tmp_path / "filtered.csv")
     valueset_config = valueset_utils.ValuesetConfig(

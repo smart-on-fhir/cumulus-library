@@ -64,10 +64,10 @@ def test_psm_create(
 ):
     builder = cli.StudyRunner(mock_db_stats_config, data_path=pathlib.Path(tmp_path))
     manifest = study_manifest.StudyManifest(
-        study_path=f"{pathlib.Path(__file__).parent}/test_data/psm/"
+        study_path=f"{pathlib.Path(__file__).parents[1]}/test_data/psm/"
     )
     psmbuilder = psm_builder.PsmBuilder(
-        f"{pathlib.Path(__file__).parent}/test_data/psm/{toml_def}",
+        f"{pathlib.Path(__file__).parents[1]}/test_data/psm/{toml_def}",
         pathlib.Path(tmp_path),
     )
     builder.config.db.cursor().execute(
@@ -108,10 +108,10 @@ def test_psm_error_handling(mock_psm, error, tmp_path, mock_db_stats_config):
             mock_psm.side_effect = ZeroDivisionError
     builder = cli.StudyRunner(mock_db_stats_config, data_path=pathlib.Path(tmp_path))
     manifest = study_manifest.StudyManifest(
-        study_path=f"{pathlib.Path(__file__).parent}/test_data/psm/"
+        study_path=f"{pathlib.Path(__file__).parents[1]}/test_data/psm/"
     )
     psmbuilder = psm_builder.PsmBuilder(
-        f"{pathlib.Path(__file__).parent}/test_data/psm/psm_config.toml",
+        f"{pathlib.Path(__file__).parents[1]}/test_data/psm/psm_config.toml",
         pathlib.Path(tmp_path),
     )
     builder.config.db.cursor().execute(
@@ -148,7 +148,7 @@ def test_psm_missing_keys(tmp_path):
 
 def test_psm_bad_include_cols(tmp_path, mock_db_stats_config):
     """Provide too many include_cols"""
-    psm_root = f"{pathlib.Path(__file__).parent}/test_data/psm/"
+    psm_root = f"{pathlib.Path(__file__).parents[1]}/test_data/psm/"
     with open(f"{tmp_path}/psm.toml", "w", encoding="utf8") as f:
         f.write(f"""config_type = "psm"
 classification_json = "{psm_root}/dsm5_classifications.json"

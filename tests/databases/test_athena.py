@@ -49,7 +49,7 @@ def test_schema_parsing():
 
 @mock.patch("botocore.session.Session")
 def test_upload_parquet_response_handling(mock_session):
-    path = pathlib.Path(__file__).resolve().parent
+    path = pathlib.Path(__file__).resolve().parents[1]
     db = databases.AthenaDatabaseBackend(
         region="us-east-1",
         work_group="work_group",

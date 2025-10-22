@@ -8,7 +8,7 @@ import pytest
 from cumulus_library import study_manifest
 from cumulus_library.builders import valueset_builder
 
-data_path = pathlib.Path(__file__).parent.parent / "test_data/valueset/"
+data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
 
 
 @pytest.mark.parametrize(

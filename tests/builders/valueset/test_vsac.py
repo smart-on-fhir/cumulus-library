@@ -23,7 +23,7 @@ def test_download_oid_data(
     mock_api, mock_db, steward, oid, umls, force, raises, expected, tmp_path
 ):
     with raises:
-        with open(pathlib.Path(__file__).parent.parent / "test_data/valueset/vsac_resp.json") as f:
+        with open(pathlib.Path(__file__).parents[2] / "test_data/valueset/vsac_resp.json") as f:
             resp = json.load(f)
         if steward == "acep":
             mock_api.return_value.get_vsac_valuesets.return_value = resp
