@@ -757,6 +757,10 @@ def test_cli_upload_filter(mock_upload_data, args, calls, raises):
         assert mock_upload_data.call_count == calls
 
 
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
 @pytest.mark.parametrize("mode", ["cli", "env"])
 # early exit with a dumb error
 @mock.patch("cumulus_library.base_utils.StudyConfig", side_effect=ZeroDivisionError)

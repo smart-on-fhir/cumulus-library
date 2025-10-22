@@ -18,7 +18,7 @@ from cumulus_library.builders.valueset import (
 @pytest.mark.parametrize("prefix", [(""), ("foo")])
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
 def test_additional_rules(mock_api, mock_db_config_rxnorm, prefix, tmp_path):
-    data_path = pathlib.Path(__file__).parent.parent / "test_data/valueset/"
+    data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     test_path = tmp_path / "valueset"
     shutil.copytree(data_path, test_path)
     with open(test_path / "vsac_resp.json") as f:

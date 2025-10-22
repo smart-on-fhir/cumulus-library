@@ -47,7 +47,7 @@ def test_discovery(tmp_path):
 
     # For regenerating test data
     # with open(
-    #     f"{pathlib.Path(__file__).resolve().parents[0]}"
+    #     f"{pathlib.Path(__file__).resolve().parents[1]}"
     #     "/test_data/discovery/discovery__code_sources.csv",
     #     "w",
     # ) as f:
@@ -57,7 +57,7 @@ def test_discovery(tmp_path):
 
     try:
         with open(
-            f"{pathlib.Path(__file__).resolve().parents[0]}"
+            f"{pathlib.Path(__file__).resolve().parents[1]}"
             "/test_data/discovery/discovery__code_sources.csv",
         ) as ref:
             reader = csv.reader(ref)
