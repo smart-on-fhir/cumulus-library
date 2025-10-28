@@ -8,15 +8,11 @@ import tomllib
 import warnings
 from dataclasses import dataclass
 
-import matplotlib.pyplot as plt
 import pandas
-import seaborn as sns
-from psmpy import PsmPy
+import rich
 
-# these imports are mimicing PsmPy imports for re-implemented functions
-from psmpy.functions import cohenD
-
-from cumulus_library import BaseTableBuilder, base_utils, databases
+from cumulus_library import BaseTableBuilder, StudyManifest, base_utils, databases
+from cumulus_library.builders import psmpy_lite
 from cumulus_library.builders.statistics_templates import psm_templates
 from cumulus_library.template_sql import base_templates
 
@@ -179,83 +175,12 @@ class PsmBuilder(BaseTableBuilder):
         )
         self.queries.append(dataset_query)
 
-    def psm_plot_match(
-        self,
-        psm,
-        matched_entity="propensity_logit",
-        Title="Side by side matched controls",
-        Ylabel="Number of patients",
-        Xlabel="propensity logit",
-        names=None,
-        colors=None,
-        save=True,
-        filename="propensity_match.png",
-    ):
-        """Plots knn match data
-
-        This function re-implements psm.plot_match, with the only changes
-        allowing for specifiying a filename/location for saving plots to,
-        and passing in the psm object instead of assuming a call from inside
-        the PsmPy class.
-        """
-        names = names or ["positive_cohort", "negative_cohort"]
-        colors = colors or ["#E69F00", "#56B4E9"]
-        dftreat = psm.df_matched[psm.df_matched[psm.treatment] == 1]
-        dfcontrol = psm.df_matched[psm.df_matched[psm.treatment] == 0]
-        x1 = dftreat[matched_entity]
-        x2 = dfcontrol[matched_entity]
-        colors = colors
-        names = names
-        sns.set_style("white")
-        plt.hist([x1, x2], color=colors, label=names)
-        plt.legend()
-        plt.xlabel(Xlabel)
-        plt.ylabel(Ylabel)
-        plt.title(Title)
-        if save:
-            plt.savefig(filename, dpi=250)
-
-    def psm_effect_size_plot(
-        self,
-        psm,
-        title="Standardized Mean differences accross covariates before and after matching",
-        before_color="#FCB754",
-        after_color="#3EC8FB",
-        save=False,
-        filename="effect_size.png",
-    ):
-        """Plots effect size of variables for positive/negative matches
-
-        This function re-implements psm.effect_size_plot, with the only changes
-        allowing for specifiying a filename/location for saving plots to,
-        and passing in the psm object instead of assuming a call from inside
-        the PsmPy class.
-        """
-        df_preds_after = psm.df_matched[[psm.treatment] + psm.xvars]  # noqa: RUF005
-        df_preds_b4 = psm.data[[psm.treatment] + psm.xvars]  # noqa: RUF005
-        df_preds_after_float = df_preds_after.astype(float)
-        df_preds_b4_float = df_preds_b4.astype(float)
-
-        data = []
-        for cl in psm.xvars:
-            data.append([cl, "before", cohenD(df_preds_b4_float, psm.treatment, cl)])
-            data.append([cl, "after", cohenD(df_preds_after_float, psm.treatment, cl)])
-        psm.effect_size = pandas.DataFrame(data, columns=["Variable", "matching", "Effect Size"])
-        sns.set_style("white")
-        sns_plot = sns.barplot(
-            data=psm.effect_size,
-            y="Variable",
-            x="Effect Size",
-            hue="matching",
-            palette=[before_color, after_color],
-            orient="h",
-        )
-        sns_plot.set(title=title)
-        if save:
-            sns_plot.figure.savefig(filename, dpi=250, bbox_inches="tight")
-
     def generate_psm_analysis(
-        self, cursor: databases.DatabaseCursor, schema: str, table_suffix: str
+        self,
+        cursor: databases.DatabaseCursor,
+        manifest: StudyManifest,
+        schema: str,
+        table_suffix: str,
     ):
         """Runs PSM statistics on generated tables"""
         stats_table = f"{self.config.target_table}_{table_suffix}"
@@ -298,13 +223,12 @@ class PsmBuilder(BaseTableBuilder):
             df = pandas.concat([df, encoded_df], axis=1)
             df = df.drop(column, axis=1)
         try:
-            psm = PsmPy(
+            psm = psmpy_lite.PsmPy(
                 df,
                 treatment=self.config.dependent_variable,
                 indx=self.config.primary_ref,
                 exclude=[],
             )
-
             # we expect psmpy to autodrop non-matching values, so we'll surpress it
             # mentioning workarounds for this behavior.
             with warnings.catch_warnings():
@@ -320,16 +244,16 @@ class PsmBuilder(BaseTableBuilder):
                     drop_unmatched=True,
                 )
                 os.makedirs(self.data_path, exist_ok=True)
-                self.psm_plot_match(
-                    psm,
-                    save=True,
-                    filename=self.data_path / f"{stats_table}_propensity_match.png",
+                histogram = psm.get_histogram().sort_values(by=self.config.primary_ref)
+                effect_size = psm.get_effect_size()
+                doc_dir = (
+                    base_utils.get_user_documents_dir()
+                    / f"cumulus-library/{manifest.get_study_prefix()}"
                 )
-                self.psm_effect_size_plot(
-                    psm,
-                    save=True,
-                    filename=self.data_path / f"{stats_table}_effect_size.png",
-                )
+                doc_dir.mkdir(parents=True, exist_ok=True)
+                histogram.to_csv(doc_dir / "psm_histogram.csv", index=False)
+                effect_size.to_csv(doc_dir / "psm_effect_size.csv", index=False)
+                rich.print(f"PSM histogram/effect size data saved to {doc_dir}")
         except ZeroDivisionError:
             sys.exit(
                 "Encountered a divide by zero error during statistical graph "
@@ -340,15 +264,22 @@ class PsmBuilder(BaseTableBuilder):
                 "Encountered a value error during KNN matching. Try increasing your sample size."
             )
 
-    def prepare_queries(self, config: base_utils.StudyConfig, *args, table_suffix: str, **kwargs):
+    def prepare_queries(
+        self,
+        config: base_utils.StudyConfig,
+        manifest: StudyManifest,
+        *args,
+        table_suffix: str,
+        **kwargs,
+    ):
         self._create_covariate_table(config.db.cursor(), config.schema, table_suffix)
 
     def post_execution(
         self,
         config: base_utils.StudyConfig,
+        manifest: StudyManifest,
         *args,
         table_suffix: str | None = None,
         **kwargs,
     ):
-        # super().execute_queries(cursor, schema, verbose, drop_table)
-        self.generate_psm_analysis(config.db.cursor(), config.schema, table_suffix)
+        self.generate_psm_analysis(config.db.cursor(), manifest, config.schema, table_suffix)

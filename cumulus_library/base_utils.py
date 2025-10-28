@@ -167,3 +167,7 @@ def unzip_file(file_path: pathlib.Path, write_path: pathlib.Path):
 
 def get_user_cache_dir() -> pathlib.Path:
     return pathlib.Path(platformdirs.user_cache_dir("cumulus-library", "smart-on-fhir"))
+
+
+def get_user_documents_dir() -> pathlib.Path:
+    return pathlib.Path(platformdirs.user_documents_dir())
