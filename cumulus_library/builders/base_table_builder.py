@@ -84,11 +84,12 @@ class BaseTableBuilder(abc.ABC):
                 except Exception as e:  # pylint: disable=broad-exception-caught
                     sys.exit(f"An error occurred executing this query:\n----\n{query}\n----\n{e}")
 
-        self.post_execution(config, *args, **kwargs)
+        self.post_execution(config, manifest, *args, **kwargs)
 
     def post_execution(
         self,
         config: base_utils.StudyConfig,
+        manifest: study_manifest.StudyManifest,
         *args,
         **kwargs,
     ):

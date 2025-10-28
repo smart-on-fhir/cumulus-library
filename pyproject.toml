@@ -8,12 +8,13 @@ dependencies = [
     "Jinja2 > 3",
     "pandas <3, >=2.1.3",
     "platformdirs",
-    "psmpy <1, >=0.3.13",
     "pyarrow >= 11.0",
     "pyathena >= 2.23",
     "pytablewriter >= 1.2",
     "requests >= 2.28",
     "rich >= 13.2",
+    "scipy >= 1.16",
+    "scikit-learn >= 1.7",
     "sqlfluff  >= 3",
     "sqlparse >0.4",
 ]
@@ -52,6 +53,11 @@ cumulus-library = "cumulus_library.cli:main_cli"
 [build-system]
 requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
+
+[tool.coverage.run]
+omit = [
+    "cumulus_library/builders/psmpy_lite.py"
+]
 
 [tool.flit.sdist]
 include = [".sqlfluff"]

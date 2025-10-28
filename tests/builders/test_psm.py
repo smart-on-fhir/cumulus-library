@@ -13,14 +13,17 @@ from cumulus_library.builders import psm_builder
 
 @freeze_time("2024-01-01")
 @pytest.mark.parametrize(
-    "toml_def,pos_set,neg_set,expected_first_record,expected_last_record",
+    (
+        "toml_def,pos_set,neg_set,expected_first_record,expected_last_record,"
+        "expected_first_hist,expected_last_hist,expected_first_effect,expected_last_effect"
+    ),
     [
         (
             "psm_config.toml",
-            28,
-            129,
+            30,
+            128,
             {
-                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be0",
+                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be12",
                 "example_diagnosis": "1",
                 "instance_count": 1,
                 "gender": "female",
@@ -28,32 +31,76 @@ from cumulus_library.builders import psm_builder
                 "code": "33737001",
             },
             {
-                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f17",
+                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
                 "example_diagnosis": "0",
                 "instance_count": 1,
                 "gender": "female",
                 "race": "white",
                 "code": "195662009",
             },
+            {
+                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be12",
+                "appx_score": 0.67,
+                "appx_logit": 0.59,
+                "group": "treatment",
+                "matched": True,
+            },
+            {
+                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
+                "appx_score": 0.49,
+                "appx_logit": -0.07,
+                "group": "control",
+                "matched": False,
+            },
+            "category A,before,0.2724389343925956",
+            [
+                "white,after,0.39327683210006986",
+                "white,after,0.5285673369330032",
+                "white,after,0.6952217871538068",
+            ],
         ),
         (
             "psm_config_no_optional.toml",
-            28,
-            129,
+            30,
+            128,
             {
-                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be0",
+                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be12",
                 "example_diagnosis": "1",
                 "code": "33737001",
             },
             {
-                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f17",
+                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
                 "example_diagnosis": "0",
                 "code": "195662009",
             },
+            {
+                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be12",
+                "appx_score": 0.56,
+                "appx_logit": 0.23,
+                "group": "treatment",
+                "matched": True,
+            },
+            {
+                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
+                "appx_score": 0.52,
+                "appx_logit": 0.06,
+                "group": "control",
+                "matched": False,
+            },
+            "category A,before,0.2724389343925956",
+            [
+                "category C,after,0.0",
+                "category C,after,0.37161167647860316",
+                "category C,after,0.5453768398418632",
+                "category C,after,0.5453768398418634",
+                "category C,after,0.6952217871538069",
+            ],
         ),
     ],
 )
+@mock.patch("cumulus_library.base_utils.get_user_documents_dir")
 def test_psm_create(
+    mock_doc_dir,
     tmp_path,
     mock_db_stats_config,
     toml_def,
@@ -61,7 +108,12 @@ def test_psm_create(
     neg_set,
     expected_first_record,
     expected_last_record,
+    expected_first_hist,
+    expected_last_hist,
+    expected_first_effect,
+    expected_last_effect,
 ):
+    mock_doc_dir.return_value = tmp_path
     builder = cli.StudyRunner(mock_db_stats_config, data_path=pathlib.Path(tmp_path))
     manifest = study_manifest.StudyManifest(
         study_path=f"{pathlib.Path(__file__).parents[1]}/test_data/psm/"
@@ -96,10 +148,36 @@ def test_psm_create(
     assert first_record == expected_first_record
     last_record = df.iloc[neg_set + pos_set - 1].to_dict()
     assert last_record == expected_last_record
+    with open(tmp_path / "cumulus-library/psm_test/psm_histogram.csv") as f:
+        lines = f.readlines()
+        for found, expected in [
+            (lines[1].rstrip(), expected_first_hist),
+            (lines[-1].rstrip(), expected_last_hist),
+        ]:
+            found = found.split(",")
+            assert found[0] == expected["encounter_ref"]
+            # There's a bit of randomness in the scores/logits. It's probably from scikit_learn's
+            # LogisticRegression function, or how psmpy is using it, or our test data. Rather than
+            # debug this, we'll just check that it's close and call it a day, since we are
+            # currently looking into a next gen cohort sampler/classifier anyway and this is not
+            # used in a study currently.
+            assert expected["appx_score"] - 0.05 < float(found[-4]) < expected["appx_score"] + 0.05
+            assert expected["appx_logit"] - 0.15 < float(found[-3]) < expected["appx_logit"] + 0.15
+            assert found[-2] == expected["group"]
+            # Matches are sometimes arbitrary for similar looking records, so we'll just
+            # check to see if we got a match or not
+            assert (len(found[-1]) > 0) == expected["matched"]
+
+    with open(tmp_path / "cumulus-library/psm_test/psm_effect_size.csv") as f:
+        lines = f.readlines()
+        assert lines[1].rstrip() == expected_first_effect
+        # We get a series of semi-repeatable values here, so we'll just see if we get
+        # a known one
+        assert lines[-1].rstrip() in expected_last_effect
 
 
 @pytest.mark.parametrize("error", [("value"), ("zero")])
-@mock.patch("psmpy.PsmPy.logistic_ps")
+@mock.patch("cumulus_library.builders.psmpy_lite.PsmPy.logistic_ps")
 def test_psm_error_handling(mock_psm, error, tmp_path, mock_db_stats_config):
     match error:
         case "value":
