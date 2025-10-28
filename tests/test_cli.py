@@ -1016,7 +1016,7 @@ def test_study_dir(tmp_path):
             [
                 "0001.psm_config.00.config.toml",
                 """config_type = "psm"
-classification_json = "dsm5_classifications.json"
+classification_json = "classifications.json"
 pos_source_table = "psm_test__psm_cohort"
 neg_source_table = "core__condition"
 target_table = "psm_test__psm_encounter_covariate"
@@ -1026,7 +1026,7 @@ count_table = 'core__condition'
 dependent_variable = "example_diagnosis"
 pos_sample_size = 20
 neg_sample_size = 100
-seed = 1234567890
+seed = 0
 [join_cols_by_table.core__encounter]
 join_id = "encounter_ref"
 included_cols = [

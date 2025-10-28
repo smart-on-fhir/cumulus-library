@@ -1,7 +1,11 @@
 # The following code is adapted from https://github.com/adriennekline/psmpy,
 # less the graphing elements and with some light production-y adaptations.
-# Most of the commenting is from the existing library, the get_* functions
-# are returning datasets that would be processed for charts in psmpy.
+# Most of the commenting is from the existing library.
+
+# The new functions in this are the get_* functions, which return datasets
+# that could be used to recreate the graphs psmpy normally produces
+
+# psmpy is available under an MIT License, authored by Adrienne Kline.
 
 import math
 import random
@@ -552,6 +556,8 @@ class PsmPy:
         self.matched_ids = pandas.concat(
             [minor_pred_rstindx[[self.indx]], major_class_matched_ids_df], axis=1
         )
+
+    ### New function section ###
 
     def get_histogram(
         self,
