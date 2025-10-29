@@ -8,7 +8,7 @@ from cumulus_library.template_sql import base_templates
 
 
 def _execute_drop_queries(
-    cursor: databases.DatabaseCursor,
+    db: databases.DatabaseBackend,
     verbose: bool,
     view_table_list: list,
     progress: progress.Progress,
@@ -23,12 +23,12 @@ def _execute_drop_queries(
     :param progress: a rich progress bar renderer
     :param task: a TaskID for a given progress bar
     """
+    queries = []
     for view_table in view_table_list:
-        drop_view_table = base_templates.get_drop_view_table(
-            name=view_table[0], view_or_table=view_table[1]
+        queries.append(
+            base_templates.get_drop_view_table(name=view_table[0], view_or_table=view_table[1])
         )
-        with base_utils.query_console_output(verbose, drop_view_table, progress, task):
-            cursor.execute(drop_view_table)
+    db.parallel_write(queries, verbose, progress, task)
 
 
 def _get_unprotected_stats_view_table(
@@ -166,7 +166,7 @@ def clean_study(
             visible=not config.verbose,
         )
         _execute_drop_queries(
-            cursor,
+            config.db,
             config.verbose,
             view_table_list,
             progress,

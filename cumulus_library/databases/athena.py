@@ -7,6 +7,7 @@ features, like pyathena's async cursors, to simplify cross-db behavior.
 import collections
 import os
 import pathlib
+from concurrent import futures
 
 import awswrangler
 import boto3
@@ -14,10 +15,12 @@ import botocore
 import numpy
 import pandas
 import pyathena
+from pyathena.async_cursor import AsyncCursor as AthenaAsyncCursor
 from pyathena.common import BaseCursor as AthenaCursor
 from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
+from rich import progress
 
-from cumulus_library import errors
+from cumulus_library import base_utils, errors
 from cumulus_library.databases import base
 
 
@@ -60,6 +63,9 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
     def cursor(self) -> AthenaCursor:
         return self.connection.cursor()
+
+    def async_cursor(self) -> AthenaAsyncCursor:
+        return self.connection.cursor(AthenaAsyncCursor)
 
     def pandas_cursor(self) -> AthenaPandasCursor:
         return self.connection.cursor(cursor=AthenaPandasCursor)
@@ -181,6 +187,25 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         res = s3_client.list_objects_v2(Bucket=bucket, Prefix=f"export/{file_name}")
         self._clean_bucket_path(s3_client, bucket, res)
         return True
+
+    def parallel_write(
+        self,
+        queries: list[str],
+        verbose: bool,
+        progress_bar: progress.Progress,
+        task: progress.Task,
+    ) -> None:
+        def query_completed(f: futures.Future):
+            with base_utils.query_console_output(verbose, query, progress_bar, task):
+                pass
+
+        async_cursor = self.async_cursor()
+        queued_queries = []
+        for query in queries:
+            _, future = async_cursor.execute(query)
+            future.add_done_callback(query_completed)
+            queued_queries.append(future)
+        futures.wait(queued_queries)
 
     def create_schema(self, schema_name) -> None:
         """Creates a new schema object inside the database"""

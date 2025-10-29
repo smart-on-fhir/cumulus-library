@@ -14,6 +14,7 @@ import pathlib
 from typing import Any, Protocol
 
 import pandas
+from rich import progress
 
 
 class DatabaseCursor(Protocol):
@@ -214,6 +215,23 @@ class DatabaseBackend(abc.ABC):
         This is intended as a way to get the most database native parquet export possible,
         so we don't have to infer schema information. Only do schema inferring if your
         DB engine does not support parquet natively. If a table is empty, return None."""
+
+    @abc.abstractmethod
+    def parallel_write(
+        self,
+        queries: list[str],
+        verbose: bool,
+        progress_bar: progress.Progress,
+        task: progress.Task,
+    ) -> None:
+        """Executes queries in parallel
+
+        If you're implementing for a database that does not support concurrent writes,
+        you should have this function execute queries sequentially. You should also
+        have base_utils.query_console_output run as a context manager that fires
+        when the query is completed, or otherwise manually advance the progress
+        bar task, so that the console UI renders progress appropriately.
+        """
 
     @abc.abstractmethod
     def create_schema(self, schema_name):
