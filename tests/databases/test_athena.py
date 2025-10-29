@@ -9,6 +9,7 @@ from unittest import mock
 import awswrangler
 import botocore
 import pandas
+import pyathena
 
 from cumulus_library import base_utils, databases, study_manifest
 
@@ -180,3 +181,16 @@ def test_parallel_write(mock_cursor_getter):
     assert len(mock_cursor.execute.call_args_list) == 20
     assert mock_cursor.execute.call_args_list[0][0][0] == "select 0 from foo"
     assert mock_cursor.execute.call_args_list[19][0][0] == "select 19 from foo"
+
+
+@mock.patch("botocore.client")
+def test_get_async_cursor(mock_client):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+    db.connect()
+    cursor = db.async_cursor()
+    assert isinstance(cursor, pyathena.async_cursor.AsyncCursor)
