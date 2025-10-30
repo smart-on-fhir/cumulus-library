@@ -38,6 +38,7 @@ test = [
     "freezegun",
     "pytest",
     "pytest-cov",
+    "pytest-xdist",
     "responses"
 ]
 
