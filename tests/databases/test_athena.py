@@ -2,11 +2,14 @@
 
 import json
 import pathlib
+import time
+from concurrent import futures
 from unittest import mock
 
 import awswrangler
 import botocore
 import pandas
+import pyathena
 
 from cumulus_library import base_utils, databases, study_manifest
 
@@ -145,3 +148,49 @@ def test_export_table(mock_wrangler, mock_client, tmp_path):
     mock_wrangler.read_parquet.side_effect = awswrangler.exceptions.NoFilesFound
     res = db.export_table_as_parquet("table", "flat", tmp_path)
     assert res is False
+
+
+@mock.patch("cumulus_library.databases.athena.AthenaDatabaseBackend.async_cursor")
+def test_parallel_write(mock_cursor_getter):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+    mock_cursor = mock.MagicMock()
+    mock_cursor_getter.return_value = mock_cursor
+    queries = []
+    cursor_returns = []
+
+    def mock_query_run():
+        time.sleep(0.25)
+
+    with futures.ThreadPoolExecutor(max_workers=5) as executor:
+        for i in range(0, 20):
+            queries.append(f"select {i} from foo")
+            cursor_returns.append((i, executor.submit(mock_query_run)))
+            mock_cursor.execute.side_effect = cursor_returns
+        with base_utils.get_progress_bar() as progress_bar:
+            task = progress_bar.add_task(
+                "test queries",
+                total=len(queries),
+                visible=True,
+            )
+            db.parallel_write(queries, False, progress_bar, task)
+    assert len(mock_cursor.execute.call_args_list) == 20
+    assert mock_cursor.execute.call_args_list[0][0][0] == "select 0 from foo"
+    assert mock_cursor.execute.call_args_list[19][0][0] == "select 19 from foo"
+
+
+@mock.patch("botocore.client")
+def test_get_async_cursor(mock_client):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+    db.connect()
+    cursor = db.async_cursor()
+    assert isinstance(cursor, pyathena.async_cursor.AsyncCursor)

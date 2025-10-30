@@ -11,11 +11,15 @@ import collections
 import datetime
 import pathlib
 import re
+import threading
+import time
 
 import duckdb
 import pandas
 import pyarrow.dataset
+from rich import progress
 
+from cumulus_library import base_utils
 from cumulus_library.databases import base
 
 
@@ -196,6 +200,35 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             """  # noqa: S608
         self.connection.execute(query)
         return True
+
+    def parallel_write(
+        self,
+        queries: list[str],
+        verbose: bool,
+        progress_bar: progress.Progress,
+        task: progress.Task,
+    ):
+        def write_thread(query, verbose, progress_bar, task, query_console_output):
+            thread_con = self.connection.cursor()
+            with query_console_output(verbose, query, progress_bar, task):
+                thread_con.execute(query)
+
+        threads = []
+        for query in queries:
+            threads.append(
+                threading.Thread(
+                    target=write_thread,
+                    args=(query, verbose, progress_bar, task, base_utils.query_console_output),
+                )
+            )
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        # This is a temporary workaround for cases where duckdb is still doing :something:
+        # after the threads have resolved, where if you try to recreate a table it may throw
+        # an error, which is only affecting the --statistics flag ¯\_(ツ)_/¯
+        time.sleep(0.25)
 
     def create_schema(self, schema_name):
         """Creates a new schema object inside the database"""
