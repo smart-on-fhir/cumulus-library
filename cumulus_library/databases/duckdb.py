@@ -64,16 +64,6 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             duckdb.sqltypes.BOOLEAN,
         )
         self.connection.create_function(
-            # We frequently use Athena's date() function because it's easier than
-            # the more widely-supported way of CAST(x AS DATE).
-            # Rather than convert all of our SQL to the longer version,
-            # we'll just make our own version of date().
-            "date",
-            self._compat_date,
-            None,
-            duckdb.sqltypes.DATE,
-        )
-        self.connection.create_function(
             "from_iso8601_timestamp",
             self._compat_from_iso8601_timestamp,
             None,
@@ -122,19 +112,6 @@ class DuckDatabaseBackend(base.DatabaseBackend):
     def _compat_regexp_like(string: str | None, pattern: str | None) -> bool:
         match = re.search(pattern, string)
         return match is not None
-
-    @staticmethod
-    def _compat_date(
-        value: str | datetime.datetime | datetime.date,
-    ) -> datetime.date:
-        if isinstance(value, str):
-            return datetime.date.fromisoformat(value)
-        elif isinstance(value, datetime.datetime):
-            return value.date()
-        elif isinstance(value, datetime.date):
-            return value
-        else:
-            raise ValueError("Unexpected date() argument:", type(value), value)
 
     @staticmethod
     def _compat_to_utf8(value: str | None) -> datetime.date | None:

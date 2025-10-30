@@ -48,7 +48,7 @@ from cumulus_library.builders import psm_builder
             {
                 "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
                 "appx_score": 0.49,
-                "appx_logit": -0.07,
+                "appx_logit": -0.06,
                 "group": "control",
                 "matched": False,
             },
