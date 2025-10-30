@@ -54,14 +54,14 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             "array_join",
             self._compat_array_join,
             None,
-            duckdb.typing.VARCHAR,
+            duckdb.sqltypes.VARCHAR,
         )
         self.connection.create_function(
             # DuckDB's version is regexp_matches.
             "regexp_like",
             self._compat_regexp_like,
             None,
-            duckdb.typing.BOOLEAN,
+            duckdb.sqltypes.BOOLEAN,
         )
         self.connection.create_function(
             # We frequently use Athena's date() function because it's easier than
@@ -71,13 +71,13 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             "date",
             self._compat_date,
             None,
-            duckdb.typing.DATE,
+            duckdb.sqltypes.DATE,
         )
         self.connection.create_function(
             "from_iso8601_timestamp",
             self._compat_from_iso8601_timestamp,
             None,
-            duckdb.typing.TIMESTAMP,
+            duckdb.sqltypes.TIMESTAMP,
         )
         self.connection.create_function(
             # When trying to calculate an MD5 hash in Trino/Athena, the implementation
@@ -97,7 +97,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             "to_utf8",
             self._compat_to_utf8,
             None,
-            duckdb.typing.VARCHAR,
+            duckdb.sqltypes.VARCHAR,
         )
 
     def insert_tables(self, tables: dict[str, pyarrow.dataset.Dataset]) -> None:
@@ -152,9 +152,11 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             else:
                 return datetime.datetime(int(pieces[0]), int(pieces[1]), 1)
 
-        # TODO: return timezone-aware datetimes, like Athena does
-        #       (this currently generates naive datetimes, in UTC local time)
-        return datetime.datetime.fromisoformat(value)
+        dt = datetime.datetime.fromisoformat(value)
+        # if we got just a date, don't coerce time stamp
+        if len(value) == 10:
+            return dt
+        return dt.astimezone(datetime.UTC)
 
     def cursor(self) -> duckdb.DuckDBPyConnection:
         # Don't actually create a new connection,
@@ -253,7 +255,7 @@ class DuckDbParser(base.DatabaseParser):
         for key, value in schema.items():
             if isinstance(value, str):
                 # DuckDB provides a parser to go from string -> type objects
-                value = duckdb.typing.DuckDBPyType(value)
+                value = duckdb.sqltypes.DuckDBPyType(value)
 
             # Collapse lists to the contained value
             if value.id == "list":

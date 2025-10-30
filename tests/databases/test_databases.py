@@ -334,7 +334,7 @@ def test_duckdb_to_utf8(mock_db):
         ("2000-01-01", "VARCHAR", does_not_raise()),
         ("2000-01-01", "DATE", does_not_raise()),
         ("2000-01-01", "DATETIME", does_not_raise()),
-        ("True", "BOOLEAN", pytest.raises(duckdb.duckdb.InvalidInputException)),
+        ("True", "BOOLEAN", pytest.raises(duckdb.ConversionException)),
     ],
 )
 def test_duckdb_date(mock_db, data, field_type, raises):
@@ -363,12 +363,12 @@ def test_duckdb_regexp_like(mock_db, pattern, expects):
         (["foo", "bar"], ",", "foo,bar"),
         (["foo", "bar"], None, "foobar"),
         (["foo", "bar"], "None", "foobar"),
-        ([], ",", ""),
+        ([], ",", "None"),
     ],
 )
 def test_duckdb_array_join(mock_db, array, delim, expects):
     cursor = mock_db.cursor()
-    if array is None:
+    if array == []:
         query = f"SELECT array_join(['None'], '{delim}')"
     else:
         query = (

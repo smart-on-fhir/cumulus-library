@@ -380,7 +380,7 @@ def test_clean(tmp_path, args, expected, raises):
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
             2,
-            pytest.raises(duckdb.duckdb.CatalogException),
+            pytest.raises(duckdb.CatalogException),
             [],
         ),
         (
