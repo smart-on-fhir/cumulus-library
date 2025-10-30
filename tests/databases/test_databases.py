@@ -368,7 +368,7 @@ def test_duckdb_regexp_like(mock_db, pattern, expects):
 )
 def test_duckdb_array_join(mock_db, array, delim, expects):
     cursor = mock_db.cursor()
-    if array == []:
+    if not array:
         query = f"SELECT array_join(['None'], '{delim}')"
     else:
         query = (

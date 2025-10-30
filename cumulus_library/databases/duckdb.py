@@ -77,6 +77,9 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             "from_iso8601_timestamp",
             self._compat_from_iso8601_timestamp,
             None,
+            # Note: DuckDB provides a timestamp aware column type, TIMESTAMP_TZ, but
+            # as of this writing on version 1.4.1, it is doing some casting to local
+            # offset time rather than timezone, which we're electing to not deal with
             duckdb.sqltypes.TIMESTAMP,
         )
         self.connection.create_function(
@@ -148,14 +151,13 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         if len(value) < 10:
             pieces = value.split("-")
             if len(pieces) == 1:
-                return datetime.datetime(int(pieces[0]), 1, 1)
+                return datetime.datetime(int(pieces[0]), 1, 1, tzinfo=datetime.UTC)
             else:
-                return datetime.datetime(int(pieces[0]), int(pieces[1]), 1)
+                return datetime.datetime(int(pieces[0]), int(pieces[1]), 1, tzinfo=datetime.UTC)
 
         dt = datetime.datetime.fromisoformat(value)
-        # if we got just a date, don't coerce time stamp
-        if len(value) == 10:
-            return dt
+        if not dt.tzinfo:
+            return dt.replace(tzinfo=datetime.UTC)
         return dt.astimezone(datetime.UTC)
 
     def cursor(self) -> duckdb.DuckDBPyConnection:
