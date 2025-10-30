@@ -12,6 +12,7 @@ import datetime
 import pathlib
 import re
 import threading
+import time
 
 import duckdb
 import pandas
@@ -224,6 +225,10 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             t.start()
         for t in threads:
             t.join()
+        # This is a temporary workaround for cases where duckdb is still doing :something:
+        # after the threads have resolved, where if you try to recreate a table it may throw
+        # an error, which is only affecting the --statistics flag ¯\_(ツ)_/¯
+        time.sleep(0.25)
 
     def create_schema(self, schema_name):
         """Creates a new schema object inside the database"""
