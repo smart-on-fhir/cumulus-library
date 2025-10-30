@@ -147,7 +147,9 @@ def test_psm_create(
     assert ed_series.iloc[1] == pos_set
     first_record = df.iloc[0].to_dict()
     assert first_record == expected_first_record
-    last_record = df.iloc[neg_set + pos_set - 1].to_dict()
+    last_record = (
+        df.loc[df["encounter_ref"] == expected_last_record["encounter_ref"]].iloc[0].to_dict()
+    )
     assert last_record == expected_last_record
     with open(tmp_path / "cumulus-library/psm_test/psm_histogram.csv") as f:
         lines = f.readlines()
