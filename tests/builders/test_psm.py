@@ -74,14 +74,17 @@ from cumulus_library.builders import psm_builder
                 "code": "195662009",
             },
             {
-                "encounter_ref": "Encounter/03e34b19-2889-b828-792d-2a83400c55be12",
+                "encounter_ref": ["Encounter/03e34b19-2889-b828-792d-2a83400c55be12"],
                 "appx_score": 0.56,
                 "appx_logit": 0.23,
                 "group": "treatment",
                 "matched": True,
             },
             {
-                "encounter_ref": "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
+                "encounter_ref": [
+                    "Encounter/e5dabcb6-1d7a-7467-dbba-b864d0d5f5b08",
+                    "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
+                ],
                 "appx_score": 0.52,
                 "appx_logit": 0.06,
                 "group": "control",
