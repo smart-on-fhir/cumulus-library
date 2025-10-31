@@ -54,30 +54,23 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             "array_join",
             self._compat_array_join,
             None,
-            duckdb.typing.VARCHAR,
+            duckdb.sqltypes.VARCHAR,
         )
         self.connection.create_function(
             # DuckDB's version is regexp_matches.
             "regexp_like",
             self._compat_regexp_like,
             None,
-            duckdb.typing.BOOLEAN,
-        )
-        self.connection.create_function(
-            # We frequently use Athena's date() function because it's easier than
-            # the more widely-supported way of CAST(x AS DATE).
-            # Rather than convert all of our SQL to the longer version,
-            # we'll just make our own version of date().
-            "date",
-            self._compat_date,
-            None,
-            duckdb.typing.DATE,
+            duckdb.sqltypes.BOOLEAN,
         )
         self.connection.create_function(
             "from_iso8601_timestamp",
             self._compat_from_iso8601_timestamp,
             None,
-            duckdb.typing.TIMESTAMP,
+            # Note: DuckDB provides a timestamp aware column type, TIMESTAMP_TZ, but
+            # as of this writing on version 1.4.1, it is doing some casting to local
+            # offset time rather than timezone, which we're electing to not deal with
+            duckdb.sqltypes.TIMESTAMP,
         )
         self.connection.create_function(
             # When trying to calculate an MD5 hash in Trino/Athena, the implementation
@@ -97,7 +90,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             "to_utf8",
             self._compat_to_utf8,
             None,
-            duckdb.typing.VARCHAR,
+            duckdb.sqltypes.VARCHAR,
         )
 
     def insert_tables(self, tables: dict[str, pyarrow.dataset.Dataset]) -> None:
@@ -121,19 +114,6 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         return match is not None
 
     @staticmethod
-    def _compat_date(
-        value: str | datetime.datetime | datetime.date,
-    ) -> datetime.date:
-        if isinstance(value, str):
-            return datetime.date.fromisoformat(value)
-        elif isinstance(value, datetime.datetime):
-            return value.date()
-        elif isinstance(value, datetime.date):
-            return value
-        else:
-            raise ValueError("Unexpected date() argument:", type(value), value)
-
-    @staticmethod
     def _compat_to_utf8(value: str | None) -> datetime.date | None:
         """See the create_function() call for to_utf8 for more background"""
         # This is exercised locally on unit tests but is not in CI. Not sure why,
@@ -148,13 +128,14 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         if len(value) < 10:
             pieces = value.split("-")
             if len(pieces) == 1:
-                return datetime.datetime(int(pieces[0]), 1, 1)
+                return datetime.datetime(int(pieces[0]), 1, 1, tzinfo=datetime.UTC)
             else:
-                return datetime.datetime(int(pieces[0]), int(pieces[1]), 1)
+                return datetime.datetime(int(pieces[0]), int(pieces[1]), 1, tzinfo=datetime.UTC)
 
-        # TODO: return timezone-aware datetimes, like Athena does
-        #       (this currently generates naive datetimes, in UTC local time)
-        return datetime.datetime.fromisoformat(value)
+        dt = datetime.datetime.fromisoformat(value)
+        if not dt.tzinfo:
+            return dt.replace(tzinfo=datetime.UTC)
+        return dt.astimezone(datetime.UTC)
 
     def cursor(self) -> duckdb.DuckDBPyConnection:
         # Don't actually create a new connection,
@@ -253,7 +234,7 @@ class DuckDbParser(base.DatabaseParser):
         for key, value in schema.items():
             if isinstance(value, str):
                 # DuckDB provides a parser to go from string -> type objects
-                value = duckdb.typing.DuckDBPyType(value)
+                value = duckdb.sqltypes.DuckDBPyType(value)
 
             # Collapse lists to the contained value
             if value.id == "list":
