@@ -70,7 +70,7 @@ def test_run_protected_table_builder(mock_db_config, study_path, stats):
         (
             "./tests/test_data/study_python_local_template/",
             False,
-            ("study_python_valid__table_duckdb_foo",),
+            ("study_python_local_template__table_duckdb_foo",),
             does_not_raise(),
         ),
     ],
@@ -192,24 +192,22 @@ def test_run_psm_statistics_builders(
 ):
     with raises:
         manifest = study_manifest.StudyManifest(pathlib.Path(study_path), data_path=tmp_path)
-        config = base_utils.StudyConfig(
-            db=mock_db_stats_config.db,
-            schema=mock_db_stats_config.schema,
-            stats_build=stats,
-        )
+        mock_db_stats_config.stats_build = stats
         builder.run_protected_table_builder(
-            config=config,
+            config=mock_db_stats_config,
             manifest=manifest,
         )
         if previous:
             log_utils.log_statistics(
-                config=config,
+                config=mock_db_stats_config,
                 manifest=manifest,
                 table_type="psm",
                 table_name="psm_test__psm_encounter_2023_06_15",
                 view_name="psm_test__psm_encounter_covariate",
             )
-        builder.build_study(config=config, manifest=manifest, prepare=False, data_path=None)
+        builder.build_study(
+            config=mock_db_stats_config, manifest=manifest, prepare=False, data_path=None
+        )
         tables = (
             mock_db_stats_config.db.cursor()
             .execute("SELECT distinct(table_name) FROM information_schema.tables")
@@ -246,6 +244,6 @@ def test_builder_init_error(mock_db_config):
     with pytest.raises(SystemExit):
         with contextlib.redirect_stdout(console_output):
             builder._query_error(
-                mock_db_config, manifest, ["mock query", "mock_file.txt"], "Catalog Error"
+                mock_db_config, manifest, "mock query", "mock_file.txt", "Catalog Error"
             )
     assert "https://docs.smarthealthit.org/" in console_output.getvalue()

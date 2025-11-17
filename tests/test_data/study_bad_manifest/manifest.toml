@@ -1,4 +1,4 @@
 study_prefix = "study_bad_manifest"
 
-[sql_config
+[file_config
 file_names = ["test.sql"]

@@ -1,13 +1,14 @@
 study_prefix = "core"
-
-[file_config]
-file_names = [
+[file_config.file_names]
+prerequisite = [
     "builder_prereq_tables.py",
+]
+"FHIR resources"=[
+    "builder_patient.py",
+    "builder_encounter.py",
     "builder_allergyintolerance.py",
     "builder_condition.py",
     "builder_diagnosticreport.py",
-    "builder_patient.py",
-    "builder_encounter.py",
     "builder_documentreference.py",
     "builder_location.py",
     "builder_medicationrequest.py",
@@ -16,10 +17,13 @@ file_names = [
     "builder_practitioner.py",
     "builder_practitionerrole.py",
     "builder_procedure.py",
-    "observation_type.sql",
-    "meta_date.sql",
-    "count_core.py"
 ]
+"Observation type"= [
+        "observation_type.sql",
+        "meta_date.sql"
+        ]
+counts = ["count_core.py"]
+
 
 [export_config]
 count_list = [

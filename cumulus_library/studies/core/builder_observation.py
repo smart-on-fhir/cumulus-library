@@ -39,6 +39,10 @@ class ObsConfig(sql_utils.CodeableConceptConfig):
 class ObservationBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Observation tables..."
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed = False
+
     def prepare_queries(
         self,
         *args,
@@ -83,7 +87,9 @@ class ObservationBuilder(cumulus_library.BaseTableBuilder):
             ),
         ]
 
-        self.queries += sql_utils.denormalize_complex_objects(config.db, code_sources)
+        self.queries += sql_utils.denormalize_complex_objects(
+            config.db, code_sources, "Observation"
+        )
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries += [
             core_templates.get_core_template("observation", validated_schema),

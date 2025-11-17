@@ -141,6 +141,10 @@ def ndjson_data_generator(source_dir: pathlib.Path, target_dir: pathlib.Path, it
             for null_bool_col in ["multipleBirthBoolean"]:
                 if null_bool_col in output_df.columns:
                     output_df[null_bool_col] = output_df[null_bool_col].replace({0.0: False})
+            # workaround for arrow int/float casting issues
+            for int_col in ["multipleBirthInteger"]:
+                if int_col in output_df.columns:
+                    output_df[int_col] = output_df[int_col].round().astype("Int64")
             output_df = output_df.replace({numpy.nan: None})
 
             write_path = pathlib.Path(str(target_dir) + f"/{key}/{filepath.name}")

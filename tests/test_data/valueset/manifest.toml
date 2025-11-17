@@ -1,6 +1,6 @@
 study_prefix = "test"
 
-[statistics_config]
+[file_config]
 file_names = [
     "valueset.toml"
 ]

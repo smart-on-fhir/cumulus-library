@@ -1,6 +1,6 @@
 study_prefix = "study_invalid_bad_query"
 
-[sql_config]
+[file_config]
 file_names = ["test.sql"]
 
 [export_config]

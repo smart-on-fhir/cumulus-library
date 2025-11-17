@@ -92,28 +92,36 @@ class StudyManifest:
         options = self._study_config.get("advanced_options", {})
         return options.get("dedicated_schema")
 
-    def get_file_list(self, continue_from: str | None = None) -> list[str] | None:
-        """Reads the contents of the file_config array from the manifest
+    def get_file_list(self, continue_from: str | None = None) -> list[str | dict] | None:
+        """Reads the contents of the file_config array or dict from the manifest
 
         :returns: An array of files from the manifest, or None if not found.
         """
-        config = self._study_config.get("file_config", {})
-        files = config.get("file_names", []) or []
-        if not files:
-            files = (
-                self.get_table_builder_file_list()
-                + self.get_sql_file_list()
-                + self.get_counts_builder_file_list()
-                + self.get_statistics_file_list()
+        if "file_config" not in self._study_config.keys():
+            raise errors.StudyManifestParsingError(
+                "The study manifest does not contain a [file_config] key.\n"
+                "This may mean that your study contains an older version the manifest.\n "
+                "Please update your manifest to convert keys like 'sql_config' and "
+                "'table_builder_config to be in one of the valid file config formats.\n"
+                "For more details, consult the library docs at "
+                "https://docs.smarthealthit.org/cumulus/library/"
             )
+        config = self._study_config.get("file_config")
+        items = config.get("file_names", []) or []
         if continue_from:
-            for pos, file in enumerate(files):
-                if continue_from.split(".", 1)[0] == file.split(".", 1)[0]:
-                    files = files[pos:]
-                    break
-            else:
+            if isinstance(items, dict):
+                for item in items.keys():
+                    if continue_from.split(".", 1)[0] in items[item]:
+                        break
+                    items.pop(item)
                 raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
-        return files
+            else:
+                for pos, item in enumerate(items):
+                    if continue_from.split(".", 1)[0] == item.split(".", 1)[0]:
+                        items = items[pos:]
+                        return items
+                raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
+        return items
 
     # The following four functions are considered deprecated, and can be removed
     # after we update studies to use the new methodology
@@ -209,6 +217,13 @@ class StudyManifest:
     def get_all_files(self, file_type: str):
         """Convenience method for getting files of a type from a manifest"""
         files = self.get_file_list()
+
+        if isinstance(files, dict):
+            filtered_files = []
+            for key, value in files.items():
+                key_files = [file for file in value if file.endswith(file_type)]
+                filtered_files = filtered_files + key_files
+            return filtered_files
         return [file for file in files if file.endswith(file_type)]
 
     def get_all_generators(self) -> list[str]:

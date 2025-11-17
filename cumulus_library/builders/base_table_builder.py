@@ -20,6 +20,7 @@ class BaseTableBuilder(abc.ABC):
 
     def __init__(self, manifest: study_manifest.StudyManifest | None = None):
         self.queries = []
+        self.parallel_allowed = True
 
     @abc.abstractmethod
     def prepare_queries(

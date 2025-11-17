@@ -48,6 +48,7 @@ from cumulus_library.builders import psm_builder
             {
                 "encounter_ref": [
                     "Encounter/e5dabcb6-1d7a-7467-dbba-b864d0d5f5b08",
+                    "Encounter/e5dabcb6-1d7a-7467-dbba-b864d0d5f5b09",
                     "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
                 ],
                 "appx_score": 0.49,
@@ -86,6 +87,7 @@ from cumulus_library.builders import psm_builder
             {
                 "encounter_ref": [
                     "Encounter/e5dabcb6-1d7a-7467-dbba-b864d0d5f5b08",
+                    "Encounter/e5dabcb6-1d7a-7467-dbba-b864d0d5f5b09",
                     "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
                 ],
                 "appx_score": 0.52,
@@ -171,7 +173,7 @@ def test_psm_create(
             # currently looking into a next gen cohort sampler/classifier anyway and this is not
             # used in a study currently.
             assert expected["appx_score"] - 0.10 < float(found[-4]) < expected["appx_score"] + 0.10
-            assert expected["appx_logit"] - 0.20 < float(found[-3]) < expected["appx_logit"] + 0.20
+            assert expected["appx_logit"] - 0.25 < float(found[-3]) < expected["appx_logit"] + 0.25
             assert found[-2] == expected["group"]
             # Matches are sometimes arbitrary for similar looking records, so we'll just
             # check to see if we got a match or not

@@ -41,6 +41,10 @@ class EncConfig(sql_utils.CodeableConceptConfig):
 class CoreEncounterBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Encounter tables..."
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed = False
+
     def denormalize_codes(self, database):
         code_configs = [
             EncConfig(
@@ -110,7 +114,7 @@ class CoreEncounterBuilder(cumulus_library.BaseTableBuilder):
                 expected={"dischargedisposition": sql_utils.CODEABLE_CONCEPT},
             ),
         ]
-        self.queries += sql_utils.denormalize_complex_objects(database, code_configs)
+        self.queries += sql_utils.denormalize_complex_objects(database, code_configs, "Encounter")
 
     def prepare_queries(
         self,

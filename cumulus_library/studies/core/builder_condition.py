@@ -15,6 +15,10 @@ expected_table_cols = {
 class CoreConditionBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Condition tables..."
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed = False
+
     def denormalize_codes(self):
         configs = [
             sql_utils.CodeableConceptConfig(

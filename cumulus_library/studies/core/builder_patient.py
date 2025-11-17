@@ -18,6 +18,10 @@ expected_table_cols = {
 class PatientBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Patient tables..."
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed = False
+
     @staticmethod
     def make_extension_query(
         database: databases.DatabaseBackend,

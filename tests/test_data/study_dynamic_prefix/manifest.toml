@@ -1,13 +1,9 @@
 dynamic_study_prefix = "gen_prefix.py"
 
-[table_builder_config]
+[file_config]
 file_names = [
     "meta.py",
-]
-
-[counts_builder_config]
-file_names = [
-    "counts.py"
+    "counts.py",
 ]
 
 [export_config]

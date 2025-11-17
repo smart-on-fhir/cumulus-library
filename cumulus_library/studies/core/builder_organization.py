@@ -15,6 +15,10 @@ expected_table_cols = {
 class CoreOrganizationBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Organization tables..."
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed = False
+
     def prepare_queries(self, *args, config: cumulus_library.StudyConfig, **kwargs):
         code_sources = [
             sql_utils.CodeableConceptConfig(
@@ -23,6 +27,8 @@ class CoreOrganizationBuilder(cumulus_library.BaseTableBuilder):
                 target_table="core__organization_dn_type",
             ),
         ]
-        self.queries += sql_utils.denormalize_complex_objects(config.db, code_sources)
+        self.queries += sql_utils.denormalize_complex_objects(
+            config.db, code_sources, "Organization"
+        )
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries.append(core_templates.get_core_template("organization", validated_schema))

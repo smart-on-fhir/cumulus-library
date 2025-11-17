@@ -1,6 +1,6 @@
 study_prefix = "study_invalid_duplicate_exports"
 
-[sql_config]
+[file_config]
 file_names = [
     "test.sql",
     "test2.sql"

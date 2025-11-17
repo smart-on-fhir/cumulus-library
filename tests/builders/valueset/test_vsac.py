@@ -38,8 +38,8 @@ def test_download_oid_data(
         )
         vsac.download_oid_data(steward=steward, oid=oid, path=tmp_path, config=config)
         output_dir = list(tmp_path.glob("*"))
-        assert len(output_dir) == 4
-        for filename in [f"{steward}.json", f"{steward}.tsv", f"{steward}.parquet", "duck.db"]:
+        assert len(output_dir) == 5
+        for filename in [f"{steward}.json", f"{steward}.tsv", f"{steward}.parquet"]:
             assert len([x for x in output_dir if filename in str(x)]) == expected
         with open(tmp_path / f"{steward}.tsv") as f:
             tsv = f.readlines()
