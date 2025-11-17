@@ -98,6 +98,10 @@ class DuckDatabaseBackend(base.DatabaseBackend):
 
         This is often the output folder of Cumulus ETL"""
         for name, table in tables.items():
+            # Parallel mode relies on using multiple connections, but a register action
+            # is unique to a specific connection instance. So, rather than registering
+            # ndjson multiple times, we'll do it once, and create materialized tables
+            # from the registered json.
             self.connection.register(f"{name}_tmp", table)
             self.connection.execute(f"CREATE OR REPLACE TABLE {name} as select * from {name}_tmp")  # noqa: S608
             self.connection.unregister(f"{name}_tmp")
@@ -140,9 +144,6 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         return dt.astimezone(datetime.UTC)
 
     def cursor(self) -> duckdb.DuckDBPyConnection:
-        # Don't actually create a new connection,
-        # because then we'd have to re-register our json tables.
-        # TODO: this creates problems for parallelism.
         return self.connection
 
     def pandas_cursor(self) -> duckdb.DuckDBPyConnection:

@@ -339,7 +339,7 @@ def build_study(
 
     # a serial manifest looks like this:
     # [file_config]
-    # file_names = ["table_1.py","table_2.sql","config.toml"
+    # file_names = ["table_1.py","table_2.sql","config.toml"]
     else:
         parallel = False
     for run_stage, entry in enumerate(file_list):
@@ -365,6 +365,11 @@ def build_study(
                     run_stage=run_stage,
                 )
                 if parallel and explicit_serial:
+                    # If you're running in explicit serial mode, you can skip the parallel
+                    # collector.
+                    # explicit serial queries are not actually used, but this is kept
+                    # here as a debugging convenience if you ever need to look at
+                    # the total number of manually executed queries.
                     explicit_serial_queries = explicit_serial_queries + b_queries
                 else:
                     queries = queries + b_queries
