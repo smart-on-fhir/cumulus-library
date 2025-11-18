@@ -425,6 +425,21 @@ def test_clean(tmp_path, args, expected, raises):
             [
                 "build",
                 "-t",
+                "study_valid_parallel",
+                "-s",
+                "tests/test_data/study_valid_parallel/",
+                "--continue",
+                "test4",
+            ],
+            ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
+            4,
+            pytest.raises(errors.StudyManifestParsingError),
+            [],
+        ),
+        (
+            [
+                "build",
+                "-t",
                 "study_valid",
                 "-s",
                 "tests/test_data/study_valid/",

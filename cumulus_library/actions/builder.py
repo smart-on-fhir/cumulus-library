@@ -244,7 +244,7 @@ def _execute_build_queries(
             with base_utils.query_console_output(config.verbose, query, progress, task):
                 cursor.execute(query)
 
-        except Exception as e:  # pylint: disable=broad-exception-caught pragma: no cover
+        except Exception as e:  # pragma: no cover
             _query_error(
                 config,
                 manifest,
