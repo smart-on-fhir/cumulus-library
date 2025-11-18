@@ -23,6 +23,10 @@ expected_table_cols = {
 class MedicationRequestBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating MedicationRequest table..."
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed = False
+
     def prepare_queries(
         self,
         *args,
@@ -64,7 +68,9 @@ class MedicationRequestBuilder(cumulus_library.BaseTableBuilder):
                 target_table="core__medicationrequest_dn_category",
             ),
         ]
-        self.queries += sql_utils.denormalize_complex_objects(config.db, code_sources)
+        self.queries += sql_utils.denormalize_complex_objects(
+            config.db, code_sources, "MedicationRequest"
+        )
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries += [
             core_templates.get_core_template("medicationrequest", validated_schema),

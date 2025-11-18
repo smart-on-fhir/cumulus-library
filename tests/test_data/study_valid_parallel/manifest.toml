@@ -1,0 +1,17 @@
+study_prefix = "study_valid_parallel"
+
+[file_config.file_names]
+stage_1 = [
+    "test.sql",
+    "test2.sql"
+]
+stage_2 = [
+    "test3.sql"
+]
+
+[export_config]
+count_list = [
+    "study_valid_parallel__table",
+    "study_valid_parallel__table2",
+    "study_valid_parallel__table3"
+]

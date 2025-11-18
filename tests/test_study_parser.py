@@ -53,7 +53,7 @@ def test_load_manifest(manifest_path, expected, raises):
         ("valid", does_not_raise()),
         ("valid_empty_arrays", does_not_raise()),
         ("valid_null_arrays", does_not_raise()),
-        ("valid_only_prefix", does_not_raise()),
+        ("invalid_only_prefix", pytest.raises(errors.StudyManifestParsingError)),
         ("invalid_bad_export_names", pytest.raises(errors.StudyManifestParsingError)),
         ("invalid_bad_table_names", pytest.raises(errors.StudyManifestParsingError)),
         ("invalid_none", pytest.raises(TypeError)),
@@ -70,13 +70,13 @@ def test_manifest_data(mock_load, mock_open, manifest_key, raises):
             manifest = study_manifest.StudyManifest("./path")
         expected = mock_manifests[manifest_key]
         assert manifest.get_study_prefix() == expected["study_prefix"]
-        if "sql_config" in expected.keys():
-            if expected["sql_config"]["file_names"] is None:
-                assert manifest.get_sql_file_list() == []
+        if "file_config" in expected.keys():
+            if expected["file_config"]["file_names"] is None:
+                assert manifest.get_file_list() == []
             else:
-                assert manifest.get_sql_file_list() == expected["sql_config"]["file_names"]
+                assert manifest.get_file_list() == expected["file_config"]["file_names"]
         else:
-            assert manifest.get_sql_file_list() == []
+            assert manifest.get_file_list() == []
         if "export_config" in expected.keys():
             if expected["export_config"]["export_list"] is None:
                 assert manifest.get_export_table_list() == []

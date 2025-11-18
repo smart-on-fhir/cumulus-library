@@ -16,6 +16,7 @@ dependencies = [
     "scipy >= 1.16",
     "scikit-learn >= 1.7",
     "sqlfluff  >= 3",
+    "sqlglot >= 27.29",
     "sqlparse >0.4",
 ]
 description = "Clinical study SQL generation for data derived from bulk FHIR"

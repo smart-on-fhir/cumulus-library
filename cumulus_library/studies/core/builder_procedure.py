@@ -17,6 +17,10 @@ expected_table_cols = {
 class CoreProcedureBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating Procedure tables..."
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed = False
+
     def prepare_queries(self, *args, config: cumulus_library.StudyConfig, **kwargs):
         code_sources = [
             sql_utils.CodeableConceptConfig(
@@ -30,6 +34,6 @@ class CoreProcedureBuilder(cumulus_library.BaseTableBuilder):
                 target_table="core__procedure_dn_code",
             ),
         ]
-        self.queries += sql_utils.denormalize_complex_objects(config.db, code_sources)
+        self.queries += sql_utils.denormalize_complex_objects(config.db, code_sources, "Procedure")
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries.append(core_templates.get_core_template("procedure", validated_schema))

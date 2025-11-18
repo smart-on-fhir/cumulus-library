@@ -54,24 +54,47 @@ study_prefix = "my_study"
 # The following section describes all tables that should be generated directly
 # from SQL files.
 
-[file_config]
-
 # 'file_names' defines a list of files to execute, in order, in this folder.
 # Three file types are supported:
 #   - Raw SQL files
 #   - Python files, which should contain a class that is based off of
 #       BaseTableBuilder (or a derivative) from builders/base_table_builder.py
 #   - TOML files, which provide a set of configuration params to a workflow
-# These files will be executed in the order provided.
+# There are two ways you can have your study execute: in series, or in parallel.
+# By default, you probably want to use parallel, but if you want to use serial,
+# uncomment the serial example and comment the parallel example
 
-file_names = [
-    "setup.sql",
-    "builder.py",
-    "lab_observations.sql",
+# In parallel mode, files will be chunked in stages, and stages will be run
+# against the database all at once, up to the connection pool limit.
+# queries in a stage should have no dependencies on one another - otherwise,
+# your study build will fail.
+# Your stage names will be displayed during the build process, so use
+# a plain english descriptive name
+
+[file_config.file_names]
+first = [
+  "setup.sql",
+  "builder.py",
+  "lab_observations.sql"
+]
+"Second descriptive stage name" = [
     "counts.sql",
     "date_range.sql",
     "stats_config.toml"
 ]
+
+# In serial mode, files will be executed in the order provided.
+# This may be slow for large studies
+
+# [file_config]
+# file_names = [
+#     "setup.sql",
+#     "builder.py",
+#     "lab_observations.sql",
+#     "counts.sql",
+#     "date_range.sql",
+#     "stats_config.toml"
+# ]
 
 # The following section defines parameters related to exporting study data from
 # your athena database

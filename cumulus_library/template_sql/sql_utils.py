@@ -158,6 +158,7 @@ class ExtensionConfig(BaseFHIRResourceConfig):
 def _check_data_in_fields(
     database: databases.DatabaseBackend,
     code_sources: list[CodeableConceptConfig],
+    resource: str | None = None,
 ) -> dict:
     """checks if CodeableConcept fields actually have data available
 
@@ -177,10 +178,13 @@ def _check_data_in_fields(
     array or not (generally requiring one extra level of unnesting).
 
     """
-
+    if resource:
+        task_label = f"Detecting available codeableConcepts in {resource}..."
+    else:
+        task_label = "Detecting available codeableConcepts..."  # pragma: no cover
     with base_utils.get_progress_bar(transient=True) as progress:
         task = progress.add_task(
-            "Detecting available codeableConcepts...",
+            task_label,
             # Each column in code_sources requires at most 3 queries to
             # detect valid data is in the DB
             total=len(code_sources),
@@ -199,9 +203,10 @@ def _check_data_in_fields(
 def denormalize_complex_objects(
     database: databases.DatabaseBackend,
     code_sources: list[BaseFHIRResourceConfig],
+    resource: str | None = None,
 ):
     queries = []
-    code_sources = _check_data_in_fields(database, code_sources)
+    code_sources = _check_data_in_fields(database, code_sources, resource)
     for code_source in code_sources:
         # TODO: This method of pairing classed config objects to
         # specific queries should be considered temporary. This should be

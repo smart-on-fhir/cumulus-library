@@ -79,6 +79,16 @@ to disk. If you are creating multiple queries in one go, calling `comment_querie
 before `write_queries` will insert some spacing elements for readability.
 - A `display_text` string, which is what will be shown with a progress bar when your
 queries are being executed.
+- A `parallel_allowed` boolean, which defaults to `True`. If parallel execution is allowed,
+your builder will run all the queries added to `prepare_queries` at once, up to the
+connection pool limit, if (and only if) the study manifest is also set up to run
+in parallel. If you want to ensure that dependent queries are always run in series,
+your builder should override `__init__` as follows:
+```python
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed=False
+```
 
 You can either extend this class directly (like `builder_*.py` files in 
 `cumulus_library/studies/core`) or create a specific class to add reusable functions

@@ -25,6 +25,8 @@ from freezegun import freeze_time
 from cumulus_library import __version__, cli, databases, errors
 from tests.conftest import duckdb_args
 
+FHIR_RESOURCE_TABLE_COUNT = 19
+
 
 @contextmanager
 def mock_stdin(value: str):
@@ -145,11 +147,13 @@ def test_count_builder_mapping(tmp_path):
         cli.main(cli_args=args)
         db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
         db.connect()
-        assert [
+        tables = db.cursor().execute("show tables").fetchall()
+        for table in [
             ("study_python_counts_valid__lib_transactions",),
             ("study_python_counts_valid__table1",),
             ("study_python_counts_valid__table2",),
-        ] == db.cursor().execute("show tables").fetchall()
+        ]:
+            assert table in tables
 
 
 @mock.patch.dict(
@@ -387,6 +391,55 @@ def test_clean(tmp_path, args, expected, raises):
             [
                 "build",
                 "-t",
+                "study_valid_parallel",
+                "-s",
+                "tests/test_data/study_valid_parallel/",
+                "--continue",
+                "test2",
+            ],
+            ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
+            4,
+            does_not_raise(),
+            [
+                "study_valid_parallel__table",
+                "study_valid_parallel__table2",
+                "study_valid_parallel__table3",
+            ],
+        ),
+        (
+            [
+                "build",
+                "-t",
+                "study_valid_parallel",
+                "-s",
+                "tests/test_data/study_valid_parallel/",
+                "--continue",
+                "test3",
+            ],
+            ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
+            4,
+            pytest.raises(duckdb.CatalogException),
+            [],
+        ),
+        (
+            [
+                "build",
+                "-t",
+                "study_valid_parallel",
+                "-s",
+                "tests/test_data/study_valid_parallel/",
+                "--continue",
+                "test4",
+            ],
+            ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
+            4,
+            pytest.raises(errors.StudyManifestParsingError),
+            [],
+        ),
+        (
+            [
+                "build",
+                "-t",
                 "study_valid",
                 "-s",
                 "tests/test_data/study_valid/",
@@ -498,7 +551,7 @@ def test_cli_executes_queries(
             .execute("SELECT table_schema,table_name FROM information_schema.tables")
             .fetchall()
         )
-        assert len(found_tables) == expected_tables
+        assert len(found_tables) == expected_tables + FHIR_RESOURCE_TABLE_COUNT
         for table in found_tables:
             # If a table was created by this run, check it has the study prefix
             if "__" in table[0]:
@@ -784,12 +837,13 @@ def test_cli_single_builder(tmp_path):
     cli.main(cli_args=duckdb_args(["build", "--builder=patient", "--target=core"], tmp_path))
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     db.connect()
-    tables = {x[0] for x in db.cursor().execute("show tables").fetchall()}
-    assert {
+    tables = [x[0] for x in db.cursor().execute("show tables").fetchall()]
+    for table in [
         "core__patient",
         "core__patient_ext_ethnicity",
         "core__patient_ext_race",
-    } == tables
+    ]:
+        assert table in tables
 
 
 def test_cli_finds_study_from_manifest_prefix(tmp_path):
@@ -1046,11 +1100,20 @@ def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_
             [
                 "build",
                 "-t",
+                "core",
+                str(tmp_path),
+            ],
+            tmp_path,
+        )
+        build_args = duckdb_args(
+            [
+                "build",
+                "-t",
                 study,
                 "-s",
                 "tests/test_data/",
-                str(tmp_path),
                 "--prepare",
+                str(tmp_path),
             ],
             tmp_path,
         )

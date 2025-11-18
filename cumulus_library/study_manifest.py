@@ -92,75 +92,36 @@ class StudyManifest:
         options = self._study_config.get("advanced_options", {})
         return options.get("dedicated_schema")
 
-    def get_file_list(self, continue_from: str | None = None) -> list[str] | None:
-        """Reads the contents of the file_config array from the manifest
+    def get_file_list(self, continue_from: str | None = None) -> list[str | dict] | None:
+        """Reads the contents of the file_config array or dict from the manifest
 
         :returns: An array of files from the manifest, or None if not found.
         """
-        config = self._study_config.get("file_config", {})
-        files = config.get("file_names", []) or []
-        if not files:
-            files = (
-                self.get_table_builder_file_list()
-                + self.get_sql_file_list()
-                + self.get_counts_builder_file_list()
-                + self.get_statistics_file_list()
+        if "file_config" not in self._study_config:
+            raise errors.StudyManifestParsingError(
+                "The study manifest does not contain a [file_config] key.\n"
+                "This may mean that your study contains an older version the manifest.\n "
+                "Please update your manifest to convert keys like 'sql_config' and "
+                "'table_builder_config to be in one of the valid file config formats.\n"
+                "For more details, consult the library docs at "
+                "https://docs.smarthealthit.org/cumulus/library/"
             )
+        config = self._study_config.get("file_config")
+        items = config.get("file_names", []) or []
         if continue_from:
-            for pos, file in enumerate(files):
-                if continue_from.split(".", 1)[0] == file.split(".", 1)[0]:
-                    files = files[pos:]
-                    break
-            else:
+            if isinstance(items, dict):
+                for item in list(items.keys()):
+                    if continue_from.split(".", 1)[0] in [x.split(".", 1)[0] for x in items[item]]:
+                        return items
+                    items.pop(item)
                 raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
-        return files
-
-    # The following four functions are considered deprecated, and can be removed
-    # after we update studies to use the new methodology
-    def get_sql_file_list(self, continue_from: str | None = None) -> list[str] | None:
-        """Reads the contents of the sql_config array from the manifest
-
-        :returns: An array of sql files from the manifest, or None if not found.
-        """
-        sql_config = self._study_config.get("sql_config", {})
-        sql_files = sql_config.get("file_names", []) or []
-        if continue_from:  # pragma: no cover
-            for pos, file in enumerate(sql_files):
-                if continue_from.replace(".sql", "") == file.replace(".sql", ""):
-                    sql_files = sql_files[pos:]
-                    break
             else:
-                raise errors.StudyManifestParsingError(
-                    f"No tables matching '{continue_from}' found"
-                )
-        return sql_files
-
-    def get_table_builder_file_list(self) -> list[str] | None:
-        """Reads the contents of the table_builder_config array from the manifest
-
-        :returns: An array of sql files from the manifest, or None if not found.
-        """
-        sql_config = self._study_config.get("table_builder_config", {})
-        return sql_config.get("file_names", [])
-
-    def get_counts_builder_file_list(self) -> list[str] | None:
-        """Reads the contents of the counts_builder_config array from the manifest
-
-        :returns: An array of sql files from the manifest, or None if not found.
-        """
-        sql_config = self._study_config.get("counts_builder_config", {})
-        return sql_config.get("file_names", [])
-
-    def get_statistics_file_list(self) -> list[str] | None:
-        """Reads the contents of the statistics_config array from the manifest
-
-        :returns: An array of statistics toml files from the manifest,
-          or None if not found.
-        """
-        stats_config = self._study_config.get("statistics_config", {})
-        return stats_config.get("file_names", [])
-
-    # End of deprecated section
+                for pos, item in enumerate(items):
+                    if continue_from.split(".", 1)[0] == item.split(".", 1)[0]:
+                        items = items[pos:]
+                        return items
+                raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
+        return items
 
     def get_export_table_list(self) -> list[ManifestExport] | None:
         """Reads the contents of the export_list array from the manifest
@@ -209,6 +170,13 @@ class StudyManifest:
     def get_all_files(self, file_type: str):
         """Convenience method for getting files of a type from a manifest"""
         files = self.get_file_list()
+
+        if isinstance(files, dict):
+            filtered_files = []
+            for key, value in files.items():
+                key_files = [file for file in value if file.endswith(file_type)]
+                filtered_files = filtered_files + key_files
+            return filtered_files
         return [file for file in files if file.endswith(file_type)]
 
     def get_all_generators(self) -> list[str]:

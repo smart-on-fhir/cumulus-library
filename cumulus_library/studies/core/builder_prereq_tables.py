@@ -12,6 +12,10 @@ import cumulus_library
 class CorePrereqTableBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating core prerequisite tables..."
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed = False
+
     def prepare_queries(self, *args, **kwargs):
         dir_path = pathlib.Path(__file__).resolve().parents[0]
         prereq_sql = [

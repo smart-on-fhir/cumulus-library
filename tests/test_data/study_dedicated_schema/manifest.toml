@@ -1,10 +1,7 @@
 study_prefix = "study_dedicated_schema"
 
-[table_builder_config]
-file_names = ["module1.py", "module1.py", "module2.py"]
-
-[sql_config]
-file_names = ["test.sql"]
+[file_config]
+file_names = ["module1.py", "module1.py", "module2.py", "test.sql"]
 
 [export_config]
 export_list = ["study_dedicated_schema__table_raw_sql"]

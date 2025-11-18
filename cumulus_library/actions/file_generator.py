@@ -29,10 +29,10 @@ def run_generate_sql(
         "-- and it may not be correct for all databases. Use the CLI's build \n"
         "-- option to derive the best SQL for your dataset."
     )
-    for file in all_generators:
+    for run_stage, file in enumerate(all_generators):
         if table_builder and file.find(table_builder) == -1:
             continue  # pragma: no cover
-        builder._load_and_execute_builder(
+        builder._run_builder(
             config=config,
             manifest=manifest,
             filename=file,
@@ -40,6 +40,7 @@ def run_generate_sql(
             write_reference_sql=True,
             doc_str=doc_str,
             data_path=None,
+            run_stage=run_stage,
         )
 
 

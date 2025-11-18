@@ -24,6 +24,10 @@ expected_table_cols = {
 class CoreDocumentreferenceBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating DocumentReference tables..."
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parallel_allowed = False
+
     def prepare_queries(
         self,
         *args,
@@ -53,6 +57,7 @@ class CoreDocumentreferenceBuilder(cumulus_library.BaseTableBuilder):
                     expected={"format": sql_utils.CODING},
                 ),
             ],
+            "DocumentReference",
         )
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries.append(core_templates.get_core_template("documentreference", validated_schema))
