@@ -97,7 +97,7 @@ class StudyManifest:
 
         :returns: An array of files from the manifest, or None if not found.
         """
-        if "file_config" not in self._study_config.keys():
+        if "file_config" not in self._study_config:
             raise errors.StudyManifestParsingError(
                 "The study manifest does not contain a [file_config] key.\n"
                 "This may mean that your study contains an older version the manifest.\n "
@@ -111,8 +111,8 @@ class StudyManifest:
         if continue_from:
             if isinstance(items, dict):
                 for item in list(items.keys()):
-                    if continue_from.split(".", 1)[0] in items[item]:
-                        break
+                    if continue_from.split(".", 1)[0] in [x.split(".", 1)[0] for x in items[item]]:
+                        return items
                     items.pop(item)
                 raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
             else:
@@ -122,53 +122,6 @@ class StudyManifest:
                         return items
                 raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
         return items
-
-    # The following four functions are considered deprecated, and can be removed
-    # after we update studies to use the new methodology
-    def get_sql_file_list(self, continue_from: str | None = None) -> list[str] | None:
-        """Reads the contents of the sql_config array from the manifest
-
-        :returns: An array of sql files from the manifest, or None if not found.
-        """
-        sql_config = self._study_config.get("sql_config", {})
-        sql_files = sql_config.get("file_names", []) or []
-        if continue_from:  # pragma: no cover
-            for pos, file in enumerate(sql_files):
-                if continue_from.replace(".sql", "") == file.replace(".sql", ""):
-                    sql_files = sql_files[pos:]
-                    break
-            else:
-                raise errors.StudyManifestParsingError(
-                    f"No tables matching '{continue_from}' found"
-                )
-        return sql_files
-
-    def get_table_builder_file_list(self) -> list[str] | None:
-        """Reads the contents of the table_builder_config array from the manifest
-
-        :returns: An array of sql files from the manifest, or None if not found.
-        """
-        sql_config = self._study_config.get("table_builder_config", {})
-        return sql_config.get("file_names", [])
-
-    def get_counts_builder_file_list(self) -> list[str] | None:
-        """Reads the contents of the counts_builder_config array from the manifest
-
-        :returns: An array of sql files from the manifest, or None if not found.
-        """
-        sql_config = self._study_config.get("counts_builder_config", {})
-        return sql_config.get("file_names", [])
-
-    def get_statistics_file_list(self) -> list[str] | None:
-        """Reads the contents of the statistics_config array from the manifest
-
-        :returns: An array of statistics toml files from the manifest,
-          or None if not found.
-        """
-        stats_config = self._study_config.get("statistics_config", {})
-        return stats_config.get("file_names", [])
-
-    # End of deprecated section
 
     def get_export_table_list(self) -> list[ManifestExport] | None:
         """Reads the contents of the export_list array from the manifest

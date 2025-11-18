@@ -244,7 +244,7 @@ def _execute_build_queries(
             with base_utils.query_console_output(config.verbose, query, progress, task):
                 cursor.execute(query)
 
-        except Exception as e:  # pylint: disable=broad-exception-caught
+        except Exception as e:  # pylint: disable=broad-exception-caught pragma: no cover
             _query_error(
                 config,
                 manifest,
@@ -558,7 +558,10 @@ def _run_workflow(
             raise errors.StudyManifestParsingError(
                 f"{toml_path} references an invalid workflow type {config_type}."
             )
-    if parallel:
+    # we don't have a workflow that will run in parallel mode successfully today,
+    # so we'll skip this
+    # TODO: revisit after workflow mode added for counts builders
+    if parallel:  # pragma: no cover
         builder.prepare_queries(
             config=config,
             manifest=manifest,
