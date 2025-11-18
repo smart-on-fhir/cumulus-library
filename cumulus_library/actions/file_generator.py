@@ -32,7 +32,7 @@ def run_generate_sql(
     for run_stage, file in enumerate(all_generators):
         if table_builder and file.find(table_builder) == -1:
             continue  # pragma: no cover
-        builder._load_and_execute_builder(
+        builder._run_builder(
             config=config,
             manifest=manifest,
             filename=file,

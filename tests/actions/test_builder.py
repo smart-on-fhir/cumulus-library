@@ -50,15 +50,9 @@ def test_run_protected_table_builder(mock_db_config, study_path, stats):
             does_not_raise(),
         ),
         (
-            "./tests/test_data/study_python_valid/",
+            "./tests/test_data/study_python_valid_parallel/",
             False,
-            ("study_python_valid__table",),
-            does_not_raise(),
-        ),
-        (
-            "./tests/test_data/study_python_valid/",
-            None,
-            ("study_python_valid__table",),
+            ("study_python_valid_parallel__table",),
             does_not_raise(),
         ),
         (
@@ -97,15 +91,9 @@ def test_table_builder(mock_db_config, study_path, verbose, expects, raises):
             does_not_raise(),
         ),
         (
-            "./tests/test_data/study_valid/",
+            "./tests/test_data/study_valid_parallel/",
             False,
-            ("study_valid__table",),
-            does_not_raise(),
-        ),
-        (
-            "./tests/test_data/study_valid/",
-            None,
-            ("study_valid__table",),
+            ("study_valid_parallel__table",),
             does_not_raise(),
         ),
         (

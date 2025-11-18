@@ -24,6 +24,271 @@ from cumulus_library import (
 )
 from cumulus_library.builders import protected_table_builder, psm_builder, valueset_builder
 
+######### public functions #########
+
+
+def build_study(
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
+    *,
+    db_parser: databases.DatabaseParser = None,
+    continue_from: str | None = None,
+    file_list: list | None = None,
+    prepare: bool = False,
+    data_path: pathlib.Path | None,
+) -> None:
+    """Creates tables in the schema by iterating through the sql_config.file_names
+
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
+    :keyword db_parser: a parser for the target database
+    :keyword continue_from: Name of a file to resume table creation from
+    :keyword file_list: If provided, a list of files to build; otherwise pulled from manifest
+    :keyword prepare: If true, will render query instead of executing
+    :keyword data_path: If prepare is true, the path to write rendered data to
+    """
+    if prepare:
+        _check_if_preparable(manifest.get_study_prefix())
+    if file_list is None:
+        file_list = manifest.get_file_list(continue_from)
+    if prepare:
+        data_dir = data_path / manifest.get_study_prefix()
+        for file in data_dir.glob("*"):
+            if file.is_file():  # pragma: no cover
+                file.unlink()
+
+    # a parallel manifest looks like:
+    # [file_config.file_names]
+    # "step_1" = ["table_1.py",]
+    # "step 2" = ["table_2.sql","config.toml"]
+    if isinstance(file_list, dict):
+        parallel = True
+
+    # a serial manifest looks like this:
+    # [file_config]
+    # file_names = ["table_1.py","table_2.sql","config.toml"]
+    else:
+        parallel = False
+    for run_stage, entry in enumerate(file_list):
+        if isinstance(file_list, dict):
+            label = entry
+            files = file_list[label]
+        else:
+            files = [entry]
+        query_count = 0
+        queries = []
+        explicit_serial_queries = []
+        for file in files:
+            if file.endswith(".py"):
+                b_queries, parallel_allowed = _run_builder(
+                    config=config,
+                    manifest=manifest,
+                    filename=file,
+                    db_parser=db_parser,
+                    data_path=data_path,
+                    prepare=prepare,
+                    parallel=parallel,
+                    query_count=query_count,
+                    run_stage=run_stage,
+                )
+                if parallel_allowed:
+                    queries += b_queries
+                else:
+                    # If you're running in explicit serial mode, you can skip the parallel
+                    # collector.
+                    # Explicit serial queries are not actually used, but this is kept
+                    # here as a debugging convenience if you ever need to look at
+                    # the total number of manually executed queries.
+                    explicit_serial_queries += b_queries
+            elif file.endswith(".toml"):
+                res = _run_workflow(
+                    config=config,
+                    manifest=manifest,
+                    filename=file,
+                    data_path=data_path,
+                    prepare=prepare,
+                    parallel=parallel,
+                    query_count=query_count,
+                    run_stage=run_stage,
+                )
+                queries = queries + res
+            elif file.endswith(".sql"):
+                queries = queries + _run_raw_queries(
+                    config=config,
+                    manifest=manifest,
+                    filename=file,
+                    data_path=data_path,
+                    prepare=prepare,
+                    parallel=parallel,
+                    query_count=query_count,
+                    run_stage=run_stage,
+                )
+            else:
+                raise errors.StudyManifestParsingError
+            for query in queries:
+                _check_query_for_errors(config, manifest, query, file)
+        if parallel:
+            query_count += len(queries)
+            if query_count > 0:
+                with base_utils.get_progress_bar() as progress_bar:
+                    task = progress_bar.add_task(
+                        f"Building {label} tables...",
+                        total=query_count,
+                        visible=not config.verbose,
+                    )
+                    config.db.parallel_write(
+                        queries=queries,
+                        verbose=config.verbose,
+                        progress_bar=progress_bar,
+                        task=task,
+                    )
+    if prepare:
+        with zipfile.ZipFile(
+            f"{data_path}/{manifest.get_study_prefix()}.zip", "w", zipfile.ZIP_DEFLATED
+        ) as z:
+            for file in data_dir.iterdir():
+                z.write(file, file.relative_to(data_dir))
+
+
+def build_matching_files(
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
+    *,
+    builder: str | None,
+    db_parser: databases.DatabaseParser = None,
+    prepare: bool,
+    data_path: pathlib.Path,
+):
+    """targets all table builders matching a target string for running
+
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
+    :keyword builder: filename of a module implementing a TableBuilder
+    :keyword db_parser: an object implementing DatabaseParser for the target database
+    :keyword prepare: If true, will render query instead of executing
+    :keyword data_path: If prepare is true, the path to write rendered data to
+    """
+    if prepare:
+        _check_if_preparable(manifest.get_study_prefix())  # pragma: no cover
+    all_generators = manifest.get_all_generators()
+    matches = []
+    if not builder:  # pragma: no cover
+        matches = all_generators
+    else:
+        for file in all_generators:
+            if file.find(builder) != -1:
+                matches.append(file)
+    build_study(
+        config,
+        manifest,
+        db_parser=db_parser,
+        file_list=matches,
+        prepare=prepare,
+        data_path=data_path,
+    )
+
+
+def run_protected_table_builder(
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
+) -> None:
+    """Creates protected tables for persisting selected data across runs
+
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
+    """
+    ptb = protected_table_builder.ProtectedTableBuilder()
+    ptb.execute_queries(
+        config=config,
+        manifest=manifest,
+    )
+
+
+######### private helper functions #########
+
+
+def _check_if_preparable(prefix):
+    # This list should include any study which requires interrogating the database to
+    # find if data is available to query (outside of a toml-driven workflow),
+    # which isn't doable as a distributed query
+    if prefix in ["core", "discovery", "data_metrics", "example_nlp"]:
+        sys.exit(
+            f"Study '{prefix}'' does not support prepare mode. It must be run "
+            "directly against a target database."
+        )
+
+
+def _execute_build_queries(
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
+    *,
+    cursor: databases.DatabaseCursor,
+    queries: list,
+    filename: str,
+    progress: progress.Progress,
+    task: progress.TaskID,
+) -> None:
+    """Handler for executing create table queries and displaying console output.
+
+    :param config: A StudyConfig object
+    :param manifest: a StudyManifest object
+    :param cursor: A DatabaseCursor object
+    :param queries: a list of queries read from files in sql_config.file_names
+    :param filename: the filename the queries were sourced from
+    :param progress: a rich progress bar renderer
+    :param task: a TaskID for a given progress bar
+    """
+    for query in queries:
+        _check_query_for_errors(config, manifest, query, filename)
+        try:
+            with base_utils.query_console_output(config.verbose, query, progress, task):
+                cursor.execute(query)
+
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            _query_error(
+                config,
+                manifest,
+                query,
+                filename,
+                "You can debug issues with this query using `sqlfluff lint`, "
+                "or by executing the query directly against the database.\n"
+                f"Error: {e}",
+            )
+
+
+def _render_output(
+    study_name: str,
+    outputs: list,
+    data_path: pathlib.Path,
+    filename: str,
+    count: int,
+    run_stage: int,
+    *,
+    is_toml: bool = False,
+):
+    if is_toml:
+        suffix = "toml"
+    else:
+        suffix = "sql"
+    for index, output in enumerate(outputs):
+        if is_toml:
+            name = "config"
+        else:
+            # This regex attempts to discover the table name, via looking for the first
+            # dunder, and then gets the start of the line its on as a non-quote requiring
+            # part of a file name. So for example, finding SQL that looks like this:
+            #   CREATE TABLE foo__bar AS (varchar baz)
+            # would result in `create_table_foo__bar` being assigned to name. The goal
+            # is to make this at least mildly parsable at the file system level if someone
+            # is reviewing a prepared study
+            name = re.search(r"(.*)__\w*", output)[0].lower().replace(" ", "_")
+        new_filename = f"{run_stage:04d}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
+        file_path = data_path / f"{study_name}/{new_filename}"
+
+        file_path.parent.mkdir(exist_ok=True, parents=True)
+        with open(file_path, "w", encoding="UTF-8") as f:
+            f.write(output)
+
 
 @contextlib.contextmanager
 def _temporary_sys_path(add: pathlib.Path) -> None:
@@ -35,7 +300,10 @@ def _temporary_sys_path(add: pathlib.Path) -> None:
         sys.path = orig_path
 
 
-def _load_and_execute_builder(
+######### handlers for running different file types #########
+
+
+def _run_builder(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
     *,
@@ -48,7 +316,7 @@ def _load_and_execute_builder(
     parallel: bool = False,
     data_path: pathlib.Path,
     query_count: int | None = None,
-) -> (list[str], bool):
+) -> tuple[list[str], bool]:
     """Loads a table builder from a file.
 
     :param config: a StudyConfig object
@@ -101,6 +369,7 @@ def _load_and_execute_builder(
     # execute, since the subclass would otherwise hang around.
     table_builder_class = table_builder_subclasses[0]
     table_builder = table_builder_class(manifest=manifest)
+    parallel_allowed = parallel and table_builder.parallel_allowed
     if write_reference_sql:
         prefix = manifest.get_study_prefix()
         table_builder.prepare_queries(config=config, manifest=manifest, parser=db_parser)
@@ -131,7 +400,7 @@ def _load_and_execute_builder(
             run_stage,
         )
 
-    elif parallel and table_builder.parallel_allowed:
+    elif parallel_allowed:
         table_builder.prepare_queries(
             config=config,
             manifest=manifest,
@@ -149,23 +418,72 @@ def _load_and_execute_builder(
     del sys.modules[table_builder_module.__name__]
     del table_builder_module
 
-    return table_builder.queries, not (parallel and table_builder.parallel_allowed)
+    return table_builder.queries, parallel_allowed
 
 
-def run_protected_table_builder(
+def _run_raw_queries(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
-) -> None:
-    """Creates protected tables for persisting selected data across runs
+    filename: str,
+    *,
+    data_path: pathlib.Path | None,
+    prepare: bool,
+    parallel: bool = False,
+    query_count: int,
+    run_stage: int,
+) -> list[str]:
+    """Creates tables in the schema by iterating through the sql_config.file_names
 
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
+    :param filename: the name of the sql file to read
+    :param prepare: If true, will render query instead of executing
+    :param data_path: If prepare is true, the path to write rendered data to
+    :param query_count: the number of queries currently processed
+    :returns: a list of queries
     """
-    ptb = protected_table_builder.ProtectedTableBuilder()
-    ptb.execute_queries(
-        config=config,
-        manifest=manifest,
-    )
+    raw_queries = []
+    cleaned_queries = []
+    for query in base_utils.parse_sql(base_utils.load_text(f"{manifest._study_path}/{filename}")):
+        raw_queries.append(query)
+    for query in raw_queries:
+        query = base_utils.update_query_if_schema_specified(query, manifest)
+        query = query.replace(
+            f"`{manifest.get_study_prefix()}__",
+            "`",
+        )
+        cleaned_queries.append(query)
+    if prepare:
+        _render_output(
+            manifest.get_study_prefix(),
+            cleaned_queries,
+            data_path,
+            filename,
+            query_count,
+            run_stage,
+        )
+        return cleaned_queries
+    if not parallel:
+        # We'll explicitly create a cursor since recreating cursors for each
+        # table in a study is slightly slower for some databases
+        cursor = config.db.cursor()
+        # We want to only show a progress bar if we are :not: printing SQL lines
+        with base_utils.get_progress_bar(disable=config.verbose) as progress:
+            task = progress.add_task(
+                f"Building tables from {filename}...",
+                total=len(cleaned_queries),
+                visible=not config.verbose,
+            )
+            _execute_build_queries(
+                config=config,
+                manifest=manifest,
+                cursor=cursor,
+                queries=cleaned_queries,
+                filename=filename,
+                progress=progress,
+                task=task,
+            )
+    return cleaned_queries
 
 
 def _run_workflow(
@@ -263,274 +581,7 @@ def _run_workflow(
     return builder.queries
 
 
-def build_matching_files(
-    config: base_utils.StudyConfig,
-    manifest: study_manifest.StudyManifest,
-    *,
-    builder: str | None,
-    db_parser: databases.DatabaseParser = None,
-    prepare: bool,
-    data_path: pathlib.Path,
-):
-    """targets all table builders matching a target string for running
-
-    :param config: a StudyConfig object
-    :param manifest: a StudyManifest object
-    :keyword builder: filename of a module implementing a TableBuilder
-    :keyword db_parser: an object implementing DatabaseParser for the target database
-    :keyword prepare: If true, will render query instead of executing
-    :keyword data_path: If prepare is true, the path to write rendered data to
-    """
-    if prepare:
-        _check_if_preparable(manifest.get_study_prefix())  # pragma: no cover
-    all_generators = manifest.get_all_generators()
-    matches = []
-    if not builder:  # pragma: no cover
-        matches = all_generators
-    else:
-        for file in all_generators:
-            if file.find(builder) != -1:
-                matches.append(file)
-    build_study(
-        config,
-        manifest,
-        db_parser=db_parser,
-        file_list=matches,
-        prepare=prepare,
-        data_path=data_path,
-    )
-
-
-def build_study(
-    config: base_utils.StudyConfig,
-    manifest: study_manifest.StudyManifest,
-    *,
-    db_parser: databases.DatabaseParser = None,
-    continue_from: str | None = None,
-    file_list: list | None = None,
-    prepare: bool,
-    data_path: pathlib.Path | None,
-) -> None:
-    """Creates tables in the schema by iterating through the sql_config.file_names
-
-    :param config: a StudyConfig object
-    :param manifest: a StudyManifest object
-    :keyword db_parser: a parser for the target database
-    :keyword continue_from: Name of a file to resume table creation from
-    :keyword prepare: If true, will render query instead of executing
-    :keyword data_path: If prepare is true, the path to write rendered data to
-    """
-    if prepare:
-        _check_if_preparable(manifest.get_study_prefix())
-    if file_list is None:
-        file_list = manifest.get_file_list(continue_from)
-    if prepare:
-        data_dir = data_path / manifest.get_study_prefix()
-        for file in data_dir.glob("*"):
-            if file.is_file():  # pragma: no cover
-                file.unlink()
-
-    # a parallel manifest looks like:
-    # [file_config.file_names]
-    # "step_1" = ["table_1.py",]
-    # "step 2" = ["table_2.sql","config.toml"]
-    if isinstance(file_list, dict):
-        parallel = True
-
-    # a serial manifest looks like this:
-    # [file_config]
-    # file_names = ["table_1.py","table_2.sql","config.toml"]
-    else:
-        parallel = False
-    for run_stage, entry in enumerate(file_list):
-        if isinstance(file_list, dict):
-            label = entry
-            files = file_list[label]
-        else:
-            files = [entry]
-        query_count = 0
-        queries = []
-        explicit_serial_queries = []
-        for file in files:
-            if file.endswith(".py"):
-                b_queries, explicit_serial = _load_and_execute_builder(
-                    config=config,
-                    manifest=manifest,
-                    filename=file,
-                    db_parser=db_parser,
-                    data_path=data_path,
-                    prepare=prepare,
-                    parallel=parallel,
-                    query_count=query_count,
-                    run_stage=run_stage,
-                )
-                if parallel and explicit_serial:
-                    # If you're running in explicit serial mode, you can skip the parallel
-                    # collector.
-                    # explicit serial queries are not actually used, but this is kept
-                    # here as a debugging convenience if you ever need to look at
-                    # the total number of manually executed queries.
-                    explicit_serial_queries = explicit_serial_queries + b_queries
-                else:
-                    queries = queries + b_queries
-            elif file.endswith(".toml"):
-                res = _run_workflow(
-                    config=config,
-                    manifest=manifest,
-                    filename=file,
-                    data_path=data_path,
-                    prepare=prepare,
-                    parallel=parallel,
-                    query_count=query_count,
-                    run_stage=run_stage,
-                )
-                queries = queries + res
-            elif file.endswith(".sql"):
-                queries = queries + _run_raw_queries(
-                    config=config,
-                    manifest=manifest,
-                    filename=file,
-                    data_path=data_path,
-                    prepare=prepare,
-                    parallel=parallel,
-                    query_count=query_count,
-                    run_stage=run_stage,
-                )
-            else:
-                raise errors.StudyManifestParsingError
-            for query in queries:
-                _check_query_for_errors(config, manifest, query, file)
-        if parallel:
-            query_count += len(queries)
-            if query_count > 0:
-                with base_utils.get_progress_bar() as progress_bar:
-                    task = progress_bar.add_task(
-                        f"Building {label} tables...",
-                        total=query_count,
-                        visible=not config.verbose,
-                    )
-                    config.db.parallel_write(
-                        queries=queries,
-                        verbose=config.verbose,
-                        progress_bar=progress_bar,
-                        task=task,
-                    )
-    if prepare:
-        with zipfile.ZipFile(
-            f"{data_path}/{manifest.get_study_prefix()}.zip", "w", zipfile.ZIP_DEFLATED
-        ) as z:
-            for file in data_dir.iterdir():
-                z.write(file, file.relative_to(data_dir))
-
-
-def _run_raw_queries(
-    config: base_utils.StudyConfig,
-    manifest: study_manifest.StudyManifest,
-    filename: str,
-    *,
-    data_path: pathlib.Path | None,
-    prepare: bool,
-    parallel: bool = False,
-    query_count: int,
-    run_stage: int,
-) -> list[str]:
-    """Creates tables in the schema by iterating through the sql_config.file_names
-
-    :param config: a StudyConfig object
-    :param manifest: a StudyManifest object
-    :param filename: the name of the sql file to read
-    :param prepare: If true, will render query instead of executing
-    :param data_path: If prepare is true, the path to write rendered data to
-    :param query_count: the number of queries currently processed
-    :returns: a list of queries
-    """
-    raw_queries = []
-    cleaned_queries = []
-    for query in base_utils.parse_sql(base_utils.load_text(f"{manifest._study_path}/{filename}")):
-        raw_queries.append(query)
-    for query in raw_queries:
-        query = base_utils.update_query_if_schema_specified(query, manifest)
-        query = query.replace(
-            f"`{manifest.get_study_prefix()}__",
-            "`",
-        )
-        cleaned_queries.append(query)
-    if prepare:
-        _render_output(
-            manifest.get_study_prefix(),
-            cleaned_queries,
-            data_path,
-            filename,
-            query_count,
-            run_stage,
-        )
-        return cleaned_queries
-    if not parallel:
-        # We'll explicitly create a cursor since recreating cursors for each
-        # table in a study is slightly slower for some databases
-        cursor = config.db.cursor()
-        # We want to only show a progress bar if we are :not: printing SQL lines
-        with base_utils.get_progress_bar(disable=config.verbose) as progress:
-            task = progress.add_task(
-                f"Building tables from {filename}...",
-                total=len(cleaned_queries),
-                visible=not config.verbose,
-            )
-            _execute_build_queries(
-                config=config,
-                manifest=manifest,
-                cursor=cursor,
-                queries=cleaned_queries,
-                filename=filename,
-                progress=progress,
-                task=task,
-            )
-    return cleaned_queries
-
-
-def _render_output(
-    study_name: str,
-    outputs: list,
-    data_path: pathlib.Path,
-    filename: str,
-    count: int,
-    run_stage: int,
-    *,
-    is_toml: bool = False,
-):
-    if is_toml:
-        suffix = "toml"
-    else:
-        suffix = "sql"
-    for index, output in enumerate(outputs):
-        if is_toml:
-            name = "config"
-        else:
-            # This regex attempts to discover the table name, via looking for the first
-            # dunder, and then gets the start of the line its on as a non-quote requiring
-            # part of a file name. So for example, finding SQL that looks like this:
-            #   CREATE TABLE foo__bar AS (varchar baz)
-            # would result in `create_table_foo__bar` being assigned to name. The goal
-            # is to make this at least mildly parsable at the file system level if someone
-            # is reviewing a prepared study
-            name = re.search(r"(.*)__\w*", output)[0].lower().replace(" ", "_")
-        new_filename = f"{run_stage:04d}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
-        file_path = data_path / f"{study_name}/{new_filename}"
-
-        file_path.parent.mkdir(exist_ok=True, parents=True)
-        with open(file_path, "w", encoding="UTF-8") as f:
-            f.write(output)
-
-
-def _check_if_preparable(prefix):
-    # This list should include any study which requires interrogating the database to
-    # find if data is available to query (outside of a toml-driven workflow),
-    # which isn't doable as a distributed query
-    if prefix in ["core", "discovery", "data_metrics", "example_nlp"]:
-        sys.exit(
-            f"Study '{prefix}'' does not support prepare mode. It must be run "
-            "directly against a target database."
-        )
+######### error handlers #########
 
 
 def _query_error(
@@ -612,39 +663,3 @@ def _check_query_for_errors(
             "rename this table so the only double undercore is after the "
             f"study prefix, e.g. `{manifest.get_study_prefix()}__`",
         )
-
-
-def _execute_build_queries(
-    config: base_utils.StudyConfig,
-    manifest: study_manifest.StudyManifest,
-    *,
-    cursor: databases.DatabaseCursor,
-    queries: list,
-    filename: str,
-    progress: progress.Progress,
-    task: progress.TaskID,
-) -> None:
-    """Handler for executing create table queries and displaying console output.
-
-    :param manifest: a StudyManifest object
-    :param cursor: A DatabaseCursor object
-    :param queries: a list of queries read from files in sql_config.file_names
-    :param progress: a rich progress bar renderer
-    :param task: a TaskID for a given progress bar
-    """
-    for query in queries:
-        _check_query_for_errors(config, manifest, query, filename)
-        try:
-            with base_utils.query_console_output(config.verbose, query, progress, task):
-                cursor.execute(query)
-
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            _query_error(
-                config,
-                manifest,
-                query,
-                filename,
-                "You can debug issues with this query using `sqlfluff lint`, "
-                "or by executing the query directly against the database.\n"
-                f"Error: {e}",
-            )

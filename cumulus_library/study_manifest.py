@@ -110,7 +110,7 @@ class StudyManifest:
         items = config.get("file_names", []) or []
         if continue_from:
             if isinstance(items, dict):
-                for item in items.keys():
+                for item in list(items.keys()):
                     if continue_from.split(".", 1)[0] in items[item]:
                         break
                     items.pop(item)
