@@ -27,7 +27,14 @@ from cumulus_library.databases import base
 class AthenaDatabaseBackend(base.DatabaseBackend):
     """Database backend that can talk to AWS Athena"""
 
-    def __init__(self, region: str, work_group: str, profile: str, schema_name: str):
+    def __init__(
+        self,
+        region: str,
+        work_group: str,
+        profile: str,
+        schema_name: str,
+        max_concurrent: int | None = None,
+    ):
         super().__init__(schema_name)
 
         self.db_type = "athena"
@@ -37,6 +44,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.schema_name = schema_name
         self.connection = None
         self.connect_kwargs = {}
+        self.max_concurrent = max_concurrent or 20
 
     def init_errors(self):  # pragma: no cover
         return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
@@ -65,7 +73,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         return self.connection.cursor()
 
     def async_cursor(self) -> AthenaAsyncCursor:
-        return self.connection.cursor(AthenaAsyncCursor)
+        return self.connection.cursor(cursor=AthenaAsyncCursor, max_workers=self.max_concurrent)
 
     def pandas_cursor(self) -> AthenaPandasCursor:
         return self.connection.cursor(cursor=AthenaPandasCursor)

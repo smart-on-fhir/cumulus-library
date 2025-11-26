@@ -11,8 +11,8 @@ import collections
 import datetime
 import pathlib
 import re
-import threading
 import time
+from concurrent import futures
 
 import duckdb
 import pandas
@@ -26,11 +26,14 @@ from cumulus_library.databases import base
 class DuckDatabaseBackend(base.DatabaseBackend):
     """Database backend that uses local files via duckdb"""
 
-    def __init__(self, db_file: str, schema_name: str | None = None):
+    def __init__(
+        self, db_file: str, schema_name: str | None = None, max_concurrent: int | None = None
+    ):
         super().__init__("main")
         self.db_type = "duckdb"
         self.db_file = db_file
         self.connection = None
+        self.max_concurrent = max_concurrent or 20
 
     def init_errors(self):
         return ["Binder Error", "Catalog Error"]
@@ -198,18 +201,16 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             with query_console_output(verbose, query, progress_bar, task):
                 thread_con.execute(query)
 
-        threads = []
-        for query in queries:
-            threads.append(
-                threading.Thread(
-                    target=write_thread,
-                    args=(query, verbose, progress_bar, task, base_utils.query_console_output),
+        with futures.ThreadPoolExecutor(max_workers=self.max_concurrent) as executor:
+            for query in queries:
+                executor.submit(
+                    write_thread,
+                    query,
+                    verbose,
+                    progress_bar,
+                    task,
+                    base_utils.query_console_output,
                 )
-            )
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
         # This is a temporary workaround for cases where duckdb is still doing :something:
         # after the threads have resolved, where if you try to recreate a table it may throw
         # an error, which is only affecting the --statistics flag ¯\_(ツ)_/¯

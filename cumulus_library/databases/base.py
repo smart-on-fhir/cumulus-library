@@ -110,16 +110,18 @@ class DatabaseParser(abc.ABC):
 class DatabaseBackend(abc.ABC):
     """A generic database backend, supporting basic cursor operations"""
 
-    def __init__(self, schema_name: str):
+    def __init__(self, schema_name: str, max_concurrent: int = 1):
         """Create connection to a database backend
 
         :param schema_name: the database name ('schema' is Athena-speak for a database)
+        :keyword max_concurrent: the number of jobs to process in parallel
         """
         self.schema_name = schema_name
         # db_type, while perhaps feeling redundant, is intended to be a value that is
         # passed to jinja templates for creating valid sql for a particular database's
         # technology
         self.db_type = None
+        self.max_concurrent = max_concurrent
 
     @abc.abstractmethod
     def init_errors(self) -> list:

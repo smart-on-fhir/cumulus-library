@@ -141,7 +141,9 @@ def create_db_backend(args: dict[str, str]) -> tuple[base.DatabaseBackend, str]:
                 "python library - using 'main' instead"
             )
         schema_name = "main"
-        backend = duckdb.DuckDatabaseBackend(args["database"])
+        backend = duckdb.DuckDatabaseBackend(
+            args["database"], max_concurrent=args.get("max_concurrent")
+        )
     elif db_config.db_type == "athena":
         if (
             args.get("schema_name") is not None
@@ -161,6 +163,7 @@ def create_db_backend(args: dict[str, str]) -> tuple[base.DatabaseBackend, str]:
             args["work_group"],
             args["profile"],
             schema_name,
+            args.get("max_concurrent"),
         )
     else:
         raise errors.CumulusLibraryError(f"'{db_config.db_type}' is not a supported database.")
