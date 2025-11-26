@@ -84,7 +84,11 @@ def add_db_config(parser: argparse.ArgumentParser, input_mode: bool = False) -> 
     group.add_argument(
         "-c",
         "--max-concurrent",
-        help="Specifies the upper limit of queries allowed to run in parallel",
+        help=(
+            "Specifies the upper limit of queries allowed to run in parallel. "
+            "The default is database dependent, but will be 20 in most cases. "
+            "If you run into memory issues with larger studies, you can dial this back."
+        ),
         type=int,
     )
     if input_mode:
