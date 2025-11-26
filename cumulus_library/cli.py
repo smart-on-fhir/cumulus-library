@@ -412,6 +412,7 @@ def main(cli_args=None):
         ("region", "CUMULUS_LIBRARY_REGION"),
         ("schema_name", "CUMULUS_LIBRARY_SCHEMA_NAME"),
         ("database", "CUMULUS_LIBRARY_DATABASE"),
+        ("max_concurrent", "CUMULUS_LIBRARY_MAX_CONCURRENT"),
         ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
         ("umls_key", "UMLS_API_KEY"),
         ("loinc_user", "LOINC_USER"),

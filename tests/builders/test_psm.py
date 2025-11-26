@@ -98,6 +98,7 @@ from cumulus_library.builders import psm_builder
             "category A,before,0.2724389343925956",
             [
                 "category C,after,0.0",
+                "category C,after,0.21984843263788195",
                 "category C,after,0.37161167647860316",
                 "category C,after,0.37161167647860327",
                 "category C,after,0.5453768398418632",

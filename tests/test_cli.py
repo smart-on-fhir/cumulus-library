@@ -295,7 +295,7 @@ def test_clean(tmp_path, args, expected, raises):
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
-            82,
+            81,
             does_not_raise(),
             [],
         ),
@@ -1129,3 +1129,33 @@ def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_
             assert config.name == toml_file[0]
             with open(config) as f:
                 assert f.read() == toml_file[1]
+
+
+@mock.patch("concurrent.futures.ThreadPoolExecutor")
+@mock.patch("botocore.session.Session")
+@mock.patch("cumulus_library.databases.athena.AthenaDatabaseBackend")
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+def test_max_concurrent(mock_backend, mock_session, mock_threadpool, tmp_path):
+    study_args = [
+        "build",
+        "-t",
+        "study_valid_parallel",
+        str(tmp_path),
+        "-s",
+        "tests/test_data/",
+    ]
+    build_args = duckdb_args(
+        study_args,
+        tmp_path,
+    )
+    cli.main(cli_args=build_args)
+    assert mock_threadpool.call_args == mock.call(max_workers=20)
+    cli.main(cli_args=[*build_args, "-c", "10"])
+    assert mock_threadpool.call_args == mock.call(max_workers=10)
+    cli.main(cli_args=study_args)
+    assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, None)
+    cli.main(cli_args=[*study_args, "-c", "10"])
+    assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, 10)

@@ -1,15 +1,34 @@
 study_prefix = "core"
 [file_config.file_names]
 prerequisite = [
-    "builder_prereq_tables.py",
+    "version.sql",
+    "fhir_lookup_tables.sql",
+    "fhir_mapping_tables.sql",
 ]
-"FHIR resources"=[
+"FHIR resource unnesting"=[
+    "builder_allergyintolerance_prereq.py",
+    "builder_condition_prereq.py",
+    "builder_diagnosticreport_prereq.py",
+    "builder_documentreference_prereq.py",
+    "builder_encounter_prereq.py",
+    "builder_location_prereq.py",
+    "builder_medicationrequest_prereq.py",
+    "builder_observation_prereq.py",
+    "builder_organization_prereq.py",
+    "builder_patient_prereq.py",
+    "builder_practitioner_prereq.py",
+    "builder_practitionerrole_prereq.py",
+    "builder_procedure_prereq.py",
+]
+"Patient" =[
     "builder_patient.py",
-    "builder_encounter.py",
+]
+"other FHIR resource"=[
     "builder_allergyintolerance.py",
     "builder_condition.py",
     "builder_diagnosticreport.py",
     "builder_documentreference.py",
+    "builder_encounter.py",
     "builder_location.py",
     "builder_medicationrequest.py",
     "builder_observation.py",

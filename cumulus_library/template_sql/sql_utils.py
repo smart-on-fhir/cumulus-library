@@ -182,7 +182,7 @@ def _check_data_in_fields(
         task_label = f"Detecting available codeableConcepts in {resource}..."
     else:
         task_label = "Detecting available codeableConcepts..."  # pragma: no cover
-    with base_utils.get_progress_bar(transient=True) as progress:
+    with base_utils.get_progress_bar() as progress:
         task = progress.add_task(
             task_label,
             # Each column in code_sources requires at most 3 queries to

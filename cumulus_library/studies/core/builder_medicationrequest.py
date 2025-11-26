@@ -23,10 +23,6 @@ expected_table_cols = {
 class MedicationRequestBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating MedicationRequest table..."
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.parallel_allowed = False
-
     def prepare_queries(
         self,
         *args,
@@ -37,40 +33,6 @@ class MedicationRequestBuilder(cumulus_library.BaseTableBuilder):
 
         :param config: A study config object
         """
-        code_sources = [
-            sql_utils.CodeableConceptConfig(
-                source_table="medication",
-                column_hierarchy=[("code", dict)],
-                target_table="core__medication_dn_code",
-            ),
-            sql_utils.CodeableConceptConfig(
-                source_table="medicationrequest",
-                column_hierarchy=[("medicationCodeableConcept", dict)],
-                target_table="core__medicationrequest_dn_inline_code",
-            ),
-            sql_utils.CodeableConceptConfig(
-                source_table="medicationrequest",
-                column_hierarchy=[("contained", list), ("code", dict)],
-                target_table="core__medicationrequest_dn_contained_code",
-                expected={
-                    "code": sql_utils.CODEABLE_CONCEPT,
-                    "id": {},
-                    "resourceType": {},
-                },
-                extra_fields=[
-                    ("id", "contained_id"),
-                    ("resourceType", "resource_type"),
-                ],
-            ),
-            sql_utils.CodeableConceptConfig(
-                source_table="medicationrequest",
-                column_hierarchy=[("category", list)],
-                target_table="core__medicationrequest_dn_category",
-            ),
-        ]
-        self.queries += sql_utils.denormalize_complex_objects(
-            config.db, code_sources, "MedicationRequest"
-        )
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries += [
             core_templates.get_core_template("medicationrequest", validated_schema),

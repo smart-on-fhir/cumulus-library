@@ -24,40 +24,11 @@ expected_table_cols = {
 class CoreDocumentreferenceBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Creating DocumentReference tables..."
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.parallel_allowed = False
-
     def prepare_queries(
         self,
         *args,
         config: cumulus_library.StudyConfig,
         **kwargs,
     ):
-        self.queries = sql_utils.denormalize_complex_objects(
-            config.db,
-            [
-                sql_utils.CodeableConceptConfig(
-                    source_table="documentreference",
-                    source_id="id",
-                    column_hierarchy=[("type", dict)],
-                    target_table="core__documentreference_dn_type",
-                ),
-                sql_utils.CodeableConceptConfig(
-                    source_table="documentreference",
-                    source_id="id",
-                    column_hierarchy=[("category", list)],
-                    target_table="core__documentreference_dn_category",
-                ),
-                sql_utils.CodingConfig(
-                    source_table="documentreference",
-                    source_id="id",
-                    column_hierarchy=[("content", list), ("format", dict)],
-                    target_table="core__documentreference_dn_format",
-                    expected={"format": sql_utils.CODING},
-                ),
-            ],
-            "DocumentReference",
-        )
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries.append(core_templates.get_core_template("documentreference", validated_schema))
