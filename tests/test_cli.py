@@ -1159,4 +1159,3 @@ def test_max_concurrent(mock_backend, mock_session, mock_threadpool, tmp_path):
     assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, None)
     cli.main(cli_args=[*study_args, "-c", "10"])
     assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, 10)
-    raise Exception
