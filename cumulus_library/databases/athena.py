@@ -27,6 +27,8 @@ from cumulus_library.databases import base
 class AthenaDatabaseBackend(base.DatabaseBackend):
     """Database backend that can talk to AWS Athena"""
 
+    connection: None | AthenaCursor
+
     def __init__(
         self,
         region: str,

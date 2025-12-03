@@ -1,0 +1,2 @@
+CREATE TABLE study_invalid_bad_query_parallel__invalid AS
+SELECT foo FROM nonexistant_table;

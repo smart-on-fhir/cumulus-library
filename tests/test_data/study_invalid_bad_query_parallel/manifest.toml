@@ -1,0 +1,10 @@
+study_prefix = "study_invalid_bad_query_parallel"
+
+[file_config.file_names]
+queries = [
+    "valid.sql",
+    "invalid.sql",
+]
+
+[export_config]
+export_list = ["study_invalid_bad_query__table"]

@@ -104,9 +104,27 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             # Parallel mode relies on using multiple connections, but a register action
             # is unique to a specific connection instance. So, rather than registering
             # ndjson multiple times, we'll do it once, and create materialized tables
-            # from the registered json.
+            # from the registered json. But - we need to do it in chunks so that we
+            # don't blow out memory for very large tables
+
+            slice_size = 1000_00
             self.connection.register(f"{name}_tmp", table)
-            self.connection.execute(f"CREATE OR REPLACE TABLE {name} as select * from {name}_tmp")  # noqa: S608
+            self.connection.execute(
+                f"CREATE OR REPLACE TABLE {name} AS SELECT * FROM {name}_tmp LIMIT {slice_size}"  # noqa: S608
+            )
+            total = (
+                self.connection.execute(
+                    f"SELECT count(*) FROM {name}_tmp"  # noqa: S608
+                ).fetchone()[0]
+                - slice_size
+            )
+            slices = 1
+            while total > 0:
+                self.connection.execute(
+                    f"INSERT INTO {name} SELECT * FROM {name}_tmp "  # noqa: S608
+                    f"LIMIT 100000 OFFSET {slices * slice_size}"
+                )
+                total -= slice_size
             self.connection.unregister(f"{name}_tmp")
 
     @staticmethod

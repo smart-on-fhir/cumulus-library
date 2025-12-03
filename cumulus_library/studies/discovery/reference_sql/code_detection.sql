@@ -7,573 +7,694 @@
 -- ###########################################################
 
 CREATE TABLE discovery__code_sources AS
-SELECT DISTINCT
-    'allergyintolerance' AS table_name,
-    'clinicalstatus' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM allergyintolerance,
-UNNEST(clinicalstatus.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT DISTINCT
-    'allergyintolerance' AS table_name,
-    'verificationstatus' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM allergyintolerance,
-UNNEST(verificationstatus.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT DISTINCT
-    'allergyintolerance' AS table_name,
-    'code' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM allergyintolerance,
-UNNEST(code.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'allergyintolerance',
-        'reaction.substance',
-        '',
-        '',
-        ''
+WITH
+tmp_allergyintolerance AS (
+    SELECT DISTINCT
+        'allergyintolerance' AS table_name,
+        'clinicalstatus' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM allergyintolerance,
+    UNNEST(clinicalstatus.coding) AS table_1 (col_1)
+,
+tmp_allergyintolerance AS (
+    SELECT DISTINCT
+        'allergyintolerance' AS table_name,
+        'verificationstatus' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM allergyintolerance,
+    UNNEST(verificationstatus.coding) AS table_1 (col_1)
+,
+tmp_allergyintolerance AS (
+    SELECT DISTINCT
+        'allergyintolerance' AS table_name,
+        'code' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM allergyintolerance,
+    UNNEST(code.coding) AS table_1 (col_1)
+,
+tmp_allergyintolerance AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'allergyintolerance',
+            'reaction.substance',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'allergyintolerance',
-        'reaction.manifestation',
-        '',
-        '',
-        ''
+,
+tmp_allergyintolerance AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'allergyintolerance',
+            'reaction.manifestation',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'allergyintolerance',
-        'reaction.exposureroute',
-        '',
-        '',
-        ''
+,
+tmp_allergyintolerance AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'allergyintolerance',
+            'reaction.exposureroute',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT DISTINCT
-    'condition' AS table_name,
-    'category' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM condition,
-UNNEST(category) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT DISTINCT
-    'condition' AS table_name,
-    'code' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM condition,
-UNNEST(code.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT DISTINCT
-    'diagnosticreport' AS table_name,
-    'category' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM diagnosticreport,
-UNNEST(category) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT DISTINCT
-    'diagnosticreport' AS table_name,
-    'code' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM diagnosticreport,
-UNNEST(code.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'diagnosticreport',
-        'conclusioncode',
-        '',
-        '',
-        ''
+,
+tmp_condition AS (
+    SELECT DISTINCT
+        'condition' AS table_name,
+        'category' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM condition,
+    UNNEST(category) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_condition AS (
+    SELECT DISTINCT
+        'condition' AS table_name,
+        'code' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM condition,
+    UNNEST(code.coding) AS table_1 (col_1)
+,
+tmp_diagnosticreport AS (
+    SELECT DISTINCT
+        'diagnosticreport' AS table_name,
+        'category' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM diagnosticreport,
+    UNNEST(category) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_diagnosticreport AS (
+    SELECT DISTINCT
+        'diagnosticreport' AS table_name,
+        'code' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM diagnosticreport,
+    UNNEST(code.coding) AS table_1 (col_1)
+,
+tmp_diagnosticreport AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'diagnosticreport',
+            'conclusioncode',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT DISTINCT
-    'documentreference' AS table_name,
-    'type' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM documentreference,
-UNNEST(type.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT DISTINCT
-    'documentreference' AS table_name,
-    'category' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM documentreference,
-UNNEST(category) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT DISTINCT
-    'encounter' AS table_name,
-    'class' AS column_name,
-    class.code,
-    class.display,
-    class.system
-FROM encounter
-
-UNION ALL
-
-SELECT DISTINCT
-    'encounter' AS table_name,
-    'type' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM encounter,
-UNNEST(type) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'encounter',
-        'servicetype',
-        '',
-        '',
-        ''
+,
+tmp_documentreference AS (
+    SELECT DISTINCT
+        'documentreference' AS table_name,
+        'type' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM documentreference,
+    UNNEST(type.coding) AS table_1 (col_1)
+,
+tmp_documentreference AS (
+    SELECT DISTINCT
+        'documentreference' AS table_name,
+        'category' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM documentreference,
+    UNNEST(category) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_encounter AS (
+    SELECT DISTINCT
+        'encounter' AS table_name,
+        'class' AS column_name,
+        class.code,
+        class.display,
+        class.system
+    FROM encounter
+,
+tmp_encounter AS (
+    SELECT DISTINCT
+        'encounter' AS table_name,
+        'type' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM encounter,
+    UNNEST(type) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_encounter AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'encounter',
+            'servicetype',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'encounter',
-        'priority',
-        '',
-        '',
-        ''
+,
+tmp_encounter AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'encounter',
+            'priority',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT DISTINCT
-    'encounter' AS table_name,
-    'reasoncode' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM encounter,
-UNNEST(reasoncode) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT DISTINCT
-    'encounter' AS table_name,
-    'hospitalization.dischargedisposition' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM encounter,
-UNNEST(hospitalization.dischargedisposition.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'location',
-        'type',
-        '',
-        '',
-        ''
+,
+tmp_encounter AS (
+    SELECT DISTINCT
+        'encounter' AS table_name,
+        'reasoncode' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM encounter,
+    UNNEST(reasoncode) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_encounter AS (
+    SELECT DISTINCT
+        'encounter' AS table_name,
+        'hospitalization.dischargedisposition' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM encounter,
+    UNNEST(hospitalization.dischargedisposition.coding) AS table_1 (col_1)
+,
+tmp_location AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'location',
+            'type',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'medication',
-        'codecodeableconcept',
-        '',
-        '',
-        ''
+,
+tmp_medication AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'medication',
+            'codecodeableconcept',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'medication',
-        'medicationcode',
-        '',
-        '',
-        ''
+,
+tmp_medication AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'medication',
+            'medicationcode',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT DISTINCT
-    'medicationrequest' AS table_name,
-    'medicationcodeableconcept' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM medicationrequest,
-UNNEST(medicationcodeableconcept.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT DISTINCT
-    'observation' AS table_name,
-    'category' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM observation,
-UNNEST(category) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT DISTINCT
-    'observation' AS table_name,
-    'code' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM observation,
-UNNEST(code.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT DISTINCT
-    'observation' AS table_name,
-    'component.code' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM observation,
-UNNEST(component) AS table_1 (col_1),
-UNNEST(col_1.code.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'observation',
-        'interpretation',
-        '',
-        '',
-        ''
+,
+tmp_medicationrequest AS (
+    SELECT DISTINCT
+        'medicationrequest' AS table_name,
+        'medicationcodeableconcept' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM medicationrequest,
+    UNNEST(medicationcodeableconcept.coding) AS table_1 (col_1)
+,
+tmp_observation AS (
+    SELECT DISTINCT
+        'observation' AS table_name,
+        'category' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM observation,
+    UNNEST(category) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_observation AS (
+    SELECT DISTINCT
+        'observation' AS table_name,
+        'code' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM observation,
+    UNNEST(code.coding) AS table_1 (col_1)
+,
+tmp_observation AS (
+    SELECT DISTINCT
+        'observation' AS table_name,
+        'component.code' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM observation,
+    UNNEST(component) AS table_1 (col_1),
+    UNNEST(col_1.code.coding) as table_2 (col_2)
+)
+,
+tmp_observation AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'observation',
+            'interpretation',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT DISTINCT
-    'observation' AS table_name,
-    'valuecodeableconcept' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM observation,
-UNNEST(valuecodeableconcept.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'observation',
-        'dataabsentreason',
-        '',
-        '',
-        ''
+,
+tmp_observation AS (
+    SELECT DISTINCT
+        'observation' AS table_name,
+        'valuecodeableconcept' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM observation,
+    UNNEST(valuecodeableconcept.coding) AS table_1 (col_1)
+,
+tmp_observation AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'observation',
+            'dataabsentreason',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT DISTINCT
-    'organization' AS table_name,
-    'type' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM organization,
-UNNEST(type) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT DISTINCT
-    'patient' AS table_name,
-    'maritalstatus' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM patient,
-UNNEST(maritalstatus.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'practitioner',
-        'qualification.code',
-        '',
-        '',
-        ''
+,
+tmp_organization AS (
+    SELECT DISTINCT
+        'organization' AS table_name,
+        'type' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM organization,
+    UNNEST(type) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_patient AS (
+    SELECT DISTINCT
+        'patient' AS table_name,
+        'maritalstatus' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM patient,
+    UNNEST(maritalstatus.coding) AS table_1 (col_1)
+,
+tmp_practitioner AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'practitioner',
+            'qualification.code',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT DISTINCT
-    'practitionerrole' AS table_name,
-    'code' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM practitionerrole,
-UNNEST(code) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT DISTINCT
-    'practitionerrole' AS table_name,
-    'specialty' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM practitionerrole,
-UNNEST(specialty) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'statusreason',
-        '',
-        '',
-        ''
+,
+tmp_practitionerrole AS (
+    SELECT DISTINCT
+        'practitionerrole' AS table_name,
+        'code' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM practitionerrole,
+    UNNEST(code) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_practitionerrole AS (
+    SELECT DISTINCT
+        'practitionerrole' AS table_name,
+        'specialty' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM practitionerrole,
+    UNNEST(specialty) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_procedure AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'procedure',
+            'statusreason',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'category',
-        '',
-        '',
-        ''
+,
+tmp_procedure AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'procedure',
+            'category',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT DISTINCT
-    'procedure' AS table_name,
-    'code' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM procedure,
-UNNEST(code.coding) AS table_1 (col_1)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'performer.function',
-        '',
-        '',
-        ''
+,
+tmp_procedure AS (
+    SELECT DISTINCT
+        'procedure' AS table_name,
+        'code' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM procedure,
+    UNNEST(code.coding) AS table_1 (col_1)
+,
+tmp_procedure AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'procedure',
+            'performer.function',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'reasoncode',
-        '',
-        '',
-        ''
+,
+tmp_procedure AS (
+    SELECT DISTINCT
+        'procedure' AS table_name,
+        'reasoncode' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM procedure,
+    UNNEST(reasoncode) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+)
+,
+tmp_procedure AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'procedure',
+            'bodysite',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'bodysite',
-        '',
-        '',
-        ''
+,
+tmp_procedure AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'procedure',
+            'outcome',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'outcome',
-        '',
-        '',
-        ''
+,
+tmp_procedure AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'procedure',
+            'complication',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'complication',
-        '',
-        '',
-        ''
+,
+tmp_procedure AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'procedure',
+            'followup',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'followup',
-        '',
-        '',
-        ''
+,
+tmp_procedure AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'procedure',
+            'focalDevice.action',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
-
-UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'focalDevice.action',
-        '',
-        '',
-        ''
+,
+tmp_procedure AS (
+    SELECT *
+    FROM (
+        VALUES (
+            'procedure',
+            'usedcode',
+            '',
+            '',
+            ''
+        )
     )
+        AS t (table_name, column_name, code, display, system)
 )
-    AS t (table_name, column_name, code, display, system)
 
+SELECT table_name, column_name, code, display, system
+    FROM tmp_allergyintolerance
 UNION ALL
-
-SELECT *
-FROM (
-    VALUES (
-        'procedure',
-        'usedcode',
-        '',
-        '',
-        ''
-    )
-)
-    AS t (table_name, column_name, code, display, system)
-
-
+SELECT table_name, column_name, code, display, system
+    FROM tmp_allergyintolerance
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_allergyintolerance
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_allergyintolerance
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_allergyintolerance
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_allergyintolerance
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_condition
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_condition
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_diagnosticreport
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_diagnosticreport
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_diagnosticreport
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_documentreference
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_documentreference
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_encounter
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_encounter
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_encounter
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_encounter
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_encounter
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_encounter
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_location
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_medication
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_medication
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_medicationrequest
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_observation
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_observation
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_observation
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_observation
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_observation
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_observation
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_organization
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_patient
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_practitioner
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_practitionerrole
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_practitionerrole
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
+UNION ALL
+SELECT table_name, column_name, code, display, system
+    FROM tmp_procedure
 
