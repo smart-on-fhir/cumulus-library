@@ -12,8 +12,7 @@ import pandas
 import pytest
 import rich
 
-from cumulus_library import base_utils, cli
-from cumulus_library.databases import create_db_backend
+from cumulus_library import base_utils, cli, databases
 
 # Useful constants
 
@@ -211,12 +210,13 @@ def mock_env():
 @pytest.fixture
 def mock_db(tmp_path):
     """Provides a DuckDatabaseBackend for local testing"""
-    db, _ = create_db_backend(
+    db, _ = databases.create_db_backend(
         {
             "db_type": "duckdb",
             "database": f"{tmp_path}/duck.db",
             "load_ndjson_dir": MOCK_DATA_DIR,
-        }
+        },
+        pyarrow_cache_path=f"{MOCK_DATA_DIR}/pyarrow_cache.parquet",
     )
     yield db
 
@@ -254,7 +254,7 @@ def mock_db_core_config(mock_db_core):
 def mock_db_stats(tmp_path):
     """Provides a DuckDatabaseBackend with a larger dataset for sampling stats"""
     ndjson_data_generator(pathlib.Path(MOCK_DATA_DIR), f"{tmp_path}/mock_data", 20)
-    db, _schema = create_db_backend(
+    db, _schema = databases.create_db_backend(
         {
             "db_type": "duckdb",
             "database": f"{tmp_path}/stats.db",

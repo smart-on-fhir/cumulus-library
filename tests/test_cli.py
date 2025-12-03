@@ -295,7 +295,7 @@ def test_clean(tmp_path, args, expected, raises):
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
-            81,
+            82,
             does_not_raise(),
             [],
         ),
@@ -310,7 +310,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "tests/test_data/",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
-            3,
+            4,
             does_not_raise(),
             [
                 "study_valid__table",
@@ -328,7 +328,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "tests/test_data/",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
-            3,
+            4,
             does_not_raise(),
             [
                 "study_valid__table",
@@ -347,7 +347,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "--statistics",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            3,
+            4,
             does_not_raise(),
             [
                 "study_valid__table",
@@ -364,7 +364,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "--statistics",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            3,
+            4,
             does_not_raise(),
             [
                 "study_valid__table",
@@ -383,7 +383,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test2",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            2,
+            3,
             pytest.raises(duckdb.CatalogException),
             [],
         ),
@@ -398,7 +398,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test2",
             ],
             ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
-            4,
+            5,
             does_not_raise(),
             [
                 "study_valid_parallel__table",
@@ -417,7 +417,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test3",
             ],
             ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
-            4,
+            5,
             pytest.raises(duckdb.CatalogException),
             [],
         ),
@@ -432,7 +432,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test4",
             ],
             ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
-            4,
+            5,
             pytest.raises(errors.StudyManifestParsingError),
             [],
         ),
@@ -447,7 +447,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test3",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            2,
+            3,
             pytest.raises(errors.StudyManifestParsingError),
             [],
         ),
@@ -466,7 +466,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_dedicated_schema/",
             ],
-            4,
+            5,
             does_not_raise(),
             ["study_dedicated_schema__table_raw_sql"],
         ),
@@ -485,7 +485,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_valid_all_exports/",
             ],
-            5,
+            6,
             does_not_raise(),
             [
                 "study_valid_all_exports__table",
@@ -509,7 +509,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_invalid_duplicate_exports/",
             ],
-            2,
+            3,
             pytest.raises(errors.StudyManifestParsingError),
             [],
         ),
@@ -528,7 +528,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_invalid_unsupported_file/",
             ],
-            2,
+            3,
             pytest.raises(errors.StudyManifestParsingError),
             [],
         ),
@@ -546,11 +546,11 @@ def test_cli_executes_queries(
 
         db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
         db.connect()
-        found_tables = (
-            db.cursor()
-            .execute("SELECT table_schema,table_name FROM information_schema.tables")
-            .fetchall()
-        )
+        for name, dataset in db.get_cached_datasets().items():
+            db.connection.register(f"{name}", dataset)
+        found_tables = db.connection.execute(
+            "SELECT table_schema,table_name FROM information_schema.tables"
+        ).fetchall()
         assert len(found_tables) == expected_tables + FHIR_RESOURCE_TABLE_COUNT
         for table in found_tables:
             # If a table was created by this run, check it has the study prefix

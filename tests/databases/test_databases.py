@@ -325,7 +325,7 @@ def test_duckdb_to_utf8(mock_db):
     hash_val = cursor.execute(
         "SELECT md5(to_utf8(table_name)) FROM information_schema.tables"
     ).fetchone()
-    assert hash_val == ("47a83502f34b0d2155e1b22b19fb8431",)
+    assert hash_val == ("12957e64ed45cccf71b4c31d07a7a8bb",)
 
 
 @pytest.mark.parametrize(

@@ -118,7 +118,7 @@ def test_duckdb_table_schema():
                 ndjson,
             )
 
-        db.insert_tables(databases.read_ndjson_dir(tmpdir))
+        db.insert_tables(databases.get_ndjson_files(tmpdir))
 
         # Look for a mix of camel-cased and lower-cased fields. Both should work.
         target_schema = {

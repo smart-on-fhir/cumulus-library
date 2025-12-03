@@ -1,8 +1,11 @@
 study_prefix = "discovery"
 
-[file_config]
-file_names = [
+[file_config.file_names]
+"code detection" = [
     "code_detection.py",
+]
+"temp data cleanup" = [
+    "cleanup_tmp.py"
 ]
 
 
