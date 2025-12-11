@@ -5,8 +5,10 @@ import datetime
 import json
 import os
 import pathlib
+import time
 from unittest import mock
 
+import duckdb
 import numpy
 import pandas
 import pytest
@@ -36,6 +38,32 @@ ID_PATHS = {
     "observation": [["id"], ["encounter", "reference"]],
     "patient": [["id"]],
 }
+
+
+# Pre-test actions
+def pytest_cmdline_main(config):
+    # We're going to regen the pyarrow cache from the raw data
+    data_path = pathlib.Path(__file__).parent / "test_data/duckdb_data"
+    db, _ = databases.create_db_backend(
+        {
+            "db_type": "duckdb",
+            "database": ":memory:",
+            "load_ndjson_dir": data_path,
+        }
+    )
+    while True:
+        try:
+            db.connection.execute(
+                f"COPY pyarrow_cache TO '{data_path}/pyarrow_cache.parquet' (FORMAT parquet)"
+            )
+            break
+        # Only in the case of running multiple threads with pytest-xdist, we can run into
+        # file lock issues trying to access the write location, since this gets called before
+        # each session - so we'll just do a light backoff/retry until they get sorted out.
+        except duckdb.IOException:
+            time.sleep(0.1)
+
+
 # Utility functions
 
 

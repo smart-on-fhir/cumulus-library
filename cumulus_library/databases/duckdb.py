@@ -60,7 +60,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
 
         # Are we getting a cached copy of the pyarrow schema when the class was created?
         # Usually this means we're running unit tests and trying to save time
-        if self.pyarrow_cache_path:
+        if self.pyarrow_cache_path and pathlib.Path(self.pyarrow_cache_path).is_file():
             self.connection.execute(
                 "CREATE TABLE IF NOT EXISTS pyarrow_cache AS "  # noqa: S608
                 f"SELECT * FROM read_parquet('{self.pyarrow_cache_path}')"
