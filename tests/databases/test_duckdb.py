@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from cumulus_library import cli, databases
+from cumulus_library import cli, databases, errors
 from cumulus_library.template_sql import base_templates
 
 
@@ -93,6 +93,12 @@ def test_duckdb_load_ndjson_dir(tmp_path):
     found_bad = found_ids - found_good
     assert len(found_good) == expected_good_count
     assert len(found_bad) == 0
+
+    # edge case handling around ndjson function args
+    with pytest.raises(errors.CumulusLibraryError):
+        databases.read_ndjson_dir(None, None)
+    tables = databases.read_ndjson_dir(tmp_path, None)
+    assert len(tables) == 17
 
 
 def test_duckdb_table_schema():

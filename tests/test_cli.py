@@ -90,6 +90,11 @@ def test_cli_early_exit(args):
             "study_python_valid__count_table",
         ),
         (
+            ["build", "-t", "study_python_valid", "--builder", "not_a_module"],
+            pytest.raises(SystemExit),
+            "study_python_valid__count_table",
+        ),
+        (
             ["build", "-t", "study_bad_manifest"],
             pytest.raises(SystemExit),
             "study_python_valid__count_table",
