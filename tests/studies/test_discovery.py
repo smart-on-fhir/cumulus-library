@@ -80,8 +80,7 @@ CREATE TABLE discovery__tmp_arrays_acol AS
         table_2.col_2.system
     FROM arrays,
     UNNEST(acol) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2)
-;
+    UNNEST(col_1.coding) as table_2 (col_2);
 CREATE TABLE discovery__tmp_dictarray_col AS
 
     SELECT DISTINCT
@@ -91,8 +90,7 @@ CREATE TABLE discovery__tmp_dictarray_col AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM dictarray,
-    UNNEST(col.coding) AS table_1 (col_1)
-;
+    UNNEST(col.coding) AS table_1 (col_1);
 CREATE TABLE discovery__tmp_bare_bcol AS
 
     SELECT DISTINCT
@@ -101,8 +99,7 @@ CREATE TABLE discovery__tmp_bare_bcol AS
         bcol.coding.code,
         bcol.coding.display,
         bcol.coding.system
-    FROM bare
-;
+    FROM bare;
 CREATE TABLE discovery__tmp_bare_nested_coding_dcol_code AS
 
     SELECT DISTINCT
@@ -113,36 +110,60 @@ CREATE TABLE discovery__tmp_bare_nested_coding_dcol_code AS
         table_2.col_2.system
     FROM bare_nested_coding,
     UNNEST(dcol) AS table_1 (col_1),
-    UNNEST(col_1.code.coding) as table_2 (col_2)
-;
+    UNNEST(col_1.code.coding) as table_2 (col_2);
 CREATE TABLE discovery__tmp_empty_empty AS
-    SELECT *
-    FROM (
-        VALUES (
-            'empty',
-            'empty',
-            '',
-            '',
-            ''
-        )
+SELECT *
+FROM (
+    VALUES (
+        'empty',
+        'empty',
+        '',
+        '',
+        ''
     )
-        AS t (table_name, column_name, code, display, system)
-;
+)
+    AS t (table_name, column_name, code, display, system);
 CREATE TABLE output_table AS
-SELECT table_name, column_name, code, display, system
-    FROM discovery__tmp_arrays_acol
+--noqa: disable=LTO2,LT09,CV06
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_arrays_acol
 UNION ALL
-SELECT table_name, column_name, code, display, system
-    FROM discovery__tmp_dictarray_col
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_dictarray_col
 UNION ALL
-SELECT table_name, column_name, code, display, system
-    FROM discovery__tmp_bare_bcol
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_bare_bcol
 UNION ALL
-SELECT table_name, column_name, code, display, system
-    FROM discovery__tmp_bare_nested_coding_dcol_code
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_bare_nested_coding_dcol_code
 UNION ALL
-SELECT table_name, column_name, code, display, system
-    FROM discovery__tmp_empty_empty
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_empty_empty
 ;"""
     query = discovery_templates.get_system_pairs(
         "output_table",
