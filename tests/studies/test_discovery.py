@@ -69,52 +69,49 @@ def test_discovery(tmp_path):
 
 
 def test_get_system_pairs():
-    expected = """CREATE TABLE output_table AS
-SELECT DISTINCT
-    'arrays' AS table_name,
-    'acol' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM arrays,
-UNNEST(acol) AS table_1 (col_1),
-UNNEST(col_1.coding) as table_2 (col_2)
+    expected = """
+CREATE TABLE discovery__tmp_arrays_acol AS
 
-UNION ALL
+    SELECT DISTINCT
+        'arrays' AS table_name,
+        'acol' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM arrays,
+    UNNEST(acol) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2);
+CREATE TABLE discovery__tmp_dictarray_col AS
 
-SELECT DISTINCT
-    'dictarray' AS table_name,
-    'col' AS column_name,
-    table_1.col_1.code,
-    table_1.col_1.display,
-    table_1.col_1.system
-FROM dictarray,
-UNNEST(col.coding) AS table_1 (col_1)
+    SELECT DISTINCT
+        'dictarray' AS table_name,
+        'col' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM dictarray,
+    UNNEST(col.coding) AS table_1 (col_1);
+CREATE TABLE discovery__tmp_bare_bcol AS
 
-UNION ALL
+    SELECT DISTINCT
+        'bare' AS table_name,
+        'bcol' AS column_name,
+        bcol.coding.code,
+        bcol.coding.display,
+        bcol.coding.system
+    FROM bare;
+CREATE TABLE discovery__tmp_bare_nested_coding_dcol_code AS
 
-SELECT DISTINCT
-    'bare' AS table_name,
-    'bcol' AS column_name,
-    bcol.coding.code,
-    bcol.coding.display,
-    bcol.coding.system
-FROM bare
-
-UNION ALL
-
-SELECT DISTINCT
-    'bare_nested_coding' AS table_name,
-    'dcol.code' AS column_name,
-    table_2.col_2.code,
-    table_2.col_2.display,
-    table_2.col_2.system
-FROM bare_nested_coding,
-UNNEST(dcol) AS table_1 (col_1),
-UNNEST(col_1.code.coding) as table_2 (col_2)
-
-UNION ALL
-
+    SELECT DISTINCT
+        'bare_nested_coding' AS table_name,
+        'dcol.code' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM bare_nested_coding,
+    UNNEST(dcol) AS table_1 (col_1),
+    UNNEST(col_1.code.coding) as table_2 (col_2);
+CREATE TABLE discovery__tmp_empty_empty AS
 SELECT *
 FROM (
     VALUES (
@@ -125,10 +122,49 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system)
-
-
-"""
+    AS t (table_name, column_name, code, display, system);
+CREATE TABLE output_table AS
+--noqa: disable=LTO2,LT09,CV06
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_arrays_acol
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_dictarray_col
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_bare_bcol
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_bare_nested_coding_dcol_code
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_empty_empty
+;"""
     query = discovery_templates.get_system_pairs(
         "output_table",
         [

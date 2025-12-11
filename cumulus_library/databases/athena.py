@@ -27,6 +27,8 @@ from cumulus_library.databases import base
 class AthenaDatabaseBackend(base.DatabaseBackend):
     """Database backend that can talk to AWS Athena"""
 
+    connection: None | AthenaCursor
+
     def __init__(
         self,
         region: str,
@@ -205,7 +207,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     ) -> None:
         def query_completed(f: futures.Future):
             with base_utils.query_console_output(verbose, query, progress_bar, task):
-                pass
+                f.result()
 
         async_cursor = self.async_cursor()
         queued_queries = []

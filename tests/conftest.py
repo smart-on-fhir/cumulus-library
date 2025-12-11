@@ -5,15 +5,16 @@ import datetime
 import json
 import os
 import pathlib
+import time
 from unittest import mock
 
+import duckdb
 import numpy
 import pandas
 import pytest
 import rich
 
-from cumulus_library import base_utils, cli
-from cumulus_library.databases import create_db_backend
+from cumulus_library import base_utils, cli, databases
 
 # Useful constants
 
@@ -37,6 +38,32 @@ ID_PATHS = {
     "observation": [["id"], ["encounter", "reference"]],
     "patient": [["id"]],
 }
+
+
+# Pre-test actions
+def pytest_cmdline_main(config):
+    # We're going to regen the pyarrow cache from the raw data
+    data_path = pathlib.Path(__file__).parent / "test_data/duckdb_data"
+    db, _ = databases.create_db_backend(
+        {
+            "db_type": "duckdb",
+            "database": ":memory:",
+            "load_ndjson_dir": data_path,
+        }
+    )
+    while True:
+        try:
+            db.connection.execute(
+                f"COPY pyarrow_cache TO '{data_path}/pyarrow_cache.parquet' (FORMAT parquet)"
+            )
+            break
+        # Only in the case of running multiple threads with pytest-xdist, we can run into
+        # file lock issues trying to access the write location, since this gets called before
+        # each session - so we'll just do a light backoff/retry until they get sorted out.
+        except duckdb.IOException:
+            time.sleep(0.1)
+
+
 # Utility functions
 
 
@@ -211,12 +238,13 @@ def mock_env():
 @pytest.fixture
 def mock_db(tmp_path):
     """Provides a DuckDatabaseBackend for local testing"""
-    db, _ = create_db_backend(
+    db, _ = databases.create_db_backend(
         {
             "db_type": "duckdb",
             "database": f"{tmp_path}/duck.db",
             "load_ndjson_dir": MOCK_DATA_DIR,
-        }
+        },
+        pyarrow_cache_path=f"{MOCK_DATA_DIR}/pyarrow_cache.parquet",
     )
     yield db
 
@@ -254,7 +282,7 @@ def mock_db_core_config(mock_db_core):
 def mock_db_stats(tmp_path):
     """Provides a DuckDatabaseBackend with a larger dataset for sampling stats"""
     ndjson_data_generator(pathlib.Path(MOCK_DATA_DIR), f"{tmp_path}/mock_data", 20)
-    db, _schema = create_db_backend(
+    db, _schema = databases.create_db_backend(
         {
             "db_type": "duckdb",
             "database": f"{tmp_path}/stats.db",

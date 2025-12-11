@@ -178,6 +178,9 @@ def build_matching_files(
         for file in all_generators:
             if file.find(builder) != -1:
                 matches.append(file)
+    if len(matches) == 0:
+        rich.print(f"No builders matching {builder} found - is it in your study manifest?")
+        sys.exit()
     build_study(
         config,
         manifest,

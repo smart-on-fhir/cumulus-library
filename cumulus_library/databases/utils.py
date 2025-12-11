@@ -31,11 +31,8 @@ def _json_format():
     return pyarrow.dataset.JsonFileFormat(read_options=read_options)
 
 
-def _load_custom_etl_table(path: str) -> pyarrow.dataset.Dataset | None:
+def _load_custom_etl_table(files: list[str]) -> pyarrow.dataset.Dataset | None:
     """Loads a non-FHIR ETL table from disk (tables like etl__completion)."""
-    files = list(cumulus_fhir_support.list_multiline_json_in_dir(path))
-    if not files:
-        return None
 
     # This is a custom Cumulus ETL table, with no easy way to get a schema definition.
     # We **could** put a hard-coded shared schema in cumulus-fhir-support, but since these
@@ -59,18 +56,15 @@ def _load_custom_etl_table(path: str) -> pyarrow.dataset.Dataset | None:
     return pyarrow.dataset.dataset(files, schema=schema, format=_json_format())
 
 
-def read_ndjson_dir(path: str) -> dict[str, pyarrow.dataset.Dataset]:
-    """Loads a directory tree of raw ndjson into schema-ful tables.
+def get_ndjson_files(path: str) -> dict[dict[str]]:
+    """Gets a list of expected possible FHIR ndjson from the target path"""
 
-    :param path: a directory path
-    :returns: dictionary of table names (like 'documentreference') to table
-      data (with schema)
-    """
     all_tables = {}
-
+    resources = {}
+    metadata = {}
     # Manually specify the list of resources because we want to create each table
     # even if the folder does not exist.
-    resources = [
+    resource_names = [
         "AllergyIntolerance",
         "Condition",
         "Device",
@@ -89,10 +83,50 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.dataset.Dataset]:
         "Procedure",
         "ServiceRequest",
     ]
-    for resource in resources:
-        table_name = resource.lower()
+    for resource in resource_names:
         files = _list_files_for_resource(pathlib.Path(path), resource)
+        resources[resource] = files
+    all_tables["resources"] = resources
 
+    metadata_tables = [
+        "etl__completion",
+        "etl__completion_encounters",
+    ]
+    for metadata_table in metadata_tables:
+        files = list(
+            cumulus_fhir_support.list_multiline_json_in_dir(pathlib.Path(path) / metadata_table)
+        )
+        metadata[metadata_table] = files
+    all_tables["metadata"] = metadata
+    return all_tables
+
+
+def read_ndjson_dir(
+    path: str | None, fileset: dict[dict[str]] | None = None
+) -> dict[str, pyarrow.dataset.Dataset]:
+    """Loads a directory tree of raw ndjson into schema-ful tables.
+
+    One of either path or fileset must be provided.
+
+    :param path: a directory path to ndjson
+    :param fileset: A dictionary of ndjson file locations (usually the output of
+      get_ndjson_files)
+    :returns: dictionary of table names (like 'documentreference') to table
+      data (with schema)
+    """
+    all_tables = {}
+    if not fileset and not path:
+        raise errors.CumulusLibraryError(
+            "databases.utils.read_ndjson_dir() requires either a path or fileset argument."
+        )
+    # You may already have a fileset from using get_ndjson_files() to check if
+    # your FHIR data has changed, if your DB is using that to cache.
+    # If not, we'll just get that list directly.
+    if not fileset:
+        fileset = get_ndjson_files(path)
+
+    for resource, files in fileset["resources"].items():
+        table_name = resource.lower()
         # Make a pyarrow table with full schema from the data
         schema = cumulus_fhir_support.pyarrow_schema_from_rows(resource, _rows_from_files(files))
         # Use a PyArrow Dataset (vs a Table) to avoid loading all the files in memory.
@@ -101,14 +135,9 @@ def read_ndjson_dir(path: str) -> dict[str, pyarrow.dataset.Dataset]:
         )
 
     # And now some special support for a few ETL tables.
-    metadata_tables = [
-        "etl__completion",
-        "etl__completion_encounters",
-    ]
-    for metadata_table in metadata_tables:
-        if dataset := _load_custom_etl_table(f"{path}/{metadata_table}"):
+    for metadata_table, meta_path in fileset["metadata"].items():
+        if dataset := _load_custom_etl_table(meta_path):
             all_tables[metadata_table] = dataset
-
     return all_tables
 
 
@@ -125,10 +154,13 @@ def _handle_load_ndjson_dir(args: dict[str, str], backend: base.DatabaseBackend)
 
     with base_utils.get_progress_bar() as progress:
         progress.add_task("Detecting JSON schemas...", total=None)
-        backend.insert_tables(read_ndjson_dir(load_ndjson_dir))
+        tables = get_ndjson_files(load_ndjson_dir)
+        backend.insert_tables(tables)
 
 
-def create_db_backend(args: dict[str, str]) -> tuple[base.DatabaseBackend, str]:
+def create_db_backend(
+    args: dict[str, str], pyarrow_cache_path: str | None = None
+) -> tuple[base.DatabaseBackend, str]:
     """Retrieves a database backend and target schema from CLI args"""
     db_config.db_type = args["db_type"]
 
@@ -142,7 +174,9 @@ def create_db_backend(args: dict[str, str]) -> tuple[base.DatabaseBackend, str]:
             )
         schema_name = "main"
         backend = duckdb.DuckDatabaseBackend(
-            args["database"], max_concurrent=args.get("max_concurrent")
+            args["database"],
+            max_concurrent=args.get("max_concurrent"),
+            pyarrow_cache_path=pyarrow_cache_path,
         )
     elif db_config.db_type == "athena":
         if (

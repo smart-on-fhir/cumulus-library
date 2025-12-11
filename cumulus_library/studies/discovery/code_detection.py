@@ -9,6 +9,7 @@ from cumulus_library.template_sql import sql_utils
 
 class CodeDetectionBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Selecting unique code systems..."
+    parallel_allowed = False
 
     def _check_coding_against_db(self, code_source, database):
         """selects the appropriate DB query to run"""

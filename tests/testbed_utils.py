@@ -1,6 +1,7 @@
 """Helper class to set up local files for testing"""
 
 import json
+import pathlib
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -264,7 +265,10 @@ class LocalTestbed:
                 "database": db_file,
                 "load_ndjson_dir": str(self.path),
                 "prepare": False,
-            }
+            },
+            pyarrow_cache_path=(
+                f"{pathlib.Path(__file__).parent}/test_data/duckdb_data/pyarrow_cache.parquet"
+            ),
         )
         config = base_utils.StudyConfig(
             db=db,
