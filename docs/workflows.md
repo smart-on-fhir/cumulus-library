@@ -14,8 +14,9 @@ for use in Cumulus studies.
 
 ## Specific workflows
 
-- [Propensity Score Matching](workflows/propensity-score-matching.md).
-- [Valueset Compilation](workflows/valueset.md).
+- [File Upload](workflows/file-upload.md)
+- [Propensity Score Matching](workflows/propensity-score-matching.md)
+- [Valueset Compilation](workflows/valueset.md)
 
 ## General usage guidelines
 

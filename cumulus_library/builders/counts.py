@@ -241,6 +241,7 @@ class CountsBuilder(BaseTableBuilder):
         where_clauses: list | None = None,
         min_subject: int | None = None,
         annotation: counts_templates.CountAnnotation | None = None,
+        skip_status_filter: bool | None = False,
     ) -> str:
         """wrapper method for constructing encounter counts tables
 
@@ -260,6 +261,7 @@ class CountsBuilder(BaseTableBuilder):
             min_subject=min_subject,
             fhir_resource="encounter",
             annotation=annotation,
+            skip_status_filter=skip_status_filter,
         )
 
     def count_medicationrequest(
@@ -299,6 +301,7 @@ class CountsBuilder(BaseTableBuilder):
         where_clauses: list | None = None,
         min_subject: int | None = None,
         annotation: counts_templates.CountAnnotation | None = None,
+        skip_status_filter: bool | None = False,
     ) -> str:
         """wrapper method for constructing observation counts tables
 
@@ -318,6 +321,7 @@ class CountsBuilder(BaseTableBuilder):
             min_subject=min_subject,
             fhir_resource="observation",
             annotation=annotation,
+            skip_status_filter=skip_status_filter,
         )
 
     def count_patient(

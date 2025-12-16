@@ -282,6 +282,15 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         self.connection.execute(query)
         return True
 
+    def _write_thread(self, query, verbose, progress_bar, task, query_console_output, datasets):
+        thread_con = self.connection.cursor()
+        # Since registrations are per cursor, we'll use our cache
+        # of pyarrow datasets again to re-initialize ndjson tables
+        for name, dataset in datasets.items():
+            thread_con.register(f"{name}", dataset)
+        with query_console_output(verbose, query, progress_bar, task):
+            thread_con.execute(query)
+
     def parallel_write(
         self,
         queries: list[str],
@@ -289,33 +298,26 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         progress_bar: progress.Progress,
         task: progress.Task,
     ):
-        def write_thread(query, verbose, progress_bar, task, query_console_output, datasets):
-            thread_con = self.connection.cursor()
-            # Since registrations are per cursor, we'll use our cache
-            # of pyarrow datasets again to re-initialize ndjson tables
-            for name, dataset in datasets.items():
-                thread_con.register(f"{name}", dataset)
-            with query_console_output(verbose, query, progress_bar, task):
-                thread_con.execute(query)
-
         datasets = self.get_cached_datasets()
         with futures.ThreadPoolExecutor(max_workers=self.max_concurrent) as executor:
             res = []
             for query in queries:
                 res.append(
-                    executor.submit(
-                        write_thread,
+                    (
                         query,
-                        verbose,
-                        progress_bar,
-                        task,
-                        base_utils.query_console_output,
-                        datasets,
+                        executor.submit(
+                            self._write_thread,
+                            query,
+                            verbose,
+                            progress_bar,
+                            task,
+                            base_utils.query_console_output,
+                            datasets,
+                        ),
                     )
                 )
-                # if we got an error running in parallel, we'll let it fire.
-                for f in res:
-                    f.result()
+            utils.handle_concurrent_errors(res, self.db_type)
+
         # This is a temporary workaround for cases where duckdb is still doing :something:
         # after the threads have resolved, where if you try to recreate a table it may throw
         # an error, which is only affecting the --statistics flag ¯\_(ツ)_/¯

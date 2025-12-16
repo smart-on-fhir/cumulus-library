@@ -18,7 +18,12 @@ class BaseTableBuilder(abc.ABC):
 
     display_text = "Building custom tables..."
 
-    def __init__(self, manifest: study_manifest.StudyManifest | None = None):
+    def __init__(
+        self,
+        manifest: study_manifest.StudyManifest | None = None,
+        *args,
+        **kwargs,
+    ):
         self.queries = []
         self.parallel_allowed = True
 

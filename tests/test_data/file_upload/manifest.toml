@@ -1,0 +1,4 @@
+study_prefix = "file_upload"
+
+[file_config]
+file_names = ["workflow.toml"]

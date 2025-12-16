@@ -22,7 +22,12 @@ from cumulus_library import (
     log_utils,
     study_manifest,
 )
-from cumulus_library.builders import protected_table_builder, psm_builder, valueset_builder
+from cumulus_library.builders import (
+    file_upload_builder,
+    protected_table_builder,
+    psm_builder,
+    valueset_builder,
+)
 
 ######### public functions #########
 
@@ -35,7 +40,7 @@ def build_study(
     continue_from: str | None = None,
     file_list: list | None = None,
     prepare: bool = False,
-    data_path: pathlib.Path | None,
+    data_path: pathlib.Path | None = None,
 ) -> None:
     """Creates tables in the schema by iterating through the sql_config.file_names
 
@@ -523,16 +528,7 @@ def _run_workflow(
             is_toml=True,
         )
         return []
-    existing_stats = []
-    if not config.stats_build:
-        existing_stats = (
-            config.db.cursor()
-            .execute(
-                "SELECT view_name FROM "  # noqa: S608
-                f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}"
-            )
-            .fetchall()
-        )
+
     # This open is a bit redundant with the open inside of the PSM builder,
     # but we're letting it slide so that builders function similarly
     # across the board
@@ -542,20 +538,38 @@ def _run_workflow(
         config_type = workflow_config["config_type"]
         target_table = workflow_config.get("target_table", workflow_config.get("table_prefix", ""))
 
-    if (target_table,) in existing_stats and not config.stats_build:
-        return []
     match config_type:
         case "psm":
+            existing_stats = []
+            if not config.stats_build:
+                existing_stats = (
+                    config.db.cursor()
+                    .execute(
+                        "SELECT view_name FROM "  # noqa: S608
+                        f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}"
+                    )
+                    .fetchall()
+                )
+            if (target_table,) in existing_stats and not config.stats_build:
+                return []
             builder = psm_builder.PsmBuilder(
                 toml_config_path=toml_path,
-                config=workflow_config,
+                config=config,
+                workflow_config=workflow_config,
                 data_path=manifest.data_path / f"{manifest.get_study_prefix()}/psm",
             )
         case "valueset":
             builder = valueset_builder.ValuesetBuilder(
                 toml_config_path=toml_path,
-                config=workflow_config,
+                config=config,
+                workflow_config=workflow_config,
                 data_path=manifest.data_path / f"{manifest.get_study_prefix()}/valueset",
+            )
+        case "file_upload":
+            builder = file_upload_builder.FileUploadBuilder(
+                toml_config_path=toml_path,
+                config=config,
+                workflow_config=workflow_config,
             )
         case _:  # pragma: no cover
             raise errors.StudyManifestParsingError(
@@ -623,7 +637,7 @@ def _check_query_for_errors(
     filename: str,
 ):
     try:
-        table = str(sqlglot.parse_one(query).find(sqlglot.exp.Table))
+        table = str(sqlglot.parse_one(query, dialect=config.db.db_type).find(sqlglot.exp.Table))
     except sqlglot.errors.ParseError:
         _query_error(
             config,
@@ -633,7 +647,7 @@ def _check_query_for_errors(
             "This query is not a valid SQL query. Check the query against a database "
             "for more debugging information.",
         )
-    if f"{manifest.get_study_prefix()}__" not in table and not manifest.get_dedicated_schema():
+    if f"{manifest.get_study_prefix()}__" not in query and not manifest.get_dedicated_schema():
         _query_error(
             config,
             manifest,

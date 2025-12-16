@@ -2,7 +2,7 @@
 title: Valuesets
 parent: Workflows
 grand_parent: Library
-nav_order: 2
+nav_order: 3
 # audience: clinical researchers, IRB reviewers
 # type: reference
 ---
@@ -40,7 +40,7 @@ which results in a higher positive identification than any single method by itse
 
 ## Configuring a valuset task
 
-The PSM config you reference in your study manifest is expected to contain a number of 
+The config you reference in your study manifest is expected to contain a number of 
 field definitions. We **strongly** recommend starting from the below template, which
 contains details on the expectations of each value.
 

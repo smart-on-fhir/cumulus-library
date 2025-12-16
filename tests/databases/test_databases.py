@@ -411,3 +411,36 @@ def test_athena_operational_errors(mock_botocore, mock_cursor, error, raises):
     mock_cursor.return_value.execute.return_value.fetchall.side_effect = error
     with raises:
         sql_utils.validate_schema(db, {"table": {"foo": "bar"}})
+
+
+@mock.patch("cumulus_library.databases.duckdb.DuckDatabaseBackend._write_thread")
+def test_parallel_errors_duckdb(mock_thread, mock_db):
+    mock_thread.side_effect = pytest.raises(Exception)
+    with pytest.raises(SystemExit, match=(r"One or more queries failed to execute:")):
+        mock_db.parallel_write(
+            queries=["select * from foo"],
+            verbose=False,
+            progress_bar=mock.MagicMock(),
+            task=mock.MagicMock(),
+        )
+
+
+@mock.patch("cumulus_library.databases.athena.AthenaDatabaseBackend.async_cursor")
+@mock.patch("botocore.client")
+@mock.patch("pyathena.result_set.AthenaResultSet")
+def test_parallel_errors_athena(mock_result_set, mock_botocore, mock_cursor):
+    # faking out our mock to have a class level property
+    mock_state = mock.PropertyMock(return_value="FAILED")
+    type(mock_result_set).state = mock_state
+
+    mock_future = mock.MagicMock()
+    mock_future.result.return_value = mock_result_set
+    mock_cursor.return_value.execute.return_value = (0, mock_future)
+    db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
+    with pytest.raises(SystemExit, match=(r"One or more queries failed to execute:")):
+        db.parallel_write(
+            queries=["select * from foo"],
+            verbose=False,
+            progress_bar=mock.MagicMock(),
+            task=mock.MagicMock(),
+        )
