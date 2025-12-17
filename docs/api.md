@@ -194,11 +194,10 @@ In detail, the expected arguments are as follows:
     sets to help preserve patient anonymity. Note: if you define where_clauses, this is not used, and you should provide an equivalent method of binning patients
 - *annotation*: An external source to use for adding metadata to a counts table. See `CountAnnotation` below for more info.
 - `count_documentreference`, `count_encounter`, and `count_observation` have an 
-    optional argument, *skip_status_filter*, which removes the check in the query 
-    for the status field being equal to its finished state. If you are making 
-    tables without the status, make sure you're otherwise removing documents that 
-    are in non-finished state depending on the resource type, or are otherwise
-    handling in progress/cancelled states.
+    optional argument, *filter_status*, which adds a check in the query 
+    for the status field being equal to its finished state. If you are not doing
+    this as part of your cohort definition, this can be helpful for excluding
+    cancelled/entered in error type issues
 
 A count generator returns the function created from the counts template.
 
