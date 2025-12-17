@@ -99,7 +99,7 @@ class CountsBuilder(BaseTableBuilder):
                 "skip_status_filter",
             ]:
                 raise errors.CountsBuilderError(f"count_query received unexpected key: {key}")
-            if key == "skip_status_filter":
+            if key == "skip_status_filter":  # pragma: no cover
                 rich.print(
                     "[yellow]Deprecation notice[/yellow]: the behavior of 'skip_status_filter' "
                     "is now the default behavior and the argument is considered deprecated.\n"
