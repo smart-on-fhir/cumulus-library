@@ -1,0 +1,11 @@
+config_type="file_upload"
+[tables.csv]
+file = "upload_commas.csv"
+[tables.tsv]
+file = "upload_tabs.tsv"
+[tables.bsv]
+file = "upload_bars.bsv"
+[tables.xslx]
+file = "upload_excel.xlsx"
+[tables.parquet]
+file = "upload.parquet"

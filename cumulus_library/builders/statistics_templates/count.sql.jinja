@@ -100,15 +100,15 @@ CREATE TABLE {{ table_name }} AS (
             ON s.encounter_ref = e.encounter_ref
         {%- endif -%}
         {#- resource specific filtering conditions -#}
-        {%- if fhir_resource == 'documentreference' %}
         {%- if skip_status_filter is false %}
+        {%- if fhir_resource == 'documentreference' %}
         WHERE (s.status = 'current')
         AND (s.docStatus IS null OR s.docStatus IN ('final', 'amended'))
-        {%- endif%}
         {%- elif fhir_resource == 'encounter' %}
         WHERE s.status = 'finished'
         {%- elif fhir_resource == 'observation' %}
         WHERE (s.status = 'final' OR s.status= 'amended')
+        {%- endif %}
         {%- endif %}
     ),
     {% endif %}

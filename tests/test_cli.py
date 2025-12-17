@@ -876,6 +876,7 @@ def test_cli_finds_study_from_manifest_prefix(tmp_path):
 @mock.patch("cumulus_library.base_utils.StudyConfig")
 def test_cli_custom_args(mock_config, tmp_path, option, raises):
     mock_config.return_value.stats_clean = False
+    mock_config.return_value.db.db_type = "duckdb"
     with raises:
         cli.main(
             cli_args=duckdb_args(
@@ -898,6 +899,7 @@ def test_cli_custom_args(mock_config, tmp_path, option, raises):
 @mock.patch("cumulus_library.base_utils.StudyConfig")
 def test_cli_no_custom_args_yields_empty_dict(mock_config, tmp_path):
     mock_config.return_value.stats_clean = False
+    mock_config.return_value.db.db_type = "duckdb"
     cli.main(
         cli_args=duckdb_args(
             [
@@ -1144,6 +1146,7 @@ def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_
     clear=True,
 )
 def test_max_concurrent(mock_backend, mock_session, mock_threadpool, tmp_path):
+    mock_backend.return_value.db_type = "athena"
     study_args = [
         "build",
         "-t",

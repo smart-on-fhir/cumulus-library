@@ -21,7 +21,7 @@ from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
 from rich import progress
 
 from cumulus_library import base_utils, errors
-from cumulus_library.databases import base
+from cumulus_library.databases import base, utils
 
 
 class AthenaDatabaseBackend(base.DatabaseBackend):
@@ -207,15 +207,15 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     ) -> None:
         def query_completed(f: futures.Future):
             with base_utils.query_console_output(verbose, query, progress_bar, task):
-                f.result()
+                pass
 
         async_cursor = self.async_cursor()
-        queued_queries = []
+        res = []
         for query in queries:
             _, future = async_cursor.execute(query)
             future.add_done_callback(query_completed)
-            queued_queries.append(future)
-        futures.wait(queued_queries)
+            res.append((query, future))
+        utils.handle_concurrent_errors(res, self.db_type)
 
     def create_schema(self, schema_name) -> None:
         """Creates a new schema object inside the database"""

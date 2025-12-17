@@ -1,6 +1,7 @@
 import pathlib
 import sys
 from collections.abc import Iterable
+from concurrent import futures
 
 import cumulus_fhir_support
 import pyarrow
@@ -207,3 +208,26 @@ def create_db_backend(
         backend.connect()
     _handle_load_ndjson_dir(args, backend)
     return (backend, schema_name)
+
+
+def handle_concurrent_errors(
+    resolved_futures: list[tuple[str, futures.Future]], db_type: str
+) -> None:
+    """Exits with formatted errors if a query fails during parallel execution"""
+    failures = []
+    for f in resolved_futures:
+        try:
+            res = f[1].result()
+            # pyathena has a helper class for resolved futures,
+            # so we'll check for it's specific failure indicator
+            if db_type == "athena":
+                if res.state == "FAILED":
+                    failures.append((f[0], res.error_message))
+        except Exception:
+            failures.append((f[0], str(f[1].exception())))
+    if failures:
+        exit_msg = ""
+        for f in failures:
+            exit_msg = f"{exit_msg}\n-----\n{f[0]}\n\nHad the following error:\n\n"
+            exit_msg += f"{f[1]}\n"
+        sys.exit(f"One or more queries failed to execute:\n{exit_msg}")

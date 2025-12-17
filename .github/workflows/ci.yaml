@@ -40,7 +40,7 @@ jobs:
           echo -e "[test]\naws_access_key_id = test\naws_secret_access_key = test" > ~/.aws/credentials
       - name: Test with pytest
         run: |
-          python -m pytest --cov-report xml --cov=cumulus_library tests
+          python -m pytest -n auto --cov-report xml --cov=cumulus_library tests
       - name: Log missing coverage
         run: |
           coverage report -m --skip-covered

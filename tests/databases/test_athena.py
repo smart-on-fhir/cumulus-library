@@ -10,6 +10,7 @@ import awswrangler
 import botocore
 import pandas
 import pyathena
+import pytest
 
 from cumulus_library import base_utils, databases, study_manifest
 
@@ -166,21 +167,22 @@ def test_parallel_write(mock_cursor_getter):
     def mock_query_run():
         time.sleep(0.25)
 
-    with futures.ThreadPoolExecutor(max_workers=5) as executor:
-        for i in range(0, 20):
-            queries.append(f"select {i} from foo")
-            cursor_returns.append((i, executor.submit(mock_query_run)))
-            mock_cursor.execute.side_effect = cursor_returns
-        with base_utils.get_progress_bar() as progress_bar:
-            task = progress_bar.add_task(
-                "test queries",
-                total=len(queries),
-                visible=True,
-            )
-            db.parallel_write(queries, False, progress_bar, task)
-    assert len(mock_cursor.execute.call_args_list) == 20
-    assert mock_cursor.execute.call_args_list[0][0][0] == "select 0 from foo"
-    assert mock_cursor.execute.call_args_list[19][0][0] == "select 19 from foo"
+    with pytest.raises(SystemExit):
+        with futures.ThreadPoolExecutor(max_workers=5) as executor:
+            for i in range(0, 20):
+                queries.append(f"select {i} from foo")
+                cursor_returns.append((i, executor.submit(mock_query_run)))
+                mock_cursor.execute.side_effect = cursor_returns
+            with base_utils.get_progress_bar() as progress_bar:
+                task = progress_bar.add_task(
+                    "test queries",
+                    total=len(queries),
+                    visible=True,
+                )
+                db.parallel_write(queries, False, progress_bar, task)
+        assert len(mock_cursor.execute.call_args_list) == 20
+        assert mock_cursor.execute.call_args_list[0][0][0] == "select 0 from foo"
+        assert mock_cursor.execute.call_args_list[19][0][0] == "select 19 from foo"
 
 
 @mock.patch("botocore.client")

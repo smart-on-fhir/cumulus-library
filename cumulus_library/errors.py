@@ -19,8 +19,12 @@ class CountsBuilderError(CumulusLibraryError):
     """Basic error for CountsBuilder"""
 
 
+class FileUploadError(CumulusLibraryError):
+    """Basic error for FileUploadBuilder"""
+
+
 class StudyImportError(CumulusLibraryError):
-    """Basic error for CountsBuilder"""
+    """Basic error for study importing"""
 
 
 class StudyManifestFilesystemError(CumulusLibraryError):

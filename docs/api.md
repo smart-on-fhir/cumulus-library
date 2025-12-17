@@ -193,6 +193,12 @@ In detail, the expected arguments are as follows:
 - *min_subject*: An integer setting the minimum bin size, for masking small sample size 
     sets to help preserve patient anonymity. Note: if you define where_clauses, this is not used, and you should provide an equivalent method of binning patients
 - *annotation*: An external source to use for adding metadata to a counts table. See `CountAnnotation` below for more info.
+- `count_documentreference`, `count_encounter`, and `count_observation` have an 
+    optional argument, *skip_status_filter*, which removes the check in the query 
+    for the status field being equal to its finished state. If you are making 
+    tables without the status, make sure you're otherwise removing documents that 
+    are in non-finished state depending on the resource type, or are otherwise
+    handling in progress/cancelled states.
 
 A count generator returns the function created from the counts template.
 
@@ -261,7 +267,7 @@ class MyBuilder(CountsBuilder):
                 annotation=CountAnnotation(
                     field='code',
                     join_table='"umls"."icd10_tree"',
-                    join_column='code',
+                    join_field='code',
                     columns=[
                         ("'icd_10'","system"),
                         ("str", None)
