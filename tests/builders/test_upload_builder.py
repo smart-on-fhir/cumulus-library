@@ -16,7 +16,9 @@ REF_DF = pandas.DataFrame(data={"a": [1, 4], "b": [2, 5], "c": [3, 6]})
 # pandas only officially supports SQLAlchemy, but the pep-compliant DuckDB
 # connection works fine
 @pytest.mark.filterwarnings("ignore:pandas")
-def test_upload_builder(mock_db_config, tmp_path):
+@mock.patch("platformdirs.user_cache_dir")
+def test_upload_builder(mock_cache, mock_db_config, tmp_path):
+    mock_cache.return_value = tmp_path / "cache"
     shutil.copytree(TEST_DATA_PATH, tmp_path / "file_upload", dirs_exist_ok=True)
     manifest = study_manifest.StudyManifest(study_path=tmp_path / "file_upload")
     builder.run_protected_table_builder(config=mock_db_config, manifest=manifest)
@@ -28,9 +30,8 @@ def test_upload_builder(mock_db_config, tmp_path):
         df = pandas.read_sql(f"SELECT * FROM file_upload__{file_format}", conn)
         assert df.equals(REF_DF)
     # Just validating that we're not writing to the same destination for each parquet conversion
-    paths = [x.name for x in (tmp_path / "file_upload").iterdir()]
+    paths = [x.name for x in (tmp_path / "cache/file_uploads/file_upload").iterdir()]
     for name in [
-        "upload.parquet",
         "upload_bars.parquet",
         "upload_commas.parquet",
         "upload_excel.parquet",
