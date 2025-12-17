@@ -60,7 +60,7 @@ file = "dataset_1.csv"
 # in the case of csv/tsv/bsv, we all know the delimiters implied by the filetype 
 # are just a suggestion, so if you have a non-comma delimiter, you can specify it
 # with the delimiter key.
-delimiter = ';'
+delimiter = '\t' # \t is shorthand for a tab
 # By default, each column in a file upload will be a string type. If you'd like to
 # have different data types, you can give a list of types in the order of the columns
 # on the datasource.
@@ -78,4 +78,8 @@ file = "dataset_2.xlsx"
 # You probably won't need to convert things directly to parquet, but if you do, there are
 # no caveats - what you upload is what you get.
 file = "dataset_3.parquet"
+# By default, we'll upload a file every time a study runs. If you'd rather upload on demand,
+# like in the case of a coding study with a large payload, set always_upload to false.
+# You can then use the --force_upload cli flag to manually upload new versions.
+always_upload=false
 ```

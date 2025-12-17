@@ -222,15 +222,12 @@ def handle_concurrent_errors(
             # so we'll check for it's specific failure indicator
             if db_type == "athena":
                 if res.state == "FAILED":
-                    failures.append((f[0], res))
+                    failures.append((f[0], res.error_message))
         except Exception:
-            failures.append(f)
+            failures.append((f[0], str(f[1].exception())))
     if failures:
         exit_msg = ""
         for f in failures:
             exit_msg = f"{exit_msg}\n-----\n{f[0]}\n\nHad the following error:\n\n"
-            if db_type == "athena":
-                exit_msg += f"{f[1].error_message}\n"
-            else:
-                exit_msg += f"{f[1].exception()}\n"
+            exit_msg += f"{f[1]}\n"
         sys.exit(f"One or more queries failed to execute:\n{exit_msg}")

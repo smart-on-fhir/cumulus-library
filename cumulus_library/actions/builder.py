@@ -647,7 +647,7 @@ def _check_query_for_errors(
             "This query is not a valid SQL query. Check the query against a database "
             "for more debugging information.",
         )
-    if f"{manifest.get_study_prefix()}__" not in query and not manifest.get_dedicated_schema():
+    if f"{manifest.get_study_prefix()}__" not in table and not manifest.get_dedicated_schema():
         _query_error(
             config,
             manifest,
