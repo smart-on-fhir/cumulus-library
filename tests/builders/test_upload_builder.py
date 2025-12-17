@@ -54,3 +54,20 @@ def test_unsupported_filetype(mock_manifest, mock_db_config, tmp_path):
             workflow_config={"tables": {"bad_type": {"file": "upload.pdf"}}},
         )
         builder.prepare_queries(config=mock_db_config, manifest=manifest)
+
+
+@mock.patch("cumulus_library.study_manifest.StudyManifest")
+@mock.patch("platformdirs.user_cache_dir")
+def test_wrong_cols_filetype(mock_cache, mock_db_config, tmp_path):
+    mock_cache.return_value = tmp_path / "cache"
+    shutil.copytree(TEST_DATA_PATH, tmp_path / "file_upload", dirs_exist_ok=True)
+
+    manifest = study_manifest.StudyManifest()
+    with pytest.raises(errors.FileUploadError):
+        builder = file_upload_builder.FileUploadBuilder(
+            toml_config_path=tmp_path / "file_upload/workflow.toml",
+            workflow_config={
+                "tables": {"bad_cols": {"file": "upload_commas.csv", "col_types": ["STRING"]}}
+            },
+        )
+        builder.prepare_queries(config=mock_db_config, manifest=manifest)
