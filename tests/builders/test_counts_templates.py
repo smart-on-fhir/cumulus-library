@@ -128,7 +128,6 @@ from cumulus_library.builders.statistics_templates import counts_templates
             s."sex"
             --noqa: enable=RF03, AL02
         FROM test_source AS s
-        WHERE s.status = 'finished'
     ),
     
     null_replacement AS (
