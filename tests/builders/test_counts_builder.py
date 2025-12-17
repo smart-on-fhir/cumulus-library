@@ -229,14 +229,14 @@ def test_count_wrappers(
         assert call_kwargs["min_subject"] == min_subject
 
 
-def test_exclude_docstatus():
+def test_filter_docstatus():
     manifest = study_manifest.StudyManifest()
     manifest._study_prefix = TEST_PREFIX
     builder = counts.CountsBuilder(manifest=manifest)
-    query = builder.count_documentreference("table", "source", ["col_a"])
+    query = builder.count_documentreference("table", "source", ["col_a"], filter_status=True)
     assert "s.docStatus" in query
     assert "s.status" in query
-    query = builder.count_documentreference("table", "source", ["col_a"], skip_status_filter=True)
+    query = builder.count_documentreference("table", "source", ["col_a"])
     assert "s.docStatus" not in query
     assert "s.status" not in query
 

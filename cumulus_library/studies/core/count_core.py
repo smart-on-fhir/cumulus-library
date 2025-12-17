@@ -50,7 +50,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
             ["type_display", "varchar", None],
             [f"author_{duration}", "date", None],
         ]
-        return self.count_documentreference(table_name, from_table, cols)
+        return self.count_documentreference(table_name, from_table, cols, filter_status=True)
 
     def count_core_encounter(self, duration: str | None = None):
         table_name = self.get_table_name("count_encounter", duration=duration)
@@ -65,7 +65,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
             "ethnicity_display",
         ]
 
-        return self.count_encounter(table_name, from_table, cols)
+        return self.count_encounter(table_name, from_table, cols, filter_status=True)
 
     def _count_core_encounter_type(self, table_name: str, cols: list, duration: str | None = None):
         """
@@ -122,7 +122,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
             "observation_code",
             "valueCodeableConcept_display",
         ]
-        return self.count_observation(table_name, from_table, cols)
+        return self.count_observation(table_name, from_table, cols, filter_status=True)
 
     def count_core_patient(self):
         table_name = self.get_table_name("count_patient")
