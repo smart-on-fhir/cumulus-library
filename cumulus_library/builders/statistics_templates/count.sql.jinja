@@ -26,9 +26,6 @@ logic at the statistics/counts.py level -#}
             "{{ column_or_alias(col) }}"
             {{- syntax.comma_delineate(loop) }}
             {%- endfor %}
-            {%- if fhir_resource in ('documentreference', 'observation' ) -%},
-            class_display
-            {% endif %}
 {%- endmacro -%}
 
 {#- This macro handles making sure that we don't pass a null to concat_ws,
@@ -38,9 +35,6 @@ which will drop nulls, resulting in potentially non-unique keys -#}
                 COALESCE("{{ column_or_alias(col) }}",'')
                 {{- syntax.comma_delineate(loop) }}
                 {%- endfor %}
-                {%- if fhir_resource in ('documentreference', 'observation' ) -%},
-                COALESCE(class_display,'')
-                {% endif %}
 {%- endmacro -%}
 
 
@@ -71,9 +65,6 @@ CREATE TABLE {{ table_name }} AS (
             {%- if tertiary %}
             s.{{ tertiary }},
             {%- endif -%}
-            {%- if fhir_resource in ('documentreference', 'observation') %}
-            e.class_display,
-            {%- endif %}
             {#- these exceptions deal with table aliasing related to
             single table queries, where this may be a multitable query
             depending on context #}
@@ -120,12 +111,6 @@ CREATE TABLE {{ table_name }} AS (
             {%- endif -%}
             {%- if tertiary %}
             {{ tertiary }},
-            {%- endif -%}
-            {%- if fhir_resource in ('documentreference', 'observation' )%}
-            coalesce(
-                cast(class_display AS varchar), 
-                '{{ missing_null }}'
-            ) AS class_display,
             {%- endif -%}
             {%- for col in table_cols %}
             coalesce(
@@ -213,9 +198,6 @@ CREATE TABLE {{ table_name }} AS (
         p."{{ column_or_alias(col) }}"
         {{- syntax.comma_delineate(loop) }}
         {%- endfor %}
-    {%- endif %}
-    {%- if fhir_resource in ('documentreference', 'observation' ) -%},
-        p.class_display
     {%- endif %}
     {%- if annotation is not none %},
         {%- for col in annotation.columns %}

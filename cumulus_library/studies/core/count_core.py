@@ -49,6 +49,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
         cols = [
             ["type_display", "varchar", None],
             [f"author_{duration}", "date", None],
+            ["class_display", "varchar", None],
         ]
         return self.count_documentreference(table_name, from_table, cols, filter_status=True)
 
@@ -121,6 +122,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
             f"effectiveDateTime_{duration}",
             "observation_code",
             "valueCodeableConcept_display",
+            "class_display",
         ]
         return self.count_observation(table_name, from_table, cols, filter_status=True)
 
