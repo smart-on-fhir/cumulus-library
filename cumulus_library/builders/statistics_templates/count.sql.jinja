@@ -2,7 +2,7 @@
 
 {%- macro cols_delineated_list(table_cols)-%}
             {% for col in table_cols %}
-            "{{ column_or_alias(col) }}"
+            {{ name_column(col) }}
             {{- syntax.comma_delineate(loop) }}
             {%- endfor %}
 {%- endmacro -%}
@@ -25,8 +25,19 @@ which will drop nulls, resulting in potentially non-unique keys -#}
 
 {%- set col_list = table_cols + secondary_cols -%}
 
-{%- macro column_or_alias(col) %}
+{%- macro name_column(col) %}
+{%- if col.alias is defined -%}
+{%- if col.alias is not none -%}
+"{{ col.name }}" AS {{ col.alias }}
+{%- else -%}
+"{{ col.name }}"
+{%- endif -%}
+{%- else -%}
+"{{ col.name }}"
+{%- endif -%}
+{%- endmacro -%}
 
+{%- macro column_or_alias(col) %}
 {%- if col.alias is defined -%}
 {%- if col.alias is not none -%}
 {{ col.alias }}

@@ -15,7 +15,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
             ["code_display", "varchar", None],
             ["reaction_manifestation_display", "varchar", None],
         ]
-        return self.count_allergyintolerance(table_name, from_table, cols)
+        return self.count_allergyintolerance(table_name, from_table, cols, filter_status=True)
 
     def count_core_condition(self, duration: str = "month"):
         table_name = self.get_table_name("count_condition", duration=duration)
@@ -83,7 +83,7 @@ class CoreCountsBuilder(cumulus_library.CountsBuilder):
         if duration:
             cols.append(f"period_start_{duration}")
 
-        return self.count_encounter(table_name, from_table, cols)
+        return self.count_encounter(table_name, from_table, cols, filter_status=True)
 
     def count_core_encounter_all_types(self, duration: str | None = None):
         cols = [

@@ -116,6 +116,7 @@ class CountsBuilder(BaseTableBuilder):
 
         for key in kwargs:
             if key == "skip_status_filter":  # pragma: no cover
+                # Deprecated as of v5.1.0
                 rich.print(
                     "[yellow]CountsBuilder deprecation notice[/yellow]: the behavior of "
                     "'skip_status_filter' is now the default behavior and the argument is "
@@ -123,13 +124,12 @@ class CountsBuilder(BaseTableBuilder):
                     "Support for it may be removed in a future version."
                 )
             elif key == "patient_link":  # pragma: no cover
+                # Deprecated as of v6.0.0
                 rich.print(
                     "[yellow]CountsBuilder deprecation notice[/yellow]: 'patient_link' has been "
                     "renamed to 'primary_id'. Future versions may remove support for the "
                     "patient_link argument."
                 )
-        if "min_subject" in kwargs and kwargs["min_subject"] is None:
-            kwargs["min_subject"] = DEFAULT_MIN_SUBJECT
         return counts_templates.get_count_query(
             table_name,
             source_table,
@@ -232,7 +232,7 @@ class CountsBuilder(BaseTableBuilder):
             min_subject=min_subject,
             filter_resource=True,
             annotation=annotation,
-            primary_id="encounter_ref",
+            secondary_id="encounter_ref",
         )
 
     def count_diagnosticreport(
@@ -363,6 +363,7 @@ class CountsBuilder(BaseTableBuilder):
             annotation=annotation,
             filter_status=filter_status,
             primary_id="encounter_ref",
+            secondary_id="subject_ref",
             **extra_kwargs,
         )
 

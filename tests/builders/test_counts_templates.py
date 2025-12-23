@@ -6,6 +6,16 @@ from cumulus_library import CountAnnotation
 from cumulus_library.builders.statistics_templates import counts_templates
 
 
+def test_col_casts():
+    expected = counts_templates.CountColumn(name="foo", db_type="VARCHAR", alias=None)
+    assert expected == counts_templates._cast_table_col("foo")
+    assert expected == counts_templates._cast_table_col(expected)
+    assert expected == counts_templates._cast_table_col(["foo", "VARCHAR", None])
+    expected = counts_templates.FilterColumn(name="bar", values=["baz"], include_nulls=True)
+    assert expected == counts_templates._cast_filter_col(("bar", ["baz"], True))
+    assert expected == counts_templates._cast_filter_col(expected)
+
+
 @pytest.mark.parametrize(
     "expected,kwargs",
     [

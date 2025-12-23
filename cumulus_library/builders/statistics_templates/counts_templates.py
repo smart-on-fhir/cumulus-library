@@ -17,9 +17,11 @@ class FilterColumn:
     name: str
     values: list[str]
     include_nulls: bool
-    # this should never be set, and is only included for jinja compatibility reasons
-    # with CountColumn
-    alias: str = None
+
+    # alias is only included for jinja compatibility reasons with CountColumn
+    @property
+    def alias(self) -> str | None:
+        return None
 
 
 @dataclass(kw_only=True)
@@ -55,6 +57,13 @@ def _cast_table_col(col):
         return col
     else:
         return CountColumn(name=col[0], db_type=col[1], alias=col[2])
+
+
+def _cast_filter_col(filter_col):
+    if isinstance(filter_col, tuple) or isinstance(filter_col, list):
+        return FilterColumn(name=filter_col[0], values=filter_col[1], include_nulls=filter_col[2])
+    elif isinstance(filter_col, FilterColumn):
+        return filter_col
 
 
 def get_count_query(
@@ -104,13 +113,7 @@ def get_count_query(
     filter_cols_classed = []
     if filter_cols:
         for filter_col in filter_cols:
-            if isinstance(filter_col, tuple) or isinstance(filter_col, list):
-                new_col = FilterColumn(
-                    name=filter_col[0], values=filter_col[1], include_nulls=filter_col[2]
-                )
-            elif isinstance(filter_col, FilterColumn):
-                new_col = filter_col
-            filter_cols_classed.append(new_col)
+            filter_cols_classed.append(_cast_filter_col(filter_col))
     filter_cols = filter_cols_classed
     query = base_templates.get_template(
         "count",
