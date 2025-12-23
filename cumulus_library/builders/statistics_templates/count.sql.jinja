@@ -1,59 +1,42 @@
 {%- import 'syntax.sql.jinja' as syntax -%}
-{#- TODO: move secondary/tertiary resource declaration upstream to
-statistics/counts.py level -#}
-{%- macro secondary_resource(fhir_resource) -%}
-{%- if fhir_resource in ('documentreference', 'encounter', 'observation') -%}
-{{ fhir_resource }}_ref
-{%- elif fhir_resource == 'condition' -%}
-{#- count condition by encounter, because they are often duplicated for billing purposes -#}
-encounter_ref
-{%- else -%}
-{#- implicit null, meaning "count by patient" -#}
-{%- endif -%}
-{%- endmacro -%}
 
-{#- Moved extant queries to be secondary resource only, but leaving tertiary table
-infrastructure for future/moving resource specific logic to template generator -#}
-{%- macro tertiary_resource(fhir_resource) -%}
-{#- implicit null -#}
-{%- endmacro -%}
-
-{#- TODO: refactor out resource-specific joined columns in the following
-two methods to be handled upstream with some kind of join declaration
-logic at the statistics/counts.py level -#}
-{%- macro cols_delineated_list(table_cols, fhir_resource)-%}
+{%- macro cols_delineated_list(table_cols)-%}
             {% for col in table_cols %}
             "{{ column_or_alias(col) }}"
             {{- syntax.comma_delineate(loop) }}
             {%- endfor %}
-            {%- if fhir_resource in ('documentreference', 'observation' ) -%},
-            class_display
-            {% endif %}
+{%- endmacro -%}
+
+{%- macro prefixed_cols_delineated_list(table_cols, prefix)-%}
+            {% for col in table_cols %}
+            {{prefix}}."{{ column_or_alias(col) }}"
+            {{- syntax.comma_delineate(loop) }}
+            {%- endfor %}
 {%- endmacro -%}
 
 {#- This macro handles making sure that we don't pass a null to concat_ws,
 which will drop nulls, resulting in potentially non-unique keys -#}
-{%- macro cols_coalesced_list(table_cols, fhir_resource)-%}
+{%- macro cols_coalesced_list(table_cols)-%}
                 {% for col in table_cols %}
                 COALESCE("{{ column_or_alias(col) }}",'')
                 {{- syntax.comma_delineate(loop) }}
                 {%- endfor %}
-                {%- if fhir_resource in ('documentreference', 'observation' ) -%},
-                COALESCE(class_display,'')
-                {% endif %}
 {%- endmacro -%}
 
+{%- set col_list = table_cols + secondary_cols -%}
 
-{%- macro column_or_alias(count_col) %}
-{%- if not count_col.alias -%}
-{{ count_col.name }}
+{%- macro column_or_alias(col) %}
+
+{%- if col.alias is defined -%}
+{%- if col.alias is not none -%}
+{{ col.alias }}
 {%- else -%}
-{{ count_col.alias }}
+{{ col.name }}
+{%- endif -%}
+{%- else -%}
+{{ col.name }}
 {%- endif -%}
 {%- endmacro -%}
-
-{%- set secondary = secondary_resource(fhir_resource) -%}
-{%- set tertiary = tertiary_resource(fhir_resource) -%}
 
 {%- set missing_null = 'cumulus__none' -%}
 {#- LT02 is a indentation rule that overfires in the where
@@ -61,203 +44,141 @@ clause construction; it simultaneously asks for indentation of 4 and 8 spaces. -
 -- noqa: disable=LT02
 CREATE TABLE {{ table_name }} AS (
     WITH 
-    {%- if filter_resource %}
+    {%- if filter_status == True %}
     filtered_table AS (
         SELECT
-            s.{{ patient_link }},
-            {%- if secondary %}
-            s.{{ secondary }},
+            p.{{ primary_id }},
+            {%- if secondary_id is not none %}
+            p.{{ secondary_id }},
             {%- endif -%}
-            {%- if tertiary %}
-            s.{{ tertiary }},
-            {%- endif -%}
-            {%- if fhir_resource in ('documentreference', 'observation') %}
-            e.class_display,
-            {%- endif %}
             {#- these exceptions deal with table aliasing related to
             single table queries, where this may be a multitable query
             depending on context #}
             --noqa: disable=RF03, AL02
-            {%- for col in table_cols %}
-            {%- if not col.alias %}
-            s."{{ col.name }}" 
-            {%- else %}
-            s."{{ col.name }}" AS {{ col.alias }}
+            {{- prefixed_cols_delineated_list(table_cols, 'p') }}
+            {%- if secondary_cols|length != 0 -%},
+            {{- prefixed_cols_delineated_list(secondary_cols, 's') }}
             {%- endif -%}
-            {{- syntax.comma_delineate(loop) -}}
-            {% endfor %}
+            {%- if filter_cols |length != 0 -%},
+            {{- prefixed_cols_delineated_list(filter_cols, 'p') }}
+            {%- endif -%}
             --noqa: enable=RF03, AL02
-        FROM {{ source_table }} AS s
-
-        {#- joining tables for fussy count conditions tables
-
-            TODO: think about if we really want to do this. We should maybe just
-            add them to the core tables if they are always going to be used?
-
-         -#}
-        {%- if fhir_resource in ('documentreference', 'observation') %}
-        INNER JOIN core__encounter AS e
-            ON s.encounter_ref = e.encounter_ref
-        {%- endif -%}
-        {#- resource specific filtering conditions -#}
-        {%- if filter_status is true %}
-        {%- if fhir_resource == 'documentreference' %}
-        WHERE (s.status = 'current')
-        AND (s.docStatus IS null OR s.docStatus IN ('final', 'amended'))
-        {%- elif fhir_resource == 'encounter' %}
-        WHERE s.status = 'finished'
-        {%- elif fhir_resource == 'observation' %}
-        WHERE (s.status = 'final' OR s.status= 'amended')
+        FROM {{ primary_table }} AS p
+        {%- if secondary_table is not none %}
+        INNER JOIN {{ secondary_table }} AS s
+            ON s.{{ secondary_id }} = p.{{ secondary_id }}
         {%- endif %}
-        {%- endif %}
+        WHERE 
+        {%- for filter_col in filter_cols %}
+        {{ syntax.and_delineate(loop) }}
+        {%- if filter_col.include_nulls  %}
+            p.{{ filter_col.name }} IS null OR 
+        {%- endif  %} 
+            p.{{ filter_col.name }} IN (
+            {%- for val in filter_col.values %}
+                '{{val}}'
+                {{- syntax.comma_delineate(loop) }}
+            {%- endfor -%}
+            )
+        {%- endfor -%}
     ),
     {% endif %}
     null_replacement AS (
         SELECT
-            {{ patient_link }},
-            {%- if secondary %}
-            {{ secondary }},
+            {{ primary_id }},
+            {%- if secondary_id is not none %}
+            {{ secondary_id }},
             {%- endif -%}
-            {%- if tertiary %}
-            {{ tertiary }},
-            {%- endif -%}
-            {%- if fhir_resource in ('documentreference', 'observation' )%}
-            coalesce(
-                cast(class_display AS varchar), 
-                '{{ missing_null }}'
-            ) AS class_display,
-            {%- endif -%}
-            {%- for col in table_cols %}
+            {%- for col in col_list %}
             coalesce(
                 cast({{ column_or_alias(col) }} AS varchar),
                 '{{ missing_null }}'
             ) AS {{ column_or_alias(col) }}
             {{- syntax.comma_delineate(loop) }}
             {%- endfor -%}
-        {%- if filter_resource %}
+        {%- if filter_status == True %}
         FROM filtered_table
         {%- else  %}
-        FROM {{ source_table }}
+        FROM {{ primary_table }}
         {% endif %}
     ),
 
-    {%- if tertiary %}
-    tertiary_powerset AS(
-        SELECT
-            count(DISTINCT {{tertiary}}) AS cnt_{{tertiary}},
-            {{-cols_delineated_list(table_cols, fhir_resource)}},
-            concat_ws(
-                '-',
-                {{-cols_coalesced_list(table_cols, fhir_resource)}}
-            ) AS id
-        FROM null_replacement
-        WHERE {{ tertiary }} IS NOT NULL
-        GROUP BY
-            cube(
-                {{-cols_delineated_list(table_cols, fhir_resource)}}
-            )
-
-    ),
-    {%- endif -%}
-    {%- if secondary %}
+    {%- if secondary_id is not none %}
     secondary_powerset AS (
         SELECT
-            count(DISTINCT {{secondary}}) AS cnt_{{secondary}},
-            {{-cols_delineated_list(table_cols, fhir_resource)}},
+            count(DISTINCT {{secondary_id}}) AS cnt_{{secondary_id}},
+            {{- cols_delineated_list(col_list) }},
             concat_ws(
                 '-',
-                {{-cols_coalesced_list(table_cols, fhir_resource)}}
+                {{- cols_coalesced_list(col_list) }}
             ) AS id
         FROM null_replacement
-        WHERE {{ secondary }} IS NOT NULL
+        WHERE {{ secondary_id }} IS NOT NULL
         GROUP BY
             cube(
-                {{-cols_delineated_list(table_cols, fhir_resource)}}
+                {{- cols_delineated_list(col_list) }}
             )
     ),
     {%- endif %}
 
     powerset AS (
         SELECT
-            count(DISTINCT {{ patient_link }}) AS cnt_subject_ref,
-            {{-cols_delineated_list(table_cols, fhir_resource)}},
+            count(DISTINCT {{ primary_id }}) AS cnt_{{ primary_id }},
+            {{- cols_delineated_list(col_list) }},
             concat_ws(
                 '-',
-                {{-cols_coalesced_list(table_cols, fhir_resource)}}
+                {{- cols_coalesced_list(col_list) }}
             ) AS id
         FROM null_replacement
         GROUP BY
             cube(
-                {{-cols_delineated_list(table_cols, fhir_resource)}}
+                {{- cols_delineated_list(col_list) }}
             )
     )
 
     SELECT
     {%- if annotation is not none and annotation.alt_target is not none %}
-        {%- if tertiary %}
-        sum(t.cnt_{{ tertiary }}) AS cnt,
-        {%- elif secondary %}
-        sum(s.cnt_{{ secondary }}) AS cnt,
+        {%- if secondary_id is not none %}
+        sum(s.cnt_{{ secondary_id }}) AS cnt
         {%- else %}
-        sum(p.cnt_subject_ref) AS cnt
+        sum(p.cnt_{{ primary_id }}) AS cnt
         {%- endif %}
     {%- else %}   
-        {%- if tertiary %}
-        t.cnt_{{ tertiary }} AS cnt,
-        {%- elif secondary %}
-        s.cnt_{{ secondary }} AS cnt,
+        {%- if secondary_id is not none %}
+        s.cnt_{{ secondary_id }} AS cnt,
         {%- else %}
-        p.cnt_subject_ref AS cnt,
+        p.cnt_{{ primary_id }} AS cnt,
         {%- endif %}
-        {%- for col in table_cols %}
-        p."{{ column_or_alias(col) }}"
-        {{- syntax.comma_delineate(loop) }}
-        {%- endfor %}
-    {%- endif %}
-    {%- if fhir_resource in ('documentreference', 'observation' ) -%},
-        p.class_display
+        {{- prefixed_cols_delineated_list(table_cols, 'p') }}
+        {%- if secondary_cols|length != 0 %},
+        {{- prefixed_cols_delineated_list(secondary_cols, 's') }}
+        {%- endif -%}
     {%- endif %}
     {%- if annotation is not none %},
-        {%- for col in annotation.columns %}
-        {%- if col[1] is not none %}
-        j."{{ col[0] }}" AS "{{ col[1] }}"
-        {%- else %}
-        j."{{ col[0] }}"
-        {%- endif %}
-        {{- syntax.comma_delineate(loop) }}
-        {%- endfor %}
+        {{- prefixed_cols_delineated_list(annotation.columns, 'j') }}
     {%- endif %}
     FROM powerset AS p
-    {%- if secondary %}
+    {%- if secondary_id is not none %}
     JOIN secondary_powerset AS s on s.id = p.id 
     {%- endif %}
-    {%- if tertiary %}
-    JOIN tertiary_powerset AS t on t.id = p.id 
-    {%- endif %}
-    {%- if annotation %}
+    {%- if annotation is not none %}
         JOIN {{ annotation.join_table }} j ON p.{{ annotation.field }} = j.{{ annotation.join_field }}
     {%- endif -%}
-    {%- if where_clauses %}
+    {%- if where_clauses is not none %}
     WHERE
         {% for clause in where_clauses %}{{ clause }}
         {% if not loop.last %}AND {% endif %}
         {%- endfor -%}
     {%- else %}
     WHERE 
-        p.cnt_subject_ref >= {{ min_subject }}
-    {%- if secondary %}
-        AND s.cnt_{{ secondary }} >= {{ min_subject }}
-    {%- endif %}
-    {%- if tertiary %}
-        AND t.cnt_{{ tertiary }} >= {{ min_subject }}
+        p.cnt_{{ primary_id }} >= {{ min_subject }}
+    {%- if secondary_id is not none %}
+        AND s.cnt_{{ secondary_id }} >= {{ min_subject }}
     {%- endif %}
     {%- endif %}
     {%- if annotation is not none and annotation.alt_target is not none %}
     GROUP BY
-    {%- for col in annotation.columns %}
-        j."{{ col[0] }}"
-        {{- syntax.comma_delineate(loop) }}
-    {%- endfor %}
+        {{- prefixed_cols_delineated_list(annotation.columns, 'j') }}
     ORDER BY {{ annotation.alt_target }} ASC
     {%- endif %}
 );

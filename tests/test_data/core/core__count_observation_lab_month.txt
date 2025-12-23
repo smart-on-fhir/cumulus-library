@@ -10,5 +10,5 @@
 (10, None, None, 'Brown color (qualifier value)', None)
 (10, None, None, 'Urine smell ammoniacal (finding)', 'ambulatory')
 (10, None, None, 'Urine smell ammoniacal (finding)', None)
-(20, None, None, None, 'ambulatory')
-(20, None, None, None, None)
+(10, None, None, None, 'ambulatory')
+(10, None, None, None, None)
