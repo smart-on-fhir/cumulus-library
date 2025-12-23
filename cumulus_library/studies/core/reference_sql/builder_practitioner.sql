@@ -6,18 +6,6 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__practitioner_dn_qualification_code"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
-    )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
-);
-
--- ###########################################################
-
 
 
 

@@ -6,18 +6,6 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__location_dn_type"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
-    )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
-);
-
--- ###########################################################
-
 
 
 

@@ -80,13 +80,6 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
             does_not_raise(),
         ),
         (
-            "count_encounter_table",
-            "source",
-            ["a", "b"],
-            {"bad_key": True},
-            pytest.raises(errors.CountsBuilderError),
-        ),
-        (
             None,
             "source",
             ["a", "b"],
@@ -114,7 +107,8 @@ def test_get_count_query(mock_count, table_name, source_table, table_cols, kwarg
         assert mock_count.called
         call_args, call_kwargs = mock_count.call_args
         assert call_args == (table_name, source_table, table_cols)
-        assert call_kwargs == kwargs
+        for k, v in kwargs.items():
+            assert v == call_kwargs[k]
 
 
 @pytest.mark.parametrize(
@@ -207,7 +201,7 @@ def test_count_wrappers(
     where,
     min_subject,
     method,
-    fhir_resource,
+    fhir_resource,  # no longer used, but may be helpful for debugging
 ):
     kwargs = {}
     if where is not None:
@@ -222,7 +216,6 @@ def test_count_wrappers(
     assert mock_count.called
     call_args, call_kwargs = mock_count.call_args
     assert call_args == (table_name, source_table, table_cols)
-    assert call_kwargs["fhir_resource"] == fhir_resource
     if where is not None:
         assert call_kwargs["where_clauses"] == where
     if min_subject is not None:
@@ -234,11 +227,11 @@ def test_filter_docstatus():
     manifest._study_prefix = TEST_PREFIX
     builder = counts.CountsBuilder(manifest=manifest)
     query = builder.count_documentreference("table", "source", ["col_a"], filter_status=True)
-    assert "s.docStatus" in query
-    assert "s.status" in query
+    assert "p.docStatus" in query
+    assert "p.status" in query
     query = builder.count_documentreference("table", "source", ["col_a"])
-    assert "s.docStatus" not in query
-    assert "s.status" not in query
+    assert "p.docStatus" not in query
+    assert "p.status" not in query
 
 
 def test_null_study_prefix():
@@ -271,7 +264,7 @@ SELECT * FROM BAR
                 field="gender",
                 join_table="code_map",
                 join_field="gender",
-                columns=[("label", None), ("description", None)],
+                columns=[("label", None, None), ("description", None, None)],
             ),
             [(2, "female", "label_1", "desc_1"), (1, "male", "label_2", "desc_1")],
         ),
@@ -280,7 +273,7 @@ SELECT * FROM BAR
                 field="gender",
                 join_table="code_map",
                 join_field="gender",
-                columns=[("label", None), ("description", None)],
+                columns=[("label", None, None), ("description", None, None)],
                 alt_target="label",
             ),
             [(2, "label_1", "desc_1"), (1, "label_2", "desc_1")],

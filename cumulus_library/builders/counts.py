@@ -64,7 +64,23 @@ class CountsBuilder(BaseTableBuilder):
             raise errors.CountsBuilderError(f"get_where_clauses invalid clause {clause}")
 
     def get_count_query(
-        self, table_name: str, source_table: str, table_cols: list, **kwargs
+        self,
+        table_name: str,
+        source_table: str,
+        table_cols: str | list[list[str] | counts_templates.CountColumn],
+        *args,
+        min_subject: int | None = None,
+        where_clauses: list[str] | None = None,
+        filter_resource: bool | None = False,
+        primary_id: str = "subject_ref",
+        secondary_id: str | None = None,
+        alt_secondary_join_id: str | None = None,
+        secondary_table: str | None = None,
+        secondary_cols: list[str] = [],
+        annotation: counts_templates.CountAnnotation | None = None,
+        filter_status: bool | None = False,
+        filter_cols: list[list[str]] | counts_templates.FilterColumn | None = None,
+        **kwargs,
     ) -> str:
         """Generates a counts table using a template
 
@@ -76,43 +92,74 @@ class CountsBuilder(BaseTableBuilder):
             (default: 10)
         :keyword fhir_resource: The type of FHIR resource to count (see
             builders/statistics_templates/count_templates.CountableFhirResource)
-        :keyword patient_link:
+        :keyword primary_id: the FHIR ID to count by. If not p
+        :keyword secondary_table: a table to join to the source table
+        :keyword secondary_id: a second id to striate counts by. if secondary_table is
+            also present, will be used to join with the source table, assuming that
+            the same column exists in both tables
+        :keyword alt_secondary_join_id: if present, uses this field instead of secondary_id
+            for joining with the source table
+        :keyword secondary_cols: the columns to include from the secondary table
         :keyword annotation: A CountsAnnotation object describing a table to use as
             a metadata annotation source
-        :keyword filter_status: filter status/docStatus fields in docrefs (see
-            count_documentference for context)
+        :keyword filter_status: if true, will create a filter block at the start of your
+            query
+        :keyword filter_cols: a series of FilterColumns, or list formatted like
+            ['column name', ('desired val 1', 'desired val 2'), True/False for including nulls],
+            used to add filtering statements to a filter section of a query. If you also
+            want these columns in your output, include them in in either table_cols or
+            secondary_cols
         """
+        if min_subject is None:
+            min_subject = DEFAULT_MIN_SUBJECT
+
         if not table_name or not source_table or not table_cols:
             raise errors.CountsBuilderError(
                 f"count_query missing required arguments. output table: {table_name}"
             )
 
         for key in kwargs:
-            if key not in [
-                "min_subject",
-                "where_clauses",
-                "fhir_resource",
-                "filter_resource",
-                "patient_link",
-                "annotation",
-                "filter_status",
-                "skip_status_filter",
-            ]:
-                raise errors.CountsBuilderError(f"count_query received unexpected key: {key}")
             if key == "skip_status_filter":  # pragma: no cover
+                # Deprecated as of v5.1.0
                 rich.print(
-                    "[yellow]Deprecation notice[/yellow]: the behavior of 'skip_status_filter' "
-                    "is now the default behavior and the argument is considered deprecated.\n"
+                    "[yellow]CountsBuilder deprecation notice[/yellow]: the behavior of "
+                    "'skip_status_filter' is now the default behavior and the argument is "
+                    "considered deprecated.\n"
                     "Support for it may be removed in a future version."
                 )
-        if "min_subject" in kwargs and kwargs["min_subject"] is None:
-            kwargs["min_subject"] = DEFAULT_MIN_SUBJECT
-        return counts_templates.get_count_query(table_name, source_table, table_cols, **kwargs)
+            elif key == "patient_link":  # pragma: no cover
+                # Deprecated as of v6.0.0
+                rich.print(
+                    "[yellow]CountsBuilder deprecation notice[/yellow]: 'patient_link' has been "
+                    "renamed to 'primary_id'. Future versions may remove support for the "
+                    "patient_link argument."
+                )
+        return counts_templates.get_count_query(
+            table_name,
+            source_table,
+            table_cols,
+            *args,
+            min_subject=min_subject,
+            where_clauses=where_clauses,
+            primary_id=primary_id,
+            secondary_id=secondary_id,
+            alt_secondary_join_id=alt_secondary_join_id,
+            secondary_table=secondary_table,
+            secondary_cols=secondary_cols,
+            annotation=annotation,
+            filter_status=filter_status,
+            filter_cols=filter_cols,
+            **kwargs,
+        )
 
     # ----------------------------------------------------------------------
     # The following function all wrap get_count_query as convenience methods.
-    # We're not trying to be overly clever about this to persist the docstrings as the
-    # primary interface that study authors would see when using these functions.
+    # Now that fhir_resource is no longer a param we're concerned with, the
+    # utility of these has gone down somewhat, and the filter_status rules
+    # may be more specific to the core study than generally.
+
+    # For now, we're going to leave them here, but we may migrate them to
+    # the core study at some point.
 
     def count_allergyintolerance(
         self,
@@ -122,26 +169,44 @@ class CountsBuilder(BaseTableBuilder):
         where_clauses: list | None = None,
         min_subject: int | None = None,
         annotation: counts_templates.CountAnnotation | None = None,
+        filter_status: bool | None = False,
     ) -> str:
         """wrapper method for constructing allergyintolerance counts tables
 
         :param table_name: The name of the table to create. Must start with study prefix
         :param source_table: The table to create counts data from
         :param table_cols: The columns from the source table to add to the count table
-        :param where_clauses: An array of where clauses to use for filtering the data
-        :param min_subject: An integer setting the minimum bin size for inclusion
-        :param annotation: A CountAnnotation definining an external annotation source
+        :keyword where_clauses: An array of where clauses to use for filtering the data
+        :keyword min_subject: An integer setting the minimum bin size for inclusion
+        :keyword annotation: A CountAnnotation definining an external annotation source
             (default: 10)
+        :keyword filter_status: if True, filters the results by what's commonly considered
+            'finished' statuses for this resource
         """
+        if filter_status:
+            extra_kwargs = {
+                "filter_cols": [
+                    counts_templates.FilterColumn(
+                        name="docStatus", values=["final", "amended"], include_nulls=True
+                    ),
+                    counts_templates.FilterColumn(
+                        name="status",
+                        values=["current"],
+                        include_nulls=False,
+                    ),
+                ]
+            }
+        else:  # pragma: no cover
+            extra_kwargs = {}
         return self.get_count_query(
             table_name,
             source_table,
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="allergyintolerance",
-            patient_link="patient_ref",
+            primary_id="patient_ref",
             annotation=annotation,
+            **extra_kwargs,
         )
 
     def count_condition(
@@ -158,10 +223,10 @@ class CountsBuilder(BaseTableBuilder):
         :param table_name: The name of the table to create. Must start with study prefix
         :param source_table: The table to create counts data from
         :param table_cols: The columns from the source table to add to the count table
-        :param where_clauses: An array of where clauses to use for filtering the data
-        :param min_subject: An integer setting the minimum bin size for inclusion
+        :keyword where_clauses: An array of where clauses to use for filtering the data
+        :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
-        :param annotation: A CountAnnotation definining an external annotation source
+        :keyword annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -169,9 +234,9 @@ class CountsBuilder(BaseTableBuilder):
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="condition",
             filter_resource=True,
             annotation=annotation,
+            secondary_id="encounter_ref",
         )
 
     def count_diagnosticreport(
@@ -182,16 +247,17 @@ class CountsBuilder(BaseTableBuilder):
         where_clauses: list | None = None,
         min_subject: int | None = None,
         annotation: counts_templates.CountAnnotation | None = None,
+        **kwargs,
     ) -> str:
         """wrapper method for constructing diagnosticreport counts tables
 
         :param table_name: The name of the table to create. Must start with study prefix
         :param source_table: The table to create counts data from
         :param table_cols: The columns from the source table to add to the count table
-        :param where_clauses: An array of where clauses to use for filtering the data
-        :param min_subject: An integer setting the minimum bin size for inclusion
+        :keyword where_clauses: An array of where clauses to use for filtering the data
+        :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
-        :param annotation: A CountAnnotation definining an external annotation source
+        :keyword annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -199,7 +265,6 @@ class CountsBuilder(BaseTableBuilder):
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="diagnosticreport",
             annotation=annotation,
         )
 
@@ -219,25 +284,44 @@ class CountsBuilder(BaseTableBuilder):
         :param table_name: The name of the table to create. Must start with study prefix
         :param source_table: The table to create counts data from
         :param table_cols: The columns from the source table to add to the count table
-        :param where_clauses: An array of where clauses to use for filtering the data
-        :param min_subject: An integer setting the minimum bin size for inclusion
+        :keyword where_clauses: An array of where clauses to use for filtering the data
+        :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
-        :param annotation: A CountAnnotation definining an external annotation source
-        :param filter_status: Filters docrefs by status/docstatus fields.
-            Note: documentrefs often have cancelled/entered in error statuses.
-            If your study is not filtering this out in your cohort selection,
-            you can set this flag to do it for you (as long as the fields are present)
+        :keyword annotation: A CountAnnotation definining an external annotation source
+        :keyword filter_status: if True, filters the results by what's commonly considered
+            'finished' statuses for this resource
         """
+
+        if filter_status:
+            extra_kwargs = {
+                "filter_cols": [
+                    counts_templates.FilterColumn(
+                        name="docStatus", values=["final", "amended"], include_nulls=True
+                    ),
+                    counts_templates.FilterColumn(
+                        name="status",
+                        values=["current"],
+                        include_nulls=False,
+                    ),
+                ]
+            }
+        else:
+            extra_kwargs = {}
         return self.get_count_query(
             table_name,
             source_table,
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="documentreference",
             filter_resource=True,
             annotation=annotation,
             filter_status=filter_status,
+            primary_id="subject_ref",
+            secondary_table="core__encounter",
+            secondary_id="documentreference_ref",
+            alt_secondary_join_id="encounter_ref",
+            secondary_cols=[counts_templates.CountColumn("class_display", "varchar", None)],
+            **extra_kwargs,
         )
 
     def count_encounter(
@@ -265,15 +349,27 @@ class CountsBuilder(BaseTableBuilder):
             If your study is not filtering this out in your cohort selection,
             you can set this flag to do it for you (as long as the field is present)
         """
+        if filter_status:
+            extra_kwargs = {
+                "filter_cols": [
+                    counts_templates.FilterColumn(
+                        name="status", values=["finished"], include_nulls=False
+                    ),
+                ]
+            }
+        else:
+            extra_kwargs = {}
         return self.get_count_query(
             table_name,
             source_table,
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="encounter",
             annotation=annotation,
             filter_status=filter_status,
+            primary_id="subject_ref",
+            secondary_id="encounter_ref",
+            **extra_kwargs,
         )
 
     def count_medicationrequest(
@@ -290,10 +386,10 @@ class CountsBuilder(BaseTableBuilder):
         :param table_name: The name of the table to create. Must start with study prefix
         :param source_table: The table to create counts data from
         :param table_cols: The columns from the source table to add to the count table
-        :param where_clauses: An array of where clauses to use for filtering the data
-        :param min_subject: An integer setting the minimum bin size for inclusion
+        :keyword where_clauses: An array of where clauses to use for filtering the data
+        :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
-        :param annotation: A CountAnnotation definining an external annotation source
+        :keyword annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -301,7 +397,6 @@ class CountsBuilder(BaseTableBuilder):
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="medicationrequest",
             annotation=annotation,
         )
 
@@ -322,23 +417,37 @@ class CountsBuilder(BaseTableBuilder):
         :param source_table: The table to create counts data from
         :param table_cols: The columns from the source table to add to the count table
         :param where_clauses: An array of where clauses to use for filtering the data
-        :param min_subject: An integer setting the minimum bin size for inclusion
+        :keyword where_clauses: An array of where clauses to use for filtering the data
+        :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
-        :param annotation: A CountAnnotation definining an external annotation source
-        :param filter_status: Filters encounters by status fields.
-            Note: encounters often have cancelled/entered in error statuses.
-            If your study is not filtering this out in your cohort selection,
-            you can set this flag to do it for you (as long as the field is present)
+        :keyword annotation: A CountAnnotation definining an external annotation source
+        :keyword filter_status: if True, filters the results by what's commonly considered
+            'finished' statuses for this resource
         """
+        if filter_status:
+            extra_kwargs = {
+                "filter_cols": [
+                    counts_templates.FilterColumn(
+                        name="status", values=["final", "amended"], include_nulls=False
+                    ),
+                ]
+            }
+        else:
+            extra_kwargs = {}
         return self.get_count_query(
             table_name,
             source_table,
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="observation",
             annotation=annotation,
             filter_status=filter_status,
+            primary_id="subject_ref",
+            secondary_table="core__encounter",
+            secondary_id="observation_ref",
+            alt_secondary_join_id="encounter_ref",
+            secondary_cols=[counts_templates.CountColumn("class_display", "varchar", None)],
+            **extra_kwargs,
         )
 
     def count_patient(
@@ -355,10 +464,10 @@ class CountsBuilder(BaseTableBuilder):
         :param table_name: The name of the table to create. Must start with study prefix
         :param source_table: The table to create counts data from
         :param table_cols: The columns from the source table to add to the count table
-        :param where_clauses: An array of where clauses to use for filtering the data
-        :param min_subject: An integer setting the minimum bin size for inclusion
+        :keyword where_clauses: An array of where clauses to use for filtering the data
+        :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
-        :param annotation: A CountAnnotation definining an external annotation source
+        :keyword annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -366,7 +475,6 @@ class CountsBuilder(BaseTableBuilder):
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="patient",
             annotation=annotation,
         )
 
@@ -384,10 +492,10 @@ class CountsBuilder(BaseTableBuilder):
         :param table_name: The name of the table to create. Must start with study prefix
         :param source_table: The table to create counts data from
         :param table_cols: The columns from the source table to add to the count table
-        :param where_clauses: An array of where clauses to use for filtering the data
-        :param min_subject: An integer setting the minimum bin size for inclusion
+        :keyword where_clauses: An array of where clauses to use for filtering the data
+        :keyword min_subject: An integer setting the minimum bin size for inclusion
             (default: 10)
-        :param annotation: A CountAnnotation definining an external annotation source
+        :keyword annotation: A CountAnnotation definining an external annotation source
         """
         return self.get_count_query(
             table_name,
@@ -395,7 +503,6 @@ class CountsBuilder(BaseTableBuilder):
             table_cols,
             where_clauses=where_clauses,
             min_subject=min_subject,
-            fhir_resource="procedure",
             annotation=annotation,
         )
 

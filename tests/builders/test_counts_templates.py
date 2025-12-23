@@ -2,8 +2,18 @@
 
 import pytest
 
-from cumulus_library import CountAnnotation, errors
+from cumulus_library import CountAnnotation
 from cumulus_library.builders.statistics_templates import counts_templates
+
+
+def test_col_casts():
+    expected = counts_templates.CountColumn(name="foo", db_type="VARCHAR", alias=None)
+    assert expected == counts_templates._cast_table_col("foo")
+    assert expected == counts_templates._cast_table_col(expected)
+    assert expected == counts_templates._cast_table_col(["foo", "VARCHAR", None])
+    expected = counts_templates.FilterColumn(name="bar", values=["baz"], include_nulls=True)
+    assert expected == counts_templates._cast_filter_col(("bar", ["baz"], True))
+    assert expected == counts_templates._cast_filter_col(expected)
 
 
 @pytest.mark.parametrize(
@@ -12,16 +22,6 @@ from cumulus_library.builders.statistics_templates import counts_templates
         (
             """CREATE TABLE test_table AS (
     WITH
-    filtered_table AS (
-        SELECT
-            s.subject_ref,
-            --noqa: disable=RF03, AL02
-            s."age",
-            s."sex"
-            --noqa: enable=RF03, AL02
-        FROM test_source AS s
-    ),
-    
     null_replacement AS (
         SELECT
             subject_ref,
@@ -33,7 +33,8 @@ from cumulus_library.builders.statistics_templates import counts_templates
                 cast(sex AS varchar),
                 'cumulus__none'
             ) AS sex
-        FROM filtered_table
+        FROM test_source
+        
     ),
 
     powerset AS (
@@ -56,8 +57,8 @@ from cumulus_library.builders.statistics_templates import counts_templates
 
     SELECT
         p.cnt_subject_ref AS cnt,
-        p."age",
-        p."sex"
+            p."age",
+            p."sex"
     FROM powerset AS p
     WHERE 
         p.cnt_subject_ref >= 10
@@ -102,8 +103,8 @@ from cumulus_library.builders.statistics_templates import counts_templates
 
     SELECT
         p.cnt_subject_ref AS cnt,
-        p."age",
-        p."sex"
+            p."age",
+            p."sex"
     FROM powerset AS p
     WHERE 
         p.cnt_subject_ref >= 5
@@ -119,21 +120,9 @@ from cumulus_library.builders.statistics_templates import counts_templates
         (
             """CREATE TABLE test_table AS (
     WITH
-    filtered_table AS (
-        SELECT
-            s.subject_ref,
-            s.encounter_ref,
-            --noqa: disable=RF03, AL02
-            s."age",
-            s."sex"
-            --noqa: enable=RF03, AL02
-        FROM test_source AS s
-    ),
-    
     null_replacement AS (
         SELECT
             subject_ref,
-            encounter_ref,
             coalesce(
                 cast(age AS varchar),
                 'cumulus__none'
@@ -142,25 +131,8 @@ from cumulus_library.builders.statistics_templates import counts_templates
                 cast(sex AS varchar),
                 'cumulus__none'
             ) AS sex
-        FROM filtered_table
-    ),
-    secondary_powerset AS (
-        SELECT
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
-            "age",
-            "sex",
-            concat_ws(
-                '-',
-                COALESCE("age",''),
-                COALESCE("sex",'')
-            ) AS id
-        FROM null_replacement
-        WHERE encounter_ref IS NOT NULL
-        GROUP BY
-            cube(
-            "age",
-            "sex"
-            )
+        FROM test_source
+        
     ),
 
     powerset AS (
@@ -182,11 +154,10 @@ from cumulus_library.builders.statistics_templates import counts_templates
     )
 
     SELECT
-        s.cnt_encounter_ref AS cnt,
-        p."age",
-        p."sex"
+        p.cnt_subject_ref AS cnt,
+            p."age",
+            p."sex"
     FROM powerset AS p
-    JOIN secondary_powerset AS s on s.id = p.id
     WHERE
         age > 10
         AND sex ==  'F'
@@ -206,7 +177,6 @@ from cumulus_library.builders.statistics_templates import counts_templates
     null_replacement AS (
         SELECT
             subject_ref,
-            encounter_ref,
             coalesce(
                 cast(age AS varchar),
                 'cumulus__none'
@@ -217,24 +187,6 @@ from cumulus_library.builders.statistics_templates import counts_templates
             ) AS sex
         FROM test_source
         
-    ),
-    secondary_powerset AS (
-        SELECT
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
-            "age",
-            "sex",
-            concat_ws(
-                '-',
-                COALESCE("age",''),
-                COALESCE("sex",'')
-            ) AS id
-        FROM null_replacement
-        WHERE encounter_ref IS NOT NULL
-        GROUP BY
-            cube(
-            "age",
-            "sex"
-            )
     ),
 
     powerset AS (
@@ -256,17 +208,15 @@ from cumulus_library.builders.statistics_templates import counts_templates
     )
 
     SELECT
-        s.cnt_encounter_ref AS cnt,
-        p."age",
-        p."sex",
-        j."A",
-        j."B" AS "y"
+        p.cnt_subject_ref AS cnt,
+            p."age",
+            p."sex",
+            j."A",
+            j."y"
     FROM powerset AS p
-    JOIN secondary_powerset AS s on s.id = p.id
         JOIN other_table j ON p.code = j.other_field
     WHERE 
         p.cnt_subject_ref >= None
-        AND s.cnt_encounter_ref >= None
 );""",
             {
                 "filter_resource": False,
@@ -277,7 +227,7 @@ from cumulus_library.builders.statistics_templates import counts_templates
                     field="code",
                     join_table="other_table",
                     join_field="other_field",
-                    columns=[("A", None), ("B", "y")],
+                    columns=[("A", "VARCHAR", None), ("B", "VARCHAR", "y")],
                 ),
             },
         ),
@@ -287,7 +237,6 @@ from cumulus_library.builders.statistics_templates import counts_templates
     null_replacement AS (
         SELECT
             subject_ref,
-            encounter_ref,
             coalesce(
                 cast(age AS varchar),
                 'cumulus__none'
@@ -298,24 +247,6 @@ from cumulus_library.builders.statistics_templates import counts_templates
             ) AS sex
         FROM test_source
         
-    ),
-    secondary_powerset AS (
-        SELECT
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
-            "age",
-            "sex",
-            concat_ws(
-                '-',
-                COALESCE("age",''),
-                COALESCE("sex",'')
-            ) AS id
-        FROM null_replacement
-        WHERE encounter_ref IS NOT NULL
-        GROUP BY
-            cube(
-            "age",
-            "sex"
-            )
     ),
 
     powerset AS (
@@ -337,18 +268,16 @@ from cumulus_library.builders.statistics_templates import counts_templates
     )
 
     SELECT
-        sum(s.cnt_encounter_ref) AS cnt,,
-        j."A",
-        j."B" AS "y"
+        sum(p.cnt_subject_ref) AS cnt,
+            j."A",
+            j."y"
     FROM powerset AS p
-    JOIN secondary_powerset AS s on s.id = p.id
         JOIN other_table j ON p.code = j.other_field
     WHERE 
         p.cnt_subject_ref >= None
-        AND s.cnt_encounter_ref >= None
     GROUP BY
-        j."A",
-        j."B"
+            j."A",
+            j."y"
     ORDER BY A ASC
 );""",
             {
@@ -360,7 +289,7 @@ from cumulus_library.builders.statistics_templates import counts_templates
                     field="code",
                     join_table="other_table",
                     join_field="other_field",
-                    columns=[("A", None), ("B", "y")],
+                    columns=[("A", "varchar", None), ("B", "varchar", "y")],
                     alt_target="A",
                 ),
             },
@@ -373,11 +302,3 @@ def test_count_query(expected, kwargs):
     # with open("output.sql", "w") as f:
     #     f.write(query)
     assert query == expected
-
-
-def test_count_query_bad_resource():
-    with pytest.raises(
-        errors.CountsBuilderError,
-        match="Tried to create counts table for invalid resource Medication",
-    ):
-        counts_templates.get_count_query("table", "source", [], fhir_resource="Medication")

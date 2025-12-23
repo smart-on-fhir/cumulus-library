@@ -1,31 +1,8 @@
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 
-from cumulus_library.errors import CountsBuilderError
+from cumulus_library import errors
 from cumulus_library.template_sql import base_templates
-
-
-class CountableFhirResource(Enum):
-    """Contains FHIR types for which we have count table generation support.
-
-    This is primarily used as a way to decide if a secondary join is needed to get the
-    appropriate ID field to count. Patient (and a value of None) skip this check,
-    while the other resources will add an additional source to get the proper countable
-    ids.
-    """
-
-    ALLERGYINTOLERANCE = "allergyintolerance"
-    CONDITION = "condition"
-    DIAGNOSTICREPORT = "diagnosticreport"
-    DOCUMENTREFERENCE = "documentreference"
-    ENCOUNTER = "encounter"
-    MEDICATION = "medication"
-    MEDICATIONREQUEST = "medicationrequest"
-    NONE = None
-    OBSERVATION = "observation"
-    PATIENT = "patient"
-    PROCEDURE = "procedure"
 
 
 @dataclass
@@ -33,6 +10,18 @@ class CountColumn:
     name: str
     db_type: str
     alias: str
+
+
+@dataclass(kw_only=True)
+class FilterColumn:
+    name: str
+    values: list[str]
+    include_nulls: bool
+
+    # alias is only included for jinja compatibility reasons with CountColumn
+    @property
+    def alias(self) -> str | None:
+        return None  # pragma: no cover
 
 
 @dataclass(kw_only=True)
@@ -57,51 +46,92 @@ class CountAnnotation:
     field: str
     join_table: str
     join_field: str
-    columns: list[tuple[str, str | None]]
+    columns: list[str] | list[tuple[str, str, str | None]] | list[CountColumn]
     alt_target: str | None = None
+
+
+def _cast_table_col(col):
+    if isinstance(col, str):
+        return CountColumn(name=col, db_type="VARCHAR", alias=None)
+    elif isinstance(col, CountColumn):
+        return col
+    else:
+        return CountColumn(name=col[0], db_type=col[1], alias=col[2])
+
+
+def _cast_filter_col(filter_col):
+    if isinstance(filter_col, tuple) or isinstance(filter_col, list):
+        return FilterColumn(name=filter_col[0], values=filter_col[1], include_nulls=filter_col[2])
+    elif isinstance(filter_col, FilterColumn):
+        return filter_col
 
 
 def get_count_query(
     table_name: str,
     source_table: str,
-    table_cols: list,
+    table_cols: str | list[list[str] | CountColumn],
+    *args,
     min_subject: int = 10,
-    where_clauses: list | None = None,
-    fhir_resource: str | None = None,
-    filter_resource: bool | None = True,
-    patient_link: str = "subject_ref",
+    where_clauses: list[str] | None = None,
+    primary_id: str | None = None,
+    secondary_id: str | None = None,
+    alt_secondary_join_id: str | None = None,
+    secondary_table: str | None = None,
+    secondary_cols: list[str] = [],
+    patient_link: str | None = None,  # deprecated legacy arg, v6.0.0
     annotation: CountAnnotation | None = None,
     filter_status: bool | None = False,
+    filter_cols: list[tuple[str, list[str], bool]] | list[FilterColumn] = [],
     **kwargs,
 ) -> str:
     """Generates count tables for generating study outputs"""
-    path = Path(__file__).parent
-    if fhir_resource not in {e.value for e in CountableFhirResource}:
-        raise CountsBuilderError(
-            f"Tried to create counts table for invalid resource {fhir_resource}."
-        )
 
+    if primary_id is None:
+        if patient_link:  # pragma: no cover
+            primary_id = patient_link
+        else:
+            primary_id = "subject_ref"
+    path = Path(__file__).parent
+
+    # we are going to paper over a couple of dataclass vs dicts and lists interactions here to allow
+    # for differing levels of user complexity - but the end goal is to get data out in one form for
+    # template management reasons
     table_col_classed = []
     for item in table_cols:
-        # TODO: remove check after cutover
-        if isinstance(item, list):
-            table_col_classed.append(CountColumn(name=item[0], db_type=item[1], alias=item[2]))
-        else:
-            table_col_classed.append(CountColumn(name=item, db_type="varchar", alias=None))
+        table_col_classed.append(_cast_table_col(item))
+
     table_cols = table_col_classed
+    if annotation:
+        annotation_col_classed = []
+        for item in annotation.columns:
+            annotation_col_classed.append(_cast_table_col(item))
+        annotation.columns = annotation_col_classed
+    if filter_status and len(filter_cols) == 0:
+        raise errors.CountsBuilderError(  # pragma: no cover
+            "When filtering in a CountsBuilder, both 'filter_status' and "
+            "'filter_cols' must be supplied."
+        )
+    filter_cols_classed = []
+    if filter_cols:
+        for filter_col in filter_cols:
+            filter_cols_classed.append(_cast_filter_col(filter_col))
+    filter_cols = filter_cols_classed
     query = base_templates.get_template(
         "count",
         path,
         table_name=table_name,
-        source_table=source_table,
+        primary_table=source_table,
         table_cols=table_cols,
         min_subject=min_subject,
         where_clauses=where_clauses,
-        fhir_resource=fhir_resource,
-        filter_resource=filter_resource,
-        patient_link=patient_link,
+        primary_id=primary_id,
+        secondary_table=secondary_table,
+        secondary_id=secondary_id,
+        alt_secondary_join_id=alt_secondary_join_id,
+        secondary_cols=secondary_cols,
         annotation=annotation,
         filter_status=filter_status,
+        filter_cols=filter_cols,
     )
     # workaround for conflicting sqlfluff enforcement
     return query.replace("-- noqa: disable=LT02\n", "")
