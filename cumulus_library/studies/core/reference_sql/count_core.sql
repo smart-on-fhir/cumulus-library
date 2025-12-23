@@ -72,6 +72,7 @@ CREATE TABLE core__count_condition_month AS (
     WITH
     null_replacement AS (
         SELECT
+            subject_ref,
             encounter_ref,
             coalesce(
                 cast(category_code AS varchar),
@@ -92,10 +93,34 @@ CREATE TABLE core__count_condition_month AS (
         FROM core__condition
         
     ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            "category_code",
+            "recordedDate_month",
+            "code_display",
+            "code",
+            concat_ws(
+                '-',
+                COALESCE("category_code",''),
+                COALESCE("recordedDate_month",''),
+                COALESCE("code_display",''),
+                COALESCE("code",'')
+            ) AS id
+        FROM null_replacement
+        WHERE encounter_ref IS NOT NULL
+        GROUP BY
+            cube(
+            "category_code",
+            "recordedDate_month",
+            "code_display",
+            "code"
+            )
+    ),
 
     powerset AS (
         SELECT
-            count(DISTINCT encounter_ref) AS cnt_encounter_ref,
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
             "category_code",
             "recordedDate_month",
             "code_display",
@@ -118,14 +143,16 @@ CREATE TABLE core__count_condition_month AS (
     )
 
     SELECT
-        p.cnt_encounter_ref AS cnt,
+        s.cnt_encounter_ref AS cnt,
             p."category_code",
             p."recordedDate_month",
             p."code_display",
             p."code"
     FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
-        p.cnt_encounter_ref >= 10
+        p.cnt_subject_ref >= 10
+        AND s.cnt_encounter_ref >= 10
 );
 
 -- ###########################################################
@@ -289,6 +316,7 @@ CREATE TABLE core__count_encounter_month AS (
     filtered_table AS (
         SELECT
             p.encounter_ref,
+            p.subject_ref,
             --noqa: disable=RF03, AL02
             p."period_start_month",
             p."class_display",
@@ -306,6 +334,7 @@ CREATE TABLE core__count_encounter_month AS (
     null_replacement AS (
         SELECT
             encounter_ref,
+            subject_ref,
             coalesce(
                 cast(period_start_month AS varchar),
                 'cumulus__none'
@@ -331,6 +360,36 @@ CREATE TABLE core__count_encounter_month AS (
                 'cumulus__none'
             ) AS ethnicity_display
         FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "period_start_month",
+            "class_display",
+            "age_at_visit",
+            "gender",
+            "race_display",
+            "ethnicity_display",
+            concat_ws(
+                '-',
+                COALESCE("period_start_month",''),
+                COALESCE("class_display",''),
+                COALESCE("age_at_visit",''),
+                COALESCE("gender",''),
+                COALESCE("race_display",''),
+                COALESCE("ethnicity_display",'')
+            ) AS id
+        FROM null_replacement
+        WHERE subject_ref IS NOT NULL
+        GROUP BY
+            cube(
+            "period_start_month",
+            "class_display",
+            "age_at_visit",
+            "gender",
+            "race_display",
+            "ethnicity_display"
+            )
     ),
 
     powerset AS (
@@ -364,7 +423,7 @@ CREATE TABLE core__count_encounter_month AS (
     )
 
     SELECT
-        p.cnt_encounter_ref AS cnt,
+        s.cnt_subject_ref AS cnt,
             p."period_start_month",
             p."class_display",
             p."age_at_visit",
@@ -372,17 +431,36 @@ CREATE TABLE core__count_encounter_month AS (
             p."race_display",
             p."ethnicity_display"
     FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
         p.cnt_encounter_ref >= 10
+        AND s.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
 
 CREATE TABLE core__count_encounter_all_types AS (
     WITH
+    filtered_table AS (
+        SELECT
+            p.encounter_ref,
+            p.subject_ref,
+            --noqa: disable=RF03, AL02
+            p."class_display",
+            p."type_display",
+            p."serviceType_display",
+            p."priority_display",
+            p."status"--noqa: enable=RF03, AL02
+        FROM core__encounter AS p
+        WHERE
+         
+            p.status IN (
+                'finished')),
+    
     null_replacement AS (
         SELECT
             encounter_ref,
+            subject_ref,
             coalesce(
                 cast(class_display AS varchar),
                 'cumulus__none'
@@ -399,8 +477,31 @@ CREATE TABLE core__count_encounter_all_types AS (
                 cast(priority_display AS varchar),
                 'cumulus__none'
             ) AS priority_display
-        FROM core__encounter
-        
+        FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "class_display",
+            "type_display",
+            "serviceType_display",
+            "priority_display",
+            concat_ws(
+                '-',
+                COALESCE("class_display",''),
+                COALESCE("type_display",''),
+                COALESCE("serviceType_display",''),
+                COALESCE("priority_display",'')
+            ) AS id
+        FROM null_replacement
+        WHERE subject_ref IS NOT NULL
+        GROUP BY
+            cube(
+            "class_display",
+            "type_display",
+            "serviceType_display",
+            "priority_display"
+            )
     ),
 
     powerset AS (
@@ -428,23 +529,43 @@ CREATE TABLE core__count_encounter_all_types AS (
     )
 
     SELECT
-        p.cnt_encounter_ref AS cnt,
+        s.cnt_subject_ref AS cnt,
             p."class_display",
             p."type_display",
             p."serviceType_display",
             p."priority_display"
     FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
         p.cnt_encounter_ref >= 10
+        AND s.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
 
 CREATE TABLE core__count_encounter_all_types_month AS (
     WITH
+    filtered_table AS (
+        SELECT
+            p.encounter_ref,
+            p.subject_ref,
+            --noqa: disable=RF03, AL02
+            p."class_display",
+            p."type_display",
+            p."serviceType_display",
+            p."priority_display",
+            p."period_start_month",
+            p."status"--noqa: enable=RF03, AL02
+        FROM core__encounter AS p
+        WHERE
+         
+            p.status IN (
+                'finished')),
+    
     null_replacement AS (
         SELECT
             encounter_ref,
+            subject_ref,
             coalesce(
                 cast(class_display AS varchar),
                 'cumulus__none'
@@ -465,8 +586,34 @@ CREATE TABLE core__count_encounter_all_types_month AS (
                 cast(period_start_month AS varchar),
                 'cumulus__none'
             ) AS period_start_month
-        FROM core__encounter
-        
+        FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "class_display",
+            "type_display",
+            "serviceType_display",
+            "priority_display",
+            "period_start_month",
+            concat_ws(
+                '-',
+                COALESCE("class_display",''),
+                COALESCE("type_display",''),
+                COALESCE("serviceType_display",''),
+                COALESCE("priority_display",''),
+                COALESCE("period_start_month",'')
+            ) AS id
+        FROM null_replacement
+        WHERE subject_ref IS NOT NULL
+        GROUP BY
+            cube(
+            "class_display",
+            "type_display",
+            "serviceType_display",
+            "priority_display",
+            "period_start_month"
+            )
     ),
 
     powerset AS (
@@ -497,24 +644,42 @@ CREATE TABLE core__count_encounter_all_types_month AS (
     )
 
     SELECT
-        p.cnt_encounter_ref AS cnt,
+        s.cnt_subject_ref AS cnt,
             p."class_display",
             p."type_display",
             p."serviceType_display",
             p."priority_display",
             p."period_start_month"
     FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
         p.cnt_encounter_ref >= 10
+        AND s.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
 
 CREATE TABLE core__count_encounter_type_month AS (
     WITH
+    filtered_table AS (
+        SELECT
+            p.encounter_ref,
+            p.subject_ref,
+            --noqa: disable=RF03, AL02
+            p."class_display",
+            p."type_display",
+            p."period_start_month",
+            p."status"--noqa: enable=RF03, AL02
+        FROM core__encounter AS p
+        WHERE
+         
+            p.status IN (
+                'finished')),
+    
     null_replacement AS (
         SELECT
             encounter_ref,
+            subject_ref,
             coalesce(
                 cast(class_display AS varchar),
                 'cumulus__none'
@@ -527,8 +692,28 @@ CREATE TABLE core__count_encounter_type_month AS (
                 cast(period_start_month AS varchar),
                 'cumulus__none'
             ) AS period_start_month
-        FROM core__encounter
-        
+        FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "class_display",
+            "type_display",
+            "period_start_month",
+            concat_ws(
+                '-',
+                COALESCE("class_display",''),
+                COALESCE("type_display",''),
+                COALESCE("period_start_month",'')
+            ) AS id
+        FROM null_replacement
+        WHERE subject_ref IS NOT NULL
+        GROUP BY
+            cube(
+            "class_display",
+            "type_display",
+            "period_start_month"
+            )
     ),
 
     powerset AS (
@@ -553,22 +738,40 @@ CREATE TABLE core__count_encounter_type_month AS (
     )
 
     SELECT
-        p.cnt_encounter_ref AS cnt,
+        s.cnt_subject_ref AS cnt,
             p."class_display",
             p."type_display",
             p."period_start_month"
     FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
         p.cnt_encounter_ref >= 10
+        AND s.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
 
 CREATE TABLE core__count_encounter_service_month AS (
     WITH
+    filtered_table AS (
+        SELECT
+            p.encounter_ref,
+            p.subject_ref,
+            --noqa: disable=RF03, AL02
+            p."class_display",
+            p."serviceType_display",
+            p."period_start_month",
+            p."status"--noqa: enable=RF03, AL02
+        FROM core__encounter AS p
+        WHERE
+         
+            p.status IN (
+                'finished')),
+    
     null_replacement AS (
         SELECT
             encounter_ref,
+            subject_ref,
             coalesce(
                 cast(class_display AS varchar),
                 'cumulus__none'
@@ -581,8 +784,28 @@ CREATE TABLE core__count_encounter_service_month AS (
                 cast(period_start_month AS varchar),
                 'cumulus__none'
             ) AS period_start_month
-        FROM core__encounter
-        
+        FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "class_display",
+            "serviceType_display",
+            "period_start_month",
+            concat_ws(
+                '-',
+                COALESCE("class_display",''),
+                COALESCE("serviceType_display",''),
+                COALESCE("period_start_month",'')
+            ) AS id
+        FROM null_replacement
+        WHERE subject_ref IS NOT NULL
+        GROUP BY
+            cube(
+            "class_display",
+            "serviceType_display",
+            "period_start_month"
+            )
     ),
 
     powerset AS (
@@ -607,22 +830,40 @@ CREATE TABLE core__count_encounter_service_month AS (
     )
 
     SELECT
-        p.cnt_encounter_ref AS cnt,
+        s.cnt_subject_ref AS cnt,
             p."class_display",
             p."serviceType_display",
             p."period_start_month"
     FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
         p.cnt_encounter_ref >= 10
+        AND s.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
 
 CREATE TABLE core__count_encounter_priority_month AS (
     WITH
+    filtered_table AS (
+        SELECT
+            p.encounter_ref,
+            p.subject_ref,
+            --noqa: disable=RF03, AL02
+            p."class_display",
+            p."priority_display",
+            p."period_start_month",
+            p."status"--noqa: enable=RF03, AL02
+        FROM core__encounter AS p
+        WHERE
+         
+            p.status IN (
+                'finished')),
+    
     null_replacement AS (
         SELECT
             encounter_ref,
+            subject_ref,
             coalesce(
                 cast(class_display AS varchar),
                 'cumulus__none'
@@ -635,8 +876,28 @@ CREATE TABLE core__count_encounter_priority_month AS (
                 cast(period_start_month AS varchar),
                 'cumulus__none'
             ) AS period_start_month
-        FROM core__encounter
-        
+        FROM filtered_table
+    ),
+    secondary_powerset AS (
+        SELECT
+            count(DISTINCT subject_ref) AS cnt_subject_ref,
+            "class_display",
+            "priority_display",
+            "period_start_month",
+            concat_ws(
+                '-',
+                COALESCE("class_display",''),
+                COALESCE("priority_display",''),
+                COALESCE("period_start_month",'')
+            ) AS id
+        FROM null_replacement
+        WHERE subject_ref IS NOT NULL
+        GROUP BY
+            cube(
+            "class_display",
+            "priority_display",
+            "period_start_month"
+            )
     ),
 
     powerset AS (
@@ -661,13 +922,15 @@ CREATE TABLE core__count_encounter_priority_month AS (
     )
 
     SELECT
-        p.cnt_encounter_ref AS cnt,
+        s.cnt_subject_ref AS cnt,
             p."class_display",
             p."priority_display",
             p."period_start_month"
     FROM powerset AS p
+    JOIN secondary_powerset AS s on s.id = p.id
     WHERE 
         p.cnt_encounter_ref >= 10
+        AND s.cnt_subject_ref >= 10
 );
 
 -- ###########################################################
