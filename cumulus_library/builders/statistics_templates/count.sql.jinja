@@ -77,7 +77,11 @@ CREATE TABLE {{ table_name }} AS (
         FROM {{ primary_table }} AS p
         {%- if secondary_table is not none %}
         INNER JOIN {{ secondary_table }} AS s
+            {%- if alt_secondary_join_id  is not none%}
+            ON s.{{ alt_secondary_join_id }} = p.{{ alt_secondary_join_id }}
+            {%- else  %}
             ON s.{{ secondary_id }} = p.{{ secondary_id }}
+            {%- endif %}
         {%- endif %}
         WHERE 
         {%- for filter_col in filter_cols %}

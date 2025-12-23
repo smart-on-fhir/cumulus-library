@@ -75,9 +75,10 @@ def get_count_query(
     where_clauses: list[str] | None = None,
     primary_id: str | None = None,
     secondary_id: str | None = None,
+    alt_secondary_join_id: str | None = None,
     secondary_table: str | None = None,
     secondary_cols: list[str] = [],
-    patient_link: str | None = None,  # deprecated legacy arg
+    patient_link: str | None = None,  # deprecated legacy arg, v6.0.0
     annotation: CountAnnotation | None = None,
     filter_status: bool | None = False,
     filter_cols: list[tuple[str, list[str], bool]] | list[FilterColumn] = [],
@@ -86,7 +87,7 @@ def get_count_query(
     """Generates count tables for generating study outputs"""
 
     if primary_id is None:
-        if patient_link:
+        if patient_link:  # pragma: no cover
             primary_id = patient_link
         else:
             primary_id = "subject_ref"
@@ -106,7 +107,7 @@ def get_count_query(
             annotation_col_classed.append(_cast_table_col(item))
         annotation.columns = annotation_col_classed
     if filter_status and len(filter_cols) == 0:
-        raise errors.CountsBuilderError(
+        raise errors.CountsBuilderError(  # pragma: no cover
             "When filtering in a CountsBuilder, both 'filter_status' and "
             "'filter_cols' must be supplied."
         )
@@ -126,6 +127,7 @@ def get_count_query(
         primary_id=primary_id,
         secondary_table=secondary_table,
         secondary_id=secondary_id,
+        alt_secondary_join_id=alt_secondary_join_id,
         secondary_cols=secondary_cols,
         annotation=annotation,
         filter_status=filter_status,

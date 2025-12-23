@@ -71,10 +71,10 @@ class CountsBuilder(BaseTableBuilder):
         *args,
         min_subject: int | None = None,
         where_clauses: list[str] | None = None,
-        fhir_resource: str | None = None,
         filter_resource: bool | None = False,
         primary_id: str = "subject_ref",
         secondary_id: str | None = None,
+        alt_secondary_join_id: str | None = None,
         secondary_table: str | None = None,
         secondary_cols: list[str] = [],
         annotation: counts_templates.CountAnnotation | None = None,
@@ -137,9 +137,9 @@ class CountsBuilder(BaseTableBuilder):
             *args,
             min_subject=min_subject,
             where_clauses=where_clauses,
-            fhir_resource=fhir_resource,
             primary_id=primary_id,
             secondary_id=secondary_id,
+            alt_secondary_join_id=alt_secondary_join_id,
             secondary_table=secondary_table,
             secondary_cols=secondary_cols,
             annotation=annotation,
@@ -192,7 +192,7 @@ class CountsBuilder(BaseTableBuilder):
                     ),
                 ]
             }
-        else:
+        else:  # pragma: no cover
             extra_kwargs = {}
         return self.get_count_query(
             table_name,
@@ -312,9 +312,10 @@ class CountsBuilder(BaseTableBuilder):
             filter_resource=True,
             annotation=annotation,
             filter_status=filter_status,
-            primary_id="documentreference_ref",
+            primary_id="subject_ref",
             secondary_table="core__encounter",
-            secondary_id="subject_ref",
+            secondary_id="documentreference_ref",
+            alt_secondary_join_id="encounter_ref",
             secondary_cols=[counts_templates.CountColumn("class_display", "varchar", None)],
             **extra_kwargs,
         )
@@ -362,8 +363,8 @@ class CountsBuilder(BaseTableBuilder):
             min_subject=min_subject,
             annotation=annotation,
             filter_status=filter_status,
-            primary_id="encounter_ref",
-            secondary_id="subject_ref",
+            primary_id="subject_ref",
+            secondary_id="encounter_ref",
             **extra_kwargs,
         )
 
@@ -437,9 +438,10 @@ class CountsBuilder(BaseTableBuilder):
             min_subject=min_subject,
             annotation=annotation,
             filter_status=filter_status,
-            primary_id="observation_ref",
+            primary_id="subject_ref",
             secondary_table="core__encounter",
-            secondary_id="subject_ref",
+            secondary_id="observation_ref",
+            alt_secondary_join_id="encounter_ref",
             secondary_cols=[counts_templates.CountColumn("class_display", "varchar", None)],
             **extra_kwargs,
         )
