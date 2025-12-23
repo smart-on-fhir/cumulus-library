@@ -97,14 +97,18 @@ class CountsBuilder(BaseTableBuilder):
         :keyword secondary_id: a second id to striate counts by. if secondary_table is
             also present, will be used to join with the source table, assuming that
             the same column exists in both tables
-        :keyword secondary_cols:
+        :keyword alt_secondary_join_id: if present, uses this field instead of secondary_id
+            for joining with the source table
+        :keyword secondary_cols: the columns to include from the secondary table
         :keyword annotation: A CountsAnnotation object describing a table to use as
             a metadata annotation source
         :keyword filter_status: if true, will create a filter block at the start of your
             query
         :keyword filter_cols: a series of FilterColumns, or list formatted like
             ['column name', ('desired val 1', 'desired val 2'), True/False for including nulls],
-            used to add filtering statements to a filter section of a query
+            used to add filtering statements to a filter section of a query. If you also
+            want these columns in your output, include them in in either table_cols or
+            secondary_cols
         """
         if min_subject is None:
             min_subject = DEFAULT_MIN_SUBJECT

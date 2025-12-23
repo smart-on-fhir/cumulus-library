@@ -70,9 +70,6 @@ CREATE TABLE {{ table_name }} AS (
             {%- if secondary_cols|length != 0 -%},
             {{- prefixed_cols_delineated_list(secondary_cols, 's') }}
             {%- endif -%}
-            {%- if filter_cols |length != 0 -%},
-            {{- prefixed_cols_delineated_list(filter_cols, 'p') }}
-            {%- endif -%}
             --noqa: enable=RF03, AL02
         FROM {{ primary_table }} AS p
         {%- if secondary_table is not none %}
