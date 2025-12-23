@@ -21,7 +21,7 @@ class FilterColumn:
     # alias is only included for jinja compatibility reasons with CountColumn
     @property
     def alias(self) -> str | None:
-        return None
+        return None  # pragma: no cover
 
 
 @dataclass(kw_only=True)

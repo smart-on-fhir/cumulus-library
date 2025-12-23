@@ -81,18 +81,19 @@ CREATE TABLE {{ table_name }} AS (
             {%- endif %}
         {%- endif %}
         WHERE 
-        {%- for filter_col in filter_cols %}
-        {{ syntax.and_delineate(loop) }}
-        {%- if filter_col.include_nulls  %}
+        {%- for filter_col in filter_cols %} {{ syntax.and_delineate(loop) }}
+        (
+            {%- if filter_col.include_nulls  %}
             p.{{ filter_col.name }} IS null OR 
-        {%- endif  %} 
+            {%- endif  %} 
             p.{{ filter_col.name }} IN (
             {%- for val in filter_col.values %}
                 '{{val}}'
                 {{- syntax.comma_delineate(loop) }}
-            {%- endfor -%}
+            {%- endfor %}
             )
-        {%- endfor -%}
+        )
+        {%- endfor %}
     ),
     {% endif %}
     null_replacement AS (

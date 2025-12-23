@@ -220,21 +220,24 @@ CREATE TABLE core__count_documentreference_month AS (
             --noqa: disable=RF03, AL02
             p."type_display",
             p."author_month",
-            s."class_display",
-            p."docStatus",
-            p."status"--noqa: enable=RF03, AL02
+            s."class_display"--noqa: enable=RF03, AL02
         FROM core__documentreference AS p
         INNER JOIN core__encounter AS s
             ON s.encounter_ref = p.encounter_ref
-        WHERE
-        
+        WHERE 
+        (
             p.docStatus IS null OR 
             p.docStatus IN (
                 'final',
-                'amended')
-        AND  
+                'amended'
+            )
+        ) AND 
+        ( 
             p.status IN (
-                'current')),
+                'current'
+            )
+        )
+    ),
     
     null_replacement AS (
         SELECT
@@ -323,13 +326,15 @@ CREATE TABLE core__count_encounter_month AS (
             p."age_at_visit",
             p."gender",
             p."race_display",
-            p."ethnicity_display",
-            p."status"--noqa: enable=RF03, AL02
+            p."ethnicity_display"--noqa: enable=RF03, AL02
         FROM core__encounter AS p
-        WHERE
-         
+        WHERE 
+        ( 
             p.status IN (
-                'finished')),
+                'finished'
+            )
+        )
+    ),
     
     null_replacement AS (
         SELECT
@@ -449,13 +454,15 @@ CREATE TABLE core__count_encounter_all_types AS (
             p."class_display",
             p."type_display",
             p."serviceType_display",
-            p."priority_display",
-            p."status"--noqa: enable=RF03, AL02
+            p."priority_display"--noqa: enable=RF03, AL02
         FROM core__encounter AS p
-        WHERE
-         
+        WHERE 
+        ( 
             p.status IN (
-                'finished')),
+                'finished'
+            )
+        )
+    ),
     
     null_replacement AS (
         SELECT
@@ -554,13 +561,15 @@ CREATE TABLE core__count_encounter_all_types_month AS (
             p."type_display",
             p."serviceType_display",
             p."priority_display",
-            p."period_start_month",
-            p."status"--noqa: enable=RF03, AL02
+            p."period_start_month"--noqa: enable=RF03, AL02
         FROM core__encounter AS p
-        WHERE
-         
+        WHERE 
+        ( 
             p.status IN (
-                'finished')),
+                'finished'
+            )
+        )
+    ),
     
     null_replacement AS (
         SELECT
@@ -668,13 +677,15 @@ CREATE TABLE core__count_encounter_type_month AS (
             --noqa: disable=RF03, AL02
             p."class_display",
             p."type_display",
-            p."period_start_month",
-            p."status"--noqa: enable=RF03, AL02
+            p."period_start_month"--noqa: enable=RF03, AL02
         FROM core__encounter AS p
-        WHERE
-         
+        WHERE 
+        ( 
             p.status IN (
-                'finished')),
+                'finished'
+            )
+        )
+    ),
     
     null_replacement AS (
         SELECT
@@ -760,13 +771,15 @@ CREATE TABLE core__count_encounter_service_month AS (
             --noqa: disable=RF03, AL02
             p."class_display",
             p."serviceType_display",
-            p."period_start_month",
-            p."status"--noqa: enable=RF03, AL02
+            p."period_start_month"--noqa: enable=RF03, AL02
         FROM core__encounter AS p
-        WHERE
-         
+        WHERE 
+        ( 
             p.status IN (
-                'finished')),
+                'finished'
+            )
+        )
+    ),
     
     null_replacement AS (
         SELECT
@@ -852,13 +865,15 @@ CREATE TABLE core__count_encounter_priority_month AS (
             --noqa: disable=RF03, AL02
             p."class_display",
             p."priority_display",
-            p."period_start_month",
-            p."status"--noqa: enable=RF03, AL02
+            p."period_start_month"--noqa: enable=RF03, AL02
         FROM core__encounter AS p
-        WHERE
-         
+        WHERE 
+        ( 
             p.status IN (
-                'finished')),
+                'finished'
+            )
+        )
+    ),
     
     null_replacement AS (
         SELECT
@@ -1007,16 +1022,18 @@ CREATE TABLE core__count_observation_lab_month AS (
             p."effectiveDateTime_month",
             p."observation_code",
             p."valueCodeableConcept_display",
-            s."class_display",
-            p."status"--noqa: enable=RF03, AL02
+            s."class_display"--noqa: enable=RF03, AL02
         FROM core__observation_lab AS p
         INNER JOIN core__encounter AS s
             ON s.encounter_ref = p.encounter_ref
-        WHERE
-         
+        WHERE 
+        ( 
             p.status IN (
                 'final',
-                'amended')),
+                'amended'
+            )
+        )
+    ),
     
     null_replacement AS (
         SELECT
