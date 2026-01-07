@@ -101,6 +101,19 @@ def test_duckdb_load_ndjson_dir(tmp_path):
     assert len(tables) == 17
 
 
+def test_duckdb_load_empty_dir(tmp_path):
+    db, _ = databases.create_db_backend(
+        {
+            "db_type": "duckdb",
+            "database": f"{tmp_path}/duck.db",
+            "load_ndjson_dir": tmp_path,
+        }
+    )
+
+    found_ids = {row[0] for row in db.cursor().execute("select id from patient").fetchall()}
+    assert len(found_ids) == 0
+
+
 def test_duckdb_table_schema():
     """Verify we can detect schemas correctly, even for nested camel case fields"""
     db = databases.DuckDatabaseBackend(":memory:")

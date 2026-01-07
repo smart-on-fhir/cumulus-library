@@ -159,10 +159,9 @@ class DuckDatabaseBackend(base.DatabaseBackend):
                 cached_files = self.connection.execute(
                     f"SELECT file_array FROM pyarrow_cache WHERE table_name = '{name.lower()}'"  # noqa: S608
                 ).fetchone()
-                if cached_files is not None:
-                    cached_files = json.loads(cached_files[0])
-                else:
-                    cached_files = []
+                if cached_files is None:
+                    return False  # there is no cache for this table, so don't try to load it
+                cached_files = json.loads(cached_files[0])
 
                 fragment_infos = []
                 for fragment in fragments:
