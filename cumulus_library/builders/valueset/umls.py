@@ -104,7 +104,7 @@ def generate_umls_tables(
         "code",
         "str",
     ]
-    if valueset_config.umls_stewards != {}:
+    if valueset_config.umls_stewards:
         query = base_templates.get_create_table_from_tables(
             table_name=f"{study_prefix}{table_prefix}umls_valuesets",
             tables=[

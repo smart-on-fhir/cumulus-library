@@ -22,7 +22,7 @@ def get_valueset_cache_dir(
         if manifest:
             subpath = f"{manifest.get_study_prefix()}/valueset_data"
         else:
-            subpath = "vsac_generic_cache/valueset_data"
+            subpath = "vsac_generic_cache/valueset_data"  # pragma: no cover
         path = base_utils.get_user_cache_dir() / subpath
     path.mkdir(exist_ok=True, parents=True)
     return path

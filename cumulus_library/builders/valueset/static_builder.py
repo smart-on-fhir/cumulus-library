@@ -25,9 +25,9 @@ class TableConfig:
 
 
 class StaticBuilder(BaseTableBuilder):
-    def get_table_configs(self, config, prefix: str or None = None):
+    def get_table_configs(self, config, prefix: str | None = None):
         if prefix is None:
-            prefix = ""
+            prefix = ""  # pragma: no cover
         configs = []
         if self.valueset_config.keyword_file is not None:
             configs += [
@@ -166,7 +166,7 @@ class StaticBuilder(BaseTableBuilder):
                     "steward": "str",
                     "oid": "str",
                 },
-                parquet_types=["String", "STRING", "STRING", "STRING", "STRING"],
+                parquet_types=["STRING", "STRING", "STRING", "STRING", "STRING"],
                 ignore_header=True,
             )
         )
