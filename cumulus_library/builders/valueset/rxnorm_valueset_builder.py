@@ -66,6 +66,23 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     table_name=f"{study_prefix}{table_prefix}all_rxnconso_keywords",
                 )
             )
+        else:
+            self.queries.append(
+                base_templates.get_ctas_empty_query(
+                    schema_name=config.schema,
+                    table_name=f"{study_prefix}{table_prefix}all_rxnconso_keywords",
+                    table_cols=["rxcui", "str", "tty", "sab", "code", "keyword"],
+                    table_cols_types=[
+                        "BIGINT",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                    ],
+                )
+            )
+
         umls.generate_umls_tables(config, manifest, valueset_config)
         self.queries.append(
             get_create_view_filter_by(
@@ -101,6 +118,23 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     table_name=f"{study_prefix}{table_prefix}rxnconso_keywords",
                 )
             )
+        else:
+            self.queries.append(
+                base_templates.get_ctas_empty_query(
+                    schema_name=config.schema,
+                    table_name=f"{study_prefix}{table_prefix}rxnconso_keywords",
+                    table_cols=["rxcui", "str", "tty", "sab", "code", "keyword"],
+                    table_cols_types=[
+                        "BIGINT",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                    ],
+                )
+            )
+
         self.queries.append(
             get_create_view_filter_by(
                 "rxnsty",

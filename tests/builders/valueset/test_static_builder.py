@@ -1,5 +1,7 @@
+import json
 import pathlib
 import shutil
+from unittest import mock
 
 import pytest
 
@@ -57,9 +59,24 @@ from cumulus_library.builders.valueset import static_builder, valueset_utils
         ),
     ],
 )
+@mock.patch("cumulus_library.base_utils.get_user_cache_dir")
+@mock.patch("cumulus_library.apis.umls.UmlsApi")
 def test_static_tables(
-    tmp_path, mock_db_config, filtered, ignore_header, prefix_str, mapping, expected
+    mock_api,
+    mock_cache_dir,
+    tmp_path,
+    mock_db_config,
+    filtered,
+    ignore_header,
+    prefix_str,
+    mapping,
+    expected,
 ):
+    mock_cache_dir.return_value = tmp_path
+    with open(pathlib.Path(__file__).parents[2] / "test_data/valueset/vsac_resp.json") as f:
+        resp = json.load(f)
+        mock_api.return_value.get_vsac_valuesets.return_value = resp
+
     test_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     shutil.copy(test_path / "static/static_table.csv", tmp_path / "static_table.csv")
     shutil.copy(test_path / "static/filtered.csv", tmp_path / "filtered.csv")
@@ -71,7 +88,7 @@ def test_static_tables(
         prefix_str += "_"
     builder = static_builder.StaticBuilder()
     filtered = tmp_path / filtered if filtered else None
-    builder.get_table_configs = lambda prefix: [
+    builder.get_table_configs = lambda config, prefix: [
         static_builder.TableConfig(
             file_path=tmp_path / "static_table.csv",
             delimiter=",",
@@ -95,7 +112,14 @@ def test_static_tables(
     assert result.fetchall() == expected["data"]
 
 
-def test_custom_rules(tmp_path, mock_db_config):
+@mock.patch("cumulus_library.base_utils.get_user_cache_dir")
+@mock.patch("cumulus_library.apis.umls.UmlsApi")
+def test_custom_rules(mock_api, mock_cache_dir, tmp_path, mock_db_config):
+    mock_cache_dir.return_value = tmp_path
+    with open(pathlib.Path(__file__).parents[2] / "test_data/valueset/vsac_resp.json") as f:
+        resp = json.load(f)
+        mock_api.return_value.get_vsac_valuesets.return_value = resp
+
     test_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     shutil.copy(test_path / "static/static_table.csv", tmp_path / "static_table.csv")
     shutil.copy(test_path / "static/filtered.csv", tmp_path / "filtered.csv")

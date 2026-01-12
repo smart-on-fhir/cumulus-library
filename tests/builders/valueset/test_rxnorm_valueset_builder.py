@@ -15,7 +15,9 @@ from cumulus_library.builders.valueset import (
 
 @pytest.mark.parametrize("prefix", [(""), ("foo")])
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
-def test_rxnorm_valueset_builder(mock_api, mock_db_config_rxnorm, prefix):
+@mock.patch("cumulus_library.base_utils.get_user_cache_dir")
+def test_rxnorm_valueset_builder(mock_user_dir, mock_api, mock_db_config_rxnorm, prefix, tmp_path):
+    mock_user_dir.return_value = tmp_path
     data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     with open(data_path / "vsac_resp.json") as f:
         resp = json.load(f)
@@ -44,6 +46,9 @@ def test_rxnorm_valueset_builder(mock_api, mock_db_config_rxnorm, prefix):
     builder.execute_queries(
         config=mock_db_config_rxnorm, manifest=manifest, valueset_config=valueset_config
     )
+    query = f"""select * from test__{prefix}vsac_valuesets"""
+    res = cursor.execute(query)
+    query = f"""select * from test__{prefix}rxnconso"""
     res = cursor.execute(f"select * from test__{prefix}rela ORDER BY 1,2,3,4,5").fetchall()
     assert len(res) == 1200
     assert res[0] == (

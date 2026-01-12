@@ -44,9 +44,14 @@ def test_download_oid_data(
         with open(tmp_path / f"{steward}.tsv") as f:
             tsv = f.readlines()
             assert tsv[0].strip() == (
-                "1010600\tbuprenorphine 2 MG / naloxone 0.5 MG Sublingual Film"
+                "http://www.nlm.nih.gov/research/umls/rxnorm\t1010600\tbuprenorphine"
+                " 2 MG / naloxone 0.5 MG Sublingual Film"
             )
-            assert tsv[-1].strip() == "998213\t1 ML morphine sulfate 4 MG/ML Prefilled Syringe"
+            assert (
+                tsv[-1].strip()
+                == "http://www.nlm.nih.gov/research/umls/rxnorm\t998213\t1 ML morphine"
+                " sulfate 4 MG/ML Prefilled Syringe"
+            )
         redownload = vsac.download_oid_data(steward=steward, oid=oid, path=tmp_path, config=config)
         assert redownload == force
 

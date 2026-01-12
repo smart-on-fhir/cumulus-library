@@ -1,0 +1,7 @@
+config_type = "valueset"
+[umls_stewards.medrt]
+sab="MED-RT"
+search_terms=["Opioid"]
+[umls_stewards.nonmedrt]
+sab="MED-RT"
+search_terms=["Benzodiazepine", "Barbiturate", "Nonsteroidal Anti-inflammatory Drug"]

@@ -17,7 +17,9 @@ from cumulus_library.builders.valueset import (
 
 @pytest.mark.parametrize("prefix", [(""), ("foo")])
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
-def test_additional_rules(mock_api, mock_db_config_rxnorm, prefix, tmp_path):
+@mock.patch("cumulus_library.base_utils.get_user_cache_dir")
+def test_additional_rules(mock_cache_dir, mock_api, mock_db_config_rxnorm, prefix, tmp_path):
+    mock_cache_dir.return_value = tmp_path
     data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     test_path = tmp_path / "valueset"
     shutil.copytree(data_path, test_path)
