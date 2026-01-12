@@ -38,7 +38,7 @@ As an example, in our
 study, we use a combination of methods to define a group of drugs containing opiates,
 which results in a higher positive identification than any single method by itself
 
-## Configuring a valuset task
+## Configuring a valueset task
 
 The config you reference in your study manifest is expected to contain a number of 
 field definitions. We **strongly** recommend starting from the below template, which
@@ -66,7 +66,7 @@ config_type = "valueset"
 
 table_prefix = ""
 
-# keyword_file allows you to build a valuset from a group of related substrings.
+# keyword_file allows you to build a valueset from a group of related substrings.
 # It is expected to have one search term per line. Its path will be followed relative
 # to the location of this file.
 

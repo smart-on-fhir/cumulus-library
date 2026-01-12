@@ -25,7 +25,9 @@ class TableConfig:
 
 
 class StaticBuilder(BaseTableBuilder):
-    def get_table_configs(self, prefix):
+    def get_table_configs(self, config, prefix: str or None = None):
+        if prefix is None:
+            prefix = ""
         configs = []
         if self.valueset_config.keyword_file is not None:
             configs += [
@@ -39,6 +41,13 @@ class StaticBuilder(BaseTableBuilder):
                     filtered_path=self.data_path / "./keywords.filtered.tsv",
                 )
             ]
+        else:
+            self.queries.append(
+                base_templates.get_ctas_empty_query(
+                    schema_name=config.schema, table_name=f"{prefix}keywords", table_cols=["STR"]
+                )
+            )
+
         if self.valueset_config.rules_file:
             rules_path = self.study_path / self.valueset_config.rules_file
         else:
@@ -72,7 +81,7 @@ class StaticBuilder(BaseTableBuilder):
         ]
         return configs
 
-    def filter_duplicated_meds(
+    def filter_duplicate_entries(
         self, path: pathlib.Path, delimiter: str, filtered_path: pathlib.Path
     ):
         """Given a dataset, returns the set of shortest unique substrings from that set
@@ -122,23 +131,24 @@ class StaticBuilder(BaseTableBuilder):
     ):
         self.valueset_config = valueset_config
         self.study_path = manifest._study_path
-        self.data_path = manifest._study_path / "valueset_data"
+        self.data_path = valueset_utils.get_valueset_cache_dir(None, manifest)
         prefix = self.valueset_config.table_prefix
         if prefix:
             prefix += "_"
         # fetch and add vsac tables
-        self.tables = self.get_table_configs(prefix)
-        vsac_df = pandas.DataFrame(columns=["rxcui", "display", "steward", "oid"])
+        self.tables = self.get_table_configs(config, prefix)
+        vsac_df = pandas.DataFrame(columns=["sab", "rxcui", "display", "steward", "oid"])
         for key in valueset_config.vsac_stewards:
             vsac.download_oid_data(
                 steward=key,
                 oid=valueset_config.vsac_stewards[key],
                 config=config,
-                path=self.data_path,
+                manifest=manifest,
             )
             steward_df = pandas.read_csv(
-                self.data_path / f"{key}.tsv", delimiter="\t", names=["rxcui", "display"]
+                self.data_path / f"{key}.tsv", delimiter="\t", names=["sab", "rxcui", "display"]
             )
+
             steward_df["steward"] = key
             steward_df["oid"] = valueset_config.vsac_stewards[key]
             vsac_df = pandas.concat([vsac_df, steward_df])
@@ -148,9 +158,15 @@ class StaticBuilder(BaseTableBuilder):
                 file_path=self.data_path / "all_vsac.tsv",
                 delimiter="\t",
                 table_name=f"{prefix}vsac_valuesets",
-                headers=["rxcui", "str", "steward", "oid"],
-                dtypes={"rxcui": "str", "display": "str", "steward": "str", "oid": "str"},
-                parquet_types=["STRING", "STRING", "STRING", "STRING"],
+                headers=["sab", "rxcui", "str", "steward", "oid"],
+                dtypes={
+                    "sab": "str",
+                    "rxcui": "str",
+                    "display": "str",
+                    "steward": "str",
+                    "oid": "str",
+                },
+                parquet_types=["String", "STRING", "STRING", "STRING", "STRING"],
                 ignore_header=True,
             )
         )
@@ -161,7 +177,7 @@ class StaticBuilder(BaseTableBuilder):
             for table in self.tables:
                 # Determine what we're using as a source file
                 if table.filtered_path:
-                    self.filter_duplicated_meds(
+                    self.filter_duplicate_entries(
                         table.file_path, table.delimiter, table.filtered_path
                     )
                     path = self.data_path / table.filtered_path

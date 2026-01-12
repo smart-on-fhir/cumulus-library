@@ -12,14 +12,17 @@ data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
 
 
 @pytest.mark.parametrize(
-    ("config_path,raises"),
+    ("config_path,tables,raises"),
     [
-        (data_path / "valueset.toml", does_not_raise()),
-        (data_path / "invalid.toml", pytest.raises(SystemExit)),
+        (data_path / "valueset.toml", 18, does_not_raise()),
+        (data_path / "valueset_vsac_only.toml", 16, does_not_raise()),
+        (data_path / "valueset_umls_only.toml", 17, does_not_raise()),
+        (data_path / "valueset_keyword_only.toml", 17, does_not_raise()),
+        (data_path / "invalid.toml", 0, pytest.raises(SystemExit)),
     ],
 )
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
-def test_valueset_builder(mock_api, mock_db_config_rxnorm, config_path, raises):
+def test_valueset_builder(mock_api, mock_db_config_rxnorm, config_path, tables, raises):
     with raises:
         with open(data_path / "vsac_resp.json") as f:
             resp = json.load(f)
@@ -41,4 +44,4 @@ def test_valueset_builder(mock_api, mock_db_config_rxnorm, config_path, raises):
         table_count = cursor.execute(
             "SELECT count(*) FROM information_schema.tables WHERE table_name LIKE 'test__%' "
         ).fetchone()
-        assert table_count[0] == 18
+        assert table_count[0] == tables

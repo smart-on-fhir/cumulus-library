@@ -304,7 +304,7 @@ def run_cli(args: dict):
             db=db,
             schema=schema,
             drop_table=drop_table,
-            force_upload=args.get("replace_existing", False),
+            force_upload=args.get("force_upload", False),
             verbose=args.get("verbose"),
             stats_build=args.get("stats_build", False),
             stats_clean=args.get("stats_clean", False),

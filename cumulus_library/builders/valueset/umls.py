@@ -56,7 +56,7 @@ def generate_umls_tables(
             task = progress.add_task(
                 display_text + str(tier), total=None, visible=not config.verbose
             )
-            query = base_templates.get_base_template(
+            query = base_templates.get_template(
                 "umls_iterate",
                 base_path / "template_sql",
                 steward=steward,
@@ -77,7 +77,7 @@ def generate_umls_tables(
                 prev = current
                 tier += 1
                 progress.update(task, description=display_text + str(tier))
-                query = base_templates.get_base_template(
+                query = base_templates.get_template(
                     "umls_iterate",
                     base_path / "template_sql",
                     steward=steward,
@@ -91,13 +91,37 @@ def generate_umls_tables(
                 current = cursor.execute(
                     f"SELECT count(*) from {study_prefix}{table_prefix}umls_valuesets_rels"  # noqa: S608
                 ).fetchone()[0]
-
-    cursor.execute(
-        f"""CREATE TABLE {study_prefix}{table_prefix}umls_valuesets AS 
-SELECT distinct r.rxcui, v.*
-FROM {study_prefix}{table_prefix}umls_valuesets_rels as v, rxnorm.RXNCONSO as r
-WHERE v.code = r.code
-AND v.sab=r.sab
---AND v.tty=r.tty
-"""  # noqa: S608
-    )
+    rels_cols = [
+        "steward",
+        "tier",
+        "cui",
+        "cui1",
+        "rel",
+        "rela",
+        "cui2",
+        "sab",
+        "tty",
+        "code",
+        "str",
+    ]
+    if valueset_config.umls_stewards != {}:
+        query = base_templates.get_create_table_from_tables(
+            table_name=f"{study_prefix}{table_prefix}umls_valuesets",
+            tables=[
+                f"{study_prefix}{table_prefix}umls_valuesets_rels",
+                # TODO: allow this to target multiple codings for joins
+                "rxnorm.RXNCONSO",
+            ],
+            columns=["r.rxcui"] + [f"v.{x}" for x in rels_cols],
+            join_clauses=["v.code = r.code", "v.sab = r.sab"],
+            table_aliases=["v", "r"],
+            distinct=True,
+        )
+        cursor.execute(query)
+    else:
+        query = base_templates.get_ctas_empty_query(
+            schema_name=config.schema,
+            table_name=f"{study_prefix}{table_prefix}umls_valuesets",
+            table_cols=["rxcui", *rels_cols],
+        )
+        cursor.execute(query)
