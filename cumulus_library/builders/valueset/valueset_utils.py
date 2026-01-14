@@ -20,7 +20,7 @@ def get_valueset_cache_dir(
 ):
     # this is not actively used much right now, but if you want things to go
     # to the user cache dir, just don't provide a path
-    if not path:
+    if not path:  # pragma: no cover
         if manifest:
             subpath = f"{manifest.get_study_prefix()}/valueset_data"
         else:
