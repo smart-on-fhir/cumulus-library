@@ -504,7 +504,7 @@ def _run_workflow(
     query_count: int,
     run_stage: int,
     parallel: bool = False,
-) -> (list[str], bool):
+) -> tuple[list[str], bool]:
     """Loads workflow config from toml definitions and executes workflow
 
     :param config: a StudyConfig object
@@ -599,7 +599,7 @@ def _run_workflow(
                 table_name=f"{target_table}_{safe_timestamp}",
                 view_name=target_table,
             )
-    return builder.queries, builder and builder.parallel_allowed
+    return builder.queries, bool(builder and builder.parallel_allowed)
 
 
 ######### error handlers #########
