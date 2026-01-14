@@ -28,7 +28,7 @@ SELECT DISTINCT
     v.tty,
     v.code,
     v.str
-FROM umls.mrrel_is_a AS m, vocab AS v
+FROM umls.mrrel_drug_is_a AS m, vocab AS v
 WHERE m.cui1 = v.cui
 
 
