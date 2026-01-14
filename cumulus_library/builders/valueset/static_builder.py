@@ -1,3 +1,5 @@
+"""Builder for tables from flat files for valueset lookup"""
+
 import csv
 import dataclasses
 import pathlib
@@ -24,7 +26,7 @@ class TableConfig:
 
 
 class StaticBuilder(BaseTableBuilder):
-    def get_table_configs(
+    def get_keywords_table_configs(
         self,
         config: base_utils.StudyConfig,
         manifest: study_manifest.StudyManifest,
@@ -33,6 +35,7 @@ class StaticBuilder(BaseTableBuilder):
         if prefix is None:
             prefix = ""  # pragma: no cover
         configs = []
+        # Do we have a keyword lookup? if so, upload it and the associated rules file
         if self.valueset_config.keyword_file is not None:
             configs += [
                 TableConfig(
@@ -54,6 +57,8 @@ class StaticBuilder(BaseTableBuilder):
                 )
             )
 
+        # This sets the source of the expansion rules, or uses our reasonable default
+        # TODO: Move this in with the UMLS generation
         if self.valueset_config.rules_file:
             rules_path = self.study_path / self.valueset_config.rules_file
         else:
@@ -61,7 +66,6 @@ class StaticBuilder(BaseTableBuilder):
                 pathlib.Path(__file__).resolve().parents[0]
                 / "lookup_drug_from_ingredient_rules.tsv"
             )
-        # TODO: get this table to write its parquet to the valueset_data folder
         configs += [
             TableConfig(
                 file_path=rules_path,
@@ -141,8 +145,10 @@ class StaticBuilder(BaseTableBuilder):
         prefix = self.valueset_config.table_prefix
         if prefix:
             prefix += "_"
-        # fetch and add vsac tables
-        self.tables = self.get_table_configs(config, manifest, prefix)
+
+        self.tables = self.get_keywords_table_configs(config, manifest, prefix)
+
+        # For each VSAC dataset, we'll get the topics defined by that dataset
         vsac_df = pandas.DataFrame(columns=["sab", "rxcui", "display", "steward", "oid"])
         for key in valueset_config.vsac_stewards:
             vsac.download_oid_data(
@@ -164,6 +170,8 @@ class StaticBuilder(BaseTableBuilder):
             vsac_df = pandas.concat([vsac_df, steward_df])
             vsac_df["rxcui"] = vsac_df["rxcui"].astype("str")
         vsac_df.to_csv(self.data_path / "all_vsac.tsv", sep="\t", index=False)
+
+        # And now we'll add the VSAC static table to the list of tables to upload
         self.tables.append(
             TableConfig(
                 file_path=self.data_path / "all_vsac.tsv",

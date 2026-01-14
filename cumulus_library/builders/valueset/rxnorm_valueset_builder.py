@@ -53,6 +53,7 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                 distinct=True,
             )
 
+        # if keywords were used, we'll append the keywords to data from RXNCONSO
         if valueset_config.keyword_file is not None:
             with open(manifest._study_path / valueset_config.keyword_file) as f:
                 keywords = [row.rstrip() for row in f.readlines()]
@@ -75,6 +76,7 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     ],
                 )
             )
+        # Otherwise, we'll make an empty keyword table
         else:
             self.queries.append(
                 base_templates.get_ctas_empty_query(
@@ -92,7 +94,10 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                 )
             )
 
+        # We'll generate all the UMLS tables now
+        # TODO: this should be decoupled from the RXNORM-centric process as a standalone builder
         umls.generate_umls_tables(config, manifest, valueset_config)
+        # For every VSAC steward, get the cui/code info from RXNCONso
         self.queries.append(
             get_create_view_filter_by(
                 "rxnconso",
@@ -101,6 +106,7 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                 view_name=f"{study_prefix}{table_prefix}vsac_valuesets_hydrated",
             )
         )
+        # Join together the UMLS and VSAC valuesets
         self.queries.append(
             base_templates.get_create_table_from_union(
                 table_name=f"{study_prefix}{table_prefix}valuesets",
@@ -111,12 +117,16 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                 columns=["rxcui", "str", "tty", "sab", "code", "steward"],
             )
         )
+        # use the CUIs as a way to get information directly from RXNCONSO, so they are
+        # all formatted the same
         self.queries.append(
             get_create_view_filter_by(
                 "rxnconso",
                 columns=["a.rxcui", "a.str", "a.tty", "a.sab", "a.code", "b.steward"],
             )
         )
+        # If we've got keywords, we'll use the above normalized table and the keyword
+        # table, and return all matching records that match a keyword
         if valueset_config.keyword_file is not None:
             self.queries.append(
                 base_templates.get_base_template(
@@ -135,6 +145,7 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     ],
                 )
             )
+        # Or, we'll skip this step if there is no keyword file
         else:
             self.queries.append(
                 base_templates.get_ctas_empty_query(
@@ -151,6 +162,7 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     ],
                 )
             )
+        # Then we'll get some RXNORM tables filtered by RXCUIs in our valueset table
         self.queries.append(
             get_create_view_filter_by(
                 "rxnsty",
@@ -179,6 +191,8 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                 a_join_col="a.rxcui1",
             )
         )
+        # and then we'll use the rel table to filter our keyword table, so that we have
+        # the topic and the rel together
         self.queries.append(
             get_create_view_filter_by(
                 f"{table_prefix}rxnconso_keywords",

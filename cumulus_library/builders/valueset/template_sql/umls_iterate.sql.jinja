@@ -48,7 +48,7 @@ SELECT DISTINCT
     d.str
 FROM
     {{ prefix }}{{ table_prefix }}umls_valuesets_rels AS v,
-    umls.mrrel_is_a AS r,
+    umls.mrrel_drug_is_a AS r,
     umls.mrconso_drugs AS d
 WHERE
     r.cui1 = v.cui
