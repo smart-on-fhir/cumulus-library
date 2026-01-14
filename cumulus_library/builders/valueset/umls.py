@@ -48,6 +48,8 @@ def generate_umls_tables(
     create_table = True
     cursor.execute(f"DROP TABLE IF EXISTS {study_prefix}{table_prefix}valueset_rels")
     cursor.execute(f"DROP TABLE IF EXISTS {study_prefix}{table_prefix}valueset")
+    # For each UMLS steward defined, we'll iterate through UMLS, using CUIs to follow links
+    # through the UMLS tree, excluding CUIs we've already found.
     for steward in valueset_config.umls_stewards:
         cursor = config.db.cursor()
         display_text = f"Discovering {steward} medications, pass "
@@ -70,6 +72,7 @@ def generate_umls_tables(
             create_table = False
             cursor.execute(query)
             prev = 0
+            # our break condition is if we find no new rows after an iteration
             current = cursor.execute(
                 f"SELECT count(*) from {study_prefix}{table_prefix}umls_valuesets_rels"  # noqa: S608
             ).fetchone()[0]
@@ -104,6 +107,8 @@ def generate_umls_tables(
         "code",
         "str",
     ]
+    # with the iteration complete, we'll grab the CUI of the actual topic, and
+    # append it to the rel so we have a line to its parents and children
     if valueset_config.umls_stewards:
         query = base_templates.get_create_table_from_tables(
             table_name=f"{study_prefix}{table_prefix}umls_valuesets",
@@ -118,6 +123,7 @@ def generate_umls_tables(
             distinct=True,
         )
         cursor.execute(query)
+    # Or, just create an empty table if no UMLS stewards were defined
     else:
         query = base_templates.get_ctas_empty_query(
             schema_name=config.schema,

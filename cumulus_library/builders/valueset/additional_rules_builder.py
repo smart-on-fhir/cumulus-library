@@ -33,6 +33,7 @@ class AdditionalRulesBuilder(BaseTableBuilder):
             )
         )
         self.queries.append(
+            # Get all matching rules from the keywords table that match rels
             base_templates.get_create_table_from_tables(
                 table_name=f"{study_prefix}{table_prefix}potential_rules",
                 # From a domain logic perspective, the _rela table is
@@ -74,6 +75,8 @@ class AdditionalRulesBuilder(BaseTableBuilder):
                 ],
             )
         )
+        # with the uploaded search rules, get all matching rels that line up with one
+        # of the search rule types
         self.queries.append(
             base_templates.get_create_table_from_tables(
                 table_name=f"{study_prefix}{table_prefix}included_rels",
@@ -103,6 +106,7 @@ class AdditionalRulesBuilder(BaseTableBuilder):
                 ],
             )
         )
+        # And then do the same thing, but look for keyword presence
         self.queries.append(
             base_templates.get_base_template(
                 "create_included_keywords",
@@ -111,6 +115,8 @@ class AdditionalRulesBuilder(BaseTableBuilder):
                 table_prefix=table_prefix,
             )
         )
+        # Then combine all keyword matches with all rel matches for the
+        # final ruleset table
         self.queries.append(
             base_templates.get_create_table_from_union(
                 table_name=f"{study_prefix}{table_prefix}combined_ruleset",
