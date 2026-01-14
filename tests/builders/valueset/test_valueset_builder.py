@@ -15,14 +15,14 @@ data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     ("config_path,tables,raises"),
     [
         (data_path / "valueset.toml", 18, does_not_raise()),
-        (data_path / "valueset_vsac_only.toml", 16, does_not_raise()),
-        (data_path / "valueset_umls_only.toml", 17, does_not_raise()),
+        (data_path / "valueset_vsac_only.toml", 17, does_not_raise()),
+        (data_path / "valueset_umls_only.toml", 18, does_not_raise()),
         (data_path / "valueset_keyword_only.toml", 17, does_not_raise()),
         (data_path / "invalid.toml", 0, pytest.raises(SystemExit)),
     ],
 )
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
-def test_valueset_builder(mock_api, mock_db_config_rxnorm, config_path, tables, raises):
+def test_valueset_builder(mock_api, mock_db_config_rxnorm, config_path, tables, raises, tmp_path):
     with raises:
         with open(data_path / "vsac_resp.json") as f:
             resp = json.load(f)
@@ -40,7 +40,7 @@ def test_valueset_builder(mock_api, mock_db_config_rxnorm, config_path, tables, 
         cursor.execute(query)
 
         builder = valueset_builder.ValuesetBuilder(config_path, data_path / "valueset_data")
-        builder.execute_queries(mock_db_config_rxnorm, manifest=manifest)
+        builder.execute_queries(mock_db_config_rxnorm, manifest=manifest, toml_path=tmp_path)
         table_count = cursor.execute(
             "SELECT count(*) FROM information_schema.tables WHERE table_name LIKE 'test__%' "
         ).fetchone()

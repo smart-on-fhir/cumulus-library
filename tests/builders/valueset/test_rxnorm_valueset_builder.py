@@ -40,11 +40,17 @@ def test_rxnorm_valueset_builder(mock_user_dir, mock_api, mock_db_config_rxnorm,
     cursor = mock_db_config_rxnorm.db.cursor()
     s_builder = static_builder.StaticBuilder()
     s_builder.execute_queries(
-        config=mock_db_config_rxnorm, manifest=manifest, valueset_config=valueset_config
+        config=mock_db_config_rxnorm,
+        manifest=manifest,
+        valueset_config=valueset_config,
+        toml_path=tmp_path,
     )
     builder = rxnorm_valueset_builder.RxNormValuesetBuilder()
     builder.execute_queries(
-        config=mock_db_config_rxnorm, manifest=manifest, valueset_config=valueset_config
+        config=mock_db_config_rxnorm,
+        manifest=manifest,
+        valueset_config=valueset_config,
+        toml_path=tmp_path,
     )
     query = f"""select * from test__{prefix}vsac_valuesets"""
     res = cursor.execute(query)
@@ -52,24 +58,26 @@ def test_rxnorm_valueset_builder(mock_user_dir, mock_api, mock_db_config_rxnorm,
     res = cursor.execute(f"select * from test__{prefix}rela ORDER BY 1,2,3,4,5").fetchall()
     assert len(res) == 1200
     assert res[0] == (
-        1819,
+        "1819",
         "(-)-buprenorphine",
         "SY",
         "DRUGBANK",
-        1818,
-        "RN",
-        "reformulated_to",
-        4716626,
+        "1151359",
+        "RO",
+        "has_ingredient",
+        "18636093",
         "acep",
     )
     assert res[-1] == (
-        1819,
-        "buprenorphine",
-        "SU",
-        "MTHSPL",
-        1655031,
-        "RO",
-        "has_ingredient",
-        86130850,
-        "acep",
+        (
+            "1819",
+            "buprenorphine",
+            "SU",
+            "MTHSPL",
+            "904879",
+            "RO",
+            "has_ingredient",
+            "5110638",
+            "acep",
+        )
     )

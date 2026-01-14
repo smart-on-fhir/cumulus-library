@@ -64,6 +64,15 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     keywords=keywords,
                     source_table="rxnorm.rxnconso",
                     table_name=f"{study_prefix}{table_prefix}all_rxnconso_keywords",
+                    table_cols=["rxcui", "str", "tty", "sab", "code", "keyword"],
+                    table_cols_types=[
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                    ],
                 )
             )
         else:
@@ -73,7 +82,7 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     table_name=f"{study_prefix}{table_prefix}all_rxnconso_keywords",
                     table_cols=["rxcui", "str", "tty", "sab", "code", "keyword"],
                     table_cols_types=[
-                        "BIGINT",
+                        "VARCHAR",
                         "VARCHAR",
                         "VARCHAR",
                         "VARCHAR",
@@ -116,6 +125,14 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     keywords=keywords,
                     source_table=f"{study_prefix}{table_prefix}rxnconso",
                     table_name=f"{study_prefix}{table_prefix}rxnconso_keywords",
+                    table_cols_types=[
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                    ],
                 )
             )
         else:
@@ -125,7 +142,7 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     table_name=f"{study_prefix}{table_prefix}rxnconso_keywords",
                     table_cols=["rxcui", "str", "tty", "sab", "code", "keyword"],
                     table_cols_types=[
-                        "BIGINT",
+                        "VARCHAR",
                         "VARCHAR",
                         "VARCHAR",
                         "VARCHAR",
@@ -134,7 +151,6 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                     ],
                 )
             )
-
         self.queries.append(
             get_create_view_filter_by(
                 "rxnsty",
@@ -170,14 +186,14 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                 a_schema=f"{study_prefix}",
                 b_table=f"{study_prefix}{table_prefix}rxnrel",
                 columns=[
-                    "a.rxcui",
+                    "cast (a.rxcui AS VARCHAR) as rxcui",
                     "a.str",
                     "a.tty",
                     "a.sab",
-                    "b.rxcui2",
+                    "cast (b.rxcui2 AS VARCHAR) as rxcui2",
                     "b.rel",
                     "b.rela",
-                    "b.rui",
+                    "cast (b.rui AS VARCHAR) as rui",
                     "b.steward",
                 ],
                 b_join_col="b.rxcui1",

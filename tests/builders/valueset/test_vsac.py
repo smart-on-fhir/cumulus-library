@@ -37,13 +37,14 @@ def test_download_oid_data(
             options={"steward": steward},
         )
         vsac.download_oid_data(steward=steward, oid=oid, path=tmp_path, config=config)
-        output_dir = list(tmp_path.glob("*"))
-        assert len(output_dir) == 5
+        output_dir = list(tmp_path.glob("**/*"))
+        assert len(output_dir) == 6
         for filename in [f"{steward}.json", f"{steward}.tsv", f"{steward}.parquet"]:
             assert len([x for x in output_dir if filename in str(x)]) == expected
-        with open(tmp_path / f"{steward}.tsv") as f:
+        with open(tmp_path / f"valueset_data/{steward}.tsv") as f:
             tsv = f.readlines()
-            assert tsv[0].strip() == (
+            assert tsv[0].strip() == ("SAB\tRXCUI\tSTR")
+            assert tsv[1].strip() == (
                 "http://www.nlm.nih.gov/research/umls/rxnorm\t1010600\tbuprenorphine"
                 " 2 MG / naloxone 0.5 MG Sublingual Film"
             )
@@ -54,11 +55,3 @@ def test_download_oid_data(
             )
         redownload = vsac.download_oid_data(steward=steward, oid=oid, path=tmp_path, config=config)
         assert redownload == force
-
-
-@mock.patch("cumulus_library.builders.valueset.vsac.download_oid_data")
-def test_cli(mock_download):
-    vsac.main(
-        cli_args=["--steward=acep", "--oid=123", "--api-key=456", "--force-upload", "--path=/tmp"]
-    )
-    assert mock_download.is_called

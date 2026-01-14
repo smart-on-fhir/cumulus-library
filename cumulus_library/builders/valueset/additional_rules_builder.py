@@ -19,6 +19,7 @@ class AdditionalRulesBuilder(BaseTableBuilder):
         valueset_config: valueset_utils.ValuesetConfig,
         **kwargs,
     ):
+        self.parallel_allowed = False
         study_prefix = manifest.get_prefix_with_seperator()
         table_prefix = ""
         if valueset_config.table_prefix:

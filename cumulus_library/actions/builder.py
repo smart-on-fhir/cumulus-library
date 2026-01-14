@@ -106,7 +106,7 @@ def build_study(
                     # the total number of manually executed queries.
                     explicit_serial_queries += b_queries
             elif file.endswith(".toml"):
-                res = _run_workflow(
+                w_queries, parallel_allowed = _run_workflow(
                     config=config,
                     manifest=manifest,
                     filename=file,
@@ -116,7 +116,8 @@ def build_study(
                     query_count=query_count,
                     run_stage=run_stage,
                 )
-                queries = queries + res
+                if parallel_allowed:
+                    queries = queries + w_queries
             elif file.endswith(".sql"):
                 queries = queries + _run_raw_queries(
                     config=config,
@@ -503,7 +504,7 @@ def _run_workflow(
     query_count: int,
     run_stage: int,
     parallel: bool = False,
-) -> list[str]:
+) -> (list[str], bool):
     """Loads workflow config from toml definitions and executes workflow
 
     :param config: a StudyConfig object
@@ -527,7 +528,7 @@ def _run_workflow(
             run_stage,
             is_toml=True,
         )
-        return []
+        return ([], False)
 
     # This open is a bit redundant with the open inside of the PSM builder,
     # but we're letting it slide so that builders function similarly
@@ -551,7 +552,7 @@ def _run_workflow(
                     .fetchall()
                 )
             if (target_table,) in existing_stats and not config.stats_build:
-                return []
+                return ([], False)
             builder = psm_builder.PsmBuilder(
                 toml_config_path=toml_path,
                 config=config,
@@ -578,7 +579,7 @@ def _run_workflow(
     # we don't have a workflow that will run in parallel mode successfully today,
     # so we'll skip this
     # TODO: revisit after workflow mode added for counts builders
-    if parallel:  # pragma: no cover
+    if parallel and builder.parallel_allowed:  # pragma: no cover
         builder.prepare_queries(
             config=config,
             manifest=manifest,
@@ -598,7 +599,7 @@ def _run_workflow(
                 table_name=f"{target_table}_{safe_timestamp}",
                 view_name=target_table,
             )
-    return builder.queries
+    return builder.queries, builder and builder.parallel_allowed
 
 
 ######### error handlers #########
