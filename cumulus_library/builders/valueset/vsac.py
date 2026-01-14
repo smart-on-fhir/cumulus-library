@@ -1,4 +1,3 @@
-import argparse
 import json
 import pathlib
 
@@ -43,40 +42,10 @@ def download_oid_data(
     for valueset in response:
         contains = valueset.get("expansion").get("contains", [])
         for data in contains:
-            output.append([data["system"], data["code"], data["display"]])
+            output.append([str(data["system"]), int(data["code"]), str(data["display"])])
     output_df = pandas.DataFrame(output, columns=["SAB", "RXCUI", "STR"])
-    output_df.to_csv(path / f"{steward}.tsv", index=False, header=False, sep="\t")
+    output_df.to_csv(path / f"{steward}.tsv", index=False, header=True, sep="\t")
     output_df.to_parquet(path / f"{steward}.parquet")
     with open(path / f"{steward}.json", "w") as f:
         f.write(json.dumps(response))
     return True
-
-
-def main(cli_args=None):
-    """Deprecated CLI interface"""
-    parser = argparse.ArgumentParser()
-    (
-        parser.add_argument(
-            "--steward", help="Human-friendly name for steward (used for filenames)", default=None
-        ),
-    )
-    parser.add_argument("--oid", help="oid to look up codes for", default=None)
-    parser.add_argument("--api-key", help="UMLS api key", default=None)
-    parser.add_argument(
-        "--force-upload",
-        help="Force redownloading of data even if it already exists",
-        action="store_true",
-    )
-    parser.add_argument("--path", help="optional path to write data to", default=None)
-    args = parser.parse_args(cli_args)
-    return download_oid_data(
-        steward=args.steward,
-        oid=args.oid,
-        api_key=args.api_key,
-        force_upload=args.force_upload,
-        path=pathlib.Path(args.path),
-    )
-
-
-if __name__ == "__main__":
-    main()  # pragma: no cover

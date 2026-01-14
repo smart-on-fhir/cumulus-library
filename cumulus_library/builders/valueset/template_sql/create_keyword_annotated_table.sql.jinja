@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS {{ table_name }} AS -- noqa: disable=LT02
     WITH union_block AS (
 {%- for keyword in keywords %}
 SELECT
-    rxcui,
+    cast(rxcui AS VARCHAR) AS rxcui,
     str,
     tty,
     sab,
@@ -19,7 +19,7 @@ WHERE {{ syntax.ilike('str', '%'+keyword+'%') }}
 )
 
 SELECT DISTINCT
-    a.rxcui,
+    cast(a.rxcui AS VARCHAR) AS rxcui,
     a.str,
     a.tty,
     a.sab,
@@ -27,7 +27,7 @@ SELECT DISTINCT
     b.keyword
 FROM {{ source_table }} AS a
 LEFT JOIN union_block AS b
-    ON a.rxcui = b.rxcui
+    ON cast(a.rxcui AS VARCHAR) = cast(b.rxcui AS VARCHAR)
     AND a.str = b.str
     AND a.tty = b.tty
     AND a.sab = b.sab

@@ -22,6 +22,7 @@ class ValuesetBuilder(BaseTableBuilder):
         # We're stashing the toml path for error reporting later
         self.toml_path = toml_config_path
         self.data_path = data_path
+        self.parallel_allowed = False
         try:
             with open(self.toml_path, "rb") as file:
                 toml_config = tomllib.load(file)
@@ -46,16 +47,23 @@ class ValuesetBuilder(BaseTableBuilder):
         self.queries = []
         s_builder = static_builder.StaticBuilder()
         s_builder.prepare_queries(
-            config=config, manifest=manifest, valueset_config=self.valueset_config
+            config=config,
+            manifest=manifest,
+            valueset_config=self.valueset_config,
+            toml_path=self.toml_path.parent,
         )
         self.queries += s_builder.queries
         rx_builder = rxnorm_valueset_builder.RxNormValuesetBuilder()
         rx_builder.prepare_queries(
-            config=config, manifest=manifest, valueset_config=self.valueset_config
+            config=config,
+            manifest=manifest,
+            valueset_config=self.valueset_config,
         )
         self.queries += rx_builder.queries
         r_builder = additional_rules_builder.AdditionalRulesBuilder()
         r_builder.prepare_queries(
-            config=config, manifest=manifest, valueset_config=self.valueset_config
+            config=config,
+            manifest=manifest,
+            valueset_config=self.valueset_config,
         )
         self.queries += r_builder.queries

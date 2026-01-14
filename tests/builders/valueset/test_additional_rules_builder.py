@@ -53,15 +53,24 @@ read_csv('{test_path}/tty.tsv',"""
 
     s_builder = static_builder.StaticBuilder()
     s_builder.execute_queries(
-        config=mock_db_config_rxnorm, manifest=manifest, valueset_config=valueset_config
+        config=mock_db_config_rxnorm,
+        manifest=manifest,
+        valueset_config=valueset_config,
+        toml_path=test_path,
     )
     r_builder = rxnorm_valueset_builder.RxNormValuesetBuilder()
     r_builder.execute_queries(
-        config=mock_db_config_rxnorm, manifest=manifest, valueset_config=valueset_config
+        config=mock_db_config_rxnorm,
+        manifest=manifest,
+        valueset_config=valueset_config,
+        toml_path=test_path,
     )
     builder = additional_rules_builder.AdditionalRulesBuilder()
     builder.execute_queries(
-        config=mock_db_config_rxnorm, manifest=manifest, valueset_config=valueset_config
+        config=mock_db_config_rxnorm,
+        manifest=manifest,
+        valueset_config=valueset_config,
+        toml_path=test_path,
     )
     res = cursor.execute(f"select * from test__{prefix}rela")
     for table_conf in [
@@ -70,11 +79,11 @@ read_csv('{test_path}/tty.tsv',"""
             "columns": 10,
             "count": 48,
             "first": (
-                1819,
-                1818,
+                "1819",
+                "1818",
                 "BN",
                 "BN",
-                4716626,
+                "4716626",
                 "RN",
                 "reformulated_to",
                 "Buprenorphine",
@@ -82,11 +91,11 @@ read_csv('{test_path}/tty.tsv',"""
                 "subutex",
             ),
             "last": (
-                1819,
-                1818,
+                "1819",
+                "1818",
                 "SY",
                 "BN",
-                4716626,
+                "4716626",
                 "RN",
                 "reformulated_to",
                 "Buprenophine",
@@ -99,11 +108,11 @@ read_csv('{test_path}/tty.tsv',"""
             "columns": 10,
             "count": 2,
             "first": (
-                1819,
-                1818,
+                "1819",
+                "1818",
                 "BN",
                 "BN",
-                4716626,
+                "4716626",
                 "RN",
                 "reformulated_to",
                 "Buprenorphine",
@@ -111,11 +120,11 @@ read_csv('{test_path}/tty.tsv',"""
                 "subutex",
             ),
             "last": (
-                1819,
-                1818,
+                "1819",
+                "1818",
                 "BN",
                 "BN",
-                4716626,
+                "4716626",
                 "RN",
                 "reformulated_to",
                 "Buprenorphine",
@@ -128,11 +137,11 @@ read_csv('{test_path}/tty.tsv',"""
             "columns": 10,
             "count": 48,
             "first": (
-                1819,
-                1818,
+                "1819",
+                "1818",
                 "BN",
                 "BN",
-                4716626,
+                "4716626",
                 "RN",
                 "reformulated_to",
                 "Buprenorphine",
@@ -140,11 +149,11 @@ read_csv('{test_path}/tty.tsv',"""
                 "subutex",
             ),
             "last": (
-                1819,
-                1818,
+                "1819",
+                "1818",
                 "SY",
                 "BN",
-                4716626,
+                "4716626",
                 "RN",
                 "reformulated_to",
                 "Buprenophine",
@@ -159,11 +168,11 @@ read_csv('{test_path}/tty.tsv',"""
             "columns": 10,
             "count": 20,
             "first": (
-                1819,
-                1818,
+                "1819",
+                "1818",
                 "BN",
                 "BN",
-                4716626,
+                "4716626",
                 "RN",
                 "reformulated_to",
                 "Buprenorphine",
@@ -171,11 +180,11 @@ read_csv('{test_path}/tty.tsv',"""
                 "subutex",
             ),
             "last": (
-                1819,
-                1818,
+                "1819",
+                "1818",
                 "SY",
                 "BN",
-                4716626,
+                "4716626",
                 "RN",
                 "reformulated_to",
                 "Buprenophine",

@@ -18,11 +18,17 @@ class ValuesetConfig:
 def get_valueset_cache_dir(
     path: pathlib.Path | None, manifest: study_manifest.StudyManifest | None
 ):
-    if not path:
+    # this is not actively used much right now, but if you want things to go
+    # to the user cache dir, just don't provide a path
+    if not path:  # pragma: no cover
         if manifest:
             subpath = f"{manifest.get_study_prefix()}/valueset_data"
         else:
-            subpath = "vsac_generic_cache/valueset_data"  # pragma: no cover
+            subpath = "valueset_data"  # pragma: no cover
         path = base_utils.get_user_cache_dir() / subpath
+    # since a very common use case is 'download a file from vsac, make a flat file,
+    # and then have the file uploader push it to S3', this is the default write location
+    else:
+        path = path / "valueset_data"
     path.mkdir(exist_ok=True, parents=True)
     return path

@@ -10,17 +10,15 @@ from cumulus_library.builders.valueset import static_builder, valueset_utils
 
 
 @pytest.mark.parametrize(
-    "filtered,ignore_header,prefix_str,mapping,expected",
+    "filtered,prefix_str,mapping,expected",
     [
         (
             None,
-            False,
             "",
             None,
             {
                 "headers": ["foo", "bar"],
                 "data": [
-                    ("header_1", "header_2"),
                     ("val_1", "val_2"),
                     ("val_3", "val_4"),
                 ],
@@ -28,14 +26,12 @@ from cumulus_library.builders.valueset import static_builder, valueset_utils
         ),
         (
             "filtered.csv",
-            False,
             "",
             None,
             {"headers": ["foo", "bar"], "data": [("val_2", None)]},
         ),
         (
             None,
-            True,
             "",
             None,
             {
@@ -45,13 +41,11 @@ from cumulus_library.builders.valueset import static_builder, valueset_utils
         ),
         (
             None,
-            None,
             "foo",
             [{"from": "bar", "to": "baz", "map_dict": {"val_2": "val_5"}}],
             {
                 "headers": ["foo", "bar", "baz"],
                 "data": [
-                    ("header_1", "header_2", None),
                     ("val_1", "val_2", "val_5"),
                     ("val_3", "val_4", None),
                 ],
@@ -67,7 +61,6 @@ def test_static_tables(
     tmp_path,
     mock_db_config,
     filtered,
-    ignore_header,
     prefix_str,
     mapping,
     expected,
@@ -76,7 +69,6 @@ def test_static_tables(
     with open(pathlib.Path(__file__).parents[2] / "test_data/valueset/vsac_resp.json") as f:
         resp = json.load(f)
         mock_api.return_value.get_vsac_valuesets.return_value = resp
-
     test_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     shutil.copy(test_path / "static/static_table.csv", tmp_path / "static_table.csv")
     shutil.copy(test_path / "static/filtered.csv", tmp_path / "filtered.csv")
@@ -88,7 +80,7 @@ def test_static_tables(
         prefix_str += "_"
     builder = static_builder.StaticBuilder()
     filtered = tmp_path / filtered if filtered else None
-    builder.get_table_configs = lambda config, prefix: [
+    builder.get_table_configs = lambda config, manifest, prefix: [
         static_builder.TableConfig(
             file_path=tmp_path / "static_table.csv",
             delimiter=",",
@@ -97,7 +89,6 @@ def test_static_tables(
             dtypes={"foo": "str", "bar": "str"},
             parquet_types=["STR", "STR"],
             filtered_path=filtered,
-            ignore_header=ignore_header,
             map_cols=mapping,
         )
     ]
@@ -105,6 +96,7 @@ def test_static_tables(
         config=mock_db_config,
         manifest=study_manifest.StudyManifest(test_path),
         valueset_config=valueset_config,
+        toml_path=tmp_path,
     )
     result = mock_db_config.db.cursor().execute(f"select * from test__{prefix_str}test_table")
     cols = [col[0] for col in result.description]
@@ -133,6 +125,7 @@ def test_custom_rules(mock_api, mock_cache_dir, tmp_path, mock_db_config):
         config=mock_db_config,
         manifest=study_manifest.StudyManifest(test_path),
         valueset_config=valueset_config,
+        toml_path=test_path,
     )
     result = mock_db_config.db.cursor().execute("select * from test__search_rules").fetchall()
     assert len(result) == 3

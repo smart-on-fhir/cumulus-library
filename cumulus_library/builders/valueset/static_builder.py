@@ -20,12 +20,16 @@ class TableConfig:
     dtypes: dict
     parquet_types: list[str]
     filtered_path: str | None = None
-    ignore_header: bool = False
     map_cols: list[dict] | None = None
 
 
 class StaticBuilder(BaseTableBuilder):
-    def get_table_configs(self, config, prefix: str | None = None):
+    def get_table_configs(
+        self,
+        config: base_utils.StudyConfig,
+        manifest: study_manifest.StudyManifest,
+        prefix: str | None = None,
+    ):
         if prefix is None:
             prefix = ""  # pragma: no cover
         configs = []
@@ -44,7 +48,9 @@ class StaticBuilder(BaseTableBuilder):
         else:
             self.queries.append(
                 base_templates.get_ctas_empty_query(
-                    schema_name=config.schema, table_name=f"{prefix}keywords", table_cols=["STR"]
+                    schema_name=config.schema,
+                    table_name=f"{manifest.get_study_prefix()}__{prefix}keywords",
+                    table_cols=["STR"],
                 )
             )
 
@@ -69,7 +75,6 @@ class StaticBuilder(BaseTableBuilder):
                 ],
                 dtypes={"TTY1": "str", "RELA": "str", "TTY2": "str", "rule": "str"},
                 parquet_types=["STRING", "STRING", "STRING", "STRING", "BOOLEAN"],
-                ignore_header=True,
                 map_cols=[
                     {
                         "from": "rule",
@@ -127,31 +132,37 @@ class StaticBuilder(BaseTableBuilder):
         config: base_utils.StudyConfig,
         manifest: study_manifest.StudyManifest,
         valueset_config: valueset_utils.ValuesetConfig,
+        toml_path: pathlib.Path,
         **kwargs,
     ):
         self.valueset_config = valueset_config
         self.study_path = manifest._study_path
-        self.data_path = valueset_utils.get_valueset_cache_dir(None, manifest)
+        self.data_path = valueset_utils.get_valueset_cache_dir(toml_path, None)
         prefix = self.valueset_config.table_prefix
         if prefix:
             prefix += "_"
         # fetch and add vsac tables
-        self.tables = self.get_table_configs(config, prefix)
+        self.tables = self.get_table_configs(config, manifest, prefix)
         vsac_df = pandas.DataFrame(columns=["sab", "rxcui", "display", "steward", "oid"])
         for key in valueset_config.vsac_stewards:
             vsac.download_oid_data(
                 steward=key,
                 oid=valueset_config.vsac_stewards[key],
                 config=config,
-                manifest=manifest,
+                manifest=None,
+                path=toml_path,
             )
             steward_df = pandas.read_csv(
-                self.data_path / f"{key}.tsv", delimiter="\t", names=["sab", "rxcui", "display"]
+                self.data_path / f"{key}.tsv",
+                delimiter="\t",
+                names=["sab", "rxcui", "display"],
+                header=0,
             )
 
             steward_df["steward"] = key
             steward_df["oid"] = valueset_config.vsac_stewards[key]
             vsac_df = pandas.concat([vsac_df, steward_df])
+            vsac_df["rxcui"] = vsac_df["rxcui"].astype("str")
         vsac_df.to_csv(self.data_path / "all_vsac.tsv", sep="\t", index=False)
         self.tables.append(
             TableConfig(
@@ -167,7 +178,6 @@ class StaticBuilder(BaseTableBuilder):
                     "oid": "str",
                 },
                 parquet_types=["STRING", "STRING", "STRING", "STRING", "STRING"],
-                ignore_header=True,
             )
         )
 
@@ -192,7 +202,7 @@ class StaticBuilder(BaseTableBuilder):
                     path,
                     delimiter=table.delimiter,
                     names=table.headers,
-                    header=0 if table.ignore_header else None,
+                    header=0,
                     dtype=table.dtypes,
                     index_col=False,
                     na_values=["\\N"],
