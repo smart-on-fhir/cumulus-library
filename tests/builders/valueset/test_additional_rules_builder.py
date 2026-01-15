@@ -15,7 +15,7 @@ from cumulus_library.builders.valueset import (
 )
 
 
-@pytest.mark.parametrize("prefix", [(""), ("foo")])
+@pytest.mark.parametrize("prefix", [(None), (""), ("foo")])
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
 @mock.patch("cumulus_library.base_utils.get_user_cache_dir")
 def test_additional_rules(mock_cache_dir, mock_api, mock_db_config_rxnorm, prefix, tmp_path):
@@ -33,13 +33,10 @@ def test_additional_rules(mock_cache_dir, mock_api, mock_db_config_rxnorm, prefi
     valueset_config = valueset_utils.ValuesetConfig(
         rules_file=toml_config.get("rules_file"),
         keyword_file=toml_config.get("keyword_file"),
-        table_prefix=toml_config.get("target_table", ""),
+        table_prefix=toml_config.get("target_table", prefix),
         umls_stewards=toml_config.get("umls_stewards"),
         vsac_stewards=toml_config.get("vsac_stewards"),
     )
-    if prefix:
-        valueset_config.table_prefix = prefix
-        prefix += "_"
     cursor = mock_db_config_rxnorm.db.cursor()
     query = (
         f"""CREATE TABLE umls.tty_description AS SELECT * FROM 
@@ -50,7 +47,6 @@ read_csv('{test_path}/tty.tsv',"""
 )"""
     )
     cursor.execute(query)
-
     s_builder = static_builder.StaticBuilder()
     s_builder.execute_queries(
         config=mock_db_config_rxnorm,
@@ -72,10 +68,11 @@ read_csv('{test_path}/tty.tsv',"""
         valueset_config=valueset_config,
         toml_path=test_path,
     )
-    res = cursor.execute(f"select * from test__{prefix}rela")
+
+    res = cursor.execute(f"select * from test__{valueset_config.get_table_prefix()}rela")
     for table_conf in [
         {
-            "name": f"test__{prefix}potential_rules",
+            "name": f"test__{valueset_config.get_table_prefix()}potential_rules",
             "columns": 10,
             "count": 48,
             "first": (
@@ -104,7 +101,7 @@ read_csv('{test_path}/tty.tsv',"""
             ),
         },
         {
-            "name": f"test__{prefix}included_rels",
+            "name": f"test__{valueset_config.get_table_prefix()}included_rels",
             "columns": 10,
             "count": 2,
             "first": (
@@ -133,7 +130,7 @@ read_csv('{test_path}/tty.tsv',"""
             ),
         },
         {
-            "name": f"test__{prefix}included_keywords",
+            "name": f"test__{valueset_config.get_table_prefix()}included_keywords",
             "columns": 10,
             "count": 48,
             "first": (
@@ -164,7 +161,7 @@ read_csv('{test_path}/tty.tsv',"""
         # The following table has fewer rows than the proceding due to duplication
         # in the key lookup. The union operation removes extra rows.
         {
-            "name": f"test__{prefix}combined_ruleset",
+            "name": f"test__{valueset_config.get_table_prefix()}combined_ruleset",
             "columns": 10,
             "count": 20,
             "first": (
