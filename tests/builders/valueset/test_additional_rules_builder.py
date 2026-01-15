@@ -15,7 +15,7 @@ from cumulus_library.builders.valueset import (
 )
 
 
-@pytest.mark.parametrize("prefix", [(None), (""), ("foo")])
+@pytest.mark.parametrize("prefix", [(None), (""), ("foo"), ("foo_")])
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
 @mock.patch("cumulus_library.base_utils.get_user_cache_dir")
 def test_additional_rules(mock_cache_dir, mock_api, mock_db_config_rxnorm, prefix, tmp_path):
