@@ -21,9 +21,7 @@ class AdditionalRulesBuilder(BaseTableBuilder):
     ):
         self.parallel_allowed = False
         study_prefix = manifest.get_prefix_with_seperator()
-        table_prefix = ""
-        if valueset_config.table_prefix:
-            table_prefix = f"{valueset_config.table_prefix}_"
+        table_prefix = valueset_config.get_table_prefix()
         self.queries.append(
             base_templates.get_base_template(
                 "create_search_rules_descriptions",

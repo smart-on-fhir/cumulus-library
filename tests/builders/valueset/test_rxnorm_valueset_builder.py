@@ -13,7 +13,7 @@ from cumulus_library.builders.valueset import (
 )
 
 
-@pytest.mark.parametrize("prefix", [(""), ("foo")])
+@pytest.mark.parametrize("prefix", [(None), (""), ("foo")])
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
 @mock.patch("cumulus_library.base_utils.get_user_cache_dir")
 def test_rxnorm_valueset_builder(mock_user_dir, mock_api, mock_db_config_rxnorm, prefix, tmp_path):
@@ -29,14 +29,14 @@ def test_rxnorm_valueset_builder(mock_user_dir, mock_api, mock_db_config_rxnorm,
     valueset_config = valueset_utils.ValuesetConfig(
         rules_file=toml_config.get("rules_file"),
         keyword_file=toml_config.get("keyword_file"),
-        table_prefix=toml_config.get("target_table", ""),
+        table_prefix=toml_config.get("target_table", prefix),
         umls_stewards=toml_config.get("umls_stewards"),
         vsac_stewards=toml_config.get("vsac_stewards"),
     )
     if prefix:
-        valueset_config.table_prefix = prefix
         prefix += "_"
-
+    else:
+        prefix = ""
     cursor = mock_db_config_rxnorm.db.cursor()
     s_builder = static_builder.StaticBuilder()
     s_builder.execute_queries(

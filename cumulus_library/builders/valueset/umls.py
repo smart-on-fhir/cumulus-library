@@ -42,9 +42,7 @@ def generate_umls_tables(
     base_path = pathlib.Path(__file__).resolve().parent
     study_prefix = manifest.get_prefix_with_seperator()
     cursor = config.db.cursor()
-    table_prefix = ""
-    if valueset_config.table_prefix:
-        table_prefix = valueset_config.table_prefix + "_"
+    table_prefix = valueset_config.get_table_prefix()
     create_table = True
     cursor.execute(f"DROP TABLE IF EXISTS {study_prefix}{table_prefix}valueset_rels")
     cursor.execute(f"DROP TABLE IF EXISTS {study_prefix}{table_prefix}valueset")

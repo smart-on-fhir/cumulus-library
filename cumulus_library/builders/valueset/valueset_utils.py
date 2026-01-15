@@ -14,6 +14,14 @@ class ValuesetConfig:
     umls_stewards: dict[str, str] = None
     vsac_stewards: dict[str, str] = None
 
+    def get_table_prefix(self):
+        if self.table_prefix is None or self.table_prefix == "":
+            return ""
+        elif self.table_prefix.endswith("_"):
+            return self.table_prefix
+        else:
+            return f"{self.table_prefix}_"
+
 
 def get_valueset_cache_dir(
     path: pathlib.Path | None, manifest: study_manifest.StudyManifest | None
