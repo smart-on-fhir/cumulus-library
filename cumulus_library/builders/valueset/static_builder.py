@@ -30,10 +30,8 @@ class StaticBuilder(BaseTableBuilder):
         self,
         config: base_utils.StudyConfig,
         manifest: study_manifest.StudyManifest,
-        prefix: str | None = None,
+        table_prefix: str | None = None,
     ):
-        if prefix is None:
-            prefix = ""  # pragma: no cover
         configs = []
         # Do we have a keyword lookup? if so, upload it and the associated rules file
         if self.valueset_config.keyword_file is not None:
@@ -41,7 +39,7 @@ class StaticBuilder(BaseTableBuilder):
                 TableConfig(
                     file_path=self.study_path / self.valueset_config.keyword_file,
                     delimiter="\t",
-                    table_name=f"{prefix}keywords",
+                    table_name=f"{table_prefix}keywords",
                     headers=["STR"],
                     dtypes={"STR": "str"},
                     parquet_types=["STRING"],
@@ -52,7 +50,7 @@ class StaticBuilder(BaseTableBuilder):
             self.queries.append(
                 base_templates.get_ctas_empty_query(
                     schema_name=config.schema,
-                    table_name=f"{manifest.get_study_prefix()}__{prefix}keywords",
+                    table_name=f"{manifest.get_study_prefix()}__{table_prefix}keywords",
                     table_cols=["STR"],
                 )
             )
@@ -70,7 +68,7 @@ class StaticBuilder(BaseTableBuilder):
             TableConfig(
                 file_path=rules_path,
                 delimiter="\t",
-                table_name=f"{prefix}search_rules",
+                table_name=f"{table_prefix}search_rules",
                 headers=[
                     "TTY1",
                     "RELA",
@@ -142,11 +140,9 @@ class StaticBuilder(BaseTableBuilder):
         self.valueset_config = valueset_config
         self.study_path = manifest._study_path
         self.data_path = valueset_utils.get_valueset_cache_dir(toml_path, None)
-        prefix = self.valueset_config.table_prefix
-        if prefix:
-            prefix += "_"
+        table_prefix = valueset_config.get_table_prefix()
 
-        self.tables = self.get_keywords_table_configs(config, manifest, prefix)
+        self.tables = self.get_keywords_table_configs(config, manifest, table_prefix)
 
         # For each VSAC dataset, we'll get the topics defined by that dataset
         vsac_df = pandas.DataFrame(columns=["sab", "rxcui", "display", "steward", "oid"])
@@ -176,7 +172,7 @@ class StaticBuilder(BaseTableBuilder):
             TableConfig(
                 file_path=self.data_path / "all_vsac.tsv",
                 delimiter="\t",
-                table_name=f"{prefix}vsac_valuesets",
+                table_name=f"{table_prefix}vsac_valuesets",
                 headers=["sab", "rxcui", "str", "steward", "oid"],
                 dtypes={
                     "sab": "str",
@@ -221,17 +217,16 @@ class StaticBuilder(BaseTableBuilder):
                         table.headers.append(mapping["to"])
                 df.to_parquet(parquet_path)
                 # Upload to S3 and create a table that reads from it
-                prefix = manifest.get_study_prefix()
                 remote_path = config.db.upload_file(
                     file=parquet_path,
-                    study=prefix,
+                    study=manifest.get_study_prefix(),
                     topic=parquet_path.stem,
                     force_upload=config.force_upload,
                 )
                 self.queries.append(
                     base_templates.get_ctas_from_parquet_query(
                         schema_name=config.schema,
-                        table_name=f"{prefix}__{table.table_name}",
+                        table_name=f"{manifest.get_study_prefix()}__{table.table_name}",
                         local_location=parquet_path,
                         remote_location=remote_path,
                         table_cols=table.headers,

@@ -20,9 +20,7 @@ class RxNormValuesetBuilder(BaseTableBuilder):
         **kwargs,
     ):
         study_prefix = f"{manifest.get_study_prefix()}__"
-        table_prefix = ""
-        if valueset_config.table_prefix:
-            table_prefix = f"{valueset_config.table_prefix}_"
+        table_prefix = valueset_config.get_table_prefix()
 
         def get_create_view_filter_by(
             a_table: str,

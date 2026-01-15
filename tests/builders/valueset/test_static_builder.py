@@ -80,7 +80,7 @@ def test_static_tables(
         prefix_str += "_"
     builder = static_builder.StaticBuilder()
     filtered = tmp_path / filtered if filtered else None
-    builder.get_table_configs = lambda config, manifest, prefix: [
+    builder.get_keywords_table_configs = lambda config, manifest, prefix: [
         static_builder.TableConfig(
             file_path=tmp_path / "static_table.csv",
             delimiter=",",
@@ -118,7 +118,7 @@ def test_custom_rules(mock_api, mock_cache_dir, tmp_path, mock_db_config):
     valueset_config = valueset_utils.ValuesetConfig(
         vsac_stewards={"acep": "2.16.840.1.113762.1.4.1106.68"},
         rules_file="rules_file.tsv",
-        table_prefix="",
+        table_prefix="prefix",
     )
     builder = static_builder.StaticBuilder()
     builder.execute_queries(
@@ -127,6 +127,8 @@ def test_custom_rules(mock_api, mock_cache_dir, tmp_path, mock_db_config):
         valueset_config=valueset_config,
         toml_path=test_path,
     )
-    result = mock_db_config.db.cursor().execute("select * from test__search_rules").fetchall()
+    result = (
+        mock_db_config.db.cursor().execute("select * from test__prefix_search_rules").fetchall()
+    )
     assert len(result) == 3
     assert ("BN", "reformulated_to", "BN", "Yes", True) in result
