@@ -29,7 +29,7 @@ def test_rxnorm_valueset_builder(mock_user_dir, mock_api, mock_db_config_rxnorm,
     valueset_config = valueset_utils.ValuesetConfig(
         rules_file=toml_config.get("rules_file"),
         keyword_file=toml_config.get("keyword_file"),
-        table_prefix=toml_config.get("target_table", prefix),
+        table_prefix=toml_config.get("table_prefix", prefix),
         umls_stewards=toml_config.get("umls_stewards"),
         vsac_stewards=toml_config.get("vsac_stewards"),
     )

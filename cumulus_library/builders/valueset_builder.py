@@ -17,9 +17,8 @@ class ValuesetBuilder(BaseTableBuilder):
     display_text = "Building valueset tables..."
 
     def __init__(self, toml_config_path: str, data_path: pathlib.Path, **kwargs):
-        """Loads PSM job details from a PSM configuration file"""
+        """Loads valueset job details from a valueset configuration file"""
         super().__init__()
-        # We're stashing the toml path for error reporting later
         self.toml_path = toml_config_path
         self.data_path = data_path
         self.parallel_allowed = False
@@ -32,7 +31,7 @@ class ValuesetBuilder(BaseTableBuilder):
         self.valueset_config = valueset_utils.ValuesetConfig(
             rules_file=toml_config.get("rules_file"),
             keyword_file=toml_config.get("keyword_file"),
-            table_prefix=toml_config.get("target_table", ""),
+            table_prefix=toml_config.get("table_prefix", ""),
             umls_stewards=toml_config.get("umls_stewards", {}),
             vsac_stewards=toml_config.get("vsac_stewards", {}),
         )
