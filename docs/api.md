@@ -288,7 +288,7 @@ in cases where we want to dynamically build out SQL statements. Jinja itself is
 beyond the scope of this document, but as a simple example, a template like this:
 
 ```sql
-SELECT * FROM my_study__{{ table_name }};
+SELECT * FROM my_study__\{\{ table_name \}\};
 ```
 
 Would allow you to pass a table_name into this template, and thus reuse it in multiple

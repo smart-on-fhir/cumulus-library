@@ -19,6 +19,7 @@ dependencies = [
     "sqlfluff  >= 3",
     "sqlglot >= 27.29",
     "sqlparse >0.4",
+    "tomli-w >= 1.2",
 ]
 description = "Clinical study SQL generation for data derived from bulk FHIR"
 readme = "README.md"
