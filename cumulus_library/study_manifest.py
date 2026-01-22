@@ -24,8 +24,8 @@ class StudyManifest:
 
     def __init__(
         self,
-        study_path: pathlib.Path | None = None,
-        data_path: pathlib.Path | None = None,
+        study_path: pathlib.Path | str | None = None,
+        data_path: pathlib.Path | str | None = None,
         *,
         options: dict[str, str] | None = None,
     ):
@@ -45,8 +45,8 @@ class StudyManifest:
         self._study_path = None
         self._study_config = {}
         if study_path is not None:
-            self._load_study_manifest(study_path, options or {})
-        self.data_path = data_path
+            self._load_study_manifest(pathlib.Path(study_path), options or {})
+        self.data_path = pathlib.Path(data_path)
 
     def __repr__(self):
         return str(self._study_config)
@@ -60,8 +60,10 @@ class StudyManifest:
         :raises StudyManifestParsingError: the manifest.toml is malformed or missing.
         """
         try:
-            if not study_path.name.endswith("toml"):
-                study_path = f"{study_path}/manifest.toml"
+            if study_path.is_dir():
+                study_path = study_path / "manifest.toml"
+            elif not study_path.name.endswith(".toml"):  # pragma: no cover
+                raise errors.CumulusLibraryError(f"{study_path} is not a valid toml file")
             with open(study_path, "rb") as file:
                 config = tomllib.load(file)
         except FileNotFoundError as e:
@@ -73,7 +75,7 @@ class StudyManifest:
             raise errors.StudyManifestParsingError(str(e)) from e
 
         self._study_config = config
-        self._study_path = study_path
+        self._study_path = study_path.parent
 
         if dynamic_study_prefix := config.get("dynamic_study_prefix"):
             self._study_prefix = self._run_dynamic_script(dynamic_study_prefix, options)

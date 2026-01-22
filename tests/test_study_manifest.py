@@ -62,13 +62,13 @@ def test_load_manifest(manifest_path, expected, raises):
 )
 @mock.patch("builtins.open")
 @mock.patch("tomllib.load")
-def test_manifest_data(mock_load, mock_open, manifest_key, raises):
+def test_manifest_data(mock_load, mock_open, tmp_path, manifest_key, raises):
     mock_load.return_value = get_mock_toml(manifest_key)
     with raises:
         if manifest_key == "invalid_none":
             manifest = study_manifest.StudyManifest()
         else:
-            manifest = study_manifest.StudyManifest("./path")
+            manifest = study_manifest.StudyManifest(tmp_path)
         expected = mock_manifests[manifest_key]
         assert manifest.get_study_prefix() == expected["study_prefix"]
         if "file_config" in expected.keys():
