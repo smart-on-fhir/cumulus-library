@@ -5,6 +5,7 @@ from contextlib import nullcontext as does_not_raise
 from unittest import mock
 
 import pytest
+import tomli_w
 
 from cumulus_library import errors, study_manifest
 from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
@@ -61,13 +62,13 @@ def test_load_manifest(manifest_path, expected, raises):
 )
 @mock.patch("builtins.open")
 @mock.patch("tomllib.load")
-def test_manifest_data(mock_load, mock_open, manifest_key, raises):
+def test_manifest_data(mock_load, mock_open, tmp_path, manifest_key, raises):
     mock_load.return_value = get_mock_toml(manifest_key)
     with raises:
         if manifest_key == "invalid_none":
             manifest = study_manifest.StudyManifest()
         else:
-            manifest = study_manifest.StudyManifest("./path")
+            manifest = study_manifest.StudyManifest(tmp_path)
         expected = mock_manifests[manifest_key]
         assert manifest.get_study_prefix() == expected["study_prefix"]
         if "file_config" in expected.keys():
@@ -98,3 +99,22 @@ def test_get_prefix_with_seperator(manifest_path, prefix):
     path = f"{pathlib.Path(__file__).resolve().parents[0]}/{manifest_path}"
     manifest = study_manifest.StudyManifest(path)
     assert prefix == manifest.get_prefix_with_seperator()
+
+
+def test_custom_pathing(tmp_path):
+    manifest_dict = {"study_prefix": "custom", "file_config": {"stage": "bar"}}
+    manifest_str = tomli_w.dumps(manifest_dict)
+    with open(tmp_path / "custom.toml", "w") as f:
+        f.write(manifest_str)
+    with pytest.raises(errors.StudyManifestFilesystemError):
+        manifest = study_manifest.StudyManifest(tmp_path)
+    manifest = study_manifest.StudyManifest(tmp_path / "custom.toml")
+    assert manifest.get_study_prefix() == "custom"
+    manifest_dict = {"study_prefix": "manifest", "file_config": {"stage": "bar"}}
+    manifest_str = tomli_w.dumps(manifest_dict)
+    with open(tmp_path / "manifest.toml", "w") as f:
+        f.write(manifest_str)
+    manifest = study_manifest.StudyManifest(tmp_path)
+    assert manifest.get_study_prefix() == "manifest"
+    manifest = study_manifest.StudyManifest(tmp_path / "manifest.toml")
+    assert manifest.get_study_prefix() == "manifest"

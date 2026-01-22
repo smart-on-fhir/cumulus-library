@@ -24,24 +24,31 @@ class StudyManifest:
 
     def __init__(
         self,
-        study_path: pathlib.Path | None = None,
-        data_path: pathlib.Path | None = None,
+        study_path: pathlib.Path | str | None = None,
+        data_path: pathlib.Path | str | None = None,
         *,
         options: dict[str, str] | None = None,
     ):
         """Instantiates a StudyManifest.
 
-        :param study_path: A Path object pointing to the dir of the manifest, optional
+        Note: while you can supply a custom path to load an arbitrary toml file, only a file
+        named 'manifest.toml' will be detected automatically. Other filenames can be used
+        for experimentation, or for rendering out artifacts that can then be packaged as part
+        of a study for distribution.
+
+        :param study_path: A Path object pointing to the directory, or a toml path, optional
         :param data_path: A Path object pointing to the dir to save/load ancillary files from,
             optional
         :param options: Command line study-specific options for dynamic manifest values, optional
         """
         self._study_prefix = None
         self._study_path = None
+        self.data_path = None
         self._study_config = {}
         if study_path is not None:
-            self._load_study_manifest(study_path, options or {})
-        self.data_path = data_path
+            self._load_study_manifest(pathlib.Path(study_path), options or {})
+        if data_path is not None:
+            self.data_path = pathlib.Path(data_path)
 
     def __repr__(self):
         return str(self._study_config)
@@ -50,12 +57,16 @@ class StudyManifest:
     def _load_study_manifest(self, study_path: pathlib.Path, options: dict[str, str]) -> None:
         """Reads in a config object from a directory containing a manifest.toml
 
-        :param study_path: A pathlib.Path object pointing to a study directory
+        :param study_path: A pathlib.Path object pointing to a study directory or a toml file
         :param options: Command line study-specific options (--option=A:B)
         :raises StudyManifestParsingError: the manifest.toml is malformed or missing.
         """
         try:
-            with open(f"{study_path}/manifest.toml", "rb") as file:
+            if study_path.is_dir():
+                study_path = study_path / "manifest.toml"
+            elif not study_path.name.endswith(".toml"):  # pragma: no cover
+                raise errors.CumulusLibraryError(f"{study_path} is not a valid toml file")
+            with open(study_path, "rb") as file:
                 config = tomllib.load(file)
         except FileNotFoundError as e:
             raise errors.StudyManifestFilesystemError(
@@ -66,7 +77,7 @@ class StudyManifest:
             raise errors.StudyManifestParsingError(str(e)) from e
 
         self._study_config = config
-        self._study_path = study_path
+        self._study_path = study_path.parent
 
         if dynamic_study_prefix := config.get("dynamic_study_prefix"):
             self._study_prefix = self._run_dynamic_script(dynamic_study_prefix, options)
