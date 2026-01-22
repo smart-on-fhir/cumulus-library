@@ -43,10 +43,12 @@ class StudyManifest:
         """
         self._study_prefix = None
         self._study_path = None
+        self.data_path = None
         self._study_config = {}
         if study_path is not None:
             self._load_study_manifest(pathlib.Path(study_path), options or {})
-        self.data_path = pathlib.Path(data_path)
+        if data_path is not None:
+            self.data_path = pathlib.Path(data_path)
 
     def __repr__(self):
         return str(self._study_config)
