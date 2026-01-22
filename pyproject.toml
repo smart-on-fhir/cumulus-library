@@ -16,7 +16,6 @@ dependencies = [
     "rich >= 13.2",
     "scipy >= 1.16",
     "scikit-learn >= 1.7",
-    "sqlfluff  >= 3",
     "sqlglot >= 27.29",
     "sqlparse >0.4",
     "tomli-w >= 1.2",
@@ -36,6 +35,7 @@ dev = [
     # if you update the ruff version, also update .pre-commit-config.yaml
     "ruff < 0.15",
     "pre-commit",
+    "sqlfluff  >= 3",
 ]
 test = [
     "freezegun",
