@@ -1167,3 +1167,29 @@ def test_max_concurrent(mock_backend, mock_session, mock_threadpool, tmp_path):
     assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, None)
     cli.main(cli_args=[*study_args, "-c", "10"])
     assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, 10)
+
+
+@mock.patch("cumulus_library.cli._get_args")
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+def test_env_vs_arg_handling(mock_args, tmp_path):
+    os_path = tmp_path / "os"
+    arg_path = tmp_path / "arg"
+    os_path.mkdir(exist_ok=True, parents=True)
+    arg_path.mkdir(exist_ok=True, parents=True)
+    with pytest.raises(SystemExit):
+        cli.main(cli_args=["version"])
+        assert mock_args.call_args[0][0]["study_dir"] is None
+    with pytest.raises(SystemExit):
+        cli.main(cli_args=["version", "-s", str(arg_path)])
+        assert mock_args.call_args[0][0]["study_dir"][0].name == "arg"
+    with pytest.raises(SystemExit):
+        os.environ.study_dir = os_path
+        cli.main(cli_args=["version"])
+        assert mock_args.call_args[0][0]["study_dir"][0].name == "os"
+    with pytest.raises(SystemExit):
+        assert os.environ.study_dir == os_path
+        cli.main(cli_args=["version", "-s", str(arg_path)])
+        assert mock_args.call_args[0][0]["study_dir"][0].name == "arg"

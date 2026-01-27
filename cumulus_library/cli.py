@@ -397,6 +397,13 @@ def run_cli(args: dict):
         return config
 
 
+def _get_args(args):
+    """Entrypoint for getting parsed args after env var lookup
+
+    Intended for unit tests only"""
+    pass
+
+
 def main(cli_args=None):
     """Reads CLI input/environment variables and invokes library calls"""
 
@@ -424,20 +431,20 @@ def main(cli_args=None):
     )
     read_env_vars = []
     for pair in arg_env_pairs:
-        if env_val := os.environ.get(pair[1]):
-            if pair[0] == "study_dir":
-                args[pair[0]] = [env_val]
-            else:
-                args[pair[0]] = env_val
-            read_env_vars.append([pair[1], env_val])
-
+        if args.get(pair[0]) is None:
+            if env_val := os.environ.get(pair[1]):
+                if pair[0] == "study_dir":
+                    args[pair[0]] = [env_val]
+                else:
+                    args[pair[0]] = env_val
+                read_env_vars.append([pair[1], env_val])
+    _get_args(args)
     # We process this arg first, since version checking uses it
     if args.get("study_dir"):
         posix_paths = []
         for path in args["study_dir"]:
             posix_paths.append(get_abs_path(path))
         args["study_dir"] = posix_paths
-
     if args["action"] is None:
         sys.exit("No actions selected. Run 'cumulus-library -h' for details about actions.")
 

@@ -29,6 +29,9 @@ for more details and any associated publications.
 - [Kidney Transplant](https://github.com/smart-on-fhir/cumulus-library-kidney-transplant)
 - [Loinc Database](github.com/smart-on-fhir/cumulus-library-loinc)
 
+### 2026
+- [Pediatric low-grade glioma](https://github.com/smart-on-fhir/cumulus-library-glioma/)
+
 ## Third party studies
 
 If you are using Cumulus to manage your own clinical studies and would like
