@@ -397,6 +397,13 @@ def run_cli(args: dict):
         return config
 
 
+def _get_args(args):
+    """Entrypoint for getting parsed args after env var lookup
+
+    Intended for unit tests only"""
+    pass
+
+
 def main(cli_args=None):
     """Reads CLI input/environment variables and invokes library calls"""
 
@@ -424,12 +431,13 @@ def main(cli_args=None):
     )
     read_env_vars = []
     for pair in arg_env_pairs:
-        if env_val := os.environ.get(pair[1]):
-            if pair[0] == "study_dir":
-                args[pair[0]] = [env_val]
-            else:
-                args[pair[0]] = env_val
-            read_env_vars.append([pair[1], env_val])
+        if args.get(pair[0]) is None:
+            if env_val := os.environ.get(pair[1]):
+                if pair[0] == "study_dir":
+                    args[pair[0]] = [env_val]
+                else:
+                    args[pair[0]] = env_val
+                read_env_vars.append([pair[1], env_val])
 
     # We process this arg first, since version checking uses it
     if args.get("study_dir"):
@@ -437,8 +445,8 @@ def main(cli_args=None):
         for path in args["study_dir"]:
             posix_paths.append(get_abs_path(path))
         args["study_dir"] = posix_paths
-
     if args["action"] is None:
+        _get_args(args)
         sys.exit("No actions selected. Run 'cumulus-library -h' for details about actions.")
 
     if args["action"] == "version":
@@ -458,6 +466,7 @@ def main(cli_args=None):
             except Exception:
                 table.add_row(study, "No version defined")
         console.print(table)
+        _get_args(args)
         sys.exit(0)
 
     if len(read_env_vars) > 0:
@@ -486,6 +495,7 @@ def main(cli_args=None):
 
     if args.get("data_path"):
         args["data_path"] = get_abs_path(args["data_path"])
+    _get_args(args)
     return run_cli(args)
 
 

@@ -50,7 +50,32 @@ available to install with `pip`
 Several `pip` installable studies will automatically be added to the list of available
 studies to run. See [study list](./study-list.md) for more details.
 
-There are several other options - use `--help` to get a detailed list of commands.
+There are several other options - use `--help` or `action --help` to get a detailed list of commands.
+
+We look for a number of environment variables, which if found, we will map to command line
+arguments. If a command line argument is manually specified and an environment variable is
+set, the argument takes precedence. This table shows the supported environment variables
+and their associated CLI args:
+
+| CLI arg | Environment variable |
+| ------- | -------------------- |
+| data_path | CUMULUS_LIBRARY_DATA_PATH |
+| db_type | CUMULUS_LIBRARY_DB_TYPE |
+| id | CUMULUS_AGGREGATOR_ID |
+| load_ndjson_dir | CUMULUS_LIBRARY_LOAD_NDJSON_DIR |
+| profile | CUMULUS_LIBRARY_PROFILE |
+| region | CUMULUS_LIBRARY_REGION |
+| schema_name | CUMULUS_LIBRARY_SCHEMA_NAME |
+| database | CUMULUS_LIBRARY_DATABASE |
+| max_concurrent | CUMULUS_LIBRARY_MAX_CONCURRENT |
+| study_dir | CUMULUS_LIBRARY_STUDY_DIR |
+| umls_key | UMLS_API_KEY |
+| loinc_user | LOINC_USER |
+| loinc_password | LOINC_PASSWORD |
+| url | CUMULUS_AGGREGATOR_URL |
+| user | CUMULUS_AGGREGATOR_USER |
+| network | CUMULUS_AGGREGATOR_NETWORK |
+| work_group | CUMULUS_LIBRARY_WORKGROUP |
 
 ## Example usage: building and exporting the core study
 

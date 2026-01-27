@@ -49,6 +49,7 @@ from cumulus_library.builders import psm_builder
                 "encounter_ref": [
                     "Encounter/e5dabcb6-1d7a-7467-dbba-b864d0d5f5b08",
                     "Encounter/e5dabcb6-1d7a-7467-dbba-b864d0d5f5b09",
+                    "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f10",
                     "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
                 ],
                 "appx_score": 0.49,
@@ -88,6 +89,7 @@ from cumulus_library.builders import psm_builder
                 "encounter_ref": [
                     "Encounter/e5dabcb6-1d7a-7467-dbba-b864d0d5f5b08",
                     "Encounter/e5dabcb6-1d7a-7467-dbba-b864d0d5f5b09",
+                    "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f10",
                     "Encounter/ed151e04-3dd6-8cb7-a3e5-777c8a8667f119",
                 ],
                 "appx_score": 0.52,
