@@ -53,16 +53,3 @@ FROM (
     AS t (table_name, column_name, code, display, system)
 {%- endif %};
 {%- endfor %}
-CREATE TABLE {{ output_table_name }} AS
---noqa: disable=LTO2,LT09,CV06
-{%- for table in code_system_tables %}
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_{{ table.table_name }}_{{ 
-    syntax.sql_safe_string(table.column_display_name) }}
-{{ syntax.union_all_delineate(loop) }} 
-{%- endfor %};

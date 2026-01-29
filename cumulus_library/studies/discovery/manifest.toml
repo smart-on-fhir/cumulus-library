@@ -4,6 +4,9 @@ study_prefix = "discovery"
 "code detection" = [
     "code_detection.py",
 ]
+"code union" = [
+    "code_union.py"
+]
 "temp data cleanup" = [
     "cleanup_tmp.py"
 ]
