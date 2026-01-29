@@ -5,7 +5,7 @@ from cumulus_library.studies.discovery import code_definitions
 
 
 class CleanupTmpBuilder(cumulus_library.BaseTableBuilder):
-    display_text = "Selecting unique code systems..."
+    display_text = "Removing tmp tables..."
 
     def prepare_queries(
         self,
@@ -27,7 +27,7 @@ class CleanupTmpBuilder(cumulus_library.BaseTableBuilder):
         query = cumulus_library.get_template(
             "show_tables", schema_name=config.schema, prefix="discovery__tmp"
         )
-        tmp_tables = config.db.connection.execute(query).fetchall()
+        tmp_tables = config.db.cursor().execute(query).fetchall()
         for table in tmp_tables:
             query = cumulus_library.get_template(
                 "drop_view_table", view_or_table="table", view_or_table_name=table[0]

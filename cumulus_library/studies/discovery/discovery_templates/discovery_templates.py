@@ -3,9 +3,7 @@ import pathlib
 from cumulus_library.template_sql import base_templates
 
 
-def get_system_pairs(output_table_name: str, code_system_tables: list) -> str:
-    """Extracts code system details as a standalone table"""
-
+def _flatten_hierarchy(code_system_tables: list[str]) -> list:
     # Since it's easier to wrangle data before SQL, this code block does
     # the following: given a datastructure like:
     #     [('a',list),('b', dict),('c', dict),('d', list), ('e', dict)]
@@ -28,9 +26,25 @@ def get_system_pairs(output_table_name: str, code_system_tables: list) -> str:
             squashed_hierarchy.append((unnest_layer, dict))
         table["column_hierarchy"] = squashed_hierarchy
         table["column_display_name"] = display_col.removesuffix(".coding")
+    return code_system_tables
 
-    return base_templates.get_base_template(
+
+def get_system_pairs(code_system_tables: list) -> str:
+    """Extracts code system details as a temp tables"""
+    _flatten_hierarchy(code_system_tables)
+
+    return base_templates.get_template(
         "code_system_pairs",
+        pathlib.Path(__file__).parent,
+        code_system_tables=code_system_tables,
+    )
+
+
+def get_system_union(output_table_name: str, code_system_tables: list) -> str:
+    """creates a union of all temp tables"""
+    _flatten_hierarchy(code_system_tables)
+    return base_templates.get_template(
+        "code_system_union",
         pathlib.Path(__file__).parent,
         output_table_name=output_table_name,
         code_system_tables=code_system_tables,

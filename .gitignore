@@ -11,7 +11,6 @@ MRCONSO.RRF
 *.zip
 coverage.xml
 valueset_data/
-pyarrow_cache.parquet
 /cumulus_library/studies/example_nlp/age.json
 
 # parquet and csv files show up during an export, which devs might do a fair bit in odd places.
@@ -20,6 +19,8 @@ pyarrow_cache.parquet
 *.parquet
 !/tests/**/*.csv
 !/tests/**/*.parquet
+# But we specificially skip the pyarrow_cache, which is machine specific
+/tests/test_data/duckdb_data/pyarrow_cache.parquet
 # test artifacts (TODO: have the tests work in a tmpdir instead)
 /cumulus_library/builders/valueset/lookup_drug_from_ingredient_rules.parquet
 /tests/test_data/study_static_file/bsvs/ICD10CM_2023AA.parquet

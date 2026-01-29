@@ -9,7 +9,6 @@ from cumulus_library.template_sql import sql_utils
 
 class CodeDetectionBuilder(cumulus_library.BaseTableBuilder):
     display_text = "Selecting unique code systems..."
-    parallel_allowed = False
 
     def _check_coding_against_db(self, code_source, database):
         """selects the appropriate DB query to run"""
@@ -59,5 +58,7 @@ class CodeDetectionBuilder(cumulus_library.BaseTableBuilder):
                 code_source[key] = code_definition[key]
             code_sources.append(code_source)
         code_sources = self._check_codes_in_fields(code_sources, config.db)
-        query = discovery_templates.get_system_pairs("discovery__code_sources", code_sources)
-        self.queries.append(query)
+        query = discovery_templates.get_system_pairs(code_sources)
+        # we expect there to be some trailing whitespace due to linting rules, so we'll
+        # drop the last query
+        self.queries = query.split(";")[:-1]

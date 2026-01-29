@@ -69,7 +69,7 @@ def test_discovery(tmp_path):
 
 
 def test_get_system_pairs():
-    expected = """
+    expected_pairs = """
 CREATE TABLE discovery__tmp_arrays_acol AS
 
     SELECT DISTINCT
@@ -122,8 +122,8 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
-CREATE TABLE output_table AS
+    AS t (table_name, column_name, code, display, system);"""
+    expected_union = """CREATE TABLE output_table AS
 --noqa: disable=LTO2,LT09,CV06
 SELECT
     table_name,
@@ -165,37 +165,39 @@ SELECT
     system
 FROM discovery__tmp_empty_empty
 ;"""
-    query = discovery_templates.get_system_pairs(
-        "output_table",
-        [
-            {
-                "table_name": "arrays",
-                "column_hierarchy": [("acol", list), ("coding", list)],
-                "has_data": True,
-            },
-            {
-                "table_name": "dictarray",
-                "column_hierarchy": [("col", dict), ("coding", list)],
-                "has_data": True,
-            },
-            {
-                "table_name": "bare",
-                "column_hierarchy": [("bcol", dict), ("coding", dict)],
-                "has_data": True,
-            },
-            {
-                "table_name": "bare_nested_coding",
-                "column_hierarchy": [("dcol", list), ("code", dict), ("coding", dict)],
-                "has_data": True,
-            },
-            {
-                "table_name": "empty",
-                "column_hierarchy": [("empty", dict), ("coding", dict)],
-                "has_data": False,
-            },
-        ],
-    )
-    assert query == expected
+    columns = [
+        {
+            "table_name": "arrays",
+            "column_hierarchy": [("acol", list), ("coding", list)],
+            "has_data": True,
+        },
+        {
+            "table_name": "dictarray",
+            "column_hierarchy": [("col", dict), ("coding", list)],
+            "has_data": True,
+        },
+        {
+            "table_name": "bare",
+            "column_hierarchy": [("bcol", dict), ("coding", dict)],
+            "has_data": True,
+        },
+        {
+            "table_name": "bare_nested_coding",
+            "column_hierarchy": [("dcol", list), ("code", dict), ("coding", dict)],
+            "has_data": True,
+        },
+        {
+            "table_name": "empty",
+            "column_hierarchy": [("empty", dict), ("coding", dict)],
+            "has_data": False,
+        },
+    ]
+
+    query = discovery_templates.get_system_pairs(columns)
+    assert query == expected_pairs
+
+    query = discovery_templates.get_system_union("output_table", columns)
+    assert query == expected_union
 
 
 @mock.patch.dict(os.environ, clear=True)

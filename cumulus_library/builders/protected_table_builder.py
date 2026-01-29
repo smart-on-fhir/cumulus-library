@@ -49,6 +49,7 @@ class ProtectedTableBuilder(BaseTableBuilder):
         study_stats = study_stats or {}
         if manifest and manifest.get_dedicated_schema():
             db_schema = manifest.get_dedicated_schema()
+            self.queries.append(f"CREATE SCHEMA IF NOT EXISTS {db_schema}")
             transactions = enums.ProtectedTables.TRANSACTIONS.value
             statistics = enums.ProtectedTables.STATISTICS.value
         else:
