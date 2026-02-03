@@ -1,5 +1,6 @@
 """tests for study parser against mocks in test_data"""
 
+import json
 import pathlib
 from contextlib import nullcontext as does_not_raise
 from unittest import mock
@@ -101,20 +102,45 @@ def test_get_prefix_with_seperator(manifest_path, prefix):
     assert prefix == manifest.get_prefix_with_seperator()
 
 
-def test_custom_pathing(tmp_path):
-    manifest_dict = {"study_prefix": "custom", "file_config": {"stage": "bar"}}
+# TODO: should this be a conftest fixture?
+def write_toml(path, manifest_dict, filename):
     manifest_str = tomli_w.dumps(manifest_dict)
-    with open(tmp_path / "custom.toml", "w") as f:
+    with open(path / filename, "w") as f:
         f.write(manifest_str)
+
+
+def test_custom_pathing(tmp_path):
+    manifest_dict = {"study_prefix": "custom", "file_config": {"file_names": ["bar"]}}
+    write_toml(tmp_path, manifest_dict, "custom.toml")
     with pytest.raises(errors.StudyManifestFilesystemError):
         manifest = study_manifest.StudyManifest(tmp_path)
     manifest = study_manifest.StudyManifest(tmp_path / "custom.toml")
     assert manifest.get_study_prefix() == "custom"
-    manifest_dict = {"study_prefix": "manifest", "file_config": {"stage": "bar"}}
-    manifest_str = tomli_w.dumps(manifest_dict)
-    with open(tmp_path / "manifest.toml", "w") as f:
-        f.write(manifest_str)
+    manifest_dict["study_prefix"] = "manifest"
+    write_toml(tmp_path, manifest_dict, "manifest.toml")
     manifest = study_manifest.StudyManifest(tmp_path)
     assert manifest.get_study_prefix() == "manifest"
     manifest = study_manifest.StudyManifest(tmp_path / "manifest.toml")
     assert manifest.get_study_prefix() == "manifest"
+
+
+def test_submanifests(tmp_path):
+    manifest_dict = {
+        "study_prefix": "primary",
+        "build_types": {"default": ["stage_1", "stage_2"]},
+        "file_config": {
+            "stage_1": {"action_1": ["foo", "bar"], "action_2": ["baz"]},
+            "stage_2": "submanifest.toml",
+        },
+    }
+    write_toml(tmp_path, manifest_dict, "manifest.toml")
+    write_toml(tmp_path, {"action_3": ["foobar"]}, "submanifest.toml")
+    manifest = study_manifest.StudyManifest(tmp_path)
+    assert manifest._study_config == {
+        "study_prefix": "primary",
+        "build_types": {"default": ["stage_1", "stage_2"]},
+        "file_config": {
+            "stage_2": {"action_3": ["foobar"]},
+            "stage_1": {"action_1": ["foo", "bar"], "action_2": ["baz"]},
+        },
+    }

@@ -76,6 +76,31 @@ class StudyManifest:
             # just unify the error classes for convenience of catching them
             raise errors.StudyManifestParsingError(str(e)) from e
 
+        # here we'll do collection of submanifest and some light validation
+        file_config_keys = config.get("file_config", {}).keys()
+        if "file_names" in file_config_keys and len(file_config_keys) != 1:
+            raise errors.StudyManifestParsingError(
+                "The study manifest contains both a 'file_names' list and custom sections.\n"
+                "These modes are mutually exclusive. Either include all files in 'file_names "
+                "or define a set of custom stages"
+            )
+        elif "file_names" not in file_config_keys and len(file_config_keys) > 0:
+            # if we've got submanifests, we'll load them here
+            for key in file_config_keys:
+                # if we're not getting a list or a dict, assume we're looking for a submanifest
+                if isinstance(config["file_config"][key], str):
+                    submanifest_path = config["file_config"][key]
+                    with open(study_path.parent / submanifest_path, "rb") as file:
+                        config["file_config"][key] = tomllib.load(file)
+        if build_types := config.get("build_types", {}):
+            for build in build_types.values():
+                for stage in build:
+                    if stage not in file_config_keys:
+                        raise errors.StudyManifestParsingError(
+                            f"Stage {stage} in build type {build} not found. "
+                            f"Valid stages: {', '.join(file_config_keys)}"
+                        )
+
         self._study_config = config
         self._study_path = study_path.parent
 
@@ -102,6 +127,12 @@ class StudyManifest:
         """
         options = self._study_config.get("advanced_options", {})
         return options.get("dedicated_schema")
+
+    def get_build_types(self) -> list:
+        return self._study_config.get("build_types", {}).keys()
+
+    def get_build_stages(self, build_type) -> list:
+        return self._study_config.get("build_types", {}).get(build_type, [])
 
     def get_file_list(self, continue_from: str | None = None) -> list[str | dict] | None:
         """Reads the contents of the file_config array or dict from the manifest
