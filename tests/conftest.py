@@ -13,6 +13,7 @@ import numpy
 import pandas
 import pytest
 import rich
+import tomli_w
 
 from cumulus_library import base_utils, cli, databases
 
@@ -107,6 +108,12 @@ def duckdb_args(args: list, tmp_path, stats=False):
             f"{tmp_path}/export",
         ]
     return [*args, "--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
+
+
+def write_toml(path, manifest_dict, filename="manifest.toml"):
+    manifest_str = tomli_w.dumps(manifest_dict)
+    with open(path / filename, "w") as f:
+        f.write(manifest_str)
 
 
 def date_to_epoch(year: int, month: int, day: int) -> int:

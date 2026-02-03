@@ -7,6 +7,7 @@ dependencies = [
     "duckdb >= 1.4.1",
     "Jinja2 > 3",
     "openpyxl",
+    "msgspec",
     "pandas <3, >=2.1.3",
     "platformdirs",
     "pyarrow >= 11.0",
@@ -38,7 +39,7 @@ dev = [
     "sqlfluff  >= 3",
 ]
 test = [
-    "freezegun",
+    "time-machine",
     "pytest",
     "pytest-cov",
     "pytest-xdist",

@@ -1,13 +1,22 @@
 study_prefix = "study_valid_parallel"
+[build_types]
+one = ['stage_1']
+two = ['stage_2']
 
-[file_config.file_names]
-stage_1 = [
+[[stages.stage_1]]
+description = 'Stage 1'
+files = [
     "test.sql",
     "test2.sql"
 ]
-stage_2 = [
+action_type = "parallel"
+
+[[stages.stage_2]]
+description = 'Stage 2'
+files = [
     "test3.sql"
 ]
+action_type = "parallel"
 
 [export_config]
 count_list = [

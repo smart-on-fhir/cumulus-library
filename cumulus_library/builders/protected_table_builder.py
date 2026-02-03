@@ -66,7 +66,7 @@ class ProtectedTableBuilder(BaseTableBuilder):
                 TRANSACTION_COLS_TYPES,
             )
         )
-        files = manifest.get_all_workflows()
+        files = manifest.get_all_workflows(config.build_type)
         if len(files) == 0:
             return
         stats_types = set(item.value for item in enums.StatisticsTypes)

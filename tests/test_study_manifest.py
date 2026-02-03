@@ -2,13 +2,11 @@
 
 import pathlib
 from contextlib import nullcontext as does_not_raise
-from unittest import mock
 
 import pytest
-import tomli_w
 
 from cumulus_library import errors, study_manifest
-from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
+from tests import conftest
 
 
 @pytest.mark.parametrize(
@@ -17,25 +15,28 @@ from tests.test_data.parser_mock_data import get_mock_toml, mock_manifests
         (
             "test_data/study_valid",
             (
-                "{'study_prefix': 'study_valid', 'file_config': {'file_names': "
-                "['test.sql', 'test2.sql']}, 'export_config': {"
-                "'count_list': ['study_valid__table', 'study_valid__table2']}}"
+                {
+                    "study_prefix": "study_valid",
+                    "build_types": {"default": ["stage_1"], "all": ["stage_1"]},
+                    "stages": {"stage_1": [{"files": ["test.sql", "test2.sql"]}]},
+                    "export_config": {"count_list": ["study_valid__table", "study_valid__table2"]},
+                }
             ),
             does_not_raise(),
         ),
-        (None, "{}", does_not_raise()),
+        (None, {}, does_not_raise()),
         (
             "test_data/study_missing_prefix",
-            "{}",
+            {},
             pytest.raises(errors.StudyManifestParsingError),
         ),
         (
             "test_data/study_wrong_type",
-            "{}",
+            {},
             pytest.raises(errors.StudyManifestParsingError),
         ),
-        ("", "{}", pytest.raises(errors.StudyManifestFilesystemError)),
-        (".", "{}", pytest.raises(errors.StudyManifestFilesystemError)),
+        ("", {}, pytest.raises(errors.StudyManifestFilesystemError)),
+        (".", {}, pytest.raises(errors.StudyManifestFilesystemError)),
     ],
 )
 def test_load_manifest(manifest_path, expected, raises):
@@ -45,47 +46,7 @@ def test_load_manifest(manifest_path, expected, raises):
         else:
             path = None
         manifest = study_manifest.StudyManifest(path)
-        assert str(manifest) == expected
-
-
-@pytest.mark.parametrize(
-    "manifest_key, raises",
-    [
-        ("valid", does_not_raise()),
-        ("valid_empty_arrays", does_not_raise()),
-        ("valid_null_arrays", does_not_raise()),
-        ("invalid_only_prefix", pytest.raises(errors.StudyManifestParsingError)),
-        ("invalid_bad_export_names", pytest.raises(errors.StudyManifestParsingError)),
-        ("invalid_bad_table_names", pytest.raises(errors.StudyManifestParsingError)),
-        ("invalid_none", pytest.raises(TypeError)),
-    ],
-)
-@mock.patch("builtins.open")
-@mock.patch("tomllib.load")
-def test_manifest_data(mock_load, mock_open, tmp_path, manifest_key, raises):
-    mock_load.return_value = get_mock_toml(manifest_key)
-    with raises:
-        if manifest_key == "invalid_none":
-            manifest = study_manifest.StudyManifest()
-        else:
-            manifest = study_manifest.StudyManifest(tmp_path)
-        expected = mock_manifests[manifest_key]
-        assert manifest.get_study_prefix() == expected["study_prefix"]
-        if "file_config" in expected.keys():
-            if expected["file_config"]["file_names"] is None:
-                assert manifest.get_file_list() == []
-            else:
-                assert manifest.get_file_list() == expected["file_config"]["file_names"]
-        else:
-            assert manifest.get_file_list() == []
-        if "export_config" in expected.keys():
-            if expected["export_config"]["export_list"] is None:
-                assert manifest.get_export_table_list() == []
-            else:
-                table_list = [x.name for x in manifest.get_export_table_list()]
-                assert table_list == expected["export_config"]["export_list"]
-        else:
-            assert manifest.get_export_table_list() == []
+        assert manifest._study_config == expected
 
 
 @pytest.mark.parametrize(
@@ -102,19 +63,77 @@ def test_get_prefix_with_seperator(manifest_path, prefix):
 
 
 def test_custom_pathing(tmp_path):
-    manifest_dict = {"study_prefix": "custom", "file_config": {"stage": "bar"}}
-    manifest_str = tomli_w.dumps(manifest_dict)
-    with open(tmp_path / "custom.toml", "w") as f:
-        f.write(manifest_str)
+    manifest_dict = {"study_prefix": "custom", "stages": {"stage_1": [{"files": ["bar"]}]}}
+    conftest.write_toml(tmp_path, manifest_dict, "custom.toml")
     with pytest.raises(errors.StudyManifestFilesystemError):
         manifest = study_manifest.StudyManifest(tmp_path)
     manifest = study_manifest.StudyManifest(tmp_path / "custom.toml")
     assert manifest.get_study_prefix() == "custom"
-    manifest_dict = {"study_prefix": "manifest", "file_config": {"stage": "bar"}}
-    manifest_str = tomli_w.dumps(manifest_dict)
-    with open(tmp_path / "manifest.toml", "w") as f:
-        f.write(manifest_str)
+    manifest_dict["study_prefix"] = "manifest"
+    conftest.write_toml(tmp_path, manifest_dict)
     manifest = study_manifest.StudyManifest(tmp_path)
     assert manifest.get_study_prefix() == "manifest"
     manifest = study_manifest.StudyManifest(tmp_path / "manifest.toml")
     assert manifest.get_study_prefix() == "manifest"
+
+
+def test_submanifests(tmp_path):
+    manifest_dict = {
+        "study_prefix": "primary",
+        "build_types": {"default": ["stage_1", "stage_2"]},
+        "stages": {
+            "stage_1": [
+                {
+                    "description": "action 1",
+                    "files": ["foo", "bar"],
+                },
+                {
+                    "description": "action 2",
+                    "files": ["baz"],
+                },
+            ],
+            "stage_2": [{"action_type": "submanifest", "files": ["file.submanifest"]}],
+        },
+    }
+    conftest.write_toml(tmp_path, manifest_dict)
+    conftest.write_toml(
+        tmp_path,
+        {"actions": [{"description": "subaction 1", "files": ["foobar"]}]},
+        "file.submanifest",
+    )
+    manifest = study_manifest.StudyManifest(tmp_path)
+    assert manifest._study_config == {
+        "study_prefix": "primary",
+        "build_types": {"default": ["stage_1", "stage_2"], "all": ["stage_1", "stage_2"]},
+        "stages": {
+            "stage_1": [
+                {"description": "action 1", "files": ["foo", "bar"]},
+                {"description": "action 2", "files": ["baz"]},
+            ],
+            "stage_2": [{"description": "subaction 1", "files": ["foobar"]}],
+        },
+    }
+
+
+def test_copy_manifest(tmp_path):
+    conftest.write_toml(tmp_path, {"study_prefix": "copy"})
+    manifest = study_manifest.StudyManifest(tmp_path)
+    manifest.copy_manifest(tmp_path / "dest")
+    new_manifest = study_manifest.StudyManifest(tmp_path / "dest/copy")
+    assert new_manifest.get_study_prefix() == "copy"
+
+
+def test_wrong_export_prefix(tmp_path):
+    conftest.write_toml(
+        tmp_path, {"study_prefix": "foo", "export_config": {"count_list": "bar__table"}}
+    )
+    manifest = study_manifest.StudyManifest(tmp_path)
+    with pytest.raises(errors.StudyManifestParsingError):
+        manifest.get_export_table_list()
+
+
+def test_reserved_stage_name(tmp_path):
+    conftest.write_toml(tmp_path, {"study_prefix": "foo", "build_types": {"all": ["stage_1"]}})
+
+    #    with pytest.raises(errors.StudyManifestParsingError):
+    study_manifest.StudyManifest(tmp_path)

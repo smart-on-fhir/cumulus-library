@@ -1,6 +1,6 @@
 study_prefix = "study_python_counts_valid"
 
-[file_config]
-file_names = [
+[[stages.stage_1]]
+files = [
     "module1.py", "module1.py", "module2.py"
 ]

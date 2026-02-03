@@ -1,6 +1,6 @@
 study_prefix = "test"
 
-[file_config]
-file_names = [
+[[stages.stage_1]]
+files = [
     "valueset.toml"
 ]

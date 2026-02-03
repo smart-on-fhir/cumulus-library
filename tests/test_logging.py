@@ -6,7 +6,7 @@ from unittest import mock
 import duckdb
 import pyathena
 import pytest
-from freezegun import freeze_time
+import time_machine
 
 from cumulus_library import (
     __version__,
@@ -20,7 +20,7 @@ from cumulus_library import (
 from cumulus_library.template_sql import base_templates, sql_utils
 
 
-@freeze_time("2024-01-01")
+@time_machine.travel("2024-01-01T00:00:00Z")
 @pytest.mark.parametrize(
     "schema,study,status,message,expects,raises",
     [
@@ -179,7 +179,7 @@ def test_statistics_failure_gets_raised(mock_db_config):
         )
 
 
-@freeze_time("2024-01-01")
+@time_machine.travel("2024-01-01T00:00:00Z")
 @pytest.mark.parametrize(
     "schema,study,table_type,table_name,view_type,expects,raises",
     [

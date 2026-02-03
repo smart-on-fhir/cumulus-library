@@ -1,7 +1,7 @@
 study_prefix = "study_different_name"
 
-[file_config]
-file_names = ["test.sql"]
+[[stages.stage_1]]
+files = ["test.sql"]
 
 [export_config]
-export_list = ["study_different_name__table"]
+count_list = ["study_different_name__table"]

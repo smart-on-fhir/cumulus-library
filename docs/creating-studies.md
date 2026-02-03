@@ -45,59 +45,88 @@ what each section does:
 
 ```toml
 # 'study_prefix' should be a string at the start of each table. We'll use this
-# to clean up queries, so it should be unique. Name your tables in the following
-# format: [study_prefix]__[table_name]. It should probably, but not necessarily,
+# to remove tables from prior builds, so it should be unique. Name your tables
+# in the following format: [study_prefix]__[table_name]. It should probably, 
+# but not necessarily,
 # be the same name as the folder the study definition is in.
 study_prefix = "my_study"
 
+# 'description' should describe the purpose of your study. It will be displayed
+# in the Cumulus Dashboard, and is a way to communicate the goals of your study
+# to a user who is unfamiliar with it. It should be about a paragraph or two
+# in length. We use triple quoting to allow for multiline strings, and slashes
+# to escape the newlines, so that the dashboard can handle rendering based
+# on how big the browser window is
+description = """\
+This study is an example that shows how to use a manifest. \
+It highlights the syntax and logic of how the manifest works, \
+and provides some high level guidance as to the types of artifacts \
+that a Cumulus study has available. \
 
-# The following section describes all tables that should be generated directly
-# from SQL files.
+Above is an intentional newline indicating a paragraph break. \
+If you see this text in the dashboard, go update the manifest of your \
+study with some descriptive text. \
+"""
 
-# 'file_names' defines a list of files to execute, in order, in this folder.
-# Three file types are supported:
-#   - Raw SQL files
-#   - Python files, which should contain a class that is based off of
-#       BaseTableBuilder (or a derivative) from builders/base_table_builder.py
-#   - TOML files, which provide a set of configuration params to a workflow
-# There are two ways you can have your study execute: in series, or in parallel.
-# By default, you probably want to use parallel, but if you want to use serial,
-# uncomment the serial example and comment the parallel example
+# 'build_types' contains a list of ways to orchestrate the various stages
+# of a study build (more on stages below). It allows you to specify ways
+# that certain steps should be executed.
 
-# In parallel mode, files will be chunked in stages, and stages will be run
-# against the database all at once, up to the connection pool limit.
-# queries in a stage should have no dependencies on one another - otherwise,
-# your study build will fail.
-# Your stage names will be displayed during the build process, so use
-# a plain english descriptive name
+# A common use case we have goes like this: we want to define one or more
+# cohorts from a population based on data from an EHR. After that's done,
+# we may, depending on the study's goals, want to iterate on some prompt engineering
+# strategies to extract data from clinical notes. After that's completed,
+# we want to use the extracted features from those notes to classify members
+# of those cohorts, and then generate counts from the results. Those would
+# be three different kinds of stages, and you could rebuild each one independently.
 
-[file_config.file_names]
-first = [
-  "setup.sql",
-  "builder.py",
-  "lab_observations.sql"
+# Since order is not important, if it makes more sense to you to define the stages
+# first and then list build_types later, go for it.
+
+# If you don't define a stage, we'll create a stage named 'default' automatically,
+# comprised of all stages, in the order they were defined. Otherwise, 'default' 
+# should be the stage you usually want executed. Other stages can be run from 
+# the commmand line by passing `-s stage_name`. We'll also create a stage called 'all'
+# that follows the same rules as how we create default
+
+[build_types]
+cohort = ['define_population', 'select_cohorts']
+counts = ['count_cohorts']
+
+# The stages section defines how queries/builders/workflows should be grouped
+# and ordered. A stage is a list of actions. We uses the double bracket notation
+# to add actions to the stages array. Stages can have the following items in them:
+#   - 'description', which will be displayed in the CLI while the action is being run
+#   - 'files', which is a list of files to process (raw sql, python builders, or toml workflows)
+#   - 'action_type', which determines what the action does. Valid types:
+#      - 'serial' (default if action_type is not specified) runs the files in order, one at a time
+#      - 'parallel' will run the files concurrently, which is faster but assumes no interdependencies
+#      - 'submanifest' loads a list of actions from another file, in case you want to group
+#        by a semantic context. Submanifest are otherwise like stages in syntax.
+
+[[stages.define_population]]
+description = 'Upload files defining some conditions & select patients'
+files = [
+  'file_upload_workflow_definition.toml',
 ]
-"Second descriptive stage name" = [
-    "counts.sql",
-    "date_range.sql",
-    "stats_config.toml"
+[[stages.define_population]]
+description = 'Select patients by characteristics'
+files = [
+  'select_patients.sql',
 ]
-
-# In serial mode, files will be executed in the order provided.
-# This may be slow for large studies
-
-# [file_config]
-# file_names = [
-#     "setup.sql",
-#     "builder.py",
-#     "lab_observations.sql",
-#     "counts.sql",
-#     "date_range.sql",
-#     "stats_config.toml"
-# ]
-
-# The following section defines parameters related to exporting study data from
-# your athena database
+[[stages.select_cohorts]]
+description = 'Define cohorts'
+files = [
+  'cohort_submanifest.toml'
+]
+action_type = "submanifest"
+[[stages.count_cohorts]]
+description = 'Define cohorts'
+files = [
+  'cohort_by_age.py',
+  'cohort_by_gender.py'
+]
+action_type = "parallel"
 
 [export_config]
 
@@ -154,16 +183,40 @@ meta_list = [
 
 # use_dedicated_schema="alternate_schema_name"
 
+# if you want to give your study a prefix programmatically (like appending a date 
+# reflecting the run time) so you can have multiple instances, you can define the path to
+# that script here. Be careful, as this may cause some common aggregation use cases
+# in the dashboard to fail.
+
+# dynamic_study_prefix = 'my_prefix_script.py'
+
 ```
 
-There are other hooks you can use in the manifest for more advanced control over
-how you can generate sql - these are commented out in the above template, and you can
-delete them if you don't need them. See 
+A submanifest looks a lot like a manifest, but just contains a list of actions.
+Here's an example submanifest (note that this is optional and you don't have to use it):
+
+```toml
+# A submanifest contains a top level list of actions, and then uses the same action
+# syntax. At runtime, we'll map it into the stage the submanifest was referenced from.
+[[actions]]
+description = "Select cohorts by age"
+files = ['age_cohort.sql']
+action_type = 'serial'
+[[actions]]
+description = "Create cohorts by medications"
+files = ['cohort_rx_1.py', 'cohort_rx_2.py']
+action_type = 'parallel'
+# Note that you cannot recursively add a submanifest from another submanifest
+```
+
+If you want to look at how programmatic sql works, check out  
 [Creating SQL with python](creating-sql-with-python.md)
 for more information.
 
 If you're familiar with git workflows, we recommend creating a git repo for your study, to
-help version your study in case of changes.
+help version your study in case of changes. You can also clone our
+[template study](https://github.com/smart-on-fhir/cumulus-library-template),
+which provides some other guidance on how to get started with authoring.
 
 ### Writing SQL queries
 

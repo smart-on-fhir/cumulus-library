@@ -1,7 +1,7 @@
 study_prefix = "study_valid_all_exports"
 
-[file_config]
-file_names = [
+[[stages.stage_1]]
+files = [
     "test.sql",
     "test2.sql",
     "test3.sql",
@@ -9,9 +9,7 @@ file_names = [
 ]
 
 [export_config]
-export_list = [
-    "study_valid_all_exports__table"
-]
+
 count_list = [
     "study_valid_all_exports__table2"
 ]
