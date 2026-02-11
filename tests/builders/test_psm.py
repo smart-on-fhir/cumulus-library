@@ -5,13 +5,13 @@ import pathlib
 from unittest import mock
 
 import pytest
-from freezegun import freeze_time
+import time_machine
 
 from cumulus_library import cli, study_manifest
 from cumulus_library.builders import psm_builder
 
 
-@freeze_time("2024-01-01")
+@time_machine.travel("2024-01-01T00:00:00Z")
 @pytest.mark.parametrize(
     (
         "toml_def,pos_set,neg_set,expected_first_record,expected_last_record,"

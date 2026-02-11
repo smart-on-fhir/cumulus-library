@@ -1,5 +1,5 @@
 study_prefix = "psm_test"
 
-[file_config]
-file_names = ["psm_cohort.sql","psm_config.toml"]
+[[stages.stage_1]]
+files = ["psm_cohort.sql","psm_config.toml"]
 

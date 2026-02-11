@@ -20,7 +20,7 @@ import pandas
 import pytest
 import requests
 import responses
-from freezegun import freeze_time
+import time_machine
 
 from cumulus_library import __version__, cli, databases, errors
 from tests.conftest import duckdb_args
@@ -490,13 +490,12 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_valid_all_exports/",
             ],
-            6,
+            5,
             does_not_raise(),
             [
-                "study_valid_all_exports__table",
-                "study_valid_all_exports__table2",
-                "study_valid_all_exports__table3",
-                "study_valid_all_exports__table4",
+                "study_valid_all_exports__tablecount",
+                "study_valid_all_exports__tableflat",
+                "study_valid_all_exports__tablemeta",
             ],
         ),
         (
@@ -534,7 +533,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "tests/test_data/study_invalid_unsupported_file/",
             ],
             3,
-            pytest.raises(errors.StudyManifestParsingError),
+            pytest.raises(SystemExit),
             [],
         ),
     ],
@@ -556,6 +555,7 @@ def test_cli_executes_queries(
         found_tables = db.connection.execute(
             "SELECT table_schema,table_name FROM information_schema.tables"
         ).fetchall()
+
         assert len(found_tables) == expected_tables + FHIR_RESOURCE_TABLE_COUNT
         for table in found_tables:
             # If a table was created by this run, check it has the study prefix
@@ -583,7 +583,7 @@ def test_cli_executes_queries(
     os.environ,
     clear=True,
 )
-@freeze_time("2024-01-01")
+@time_machine.travel("2024-01-01T00:00:00Z", tick=False)
 @pytest.mark.parametrize(
     "args,input_txt, raises",
     [
@@ -877,6 +877,8 @@ def test_cli_finds_study_from_manifest_prefix(tmp_path):
 def test_cli_custom_args(mock_config, tmp_path, option, raises):
     mock_config.return_value.stats_clean = False
     mock_config.return_value.db.db_type = "duckdb"
+    mock_config.return_value.schema = "main"
+    mock_config.return_value.build_type = "default"
     with raises:
         cli.main(
             cli_args=duckdb_args(
@@ -900,6 +902,8 @@ def test_cli_custom_args(mock_config, tmp_path, option, raises):
 def test_cli_no_custom_args_yields_empty_dict(mock_config, tmp_path):
     mock_config.return_value.stats_clean = False
     mock_config.return_value.db.db_type = "duckdb"
+    mock_config.return_value.schema = "main"
+    mock_config.return_value.build_type = "default"
     cli.main(
         cli_args=duckdb_args(
             [
@@ -1015,12 +1019,12 @@ def test_version(capfd):
     out, _ = capfd.readouterr()
     assert f"cumulus-library version: {__version__}" in out
     out = out.split("\n")
-    valid = list(filter(lambda x: " study_valid " in x, out))
+    valid = list(filter(lambda x: "study_valid " in x, out))
     assert len(valid) == 1
-    assert " 1.0.0 " in valid[0]
-    invalid = list(filter(lambda x: " study_invalid_bad_query " in x, out))
+    assert "1.0.0 " in valid[0]
+    invalid = list(filter(lambda x: "study_invalid_bad_query " in x, out))
     assert len(invalid) == 1
-    assert " No version defined " in invalid[0]
+    assert "No version defined " in invalid[0]
 
 
 @mock.patch.dict(
@@ -1049,8 +1053,8 @@ def test_study_dir(tmp_path):
         (
             "study_valid",
             [
-                "0000.test.00.create_table_study_valid__table.sql",
-                "0001.test2.00.create_table_study_valid__table2.sql",
+                "stage_1.test.00.study_valid__table.sql",
+                "stage_1.test2.00.study_valid__table2.sql",
             ],
             "CREATE TABLE study_valid__table (test int)",
             None,
@@ -1059,9 +1063,9 @@ def test_study_dir(tmp_path):
         (
             "study_python_counts_valid",
             [
-                "0000.module1.00.create_table_if_not_exists_study_python_counts_valid__table1.sql",
-                "0001.module1.00.create_table_if_not_exists_study_python_counts_valid__table1.sql",
-                "0002.module2.00.create_table_if_not_exists_study_python_counts_valid__table2.sql",
+                "stage_1.module1.00.study_python_counts_valid__table1.sql",
+                "stage_1.module1.00.study_python_counts_valid__table1.sql",
+                "stage_1.module2.00.study_python_counts_valid__table2.sql",
             ],
             "CREATE TABLE IF NOT EXISTS study_python_counts_valid__table1 (test int);",
             None,
@@ -1069,13 +1073,13 @@ def test_study_dir(tmp_path):
         ),
         (
             "psm_test",
-            ["0000.psm_cohort.00.create_table_psm_test__psm_cohort.sql"],
+            ["stage_1.psm_cohort.00.psm_test__psm_cohort.sql"],
             """CREATE TABLE psm_test__psm_cohort AS (
     SELECT * FROM core__condition --noqa: AM04
     ORDER BY id DESC LIMIT 100
 )""",
             [
-                "0001.psm_config.00.config.toml",
+                "stage_1.psm_config.00.config.toml",
                 """config_type = "psm"
 classification_json = "classifications.json"
 pos_source_table = "psm_test__psm_cohort"

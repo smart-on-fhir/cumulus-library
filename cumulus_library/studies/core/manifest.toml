@@ -1,11 +1,15 @@
 study_prefix = "core"
-[file_config.file_names]
-prerequisite = [
+[[stages.build_core]]
+description = "FHIR support tables"
+files = [
     "version.sql",
     "fhir_lookup_tables.sql",
     "fhir_mapping_tables.sql",
 ]
-"FHIR resource unnesting"=[
+action_type = "parallel"
+[[stages.build_core]]
+description = "FHIR nested resource flattening"
+files =[
     "builder_allergyintolerance_prereq.py",
     "builder_condition_prereq.py",
     "builder_diagnosticreport_prereq.py",
@@ -20,10 +24,14 @@ prerequisite = [
     "builder_practitionerrole_prereq.py",
     "builder_procedure_prereq.py",
 ]
-"Patient" =[
+[[stages.build_core]]
+description = "Patient"
+files =[
     "builder_patient.py",
 ]
-"other FHIR resource"=[
+[[stages.build_core]]
+description= "Other FHIR resource tables"
+files=[
     "builder_allergyintolerance.py",
     "builder_condition.py",
     "builder_diagnosticreport.py",
@@ -37,12 +45,18 @@ prerequisite = [
     "builder_practitionerrole.py",
     "builder_procedure.py",
 ]
-"Observation type"= [
-        "observation_type.sql",
-        "meta_date.sql"
-        ]
-counts = ["count_core.py"]
-
+action_type = "parallel"
+[[stages.build_core]]
+description = "Tables derived from FHIR resource tables"
+files = [
+    "observation_type.sql",
+    "meta_date.sql"
+]
+action_type = "parallel"
+[[stages.build_core]]
+description = "Summary counts of FHIR resources"
+files = ["count_core.py"]
+action_type = "parallel"
 
 [export_config]
 count_list = [

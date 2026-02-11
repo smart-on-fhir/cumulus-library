@@ -3,7 +3,7 @@ import zipfile
 
 import pandas
 import pytest
-from freezegun import freeze_time
+import time_machine
 
 from cumulus_library import errors
 from cumulus_library.actions import (
@@ -11,7 +11,7 @@ from cumulus_library.actions import (
 )
 
 
-@freeze_time("2024-01-01")
+@time_machine.travel("2024-01-01T00:00:00Z", tick=False)
 def test_import_study(tmp_path, mock_db_config):
     test_data = {
         "string": ["a", "b", None],
@@ -34,8 +34,8 @@ def test_import_study(tmp_path, mock_db_config):
     assert len(list((tmp_path / "archive").glob("*"))) == 1
     test_table = mock_db_config.db.cursor().execute("SELECT * FROM test__table").fetchall()
     assert test_table == [
-        ("a", 1, 1.1, True, datetime.datetime(2024, 1, 1, 0, 0)),
-        ("b", 2, 2.2, False, datetime.datetime(2024, 1, 1, 0, 0)),
+        ("a", 1, 1.1, True, datetime.datetime(2023, 12, 31, 19, 0)),
+        ("b", 2, 2.2, False, datetime.datetime(2023, 12, 31, 19, 0)),
         (None, None, None, None, None),
     ]
     with pytest.raises(errors.StudyImportError):

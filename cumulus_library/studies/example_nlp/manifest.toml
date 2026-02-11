@@ -3,7 +3,8 @@
 
 study_prefix = "example_nlp"
 
-[file_config]
-file_names = [
+[[stages.example_build]]
+description = "Range calculation"
+files = [
     "calculate_ranges.py",
 ]

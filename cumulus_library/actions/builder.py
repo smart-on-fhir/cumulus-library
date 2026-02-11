@@ -55,99 +55,97 @@ def build_study(
     if prepare:
         _check_if_preparable(manifest.get_study_prefix())
     if file_list is None:
-        file_list = manifest.get_file_list(continue_from)
+        file_list = manifest.get_file_list(config.build_type, continue_from)
     if prepare:
         data_dir = data_path / manifest.get_study_prefix()
         for file in data_dir.glob("*"):
             if file.is_file():  # pragma: no cover
                 file.unlink()
+    stages = manifest.get_stages_of_build_type(config.build_type)
+    if len(stages) == 0:
+        raise errors.StudyManifestParsingError(
+            f"{config.build_type} not found in the study manifest. "
+            f"Available build types: {', '.join(manifest.get_build_types())}"
+        )
 
-    # a parallel manifest looks like:
-    # [file_config.file_names]
-    # "step_1" = ["table_1.py",]
-    # "step 2" = ["table_2.sql","config.toml"]
-    if isinstance(file_list, dict):
-        parallel = True
-
-    # a serial manifest looks like this:
-    # [file_config]
-    # file_names = ["table_1.py","table_2.sql","config.toml"]
-    else:
-        parallel = False
-    for run_stage, entry in enumerate(file_list):
-        if isinstance(file_list, dict):
-            label = entry
-            files = file_list[label]
-        else:
-            files = [entry]
-        query_count = 0
-        queries = []
-        explicit_serial_queries = []
-        for file in files:
-            if file.endswith(".py"):
-                b_queries, parallel_allowed = _run_builder(
-                    config=config,
-                    manifest=manifest,
-                    filename=file,
-                    db_parser=db_parser,
-                    data_path=data_path,
-                    prepare=prepare,
-                    parallel=parallel,
-                    query_count=query_count,
-                    run_stage=run_stage,
-                )
-                if parallel_allowed:
-                    queries += b_queries
-                else:
-                    # If you're running in explicit serial mode, you can skip the parallel
-                    # collector.
-                    # Explicit serial queries are not actually used, but this is kept
-                    # here as a debugging convenience if you ever need to look at
-                    # the total number of manually executed queries.
-                    explicit_serial_queries += b_queries
-            elif file.endswith(".toml"):
-                w_queries, parallel_allowed = _run_workflow(
-                    config=config,
-                    manifest=manifest,
-                    filename=file,
-                    data_path=data_path,
-                    prepare=prepare,
-                    parallel=parallel,
-                    query_count=query_count,
-                    run_stage=run_stage,
-                )
-                if parallel_allowed:
-                    queries = queries + w_queries
-            elif file.endswith(".sql"):
-                queries = queries + _run_raw_queries(
-                    config=config,
-                    manifest=manifest,
-                    filename=file,
-                    data_path=data_path,
-                    prepare=prepare,
-                    parallel=parallel,
-                    query_count=query_count,
-                    run_stage=run_stage,
-                )
+    query_count = 0
+    for stage in stages:
+        for action in manifest.get_stage(stage):
+            if action.get("action_type") == "parallel":
+                parallel = True
             else:
-                raise errors.StudyManifestParsingError
-            for query in queries:
-                _check_query_for_errors(config, manifest, query, file)
-        if parallel:
-            query_count += len(queries)
-            if query_count > 0:
-                with base_utils.get_progress_bar() as progress_bar:
-                    task = progress_bar.add_task(
-                        f"Building {label} tables...",
-                        total=query_count,
-                        visible=not config.verbose,
+                parallel = False
+            queries = []
+            explicit_serial_queries = []
+            for file in action["files"]:
+                if file not in file_list:
+                    continue
+                if file.endswith(".py"):
+                    b_queries, parallel_allowed = _run_builder(
+                        config=config,
+                        manifest=manifest,
+                        filename=file,
+                        db_parser=db_parser,
+                        data_path=data_path,
+                        prepare=prepare,
+                        parallel=parallel,
+                        query_count=query_count,
+                        run_stage=stage,
                     )
-                    config.db.parallel_write(
-                        queries=queries,
-                        verbose=config.verbose,
-                        progress_bar=progress_bar,
-                        task=task,
+                    if parallel_allowed:
+                        queries += b_queries
+                    else:
+                        # If you're running in explicit serial mode, you can skip the parallel
+                        # collector.
+                        # Explicit serial queries are not actually used, but this is kept
+                        # here as a debugging convenience if you ever need to look at
+                        # the total number of manually executed queries.
+                        explicit_serial_queries += b_queries
+                elif file.endswith(".toml") or file.endswith(".workflow"):
+                    w_queries, parallel_allowed = _run_workflow(
+                        config=config,
+                        manifest=manifest,
+                        filename=file,
+                        data_path=data_path,
+                        prepare=prepare,
+                        parallel=parallel,
+                        query_count=query_count,
+                        run_stage=stage,
                     )
+                    if parallel_allowed:
+                        queries = queries + w_queries
+                elif file.endswith(".sql"):
+                    queries = queries + _run_raw_queries(
+                        config=config,
+                        manifest=manifest,
+                        filename=file,
+                        data_path=data_path,
+                        prepare=prepare,
+                        parallel=parallel,
+                        query_count=query_count,
+                        run_stage=stage,
+                    )
+                else:
+                    raise errors.StudyManifestParsingError(
+                        f"Unexpected filetype in manifest: {file}"
+                    )
+                for query in queries:
+                    _check_query_for_errors(config, manifest, query, file)
+            if parallel:
+                query_count += len(queries)
+                if query_count > 0:
+                    with base_utils.get_progress_bar() as progress_bar:
+                        task = progress_bar.add_task(
+                            f"Building {action.get('description', '')} tables...",
+                            total=query_count,
+                            visible=not config.verbose,
+                        )
+                        config.db.parallel_write(
+                            queries=queries,
+                            verbose=config.verbose,
+                            progress_bar=progress_bar,
+                            task=task,
+                        )
     if prepare:
         with zipfile.ZipFile(
             f"{data_path}/{manifest.get_study_prefix()}.zip", "w", zipfile.ZIP_DEFLATED
@@ -266,12 +264,13 @@ def _execute_build_queries(
 
 
 def _render_output(
+    config: base_utils.StudyConfig,
     study_name: str,
     outputs: list,
     data_path: pathlib.Path,
     filename: str,
     count: int,
-    run_stage: int,
+    run_stage: str,
     *,
     is_toml: bool = False,
 ):
@@ -283,15 +282,8 @@ def _render_output(
         if is_toml:
             name = "config"
         else:
-            # This regex attempts to discover the table name, via looking for the first
-            # dunder, and then gets the start of the line its on as a non-quote requiring
-            # part of a file name. So for example, finding SQL that looks like this:
-            #   CREATE TABLE foo__bar AS (varchar baz)
-            # would result in `create_table_foo__bar` being assigned to name. The goal
-            # is to make this at least mildly parsable at the file system level if someone
-            # is reviewing a prepared study
-            name = re.search(r"(.*)__\w*", output)[0].lower().replace(" ", "_")
-        new_filename = f"{run_stage:04d}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
+            name = str(sqlglot.parse_one(output, dialect=config.db.db_type).find(sqlglot.exp.Table))
+        new_filename = f"{run_stage}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
         file_path = data_path / f"{study_name}/{new_filename}"
 
         file_path.parent.mkdir(exist_ok=True, parents=True)
@@ -401,6 +393,7 @@ def _run_builder(
             parser=db_parser,
         )
         _render_output(
+            config,
             manifest.get_study_prefix(),
             table_builder.queries,
             data_path,
@@ -464,6 +457,7 @@ def _run_raw_queries(
         cleaned_queries.append(query)
     if prepare:
         _render_output(
+            config,
             manifest.get_study_prefix(),
             cleaned_queries,
             data_path,
@@ -520,6 +514,7 @@ def _run_workflow(
         with open(toml_path, encoding="utf-8") as file:
             workflow_config = file.read()
         _render_output(
+            config,
             manifest.get_study_prefix(),
             [workflow_config],
             data_path,

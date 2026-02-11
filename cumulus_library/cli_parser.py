@@ -118,6 +118,16 @@ def add_study_dir_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def add_build_type_argument(parser: argparse.ArgumentParser) -> None:
+    """Adds --build-type arg to a subparser"""
+    parser.add_argument(
+        "-b",
+        "--build-type",
+        help="Selects which build type from the manifest to use",
+        default="default",
+    )
+
+
 def add_table_builder_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --builder arg to a subparser"""
     parser.add_argument(
@@ -175,6 +185,7 @@ AWS Athena, the following order of preference is used to select credentials:
         "clean", help="Removes tables & views beginning with '[target]__' from Athena"
     )
 
+    add_build_type_argument(clean)
     add_custom_option(clean)
     add_db_config(clean)
     add_target_argument(clean)
@@ -199,6 +210,7 @@ AWS Athena, the following order of preference is used to select credentials:
         "build",
         help="Removes and recreates Athena tables & views for specified studies",
     )
+    add_build_type_argument(build)
     add_custom_option(build)
     add_data_path_argument(build)
     add_db_config(build, input_mode=True)

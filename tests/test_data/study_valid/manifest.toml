@@ -1,7 +1,7 @@
 study_prefix = "study_valid"
 
-[file_config]
-file_names = [
+[[stages.stage_1]]
+files = [
     "test.sql",
     "test2.sql"
 ]

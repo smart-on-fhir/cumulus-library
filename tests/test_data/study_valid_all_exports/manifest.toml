@@ -1,23 +1,20 @@
 study_prefix = "study_valid_all_exports"
 
-[file_config]
-file_names = [
-    "test.sql",
-    "test2.sql",
-    "test3.sql",
-    "test4.sql"
+[[stages.stage_1]]
+files = [
+    "testcount.sql",
+    "testflat.sql",
+    "testmeta.sql"
 ]
 
 [export_config]
-export_list = [
-    "study_valid_all_exports__table"
-]
+
 count_list = [
-    "study_valid_all_exports__table2"
+    "study_valid_all_exports__tablecount"
 ]
 flat_list = [
-    "study_valid_all_exports__table3"
+    "study_valid_all_exports__tableflat"
 ]
 meta_list = [
-    "study_valid_all_exports__table4"
+    "study_valid_all_exports__tablemeta"
 ]

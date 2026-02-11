@@ -1,9 +1,9 @@
 study_prefix = "study_python_s3"
 
-[file_config]
-file_names = ["module1.py", "module2.py"]
+[[stages.stage_1]]
+files = ["module1.py", "module2.py"]
 
 [export_config]
-export_list = [
+count_list = [
         "study_python_s3__count_table"
 ]

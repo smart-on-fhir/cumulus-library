@@ -81,5 +81,5 @@ def export_study(
         rich.print("The following tables were empty and were not exported:")
         for table in skipped_tables:
             rich.print(f"  - {table}")
-    manifest.write_manifest(data_path)
+    manifest.write_manifest(data_path / manifest.get_study_prefix())
     base_utils.zip_dir(path, data_path, manifest.get_study_prefix(), archive_csvs=archive)
