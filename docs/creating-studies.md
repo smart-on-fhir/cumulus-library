@@ -83,32 +83,36 @@ study with some descriptive text. \
 # Since order is not important, if it makes more sense to you to define the stages
 # first and then list build_types later, go for it.
 
-# If you don't define a stage, we'll create a stage named 'default' automatically,
-# comprised of all stages, in the order they were defined. Otherwise, 'default' 
-# should be the stage you usually want executed. Other stages can be run from 
-# the commmand line by passing `-s stage_name`. We'll also create a stage called 'all'
-# that follows the same rules as how we create default
+# We'll always create a build type called 'all' which will run all stages in the order
+# they are defined in the file. We'll also create a stage named 'default', if one does
+# not exists, which behaves the same all 'all', but you can override the default stage
+# if you want a different behavior. Other stages can be run from the command line by
+# passing `-b build_target`
 
 [build_types]
 cohort = ['define_population', 'select_cohorts']
 counts = ['count_cohorts']
 
 # The stages section defines how queries/builders/workflows should be grouped
-# and ordered. A stage is a list of actions. We uses the double bracket notation
-# to add actions to the stages array. Stages can have the following items in them:
+# and ordered. A stage is a list of actions. Stages are run sequentially in order.
+
+# Actions can have the following fields:
 #   - 'description', which will be displayed in the CLI while the action is being run
 #   - 'files', which is a list of files to process (raw sql, python builders, or toml workflows)
 #   - 'action_type', which determines what the action does. Valid types:
 #      - 'serial' (default if action_type is not specified) runs the files in order, one at a time
 #      - 'parallel' will run the files concurrently, which is faster but assumes no interdependencies
-#      - 'submanifest' loads a list of actions from another file, in case you want to group
-#        by a semantic context. Submanifest are otherwise like stages in syntax.
+#      - 'submanifest' loads a list of actions from another file. Those actions use the
+#        same format as those from the main manifest
 
+# This double bracket defines a new array inside of stages, define_population
 [[stages.define_population]]
 description = 'Upload files defining some conditions & select patients'
 files = [
   'file_upload_workflow_definition.toml',
 ]
+# Using this same name again inside a double bracket causes a new item to be added
+# to the end of the define_population list.
 [[stages.define_population]]
 description = 'Select patients by characteristics'
 files = [

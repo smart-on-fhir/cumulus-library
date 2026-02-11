@@ -102,9 +102,9 @@ class StudyManifest:
         except (msgspec.ValidationError, msgspec.DecodeError) as e:
             raise errors.StudyManifestParsingError(
                 f"Manifest formatting error at path {path}: {e!s}. \n"
-                "You may be using an older format for a study manifest. See"
+                "You may be using an different version of a study manifest. See"
                 "https://docs.smarthealthit.org/cumulus/library/creating-studies.html "
-                "for more information."
+                "for more information about what fields are expected in a manifest."
             )
 
     def _validate_action(self, action, source):
@@ -142,7 +142,8 @@ class StudyManifest:
                             f"Stage {stage} in build type {build} not found. "
                             f"Valid stages: {', '.join(defined_stages)}"
                         )
-
+            if "default" not in config["build_types"]:
+                config["build_types"]["default"] = defined_stages
         # if build types are not supplied, we'll assume that we should run everything in order
         else:
             config["build_types"] = {"default": defined_stages}
@@ -151,7 +152,7 @@ class StudyManifest:
             actions = []
             for action in config["stages"][stage]:
                 if action.get("action_type") == "submanifest":
-                    for submanifest in action["files"]:
+                    for submanifest in action.get("files", []):
                         subconfig = self._read_toml(
                             study_path.parent / submanifest, SubmanifestConfig
                         )
@@ -169,6 +170,8 @@ class StudyManifest:
         self._study_path = study_path.parent
 
         config["build_types"]["all"] = self.get_stages()
+        if "default" not in config["build_types"]:
+            config["build_types"]["default"] = self.get_stages()
 
         if dynamic_study_prefix := config.get("advanced_options", {}).get("dynamic_study_prefix"):
             self._study_prefix = self._run_dynamic_script(dynamic_study_prefix, options)
@@ -320,6 +323,9 @@ class StudyManifest:
             path = path / "manifest.toml"
         path.parent.mkdir(exist_ok=True, parents=True)
         with open(path, "wb") as f:
+            # we'll remove the all key we auto created before writing out a copy
+            config = self._study_config
+            config["build_types"].pop("all", None)
             f.write(msgspec.toml.encode(ManifestConfig(self._study_config)))
 
     ### Dynamic Python code support

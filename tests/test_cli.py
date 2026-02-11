@@ -878,6 +878,8 @@ def test_cli_finds_study_from_manifest_prefix(tmp_path):
 def test_cli_custom_args(mock_config, tmp_path, option, raises):
     mock_config.return_value.stats_clean = False
     mock_config.return_value.db.db_type = "duckdb"
+    mock_config.return_value.schema = "main"
+    mock_config.return_value.build_type = "default"
     with raises:
         cli.main(
             cli_args=duckdb_args(
@@ -901,6 +903,8 @@ def test_cli_custom_args(mock_config, tmp_path, option, raises):
 def test_cli_no_custom_args_yields_empty_dict(mock_config, tmp_path):
     mock_config.return_value.stats_clean = False
     mock_config.return_value.db.db_type = "duckdb"
+    mock_config.return_value.schema = "main"
+    mock_config.return_value.build_type = "default"
     cli.main(
         cli_args=duckdb_args(
             [

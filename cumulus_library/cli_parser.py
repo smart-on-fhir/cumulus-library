@@ -123,7 +123,7 @@ def add_build_type_argument(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-b",
         "--build-type",
-        help=("Selects which build type from the manifest to use"),
+        help="Selects which build type from the manifest to use",
         default="default",
     )
 

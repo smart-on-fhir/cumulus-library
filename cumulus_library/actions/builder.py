@@ -65,7 +65,7 @@ def build_study(
     if len(stages) == 0:
         raise errors.StudyManifestParsingError(
             f"{config.build_type} not found in the study manifest. "
-            f"Available stages: {', '.join(manifest.get_build_types())}"
+            f"Available build types: {', '.join(manifest.get_build_types())}"
         )
 
     query_count = 0
@@ -101,7 +101,7 @@ def build_study(
                         # here as a debugging convenience if you ever need to look at
                         # the total number of manually executed queries.
                         explicit_serial_queries += b_queries
-                elif file.endswith(".toml"):
+                elif file.endswith(".toml") or file.endswith(".workflow"):
                     w_queries, parallel_allowed = _run_workflow(
                         config=config,
                         manifest=manifest,

@@ -34,8 +34,8 @@ def test_import_study(tmp_path, mock_db_config):
     assert len(list((tmp_path / "archive").glob("*"))) == 1
     test_table = mock_db_config.db.cursor().execute("SELECT * FROM test__table").fetchall()
     assert test_table == [
-        ("a", 1, 1.1, True, datetime.datetime(2024, 1, 1, 0, 0)),
-        ("b", 2, 2.2, False, datetime.datetime(2024, 1, 1, 0, 0)),
+        ("a", 1, 1.1, True, datetime.datetime(2023, 12, 31, 19, 0)),
+        ("b", 2, 2.2, False, datetime.datetime(2023, 12, 31, 19, 0)),
         (None, None, None, None, None),
     ]
     with pytest.raises(errors.StudyImportError):

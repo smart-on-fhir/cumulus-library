@@ -125,7 +125,7 @@ def test_copy_manifest(tmp_path):
 
 def test_wrong_export_prefix(tmp_path):
     conftest.write_toml(
-        tmp_path, {"study_prefix": "foo", "export_config": {"count_list": "bar__table"}}
+        tmp_path, {"study_prefix": "foo", "export_config": {"count_list": ["bar__table"]}}
     )
     manifest = study_manifest.StudyManifest(tmp_path)
     with pytest.raises(errors.StudyManifestParsingError):
@@ -135,5 +135,5 @@ def test_wrong_export_prefix(tmp_path):
 def test_reserved_stage_name(tmp_path):
     conftest.write_toml(tmp_path, {"study_prefix": "foo", "build_types": {"all": ["stage_1"]}})
 
-    #    with pytest.raises(errors.StudyManifestParsingError):
-    study_manifest.StudyManifest(tmp_path)
+    with pytest.raises(errors.StudyManifestParsingError):
+        study_manifest.StudyManifest(tmp_path)
