@@ -9,11 +9,11 @@ import time
 from unittest import mock
 
 import duckdb
+import msgspec
 import numpy
 import pandas
 import pytest
 import rich
-import tomli_w
 
 from cumulus_library import base_utils, cli, databases
 
@@ -111,8 +111,8 @@ def duckdb_args(args: list, tmp_path, stats=False):
 
 
 def write_toml(path, manifest_dict, filename="manifest.toml"):
-    manifest_str = tomli_w.dumps(manifest_dict)
-    with open(path / filename, "w") as f:
+    manifest_str = msgspec.toml.encode(manifest_dict)
+    with open(path / filename, "wb") as f:
         f.write(manifest_str)
 
 

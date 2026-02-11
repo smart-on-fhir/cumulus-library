@@ -490,13 +490,12 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_valid_all_exports/",
             ],
-            6,
+            5,
             does_not_raise(),
             [
-                "study_valid_all_exports__table",
-                "study_valid_all_exports__table2",
-                "study_valid_all_exports__table3",
-                "study_valid_all_exports__table4",
+                "study_valid_all_exports__tablecount",
+                "study_valid_all_exports__tableflat",
+                "study_valid_all_exports__tablemeta",
             ],
         ),
         (

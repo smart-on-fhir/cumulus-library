@@ -43,7 +43,6 @@ test = [
     "pytest-cov",
     "pytest-xdist",
     "responses",
-    "tomli-w >= 1.2",
 ]
 
 [project.urls]

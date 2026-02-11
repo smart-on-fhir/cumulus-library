@@ -156,7 +156,7 @@ class StudyManifest:
                         subconfig = self._read_toml(
                             study_path.parent / submanifest, SubmanifestConfig
                         )
-                        for subaction in subconfig["actions"]:
+                        for subaction in subconfig.get("actions"):
                             self._validate_action(subaction, study_path.parent / submanifest)
                             actions.append(subaction)
                 else:
