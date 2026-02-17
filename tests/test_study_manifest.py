@@ -137,3 +137,24 @@ def test_reserved_stage_name(tmp_path):
 
     with pytest.raises(errors.StudyManifestParsingError):
         study_manifest.StudyManifest(tmp_path)
+
+
+def test_missing_stage(tmp_path):
+    conftest.write_toml(tmp_path, {"study_prefix": "foo", "build_types": {"default": ["stage_1"]}})
+    with pytest.raises(errors.StudyManifestParsingError):
+        study_manifest.StudyManifest(tmp_path)
+
+
+def test_missing_action(tmp_path):
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "foo",
+            "build_types": {"default": ["stage_1"]},
+            "stages": {
+                "stage_1": [{"description": "action 1", "files": ["foo"], "action_type": "invalid"}]
+            },
+        },
+    )
+    with pytest.raises(errors.StudyManifestParsingError):
+        study_manifest.StudyManifest(tmp_path)

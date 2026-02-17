@@ -170,8 +170,6 @@ class StudyManifest:
         self._study_path = study_path.parent
 
         config["build_types"]["all"] = self.get_stages()
-        if "default" not in config["build_types"]:
-            config["build_types"]["default"] = self.get_stages()
 
         if dynamic_study_prefix := config.get("advanced_options", {}).get("dynamic_study_prefix"):
             self._study_prefix = self._run_dynamic_script(dynamic_study_prefix, options)
