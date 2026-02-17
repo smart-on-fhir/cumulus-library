@@ -1197,3 +1197,17 @@ def test_env_vs_arg_handling(mock_args, tmp_path):
         assert os.environ.study_dir == os_path
         cli.main(cli_args=["version", "-s", str(arg_path)])
         assert mock_args.call_args[0][0]["study_dir"][0].name == "arg"
+
+
+@mock.patch("cumulus_library.cli.run_cli")
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+def test_env_vs_default_arg_handling(mock_run, tmp_path):
+    # checking that defaults are ignored if an environment var is set
+    cli.main(cli_args=["clean", "-t", "core"])
+    assert mock_run.call_args[0][0]["db_type"] == "athena"
+    os.environ["CUMULUS_LIBRARY_DB_TYPE"] = "duckdb"
+    cli.main(cli_args=["clean", "-t", "core"])
+    assert mock_run.call_args[0][0]["db_type"] == "duckdb"
