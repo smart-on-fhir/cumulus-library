@@ -407,7 +407,7 @@ def _get_args(args):
 def main(cli_args=None):
     """Reads CLI input/environment variables and invokes library calls"""
 
-    parser = cli_parser.get_parser()
+    parser, defaults = cli_parser.get_parser()
     args = vars(parser.parse_args(cli_args))
     console = rich.get_console()
     arg_env_pairs = (
@@ -433,15 +433,16 @@ def main(cli_args=None):
     for pair in arg_env_pairs:
         # Check if the arg is not supplied, or if the var is using the default value
         # of the action selected on the CLI
-        if args.get(pair[0]) is None or args.get(pair[0]) == parser._actions[1].choices[
-            args["action"]
-        ].get_default(pair[0]):
+        if args.get(pair[0]) is None:
             if env_val := os.environ.get(pair[1]):
                 if pair[0] == "study_dir":
                     args[pair[0]] = [env_val]
                 else:
                     args[pair[0]] = env_val
                 read_env_vars.append([pair[1], env_val])
+    for key, val in defaults.items():
+        if key in args and args[key] is None:
+            args[key] = val
     _get_args(args)
     # We process this arg first, since version checking uses it
     if args.get("study_dir"):
