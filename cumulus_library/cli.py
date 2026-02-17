@@ -430,9 +430,9 @@ def main(cli_args=None):
         ("work_group", "CUMULUS_LIBRARY_WORKGROUP"),
     )
     read_env_vars = []
+    # Check if the arg is not supplied, or if the var is using the default value
+    # of the action selected on the CLI
     for pair in arg_env_pairs:
-        # Check if the arg is not supplied, or if the var is using the default value
-        # of the action selected on the CLI
         if args.get(pair[0]) is None:
             if env_val := os.environ.get(pair[1]):
                 if pair[0] == "study_dir":
