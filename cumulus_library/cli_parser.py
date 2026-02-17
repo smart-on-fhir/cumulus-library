@@ -13,7 +13,7 @@ def add_aws_config(parser: argparse.ArgumentParser) -> None:
         "--workgroup",
         default="cumulus",
         dest="work_group",
-        help="Cumulus Athena workgroup (default: cumulus)",
+        help="Cumulus Athena workgroup (default: default)",
     )
     aws.add_argument(
         "--region",

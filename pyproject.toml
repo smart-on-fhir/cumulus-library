@@ -19,6 +19,7 @@ dependencies = [
     "scikit-learn >= 1.7",
     "sqlglot >= 27.29",
     "sqlparse >0.4",
+    "tomli_w",
 ]
 description = "Clinical study SQL generation for data derived from bulk FHIR"
 readme = "README.md"

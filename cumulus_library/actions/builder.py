@@ -68,9 +68,9 @@ def build_study(
             f"Available build types: {', '.join(manifest.get_build_types())}"
         )
 
-    query_count = 0
     for stage in stages:
         for action in manifest.get_stage(stage):
+            query_count = 0
             if action.get("action_type") == "parallel":
                 parallel = True
             else:
