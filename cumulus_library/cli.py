@@ -431,7 +431,8 @@ def main(cli_args=None):
     )
     read_env_vars = []
     for pair in arg_env_pairs:
-        if args.get(pair[0]) is None:
+        # print(parser.get_default(pair[0]))
+        if args.get(pair[0]) is None or args.get(pair[0]) == parser.get_default(pair[0]):
             if env_val := os.environ.get(pair[1]):
                 if pair[0] == "study_dir":
                     args[pair[0]] = [env_val]

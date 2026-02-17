@@ -1,11 +1,11 @@
 study_prefix = "study_static_file"
 
-[file_config]
-file_names = [
+[[stages.stage_1]]
+files = [
     "static_file_builder.py",
 ]
 
 [export_config]
-export_list = [
+count_list = [
     "study_static_file__table"
 ]

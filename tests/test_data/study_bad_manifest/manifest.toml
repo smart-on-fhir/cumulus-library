@@ -1,4 +1,4 @@
 study_prefix = "study_bad_manifest"
 
-[file_config
+[[stages.stage_1
 file_names = ["test.sql"]

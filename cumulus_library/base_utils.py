@@ -35,6 +35,7 @@ class StudyConfig:
     :keyword umls_key: An API for the UMLS service, used for downloading vocabularies
     :keyword umls: A UMLS API key
     :keyword options: a dictionary for any study-specific CLI arguments
+    :keyword build_type: the type of build to run from the manifest ('default' if not set)
     """
 
     db: databases.DatabaseBackend
@@ -48,6 +49,7 @@ class StudyConfig:
     loinc_user: str | None = None
     loinc_password: str | None = None
     options: dict | None = None
+    build_type: str = "default"
 
 
 def get_schema(config: StudyConfig, manifest: study_manifest.StudyManifest):

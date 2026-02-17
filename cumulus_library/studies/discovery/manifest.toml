@@ -1,15 +1,23 @@
 study_prefix = "discovery"
 
-[file_config.file_names]
-"code detection" = [
+[[stages.build_discovery]]
+description= "code detection"
+files = [
     "code_detection.py",
 ]
-"code union" = [
+action_type="parallel"
+[[stages.build_discovery]]
+description = "code union"
+files= [
     "code_union.py"
 ]
-"temp data cleanup" = [
+action_type="parallel"
+[[stages.build_discovery]]
+description = "temp data cleanup"
+files = [
     "cleanup_tmp.py"
 ]
+action_type="parallel"
 
 
 [export_config]

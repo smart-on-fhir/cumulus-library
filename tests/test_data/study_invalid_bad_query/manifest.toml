@@ -1,7 +1,7 @@
 study_prefix = "study_invalid_bad_query"
 
-[file_config]
-file_names = ["test.sql"]
+[[stages.stage_1]]
+files = ["test.sql"]
 
 [export_config]
-export_list = ["study_invalid_bad_query__table"]
+count_list = ["study_invalid_bad_query__table"]

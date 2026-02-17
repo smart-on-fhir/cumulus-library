@@ -1,4 +1,4 @@
 study_prefix = "study_python_local_template"
 
-[file_config]
-file_names = ["module1.py"]
+[[stages.stage_1]]
+files = ["module1.py"]

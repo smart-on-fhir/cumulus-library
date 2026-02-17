@@ -1,17 +1,15 @@
 study_prefix = "study_invalid_duplicate_exports"
 
-[file_config]
-file_names = [
+[[stages.stage_1]]
+files = [
     "test.sql",
     "test2.sql"
 ]
 
 [export_config]
-export_list = [
-    "study_invalid_duplicate_exports__table"
-]
+
 count_list = [
-    "study_invalid_duplicate_exports__table2"
+    "study_invalid_duplicate_exports__table"
 ]
 flat_list = [
     "study_invalid_duplicate_exports__table2"

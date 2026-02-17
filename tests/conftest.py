@@ -9,6 +9,7 @@ import time
 from unittest import mock
 
 import duckdb
+import msgspec
 import numpy
 import pandas
 import pytest
@@ -107,6 +108,12 @@ def duckdb_args(args: list, tmp_path, stats=False):
             f"{tmp_path}/export",
         ]
     return [*args, "--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
+
+
+def write_toml(path, manifest_dict, filename="manifest.toml"):
+    manifest_str = msgspec.toml.encode(manifest_dict)
+    with open(path / filename, "wb") as f:
+        f.write(manifest_str)
 
 
 def date_to_epoch(year: int, month: int, day: int) -> int:

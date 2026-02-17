@@ -1,4 +1,4 @@
 study_prefix = "file_upload"
 
-[file_config]
-file_names = ["workflow.toml"]
+[[stages.stage_1]]
+files = ["workflow.toml"]

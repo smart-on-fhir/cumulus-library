@@ -5,13 +5,14 @@ from contextlib import nullcontext as does_not_raise
 from unittest import mock
 
 import pytest
-from freezegun import freeze_time
+import time_machine
 
 from cumulus_library import base_utils, enums, errors, log_utils, study_manifest
 from cumulus_library.actions import (
     builder,
 )
 from cumulus_library.template_sql import base_templates, sql_utils
+from tests import conftest
 
 
 @pytest.mark.parametrize(
@@ -148,7 +149,7 @@ def test_build_study(mock_db_config, study_path, verbose, expects, raises):
         assert expects in tables
 
 
-@freeze_time("2024-01-01")
+@time_machine.travel("2024-01-01T00:00:00Z")
 @pytest.mark.parametrize(
     "study_path,stats,previous,expects,raises",
     [
@@ -235,3 +236,67 @@ def test_builder_init_error(mock_db_config):
                 mock_db_config, manifest, "mock query", "mock_file.txt", "Catalog Error"
             )
     assert "https://docs.smarthealthit.org/" in console_output.getvalue()
+
+
+def test_invalid_file_in_manifest(mock_db_config, tmp_path):
+    manifest_dict = {
+        "study_prefix": "invalid_file_type",
+        "stages": {"stage_1": [{"files": ["data.nsf"]}]},
+    }
+    conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
+    manifest = study_manifest.StudyManifest(tmp_path)
+    with pytest.raises(errors.StudyManifestParsingError):
+        builder.build_study(mock_db_config, manifest)
+
+
+@pytest.mark.parametrize(
+    "build,expected_tables,raises",
+    [
+        (
+            "all",
+            [
+                ("study_valid_parallel__table", True),
+                ("study_valid_parallel__table2", True),
+                ("study_valid_parallel__table3", True),
+            ],
+            does_not_raise(),
+        ),
+        (
+            "one",
+            [
+                ("study_valid_parallel__table", True),
+                ("study_valid_parallel__table2", True),
+                ("study_valid_parallel__table3", False),
+            ],
+            does_not_raise(),
+        ),
+        (
+            "two",
+            [
+                ("study_valid_parallel__table", False),
+                ("study_valid_parallel__table2", False),
+                ("study_valid_parallel__table3", True),
+            ],
+            does_not_raise(),
+        ),
+        ("wrong_stage", [], pytest.raises(errors.StudyManifestParsingError)),
+    ],
+)
+def test_build_types(mock_db_config, build, expected_tables, raises):
+    manifest = study_manifest.StudyManifest(
+        pathlib.Path(__file__).parents[1] / "test_data/study_valid_parallel"
+    )
+    if build:
+        mock_db_config.build_type = build
+    with raises:
+        builder.build_study(mock_db_config, manifest)
+    found_tables = (
+        mock_db_config.db.cursor()
+        .execute("SELECT table_name from information_schema.tables")
+        .fetchall()
+    )
+    for table in expected_tables:
+        if table[1]:
+            assert (table[0],) in found_tables
+        else:
+            assert (table[0],) not in found_tables

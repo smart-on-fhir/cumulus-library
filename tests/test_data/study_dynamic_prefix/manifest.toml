@@ -1,13 +1,16 @@
-dynamic_study_prefix = "gen_prefix.py"
 
-[file_config]
-file_names = [
+
+[[stages.stage_1]]
+files = [
     "meta.py",
     "counts.py",
 ]
 
 [export_config]
-export_list = [
+count_list = [
     "counts",
     "meta_version",
 ]
+
+[advanced_options]
+dynamic_study_prefix = "gen_prefix.py"
