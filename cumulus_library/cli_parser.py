@@ -253,6 +253,7 @@ AWS Athena, the following order of preference is used to select credentials:
     # Database export
 
     export = actions.add_parser("export", help="Generates files on disk from Athena tables/views")
+    add_build_type_argument(export)
     add_custom_option(export)
     add_target_argument(export)
     add_study_dir_argument(export)

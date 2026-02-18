@@ -1,5 +1,6 @@
 study_prefix = "psm_test"
 
 [[stages.stage_1]]
+type="build:serial"
 files = ["psm_cohort.sql","psm_config.toml"]
 

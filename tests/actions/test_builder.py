@@ -241,7 +241,7 @@ def test_builder_init_error(mock_db_config):
 def test_invalid_file_in_manifest(mock_db_config, tmp_path):
     manifest_dict = {
         "study_prefix": "invalid_file_type",
-        "stages": {"stage_1": [{"files": ["data.nsf"]}]},
+        "stages": {"stage_1": [{"files": ["data.nsf"], "type": "build:serial"}]},
     }
     conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
     manifest = study_manifest.StudyManifest(tmp_path)

@@ -1,7 +1,9 @@
 study_prefix = "study_invalid_unsupported_file"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = ["test.txt"]
 
-[export_config]
-export_list = ["study_invalid_unsupported_file__table"]
+[[stages.stage_1]]
+type = "export:counts"
+tables = ["study_invalid_unsupported_file__table"]

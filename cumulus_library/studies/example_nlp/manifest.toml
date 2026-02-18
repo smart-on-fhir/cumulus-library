@@ -8,3 +8,4 @@ description = "Range calculation"
 files = [
     "calculate_ranges.py",
 ]
+type = "build:serial"

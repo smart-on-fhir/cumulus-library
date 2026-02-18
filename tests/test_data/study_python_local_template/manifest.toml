@@ -1,4 +1,5 @@
 study_prefix = "study_python_local_template"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = ["module1.py"]

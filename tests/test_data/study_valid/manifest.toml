@@ -1,13 +1,15 @@
 study_prefix = "study_valid"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = [
     "test.sql",
     "test2.sql"
 ]
 
-[export_config]
-count_list = [
+[[stages.stage_1]]
+type = "export:counts"
+tables = [
     "study_valid__table",
     "study_valid__table2"
 ]

@@ -1,6 +1,7 @@
 study_prefix = "test"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = [
     "valueset.toml"
 ]

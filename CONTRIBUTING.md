@@ -84,3 +84,11 @@ cumulus-library generate-md --target core [database args pointing at your athena
 Then take the contents of `cumulus_library/studies/core/core_generated.md`
 and paste them into `docs/core-study-details.md`
 (being careful to not erase any manually entered descriptions).
+
+# Restrictions on generative AI usage
+
+At this time we are not accepting code contributions from generative AI due to
+potential licensing issues and the increased burden of review on maintainers.
+
+We also ask that generative AI not be used to write content in issues/PRs, and reserve
+the right to close issues without response in cases where it has been obviously applied.

@@ -2,13 +2,14 @@ study_prefix = "study_python_valid_parallel"
 
 [[stages.stage_1]]
 files = ["module1.py", "module2.py"]
-action_type = "parallel"
+type = "build:parallel"
 
 [[stages.stage_2]]
 files = ["module3.py"]
-action_type = "parallel"
+type = "build:parallel"
 
-[export_config]
-count_list = [
+[[stages.stage_1]]
+type = "export:counts"
+tables = [
     "study_python_valid_parallel__table"
 ]

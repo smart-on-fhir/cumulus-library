@@ -1,4 +1,5 @@
 study_prefix = "file_upload"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = ["workflow.toml"]

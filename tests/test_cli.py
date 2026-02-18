@@ -8,7 +8,6 @@ import os
 import pathlib
 import shutil
 import sys
-import tomllib
 import zipfile
 from contextlib import contextmanager
 from contextlib import nullcontext as does_not_raise
@@ -22,7 +21,7 @@ import requests
 import responses
 import time_machine
 
-from cumulus_library import __version__, cli, databases, errors
+from cumulus_library import StudyManifest, __version__, cli, databases, errors
 from tests.conftest import duckdb_args
 
 FHIR_RESOURCE_TABLE_COUNT = 19
@@ -533,7 +532,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "tests/test_data/study_invalid_unsupported_file/",
             ],
             3,
-            pytest.raises(SystemExit),
+            pytest.raises(errors.StudyManifestParsingError),
             [],
         ),
     ],
@@ -569,14 +568,12 @@ def test_cli_executes_queries(
             else:
                 manifest_dir = cli.get_study_dict([cli.get_abs_path(build_args[4])])[build_args[2]]
 
-            with open(f"{manifest_dir}/manifest.toml", "rb") as file:
-                config = tomllib.load(file)
+            config = StudyManifest(f"{manifest_dir}/manifest.toml")
             csv_files = glob.glob(f"{tmp_path}/export/{build_args[2]}/*.csv")
-            export_config = config["export_config"]
-            for export_list in export_config.values():
-                for export_table in export_list:
-                    if export_table not in expected_missing:
-                        assert any(export_table in x for x in csv_files)
+            export_list = [t.name for t in config.get_export_table_list()]
+            for export_table in export_list:
+                if export_table not in expected_missing:
+                    assert any(export_table in x for x in csv_files)
 
 
 @mock.patch.dict(

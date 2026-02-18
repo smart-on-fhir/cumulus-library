@@ -1,20 +1,25 @@
 study_prefix = "study_valid_all_exports"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = [
     "testcount.sql",
     "testflat.sql",
     "testmeta.sql"
 ]
 
-[export_config]
-
-count_list = [
+[[stages.stage_1]]
+type = "export:counts"
+tables = [
     "study_valid_all_exports__tablecount"
 ]
-flat_list = [
+[[stages.stage_1]]
+type = "export:flat"
+tables = [
     "study_valid_all_exports__tableflat"
 ]
-meta_list = [
+[[stages.stage_1]]
+type = "export:meta"
+tables = [
     "study_valid_all_exports__tablemeta"
 ]

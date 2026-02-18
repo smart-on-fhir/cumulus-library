@@ -1,19 +1,26 @@
 study_prefix = "study_invalid_duplicate_exports"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = [
     "test.sql",
     "test2.sql"
 ]
 
-[export_config]
-
-count_list = [
+[[stages.stage_1]]
+type = "export:counts"
+tables = [
     "study_invalid_duplicate_exports__table"
 ]
-flat_list = [
+
+[[stages.stage_1]]
+type = "export:flat"
+tables = [
     "study_invalid_duplicate_exports__table2"
 ]
-meta_list = [
+
+[[stages.stage_1]]
+type = "export:meta"
+tables = [
     "study_invalid_duplicate_exports__table2"
 ]

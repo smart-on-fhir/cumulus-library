@@ -1,9 +1,11 @@
 study_prefix = "study_python_valid"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = ["module1.py", "module1.py", "module2.py"]
 
-[export_config]
-count_list = [
+[[stages.stage_1]]
+type = "export:counts"
+tables = [
     "study_python_valid__count_table"
 ]

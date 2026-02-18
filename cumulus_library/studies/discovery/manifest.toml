@@ -5,22 +5,23 @@ description= "code detection"
 files = [
     "code_detection.py",
 ]
-action_type="parallel"
+type="build:parallel"
 [[stages.build_discovery]]
 description = "code union"
 files= [
     "code_union.py"
 ]
-action_type="parallel"
+type="build:parallel"
 [[stages.build_discovery]]
 description = "temp data cleanup"
 files = [
     "cleanup_tmp.py"
 ]
-action_type="parallel"
+type="build:parallel"
 
 
-[export_config]
-count_list = [
+[[stages.build_discovery]]
+tables = [
     "discovery__code_sources",
 ]
+type = "export:counts"

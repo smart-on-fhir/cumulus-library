@@ -44,3 +44,15 @@ class StatisticsTypes(enum.Enum):
     """A subset of workflows that create statistics sampling artifacts"""
 
     PSM = "psm"
+
+
+class ManifestActions(enum.StrEnum):
+    """The types of actions you can use in a manifest"""
+
+    SERIAL = "build:serial"
+    PARALLEL = "build:parallel"
+    SUBMANIFEST = "submanifest"
+    COUNTS = "export:counts"
+    ANNOTATED = "export:annotated_counts"
+    FLAT = "export:flat"
+    META = "export:meta"
