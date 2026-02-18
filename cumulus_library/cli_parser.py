@@ -8,17 +8,15 @@ import argparse
 def add_aws_config(parser: argparse.ArgumentParser) -> None:
     """Adds arguments related to aws credentials to a subparser"""
     aws = parser.add_argument_group("AWS config")
-    aws.add_argument("--profile", help="AWS profile", default="default")
+    aws.add_argument("--profile", help="AWS profile")
     aws.add_argument(
         "--workgroup",
-        default="cumulus",
         dest="work_group",
-        help="Cumulus Athena workgroup (default: default)",
+        help="Cumulus Athena workgroup (default: cumulus)",
     )
     aws.add_argument(
         "--region",
         help="AWS region data of Athena instance (default: us-east-1)",
-        default="us-east-1",
     )
 
 
@@ -39,7 +37,6 @@ def add_data_path_argument(parser: argparse.ArgumentParser) -> None:
     """Adds path arg to a subparser"""
     parser.add_argument(
         "data_path",
-        default="./",
         nargs="?",
         help=(
             "The path to use for exporting counts data. "
@@ -60,7 +57,6 @@ def add_db_config(parser: argparse.ArgumentParser, input_mode: bool = False) -> 
         "--db-type",
         help="Which database backend to use (default athena)",
         choices=["athena", "duckdb"],
-        default="athena",
     )
     group.add_argument(
         "--database",
@@ -124,7 +120,6 @@ def add_build_type_argument(parser: argparse.ArgumentParser) -> None:
         "-b",
         "--build-type",
         help="Selects which build type from the manifest to use",
-        default="default",
     )
 
 
@@ -150,7 +145,6 @@ def add_verbose_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --verbose arg to a subparser"""
     parser.add_argument(
         "--verbose",
-        default=False,
         action="store_true",
         help="Prints detailed SQL query info",
     )
@@ -291,7 +285,6 @@ AWS Athena, the following order of preference is used to select credentials:
     upload.add_argument("--id", help="Site ID. Default is value of CUMULUS_AGGREGATOR_ID")
     upload.add_argument(
         "--preview",
-        default=False,
         action="store_true",
         help="Run pre-fetch and prepare upload, but log output instead of sending.",
     )
@@ -301,7 +294,6 @@ AWS Athena, the following order of preference is used to select credentials:
             "Upload URL. Default is value of CUMULUS_AGGREGATOR_URL if present, "
             "or smart cumulus instance"
         ),
-        default="https://aggregator.smartcumulus.org/",
     )
     upload.add_argument(
         "--network",
@@ -338,4 +330,14 @@ AWS Athena, the following order of preference is used to select credentials:
     version = actions.add_parser("version", help="Gets the versions of the CLI and studies")
     add_study_dir_argument(version)
 
-    return parser
+    defaults = {
+        "profile": "default",
+        "work_group": "cumulus",
+        "region": "us-east-1",
+        "data_path": "./",
+        "db_type": "athena",
+        "build_type": "default",
+        "url": "https://aggregator.smartcumulus.org/",
+    }
+
+    return parser, defaults
