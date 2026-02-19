@@ -1,11 +1,13 @@
 study_prefix = "study_static_file"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = [
     "static_file_builder.py",
 ]
 
-[export_config]
-count_list = [
+[[stages.stage_1]]
+type = "export:counts"
+tables = [
     "study_static_file__table"
 ]

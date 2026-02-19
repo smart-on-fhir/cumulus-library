@@ -70,8 +70,10 @@ def build_study(
 
     for stage in stages:
         for action in manifest.get_stage(stage):
+            if not action.get("type", "").startswith("build:"):
+                continue
             query_count = 0
-            if action.get("action_type") == "parallel":
+            if action.get("type") == enums.ManifestActions.PARALLEL.value:
                 parallel = True
             else:
                 parallel = False

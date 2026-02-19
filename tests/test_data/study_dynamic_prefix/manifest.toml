@@ -1,13 +1,15 @@
 
 
 [[stages.stage_1]]
+type = "build:serial"
 files = [
     "meta.py",
     "counts.py",
 ]
 
-[export_config]
-count_list = [
+[[stages.stage_1]]
+type = "export:counts"
+tables = [
     "counts",
     "meta_version",
 ]

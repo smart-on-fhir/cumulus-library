@@ -6,7 +6,7 @@ files = [
     "fhir_lookup_tables.sql",
     "fhir_mapping_tables.sql",
 ]
-action_type = "parallel"
+type = "build:parallel"
 [[stages.build_core]]
 description = "FHIR nested resource flattening"
 files =[
@@ -24,11 +24,13 @@ files =[
     "builder_practitionerrole_prereq.py",
     "builder_procedure_prereq.py",
 ]
+type = "build:serial"
 [[stages.build_core]]
 description = "Patient"
 files =[
     "builder_patient.py",
 ]
+type = "build:serial"
 [[stages.build_core]]
 description= "Other FHIR resource tables"
 files=[
@@ -45,21 +47,21 @@ files=[
     "builder_practitionerrole.py",
     "builder_procedure.py",
 ]
-action_type = "parallel"
+type = "build:parallel"
 [[stages.build_core]]
 description = "Tables derived from FHIR resource tables"
 files = [
     "observation_type.sql",
     "meta_date.sql"
 ]
-action_type = "parallel"
+type = "build:parallel"
 [[stages.build_core]]
 description = "Summary counts of FHIR resources"
 files = ["count_core.py"]
-action_type = "parallel"
+type = "build:parallel"
 
-[export_config]
-count_list = [
+[[stages.build_core]]
+tables = [
     "core__count_allergyintolerance_month",
     "core__count_condition_month",
     "core__count_diagnosticreport_month",
@@ -75,7 +77,10 @@ count_list = [
     "core__count_patient",
     "core__count_procedure_month",
 ]
-meta_list = [
+type = "export:counts"
+[[stages.build_core]]
+tables = [
     "core__meta_date",
     "core__meta_version",
 ]
+type = "export:meta"

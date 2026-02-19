@@ -98,12 +98,20 @@ counts = ['count_cohorts']
 
 # Actions can have the following fields:
 #   - 'description', which will be displayed in the CLI while the action is being run
-#   - 'files', which is a list of files to process (raw sql, python builders, or toml workflows)
-#   - 'action_type', which determines what the action does. Valid types:
-#      - 'serial' (default if action_type is not specified) runs the files in order, one at a time
-#      - 'parallel' will run the files concurrently, which is faster but assumes no interdependencies
-#      - 'submanifest' loads a list of actions from another file. Those actions use the
-#        same format as those from the main manifest
+#   - 'type', which determines what the action does, and which parts of the library CLI the
+#     action is invoked by. Valid types:
+#      - 'build:serial' (default if action_type is not specified) runs the files in order, one at a time
+#      - 'build:parallel' will run the files concurrently, which is faster but assumes no interdependencies
+#      - 'export:counts' will export a set of tables to disk, tagging them as cube tables
+#      - 'export:annotated_counts' will export a set of tables to disk, tagging them as cube tables
+#         with additional metadata columns
+#      - 'export:flat' will export a set tables to disk, tagging them as flat statistics tables
+#      - 'export:meta' will export a set tables to disk, tagging them as metadata tables
+#      - 'submanifest' loads a list of actions from another file. A submanifest can contain
+#        any of the above action types
+# There are some action fields that are only used by certain action types:
+# - build & submanifest actions have a field, 'files', which is a list of files to process (raw sql, python builders, or toml workflows, submanifests)
+# - export actions have a field, 'tables', which is a list of tables to export to disk
 
 # This double bracket defines a new array inside of stages, define_population
 [[stages.define_population]]
@@ -115,6 +123,7 @@ files = [
 # to the end of the define_population list.
 [[stages.define_population]]
 description = 'Select patients by characteristics'
+type= 'build:serial'
 files = [
   'select_patients.sql',
 ]
@@ -123,37 +132,44 @@ description = 'Define cohorts'
 files = [
   'cohort_submanifest.toml'
 ]
-action_type = "submanifest"
+type = "submanifest"
 [[stages.count_cohorts]]
 description = 'Define cohorts'
 files = [
   'cohort_by_age.py',
   'cohort_by_gender.py'
 ]
-action_type = "parallel"
+type = "build:parallel"
 
-[export_config]
+# Most cumulus exports should be count tables, created as powerset cubes for deid binning
+# purposes.
 
-# The following tables will be exported and labeled as aggregate count tables.
-# In most cases, tables should go in this list.
-
-count_list = [
+[[stages.count_cohorts]]
+description = 'Export patient counts'
+type = 'export:counts'
+tables = [
     "my_study__count_influenza_test_month",
 ]
 
 # In some cases, you may want to annotate count data with metadata from another
 # source. Most commonly, this is used to add data related to a code (like its
-# display value or code system) from another source. These tables should go
-# in this section.
+# display value or code system) from another source.
 
-annotated_count_list = [
+[[stages.count_cohorts]]
+description = 'Export patient symptoms w/ LOINC codes'
+type = 'export:annotated_counts'
+tables = [
     "my_study__count_influenza_test_month_annotated",
 ]
 
 # Some specific tables (like those produced by data metrics) are a special type
-# of tables, that are flat summary statistics tables. They should go in this list.
+# of tables, that are flat summary statistics tables, typically used for true/false
+# categorization
 
-flat_list = [
+[[stages.count_cohorts]]
+description = 'Export summary statistics'
+type = 'export:flat'
+tables = [
     "my_study__q_influenza",
 ]
 
@@ -164,7 +180,10 @@ flat_list = [
 # your export tables changes. See the core study for examples of how to structure
 # these tables.
 
-meta_list = [
+[[stages.count_cohorts]]
+description = 'Export metadata'
+type = 'export:metadata'
+tables = [
   "my_study__meta_date",
   "my_study__meta_version",
 ]
@@ -205,11 +224,17 @@ Here's an example submanifest (note that this is optional and you don't have to 
 [[actions]]
 description = "Select cohorts by age"
 files = ['age_cohort.sql']
-action_type = 'serial'
+type = 'serial'
 [[actions]]
 description = "Create cohorts by medications"
 files = ['cohort_rx_1.py', 'cohort_rx_2.py']
-action_type = 'parallel'
+type = 'parallel'
+[[actions]]
+description = 'Export patient medication counts'
+type = 'export:counts'
+tables = [
+    "my_study__count_patient_rx",
+]
 # Note that you cannot recursively add a submanifest from another submanifest
 ```
 

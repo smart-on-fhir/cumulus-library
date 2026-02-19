@@ -9,7 +9,7 @@ import sys
 
 import msgspec
 
-from cumulus_library import errors
+from cumulus_library import enums, errors
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -22,9 +22,10 @@ class ManifestExport:
 
 
 class ManifestAction(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
+    type: str
     description: str | None = None
-    action_type: str | None = None
     files: list[str] | None = None
+    tables: list[str] | None = None
 
 
 class ManifestAdvancedOptions(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
@@ -32,19 +33,11 @@ class ManifestAdvancedOptions(msgspec.Struct, forbid_unknown_fields=True, omit_d
     dynamic_study_prefix: str | None = None
 
 
-class ManifestExportConfig(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
-    count_list: list[str] | None = None
-    flat_list: list[str] | None = None
-    meta_list: list[str] | None = None
-    annotated_count_list: list[str] | None = None
-
-
 class ManifestConfig(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
     study_prefix: str | None = None
     description: str | None = None
     build_types: dict[str, list[str]] | None = None
     stages: dict[str, list[ManifestAction]] | None = None
-    export_config: ManifestExportConfig | None = None
     advanced_options: ManifestAdvancedOptions | None = None
 
 
@@ -108,11 +101,11 @@ class StudyManifest:
             )
 
     def _validate_action(self, action, source):
-        action_type = action.get("action_type")
-        if action_type is not None and action_type not in self.VALID_ACTIONS:
+        action_type = action.get("type")
+        if action_type is not None and action_type not in [e.value for e in enums.ManifestActions]:
             raise errors.StudyManifestParsingError(
                 f"Action type '{action_type}' in {source} is not a valid action.\n"
-                f"Valid action types: {', '.join(self.VALID_ACTIONS)}."
+                f"Valid action types: {', '.join(enums.ManifestActions)}."
             )
 
     ### toml parsing helper functions
@@ -147,11 +140,13 @@ class StudyManifest:
         # if build types are not supplied, we'll assume that we should run everything in order
         else:
             config["build_types"] = {"default": defined_stages}
-        # if we're importing from submanifest, let's do that now to keep the builder logic cleaner
+        # If we're importing from submanifest, we'll do an inline swap out of the submanifest for
+        # the actions defined in the submanifest.
+        # This means we can assume everywhere else that we don't need to worry about submanifests.
         for stage in defined_stages:
             actions = []
             for action in config["stages"][stage]:
-                if action.get("action_type") == "submanifest":
+                if action.get("type") == "submanifest":
                     for submanifest in action.get("files", []):
                         subconfig = self._read_toml(
                             study_path.parent / submanifest, SubmanifestConfig
@@ -228,11 +223,13 @@ class StudyManifest:
         for stage_name in stages:
             stage = self.get_stage(stage_name)
             for action in stage:
+                if not action.get("type", "").startswith("build:"):
+                    continue
                 if continue_from and not found_continue_point:
                     file_stems = [x.split(".", 1)[0] for x in action["files"]]
                     if continue_from.split(".", 1)[0] in file_stems:
                         found_continue_point = True
-                        if action.get("action_type") == "parallel":
+                        if action.get("type") == enums.ManifestActions.PARALLEL.value:
                             files = files + action["files"]
                         else:
                             pos = file_stems.index(continue_from.split(".", 1)[0])
@@ -243,38 +240,50 @@ class StudyManifest:
             raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
         return files
 
-    def get_export_table_list(self) -> list[ManifestExport] | None:
-        """Reads the contents of the export_list array from the manifest
+    def get_export_table_list(self, build_type: str | None = None) -> list[ManifestExport] | None:
+        """Reads the exportable tables from the manifest
 
+        :param build_type: if present, just search the stages defined in the build_type list
         :returns: An array of tuples (table, export type) to export from the manifest,
         or None if not found.
         """
-        export_config = self._study_config.get("export_config", {})
         export_table_list = []
+        if build_type:
+            builds = self._study_config.get("build_types", {})
+            build = builds.get(build_type)
+            stages = {}
+            for stage in build:
+                stages[stage] = self._study_config.get("stages", {}).get(stage)
+        else:
+            stages = self._study_config.get("stages", {})
 
-        for section in [
-            ("count_list", "cube"),
-            ("flat_list", "flat"),
-            ("meta_list", "meta"),
-            ("annotated_count_list", "annotated_cube"),
-        ]:
-            section_list = export_config.get(section[0], []) or []
-            for table in section_list:
-                if table.startswith(f"{self.get_study_prefix()}__"):
-                    export_table_list.append(ManifestExport(name=table, export_type=section[1]))
-                elif "__" in table:  # has a prefix, just the wrong one
-                    raise errors.StudyManifestParsingError(
-                        f"{table} in export list does not start with prefix "
-                        f"{self.get_study_prefix()}__ - check your manifest file."
-                    )
-                else:
-                    # Add the prefix for them (helpful in dynamic prefix cases where the prefix
-                    # is not known ahead of time)
-                    export_table_list.append(
-                        ManifestExport(
-                            name=f"{self.get_study_prefix()}__{table}", export_type=section[1]
+        for stage in stages.keys():
+            for action in stages[stage]:
+                if not action.get("type", "").startswith("export:"):
+                    continue
+                export_type = action["type"].split(":")[1]
+                if export_type == "counts":
+                    # the aggregator is looking for the cube keyword, so we'll swap it out
+                    export_type = "cube"
+                for table in action.get("tables", []):
+                    if table.startswith(f"{self.get_study_prefix()}__"):
+                        export_table_list.append(
+                            ManifestExport(name=table, export_type=export_type)
                         )
-                    )
+                    elif "__" in table:  # has a prefix, just the wrong one
+                        raise errors.StudyManifestParsingError(
+                            f"{table} in export list does not start with prefix "
+                            f"{self.get_study_prefix()}__ - check your manifest file."
+                        )
+                    else:
+                        # Add the prefix for them (helpful in dynamic prefix cases where the prefix
+                        # is not known ahead of time)
+                        export_table_list.append(
+                            ManifestExport(
+                                name=f"{self.get_study_prefix()}__{table}", export_type=export_type
+                            )
+                        )
+
         found_name = set()
         for export in export_table_list:
             if export.name in found_name:

@@ -18,8 +18,15 @@ from tests import conftest
                 {
                     "study_prefix": "study_valid",
                     "build_types": {"default": ["stage_1"], "all": ["stage_1"]},
-                    "stages": {"stage_1": [{"files": ["test.sql", "test2.sql"]}]},
-                    "export_config": {"count_list": ["study_valid__table", "study_valid__table2"]},
+                    "stages": {
+                        "stage_1": [
+                            {"type": "build:serial", "files": ["test.sql", "test2.sql"]},
+                            {
+                                "type": "export:counts",
+                                "tables": ["study_valid__table", "study_valid__table2"],
+                            },
+                        ]
+                    },
                 }
             ),
             does_not_raise(),
@@ -63,7 +70,10 @@ def test_get_prefix_with_seperator(manifest_path, prefix):
 
 
 def test_custom_pathing(tmp_path):
-    manifest_dict = {"study_prefix": "custom", "stages": {"stage_1": [{"files": ["bar"]}]}}
+    manifest_dict = {
+        "study_prefix": "custom",
+        "stages": {"stage_1": [{"type": "build:serial", "files": ["bar"]}]},
+    }
     conftest.write_toml(tmp_path, manifest_dict, "custom.toml")
     with pytest.raises(errors.StudyManifestFilesystemError):
         manifest = study_manifest.StudyManifest(tmp_path)
@@ -84,21 +94,23 @@ def test_submanifests(tmp_path):
         "stages": {
             "stage_1": [
                 {
+                    "type": "build:serial",
                     "description": "action 1",
                     "files": ["foo", "bar"],
                 },
                 {
+                    "type": "build:serial",
                     "description": "action 2",
                     "files": ["baz"],
                 },
             ],
-            "stage_2": [{"action_type": "submanifest", "files": ["file.submanifest"]}],
+            "stage_2": [{"type": "submanifest", "files": ["file.submanifest"]}],
         },
     }
     conftest.write_toml(tmp_path, manifest_dict)
     conftest.write_toml(
         tmp_path,
-        {"actions": [{"description": "subaction 1", "files": ["foobar"]}]},
+        {"actions": [{"type": "build:serial", "description": "subaction 1", "files": ["foobar"]}]},
         "file.submanifest",
     )
     manifest = study_manifest.StudyManifest(tmp_path)
@@ -107,10 +119,12 @@ def test_submanifests(tmp_path):
         "build_types": {"default": ["stage_1", "stage_2"], "all": ["stage_1", "stage_2"]},
         "stages": {
             "stage_1": [
-                {"description": "action 1", "files": ["foo", "bar"]},
-                {"description": "action 2", "files": ["baz"]},
+                {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
+                {"description": "action 2", "type": "build:serial", "files": ["baz"]},
             ],
-            "stage_2": [{"description": "subaction 1", "files": ["foobar"]}],
+            "stage_2": [
+                {"description": "subaction 1", "type": "build:serial", "files": ["foobar"]}
+            ],
         },
     }
 
@@ -125,7 +139,11 @@ def test_copy_manifest(tmp_path):
 
 def test_wrong_export_prefix(tmp_path):
     conftest.write_toml(
-        tmp_path, {"study_prefix": "foo", "export_config": {"count_list": ["bar__table"]}}
+        tmp_path,
+        {
+            "study_prefix": "foo",
+            "stages": {"stage_1": [{"type": "export:counts", "tables": ["bar__table"]}]},
+        },
     )
     manifest = study_manifest.StudyManifest(tmp_path)
     with pytest.raises(errors.StudyManifestParsingError):
@@ -152,7 +170,7 @@ def test_missing_action(tmp_path):
             "study_prefix": "foo",
             "build_types": {"default": ["stage_1"]},
             "stages": {
-                "stage_1": [{"description": "action 1", "files": ["foo"], "action_type": "invalid"}]
+                "stage_1": [{"description": "action 1", "files": ["foo"], "type": "invalid"}]
             },
         },
     )

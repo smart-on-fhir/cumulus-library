@@ -1,7 +1,9 @@
 study_prefix = "study_different_name"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = ["test.sql"]
 
-[export_config]
-count_list = ["study_different_name__table"]
+[[stages.stage_1]]
+type = "export:counts"
+tables = ["study_different_name__table"]

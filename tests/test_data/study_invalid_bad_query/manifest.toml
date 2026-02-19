@@ -1,7 +1,9 @@
 study_prefix = "study_invalid_bad_query"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = ["test.sql"]
 
-[export_config]
-count_list = ["study_invalid_bad_query__table"]
+[[stages.stage_1]]
+type = "export:counts"
+tables = ["study_invalid_bad_query__table"]

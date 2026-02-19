@@ -1,9 +1,11 @@
 study_prefix = "study_python_s3"
 
 [[stages.stage_1]]
+type = "build:serial"
 files = ["module1.py", "module2.py"]
 
-[export_config]
-count_list = [
+[[stages.stage_1]]
+type = "export:counts"
+tables = [
         "study_python_s3__count_table"
 ]

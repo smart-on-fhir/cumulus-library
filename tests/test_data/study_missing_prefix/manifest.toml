@@ -1,6 +1,8 @@
 
 [[stages.stage_1]]
+type = "build:serial"
 files = ["test.sql"]
 
-[export_config]
-count_list = ["test__table"]
+[[stages.stage_1]]
+type = "export:counts"
+tables = ["test__table"]

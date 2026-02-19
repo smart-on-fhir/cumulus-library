@@ -9,17 +9,18 @@ files = [
     "test.sql",
     "test2.sql"
 ]
-action_type = "parallel"
+type = "build:parallel"
 
 [[stages.stage_2]]
 description = 'Stage 2'
 files = [
     "test3.sql"
 ]
-action_type = "parallel"
+type = "build:parallel"
 
-[export_config]
-count_list = [
+[[stages.stage_1]]
+type = "export:counts"
+tables = [
     "study_valid_parallel__table",
     "study_valid_parallel__table2",
     "study_valid_parallel__table3"
