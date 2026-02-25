@@ -166,6 +166,9 @@ class StudyRunner:
         :keyword data_path: If prepare is true, the path to write rendered data to
         """
         manifest = study_manifest.StudyManifest(target, options=options)
+        # In case someone is using the --builder command with a study that hasn't been run,
+        # we'll make sure the protected tables are available.
+        builder.run_protected_table_builder(config=self.get_config(manifest), manifest=manifest)
         builder.build_matching_files(
             config=self.get_config(manifest),
             manifest=manifest,

@@ -6,6 +6,7 @@ from unittest import mock
 import pytest
 
 from cumulus_library import study_manifest
+from cumulus_library.actions import builder as build_action
 from cumulus_library.builders import valueset_builder
 
 data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
@@ -14,10 +15,10 @@ data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
 @pytest.mark.parametrize(
     ("config_path,tables,raises"),
     [
-        (data_path / "valueset.toml", 18, does_not_raise()),
-        (data_path / "valueset_vsac_only.toml", 17, does_not_raise()),
-        (data_path / "valueset_umls_only.toml", 18, does_not_raise()),
-        (data_path / "valueset_keyword_only.toml", 17, does_not_raise()),
+        (data_path / "valueset.toml", 20, does_not_raise()),
+        (data_path / "valueset_vsac_only.toml", 19, does_not_raise()),
+        (data_path / "valueset_umls_only.toml", 20, does_not_raise()),
+        (data_path / "valueset_keyword_only.toml", 19, does_not_raise()),
         (data_path / "invalid.toml", 0, pytest.raises(SystemExit)),
     ],
 )
@@ -39,6 +40,7 @@ def test_valueset_builder(mock_api, mock_db_config_rxnorm, config_path, tables, 
         )
         cursor.execute(query)
 
+        build_action.run_protected_table_builder(config=mock_db_config_rxnorm, manifest=manifest)
         builder = valueset_builder.ValuesetBuilder(config_path, data_path / "valueset_data")
         builder.execute_queries(mock_db_config_rxnorm, manifest=manifest, toml_path=tmp_path)
         table_count = cursor.execute(
@@ -63,6 +65,7 @@ def test_prefix_handling(mock_api, mock_db_config_rxnorm, tmp_path):
     )"""
     )
     cursor.execute(query)
+    build_action.run_protected_table_builder(config=mock_db_config_rxnorm, manifest=manifest)
     builder = valueset_builder.ValuesetBuilder(
         data_path / "valueset_prefix.toml", data_path / "valueset_data"
     )

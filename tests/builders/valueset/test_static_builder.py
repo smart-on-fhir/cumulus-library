@@ -6,6 +6,7 @@ from unittest import mock
 import pytest
 
 from cumulus_library import study_manifest
+from cumulus_library.actions import builder as build_action
 from cumulus_library.builders.valueset import static_builder, valueset_utils
 
 
@@ -80,6 +81,8 @@ def test_static_tables(
         prefix_str += "_"
     builder = static_builder.StaticBuilder()
     filtered = tmp_path / filtered if filtered else None
+    manifest = study_manifest.StudyManifest(test_path)
+    build_action.run_protected_table_builder(config=mock_db_config, manifest=manifest)
     builder.get_keywords_table_configs = lambda config, manifest, prefix: [
         static_builder.TableConfig(
             file_path=tmp_path / "static_table.csv",
@@ -94,7 +97,7 @@ def test_static_tables(
     ]
     builder.execute_queries(
         config=mock_db_config,
-        manifest=study_manifest.StudyManifest(test_path),
+        manifest=manifest,
         valueset_config=valueset_config,
         toml_path=tmp_path,
     )
@@ -120,10 +123,12 @@ def test_custom_rules(mock_api, mock_cache_dir, tmp_path, mock_db_config):
         rules_file="rules_file.tsv",
         table_prefix="prefix",
     )
+    manifest = study_manifest.StudyManifest(test_path)
+    build_action.run_protected_table_builder(config=mock_db_config, manifest=manifest)
     builder = static_builder.StaticBuilder()
     builder.execute_queries(
         config=mock_db_config,
-        manifest=study_manifest.StudyManifest(test_path),
+        manifest=manifest,
         valueset_config=valueset_config,
         toml_path=test_path,
     )

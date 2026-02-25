@@ -5,10 +5,8 @@ import pathlib
 from collections.abc import Iterable
 from pathlib import Path
 
-import duckdb
-
 from cumulus_library import base_utils, cli
-from cumulus_library.databases import create_db_backend
+from cumulus_library.databases import create_db_backend, duckdb
 
 
 class LocalTestbed:
@@ -257,7 +255,7 @@ class LocalTestbed:
     def get_db_file(self, study: str = "core") -> str:
         return f"{self.path}/{study}.db"
 
-    def build(self, study: str = "core") -> duckdb.DuckDBPyConnection:
+    def build(self, study: str = "core") -> duckdb.DuckDatabaseBackend:
         db_file = self.get_db_file(study)
         db, _ = create_db_backend(
             {
@@ -275,9 +273,13 @@ class LocalTestbed:
             schema="main",
             # verbose=True,
         )
-        builder = cli.StudyRunner(config, data_path=str(self.path))
-        builder.clean_and_build_study(
+        study_runner = cli.StudyRunner(config, data_path=str(self.path))
+        study_runner.clean_and_build_study(
             Path(__file__).parent.parent / "cumulus_library/studies" / study,
             options={},
         )
-        return duckdb.connect(db_file)
+        return db
+
+    def reset_db(self):
+        db_file = pathlib.Path(self.get_db_file())
+        db_file.unlink()

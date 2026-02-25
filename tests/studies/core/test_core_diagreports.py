@@ -49,8 +49,8 @@ def test_core_diag_report_many_cases(tmp_path):
         ],
     )
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__diagnosticreport").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__diagnosticreport").df()
     rows = json.loads(df.to_json(orient="records"))
     assert len(rows) == 32
 
@@ -121,8 +121,8 @@ def test_core_diag_report_minimal(tmp_path):
     testbed = testbed_utils.LocalTestbed(tmp_path)
     testbed.add_diagnostic_report("Nothing")
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__diagnosticreport").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__diagnosticreport").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows == [
@@ -175,8 +175,8 @@ def test_core_diag_report_period(tmp_path):
         },
     )
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__diagnosticreport").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__diagnosticreport").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert len(rows) == 1
@@ -223,8 +223,8 @@ def test_core_diag_report_aux_has_text(tmp_path):
     testbed.add_diagnostic_report("no-data", presentedForm=[{"contentType": "text/html"}])
     testbed.add_diagnostic_report("no-content")
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__diagnosticreport").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__diagnosticreport").df()
     rows = json.loads(df.to_json(orient="records"))
     fields = {row["id"]: row["aux_has_text"] for row in rows}
 

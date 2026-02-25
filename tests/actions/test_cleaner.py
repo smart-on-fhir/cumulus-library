@@ -9,22 +9,24 @@ from cumulus_library.actions import (
     builder,
     cleaner,
 )
+from cumulus_library.template_sql import base_templates
 
 
 @pytest.mark.parametrize(
-    "verbose,prefix,confirm,stats,target,raises",
+    "build_type,verbose,prefix,confirm,stats,target,raises",
     [
-        (True, None, None, False, "study_valid__table", does_not_raise()),
-        (False, None, None, False, "study_valid__table", does_not_raise()),
-        (None, None, None, False, "study_valid__table", does_not_raise()),
-        (None, None, None, False, "study_valid__etl_table", does_not_raise()),
-        (None, None, None, False, "study_valid__nlp_table", does_not_raise()),
-        (None, None, None, False, "study_valid__lib_table", does_not_raise()),
-        (None, None, None, False, "study_valid__lib", does_not_raise()),
-        (None, "foo", "y", False, "foo_table", does_not_raise()),
-        (None, "foo", "n", False, "foo_table", pytest.raises(SystemExit)),
-        (True, None, "y", True, "study_valid__table", does_not_raise()),
+        ("default", True, None, None, False, "study_valid__table", does_not_raise()),
+        ("default", False, None, None, False, "study_valid__table", does_not_raise()),
+        ("default", None, None, None, False, "study_valid__table", does_not_raise()),
+        ("default", None, None, None, False, "study_valid__etl_table", does_not_raise()),
+        ("default", None, None, None, False, "study_valid__nlp_table", does_not_raise()),
+        ("default", None, None, None, False, "study_valid__lib_table", does_not_raise()),
+        ("default", None, None, None, False, "study_valid__lib", does_not_raise()),
+        ("default", None, "foo", "y", False, "foo_table", does_not_raise()),
+        ("default", None, "foo", "n", False, "foo_table", pytest.raises(SystemExit)),
+        ("default", True, None, "y", True, "study_valid__table", does_not_raise()),
         (
+            "default",
             True,
             None,
             "n",
@@ -34,12 +36,15 @@ from cumulus_library.actions import (
         ),
     ],
 )
-def test_clean_study(mock_db_config, verbose, prefix, confirm, stats, target, raises):
+def test_clean_study(
+    tmp_path, mock_db_config, build_type, verbose, prefix, confirm, stats, target, raises
+):
     with raises:
         mock_db_config.stats_clean = stats
         protected_strs = [x.value for x in enums.ProtectedTableKeywords]
         with mock.patch.object(builtins, "input", lambda _: confirm):
             manifest = study_manifest.StudyManifest("./tests/test_data/study_valid/")
+            manifest._has_stats = True
             builder.run_protected_table_builder(
                 config=mock_db_config,
                 manifest=manifest,
@@ -57,6 +62,17 @@ def test_clean_study(mock_db_config, verbose, prefix, confirm, stats, target, ra
             mock_db_config.db.cursor().execute(
                 "CREATE VIEW study_valid__456 AS SELECT * FROM study_valid__123"
             )
+            insert_query = base_templates.get_insert_into_query(
+                schema="main",
+                table_name=f"study_valid__{enums.ProtectedTables.BUILD_SOURCE.value}",
+                table_cols=["stage", "name", "type"],
+                dataset=[
+                    ["stage_1", "study_valid__table", "TABLE"],
+                    ["stage_1", "study_valid__123", "TABLE"],
+                    ["stage_1", "study_valid__456", "VIEW"],
+                ],
+            )
+            mock_db_config.db.cursor().execute(insert_query)
 
             if target is not None:
                 mock_db_config.db.cursor().execute(f"CREATE TABLE {target} (test int);")
@@ -101,6 +117,13 @@ def test_clean_dedicated_schema(mock_db_config):
         mock_db_config.db.cursor().execute(
             "CREATE VIEW dedicated.view_2 AS SELECT * FROM dedicated.table_1"
         )
+        insert_query = base_templates.get_insert_into_query(
+            schema="dedicated",
+            table_name=f"{enums.ProtectedTables.BUILD_SOURCE.value}",
+            table_cols=["stage", "name", "type"],
+            dataset=[["stage_1", "table_1", "TABLE"], ["stage_1", "view_2", "VIEW"]],
+        )
+        mock_db_config.db.cursor().execute(insert_query)
         cleaner.clean_study(config=mock_db_config, manifest=manifest)
         remaining_tables = (
             mock_db_config.db.cursor()

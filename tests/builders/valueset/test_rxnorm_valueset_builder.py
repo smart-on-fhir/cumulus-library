@@ -6,6 +6,7 @@ from unittest import mock
 import pytest
 
 from cumulus_library import study_manifest
+from cumulus_library.actions import builder as build_action
 from cumulus_library.builders.valueset import (
     rxnorm_valueset_builder,
     static_builder,
@@ -38,6 +39,7 @@ def test_rxnorm_valueset_builder(mock_user_dir, mock_api, mock_db_config_rxnorm,
     else:
         prefix = ""
     cursor = mock_db_config_rxnorm.db.cursor()
+    build_action.run_protected_table_builder(config=mock_db_config_rxnorm, manifest=manifest)
     s_builder = static_builder.StaticBuilder()
     s_builder.execute_queries(
         config=mock_db_config_rxnorm,

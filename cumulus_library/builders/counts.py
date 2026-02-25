@@ -14,23 +14,9 @@ DEFAULT_MIN_SUBJECT = 10
 class CountsBuilder(BaseTableBuilder):
     """Extends BaseTableBuilder for counts-related use cases"""
 
-    def __init__(
-        self, study_prefix: str | None = None, manifest: study_manifest.StudyManifest | None = None
-    ):
+    def __init__(self, manifest: study_manifest.StudyManifest, *args, **kwargs):
         super().__init__()
-        if manifest:
-            self.study_prefix = manifest.get_study_prefix()
-        elif study_prefix:
-            c = rich.get_console()
-            c.print(
-                "[yellow]Warning: providing study_prefix to a CountsBuilder is deprecated"
-                " and will be removed in a future version"
-            )
-            self.study_prefix = study_prefix
-        else:
-            raise errors.CountsBuilderError(
-                "CountsBuilder should be initiated with a valid manifest.toml"
-            )
+        self.study_prefix = manifest.get_study_prefix()
 
     def get_table_name(self, table_name: str, duration=None) -> str:
         """Convenience method for constructing table name

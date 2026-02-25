@@ -7,6 +7,7 @@ from unittest import mock
 import pytest
 
 from cumulus_library import study_manifest
+from cumulus_library.actions import builder as build_action
 from cumulus_library.builders.valueset import (
     additional_rules_builder,
     rxnorm_valueset_builder,
@@ -47,6 +48,7 @@ read_csv('{test_path}/tty.tsv',"""
 )"""
     )
     cursor.execute(query)
+    build_action.run_protected_table_builder(config=mock_db_config_rxnorm, manifest=manifest)
     s_builder = static_builder.StaticBuilder()
     s_builder.execute_queries(
         config=mock_db_config_rxnorm,

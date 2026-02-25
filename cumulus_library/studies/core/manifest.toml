@@ -1,4 +1,10 @@
 study_prefix = "core"
+description = """This study aims to provide a flattened set of tables suitable for analysts
+from the tables created from FHIR ndjson by Cumulus ETL.
+
+Most studies should use these tables as the base for their work. For more info about the
+core study, see https://docs.smarthealthit.org/cumulus/library/core-study-details.html
+"""
 [[stages.build_core]]
 description = "FHIR support tables"
 files = [
@@ -24,7 +30,7 @@ files =[
     "builder_practitionerrole_prereq.py",
     "builder_procedure_prereq.py",
 ]
-type = "build:serial"
+type = "build:parallel"
 [[stages.build_core]]
 description = "Patient"
 files =[

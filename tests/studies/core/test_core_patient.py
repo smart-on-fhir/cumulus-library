@@ -24,8 +24,8 @@ def test_core_patient_addresses(tmp_path, addresses, expected):
     """Verify that addresses are parsed out"""
     testbed = testbed_utils.LocalTestbed(tmp_path, with_patient=False)
     testbed.add_patient("A", address=addresses)
-    con = testbed.build()
-    codes = con.sql("SELECT postalCode_3 FROM core__patient").fetchall()
+    db = testbed.build()
+    codes = db.connection.sql("SELECT postalCode_3 FROM core__patient").fetchall()
     assert [(expected,)] == codes
 
 
@@ -161,6 +161,8 @@ def test_core_patient_extensions(tmp_path, extensions, expected_ethnicity, expec
     """Verify that we grab race & ethnicity correctly"""
     testbed = testbed_utils.LocalTestbed(tmp_path, with_patient=False)
     testbed.add_patient("A", extension=extensions)
-    con = testbed.build()
-    displays = con.sql("SELECT ethnicity_display, race_display FROM core__patient").fetchall()
+    db = testbed.build()
+    displays = db.connection.sql(
+        "SELECT ethnicity_display, race_display FROM core__patient"
+    ).fetchall()
     assert [(expected_ethnicity, expected_race)] == displays

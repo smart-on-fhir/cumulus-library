@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tomllib
 
 import msgspec
 
@@ -74,6 +75,7 @@ class StudyManifest:
         self._study_path = None
         self.data_path = None
         self._study_config = {}
+        self._has_stats = False
         if study_path is not None:
             self._load_study_manifest(pathlib.Path(study_path), options or {})
         if data_path is not None:
@@ -107,6 +109,19 @@ class StudyManifest:
                 f"Action type '{action_type}' in {source} is not a valid action.\n"
                 f"Valid action types: {', '.join(enums.ManifestActions)}."
             )
+
+    def _has_stats_workflows(self) -> bool:
+        for stage in self._study_config.get("stages", {}).values():
+            for action in stage:
+                for file in action.get("files", []):
+                    if file.endswith("toml") or file.endswith("workflow"):
+                        with open(self._study_path / file, "rb") as f:
+                            workflow_conf = tomllib.load(f)
+                            if workflow_conf["config_type"] in [
+                                x.value for x in enums.StatisticsTypes
+                            ]:
+                                return True
+        return False
 
     ### toml parsing helper functions
     def _load_study_manifest(self, study_path: pathlib.Path, options: dict[str, str]) -> None:
@@ -175,6 +190,10 @@ class StudyManifest:
             raise errors.StudyManifestParsingError(f"Invalid prefix in manifest at {study_path}")
         self._study_prefix = self._study_prefix.lower()
 
+        # Finally, let's see if we're using a sampling workflow
+
+        self._has_stats = self._has_stats_workflows()
+
     def get_study_prefix(self) -> str | None:
         """Reads the name of a study prefix from the in-memory study config
 
@@ -204,7 +223,10 @@ class StudyManifest:
 
     def get_stage(self, stage) -> list:
         """Returns the contents of the specified stage"""
-        return self._study_config.get("stages", {}).get(stage, [])
+        stage_contents = self._study_config.get("stages", {}).get(stage, [])
+        if stage_contents == [] and (stage == "default" or stage == "all"):
+            stage_contents = self._study_config.get("stages", {})
+        return stage_contents
 
     def get_file_list(
         self,
@@ -294,6 +316,9 @@ class StudyManifest:
             else:
                 found_name.add(export.name)
         return export_table_list
+
+    def has_stats(self):
+        return self._has_stats
 
     def get_all_files(self, file_type: str, build_type: str = "default"):
         """Convenience method for getting files of a type from a manifest"""

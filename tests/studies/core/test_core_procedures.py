@@ -45,8 +45,8 @@ def test_core_procedure_many_cases(tmp_path):
         },
     )
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__procedure").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__procedure").df()
     rows = json.loads(df.to_json(orient="records"))
     assert len(rows) == 4
 
@@ -92,8 +92,8 @@ def test_core_procedure_minimal(tmp_path):
     testbed = testbed_utils.LocalTestbed(tmp_path)
     testbed.add_procedure("Nothing")
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__procedure").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__procedure").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows == [

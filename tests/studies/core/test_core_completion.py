@@ -15,15 +15,15 @@ def _table_ids(con: duckdb.DuckDBPyConnection, table: str) -> set[str]:
 def _assert_encounter_ids(
     testbed: testbed_utils.LocalTestbed, expected_complete_ids: Iterable[str] | None
 ) -> None:
-    con = testbed.build()
+    db = testbed.build()
 
     expected_complete_ids = set(expected_complete_ids or [])
-    complete_ids = _table_ids(con, "core__encounter")
+    complete_ids = _table_ids(db.connection, "core__encounter")
     assert complete_ids == expected_complete_ids
 
     all_ids = testbed.ids.get("encounter", set())
     expected_incomplete_ids = all_ids - complete_ids
-    incomplete_ids = _table_ids(con, "core__incomplete_encounter")
+    incomplete_ids = _table_ids(db.connection, "core__incomplete_encounter")
     assert incomplete_ids == expected_incomplete_ids
 
 

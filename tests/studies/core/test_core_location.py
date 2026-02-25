@@ -24,8 +24,8 @@ def test_core_location_simple(tmp_path):
         },
     )
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__location").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__location").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows == [
@@ -57,8 +57,8 @@ def test_core_location_alias_no_name(tmp_path):
         },
     )
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__location").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__location").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows[0]["alias"] == "old name, older name"
@@ -75,8 +75,8 @@ def test_core_location_alias_no_alias(tmp_path):
         },
     )
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__location").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__location").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows[0]["alias"] == "one name"
@@ -86,8 +86,8 @@ def test_core_location_minimal(tmp_path):
     testbed = testbed_utils.LocalTestbed(tmp_path)
     testbed.add("location", {"resourceType": "Location", "id": "nothing"})
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__location").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__location").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows == [

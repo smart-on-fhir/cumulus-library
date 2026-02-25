@@ -208,6 +208,13 @@ class DatabaseBackend(abc.ABC):
         have an API for file upload (i.e. cloud databases)"""
         return None
 
+    def get_remote_path(self) -> str | None:
+        """Fetches the remote path for file storage
+
+        By default, this should return None. Only override this for databases that
+        have an API for file upload (i.e. cloud databases)"""
+        return None
+
     @abc.abstractmethod
     def export_table_as_parquet(
         self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs

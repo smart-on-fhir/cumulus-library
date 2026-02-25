@@ -112,6 +112,12 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     )
         return output
 
+    def get_remote_path(self) -> str | None:
+        """Retreives the base S3 path we use for file uploads from the S3 client"""
+        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
+        wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
+        return wg_conf["OutputLocation"]
+
     def upload_file(
         self,
         *,

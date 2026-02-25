@@ -8,6 +8,7 @@ import pytest
 import time_machine
 
 from cumulus_library import cli, study_manifest
+from cumulus_library.actions import builder as build_action
 from cumulus_library.builders import psm_builder
 
 
@@ -130,6 +131,7 @@ def test_psm_create(
     manifest = study_manifest.StudyManifest(
         study_path=f"{pathlib.Path(__file__).parents[1]}/test_data/psm/"
     )
+    build_action.run_protected_table_builder(mock_db_stats_config, manifest)
     psmbuilder = psm_builder.PsmBuilder(
         f"{pathlib.Path(__file__).parents[1]}/test_data/psm/{toml_def}",
         pathlib.Path(tmp_path),
@@ -259,6 +261,7 @@ included_cols = [
 """)
     builder = cli.StudyRunner(mock_db_stats_config, data_path=tmp_path)
     manifest = study_manifest.StudyManifest(study_path=psm_root)
+    build_action.run_protected_table_builder(mock_db_stats_config, manifest)
     psmbuilder = psm_builder.PsmBuilder(f"{tmp_path}/psm.toml", tmp_path)
     builder.config.db.cursor().execute(
         "create table psm_test__psm_cohort as (select * from core__condition "

@@ -46,6 +46,7 @@ def test_generate_md(mock_db_config, tmp_path):
         manifest = study_manifest.StudyManifest(
             study_path=pathlib.Path(f"{tmp_path}/study_python_valid/")
         )
+        builder.run_protected_table_builder(config=mock_db_config, manifest=manifest)
         builder.build_study(config=mock_db_config, manifest=manifest, prepare=False, data_path=None)
         file_generator.run_generate_markdown(config=mock_db_config, manifest=manifest)
         with open(f"{tmp_path}/study_python_valid/study_python_valid_generated.md") as f:

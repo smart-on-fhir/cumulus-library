@@ -52,7 +52,7 @@ def get_template(filename_stem: str, path: pathlib.Path | None = None, **kwargs:
 
 def get_alias_table_query(source_table: str, target_table: str):
     """Creates a view of source_table named target_table"""
-    return get_base_template("alias_table", source_table=source_table, target_table=target_table)
+    return get_template("alias_table", source_table=source_table, target_table=target_table)
 
 
 def get_codeable_concept_denormalize_query(
@@ -79,7 +79,7 @@ def get_codeable_concept_denormalize_query(
     # for loop will do a single pass. This implicitly means that we're not
     # filtering, so this parameter will be otherwise ignored
     config.code_systems = config.code_systems or ["all"]
-    return get_base_template(
+    return get_template(
         "codeable_concept_denormalize",
         source_table=config.source_table,
         source_id=config.source_id,
@@ -118,7 +118,7 @@ def get_coding_denormalize_query(
     # for loop will do a single pass. This implicitly means that we're not
     # filtering, so this parameter will be otherwise ignored
     config.code_systems = config.code_systems or ["all"]
-    return get_base_template(
+    return get_template(
         "coding_denormalize",
         source_table=config.source_table,
         source_id=config.source_id,
@@ -139,7 +139,7 @@ def get_column_datatype_query(
     """Gets the in-database data representation of a given column"""
     if isinstance(table_names, str):
         table_names = [table_names]
-    return get_base_template(
+    return get_template(
         "column_datatype",
         schema_name=schema_name,
         table_names=table_names,
@@ -179,7 +179,7 @@ def get_create_table_from_tables(
                 f"Error generating table {table_name}: "
                 f"Expected {','.join(list_arg)} to be of length two."
             )
-    return get_base_template(
+    return get_template(
         "create_table_from_tables",
         table_name=table_name,
         join_tables=tables,
@@ -198,7 +198,7 @@ def get_create_table_from_union(*, table_name: str, tables: list[str], columns: 
     :keyword tables: A list of length two for the source tables for the join
     :keyword columns: a list of cols to add to the view. Prepend with the table
         or the alias."""
-    return get_base_template(
+    return get_template(
         "create_table_from_union",
         table_name=table_name,
         tables=tables,
@@ -213,7 +213,7 @@ def get_create_view_query(view_name: str, dataset: list[list[str]], view_cols: l
     :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
     :param table_cols: Comma deleniated column names, i.e. ['first,second']
     """
-    return get_base_template(
+    return get_template(
         "create_view_as",
         view_name=view_name,
         dataset=dataset,
@@ -252,7 +252,7 @@ def get_create_view_from_tables(
                 f"Error generating view {view_name}: "
                 f"Expected {','.join(list_arg)} to be of length two."
             )
-    return get_base_template(
+    return get_template(
         "create_view_from_tables",
         view_name=view_name,
         join_tables=tables,
@@ -262,6 +262,47 @@ def get_create_view_from_tables(
         join_clauses=join_clauses,
         distinct=distinct,
     )
+
+
+def get_ctas_crud_query(
+    schema_name: str,
+    table_name: str,
+    remote_location: str | None,
+    table_cols: list[str],
+    sql_col_types: list[str],
+    athena_col_types: list[str],
+) -> str:
+    """Generates a create table as query for an updatable table.
+
+    This function will generate an appropriate query for the underlying DB.
+    Not all params are used by each type of database.
+
+
+    :param schema_name: (athena) The schema to create the table in
+    :param table_name: (all) The name of the athena table to create
+    :param remote_location: (athena) An S3 URL to a directory containing parquert
+        fiels to group into a table
+    :param table_cols: (all) names of fields in your parquet to use as SQL columns
+    :param remote_table_cols_types: (athena) The types to assign to the columns
+        created in athena. Note that these should not be SQL types, but instead
+        should be parquet types.
+    """
+    if db_config.db_type == "athena":
+        return get_template(
+            "ctas_crud",
+            schema_name=schema_name,
+            table_name=table_name,
+            remote_location=remote_location,
+            table_cols=table_cols,
+            athena_col_types=athena_col_types,
+        )
+    else:
+        return get_ctas_empty_query(
+            schema_name=schema_name,
+            table_name=table_name,
+            table_cols=table_cols,
+            table_cols_types=sql_col_types,
+        )
 
 
 def get_ctas_from_parquet_query(
@@ -288,7 +329,7 @@ def get_ctas_from_parquet_query(
         created in athena. Note that these should not be SQL types, but instead
         should be parquet types.
     """
-    return get_base_template(
+    return get_template(
         "ctas_from_parquet",
         schema_name=schema_name,
         table_name=table_name,
@@ -314,7 +355,7 @@ def get_ctas_query(
     :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
     :param table_cols: Comma deleniated column names, i.e. ['first,second']
     """
-    return get_base_template(
+    return get_template(
         "ctas",
         schema_name=schema_name,
         table_name=table_name,
@@ -331,7 +372,7 @@ def get_ctas_query_from_df(schema_name: str, table_name: str, df: pandas.DataFra
     :param df: A pandas dataframe
     """
     split_dict = df.to_dict(orient="split")
-    return get_base_template(
+    return get_template(
         "ctas",
         schema_name=schema_name,
         table_name=table_name,
@@ -361,7 +402,7 @@ def get_ctas_empty_query(
     """
     if not table_cols_types:
         table_cols_types = ["varchar"] * len(table_cols)
-    return get_base_template(
+    return get_template(
         "ctas_empty",
         schema_name=schema_name,
         table_name=table_name,
@@ -370,11 +411,17 @@ def get_ctas_empty_query(
     )
 
 
+def get_delete_from_table_query(schema: str, table_name: str, where_clauses: list[str]) -> str:
+    return get_template(
+        "delete_from_table", schema=schema, table_name=table_name, where_clauses=where_clauses
+    )
+
+
 def get_drop_view_table(name: str, view_or_table: str) -> str:
     """Generates a drop table if exists query"""
-    if view_or_table in [e.value for e in TableView]:
-        return get_base_template(
-            "drop_view_table", view_or_table_name=name, view_or_table=view_or_table
+    if view_or_table.upper() in [e.value for e in TableView]:
+        return get_template(
+            "drop_view_table", view_or_table_name=name, view_or_table=view_or_table.upper()
         )
 
 
@@ -391,7 +438,7 @@ def get_extension_denormalize_query(config: sql_utils.ExtensionConfig) -> str:
 
     :param config: An instance of ExtensionConfig.
     """
-    return get_base_template(
+    return get_template(
         "extension_denormalize",
         source_table=config.source_table,
         source_id=config.source_id,
@@ -416,9 +463,10 @@ def get_insert_into_query(
     :param table_name: The name of the athena table to create
     :param table_cols: Comma deleniated column names, i.e. ['first','second']
     :param dataset: Array of data arrays to insert, i.e. [['1','3'],['2','4']]
+    :keyword type_casts: Optional dict of column->type casting (varchar otherwise)
     """
     type_casts = type_casts or {}
-    return get_base_template(
+    return get_template(
         "insert_into",
         schema_name=schema,
         table_name=table_name,
@@ -436,7 +484,7 @@ def get_is_table_not_empty_query(
 ):
     unnests = unnests or []
     conditions = conditions or []
-    return get_base_template(
+    return get_template(
         "is_table_not_empty",
         source_table=source_table,
         field=field,
@@ -446,9 +494,26 @@ def get_is_table_not_empty_query(
 
 
 def get_select_all_query(source_table: str):
-    return get_base_template(
+    return get_template(
         "select_all",
         source_table=source_table,
+    )
+
+
+def get_select_from_single_query(
+    columns: list[str],
+    schema: str,
+    table_name: str,
+    where_clauses: list[str],
+    distinct: bool = False,
+):
+    return get_template(
+        "select_from_single",
+        schema=schema,
+        table_name=table_name,
+        columns=columns,
+        where_clauses=where_clauses,
+        distinct=distinct,
     )
 
 
@@ -461,7 +526,7 @@ def get_show_tables(schema_name: str, prefix: str) -> str:
     :param schema_name: The athena schema to query
     :param table_name: The prefix to filter by. Jinja template auto adds '__'.
     """
-    return get_base_template("show_tables", schema_name=schema_name, prefix=prefix)
+    return get_template("show_tables", schema_name=schema_name, prefix=prefix)
 
 
 def get_show_views(schema_name: str, prefix: str) -> str:
@@ -473,4 +538,4 @@ def get_show_views(schema_name: str, prefix: str) -> str:
     :param schema_name: The athena schema to query
     :param table_name: The prefix to filter by. Jinja template auto adds '__'.
     """
-    return get_base_template("show_views", schema_name=schema_name, prefix=prefix)
+    return get_template("show_views", schema_name=schema_name, prefix=prefix)

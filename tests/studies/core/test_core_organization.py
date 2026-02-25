@@ -23,8 +23,8 @@ def test_core_organization_simple(tmp_path):
         },
     )
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__organization").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__organization").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows == [
@@ -48,8 +48,8 @@ def test_core_organization_minimal(tmp_path):
     testbed = testbed_utils.LocalTestbed(tmp_path)
     testbed.add("organization", {"resourceType": "Organization", "id": "nothing"})
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__organization").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__organization").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows == [
