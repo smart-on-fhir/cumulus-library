@@ -1,0 +1,10 @@
+{# Note that row deletion in athena will only work with iceberg tables #}
+{%- import 'syntax.sql.jinja' as syntax -%}
+DELETE FROM "{{ schema }}"."{{ table_name }}"
+{%- if where_clauses !=[] %}
+WHERE
+{%- for clause in where_clauses %}
+    {# TODO: replace with where clause parser #}
+    {{- syntax.or_delineate(loop) -}} {{ clause }}
+{%- endfor %}
+{%- endif %}

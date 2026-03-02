@@ -21,8 +21,14 @@ import requests
 import responses
 import time_machine
 
-from cumulus_library import StudyManifest, __version__, cli, databases, errors
-from tests.conftest import duckdb_args
+from cumulus_library import (
+    StudyManifest,
+    __version__,
+    cli,
+    databases,
+    errors,
+)
+from tests.conftest import create_protected_tables, duckdb_args
 
 FHIR_RESOURCE_TABLE_COUNT = 19
 
@@ -278,12 +284,18 @@ def test_generate_md(tmp_path):
     ],
 )
 def test_clean(tmp_path, args, expected, raises):
+    db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
+    create_protected_tables(
+        db_path=tmp_path / "duck.db",
+        manifest_path=(
+            pathlib.Path(__file__).parents[1] / "cumulus_library/studies/core/manifest.toml"
+        ),
+    )
     with raises:
         cli.main(cli_args=duckdb_args(["build", "-t", "core"], tmp_path))
         with does_not_raise():
             with mock.patch.object(builtins, "input", lambda _: "y"):
                 cli.main(cli_args=duckdb_args(args, tmp_path))
-                db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
                 db.connect()
                 for table in db.cursor().execute("show tables").fetchall():
                     assert expected not in table
@@ -299,7 +311,7 @@ def test_clean(tmp_path, args, expected, raises):
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
-            82,
+            83,
             does_not_raise(),
             [],
         ),
@@ -314,7 +326,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "tests/test_data/",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
-            4,
+            5,
             does_not_raise(),
             [
                 "study_valid__table",
@@ -332,7 +344,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "tests/test_data/",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/"],
-            4,
+            5,
             does_not_raise(),
             [
                 "study_valid__table",
@@ -351,7 +363,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "--statistics",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            4,
+            5,
             does_not_raise(),
             [
                 "study_valid__table",
@@ -368,7 +380,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "--statistics",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            4,
+            5,
             does_not_raise(),
             [
                 "study_valid__table",
@@ -387,7 +399,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test2",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            3,
+            4,
             pytest.raises(duckdb.CatalogException),
             [],
         ),
@@ -402,7 +414,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test2",
             ],
             ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
-            5,
+            6,
             does_not_raise(),
             [
                 "study_valid_parallel__table",
@@ -421,7 +433,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test3",
             ],
             ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
-            5,
+            6,
             pytest.raises(duckdb.CatalogException),
             [],
         ),
@@ -436,7 +448,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test4",
             ],
             ["export", "-t", "study_valid_parallel", "-s", "tests/test_data/study_valid_parallel/"],
-            5,
+            6,
             pytest.raises(errors.StudyManifestParsingError),
             [],
         ),
@@ -451,7 +463,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "test3",
             ],
             ["export", "-t", "study_valid", "-s", "tests/test_data/study_valid/"],
-            3,
+            4,
             pytest.raises(errors.StudyManifestParsingError),
             [],
         ),
@@ -470,7 +482,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_dedicated_schema/",
             ],
-            5,
+            6,
             does_not_raise(),
             ["study_dedicated_schema__table_raw_sql"],
         ),
@@ -489,7 +501,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_valid_all_exports/",
             ],
-            5,
+            6,
             does_not_raise(),
             [
                 "study_valid_all_exports__tablecount",
@@ -512,7 +524,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_invalid_duplicate_exports/",
             ],
-            3,
+            4,
             pytest.raises(errors.StudyManifestParsingError),
             [],
         ),
@@ -531,7 +543,7 @@ def test_clean(tmp_path, args, expected, raises):
                 "-s",
                 "tests/test_data/study_invalid_unsupported_file/",
             ],
-            3,
+            4,
             pytest.raises(errors.StudyManifestParsingError),
             [],
         ),
@@ -836,6 +848,12 @@ def test_cli_umls_parsing(mock_config, mode, tmp_path):
 
 
 def test_cli_single_builder(tmp_path):
+    create_protected_tables(
+        db_path=tmp_path / "duck.db",
+        manifest_path=(
+            pathlib.Path(__file__).parents[1] / "cumulus_library/studies/core/manifest.toml"
+        ),
+    )
     cli.main(cli_args=duckdb_args(["build", "--builder=patient", "--target=core"], tmp_path))
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     db.connect()
@@ -978,19 +996,14 @@ def test_dedicated_schema(tmp_path):
         assert table in tables
 
 
-@mock.patch("cumulus_library.databases.duckdb.DuckDatabaseBackend")
-def test_sql_error_handling(mock_backend, tmp_path):
-    mock_backend.return_value.cursor.return_value.execute.side_effect = [
-        None,
-        Exception("bad query"),
-    ]
+def test_sql_error_handling(tmp_path):
     build_args = duckdb_args(
         [
             "build",
             "-t",
-            "study_valid",
+            "study_invalid_bad_query",
             "-s",
-            "tests/test_data/study_valid/",
+            "tests/test_data/study_invalid_bad_query/",
         ],
         tmp_path,
     )
@@ -1016,12 +1029,12 @@ def test_version(capfd):
     out, _ = capfd.readouterr()
     assert f"cumulus-library version: {__version__}" in out
     out = out.split("\n")
-    valid = list(filter(lambda x: "study_valid " in x, out))
+    valid = list(filter(lambda x: "study_valid" in x, out))
     assert len(valid) == 1
     assert "1.0.0 " in valid[0]
-    invalid = list(filter(lambda x: "study_invalid_bad_query " in x, out))
+    invalid = list(filter(lambda x: "study_invalid_bad_query" in x, out))
     assert len(invalid) == 1
-    assert "No version defined " in invalid[0]
+    assert "No version defined" in invalid[0]
 
 
 @mock.patch.dict(

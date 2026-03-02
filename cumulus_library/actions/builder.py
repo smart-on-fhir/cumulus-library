@@ -16,6 +16,7 @@ from rich import progress
 from cumulus_library import (
     BaseTableBuilder,
     base_utils,
+    const,
     databases,
     enums,
     errors,
@@ -28,6 +29,7 @@ from cumulus_library.builders import (
     psm_builder,
     valueset_builder,
 )
+from cumulus_library.template_sql import base_templates
 
 ######### public functions #########
 
@@ -42,7 +44,7 @@ def build_study(
     prepare: bool = False,
     data_path: pathlib.Path | None = None,
 ) -> None:
-    """Creates tables in the schema by iterating through the sql_config.file_names
+    """Creates tables in the schema by iterating through the stages in the specified build type
 
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
@@ -92,7 +94,7 @@ def build_study(
                         prepare=prepare,
                         parallel=parallel,
                         query_count=query_count,
-                        run_stage=stage,
+                        build_stage=stage,
                     )
                     if parallel_allowed:
                         queries += b_queries
@@ -112,7 +114,7 @@ def build_study(
                         prepare=prepare,
                         parallel=parallel,
                         query_count=query_count,
-                        run_stage=stage,
+                        build_stage=stage,
                     )
                     if parallel_allowed:
                         queries = queries + w_queries
@@ -125,7 +127,7 @@ def build_study(
                         prepare=prepare,
                         parallel=parallel,
                         query_count=query_count,
-                        run_stage=stage,
+                        build_stage=stage,
                     )
                 else:
                     raise errors.StudyManifestParsingError(
@@ -136,6 +138,7 @@ def build_study(
             if parallel:
                 query_count += len(queries)
                 if query_count > 0:
+                    queries = _update_build_source_table(config, manifest, stage, queries)
                     with base_utils.get_progress_bar() as progress_bar:
                         task = progress_bar.add_task(
                             f"Building {action.get('description', '')} tables...",
@@ -216,6 +219,32 @@ def run_protected_table_builder(
 ######### private helper functions #########
 
 
+def _update_build_source_table(
+    config: base_utils.StudyConfig,
+    manifest: study_manifest.StudyManifest,
+    stage: str,
+    queries: list[str],
+) -> list[str]:
+    table_names = base_utils.get_viewtable_names_from_create_queries(config, queries)
+    # it's possible to get a list of queries that contains no CREATE statements
+    if len(table_names) > 0:
+        # Otherwise, let's add new tables to the study build source tables.
+        if manifest.get_dedicated_schema():
+            prefix = ""
+        else:
+            prefix = f"{manifest.get_study_prefix()}__"
+        queries.insert(
+            0,
+            base_templates.get_insert_into_query(
+                schema=config.schema,
+                table_name=(f"{prefix}{enums.ProtectedTables.BUILD_SOURCE.value}"),
+                table_cols=const.BUILD_SOURCE_COLS,
+                dataset=[[stage, t[0], t[1]] for t in table_names],
+            ),
+        )
+    return queries
+
+
 def _check_if_preparable(prefix):
     # This list should include any study which requires interrogating the database to
     # find if data is available to query (outside of a toml-driven workflow),
@@ -241,11 +270,11 @@ def _execute_build_queries(
 
     :param config: A StudyConfig object
     :param manifest: a StudyManifest object
-    :param cursor: A DatabaseCursor object
-    :param queries: a list of queries read from files in sql_config.file_names
-    :param filename: the filename the queries were sourced from
-    :param progress: a rich progress bar renderer
-    :param task: a TaskID for a given progress bar
+    :keyword cursor: A DatabaseCursor object
+    :keyword queries: a list of queries read from files in sql_config.file_names
+    :keyword filename: the filename the queries were sourced from
+    :keyword progress: a rich progress bar renderer
+    :keyword task: a TaskID for a given progress bar
     """
     for query in queries:
         _check_query_for_errors(config, manifest, query, filename)
@@ -272,7 +301,7 @@ def _render_output(
     data_path: pathlib.Path,
     filename: str,
     count: int,
-    run_stage: str,
+    build_stage: str,
     *,
     is_toml: bool = False,
 ):
@@ -285,7 +314,7 @@ def _render_output(
             name = "config"
         else:
             name = str(sqlglot.parse_one(output, dialect=config.db.db_type).find(sqlglot.exp.Table))
-        new_filename = f"{run_stage}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
+        new_filename = f"{build_stage}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
         file_path = data_path / f"{study_name}/{new_filename}"
 
         file_path.parent.mkdir(exist_ok=True, parents=True)
@@ -311,7 +340,7 @@ def _run_builder(
     manifest: study_manifest.StudyManifest,
     *,
     filename: str,
-    run_stage: int,
+    build_stage: str,
     db_parser: databases.DatabaseParser = None,
     write_reference_sql: bool = False,
     doc_str: str | None = None,
@@ -325,10 +354,12 @@ def _run_builder(
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
     :keyword filename: filename of a module implementing a TableBuilder
+    :keyword build_stage: the stage in the build currently being processed
     :keyword db_parser: an object implementing DatabaseParser for the target database
     :keyword write_reference_sql: if true, writes sql to disk inside a study's directory
     :keyword doc_str: A string to insert between queries written to disk
     :keyword prepare: If true, will render query instead of executing
+    :keyword parallel: If true, will execute queries in parallel
     :keyword data_path: If prepare is true, the path to write rendered data to
     :keyword query_count: if prepare is true, the number of queries already rendered
     :returns: a list of queries, a boolean indicating if parallel runs are allowed
@@ -401,21 +432,24 @@ def _run_builder(
             data_path,
             filename,
             query_count,
-            run_stage,
+            build_stage,
         )
 
-    elif parallel_allowed:
+    else:
         table_builder.prepare_queries(
             config=config,
             manifest=manifest,
             parser=db_parser,
         )
-    else:
-        table_builder.execute_queries(
-            config=config,
-            manifest=manifest,
-            parser=db_parser,
-        )
+        if not parallel_allowed and not write_reference_sql:
+            table_builder.queries = _update_build_source_table(
+                config, manifest, build_stage, table_builder.queries
+            )
+            table_builder.execute_queries(
+                config=config,
+                manifest=manifest,
+                parser=db_parser,
+            )
     # After running the executor code, we'll remove
     # it so it doesn't interfere with the next python module to
     # execute, since the subclass would otherwise hang around.
@@ -428,22 +462,24 @@ def _run_builder(
 def _run_raw_queries(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
-    filename: str,
     *,
+    filename: str,
     data_path: pathlib.Path | None,
     prepare: bool,
     parallel: bool = False,
     query_count: int,
-    run_stage: int,
+    build_stage: str,
 ) -> list[str]:
     """Creates tables in the schema by iterating through the sql_config.file_names
 
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
-    :param filename: the name of the sql file to read
-    :param prepare: If true, will render query instead of executing
-    :param data_path: If prepare is true, the path to write rendered data to
-    :param query_count: the number of queries currently processed
+    :keyword filename: the name of the sql file to read
+    :keyword prepare: If true, will render query instead of executing
+    :keyword data_path: If prepare is true, the path to write rendered data to
+    :keyword parallel: If true, executes queries in parallel
+    :keyword query_count: the number of queries currently processed
+    :keyword build_stage: the stage in the build currently being processed
     :returns: a list of queries
     """
     raw_queries = []
@@ -457,6 +493,8 @@ def _run_raw_queries(
             "`",
         )
         cleaned_queries.append(query)
+    for query in cleaned_queries:
+        _check_query_for_errors(config, manifest, query, filename)
     if prepare:
         _render_output(
             config,
@@ -465,14 +503,16 @@ def _run_raw_queries(
             data_path,
             filename,
             query_count,
-            run_stage,
+            build_stage,
         )
         return cleaned_queries
+    cleaned_queries = _update_build_source_table(config, manifest, build_stage, cleaned_queries)
     if not parallel:
         # We'll explicitly create a cursor since recreating cursors for each
         # table in a study is slightly slower for some databases
         cursor = config.db.cursor()
         # We want to only show a progress bar if we are :not: printing SQL lines
+
         with base_utils.get_progress_bar(disable=config.verbose) as progress:
             task = progress.add_task(
                 f"Building tables from {filename}...",
@@ -494,21 +534,24 @@ def _run_raw_queries(
 def _run_workflow(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
+    *,
     filename: str,
     prepare: str,
     data_path: pathlib.Path,
     query_count: int,
-    run_stage: int,
+    build_stage: str,
     parallel: bool = False,
 ) -> tuple[list[str], bool]:
     """Loads workflow config from toml definitions and executes workflow
 
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
-    :param filename: Filename of the workflow config
-    :param prepare: If true, will render query instead of executing
-    :param data_path: If prepare is true, the path to write rendered data to
-    :param query_count: if prepare is true, the number of queries already rendered
+    :keyword filename: Filename of the workflow config
+    :keyword prepare: If true, will render query instead of executing
+    :keyword data_path: If prepare is true, the path to write rendered data to
+    :keyword query_count: if prepare is true, the number of queries already rendered
+    :keyword build_stage: the stage in the build currently being processed
+    :keyword parallel; If true, execute queries in parallel if workflow allows
     :returns: a list of queries
     """
     toml_path = pathlib.Path(f"{manifest._study_path}/{filename}")
@@ -522,7 +565,7 @@ def _run_workflow(
             data_path,
             filename,
             query_count,
-            run_stage,
+            build_stage,
             is_toml=True,
         )
         return ([], False)
@@ -583,9 +626,11 @@ def _run_workflow(
             table_suffix=safe_timestamp,
         )
     else:
+        builder.queries = _update_build_source_table(config, manifest, build_stage, builder.queries)
         builder.execute_queries(
             config=config,
             manifest=manifest,
+            build_stage=build_stage,
             table_suffix=safe_timestamp,
         )
         if config_type in set(item.value for item in enums.StatisticsTypes):
@@ -658,6 +703,8 @@ def _check_query_for_errors(
     if any(
         f"{manifest.get_study_prefix()}__{word.value}_" in table
         for word in enums.ProtectedTableKeywords
+    ) and isinstance(
+        sqlglot.parse_one(query, dialect=config.db.db_type), sqlglot.expressions.Create
     ):
         _query_error(
             config,
@@ -668,7 +715,7 @@ def _check_query_for_errors(
             "immediately after the study prefix. Please rename this table so "
             "that is does not begin with one of these special words "
             "immediately after the double undescore.\n Reserved words: "
-            f"{(word.value for word in enums.ProtectedTableKeywords)}",
+            f"{[word.value for word in enums.ProtectedTableKeywords]}",
         )
     if table.count("__") > 1:
         _query_error(

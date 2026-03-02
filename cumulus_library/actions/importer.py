@@ -4,7 +4,7 @@ import zipfile
 
 import pandas
 
-from cumulus_library import base_utils, errors
+from cumulus_library import base_utils, errors, study_manifest
 from cumulus_library.actions import cleaner
 from cumulus_library.template_sql import base_templates
 
@@ -64,7 +64,9 @@ def import_archive(config: base_utils.StudyConfig, *, archive_path: pathlib.Path
             )
 
     # Clean and rebuild from the provided archive
-    cleaner.clean_study(config=config, manifest=None, prefix=study_name)
+    manifest = study_manifest.StudyManifest()
+    manifest._study_prefix = study_name
+    cleaner.clean_study(config=config, manifest=manifest, prefix=study_name)
     with base_utils.get_progress_bar(disable=config.verbose) as progress:
         task = progress.add_task(
             f"Recreating {study_name} from archive...",

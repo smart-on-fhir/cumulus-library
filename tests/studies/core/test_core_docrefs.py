@@ -6,8 +6,8 @@ from tests import testbed_utils
 
 
 def get_has_text_fields(testbed: testbed_utils.LocalTestbed) -> dict[str, bool]:
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__documentreference").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__documentreference").df()
     rows = json.loads(df.to_json(orient="records"))
     return {row["id"]: row["aux_has_text"] for row in rows}
 

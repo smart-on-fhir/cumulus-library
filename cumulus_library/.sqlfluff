@@ -26,6 +26,7 @@ capitalisation_policy = upper
 load_macros_from_path = cumulus_library/template_sql/shared_macros,cumulus_library/studies/core/core_templates
 
 [sqlfluff:templater:jinja:context]
+athena_col_types = ["string","string","string"]
 code_systems = ["http://snomed.info/sct", "http://hl7.org/fhir/sid/icd-10-cm"]
 column_aliases = {'a.foo': 'foobar', 'b.bar' : 'foobaz'}
 col_type_list = ["a string","b string"]

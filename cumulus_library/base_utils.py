@@ -9,6 +9,7 @@ from contextlib import contextmanager
 
 import platformdirs
 import rich
+import sqlglot
 from rich import progress
 
 from cumulus_library import databases, study_manifest
@@ -173,3 +174,31 @@ def get_user_cache_dir() -> pathlib.Path:
 
 def get_user_documents_dir() -> pathlib.Path:
     return pathlib.Path(platformdirs.user_documents_dir())
+
+
+def get_viewtable_names_from_create_queries(
+    config: StudyConfig, queries
+) -> list[tuple([str, str])]:
+    """Parses a series of queries and extracts the table names
+
+    This function is only looking for create statements, and will skip other query types.
+
+    :param config: a StudyConfig object
+    :param queries: a list of generated queries
+    :returns a list of (name, 'VIEW' or 'TABLE')
+    """
+    artifacts = []
+    for query in queries:
+        try:
+            parser = sqlglot.parse_one(query, dialect=config.db.db_type)
+        except sqlglot.errors.ParseError:  # pragma: no cover
+            # We've got a comment as a query, which we can disregard
+            continue
+        if not isinstance(parser, sqlglot.expressions.Create):
+            continue
+        table_name = str(parser.find(sqlglot.exp.Table))
+        # if the schema is part of the name, we'll trim it and quotes
+        if f'"{config.schema}"' in table_name or f"`{config.schema}`" in table_name:
+            table_name = table_name.split(".", 1)[1].replace('"', "").replace("`", "")
+        artifacts.append((table_name, parser.kind))
+    return artifacts

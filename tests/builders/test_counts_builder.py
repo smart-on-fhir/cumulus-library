@@ -7,6 +7,7 @@ import pytest
 
 import cumulus_library
 from cumulus_library import base_utils, errors, study_manifest
+from cumulus_library.actions import builder as build_action
 from cumulus_library.builders import counts
 from tests import testbed_utils
 
@@ -21,22 +22,9 @@ TEST_PREFIX = "test"
     ],
 )
 def test_get_table_name(name, duration, expected):
-    builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
-    output = builder.get_table_name(name, duration)
-    assert output == expected
-
-
-@pytest.mark.parametrize(
-    "name,duration,expected",
-    [
-        ("table", None, "test__table"),
-        ("table", "month", "test__table_month"),
-    ],
-)
-def test_deprecation_patch(name, duration, expected):
-    from cumulus_library.builders.counts import CountsBuilder
-
-    builder = CountsBuilder(study_prefix=TEST_PREFIX)
+    manifest = study_manifest.StudyManifest()
+    manifest._study_prefix = TEST_PREFIX
+    builder = counts.CountsBuilder(manifest=manifest)
     output = builder.get_table_name(name, duration)
     assert output == expected
 
@@ -59,7 +47,9 @@ def test_get_where_clauses(clause, min_subject, expected, raises):
             kwargs["clause"] = clause
         if min_subject is not None:
             kwargs["min_subject"] = min_subject
-        builder = counts.CountsBuilder(study_prefix=TEST_PREFIX)
+        manifest = study_manifest.StudyManifest()
+        manifest._study_prefix = TEST_PREFIX
+        builder = counts.CountsBuilder(manifest=manifest)
         output = builder.get_where_clauses(**kwargs)
         assert output == expected
 
@@ -234,13 +224,10 @@ def test_filter_docstatus():
     assert "p.status" not in query
 
 
-def test_null_study_prefix():
-    with pytest.raises(errors.CountsBuilderError):
-        counts.CountsBuilder()
-
-
 def test_write_queries(tmp_path):
-    builder = counts.CountsBuilder(study_prefix="foo")
+    manifest = study_manifest.StudyManifest()
+    manifest._study_prefix = "foo"
+    builder = counts.CountsBuilder(manifest=manifest)
     builder.queries = ["SELECT * FROM FOO", "SELECT * FROM BAR"]
     builder.write_counts(tmp_path / "output.sql")
     with open(tmp_path / "output.sql") as f:
@@ -295,6 +282,7 @@ def test_count_annotation(tmp_path, annotation, expected):
     manifest = study_manifest.StudyManifest()
     manifest._study_prefix = TEST_PREFIX
     builder = counts.CountsBuilder(manifest=manifest)
+    build_action.run_protected_table_builder(config=config, manifest=manifest)
     builder.queries.append(
         builder.count_patient(
             table_name=f"{TEST_PREFIX}__annotation",

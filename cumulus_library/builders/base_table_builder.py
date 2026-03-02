@@ -2,7 +2,6 @@
 
 import abc
 import pathlib
-import re
 import sys
 import typing
 
@@ -51,31 +50,23 @@ class BaseTableBuilder(abc.ABC):
         config: base_utils.StudyConfig,
         manifest: study_manifest.StudyManifest,
         *args,
+        build_stage: str | None = None,
         **kwargs,
     ):
         """Executes queries set up by a prepare_queries call
 
         :param config: A study configuration object
         :param manifest: A study manifest object
+        :keyword build_stage: The name of the currently processing stage
         """
-        self.prepare_queries(*args, config=config, manifest=manifest, **kwargs)
+        if self.queries == []:
+            self.prepare_queries(*args, config=config, manifest=manifest, **kwargs)
         cursor = config.db.cursor()
+        viewtables = base_utils.get_viewtable_names_from_create_queries(config, self.queries)
         if config.drop_table:
-            table_names = []
-            for query in self.queries:
-                # Get the first non-whitespace word after create table
-                table_name = re.search('(?i)(?<=create table )(([a-zA-Z0-9_".-]+))', query)
+            for name, view_or_table in viewtables:
+                cursor.execute(f"DROP {view_or_table} IF EXISTS {name}")
 
-                if table_name:
-                    if table_name[0] == "IF":
-                        # Edge case - if we're doing an empty conditional CTAS creation,
-                        # we need to run a slightly different regex
-                        table_name = re.search('(?i)(?<=not exists )(([a-zA-Z0-9_".-]+))', query)
-
-                    table_name = table_name[0]
-                    table_names.append(table_name)
-            for table_name in table_names:
-                cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
         with base_utils.get_progress_bar(disable=config.verbose) as progress:
             task = progress.add_task(
                 self.display_text,
@@ -87,7 +78,7 @@ class BaseTableBuilder(abc.ABC):
                     query = base_utils.update_query_if_schema_specified(query, manifest)
                     with base_utils.query_console_output(config.verbose, query, progress, task):
                         cursor.execute(query)
-                except Exception as e:  # pylint: disable=broad-exception-caught
+                except Exception as e:  # pragma: no cover
                     sys.exit(f"An error occurred executing this query:\n----\n{query}\n----\n{e}")
 
         self.post_execution(config, manifest, *args, **kwargs)

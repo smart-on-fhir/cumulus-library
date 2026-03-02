@@ -1,0 +1,11 @@
+{# This template is an athena-specific way of creating a table that enables insert/delete
+actions. For other databases, the table-specific loader will just use ctas_empty.sql.jinja #}
+{%- import 'syntax.sql.jinja' as syntax -%}
+CREATE TABLE IF NOT EXISTS `{{ schema_name }}`.`{{ table_name }}` (
+    {%- for col in table_cols %}
+    {{ col }} {{ athena_col_types[loop.index0] }}
+    {{- syntax.comma_delineate(loop) }}
+    {%- endfor %}
+)
+LOCATION '{{ remote_location }}'
+TBLPROPERTIES ('table_type' = 'ICEBERG');

@@ -75,9 +75,9 @@ def test_core_count_missing_data(tmp_path):
                 },
             },
         )
-    cursor = testbed.build()
+    db = testbed.build()
 
-    table_rows, cols = conftest.get_sorted_table_data(cursor, "core__count_encounter_month")
+    table_rows, cols = conftest.get_sorted_table_data(db.connection, "core__count_encounter_month")
     # For regenerating data if needed
     # with open(
     #     f"./tests/test_data/core/core__count_encounter_month_missing_data.txt",
@@ -138,16 +138,16 @@ def test_core_tiny_database(tmp_path):
     testbed.add_condition("ConA")
     testbed.add_encounter("EncA")
     testbed.add_medication_request("MedReqA")
-    con = testbed.build()
-    patients = con.sql("SELECT id FROM core__patient").fetchall()
+    db = testbed.build()
+    patients = db.connection.sql("SELECT id FROM core__patient").fetchall()
     assert {e[0] for e in patients} == {"A"}
-    rows = con.sql("SELECT id FROM core__allergyintolerance").fetchall()
+    rows = db.connection.sql("SELECT id FROM core__allergyintolerance").fetchall()
     assert {r[0] for r in rows} == {"Allergy"}
-    conditions = con.sql("SELECT id FROM core__condition").fetchall()
+    conditions = db.connection.sql("SELECT id FROM core__condition").fetchall()
     assert {c[0] for c in conditions} == {"ConA"}
-    encounters = con.sql("SELECT id FROM core__encounter").fetchall()
+    encounters = db.connection.sql("SELECT id FROM core__encounter").fetchall()
     assert {e[0] for e in encounters} == {"EncA"}
-    rows = con.sql("SELECT id FROM core__medicationrequest").fetchall()
+    rows = db.connection.sql("SELECT id FROM core__medicationrequest").fetchall()
     assert {r[0] for r in rows} == {"MedReqA"}
 
 
@@ -171,8 +171,8 @@ def test_core_multiple_doc_encounters(tmp_path):
             "encounter": [{"reference": "Encounter/A"}, {"reference": "Encounter/B"}],
         },
     )
-    con = testbed.build()
-    docs = con.sql("SELECT id, encounter_ref FROM core__documentreference").fetchall()
+    db = testbed.build()
+    docs = db.connection.sql("SELECT id, encounter_ref FROM core__documentreference").fetchall()
     # We should see one row per encounter, including null encounters
     expected = {
         ("NoEnc", None),

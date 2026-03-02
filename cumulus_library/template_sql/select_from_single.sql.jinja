@@ -1,0 +1,14 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+SELECT{%- if distinct %} DISTINCT
+    {%- endif %}
+{%- for col in columns %}
+    {{ col }} {{- syntax.comma_delineate(loop) }} --noqa: LT02
+{%- endfor %}
+FROM "{{ schema }}"."{{ table_name }}"
+{%- if where_clauses !=[] %}
+WHERE
+{%- for clause in where_clauses %}
+    {# TODO: replace with where clause parser #}
+    {{- syntax.or_delineate(loop) -}} {{ clause }}
+{%- endfor %}
+{%- endif %}

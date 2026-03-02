@@ -40,8 +40,8 @@ def test_core_med_all_types(tmp_path):
     testbed.add_medication_request("Contained", mode="contained", **med_args)
     testbed.add_medication_request("External", mode="external", **med_args)
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__medicationrequest ORDER BY id").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__medicationrequest ORDER BY id").df()
     rows = json.loads(df.to_json(orient="records"))
 
     body = {
@@ -90,8 +90,8 @@ def test_core_med_multiple_categories(tmp_path):
             },
         ],
     )
-    con = testbed.build()
-    df = con.sql(
+    db = testbed.build()
+    df = db.connection.sql(
         "SELECT id, category_code FROM core__medicationrequest ORDER BY category_code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))

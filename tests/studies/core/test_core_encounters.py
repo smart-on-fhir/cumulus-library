@@ -15,8 +15,10 @@ def test_core_enc_class(tmp_path):
     testbed.add_encounter("obsenc", **{"class": {"code": "OBSENC", "system": v3_sys}})
     testbed.add_encounter("unsupported", **{"class": {"code": "?", "system": v3_sys}})
 
-    con = testbed.build()
-    df = con.sql("SELECT id, class_code, class_display FROM core__encounter ORDER BY id").df()
+    db = testbed.build()
+    df = db.connection.sql(
+        "SELECT id, class_code, class_display FROM core__encounter ORDER BY id"
+    ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert rows == [
         {"id": "o", "class_code": "AMB", "class_display": "ambulatory"},

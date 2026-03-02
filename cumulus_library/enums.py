@@ -18,6 +18,7 @@ class ProtectedTables(enum.Enum):
 
     STATISTICS = "lib_statistics"
     TRANSACTIONS = "lib_transactions"
+    BUILD_SOURCE = "lib_build_source"
 
 
 class ProtectedTableKeywords(enum.Enum):

@@ -9,6 +9,15 @@
 
 ## study_python_valid base tables
 
+### study_python_valid__lib_build_source
+
+|Column| Type  |Description|
+|------|-------|-----------|
+|stage |VARCHAR|           |
+|name  |VARCHAR|           |
+|type  |VARCHAR|           |
+
+
 ### study_python_valid__lib_transactions
 
 |    Column     |  Type   |Description|

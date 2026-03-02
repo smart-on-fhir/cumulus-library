@@ -106,8 +106,8 @@ def test_core_allergy_many_cases(tmp_path):
         ],
     )
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__allergyintolerance").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__allergyintolerance").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert 29 == len(rows)
@@ -260,8 +260,8 @@ def test_core_count_allergy_intolerance_by_patient(tmp_path):
         code={"coding": [{"display": "Fish"}]},
     )
 
-    con = testbed.build()
-    rows = set(con.sql("SELECT * FROM core__count_allergyintolerance_month").fetchall())
+    db = testbed.build()
+    rows = set(db.connection.sql("SELECT * FROM core__count_allergyintolerance_month").fetchall())
     expected = {
         # Everything (note: two, not three overall results, because we count by patient)
         (2, None, None, None, None),

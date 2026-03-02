@@ -15,7 +15,8 @@ import pandas
 import pytest
 import rich
 
-from cumulus_library import base_utils, cli, databases
+from cumulus_library import base_utils, cli, databases, study_manifest
+from cumulus_library.actions import builder
 
 # Useful constants
 
@@ -189,6 +190,23 @@ def ndjson_data_generator(source_dir: pathlib.Path, target_dir: pathlib.Path, it
             with open(write_path, "w", encoding="UTF-8") as f:
                 for row in out_dict:
                     f.write(json.dumps(row, default=str) + "\n")
+
+
+def create_protected_tables(
+    db_path: pathlib.Path, manifest_path: pathlib.Path, schema: str = "main"
+):
+    if db_path.suffix != ".db":
+        db_path = db_path / "duck.db"
+    if manifest_path.suffix != ".toml":
+        manifest_path = manifest_path / "manifest.toml"
+    # Mock a build log table from a prior run
+    db = databases.DuckDatabaseBackend(db_path)
+    db.connect()
+    config = base_utils.StudyConfig(schema=schema, db=db)
+    builder.run_protected_table_builder(
+        config=config, manifest=study_manifest.StudyManifest(study_path=manifest_path)
+    )
+    db.close()
 
 
 # Debugging aids

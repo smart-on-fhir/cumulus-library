@@ -196,3 +196,21 @@ def test_get_async_cursor(mock_client):
     db.connect()
     cursor = db.async_cursor()
     assert isinstance(cursor, pyathena.async_cursor.AsyncCursor)
+
+
+@mock.patch("botocore.client")
+def test_get_remote_path(mock_client):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+    db.connection = mock.MagicMock()
+    bucket_info = {
+        "WorkGroup": {
+            "Configuration": {"ResultConfiguration": {"OutputLocation": "s3://testbucket/athena"}}
+        }
+    }
+    db.connection._client.get_work_group.side_effect = [bucket_info, bucket_info]
+    assert db.get_remote_path() == "s3://testbucket/athena"

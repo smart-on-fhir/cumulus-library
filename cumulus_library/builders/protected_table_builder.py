@@ -6,31 +6,11 @@ import tomllib
 from cumulus_library import (
     BaseTableBuilder,
     base_utils,
+    const,
     enums,
     study_manifest,
 )
 from cumulus_library.template_sql import base_templates
-
-TRANSACTIONS_COLS = ["study_name", "library_version", "status", "event_time", "message"]
-TRANSACTION_COLS_TYPES = ["varchar", "varchar", "varchar", "timestamp", "varchar"]
-# while it may seem redundant, study_name and view_name are included as a column for
-# ease of constructing a view of multiple transaction tables
-STATISTICS_COLS = [
-    "study_name",
-    "library_version",
-    "table_type",
-    "table_name",
-    "view_name",
-    "created_on",
-]
-STATISTICS_COLS_TYPES = [
-    "varchar",
-    "varchar",
-    "varchar",
-    "varchar",
-    "varchar",
-    "timestamp",
-]
 
 
 class ProtectedTableBuilder(BaseTableBuilder):
@@ -52,18 +32,32 @@ class ProtectedTableBuilder(BaseTableBuilder):
             self.queries.append(f"CREATE SCHEMA IF NOT EXISTS {db_schema}")
             transactions = enums.ProtectedTables.TRANSACTIONS.value
             statistics = enums.ProtectedTables.STATISTICS.value
+            build_source = enums.ProtectedTables.BUILD_SOURCE.value
         else:
             db_schema = config.schema
             transactions = (
                 f"{manifest.get_study_prefix()}__{enums.ProtectedTables.TRANSACTIONS.value}"
             )
             statistics = f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}"
+            build_source = (
+                f"{manifest.get_study_prefix()}__{enums.ProtectedTables.BUILD_SOURCE.value}"
+            )
         self.queries.append(
             base_templates.get_ctas_empty_query(
                 db_schema,
                 transactions,
-                TRANSACTIONS_COLS,
-                TRANSACTION_COLS_TYPES,
+                const.TRANSACTIONS_COLS,
+                const.TRANSACTION_COLS_TYPES,
+            )
+        )
+        self.queries.append(
+            base_templates.get_ctas_crud_query(
+                schema_name=db_schema,
+                table_name=build_source,
+                remote_location=f"{config.db.get_remote_path()}/iceberg/build_source/",
+                table_cols=const.BUILD_SOURCE_COLS,
+                sql_col_types=const.BUILD_SOURCE_COLS_SQL_TYPE,
+                athena_col_types=const.BUILD_SOURCE_COLS_ATHENA_TYPE,
             )
         )
         files = manifest.get_all_workflows(config.build_type)
@@ -83,8 +77,8 @@ class ProtectedTableBuilder(BaseTableBuilder):
                         base_templates.get_ctas_empty_query(
                             db_schema,
                             statistics,
-                            STATISTICS_COLS,
-                            STATISTICS_COLS_TYPES,
+                            const.STATISTICS_COLS,
+                            const.STATISTICS_COLS_TYPES,
                         )
                     )
                     return

@@ -10,8 +10,8 @@ from tests import testbed_utils
 
 def test_empty_build(tmp_path):
     testbed = testbed_utils.LocalTestbed(tmp_path)
-    con = testbed.build("example_nlp")
-    df = con.sql("SELECT * FROM example_nlp__range_labels").df()
+    db = testbed.build("example_nlp")
+    df = db.connection.sql("SELECT * FROM example_nlp__range_labels").df()
     assert df.empty  # should exist, but be empty
 
 
@@ -54,8 +54,10 @@ def test_merging_two_sources(tmp_path):
     )
     con.sql("CREATE TABLE example_nlp__nlp_llama4_scout AS SELECT * FROM llama4_df")
 
-    con = testbed.build("example_nlp")
-    df = con.sql("SELECT * FROM example_nlp__range_labels ORDER BY note_ref, origin, span").df()
+    db = testbed.build("example_nlp")
+    df = db.connection.sql(
+        "SELECT * FROM example_nlp__range_labels ORDER BY note_ref, origin, span"
+    ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert rows == [
         {

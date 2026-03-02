@@ -73,6 +73,7 @@ def test_run_protected_table_builder(mock_db_config, study_path, stats):
 def test_table_builder(mock_db_config, study_path, verbose, expects, raises):
     with raises:
         manifest = study_manifest.StudyManifest(pathlib.Path(study_path))
+        builder.run_protected_table_builder(mock_db_config, manifest)
         builder.build_study(config=mock_db_config, manifest=manifest, data_path=None, prepare=False)
         tables = (
             mock_db_config.db.cursor()
@@ -140,6 +141,7 @@ def test_build_study(mock_db_config, study_path, verbose, expects, raises):
             table_cols_types=table.column_types,
         )
         mock_db_config.db.cursor().execute(query)
+        builder.run_protected_table_builder(mock_db_config, manifest)
         builder.build_study(config=mock_db_config, manifest=manifest, data_path=None, prepare=False)
         tables = (
             mock_db_config.db.cursor()
@@ -289,6 +291,7 @@ def test_build_types(mock_db_config, build, expected_tables, raises):
     if build:
         mock_db_config.build_type = build
     with raises:
+        builder.run_protected_table_builder(mock_db_config, manifest)
         builder.build_study(mock_db_config, manifest)
     found_tables = (
         mock_db_config.db.cursor()

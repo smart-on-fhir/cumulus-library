@@ -6,8 +6,8 @@ import json
 from tests import testbed_utils
 
 
-def _assert_valuequantity_schema(con) -> None:
-    schema = con.sql(
+def _assert_valuequantity_schema(db) -> None:
+    schema = db.connection.sql(
         """
         SELECT column_name, data_type
         FROM information_schema.columns
@@ -29,13 +29,13 @@ def test_core_observation_component_low_schema(tmp_path):
     """Verify that we don't explode if no components exist in the schema/data"""
     testbed = testbed_utils.LocalTestbed(tmp_path)
     testbed.add_observation("No Component")
-    con = testbed.build()  # most importantly, this shouldn't blow up
+    db = testbed.build()  # most importantly, this shouldn't blow up
     # Spot check some tables (a basic one, then the custom weird valuequantity one)
-    rows = con.sql("SELECT id, row FROM core__observation_component_code").fetchall()
+    rows = db.connection.sql("SELECT id, row FROM core__observation_component_code").fetchall()
     assert 0 == len(rows)
-    rows = con.sql("SELECT id FROM core__observation_component_valuequantity").fetchall()
+    rows = db.connection.sql("SELECT id FROM core__observation_component_valuequantity").fetchall()
     assert 0 == len(rows)
-    _assert_valuequantity_schema(con)
+    _assert_valuequantity_schema(db)
 
 
 def test_core_observation_component_valuequantity_low_schema(tmp_path):
@@ -52,10 +52,10 @@ def test_core_observation_component_valuequantity_low_schema(tmp_path):
             }
         ],
     )
-    con = testbed.build()  # most importantly, this shouldn't blow up
-    rows = con.sql("SELECT id FROM core__observation_component_valuequantity").fetchall()
+    db = testbed.build()  # most importantly, this shouldn't blow up
+    rows = db.connection.sql("SELECT id FROM core__observation_component_valuequantity").fetchall()
     assert 1 == len(rows)
-    _assert_valuequantity_schema(con)
+    _assert_valuequantity_schema(db)
 
 
 def test_core_observation_component(tmp_path):
@@ -137,9 +137,10 @@ def test_core_observation_component(tmp_path):
             },
         ],
     )
-    con = testbed.build()
-
-    df = con.sql("SELECT * FROM core__observation_component_code ORDER BY id, row, code").df()
+    db = testbed.build()
+    df = db.connection.sql(
+        "SELECT * FROM core__observation_component_code ORDER BY id, row, code"
+    ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [
         {
@@ -184,7 +185,7 @@ def test_core_observation_component(tmp_path):
         },
     ] == rows
 
-    df = con.sql(
+    df = db.connection.sql(
         "SELECT * FROM core__observation_component_dataabsentreason ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
@@ -215,7 +216,7 @@ def test_core_observation_component(tmp_path):
         },
     ] == rows
 
-    df = con.sql(
+    df = db.connection.sql(
         "SELECT * FROM core__observation_component_interpretation ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
@@ -262,7 +263,7 @@ def test_core_observation_component(tmp_path):
         },
     ] == rows
 
-    df = con.sql(
+    df = db.connection.sql(
         "SELECT * FROM core__observation_component_valuecodeableconcept ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
@@ -285,7 +286,7 @@ def test_core_observation_component(tmp_path):
         },
     ] == rows
 
-    df = con.sql(
+    df = db.connection.sql(
         "SELECT * FROM core__observation_component_valuequantity ORDER BY id, row, code"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
@@ -309,4 +310,4 @@ def test_core_observation_component(tmp_path):
             "value": None,
         },
     ] == rows
-    _assert_valuequantity_schema(con)
+    _assert_valuequantity_schema(db)

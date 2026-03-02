@@ -26,8 +26,8 @@ def test_core_practitioner_simple(tmp_path):
         },
     )
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__practitioner").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__practitioner").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows == [
@@ -48,8 +48,8 @@ def test_core_practitioner_minimal(tmp_path):
     testbed = testbed_utils.LocalTestbed(tmp_path)
     testbed.add("practitioner", {"resourceType": "Practitioner", "id": "nothing"})
 
-    con = testbed.build()
-    df = con.sql("SELECT * FROM core__practitioner").df()
+    db = testbed.build()
+    df = db.connection.sql("SELECT * FROM core__practitioner").df()
     rows = json.loads(df.to_json(orient="records"))
 
     assert rows == [
