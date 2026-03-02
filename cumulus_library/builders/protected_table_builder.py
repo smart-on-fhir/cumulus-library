@@ -60,7 +60,7 @@ class ProtectedTableBuilder(BaseTableBuilder):
                 athena_col_types=const.BUILD_SOURCE_COLS_ATHENA_TYPE,
             )
         )
-        files = manifest.get_all_workflows(config.build_type)
+        files = manifest.get_all_workflows(config.stage)
         if len(files) == 0:
             return
         stats_types = set(item.value for item in enums.StatisticsTypes)

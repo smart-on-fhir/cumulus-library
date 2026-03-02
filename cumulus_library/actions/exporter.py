@@ -48,12 +48,12 @@ def export_study(
     if archive:
         table_query = base_templates.get_show_tables(config.schema, prefix)
         result = config.db.cursor().execute(table_query).fetchall()
-        table_list = manifest.get_export_table_list(config.build_type)
+        table_list = manifest.get_export_table_list(config.stage)
         for row in result:
             if row[0] not in table_list:
                 table_list.append(study_manifest.ManifestExport(name=row[0], export_type="archive"))
     else:
-        table_list = manifest.get_export_table_list(config.build_type)
+        table_list = manifest.get_export_table_list(config.stage)
     path = pathlib.Path(f"{data_path}/{manifest.get_study_prefix()}/")
     path.mkdir(parents=True, exist_ok=True)
     for table in track(

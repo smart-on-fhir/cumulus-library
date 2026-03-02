@@ -315,6 +315,7 @@ def run_cli(args: dict):
             loinc_user=args.get("loinc_user"),
             loinc_password=args.get("loinc_password"),
             options=args.get("options"),
+            stage=args.get("stage"),
         )
         try:
             runner = StudyRunner(config, data_path=args.get("data_path"))

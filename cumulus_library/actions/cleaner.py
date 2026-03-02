@@ -128,7 +128,7 @@ def clean_study(
     cursor = config.db.cursor()
 
     view_table_list = []
-    if config.build_type == "all" or prefix:
+    if config.stage == "all" or prefix:
         view_sql = base_templates.get_show_views(config.schema, drop_prefix)
         table_sql = base_templates.get_show_tables(config.schema, drop_prefix)
         for query, artifact_type in [[view_sql, "VIEW"], [table_sql, "TABLE"]]:
@@ -147,7 +147,7 @@ def clean_study(
             schema=base_utils.get_schema(config=config, manifest=manifest),
             table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
             columns=["name", "type"],
-            where_clauses=[f"stage = '{stage}'" for stage in manifest.get_stage(config.build_type)],
+            where_clauses=[f"stage = '{config.stage}'"],
             distinct=True,
         )
         names_and_types = cursor.execute(query).fetchall()
@@ -222,7 +222,7 @@ def clean_study(
         cleanup_query = base_templates.get_delete_from_table_query(
             schema=base_utils.get_schema(config=config, manifest=manifest),
             table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
-            where_clauses=[f"stage = '{stage}'" for stage in manifest.get_stage(config.build_type)],
+            where_clauses=[f"stage = '{config.stage}'"],
         )
         cursor.execute(cleanup_query)
 

@@ -17,15 +17,28 @@ from tests import conftest
             (
                 {
                     "study_prefix": "study_valid",
-                    "build_types": {"default": ["stage_1"], "all": ["stage_1"]},
                     "stages": {
+                        "all": [
+                            {"type": "build:serial", "files": ["test.sql", "test2.sql"]},
+                            {
+                                "type": "export:counts",
+                                "tables": ["study_valid__table", "study_valid__table2"],
+                            },
+                        ],
+                        "default": [
+                            {"type": "build:serial", "files": ["test.sql", "test2.sql"]},
+                            {
+                                "type": "export:counts",
+                                "tables": ["study_valid__table", "study_valid__table2"],
+                            },
+                        ],
                         "stage_1": [
                             {"type": "build:serial", "files": ["test.sql", "test2.sql"]},
                             {
                                 "type": "export:counts",
                                 "tables": ["study_valid__table", "study_valid__table2"],
                             },
-                        ]
+                        ],
                     },
                 }
             ),
@@ -90,7 +103,6 @@ def test_custom_pathing(tmp_path):
 def test_submanifests(tmp_path):
     manifest_dict = {
         "study_prefix": "primary",
-        "build_types": {"default": ["stage_1", "stage_2"]},
         "stages": {
             "stage_1": [
                 {
@@ -116,8 +128,16 @@ def test_submanifests(tmp_path):
     manifest = study_manifest.StudyManifest(tmp_path)
     assert manifest._study_config == {
         "study_prefix": "primary",
-        "build_types": {"default": ["stage_1", "stage_2"], "all": ["stage_1", "stage_2"]},
         "stages": {
+            "all": [
+                {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
+                {"description": "action 2", "type": "build:serial", "files": ["baz"]},
+                {"description": "subaction 1", "type": "build:serial", "files": ["foobar"]},
+            ],
+            "default": [
+                {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
+                {"description": "action 2", "type": "build:serial", "files": ["baz"]},
+            ],
             "stage_1": [
                 {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
                 {"description": "action 2", "type": "build:serial", "files": ["baz"]},
@@ -130,7 +150,13 @@ def test_submanifests(tmp_path):
 
 
 def test_copy_manifest(tmp_path):
-    conftest.write_toml(tmp_path, {"study_prefix": "copy"})
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "copy",
+            "stages": {"default": [{"type": "build:serial", "files": ["foo"]}]},
+        },
+    )
     manifest = study_manifest.StudyManifest(tmp_path)
     manifest.copy_manifest(tmp_path / "dest")
     new_manifest = study_manifest.StudyManifest(tmp_path / "dest/copy")
@@ -151,14 +177,14 @@ def test_wrong_export_prefix(tmp_path):
 
 
 def test_reserved_stage_name(tmp_path):
-    conftest.write_toml(tmp_path, {"study_prefix": "foo", "build_types": {"all": ["stage_1"]}})
+    conftest.write_toml(tmp_path, {"study_prefix": "foo", "stage": {"all": ["test.sql"]}})
 
     with pytest.raises(errors.StudyManifestParsingError):
         study_manifest.StudyManifest(tmp_path)
 
 
 def test_missing_stage(tmp_path):
-    conftest.write_toml(tmp_path, {"study_prefix": "foo", "build_types": {"default": ["stage_1"]}})
+    conftest.write_toml(tmp_path, {"study_prefix": "foo"})
     with pytest.raises(errors.StudyManifestParsingError):
         study_manifest.StudyManifest(tmp_path)
 
@@ -168,7 +194,6 @@ def test_missing_action(tmp_path):
         tmp_path,
         {
             "study_prefix": "foo",
-            "build_types": {"default": ["stage_1"]},
             "stages": {
                 "stage_1": [{"description": "action 1", "files": ["foo"], "type": "invalid"}]
             },

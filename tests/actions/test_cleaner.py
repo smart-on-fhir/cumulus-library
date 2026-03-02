@@ -72,9 +72,9 @@ def test_clean_study(
                 table_name=f"study_valid__{enums.ProtectedTables.BUILD_SOURCE.value}",
                 table_cols=["stage", "name", "type"],
                 dataset=[
-                    ["stage_1", "study_valid__table", "TABLE"],
-                    ["stage_1", "study_valid__123", "TABLE"],
-                    ["stage_1", "study_valid__456", "VIEW"],
+                    [mock_db_config.stage, "study_valid__table", "TABLE"],
+                    [mock_db_config.stage, "study_valid__123", "TABLE"],
+                    [mock_db_config.stage, "study_valid__456", "VIEW"],
                 ],
             )
             mock_db_config.db.cursor().execute(insert_query)
@@ -127,7 +127,10 @@ def test_clean_dedicated_schema(mock_db_config):
             schema="dedicated",
             table_name=f"{enums.ProtectedTables.BUILD_SOURCE.value}",
             table_cols=["stage", "name", "type"],
-            dataset=[["stage_1", "table_1", "TABLE"], ["stage_1", "view_2", "VIEW"]],
+            dataset=[
+                [mock_db_config.stage, "table_1", "TABLE"],
+                [mock_db_config.stage, "view_2", "VIEW"],
+            ],
         )
         mock_db_config.db.cursor().execute(insert_query)
         cleaner.clean_study(config=mock_db_config, manifest=manifest)
