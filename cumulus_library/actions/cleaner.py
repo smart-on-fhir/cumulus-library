@@ -45,11 +45,14 @@ def _get_unprotected_stats_view_table(
     """Gets all items from the database by type, less any protected items
 
     :param config: A StudyConfig object
-    :param query: A query to get the raw list of items from the db
-    :param artifact_type: either 'table' or 'view'
+    :param manifest: A StudyManifest object
     :param drop_prefix: The prefix requested to drop
     :param display_prefix: The expected study prefix
     :param stats_clean: A boolean indicating if stats tables are being cleaned
+    :param clean_by_cli_prefix: if True, `--prefix` was passed in as an arg
+    :keyword query: A query to get the raw list of items from the db
+    :keyword artifact_type: either 'table' or 'view'
+    :keyword artifact_list: a list of tuples, contained (query, artifact_type) pairs
 
     :returns: a list of study tables to drop
     """
@@ -59,7 +62,7 @@ def _get_unprotected_stats_view_table(
         db_contents = cursor.execute(query).fetchall()
     elif artifact_list:
         db_contents = artifact_list
-    else:
+    else:  # pragma: no cover
         raise errors.CumulusLibraryError(
             "cleaner._get_unprotected_stats_view_table() requires one of the following is true:\n"
             "  - 'query' and 'artifact_type' are provided\n"
@@ -161,7 +164,6 @@ def clean_study(
 
     if not view_table_list:
         return view_table_list
-
     # We'll do a pass to see if any of these tables were created outside of a
     # study builder, and remove them from the list.
     for view_table in view_table_list.copy():
@@ -179,7 +181,7 @@ def clean_study(
         for view_table in view_table_list:
             rich.print(f"  {view_table[0]}")
         confirm = input("Remove these tables? (y/N)")
-        if confirm.lower() not in ("y", "yes"):
+        if confirm is None or confirm.lower() not in ("y", "yes"):
             sys.exit("Table cleaning aborted")
     if dedicated := manifest.get_dedicated_schema():
         view_table_list = [

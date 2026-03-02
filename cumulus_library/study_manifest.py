@@ -114,7 +114,7 @@ class StudyManifest:
         for stage in self._study_config.get("stages", {}).values():
             for action in stage:
                 for file in action.get("files", []):
-                    if file.endswith("toml") or file.endswith("workflow"):
+                    if file.endswith(".toml") or file.endswith(".workflow"):
                         with open(self._study_path / file, "rb") as f:
                             workflow_conf = tomllib.load(f)
                             if workflow_conf["config_type"] in [

@@ -225,7 +225,7 @@ def _update_build_source_table(
     stage: str,
     queries: list[str],
 ) -> list[str]:
-    table_names = base_utils.get_viewtable_names_from_queries(config, queries)
+    table_names = base_utils.get_viewtable_names_from_create_queries(config, queries)
     # it's possible to get a list of queries that contains no CREATE statements
     if len(table_names) > 0:
         # Otherwise, let's add new tables to the study build source tables.

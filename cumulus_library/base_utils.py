@@ -176,7 +176,9 @@ def get_user_documents_dir() -> pathlib.Path:
     return pathlib.Path(platformdirs.user_documents_dir())
 
 
-def get_viewtable_names_from_queries(config: StudyConfig, queries) -> list[tuple([str, str])]:
+def get_viewtable_names_from_create_queries(
+    config: StudyConfig, queries
+) -> list[tuple([str, str])]:
     """Parses a series of queries and extracts the table names
 
     This function is only looking for create statements, and will skip other query types.
@@ -189,7 +191,7 @@ def get_viewtable_names_from_queries(config: StudyConfig, queries) -> list[tuple
     for query in queries:
         try:
             parser = sqlglot.parse_one(query, dialect=config.db.db_type)
-        except sqlglot.errors.ParseError:
+        except sqlglot.errors.ParseError:  # pragma: no cover
             # We've got a comment as a query, which we can disregard
             continue
         if not isinstance(parser, sqlglot.expressions.Create):

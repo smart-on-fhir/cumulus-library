@@ -62,7 +62,7 @@ class BaseTableBuilder(abc.ABC):
         if self.queries == []:
             self.prepare_queries(*args, config=config, manifest=manifest, **kwargs)
         cursor = config.db.cursor()
-        viewtables = base_utils.get_viewtable_names_from_queries(config, self.queries)
+        viewtables = base_utils.get_viewtable_names_from_create_queries(config, self.queries)
         if config.drop_table:
             for name, view_or_table in viewtables:
                 cursor.execute(f"DROP {view_or_table} IF EXISTS {name}")
@@ -78,7 +78,7 @@ class BaseTableBuilder(abc.ABC):
                     query = base_utils.update_query_if_schema_specified(query, manifest)
                     with base_utils.query_console_output(config.verbose, query, progress, task):
                         cursor.execute(query)
-                except Exception as e:  # pylint: disable=broad-exception-caught
+                except Exception as e:  # pragma: no cover
                     sys.exit(f"An error occurred executing this query:\n----\n{query}\n----\n{e}")
 
         self.post_execution(config, manifest, *args, **kwargs)
