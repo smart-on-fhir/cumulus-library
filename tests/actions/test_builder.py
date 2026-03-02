@@ -249,3 +249,12 @@ def test_invalid_file_in_manifest(mock_db_config, tmp_path):
     manifest = study_manifest.StudyManifest(tmp_path)
     with pytest.raises(errors.StudyManifestParsingError):
         builder.build_study(mock_db_config, manifest)
+
+
+def test_invalid_stage(mock_db_config, tmp_path):
+    manifest = study_manifest.StudyManifest(
+        pathlib.Path(__file__).parents[1] / "test_data/study_valid", data_path=tmp_path
+    )
+    mock_db_config.stage = "definetely_not_a_stage"
+    with pytest.raises(errors.StudyManifestParsingError):
+        builder.build_study(mock_db_config, manifest)

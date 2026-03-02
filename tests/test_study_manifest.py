@@ -201,3 +201,23 @@ def test_missing_action(tmp_path):
     )
     with pytest.raises(errors.StudyManifestParsingError):
         study_manifest.StudyManifest(tmp_path)
+
+
+def test_all_protected(mock_db_config, tmp_path):
+    manifest_dict = {
+        "study_prefix": "test",
+        "stages": {"all": [{"files": ["foo"], "type": "build:serial"}]},
+    }
+    conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
+    with pytest.raises(errors.StudyManifestParsingError):
+        study_manifest.StudyManifest(tmp_path)
+
+
+def test_empty_stage(mock_db_config, tmp_path):
+    manifest_dict = {
+        "study_prefix": "test",
+        "stages": {},
+    }
+    conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
+    with pytest.raises(errors.StudyManifestParsingError):
+        study_manifest.StudyManifest(tmp_path)
