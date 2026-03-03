@@ -2,12 +2,24 @@ import pytest
 
 from cumulus_library import StudyManifest
 from cumulus_library.builders.valueset import umls, valueset_utils
+from tests import conftest
 
 
 @pytest.mark.parametrize("prefix", [(""), ("foo")])
 def test_umls_lookup(mock_db_config_rxnorm, prefix, tmp_path):
-    with open(f"{tmp_path}/manifest.toml", "w", encoding="utf8") as f:
-        f.write('study_prefix="test"')
+    manifest_dict = {
+        "study_prefix": "test",
+        "stages": {
+            "stage_1": [
+                {
+                    "type": "build:serial",
+                    "description": "action 1",
+                    "files": ["foo", "bar"],
+                },
+            ],
+        },
+    }
+    conftest.write_toml(tmp_path, manifest_dict)
     cursor = mock_db_config_rxnorm.db.cursor()
     manifest = StudyManifest(tmp_path)
     mock_db_config_rxnorm.options = {"umls_stewards": "medrt"}

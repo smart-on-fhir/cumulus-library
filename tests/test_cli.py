@@ -893,7 +893,7 @@ def test_cli_custom_args(mock_config, tmp_path, option, raises):
     mock_config.return_value.stats_clean = False
     mock_config.return_value.db.db_type = "duckdb"
     mock_config.return_value.schema = "main"
-    mock_config.return_value.build_type = "default"
+    mock_config.return_value.stage = "default"
     with raises:
         cli.main(
             cli_args=duckdb_args(
@@ -918,7 +918,7 @@ def test_cli_no_custom_args_yields_empty_dict(mock_config, tmp_path):
     mock_config.return_value.stats_clean = False
     mock_config.return_value.db.db_type = "duckdb"
     mock_config.return_value.schema = "main"
-    mock_config.return_value.build_type = "default"
+    mock_config.return_value.stage = "default"
     cli.main(
         cli_args=duckdb_args(
             [
@@ -1118,12 +1118,7 @@ included_cols = [
 def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_file, raises):
     with raises:
         build_args = duckdb_args(
-            [
-                "build",
-                "-t",
-                "core",
-                str(tmp_path),
-            ],
+            ["build", "-t", "core", str(tmp_path), "--stage", "stage_1"],
             tmp_path,
         )
         build_args = duckdb_args(
@@ -1135,6 +1130,8 @@ def test_prepare_study(tmp_path, study, expected_queries, generated_query, toml_
                 "tests/test_data/",
                 "--prepare",
                 str(tmp_path),
+                "--stage",
+                "stage_1",
             ],
             tmp_path,
         )

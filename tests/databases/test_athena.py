@@ -13,6 +13,7 @@ import pyathena
 import pytest
 
 from cumulus_library import base_utils, databases, study_manifest
+from tests import conftest
 
 
 def test_schema_parsing():
@@ -102,10 +103,20 @@ def test_create_schema(mock_client):
 
 
 def test_dedicated_schema_namespacing(tmp_path):
-    with open(f"{tmp_path}/manifest.toml", "w", encoding="utf8") as f:
-        f.write('study_prefix="foo"\n')
-        f.write("[advanced_options]\n")
-        f.write('dedicated_schema="foo"\n')
+    manifest_dict = {
+        "study_prefix": "foo",
+        "stages": {
+            "stage_1": [
+                {
+                    "type": "build:serial",
+                    "description": "action 1",
+                    "files": ["foo", "bar"],
+                },
+            ],
+        },
+        "advanced_options": {"dedicated_schema": "foo"},
+    }
+    conftest.write_toml(tmp_path, manifest_dict)
     manifest = study_manifest.StudyManifest(tmp_path)
     query = "CREATE TABLE foo__bar"
     result = base_utils.update_query_if_schema_specified(query, manifest)

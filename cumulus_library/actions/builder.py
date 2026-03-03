@@ -57,100 +57,94 @@ def build_study(
     if prepare:
         _check_if_preparable(manifest.get_study_prefix())
     if file_list is None:
-        file_list = manifest.get_file_list(config.build_type, continue_from)
+        file_list = manifest.get_file_list(config.stage, continue_from)
     if prepare:
         data_dir = data_path / manifest.get_study_prefix()
         for file in data_dir.glob("*"):
             if file.is_file():  # pragma: no cover
                 file.unlink()
-    stages = manifest.get_stages_of_build_type(config.build_type)
-    if len(stages) == 0:
+    stage = manifest.get_stage(config.stage)
+    if len(stage) == 0:
         raise errors.StudyManifestParsingError(
-            f"{config.build_type} not found in the study manifest. "
-            f"Available build types: {', '.join(manifest.get_build_types())}"
+            f"{config.stage} not found in the study manifest. "
+            f"Available stages: {', '.join(manifest.get_stages())}"
         )
 
-    for stage in stages:
-        for action in manifest.get_stage(stage):
-            if not action.get("type", "").startswith("build:"):
+    for action in stage:
+        if not action.get("type", "").startswith("build:"):
+            continue
+        query_count = 0
+        if action.get("type") == enums.ManifestActions.PARALLEL.value:
+            parallel = True
+        else:
+            parallel = False
+        queries = []
+        explicit_serial_queries = []
+        for file in action["files"]:
+            if file not in file_list:
                 continue
-            query_count = 0
-            if action.get("type") == enums.ManifestActions.PARALLEL.value:
-                parallel = True
-            else:
-                parallel = False
-            queries = []
-            explicit_serial_queries = []
-            for file in action["files"]:
-                if file not in file_list:
-                    continue
-                if file.endswith(".py"):
-                    b_queries, parallel_allowed = _run_builder(
-                        config=config,
-                        manifest=manifest,
-                        filename=file,
-                        db_parser=db_parser,
-                        data_path=data_path,
-                        prepare=prepare,
-                        parallel=parallel,
-                        query_count=query_count,
-                        build_stage=stage,
-                    )
-                    if parallel_allowed:
-                        queries += b_queries
-                    else:
-                        # If you're running in explicit serial mode, you can skip the parallel
-                        # collector.
-                        # Explicit serial queries are not actually used, but this is kept
-                        # here as a debugging convenience if you ever need to look at
-                        # the total number of manually executed queries.
-                        explicit_serial_queries += b_queries
-                elif file.endswith(".toml") or file.endswith(".workflow"):
-                    w_queries, parallel_allowed = _run_workflow(
-                        config=config,
-                        manifest=manifest,
-                        filename=file,
-                        data_path=data_path,
-                        prepare=prepare,
-                        parallel=parallel,
-                        query_count=query_count,
-                        build_stage=stage,
-                    )
-                    if parallel_allowed:
-                        queries = queries + w_queries
-                elif file.endswith(".sql"):
-                    queries = queries + _run_raw_queries(
-                        config=config,
-                        manifest=manifest,
-                        filename=file,
-                        data_path=data_path,
-                        prepare=prepare,
-                        parallel=parallel,
-                        query_count=query_count,
-                        build_stage=stage,
-                    )
+            if file.endswith(".py"):
+                b_queries, parallel_allowed = _run_builder(
+                    config=config,
+                    manifest=manifest,
+                    filename=file,
+                    db_parser=db_parser,
+                    data_path=data_path,
+                    prepare=prepare,
+                    parallel=parallel,
+                    query_count=query_count,
+                )
+                if parallel_allowed:
+                    queries += b_queries
                 else:
-                    raise errors.StudyManifestParsingError(
-                        f"Unexpected filetype in manifest: {file}"
+                    # If you're running in explicit serial mode, you can skip the parallel
+                    # collector.
+                    # Explicit serial queries are not actually used, but this is kept
+                    # here as a debugging convenience if you ever need to look at
+                    # the total number of manually executed queries.
+                    explicit_serial_queries += b_queries
+            elif file.endswith(".toml") or file.endswith(".workflow"):
+                w_queries, parallel_allowed = _run_workflow(
+                    config=config,
+                    manifest=manifest,
+                    filename=file,
+                    data_path=data_path,
+                    prepare=prepare,
+                    parallel=parallel,
+                    query_count=query_count,
+                )
+                if parallel_allowed:
+                    queries = queries + w_queries
+            elif file.endswith(".sql"):
+                queries = queries + _run_raw_queries(
+                    config=config,
+                    manifest=manifest,
+                    filename=file,
+                    data_path=data_path,
+                    prepare=prepare,
+                    parallel=parallel,
+                    query_count=query_count,
+                )
+            else:
+                raise errors.StudyManifestParsingError(f"Unexpected filetype in manifest: {file}")
+            for query in queries:
+                _check_query_for_errors(config, manifest, query, file)
+        if parallel:
+            query_count += len(queries)
+            if query_count > 0:
+                queries = _update_build_source_table(config, manifest, queries)
+                with base_utils.get_progress_bar() as progress_bar:
+                    task = progress_bar.add_task(
+                        f"Building {action.get('description', '')} tables...",
+                        total=query_count,
+                        visible=not config.verbose,
                     )
-                for query in queries:
-                    _check_query_for_errors(config, manifest, query, file)
-            if parallel:
-                query_count += len(queries)
-                if query_count > 0:
-                    queries = _update_build_source_table(config, manifest, stage, queries)
-                    with base_utils.get_progress_bar() as progress_bar:
-                        task = progress_bar.add_task(
-                            f"Building {action.get('description', '')} tables...",
-                            total=query_count,
-                            visible=not config.verbose,
-                        )
-                        config.db.parallel_write(
-                            queries=queries,
-                            verbose=config.verbose,
-                            progress_bar=progress_bar,
-                            task=task,
-                        )
+                    config.db.parallel_write(
+                        queries=queries,
+                        verbose=config.verbose,
+                        progress_bar=progress_bar,
+                        task=task,
+                    )
     if prepare:
         with zipfile.ZipFile(
             f"{data_path}/{manifest.get_study_prefix()}.zip", "w", zipfile.ZIP_DEFLATED
@@ -222,7 +216,6 @@ def run_protected_table_builder(
 def _update_build_source_table(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
-    stage: str,
     queries: list[str],
 ) -> list[str]:
     table_names = base_utils.get_viewtable_names_from_create_queries(config, queries)
@@ -239,7 +232,7 @@ def _update_build_source_table(
                 schema=config.schema,
                 table_name=(f"{prefix}{enums.ProtectedTables.BUILD_SOURCE.value}"),
                 table_cols=const.BUILD_SOURCE_COLS,
-                dataset=[[stage, t[0], t[1]] for t in table_names],
+                dataset=[[config.stage, t[0], t[1]] for t in table_names],
             ),
         )
     return queries
@@ -301,7 +294,6 @@ def _render_output(
     data_path: pathlib.Path,
     filename: str,
     count: int,
-    build_stage: str,
     *,
     is_toml: bool = False,
 ):
@@ -314,7 +306,7 @@ def _render_output(
             name = "config"
         else:
             name = str(sqlglot.parse_one(output, dialect=config.db.db_type).find(sqlglot.exp.Table))
-        new_filename = f"{build_stage}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
+        new_filename = f"{config.stage}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
         file_path = data_path / f"{study_name}/{new_filename}"
 
         file_path.parent.mkdir(exist_ok=True, parents=True)
@@ -340,7 +332,6 @@ def _run_builder(
     manifest: study_manifest.StudyManifest,
     *,
     filename: str,
-    build_stage: str,
     db_parser: databases.DatabaseParser = None,
     write_reference_sql: bool = False,
     doc_str: str | None = None,
@@ -354,7 +345,6 @@ def _run_builder(
     :param config: a StudyConfig object
     :param manifest: a StudyManifest object
     :keyword filename: filename of a module implementing a TableBuilder
-    :keyword build_stage: the stage in the build currently being processed
     :keyword db_parser: an object implementing DatabaseParser for the target database
     :keyword write_reference_sql: if true, writes sql to disk inside a study's directory
     :keyword doc_str: A string to insert between queries written to disk
@@ -432,7 +422,6 @@ def _run_builder(
             data_path,
             filename,
             query_count,
-            build_stage,
         )
 
     else:
@@ -443,7 +432,7 @@ def _run_builder(
         )
         if not parallel_allowed and not write_reference_sql:
             table_builder.queries = _update_build_source_table(
-                config, manifest, build_stage, table_builder.queries
+                config, manifest, table_builder.queries
             )
             table_builder.execute_queries(
                 config=config,
@@ -468,7 +457,6 @@ def _run_raw_queries(
     prepare: bool,
     parallel: bool = False,
     query_count: int,
-    build_stage: str,
 ) -> list[str]:
     """Creates tables in the schema by iterating through the sql_config.file_names
 
@@ -479,7 +467,6 @@ def _run_raw_queries(
     :keyword data_path: If prepare is true, the path to write rendered data to
     :keyword parallel: If true, executes queries in parallel
     :keyword query_count: the number of queries currently processed
-    :keyword build_stage: the stage in the build currently being processed
     :returns: a list of queries
     """
     raw_queries = []
@@ -503,10 +490,9 @@ def _run_raw_queries(
             data_path,
             filename,
             query_count,
-            build_stage,
         )
         return cleaned_queries
-    cleaned_queries = _update_build_source_table(config, manifest, build_stage, cleaned_queries)
+    cleaned_queries = _update_build_source_table(config, manifest, cleaned_queries)
     if not parallel:
         # We'll explicitly create a cursor since recreating cursors for each
         # table in a study is slightly slower for some databases
@@ -539,7 +525,6 @@ def _run_workflow(
     prepare: str,
     data_path: pathlib.Path,
     query_count: int,
-    build_stage: str,
     parallel: bool = False,
 ) -> tuple[list[str], bool]:
     """Loads workflow config from toml definitions and executes workflow
@@ -550,7 +535,7 @@ def _run_workflow(
     :keyword prepare: If true, will render query instead of executing
     :keyword data_path: If prepare is true, the path to write rendered data to
     :keyword query_count: if prepare is true, the number of queries already rendered
-    :keyword build_stage: the stage in the build currently being processed
+    :keyword stage_name: the stage in the build currently being processed
     :keyword parallel; If true, execute queries in parallel if workflow allows
     :returns: a list of queries
     """
@@ -565,7 +550,6 @@ def _run_workflow(
             data_path,
             filename,
             query_count,
-            build_stage,
             is_toml=True,
         )
         return ([], False)
@@ -626,11 +610,10 @@ def _run_workflow(
             table_suffix=safe_timestamp,
         )
     else:
-        builder.queries = _update_build_source_table(config, manifest, build_stage, builder.queries)
+        builder.queries = _update_build_source_table(config, manifest, builder.queries)
         builder.execute_queries(
             config=config,
             manifest=manifest,
-            build_stage=build_stage,
             table_suffix=safe_timestamp,
         )
         if config_type in set(item.value for item in enums.StatisticsTypes):
@@ -714,7 +697,7 @@ def _check_query_for_errors(
             "This query contains a table name which contains a reserved word "
             "immediately after the study prefix. Please rename this table so "
             "that is does not begin with one of these special words "
-            "immediately after the double undescore.\n Reserved words: "
+            "immediately after the double underscore.\n Reserved words: "
             f"{[word.value for word in enums.ProtectedTableKeywords]}",
         )
     if table.count("__") > 1:
@@ -725,6 +708,6 @@ def _check_query_for_errors(
             filename,
             "This query contains a table name with more than one '__' in it. "
             "Double underscores are reserved for special use cases. Please "
-            "rename this table so the only double undercore is after the "
+            "rename this table so the only double underscore is after the "
             f"study prefix, e.g. `{manifest.get_study_prefix()}__`",
         )

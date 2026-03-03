@@ -37,7 +37,6 @@ class ManifestAdvancedOptions(msgspec.Struct, forbid_unknown_fields=True, omit_d
 class ManifestConfig(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
     study_prefix: str | None = None
     description: str | None = None
-    build_types: dict[str, list[str]] | None = None
     stages: dict[str, list[ManifestAction]] | None = None
     advanced_options: ManifestAdvancedOptions | None = None
 
@@ -138,27 +137,23 @@ class StudyManifest:
         config = self._read_toml(study_path, ManifestConfig)
 
         defined_stages = list(config.get("stages", {}).keys())
-        if build_types := config.get("build_types", {}):
-            for build in build_types.items():
-                if build[0] == "all":
-                    raise errors.StudyManifestParsingError(
-                        "'all' is a reserved word for build type. Please select a different name."
-                    )
-                for stage in build[1]:
-                    if stage not in defined_stages:
-                        raise errors.StudyManifestParsingError(
-                            f"Stage {stage} in build type {build} not found. "
-                            f"Valid stages: {', '.join(defined_stages)}"
-                        )
-            if "default" not in config["build_types"]:
-                config["build_types"]["default"] = defined_stages
-        # if build types are not supplied, we'll assume that we should run everything in order
-        else:
-            config["build_types"] = {"default": defined_stages}
+
+        if len(defined_stages) == 0:
+            raise errors.StudyManifestParsingError(
+                f"{study_path} does not contain any stage definitions.\n"
+                "See https://docs.smarthealthit.org/cumulus/library/creating-studies.html "
+                "for more details about creating manifests."
+            )
+
         # If we're importing from submanifest, we'll do an inline swap out of the submanifest for
         # the actions defined in the submanifest.
         # This means we can assume everywhere else that we don't need to worry about submanifests.
+        all_actions = []
         for stage in defined_stages:
+            if stage == "all":
+                raise errors.StudyManifestParsingError(
+                    "'all' is a reserved word for stage name. Please select a different name."
+                )
             actions = []
             for action in config["stages"][stage]:
                 if action.get("type") == "submanifest":
@@ -169,17 +164,23 @@ class StudyManifest:
                         for subaction in subconfig.get("actions"):
                             self._validate_action(subaction, study_path.parent / submanifest)
                             actions.append(subaction)
+                            all_actions.append(subaction)
                 else:
                     self._validate_action(action, study_path)
                     actions.append(action)
+                    all_actions.append(action)
             config["stages"][stage] = actions
+
+        # if there isn't a default stage, we'll assume that we should run the first one
+        if "default" not in defined_stages:
+            config["stages"]["default"] = config["stages"][defined_stages[0]]
+
+        config["stages"]["all"] = all_actions
 
         # We'll set these to class vars now so we can reuse the class getters
         # to finish setup and validation
         self._study_config = config
         self._study_path = study_path.parent
-
-        config["build_types"]["all"] = self.get_stages()
 
         if dynamic_study_prefix := config.get("advanced_options", {}).get("dynamic_study_prefix"):
             self._study_prefix = self._run_dynamic_script(dynamic_study_prefix, options)
@@ -209,14 +210,6 @@ class StudyManifest:
         options = self._study_config.get("advanced_options", {})
         return options.get("dedicated_schema")
 
-    def get_build_types(self) -> list:
-        """Returns all build types defined in the manifest"""
-        return list(self._study_config.get("build_types", {}).keys())
-
-    def get_stages_of_build_type(self, build_type) -> list:
-        """Returns all stages associated with the specified build_type"""
-        return self._study_config.get("build_types", {}).get(build_type, [])
-
     def get_stages(self) -> list:
         """Returns the names of all stages defined in the manifest"""
         return list(self._study_config.get("stages", {}).keys())
@@ -230,81 +223,69 @@ class StudyManifest:
 
     def get_file_list(
         self,
-        build_type: str = "default",
+        stage_name: str = "default",
         continue_from: str | None = None,
     ) -> list[str | dict] | None:
         """Reads the contents of the file_config array or dict from the manifest
-        :param build_type: the build_type to get the files of ('default' if not specified)
+        :param stage_name: the stage_name to get the files of ('default' if not specified)
         :continue_from: a specific file to pick up a build from.
         :returns: An array of files from the manifest
         :raises StudyManifestParsingError: If the file in continue_from does not exist
         """
-        stages = self.get_stages_of_build_type(build_type)
         files = []
         found_continue_point = False
-        for stage_name in stages:
-            stage = self.get_stage(stage_name)
-            for action in stage:
-                if not action.get("type", "").startswith("build:"):
-                    continue
-                if continue_from and not found_continue_point:
-                    file_stems = [x.split(".", 1)[0] for x in action["files"]]
-                    if continue_from.split(".", 1)[0] in file_stems:
-                        found_continue_point = True
-                        if action.get("type") == enums.ManifestActions.PARALLEL.value:
-                            files = files + action["files"]
-                        else:
-                            pos = file_stems.index(continue_from.split(".", 1)[0])
-                            files = files + action["files"][pos:]
-                else:
-                    files = files + action["files"]
+        stage = self.get_stage(stage_name)
+        for action in stage:
+            if not action.get("type", "").startswith("build:"):
+                continue
+            if continue_from and not found_continue_point:
+                file_stems = [x.split(".", 1)[0] for x in action["files"]]
+                if continue_from.split(".", 1)[0] in file_stems:
+                    found_continue_point = True
+                    if action.get("type") == enums.ManifestActions.PARALLEL.value:
+                        files = files + action["files"]
+                    else:
+                        pos = file_stems.index(continue_from.split(".", 1)[0])
+                        files = files + action["files"][pos:]
+            else:
+                files = files + action["files"]
         if continue_from and len(files) == 0:
             raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
         return files
 
-    def get_export_table_list(self, build_type: str | None = None) -> list[ManifestExport] | None:
+    def get_export_table_list(self, stage_name: str = "default") -> list[ManifestExport] | None:
         """Reads the exportable tables from the manifest
 
-        :param build_type: if present, just search the stages defined in the build_type list
+        :param stage_name: if present, just search the stages defined in the stage_name list
         :returns: An array of tuples (table, export type) to export from the manifest,
         or None if not found.
         """
         export_table_list = []
-        if build_type:
-            builds = self._study_config.get("build_types", {})
-            build = builds.get(build_type)
-            stages = {}
-            for stage in build:
-                stages[stage] = self._study_config.get("stages", {}).get(stage)
-        else:
-            stages = self._study_config.get("stages", {})
+        stage = self.get_stage(stage_name)
 
-        for stage in stages.keys():
-            for action in stages[stage]:
-                if not action.get("type", "").startswith("export:"):
-                    continue
-                export_type = action["type"].split(":")[1]
-                if export_type == "counts":
-                    # the aggregator is looking for the cube keyword, so we'll swap it out
-                    export_type = "cube"
-                for table in action.get("tables", []):
-                    if table.startswith(f"{self.get_study_prefix()}__"):
-                        export_table_list.append(
-                            ManifestExport(name=table, export_type=export_type)
+        for action in stage:
+            if not action.get("type", "").startswith("export:"):
+                continue
+            export_type = action["type"].split(":")[1]
+            if export_type == "counts":
+                # the aggregator is looking for the cube keyword, so we'll swap it out
+                export_type = "cube"
+            for table in action.get("tables", []):
+                if table.startswith(f"{self.get_study_prefix()}__"):
+                    export_table_list.append(ManifestExport(name=table, export_type=export_type))
+                elif "__" in table:  # has a prefix, just the wrong one
+                    raise errors.StudyManifestParsingError(
+                        f"{table} in export list does not start with prefix "
+                        f"{self.get_study_prefix()}__ - check your manifest file."
+                    )
+                else:
+                    # Add the prefix for them (helpful in dynamic prefix cases where the prefix
+                    # is not known ahead of time)
+                    export_table_list.append(
+                        ManifestExport(
+                            name=f"{self.get_study_prefix()}__{table}", export_type=export_type
                         )
-                    elif "__" in table:  # has a prefix, just the wrong one
-                        raise errors.StudyManifestParsingError(
-                            f"{table} in export list does not start with prefix "
-                            f"{self.get_study_prefix()}__ - check your manifest file."
-                        )
-                    else:
-                        # Add the prefix for them (helpful in dynamic prefix cases where the prefix
-                        # is not known ahead of time)
-                        export_table_list.append(
-                            ManifestExport(
-                                name=f"{self.get_study_prefix()}__{table}", export_type=export_type
-                            )
-                        )
+                    )
 
         found_name = set()
         for export in export_table_list:
@@ -320,18 +301,18 @@ class StudyManifest:
     def has_stats(self):
         return self._has_stats
 
-    def get_all_files(self, file_type: str, build_type: str = "default"):
+    def get_all_files(self, file_type: str, stage_name: str = "default"):
         """Convenience method for getting files of a type from a manifest"""
-        files = self.get_file_list(build_type)
+        files = self.get_file_list(stage_name)
         return [file for file in files if file.endswith(file_type)]
 
-    def get_all_generators(self, build_type: str = "default") -> list[str]:
+    def get_all_generators(self, stage_name: str = "default") -> list[str]:
         """Convenience method for getting builder-based files"""
-        return self.get_all_files(".py", build_type)
+        return self.get_all_files(".py", stage_name)
 
-    def get_all_workflows(self, build_type: str = "default") -> list[str]:
+    def get_all_workflows(self, stage_name: str = "default") -> list[str]:
         """Convenience method for getting workflow config files"""
-        return self.get_all_files(".toml", build_type)
+        return self.get_all_files(".toml", stage_name)
 
     def get_prefix_with_seperator(self) -> str:
         """Convenience method for getting the appropriate prefix for tables"""
@@ -357,7 +338,7 @@ class StudyManifest:
         with open(path, "wb") as f:
             # we'll remove the all key we auto created before writing out a copy
             config = self._study_config
-            config["build_types"].pop("all", None)
+            config["stages"].pop("all", None)
             f.write(msgspec.toml.encode(ManifestConfig(self._study_config)))
 
     ### Dynamic Python code support

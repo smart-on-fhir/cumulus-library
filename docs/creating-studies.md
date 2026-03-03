@@ -68,9 +68,8 @@ If you see this text in the dashboard, go update the manifest of your \
 study with some descriptive text. \
 """
 
-# 'build_types' contains a list of ways to orchestrate the various stages
-# of a study build (more on stages below). It allows you to specify ways
-# that certain steps should be executed.
+# The stages section defines how queries/builders/workflows should be grouped
+# and ordered.  
 
 # A common use case we have goes like this: we want to define one or more
 # cohorts from a population based on data from an EHR. After that's done,
@@ -80,23 +79,13 @@ study with some descriptive text. \
 # of those cohorts, and then generate counts from the results. Those would
 # be three different kinds of stages, and you could rebuild each one independently.
 
-# Since order is not important, if it makes more sense to you to define the stages
-# first and then list build_types later, go for it.
+# There are two special kinds of stage names:
+# - 'default': this stage will be run if the stage is not specified. If not defined,
+#   we'll use the first stage in the list as the default.
+# - 'all': this will run all the stages, in the order they are defined in the manifest.
+#    This behavior can't be overriden.
 
-# We'll always create a build type called 'all' which will run all stages in the order
-# they are defined in the file. We'll also create a stage named 'default', if one does
-# not exists, which behaves the same all 'all', but you can override the default stage
-# if you want a different behavior. Other stages can be run from the command line by
-# passing `-b build_target`
-
-[build_types]
-cohort = ['define_population', 'select_cohorts']
-counts = ['count_cohorts']
-
-# The stages section defines how queries/builders/workflows should be grouped
-# and ordered. A stage is a list of actions. Stages are run sequentially in order.
-
-# Actions can have the following fields:
+# A stage is a list of actions. Actions can have the following fields:
 #   - 'description', which will be displayed in the CLI while the action is being run
 #   - 'type', which determines what the action does, and which parts of the library CLI the
 #     action is invoked by. Valid types:
@@ -216,6 +205,9 @@ tables = [
 ```
 
 A submanifest looks a lot like a manifest, but just contains a list of actions.
+You can use a submanifest either to organize queries by topic, or as a way to 
+reuse queries in multiple stages.
+
 Here's an example submanifest (note that this is optional and you don't have to use it):
 
 ```toml
