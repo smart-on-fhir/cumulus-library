@@ -9,7 +9,7 @@
 
 {%- macro prefixed_cols_delineated_list(table_cols, prefix)-%}
             {% for col in table_cols %}
-            {{prefix}}."{{ column_or_alias(col) }}"
+            {{prefix}}.{{ name_column(col) }}
             {{- syntax.comma_delineate(loop) }}
             {%- endfor %}
 {%- endmacro -%}
@@ -55,8 +55,7 @@ clause construction; it simultaneously asks for indentation of 4 and 8 spaces. -
 -- noqa: disable=LT02
 CREATE TABLE {{ table_name }} AS (
     WITH 
-    {%- if filter_status == True %}
-    filtered_table AS (
+    filter_join_table AS (
         SELECT
             p.{{ primary_id }},
             {%- if secondary_id is not none %}
@@ -67,7 +66,7 @@ CREATE TABLE {{ table_name }} AS (
             depending on context #}
             --noqa: disable=RF03, AL02
             {{- prefixed_cols_delineated_list(table_cols, 'p') }}
-            {%- if secondary_cols|length != 0 -%},
+            {%- if secondary_cols|length > 0 -%},
             {{- prefixed_cols_delineated_list(secondary_cols, 's') }}
             {%- endif -%}
             --noqa: enable=RF03, AL02
@@ -76,10 +75,13 @@ CREATE TABLE {{ table_name }} AS (
         INNER JOIN {{ secondary_table }} AS s
             {%- if alt_secondary_join_id  is not none%}
             ON s.{{ alt_secondary_join_id }} = p.{{ alt_secondary_join_id }}
-            {%- else  %}
+            {%- elif secondary_id is not none  %}
             ON s.{{ secondary_id }} = p.{{ secondary_id }}
+            {%- else  %}
+            ON s.{{ primary_id }} = p.{{ primary_id }}
             {%- endif %}
         {%- endif %}
+        {%- if filter_status == True %}
         WHERE 
         {%- for filter_col in filter_cols %} {{ syntax.and_delineate(loop) }}
         (
@@ -94,8 +96,9 @@ CREATE TABLE {{ table_name }} AS (
             )
         )
         {%- endfor %}
+        {% endif %}
     ),
-    {% endif %}
+
     null_replacement AS (
         SELECT
             {{ primary_id }},
@@ -108,12 +111,8 @@ CREATE TABLE {{ table_name }} AS (
                 '{{ missing_null }}'
             ) AS {{ column_or_alias(col) }}
             {{- syntax.comma_delineate(loop) }}
-            {%- endfor -%}
-        {%- if filter_status == True %}
-        FROM filtered_table
-        {%- else  %}
-        FROM {{ primary_table }}
-        {% endif %}
+            {%- endfor %}
+        FROM filter_join_table
     ),
 
     {%- if secondary_id is not none %}
@@ -162,10 +161,7 @@ CREATE TABLE {{ table_name }} AS (
         {%- else %}
         p.cnt_{{ primary_id }} AS cnt,
         {%- endif %}
-        {{- prefixed_cols_delineated_list(table_cols, 'p') }}
-        {%- if secondary_cols|length != 0 %},
-        {{- prefixed_cols_delineated_list(secondary_cols, 's') }}
-        {%- endif -%}
+        {{- prefixed_cols_delineated_list(col_list, 'p') }}
     {%- endif %}
     {%- if annotation is not none %},
         {{- prefixed_cols_delineated_list(annotation.columns, 'j') }}
@@ -179,8 +175,8 @@ CREATE TABLE {{ table_name }} AS (
     {%- endif -%}
     {%- if where_clauses is not none %}
     WHERE
-        {% for clause in where_clauses %}{{ clause }}
-        {% if not loop.last %}AND {% endif %}
+        p.cnt_{{ primary_id }} >= {{ min_subject }}
+        {% for clause in where_clauses %}AND {{ clause }}
         {%- endfor -%}
     {%- else %}
     WHERE 

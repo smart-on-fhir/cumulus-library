@@ -24,6 +24,7 @@ from cumulus_library import (
     study_manifest,
 )
 from cumulus_library.builders import (
+    counts_builder,
     file_upload_builder,
     protected_table_builder,
     psm_builder,
@@ -612,14 +613,16 @@ def _run_workflow(
                 config=config,
                 workflow_config=workflow_config,
             )
+        case "counts":
+            builder = counts_builder.CountsBuilder(
+                manifest=manifest,
+                toml_config_path=toml_path,
+            )
         case _:  # pragma: no cover
             raise errors.StudyManifestParsingError(
                 f"{toml_path} references an invalid workflow type {config_type}."
             )
-    # we don't have a workflow that will run in parallel mode successfully today,
-    # so we'll skip this
-    # TODO: revisit after workflow mode added for counts builders
-    if parallel and builder.parallel_allowed:  # pragma: no cover
+    if parallel and builder.parallel_allowed:
         builder.prepare_queries(
             config=config,
             manifest=manifest,

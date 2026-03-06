@@ -56,6 +56,9 @@ def _cast_table_col(col):
     elif isinstance(col, CountColumn):
         return col
     else:
+        # Are we reading from a toml file? if so, we can't pass explicit nulls, so we need to infer
+        if len(col) == 2:
+            return CountColumn(name=col[0], db_type=col[1], alias=None)
         return CountColumn(name=col[0], db_type=col[1], alias=col[2])
 
 
@@ -99,18 +102,25 @@ def get_count_query(
     table_col_classed = []
     for item in table_cols:
         table_col_classed.append(_cast_table_col(item))
-
     table_cols = table_col_classed
+
+    secondary_cols_classed = []
+    for item in secondary_cols:
+        secondary_cols_classed.append(_cast_table_col(item))
+    secondary_cols = secondary_cols_classed
+
     if annotation:
         annotation_col_classed = []
         for item in annotation.columns:
             annotation_col_classed.append(_cast_table_col(item))
         annotation.columns = annotation_col_classed
+
     if filter_status and len(filter_cols) == 0:
         raise errors.CountsBuilderError(  # pragma: no cover
             "When filtering in a CountsBuilder, both 'filter_status' and "
             "'filter_cols' must be supplied."
         )
+
     filter_cols_classed = []
     if filter_cols:
         for filter_col in filter_cols:
