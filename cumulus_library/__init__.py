@@ -2,7 +2,7 @@
 
 from cumulus_library.base_utils import StudyConfig
 from cumulus_library.builders.base_table_builder import BaseTableBuilder
-from cumulus_library.builders.counts import CountsBuilder
+from cumulus_library.builders.counts_builder import CountsBuilder
 from cumulus_library.builders.statistics_templates.counts_templates import CountAnnotation
 from cumulus_library.study_manifest import StudyManifest
 from cumulus_library.template_sql.base_templates import get_template
