@@ -221,3 +221,25 @@ def test_empty_stage(mock_db_config, tmp_path):
     conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
     with pytest.raises(errors.StudyManifestParsingError):
         study_manifest.StudyManifest(tmp_path)
+
+
+def test_formatted_study_prefix(tmp_path):
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "foo",
+            "stages": {"stage_1": [{"type": "build:serial", "files": ["foo"]}]},
+        },
+    )
+    manifest = study_manifest.StudyManifest(tmp_path)
+    assert manifest.get_formatted_study_prefix() == "foo__"
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "foo",
+            "stages": {"stage_1": [{"type": "build:serial", "files": ["foo"]}]},
+            "advanced_options": {"dedicated_schema": "bar"},
+        },
+    )
+    manifest = study_manifest.StudyManifest(tmp_path)
+    assert manifest.get_formatted_study_prefix() == "bar."

@@ -1,0 +1,7 @@
+study_prefix="counts"
+[[stages.build_counts]]
+description = "counts workflow"
+files = [
+    "counts.workflow",
+]
+type = "build:parallel"

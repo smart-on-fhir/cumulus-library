@@ -14,6 +14,7 @@ for use in Cumulus studies.
 
 ## Specific workflows
 
+- [Counts](workflows/counts.md)
 - [File Upload](workflows/file-upload.md)
 - [Propensity Score Matching](workflows/propensity-score-matching.md)
 - [Valueset Compilation](workflows/valueset.md)

@@ -216,11 +216,11 @@ Here's an example submanifest (note that this is optional and you don't have to 
 [[actions]]
 description = "Select cohorts by age"
 files = ['age_cohort.sql']
-type = 'serial'
+type = 'build:serial'
 [[actions]]
 description = "Create cohorts by medications"
 files = ['cohort_rx_1.py', 'cohort_rx_2.py']
-type = 'parallel'
+type = 'build:parallel'
 [[actions]]
 description = 'Export patient medication counts'
 type = 'export:counts'

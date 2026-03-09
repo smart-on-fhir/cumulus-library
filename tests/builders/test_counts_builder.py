@@ -1,5 +1,6 @@
 """tests for outputs of counts_builder module"""
 
+import pathlib
 from contextlib import nullcontext as does_not_raise
 from unittest import mock
 
@@ -9,7 +10,9 @@ import cumulus_library
 from cumulus_library import base_utils, errors, study_manifest
 from cumulus_library.actions import builder as build_action
 from cumulus_library.builders import counts
-from tests import testbed_utils
+from cumulus_library.builders.statistics_templates import counts_templates
+from cumulus_library.template_sql import base_templates
+from tests import conftest, testbed_utils
 
 TEST_PREFIX = "test"
 
@@ -224,12 +227,12 @@ def test_filter_docstatus():
     assert "p.status" not in query
 
 
-def test_write_queries(tmp_path):
+def test_write_queries(tmp_path, mock_db_config):
     manifest = study_manifest.StudyManifest()
     manifest._study_prefix = "foo"
-    builder = counts.CountsBuilder(manifest=manifest)
+    builder = counts.CountsBuilder(config=mock_db_config, manifest=manifest)
     builder.queries = ["SELECT * FROM FOO", "SELECT * FROM BAR"]
-    builder.write_counts(tmp_path / "output.sql")
+    builder.write_counts(config=mock_db_config, manifest=manifest, filepath=tmp_path / "output.sql")
     with open(tmp_path / "output.sql") as f:
         found = f.read()
     expected = """-- noqa: disable=all
@@ -296,3 +299,95 @@ def test_count_annotation(tmp_path, annotation, expected):
     results = db.cursor().execute("select * from test__annotation").fetchall()
     for line in expected:
         assert line in results
+
+
+def test_counts_workflow(mock_db_core_config):
+    manifest = study_manifest.StudyManifest(pathlib.Path(__file__).parents[1] / "test_data/counts/")
+    conn = mock_db_core_config.db.connection
+    snomed_query = base_templates.get_ctas_query(
+        schema_name="main",
+        table_name="snomed",
+        dataset=[
+            ["160903007", "http://snomed.info/sct", "Full-time employment (finding)"],
+            ["3595000", "http://snomed.info/sct", "Stress (finding)"],
+            ["422650009", "http://snomed.info/sct", "Social isolation (finding)"],
+        ],
+        table_cols=["code", "system", "display"],
+    )
+    conn.execute(snomed_query)
+    build_action.run_protected_table_builder(config=mock_db_core_config, manifest=manifest)
+    build_action.build_study(config=mock_db_core_config, manifest=manifest)
+
+    res = conn.execute("select * from counts__basic_count order by all desc").fetchall()
+    assert res[0] == (50, None, None, None)
+    assert res[-1] == (10, None, None, "672")
+
+    res = conn.execute("select * from counts__wheres order by all desc").fetchall()
+    # this response contains one row
+    assert res[0] == (29, "female", None, None)
+
+    res = conn.execute("select * from counts__wheres_min_subject order by all desc").fetchall()
+    assert res[0] == (29, "female", None, None)
+    assert res[-1] == (5, "female", None, "672")
+
+    res = conn.execute("select * from counts__primary_id order by all desc").fetchall()
+    assert res[0] == (22, "final", None)
+    assert res[-1] == (10, None, "34533-0")
+
+    res = conn.execute("select * from counts__secondary_table order by all desc").fetchall()
+    assert res[0] == (50, None, None, None, "finished")
+    assert res[-1] == (10, None, None, "672", None)
+
+    res = conn.execute("select * from counts__annotated order by all desc").fetchall()
+    assert res[0] == (
+        8,
+        "160903007",
+        "resolved",
+        "http://snomed.info/sct",
+        "Full-time employment (finding)",
+    )
+    assert res[-1] == (2, "422650009", None, "http://snomed.info/sct", "Social isolation (finding)")
+    # let's also validate annotation properties - i.e. it should not have empty fields from cubing
+    for row in res:
+        assert row[-1] is not None
+        assert row[-2] is not None
+
+    res = conn.execute("select * from counts__filtered order by all desc").fetchall()
+    assert res[0] == (14, None, "resolved")
+    assert res[-1] == (2, "422650009", None)
+    # let's also validate filter properties - i.e. the filtered col should be a specified value
+    # or None (from cubing)
+    nulls = 0
+    resolves = 0
+    for row in res:
+        if row[-1] is None:
+            nulls += 1
+        elif row[-1] == "resolved":
+            resolves += 1
+    assert nulls == 4
+    assert resolves == 4
+
+
+def test_count_invalid_param(mock_db_config, tmp_path):
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "foo",
+            "stages": {"stage_1": [{"type": "build:serial", "files": ["count.workflow"]}]},
+        },
+    )
+    conftest.write_toml(
+        tmp_path, {"config_type": "counts", "unexpected_key": "whoops"}, filename="count.workflow"
+    )
+    with pytest.raises(SystemExit):
+        manifest = study_manifest.StudyManifest(tmp_path)
+        build_action.build_study(config=mock_db_config, manifest=manifest)
+
+
+def test_primary_id_override():
+    query = counts_templates.get_count_query(
+        table_name="test",
+        source_table="source",
+        table_cols="col",
+    )
+    assert "subject_ref" in query
