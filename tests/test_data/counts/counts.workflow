@@ -1,7 +1,11 @@
 config_type = "counts"
 [tables.basic_count]
 source_table = "core__patient"
-table_cols = ["gender","birthdate","postalcode_3"]
+table_cols = [
+    "gender",
+    ["birthdate", "varchar"],
+    ["postalcode_3", "varchar","postalcode"]
+]
 
 [tables.wheres]
 source_table = "core__patient"

@@ -7,9 +7,23 @@
             {%- endfor %}
 {%- endmacro -%}
 
+{%- macro col_or_alias_delineated_list(table_cols)-%}
+            {% for col in table_cols %}
+            {{ column_or_alias(col) }}
+            {{- syntax.comma_delineate(loop) }}
+            {%- endfor %}
+{%- endmacro -%}
+
 {%- macro prefixed_cols_delineated_list(table_cols, prefix)-%}
             {% for col in table_cols %}
             {{prefix}}.{{ name_column(col) }}
+            {{- syntax.comma_delineate(loop) }}
+            {%- endfor %}
+{%- endmacro -%}
+
+{%- macro prefixed_col_or_alias_delineated_list(table_cols, prefix)-%}
+            {% for col in table_cols %}
+            {{prefix}}.{{ column_or_alias(col) }}
             {{- syntax.comma_delineate(loop) }}
             {%- endfor %}
 {%- endmacro -%}
@@ -68,7 +82,7 @@ CREATE TABLE {{ table_name }} AS (
             {{- prefixed_cols_delineated_list(table_cols, 'p') }}
             {%- if secondary_cols|length > 0 -%},
             {{- prefixed_cols_delineated_list(secondary_cols, 's') }}
-            {%- endif -%}
+            {%- endif %}
             --noqa: enable=RF03, AL02
         FROM {{ primary_table }} AS p
         {%- if secondary_table is not none %}
@@ -119,7 +133,7 @@ CREATE TABLE {{ table_name }} AS (
     secondary_powerset AS (
         SELECT
             count(DISTINCT {{secondary_id}}) AS cnt_{{secondary_id}},
-            {{- cols_delineated_list(col_list) }},
+            {{- col_or_alias_delineated_list(col_list) }},
             concat_ws(
                 '-',
                 {{- cols_coalesced_list(col_list) }}
@@ -128,7 +142,7 @@ CREATE TABLE {{ table_name }} AS (
         WHERE {{ secondary_id }} IS NOT NULL
         GROUP BY
             cube(
-                {{- cols_delineated_list(col_list) }}
+                {{- col_or_alias_delineated_list(col_list) }}
             )
     ),
     {%- endif %}
@@ -136,7 +150,7 @@ CREATE TABLE {{ table_name }} AS (
     powerset AS (
         SELECT
             count(DISTINCT {{ primary_id }}) AS cnt_{{ primary_id }},
-            {{- cols_delineated_list(col_list) }},
+            {{- col_or_alias_delineated_list(col_list) }},
             concat_ws(
                 '-',
                 {{- cols_coalesced_list(col_list) }}
@@ -144,7 +158,7 @@ CREATE TABLE {{ table_name }} AS (
         FROM null_replacement
         GROUP BY
             cube(
-                {{- cols_delineated_list(col_list) }}
+                {{- col_or_alias_delineated_list(col_list) }}
             )
     )
 
@@ -161,7 +175,7 @@ CREATE TABLE {{ table_name }} AS (
         {%- else %}
         p.cnt_{{ primary_id }} AS cnt,
         {%- endif %}
-        {{- prefixed_cols_delineated_list(col_list, 'p') }}
+        {{- prefixed_col_or_alias_delineated_list(col_list, 'p') }}
     {%- endif %}
     {%- if annotation is not none %},
         {{- prefixed_cols_delineated_list(annotation.columns, 'j') }}
@@ -187,7 +201,7 @@ CREATE TABLE {{ table_name }} AS (
     {%- endif %}
     {%- if annotation is not none and annotation.alt_target is not none %}
     GROUP BY
-        {{- prefixed_cols_delineated_list(annotation.columns, 'j') }}
+        {{- prefixed_col_or_alias_delineated_list(annotation.columns, 'j') }}
     ORDER BY {{ annotation.alt_target }} ASC
     {%- endif %}
 );

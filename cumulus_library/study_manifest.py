@@ -204,8 +204,8 @@ class StudyManifest:
 
     def get_formatted_study_prefix(self) -> str | None:
         """Returns the appropriately formatted value for a study prefix"""
-        if self._study_config.get("advanced_options", {}).get("dedicated_schema"):
-            return f"{self._study_prefix}."
+        if dedicated := self._study_config.get("advanced_options", {}).get("dedicated_schema"):
+            return f"{dedicated}."
         return f"{self._study_prefix}__"
 
     def get_dedicated_schema(self) -> str | None:

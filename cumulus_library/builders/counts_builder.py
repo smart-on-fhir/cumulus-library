@@ -27,7 +27,7 @@ class CountsWorkflowAnnotation(msgspec.Struct, forbid_unknown_fields=True):
 
 class CountsWorkflowTable(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
     source_table: str
-    table_cols: list[str]
+    table_cols: list
 
     description: str | None = None
     where_clauses: list[str] | None = None

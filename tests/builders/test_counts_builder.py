@@ -10,8 +10,9 @@ import cumulus_library
 from cumulus_library import base_utils, errors, study_manifest
 from cumulus_library.actions import builder as build_action
 from cumulus_library.builders import counts
+from cumulus_library.builders.statistics_templates import counts_templates
 from cumulus_library.template_sql import base_templates
-from tests import testbed_utils
+from tests import conftest, testbed_utils
 
 TEST_PREFIX = "test"
 
@@ -365,3 +366,28 @@ def test_counts_workflow(mock_db_core_config):
             resolves += 1
     assert nulls == 4
     assert resolves == 4
+
+
+def test_count_invalid_param(mock_db_config, tmp_path):
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "foo",
+            "stages": {"stage_1": [{"type": "build:serial", "files": ["count.workflow"]}]},
+        },
+    )
+    conftest.write_toml(
+        tmp_path, {"config_type": "counts", "unexpected_key": "whoops"}, filename="count.workflow"
+    )
+    with pytest.raises(SystemExit):
+        manifest = study_manifest.StudyManifest(tmp_path)
+        build_action.build_study(config=mock_db_config, manifest=manifest)
+
+
+def test_primary_id_override():
+    query = counts_templates.get_count_query(
+        table_name="test",
+        source_table="source",
+        table_cols="col",
+    )
+    assert "subject_ref" in query
