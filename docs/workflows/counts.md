@@ -38,7 +38,7 @@ if it's correctly formatted, but starting from the template can help you avoid p
 # in, which it provides a hook for. 
 
 # config_type should be "counts" - we use this to distinguish from other
-# configurable builders
+# configurable workflows
 type="counts"
 
 [tables.name] # the table in db will be called 'study_prefix__name', snaked cased for sql compatibility
@@ -96,7 +96,7 @@ table_cols = ["gender","birthdate","postalcode_3"]
 #### annotation section ####
 
 ## if you want to use a table to annotate rows with labels from another dataset, like
-## from a coding system, you can define a count annotation source. All parmeters,
+## from a coding system, you can define a count annotation source. All parameters,
 ## except alt_target, are required.
 
 # [ table.name.annotation ]
@@ -125,7 +125,7 @@ table_cols = ["gender","birthdate","postalcode_3"]
 ## column name.
 # alt_target = "code"
 
-#### end annotation section
+#### end annotation section ####
 
 # This is just an example of how you'd chain mutliple tables together in one file.
 [tables.other_name]
@@ -191,3 +191,40 @@ filter_cols = [
     ["clinicalstatus_code",["resolved"],false]
 ]
 ```
+
+### Join interactions in detail
+
+Since count table joins are a little complex, here's a few usage examples, using
+count_encounter (with  a subject, encounter,  participant, and serviceprovider ref) 
+as the primary table, and core__condition (with a subject, encounter, and condition ref) 
+as a secondary.
+
+In all cases, `source_table` is "count_encounter", and `table_cols` is ["class_display"]
+
+Assuming no `secondary_table` is defined:
+  - `primary_id` not set, no secondary
+    - Counts patients by encounter class
+  - `primrary_id` set to "serviceprovider_ref", no secondary
+    - Counts service providers by the types of encounters they participated in
+Assuming `secondary_table` is "count__condition", and `secondary_cols` is ["code"]
+  - `primary_id` not set
+    - Counts patients by encounter class and condition code (a patient will be counted
+      more than once if they have more than one observed condition)
+  - `primary_id` not set, `secondary_id` set to "encounter_ref"
+    - Counts the unique encounters per patient by encounter class and condition code 
+      (a patient who has multiple encounters with the same observed condition will be
+      counted more than once, as will a patient with multiple conditions)
+  - `primary_id` not set, `secondary_id` set to "condition_ref", `alt_secondary_join_id`
+    set to `encounter_ref`
+    - Counts the unique instances of a conditions per patient's encounter by encounter class
+      and condition code (this would result in the count of conditions likely being 1, unless
+      the EHR was configured to reuse a single condition ref across the lifespan of the encounter)
+  - `primary_id` set to `encounter_ref`
+    - Counts the unique encounters by encounter class and condition code
+  - `primary_id` set to `encounter_ref`, `secondary_id` set to `subject_ref`
+    - Counts the unique patients per encounter by encounter class and condition code (which
+      we would expect to be 1 in all cases, so this would be a mistake in a real world use case)
+  - `primary_id` set to `encounter_ref`, `secondary_id` set to "condition_ref", `alt_secondary_join_id`
+    set to `subject_ref`
+    - Counts the unique encounters and conditions per encounter and patient (another case where we'd
+    expect the patient to be 1 in all cases)

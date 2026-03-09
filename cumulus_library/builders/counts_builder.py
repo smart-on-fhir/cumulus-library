@@ -12,92 +12,9 @@ from cumulus_library.builders.statistics_templates import counts_templates
 # Defined here for easy overriding by tests
 DEFAULT_MIN_SUBJECT = 10
 
-"""
-Counts can be driven by a workflow config. A counts config looks like this:
 
-type="counts"
-
-## the table in db will be called 'study_prefix__name', snaked cased for sql compatibility
-[tables.name] 
-
-## The following keys must be defined in all cases
-
-source_table= "core__patient"
-table_cols = ["gender","birthdate","postalcode_3"]
-
-## The rest of these keys are optional, and target specific use cases. You can uncomment
-## the examples as you need them
-
-## description is a user facing string that will be pushed downstream to the cumulus dashboard
-#description = "A count of patients by location across the entire hospital service area"
-
-## min_subject allows you to specify the smallest population size to include in a bucket.
-## The default is 10. Decreasing this number may affect the identifiability of individuals
-## in the dataset, so proceed with caution when changing this.
-# min_subject = 20
-
-## where clauses is an array of filter terms.
-# where_clauses =[
-#     "birthdate IS NOT NULL"
-#     "postalcode_3 IS NOT NULL"
-# ]
-
-## By default, we will count by subject_ref. If you want to count a different primary ID,
-## you can specify that here.
-# primary_id = "encounter_ref"
-
-## If you want to join a secondary table, you can specify that here. By default, it will
-## be joined on the primary ID. 
-# secondary_table="core__encounter"
-# secondary_cols = ["age_at_visit"]
-
-## You can specify a second ID type to stratify a table by. If you also have a secondary
-## table, it will be added to the join clause with the primary table
-# secondary_id = "subject_ref"
-
-## If you want to not join by secondary ID, or just to specify another column to join by,
-## you can use this field to declare an alternate join target
-# alt_secondary_join_id = "arbitrary_field"
-
-## if you want to use a table to annotate rows with labels from another dataset, like
-## from a coding system, you can define a count annotation source. All parmeters,
-## except alt_target, are required.
-# [ table.name.annotation ]
-## field is the column from the primary table to use to join with the annotating table
-# field='loinc_code'
-## join_table is the table to use as the annotating table
-# join_table='loinc.loinc_groups'
-## join_field is the field to join on from the annotation table.
-# join_field= 'code'
-## columns is a list of columns to bring over as annotations. Each column is a tuple
-## of three values:
-##   - the column name
-##   - the sql datatype to use for the column
-##   - a name to use as an alias, or None
-# columns = [
-#  [ "display", "varchar", None ],
-#  [ "system", "varchar", "code_system"]
-# ]
-## alt target lets you specify a different column from the annotation table to use to
-## join with the primary table. If not specified, it's assume they share the same
-## column name.
-# alt_target = "code"
-
-## As an alternate form of specifying where clauses, you can supply one or more lists to
-## filter_cols to handle the common case of things like 'only return rows where a column
-## contains one of these values', commonly a coding system in our use case. Each
-## filter contains the following:
-##   - The name of the column
-##   - A list of exact matches for the value in that column
-##   - A boolean to indicate if nulls should be included or not
-# filter_cols = [
-#     ['code_system', ['http://terminology.hl7.org/CodeSystem/condition-category'], True]
-# ]
-
-[tables.other_name]
-source_table= "core__condition"
-table_cols = ["code","recordeddate_month"]
-"""
+# Counts can be driven by a workflow config. See docs/workflows/counts.md for more details
+# on syntax and expectations.
 
 
 class CountsWorkflowAnnotation(msgspec.Struct, forbid_unknown_fields=True):
