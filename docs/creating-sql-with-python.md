@@ -12,26 +12,17 @@ Before jumping into this doc, take a look at
 [Creating Studies](creating-studies.md).
 If you're just working with the
 [Core study tables](core-study-details.md)
-related to the US Core FHIR profiles, you 
-may not be interested in this, or only need to look at the 
-[Working with TableBuilders](#working-with-tablebuilders)
-and the
-[Generating count tables](#generating-counts-tables)
-sections.
+related to the US Core FHIR profiles, you may not be interested in this.
+We cover some of the most common cases with
+[workflows](workflows.md),
+so check what's available there first before writing your own custom classes
 
 ## Why would I even need to think about this?
 
-There are three main reasons why you would need to use Python to generate SQL:
-- You would like to make use of the 
-[helper class we've built](#generating-counts-tables)
-for ease of creating count tables in a structured manner, or one of the
-[statistics packages](statistics.md) we provide for automating common numerical
-tasks, or you need to allow a user to pass in custom options from the CLI.
-- You have a dataset you'd like to 
-[load into a table from a static file](#adding-a-static-dataset),
-separate from the ETL tables.
-- The gnarly one: you are working against the raw FHIR resource tables, and are 
-trying to access 
+There are two main reasons to use a builder:
+- You want to leverage the library of templates we provide to quickly create
+common kinds of SQL statements
+- If you are working against the raw FHIR resource tables, and are trying to access 
 [nested data](#querying-nested-data) in Athena. 
   - This is gnarly because while the ETL provides a full SQL schema for your own data,
   it does not guarantee a schema for data that you don't have at your site.
@@ -41,7 +32,10 @@ trying to access
   write SQL that uses it. But a different site's EHR may not provide that field at all,
   and thus that column may not be defined in the SQL table schema at that other site.
 
-You'll see examples of all three cases in this guide.
+  The ETL provides a schema for data elements two levels deep, and tries to handle
+  all cases where a Coding or a CodeableConcept is present, but there may still be
+  some gaps that are missed - Extensions especially can be tricky if they are recursive.
+
 
 ## Utilities
 
@@ -92,7 +86,7 @@ your builder should override `__init__` as follows:
 
 You can either extend this class directly (like `builder_*.py` files in 
 `cumulus_library/studies/core`) or create a specific class to add reusable functions
-for a repeated use case (like in `cumulus_library/statistics/counts.py`).
+for a repeated use case (like in `cumulus_library/statistics/counts_builder.py`).
 
 TableBuilder SQL generally should go through a template SQL generator, so that
 your SQL has been validated. If you're just working on counts, you don't need
@@ -110,11 +104,9 @@ study), you can ask them to provide this as a custom arugment, using the format
 `--option key:value`. These options will be placed in the StudyConfig that is passed
 into the builder.
 
-### Working with template SQL
+## Use cases
 
-If you are only worried about building counts tables, skip this section - 
-we've got enough wrappers that you shouldn't need to worry about this
-level of detail.
+### Working with template SQL
 
 For validating SQL, we are using 
 [Jinja templates](https://jinja.palletsprojects.com/)
@@ -131,59 +123,6 @@ to generate flat tables from nested FHIR tables, as an example.
 When you're thinking about a query that you'd need to create, first check the
 template function library to see if something already exists. Basic creation and inspection
 queries should be covered, as well as unnestings for some common FHIR objects.
-
-## Use cases
-
-### Generating counts tables
-A thing we do over and over as part of studies is generate powerset counts tables
-against a filtered resource to get data about a certain kind of clinical population.
-Since this is so common we created a class just for this, and we're using it in 
-studies the Cumulus team is directly authoring.
-
-The [CountsBuilder class](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/statistics/counts.py)
-provides a number of convenience methods that are available for use (this covers
-mechanics of generation). You can see examples of usage in the 
-[Core counts builder](https://github.com/smart-on-fhir/cumulus-library/blob/main//cumulus_library/studies/core/count_core.py)
-(which is where the business logic of your study lives). 
-
-- `get_table_name` will scan the study's `manifest.toml` and auto prepend a table
-name with whatever the study prefix is.
-- `get_where_clauses` will format a string, or an array, of where clauses in a
-manner that the table constructors will expect.
-- `count_[condition,document,encounter,observation,patient]` will take a target table
-name, a source table, and an array of columns, and produce the appropriate powerset
-table to count that resource. You can optionally provide a list of where statements
-for filtering, or can change the minimum bin size used to include data
-- The `count_*` functions pass through to `get_count_query` - if you have a use
-case we're not covering, you can use this interface directly. We'd love to hear
-about it - we'd consider covering it and/or take PRs for new features
-
-Add your count generator file to the `counts_builder_config` section of your
-`manifest.toml` to include it in your build invocations.
-
-### Adding a static dataset
-
-Occasionally you will have a dataset from a third party that is useful for working
-with your dataset. 
-
-If you need to do this, you should extend the base
-`TableBuilder` class, and your `prepare_queries` function should do the following,
-leveraging the
-[template function library](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/template_sql/base_templates.py):
-- Convert your data to parquet format. The 
-[UMLS study](https://github.com/smart-on-fhir/cumulus-library-umls) provides an example
-of how to do this using a pandas DataFrame
-- Use the `upload_data` function from the StudyConfig.db_backend (passed to 
-TableBuilders as `config`) to push files to the appropriate location for databases
-Cumulus supports
-- Use the `get_ctas_from_parquet_query` function from the template library to get 
-a `CREATE TABLE AS` statement for the appropriate database, and add that to the builder's
-`queries` array.
-
-Add the dataset uploader to the `table_builder_config` section of your
-`manifest.toml` to include it in your build - this will make this data
-available for downstream queries
-
 
 ### Querying nested data
 

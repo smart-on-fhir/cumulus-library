@@ -83,7 +83,7 @@ lets you concatenate together arrays. This can be very slow, so use with caution
 ## Cubes
 
 Cubing tables before export is central to our strategy for masking PII. We provide a 
-[count builder](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/statistics/counts.py)
+[count builder](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/statistics/counts_builder.py)
 specifically to manage the details of this for you, but you can implement this yourself
 if you prefer using the
 [cube operator](https://trino.io/docs/current/sql/select.html#cube).

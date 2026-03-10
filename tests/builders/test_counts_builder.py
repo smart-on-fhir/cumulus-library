@@ -6,7 +6,6 @@ from unittest import mock
 
 import pytest
 
-import cumulus_library
 from cumulus_library import base_utils, errors, study_manifest
 from cumulus_library.actions import builder as build_action
 from cumulus_library.builders import counts
@@ -104,129 +103,6 @@ def test_get_count_query(mock_count, table_name, source_table, table_cols, kwarg
             assert v == call_kwargs[k]
 
 
-@pytest.mark.parametrize(
-    "table_name,source_table,table_cols,where,min_subject,method,fhir_resource",
-    [
-        ("count_condition_table", "source", ["a", "b"], None, None, "count_condition", "condition"),
-        (
-            "count_condition_table",
-            "source",
-            ["a", "b"],
-            "a = True",
-            5,
-            "count_condition",
-            "condition",
-        ),
-        (
-            "count_documentreference_table",
-            "source",
-            ["a", "b"],
-            None,
-            None,
-            "count_documentreference",
-            "documentreference",
-        ),
-        (
-            "count_documentreference_table",
-            "source",
-            ["a", "b"],
-            "a = True",
-            5,
-            "count_documentreference",
-            "documentreference",
-        ),
-        ("count_encounter_table", "source", ["a", "b"], None, None, "count_encounter", "encounter"),
-        (
-            "count_encounter_table",
-            "source",
-            ["a", "b"],
-            "a = True",
-            5,
-            "count_encounter",
-            "encounter",
-        ),
-        (
-            "count_medicationrequest_table",
-            "source",
-            ["a", "b"],
-            None,
-            None,
-            "count_medicationrequest",
-            "medicationrequest",
-        ),
-        (
-            "count_medicationrequest_table",
-            "source",
-            ["a", "b"],
-            "a = True",
-            5,
-            "count_medicationrequest",
-            "medicationrequest",
-        ),
-        ("count_patient_table", "source", ["a", "b"], None, None, "count_patient", "patient"),
-        ("count_patient_table", "source", ["a", "b"], "a = True", 5, "count_patient", "patient"),
-        (
-            "count_observation_table",
-            "source",
-            ["a", "b"],
-            None,
-            None,
-            "count_observation",
-            "observation",
-        ),
-        (
-            "count_observation_table",
-            "source",
-            ["a", "b"],
-            "a = True",
-            5,
-            "count_observation",
-            "observation",
-        ),
-    ],
-)
-@mock.patch("cumulus_library.builders.statistics_templates.counts_templates.get_count_query")
-def test_count_wrappers(
-    mock_count,
-    table_name,
-    source_table,
-    table_cols,
-    where,
-    min_subject,
-    method,
-    fhir_resource,  # no longer used, but may be helpful for debugging
-):
-    kwargs = {}
-    if where is not None:
-        kwargs["where_clauses"] = where
-    if min_subject is not None:
-        kwargs["min_subject"] = min_subject
-    manifest = study_manifest.StudyManifest()
-    manifest._study_prefix = TEST_PREFIX
-    builder = counts.CountsBuilder(manifest=manifest)
-    wrapper = getattr(builder, method)
-    wrapper(table_name, source_table, table_cols, **kwargs)
-    assert mock_count.called
-    call_args, call_kwargs = mock_count.call_args
-    assert call_args == (table_name, source_table, table_cols)
-    if where is not None:
-        assert call_kwargs["where_clauses"] == where
-    if min_subject is not None:
-        assert call_kwargs["min_subject"] == min_subject
-
-
-def test_filter_docstatus():
-    manifest = study_manifest.StudyManifest()
-    manifest._study_prefix = TEST_PREFIX
-    builder = counts.CountsBuilder(manifest=manifest)
-    query = builder.count_documentreference("table", "source", ["col_a"], filter_status=True)
-    assert "p.docStatus" in query
-    assert "p.status" in query
-    query = builder.count_documentreference("table", "source", ["col_a"])
-    assert "p.docStatus" not in query
-    assert "p.status" not in query
-
-
 def test_write_queries(tmp_path, mock_db_config):
     manifest = study_manifest.StudyManifest()
     manifest._study_prefix = "foo"
@@ -250,22 +126,22 @@ SELECT * FROM BAR
     [
         (None, [(2, "female"), (3, None), (1, "male")]),
         (
-            cumulus_library.CountAnnotation(
-                field="gender",
-                join_table="code_map",
-                join_field="gender",
-                columns=[("label", None, None), ("description", None, None)],
-            ),
+            {
+                "field": "gender",
+                "join_table": "code_map",
+                "join_field": "gender",
+                "columns": [("label", "varchar"), ("description", "varchar")],
+            },
             [(2, "female", "label_1", "desc_1"), (1, "male", "label_2", "desc_1")],
         ),
         (
-            cumulus_library.CountAnnotation(
-                field="gender",
-                join_table="code_map",
-                join_field="gender",
-                columns=[("label", None, None), ("description", None, None)],
-                alt_target="label",
-            ),
+            {
+                "field": "gender",
+                "join_table": "code_map",
+                "join_field": "gender",
+                "columns": [["label", "varchar"], ["description", "varchar"]],
+                "alt_target": "label",
+            },
             [(2, "label_1", "desc_1"), (1, "label_2", "desc_1")],
         ),
     ],
@@ -282,20 +158,30 @@ def test_count_annotation(tmp_path, annotation, expected):
     ) AS code_map(gender,label,description)
 """)
     config = base_utils.StudyConfig(db=db, schema="main")
-    manifest = study_manifest.StudyManifest()
-    manifest._study_prefix = TEST_PREFIX
-    builder = counts.CountsBuilder(manifest=manifest)
-    build_action.run_protected_table_builder(config=config, manifest=manifest)
-    builder.queries.append(
-        builder.count_patient(
-            table_name=f"{TEST_PREFIX}__annotation",
-            source_table="core__patient",
-            table_cols=["gender"],
-            min_subject=1,
-            annotation=annotation,
-        )
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": TEST_PREFIX,
+            "stages": {"stage_1": [{"type": "build:serial", "files": ["annotation.workflow"]}]},
+        },
     )
-    builder.execute_queries(config=config, manifest=manifest)
+    data = {
+        "config_type": "counts",
+        "tables": {
+            "annotation": {
+                "source_table": "core__patient",
+                "table_cols": [
+                    "gender",
+                ],
+                "min_subject": 1,
+            }
+        },
+    }
+    if annotation is not None:
+        data["tables"]["annotation"]["annotation"] = annotation
+    conftest.write_toml(tmp_path, data, filename="annotation.workflow")
+    manifest = study_manifest.StudyManifest(tmp_path)
+    build_action.build_study(config, manifest=manifest)
     results = db.cursor().execute("select * from test__annotation").fetchall()
     for line in expected:
         assert line in results
