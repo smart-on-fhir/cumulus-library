@@ -53,7 +53,7 @@ class CountAnnotation:
 def _cast_table_col(col):
     if isinstance(col, str):
         return CountColumn(name=col, db_type="VARCHAR", alias=None)
-    elif isinstance(col, CountColumn):  # pragma: no cover
+    elif isinstance(col, CountColumn):
         return col
     else:
         # Are we reading from a toml file? if so, we can't pass explicit nulls, so we need to infer
@@ -65,7 +65,7 @@ def _cast_table_col(col):
 def _cast_filter_col(filter_col):
     if isinstance(filter_col, tuple) or isinstance(filter_col, list):
         return FilterColumn(name=filter_col[0], values=filter_col[1], include_nulls=filter_col[2])
-    elif isinstance(filter_col, FilterColumn):  # pragma: no cover
+    elif isinstance(filter_col, FilterColumn):
         return filter_col
 
 

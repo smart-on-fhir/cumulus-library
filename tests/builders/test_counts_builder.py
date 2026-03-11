@@ -277,3 +277,16 @@ def test_primary_id_override():
         table_cols="col",
     )
     assert "subject_ref" in query
+
+
+def test_col_casts():
+    count_col = counts_templates.CountColumn(name="name", db_type="VARCHAR", alias=None)
+    assert counts_templates._cast_table_col("name") == count_col
+    assert counts_templates._cast_table_col(count_col) == count_col
+    assert counts_templates._cast_table_col(("name", "VARCHAR")) == count_col
+    count_col.alias = "alias"
+    assert counts_templates._cast_table_col(("name", "VARCHAR", "alias")) == count_col
+    filter_col = counts_templates.FilterColumn(name="name", values=["a", "b"], include_nulls=True)
+    assert counts_templates._cast_filter_col(["name", ["a", "b"], False]) == filter_col
+    assert counts_templates._cast_filter_col(("name", ["a", "b"], False)) == filter_col
+    assert counts_templates._cast_filter_col(filter_col) == filter_col
