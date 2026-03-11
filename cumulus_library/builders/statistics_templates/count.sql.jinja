@@ -95,7 +95,7 @@ CREATE TABLE {{ table_name }} AS (
             ON s.{{ primary_id }} = p.{{ primary_id }}
             {%- endif %}
         {%- endif %}
-        {%- if filter_status == True %}
+        {%- if filter_cols %}
         WHERE 
         {%- for filter_col in filter_cols %} {{ syntax.and_delineate(loop) }}
         (

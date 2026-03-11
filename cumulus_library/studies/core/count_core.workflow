@@ -4,7 +4,7 @@ config_type = "counts"
 source_table = "core__allergyintolerance"
 description = """A general count of patient allergic reactions by month.
 
-This table provides a summary snapshot of all allergic reactions in  the entire patient population
+This table provides a summary snapshot of all allergic reactions for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by intolerance category,
 intolerance code, the reaction manifestation, and the month the reaction was observed in. 
 It is primarily intended as a validation tool to ensure that data has been successfully extracted 
@@ -22,7 +22,7 @@ table_cols = [
 source_table = "core__condition"
 description = """A general count of observed conditions by month.
 
-This table provides a summary snapshot of all conditions observer in  the entire patient population
+This table provides a summary snapshot of all conditions observed in the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by condition category,
 condition code, and the month the condition was observed in. It is primarily intended as a
 validation tool to ensure that data has been successfully extracted from a source system via 
@@ -77,7 +77,6 @@ secondary_table = "core__encounter"
 secondary_id = "documentreference_ref"
 alt_secondary_join_id = "encounter_ref"
 secondary_cols = ["class_display"]
-filter_status = true
 filter_cols = [
     { name = "status", values = ["current"], include_nulls = false },
     { name = "docStatus", values = ["final", "amended"], include_nulls = true },
@@ -103,7 +102,6 @@ table_cols = [
     "ethnicity_display",
 ]
 secondary_id = "encounter_ref"
-filter_status = true
 filter_cols = [
     { name = "status", values = ["finished"], include_nulls = false }
 ]
@@ -182,7 +180,7 @@ secondary_id = "encounter_ref"
 [tables.count_encounter_service_month]
 description = """A general count of encounter service types by month.
 
-This table provides a summary snapshot of all the labs for the entire patient population
+This table provides a summary snapshot of all the enounters for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by value,
 observation code, and the date of the lab. It is primarily intended as a validation
 tool to ensure that data has been successfully extracted from a source system via the FHIR
@@ -232,7 +230,6 @@ secondary_table = "core__encounter"
 secondary_id = "observation_ref"
 alt_secondary_join_id = "encounter_ref"
 secondary_cols = ['class_display']
-filter_status = true
 filter_cols = [ {name= "status", values = ["final", "amended"], include_nulls = false} ]
 
 [tables.count_patient]

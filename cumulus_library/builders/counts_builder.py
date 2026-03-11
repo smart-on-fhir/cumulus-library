@@ -44,7 +44,6 @@ class CountsWorkflowTable(msgspec.Struct, forbid_unknown_fields=True, omit_defau
     secondary_id: str | None = None
     alt_secondary_join_id: str | None = None
     annotation: CountsWorkflowAnnotation | None = None
-    filter_status: bool | None = False
     filter_cols: list[CountsFilterColumn] | None = None
 
 
@@ -139,7 +138,6 @@ class CountsBuilder(BaseTableBuilder):
         secondary_table: str | None = None,
         secondary_cols: list[str] = [],
         annotation: counts_templates.CountAnnotation | None = None,
-        filter_status: bool | None = False,
         filter_cols: list[list[str]] | counts_templates.FilterColumn | None = None,
         **kwargs,
     ) -> str:
@@ -161,8 +159,6 @@ class CountsBuilder(BaseTableBuilder):
         :keyword secondary_cols: the columns to include from the secondary table
         :keyword annotation: A CountsAnnotation object describing a table to use as
             a metadata annotation source
-        :keyword filter_status: if true, will create a filter block at the start of your
-            query
         :keyword filter_cols: a series of FilterColumns, or list formatted like
             ['column name', ('desired val 1', 'desired val 2'), True/False for including nulls],
             used to add filtering statements to a filter section of a query. If you also
@@ -206,7 +202,7 @@ class CountsBuilder(BaseTableBuilder):
             secondary_table=secondary_table,
             secondary_cols=secondary_cols,
             annotation=annotation,
-            filter_status=filter_status,
+            filter_status=len(filter_cols) if filter_cols else False,
             filter_cols=filter_cols,
             **kwargs,
         )

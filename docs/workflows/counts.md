@@ -88,7 +88,6 @@ table_cols = ["gender","birthdate","postalcode_3"]
 ##   - The name of the column
 ##   - A list of exact matches for the value in that column
 ##   - A boolean to indicate if nulls should be included or not
-# filter_status = true
 # filter_cols = [
 #     ['code_system', ['http://terminology.hl7.org/CodeSystem/condition-category'], true]
 # ]
@@ -186,7 +185,6 @@ columns = [
 source_table = "core__condition"
 table_cols = ["code", "clinicalstatus_code"]
 min_subject = 2
-filter_status = true
 filter_cols = [
     ["clinicalstatus_code",["resolved"],false]
 ]
