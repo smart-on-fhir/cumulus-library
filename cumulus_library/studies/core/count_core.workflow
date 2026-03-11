@@ -2,7 +2,7 @@ config_type = "counts"
 
 [tables.count_allergyintolerance_month]
 source_table = "core__allergyintolerance"
-description = """A general count of allergic reactions by month.
+description = """A general count of patient allergic reactions by month.
 
 This table provides a summary snapshot of all allergic reactions in  the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by intolerance category,
@@ -34,10 +34,11 @@ table_cols = [
     ["code_display", "varchar"],
     ["code", "varchar"],
 ]
+secondary_id = "encounter_ref"
 
 [tables.count_diagnosticreport_month]
 source_table = "core__diagnosticreport"
-description = """A general count of diagnostic reports by month.
+description = """A general count of patient's diagnostic reports by month.
 
 This table provides a summary snapshot of all diagnostic reports for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by diagnostic category,
@@ -58,13 +59,13 @@ table_cols = [
 
 [tables.count_documentreference_month]
 source_table = "core__documentreference"
-description = """A general count of documents by month.
+description = """A general count of documents related to a patient by month.
 
 This table provides a summary snapshot of all documents for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by document type
 and the month the document was written in. It includes the related encounter class by joining
 with the associated enounter resource, and filters all documents that are not in a current state,
-or in a final or amemedent document state. It is primarily intended as a validation
+or in a final or amended document state. It is primarily intended as a validation
 tool to ensure that data has been successfully extracted from a source system via the FHIR
 data format.
 """
@@ -101,6 +102,7 @@ table_cols = [
     "race_display",
     "ethnicity_display",
 ]
+secondary_id = "encounter_ref"
 filter_status = true
 filter_cols = [
     { name = "status", values = ["finished"], include_nulls = false }
@@ -109,9 +111,9 @@ filter_cols = [
 [tables.count_encounter_all_types]
 description = """A general count of encounter states.
 
-This table provides a summary snapshot of all encounter priorities for the entire patient population
+This table provides a summary snapshot of all encounters for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by encounter class,
-encounter type, service type, and encounter encounter priority. It is primarily intended as a validation
+encounter type, service type, and encounter priority. It is primarily intended as a validation
 tool to ensure that data has been successfully extracted from a source system via the FHIR
 data format.
 """
@@ -122,6 +124,7 @@ table_cols = [
     "serviceType_display",
     "priority_display",
 ]
+secondary_id = "encounter_ref"
 
 [tables.count_encounter_all_types_month]
 description = """A general count of encounter states by month.
@@ -140,6 +143,7 @@ table_cols = [
     "priority_display",
     "period_start_month"
 ]
+secondary_id = "encounter_ref"
 
 [tables.count_encounter_type_month]
 description = """A general count of encounter types by month.
@@ -156,6 +160,7 @@ table_cols = [
     "type_display",
     "period_start_month"
 ]
+secondary_id = "encounter_ref"
 
 [tables.count_encounter_priority_month]
 description = """A general count of encounter priorities by month.
@@ -172,9 +177,10 @@ table_cols = [
     "priority_display",
     "period_start_month"
 ]
+secondary_id = "encounter_ref"
 
 [tables.count_encounter_service_month]
-description = """A general count of lab observations by month.
+description = """A general count of encounter service types by month.
 
 This table provides a summary snapshot of all the labs for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by value,
@@ -188,9 +194,10 @@ table_cols = [
     "serviceType_display",
     "period_start_month"
 ]
+secondary_id = "encounter_ref"
 
 [tables.count_medicationrequest_month]
-description = """A general count of medication requests by month.
+description = """A general count of patients with medication requests by month.
 
 This table provides a summary snapshot of all the medication requests for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by medication name,
@@ -208,7 +215,7 @@ table_cols = [
 
 [tables.count_observation_lab_month]
 source_table = "core__observation_lab"
-description = """A general count of lab observations by month.
+description = """A general count of patient's lab observations by month.
 
 This table provides a summary snapshot of all the labs for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by value,
@@ -246,7 +253,7 @@ table_cols = [
 
 [tables.count_procedure_month]
 source_table = "core__procedure"
-description = """A general procedure count by month.
+description = """A count of patient's general procedures by month.
 
 This table provides a summary snapshot of all the procedures for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by category,

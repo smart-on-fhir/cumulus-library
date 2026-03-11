@@ -33,7 +33,7 @@ common kinds of SQL statements
   and thus that column may not be defined in the SQL table schema at that other site.
 
   The ETL provides a schema for data elements two levels deep, and tries to handle
-  all cases where a Coding or a CodeableConcept is present, but there may still be
+  all cases where a Period, Coding or a CodeableConcept is present, but there may still be
   some gaps that are missed - Extensions especially can be tricky if they are recursive.
 
 

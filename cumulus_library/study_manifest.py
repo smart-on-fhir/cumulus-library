@@ -222,10 +222,7 @@ class StudyManifest:
 
     def get_stage(self, stage) -> list:
         """Returns the contents of the specified stage"""
-        stage_contents = self._study_config.get("stages", {}).get(stage, [])
-        if stage_contents == [] and (stage == "default" or stage == "all"):
-            stage_contents = self._study_config.get("stages", {})
-        return stage_contents
+        return self._study_config.get("stages", {}).get(stage, [])
 
     def get_file_list(
         self,
