@@ -15,7 +15,13 @@ hooks that Cumulus Library uses to invoke queries against your
 database. If you're writing a custom builder, base it off this and
 implement `prepare_queries()`.
 
-### CountsBuilder(counts.py)
+## Workflows
+
+The following builders are meant to be used as workflows. This means that the builder
+action will supply configuration options from an external file, and generally
+speaking non-maintainers don't need to interact with these builders directly.
+
+### CountsBuilder(counts_builder.py)
 
 The CountsBuilder provides conveniences for generating aggregate tables
 by summarizing data at the FHIR resource level. These are the basic
@@ -26,13 +32,6 @@ ref of the resource in question, and occasionally also either subject
 or encounter refs), all you need is to specify the columns you want
 and optional join clauses, and it will handle constructing the 
 counts query for you
-
-## Config-based Builders
-
-These builders are not meant to be imported as base classes in python
-directly (though you could if you wanted). Instead, these provide
-a configuration file format, in toml, which you can use to customize
-a strict set of build steps.
 
 ### Propensity score matching (psm.py)
 

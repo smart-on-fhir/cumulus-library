@@ -82,7 +82,6 @@ def get_count_query(
     secondary_table: str | None = None,
     secondary_cols: list[str] = [],
     annotation: CountAnnotation | None = None,
-    filter_status: bool | None = False,
     filter_cols: list[tuple[str, list[str], bool]] | list[FilterColumn] = [],
     **kwargs,
 ) -> str:
@@ -111,7 +110,7 @@ def get_count_query(
             annotation_col_classed.append(_cast_table_col(item))
         annotation.columns = annotation_col_classed
 
-    if filter_status and len(filter_cols) == 0:
+    if filter_cols and len(filter_cols) == 0:
         raise errors.CountsBuilderError(  # pragma: no cover
             "When filtering in a CountsBuilder, both 'filter_status' and "
             "'filter_cols' must be supplied."
@@ -136,7 +135,6 @@ def get_count_query(
         alt_secondary_join_id=alt_secondary_join_id,
         secondary_cols=secondary_cols,
         annotation=annotation,
-        filter_status=filter_status,
         filter_cols=filter_cols,
     )
     # workaround for conflicting sqlfluff enforcement

@@ -105,6 +105,7 @@ study with some descriptive text. \
 # This double bracket defines a new array inside of stages, define_population
 [[stages.define_population]]
 description = 'Upload files defining some conditions & select patients'
+type= 'build:parallel'
 files = [
   'file_upload_workflow_definition.toml',
 ]
@@ -238,6 +239,76 @@ If you're familiar with git workflows, we recommend creating a git repo for your
 help version your study in case of changes. You can also clone our
 [template study](https://github.com/smart-on-fhir/cumulus-library-template),
 which provides some other guidance on how to get started with authoring.
+
+### Alternate manifest/submanifest formatting
+
+The above examples use Toml's 
+[array of tables notation](https://toml.io/en/v1.0.0#array-of-tables)
+to compress whitespace/brackets in a file, but if you prefer, you can explicitly use lists
+of dicts instead. If you were to do that with the stages in the example manifest above, it
+would look like this instead:
+```toml
+stages ={
+  define_population=[
+    {
+      description = 'Upload files defining some conditions & select patients',
+      type = 'build:parallel',
+      files = [
+        'file_upload_workflow_definition.toml',
+      ],
+    },
+    {
+      description = 'Select patients by characteristics',
+      type= 'build:serial',
+      files = [
+        'select_patients.sql',
+      ],
+    }
+  ],
+  select_cohorts =[
+    {
+      description = 'Define cohorts',
+      files = [
+        'cohort_submanifest.toml',
+      ],
+      type = "submanifest",  
+    }
+  ],
+  count_cohorts =[
+    {
+      description = 'Define cohorts',
+      files = [
+        'cohort_by_age.py',
+        'cohort_by_gender.py'
+      ],
+      type = "build:parallel"
+    },
+    {
+
+      description = 'Export patient symptoms w/ LOINC codes',
+      type = 'export:annotated_counts',
+      tables = [
+        "my_study__count_influenza_test_month_annotated",
+      ]
+    },
+    {
+      description = 'Export summary statistics',
+      type = 'export:flat',
+      tables = [
+          "my_study__q_influenza",
+      ],
+    },
+    {
+      description = 'Export metadata',
+      type = 'export:metadata',
+      tables = [
+        "my_study__meta_date",
+        "my_study__meta_version",
+      ]      
+    }
+  ]
+}
+``` 
 
 ### Writing SQL queries
 

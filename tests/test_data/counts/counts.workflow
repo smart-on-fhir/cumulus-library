@@ -51,7 +51,6 @@ columns = [
 source_table = "core__condition"
 table_cols = ["code", "clinicalstatus_code"]
 min_subject = 2
-filter_status = true
 filter_cols = [
-    ["clinicalstatus_code",["resolved"],false]
+    { name = "clinicalstatus_code", values = ["resolved"], include_nulls = false }
 ]

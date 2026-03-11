@@ -63,7 +63,7 @@ files = [
 type = "build:parallel"
 [[stages.build_core]]
 description = "Summary counts of FHIR resources"
-files = ["count_core.py"]
+files = ["count_core.workflow"]
 type = "build:parallel"
 
 [[stages.build_core]]
