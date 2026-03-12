@@ -96,7 +96,7 @@ class StudyManifest:
         except (msgspec.ValidationError, msgspec.DecodeError) as e:
             raise errors.StudyManifestParsingError(
                 f"Manifest formatting error at path {path}: {e!s}. \n"
-                "You may be using an different version of a study manifest. See"
+                "You may be using an different version of a study manifest. See "
                 "https://docs.smarthealthit.org/cumulus/library/creating-studies.html "
                 "for more information about what fields are expected in a manifest."
             )

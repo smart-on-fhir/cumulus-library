@@ -74,10 +74,10 @@ def upload_files(args: dict):
     if args["data_path"] is None:
         sys.exit("No data directory provided - please provide a path to your study export folder.")
     file_paths = list(args["data_path"].glob("**/*.zip"))
-    filtered_paths = []
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
     for target in args["target"]:
+        filtered_paths = []
         for path in file_paths:
             if path.parent.name == target and path.name == f"{target}.zip":
                 filtered_paths.append(path)
