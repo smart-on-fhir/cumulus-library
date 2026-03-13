@@ -26,6 +26,7 @@ from cumulus_library import (
 from cumulus_library.builders import (
     counts_builder,
     file_upload_builder,
+    nlp_builder,
     protected_table_builder,
     psm_builder,
     valueset_builder,
@@ -565,6 +566,22 @@ def _run_workflow(
         target_table = workflow_config.get("target_table", workflow_config.get("table_prefix", ""))
 
     match config_type:
+        case "counts":
+            builder = counts_builder.CountsBuilder(
+                manifest=manifest,
+                toml_config_path=toml_path,
+            )
+        case "file_upload":
+            builder = file_upload_builder.FileUploadBuilder(
+                toml_config_path=toml_path,
+                config=config,
+                workflow_config=workflow_config,
+            )
+        case "nlp":
+            builder = nlp_builder.NlpBuilder(
+                manifest=manifest,
+                toml_config_path=toml_path,
+            )
         case "psm":
             existing_stats = []
             if not config.stats_build:
@@ -590,17 +607,6 @@ def _run_workflow(
                 config=config,
                 workflow_config=workflow_config,
                 data_path=manifest.data_path / f"{manifest.get_study_prefix()}/valueset",
-            )
-        case "file_upload":
-            builder = file_upload_builder.FileUploadBuilder(
-                toml_config_path=toml_path,
-                config=config,
-                workflow_config=workflow_config,
-            )
-        case "counts":
-            builder = counts_builder.CountsBuilder(
-                manifest=manifest,
-                toml_config_path=toml_path,
             )
         case _:  # pragma: no cover
             raise errors.StudyManifestParsingError(

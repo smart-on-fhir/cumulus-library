@@ -68,7 +68,7 @@ should create an array of queries in `self.queries`. The CLI will pass in a
 - An `execute_queries` function, which will run `prepare_queries` and then apply
 those queries to the database. You shouldn't need to touch this function -
 just be aware this is how your queries actually get run.
-- A `write_queries` function, which will write your queries from `prepare_function`
+- A `write_queries` function, which will write your queries from `prepare_queries`
 to disk. If you are creating multiple queries in one go, calling `comment_queries`
 before `write_queries` will insert some spacing elements for readability.
 - A `display_text` string, which is what will be shown with a progress bar when your
