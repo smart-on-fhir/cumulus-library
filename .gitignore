@@ -11,7 +11,6 @@ MRCONSO.RRF
 *.zip
 coverage.xml
 valueset_data/
-/cumulus_library/studies/example_nlp/age.json
 *.png
 
 # parquet and csv files show up during an export, which devs might do a fair bit in odd places.

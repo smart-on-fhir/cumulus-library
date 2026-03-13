@@ -114,6 +114,73 @@ def add_study_dir_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def add_note_dir_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--note-dir",
+        metavar="DIR",
+        action="append",
+        help=(
+            "One or more directories in which to look for FHIR resources holding clinical "
+            "notes (like DiagnosticReport and DocumentReference). Searched recursively. "
+            "Can be an s3:// URL or local path. Only relevant for NLP workflows."
+        ),
+    )
+
+
+def add_etl_phi_dir_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--etl-phi-dir",
+        metavar="DIR",
+        help=(
+            "The directory in which Cumulus ETL drops PHI mapping information. "
+            "Can be an s3:// URL or local path. Only relevant for NLP workflows."
+        ),
+    )
+
+
+def add_nlp_config(parser: argparse.ArgumentParser) -> None:
+    group = parser.add_argument_group("Database config")
+    group.add_argument(
+        "--nlp-model",
+        choices=[
+            "claude-sonnet45",
+            "gpt-oss-120b",
+            "gpt35",
+            "gpt4",
+            "gpt4o",
+            "gpt5",
+            "llama4-scout",
+        ],
+        help="Which model to use for NLP (must be provided when using NLP)",
+    )
+    group.add_argument(
+        "--nlp-provider",
+        choices=["azure", "bedrock", "local"],
+        default="local",
+        help="Which model provider to use for NLP (default is local)",
+    )
+    group.add_argument(
+        "--azure-deployment",
+        help="What Azure deployment name to use for NLP (default is model name)",
+    )
+    group.add_argument(
+        "--batch-nlp",
+        action="store_true",
+        help="Use NLP batching mode (saves money, might take longer, not all models support it)",
+    )
+    group.add_argument(
+        "--clean-nlp",
+        action="store_true",
+        help="Previous NLP task results will be deleted before uploading the new ones",
+    )
+    group.add_argument(
+        "--no-nlp-stats",
+        dest="nlp_stats",
+        action="store_false",
+        help="Disable printing of NLP note and token statistics",
+    )
+
+
 def add_stage_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --stage arg to a subparser"""
     parser.add_argument(
@@ -213,6 +280,9 @@ AWS Athena, the following order of preference is used to select credentials:
     add_data_path_argument(build)
     add_db_config(build, input_mode=True)
     add_study_dir_argument(build)
+    add_note_dir_argument(build)
+    add_etl_phi_dir_argument(build)
+    add_nlp_config(build)
     add_table_builder_argument(build)
     add_target_argument(build)
     add_verbose_argument(build)

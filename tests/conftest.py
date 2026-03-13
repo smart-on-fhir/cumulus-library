@@ -111,10 +111,11 @@ def duckdb_args(args: list, tmp_path, stats=False):
     return [*args, "--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
 
 
-def write_toml(path, toml_dict, filename="manifest.toml"):
+def write_toml(path, toml_dict, filename="manifest.toml") -> pathlib.Path:
     manifest_str = msgspec.toml.encode(toml_dict)
     with open(path / filename, "wb") as f:
         f.write(manifest_str)
+    return path / filename
 
 
 def date_to_epoch(year: int, month: int, day: int) -> int:
