@@ -114,6 +114,19 @@ def add_study_dir_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def add_note_dir_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--note-dir",
+        metavar="DIR",
+        action="append",
+        help=(
+            "One or more directories in which to look for FHIR resources holding clinical "
+            "notes (like DiagnosticReport and DocumentReference). Searched recursively. "
+            "Can be an s3:// URL or local path. Only relevant for NLP workflows."
+        ),
+    )
+
+
 def add_stage_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --stage arg to a subparser"""
     parser.add_argument(
@@ -207,6 +220,7 @@ AWS Athena, the following order of preference is used to select credentials:
     add_data_path_argument(build)
     add_db_config(build, input_mode=True)
     add_study_dir_argument(build)
+    add_note_dir_argument(build)
     add_table_builder_argument(build)
     add_target_argument(build)
     add_verbose_argument(build)

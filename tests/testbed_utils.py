@@ -255,7 +255,7 @@ class LocalTestbed:
     def get_db_file(self, study: str = "core") -> str:
         return f"{self.path}/{study}.db"
 
-    def build(self, study: str = "core") -> duckdb.DuckDatabaseBackend:
+    def build(self, study: str = "core", stage: str = "default") -> duckdb.DuckDatabaseBackend:
         db_file = self.get_db_file(study)
         db, _ = create_db_backend(
             {
@@ -271,6 +271,7 @@ class LocalTestbed:
         config = base_utils.StudyConfig(
             db=db,
             schema="main",
+            stage=stage,
             # verbose=True,
         )
         study_runner = cli.StudyRunner(config, data_path=str(self.path))

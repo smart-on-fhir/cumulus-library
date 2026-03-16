@@ -5,12 +5,14 @@ import json
 import duckdb
 import pandas
 
+from cumulus_library import cli
 from tests import testbed_utils
+from tests.conftest import duckdb_args
 
 
 def test_empty_build(tmp_path):
     testbed = testbed_utils.LocalTestbed(tmp_path)
-    db = testbed.build("example_nlp")
+    db = testbed.build("example_nlp", stage="ranges")
     df = db.connection.sql("SELECT * FROM example_nlp__range_labels").df()
     assert df.empty  # should exist, but be empty
 
@@ -54,7 +56,7 @@ def test_merging_two_sources(tmp_path):
     )
     con.sql("CREATE TABLE example_nlp__nlp_llama4_scout AS SELECT * FROM llama4_df")
 
-    db = testbed.build("example_nlp")
+    db = testbed.build("example_nlp", stage="ranges")
     df = db.connection.sql(
         "SELECT * FROM example_nlp__range_labels ORDER BY note_ref, origin, span"
     ).df()
@@ -96,3 +98,25 @@ def test_merging_two_sources(tmp_path):
             "origin": "example_nlp__nlp_llama4_scout",
         },
     ]
+
+
+def test_full_build(tmp_path):
+    with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
+        json.dump({"resourceType": "DiagnosticReport"}, f)
+
+    build_args = duckdb_args(
+        [
+            "build",
+            "-t",
+            "example_nlp",
+            str(tmp_path),
+            "--stage",
+            "all",
+            "--note-dir",
+            str(tmp_path),
+        ],
+        tmp_path,
+    )
+
+    # For now, just test that it doesn't blow up
+    cli.main(cli_args=build_args)
