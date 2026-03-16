@@ -57,6 +57,7 @@ WITH temp_procedure AS (
         date_trunc('year', cast(from_iso8601_timestamp(src."performedPeriod"."end") AS date))
             AS performedPeriod_end_year
     FROM "procedure" AS src
+    WHERE (src.status IS NULL OR src.status <> 'entered-in-error')
 )
 
 SELECT

@@ -55,6 +55,7 @@ WITH temp_procedure AS (
             )
         }}
     FROM "procedure" AS src
+    WHERE (src.status IS NULL OR src.status <> 'entered-in-error')
 )
 
 SELECT

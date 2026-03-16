@@ -64,7 +64,7 @@ temp_encounter_nullable AS (
         -- NULL completion just means it's a row that isn't completion-tracked
         -- (likely a legacy row), so allow it in.
         tec.is_complete IS NULL OR tec.is_complete
-    )
+    ) AND (e.status IS NULL OR e.status <> 'entered-in-error')
 ),
 
 temp_participant AS (
