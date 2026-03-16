@@ -59,6 +59,7 @@ WITH temp_observation AS (
     LEFT JOIN core__observation_dn_interpretation AS odi ON o.id = odi.id
     LEFT JOIN core__observation_dn_valuecodeableconcept AS odvcc ON o.id = odvcc.id
     LEFT JOIN core__observation_dn_dataabsentreason AS odda ON o.id = odda.id
+    WHERE (o.status IS NULL OR o.status <> 'entered-in-error')
 )
 
 SELECT

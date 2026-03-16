@@ -60,6 +60,7 @@ WITH temp_diagnosticreport AS (
         date_trunc('year', cast(from_iso8601_timestamp(d."issued") AS date))
             AS issued_year
     FROM diagnosticreport AS d
+    WHERE (d.status IS NULL OR d.status <> 'entered-in-error')
 ),
 
 temp_performer AS (

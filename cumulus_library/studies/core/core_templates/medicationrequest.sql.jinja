@@ -47,6 +47,7 @@ CREATE TABLE core__medicationrequest AS (
                 )
             }}
         FROM medicationrequest AS mr
+        WHERE (mr.status IS NULL OR mr.status <> 'entered-in-error')
     ),
 
     contained_refs AS (

@@ -181,3 +181,49 @@ def test_core_multiple_doc_encounters(tmp_path):
         ("TwoEnc", "Encounter/B"),
     }
     assert expected == set(docs)
+
+
+def test_entered_in_error_skipped(tmp_path):
+    resources = {
+        "allergy_intolerance": {
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "code": "entered-in-error",
+                        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+                    }
+                ]
+            }
+        },
+        "condition": {
+            "verificationStatus": {
+                "coding": [
+                    {
+                        "code": "entered-in-error",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                    }
+                ]
+            }
+        },
+        "diagnostic_report": None,
+        "document_reference": None,
+        "encounter": None,
+        "medication_request": None,
+        "observation": None,
+        "procedure": None,
+    }
+
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    for res_slug, status in resources.items():
+        if not status:
+            status = {"status": "entered-in-error"}
+        method = getattr(testbed, f"add_{res_slug}")
+        method("good")
+        method("bad", **status)
+
+    db = testbed.build()
+
+    for res_slug in resources:
+        table = res_slug.replace("_", "")
+        ids = db.connection.sql(f"SELECT id FROM core__{table}").fetchall()
+        assert ids == [("good",)], res_slug
