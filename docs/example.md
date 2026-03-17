@@ -40,7 +40,7 @@ You'll need to do the following steps to get things set up for running studies:
 We'll want to run the `core` study on the dataset, to flatten the FHIR data out to make
 it easier to inspect. So, we'll run the following command:
 ```bash
-  cumulus-library build --target core \
+cumulus-library build --target core \
   --db-type duckdb \
   --database /path/to/your/example/duck.db \
   --load_ndjson_dir /path/to/your/example/1000-patients
@@ -54,12 +54,11 @@ the arrow in the upper left to run a query. Notebooks are saved between sessions
 ### Athena
 If you have data in Amazon Athena, you can build the `core` study with the following command:
 ```bash
-  cumulus-library build --target core \
---database your-database-name \
---profile aws-profile-name \
---region your-aws-region \
---workgroup workgroup-name
-
+cumulus-library build --target core \
+  --database your-database-name \
+  --profile aws-profile-name \
+  --region your-aws-region \
+  --workgroup workgroup-name
 ```
 If you don't know the values for profile/region/workgroup, talk to the person managing your account.
 
@@ -82,7 +81,7 @@ A good question for a Cumulus study is one that involves sampling a patient popu
 cohorts over which you can run aggregate statistics. 
 
 For our example here, we'll ask a simple question: *What kinds of medications are being prescribed
-for preteens with bronchitis in the last five years?* This question will work with the 
+for preteens with bronchitis in the period from 2021-2026?* This question will work with the 
 synthetic dataset, but it will also work just fine with real data.
 
 
@@ -115,8 +114,8 @@ FROM core__patient
 LIMIT 10;
 ```
 
-This shows all the patients in the dataset. We want to get the `subject_ref` of all patients who are 
-approximately 12 years old or less - though since we're looking over a five year window, we'll need
+This shows a sample of the patients in the dataset. We want to get the `subject_ref` of patients who
+are approximately 12 years old or less - though since we're looking over a five year window, we'll need
 to factor in patients who were preteens at the time -  and there's a column named `birthdate`. So
 let's filter by that. Run the following query:
 
@@ -174,7 +173,7 @@ are the things we'll be using later.
 
 Now that we're comfortable with the study population, we'll start creating our first files related
 to the study. Every study has a name, and we'll need to know it for some of the next steps, so
-we'll call our study `example`. A good study name has no spaces and uses underscores to
+we'll call our study `example`. A valid study name has no spaces and uses underscores to
 separate words.
 
 In the directory we set up to hold our study, let's create a folder called `queries`. In that folder,
@@ -219,22 +218,22 @@ Let's go ahead and build our study, just to make sure that everything is working
   - we don't need to reference the NDJSON folder now that we're working from core tables
   - if you're running the duckdb UI, you'll need to shut it down before running this command
     by typing `.exit` in the terminal:
-  ```bash
-    cumulus-library build --target example \
-    --study-dir /path/to/your/example/ \
-    --db-type duckdb \
-    --database /path/to/your/example/duck.db
-  ```
+```bash
+cumulus-library build --target example \
+  --study-dir /path/to/your/example/ \
+  --db-type duckdb \
+  --database /path/to/your/example/duck.db
+```
 
 - For Athena:
-  ```bash
-    cumulus-library build --target example \
-    --study-dir /path/to/your/example/ \
-    --database your-database-name \
-    --profile aws-profile-name \
-    --region your-aws-region \
-    --workgroup workgroup-name
-  ```
+```bash
+cumulus-library build --target example \
+  --study-dir /path/to/your/example/ \
+  --database your-database-name \
+  --profile aws-profile-name \
+  --region your-aws-region \
+  --workgroup workgroup-name
+```
 
 ## Step 2: Defining cohorts & selecting resources
 
@@ -247,7 +246,7 @@ and we might want to have more than one here. Specifically, the following groupi
 - All patients taking a medication with a specific ingredient
 
 Going back to our research question, *What kinds of medications are being prescribed
-for preteens with bronchitis in the last five years?*, the first one grouping is probably the most
+for preteens with bronchitis in the period from 2021-2026?*, the first one grouping is probably the most
 relevant. If we were to expand the scope of our question to look at effects over time (making
 our research question more like *How effective are medications in treating preteens with
 bronchitis?*), we might consider adding the medication/ingredient specific cohorts. We'll skip
@@ -353,7 +352,7 @@ files = [ "workflows/upload.workflow" ]
 We can then run this to make sure we've configured everything correctly:
 - For DuckDB:
   ```bash
-  cumulus-library build --target example \
+cumulus-library build --target example \
   --study-dir /path/to/your/example/ \
   --db-type duckdb \
   --database /path/to/your/example/duck.db
@@ -361,7 +360,7 @@ We can then run this to make sure we've configured everything correctly:
 
 - For Athena:
   ```bash
-  cumulus-library build --target example \
+cumulus-library build --target example \
   --study-dir /path/to/your/example/ \
   --database your-database-name \
   --profile aws-profile-name \
@@ -621,20 +620,20 @@ point:
 
 - For DuckDB:
   ```bash
-    cumulus-library build --target example --stage analysis\
-    --study-dir /path/to/your/example/ \
-    --db-type duckdb \
-    --database /path/to/your/example/duck.db
+cumulus-library build --target example --stage analysis\
+  --study-dir /path/to/your/example/ \
+  --db-type duckdb \
+  --database /path/to/your/example/duck.db
   ```
 
 - For Athena:
   ```bash
-    cumulus-library build --target example --stage analysis\
-    --study-dir /path/to/your/example/ \
-    --database your-database-name \
-    --profile aws-profile-name \
-    --region your-aws-region \
-    --workgroup workgroup-name
+cumulus-library build --target example --stage analysis\
+  --study-dir /path/to/your/example/ \
+  --database your-database-name \
+  --profile aws-profile-name \
+  --region your-aws-region \
+  --workgroup workgroup-name
   ```
 
 Now we can tweak our output analysis without touching the contents of the cohort.
@@ -913,22 +912,22 @@ as a zip file.
 
 - For DuckDB:
   ```bash
-    cumulus-library export --target example --stage analysis\
-    --study-dir /path/to/your/example/ \
-    --db-type duckdb \
-    --database /path/to/your/example/duck.db \
-    /path/to/your/export/dir
+cumulus-library export --target example --stage analysis\
+  --study-dir /path/to/your/example/ \
+  --db-type duckdb \
+  --database /path/to/your/example/duck.db \
+  /path/to/your/export/dir
   ```
 
 - For Athena:
   ```bash
-    cumulus-library export --target example --stage analysis\
-    --study-dir /path/to/your/example/ \
-    --database your-database-name \
-    --profile aws-profile-name \
-    --region your-aws-region \
-    --workgroup workgroup-name \
-    /path/to/your/export/dir
+cumulus-library export --target example --stage analysis\
+  --study-dir /path/to/your/example/ \
+  --database your-database-name \
+  --profile aws-profile-name \
+  --region your-aws-region \
+  --workgroup workgroup-name \
+  /path/to/your/export/dir
   ```
 
 In the directory you specify for export, you should have some csvs of your count tables, and a zip file
