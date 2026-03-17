@@ -120,6 +120,7 @@ def build_study(
                 queries = queries + _run_raw_queries(
                     config=config,
                     manifest=manifest,
+                    label=action.get("label"),
                     filename=file,
                     data_path=data_path,
                     prepare=prepare,
@@ -136,7 +137,7 @@ def build_study(
                 queries = _update_build_source_table(config, manifest, queries)
                 with base_utils.get_progress_bar() as progress_bar:
                     task = progress_bar.add_task(
-                        f"Building {action.get('description', '')} tables...",
+                        f"Building {action.get('label', '')} tables...",
                         total=query_count,
                         visible=not config.verbose,
                     )
@@ -290,7 +291,7 @@ def _execute_build_queries(
 
 def _render_output(
     config: base_utils.StudyConfig,
-    study_name: str,
+    manifest: study_manifest.StudyManifest,
     outputs: list,
     data_path: pathlib.Path,
     filename: str,
@@ -308,7 +309,7 @@ def _render_output(
         else:
             name = str(sqlglot.parse_one(output, dialect=config.db.db_type).find(sqlglot.exp.Table))
         new_filename = f"{config.stage}.{filename.rsplit('.', 1)[0]}.{index:02d}.{name}.{suffix}"
-        file_path = data_path / f"{study_name}/{new_filename}"
+        file_path = data_path / f"{manifest.get_study_prefix()}/{new_filename}"
 
         file_path.parent.mkdir(exist_ok=True, parents=True)
         with open(file_path, "w", encoding="UTF-8") as f:
@@ -418,7 +419,7 @@ def _run_builder(
         )
         _render_output(
             config,
-            manifest.get_study_prefix(),
+            manifest,
             table_builder.queries,
             data_path,
             filename,
@@ -453,6 +454,7 @@ def _run_raw_queries(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
     *,
+    label: str | None,
     filename: str,
     data_path: pathlib.Path | None,
     prepare: bool,
@@ -486,7 +488,7 @@ def _run_raw_queries(
     if prepare:
         _render_output(
             config,
-            manifest.get_study_prefix(),
+            manifest,
             cleaned_queries,
             data_path,
             filename,
@@ -500,9 +502,13 @@ def _run_raw_queries(
         cursor = config.db.cursor()
         # We want to only show a progress bar if we are :not: printing SQL lines
 
+        if label:
+            display_str = f"Building {label} from {filename}..."
+        else:
+            display_str = f"Building tables from {filename}..."
         with base_utils.get_progress_bar(disable=config.verbose) as progress:
             task = progress.add_task(
-                f"Building tables from {filename}...",
+                display_str,
                 total=len(cleaned_queries),
                 visible=not config.verbose,
             )
@@ -546,7 +552,7 @@ def _run_workflow(
             workflow_config = file.read()
         _render_output(
             config,
-            manifest.get_study_prefix(),
+            manifest,
             [workflow_config],
             data_path,
             filename,
@@ -606,13 +612,13 @@ def _run_workflow(
             raise errors.StudyManifestParsingError(
                 f"{toml_path} references an invalid workflow type {config_type}."
             )
-    if parallel and builder.parallel_allowed:
-        builder.prepare_queries(
-            config=config,
-            manifest=manifest,
-            table_suffix=safe_timestamp,
-        )
-    else:
+
+    builder.prepare_queries(
+        config=config,
+        manifest=manifest,
+        table_suffix=safe_timestamp,
+    )
+    if not parallel or not builder.parallel_allowed:
         builder.queries = _update_build_source_table(config, manifest, builder.queries)
         builder.execute_queries(
             config=config,

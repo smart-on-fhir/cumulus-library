@@ -10,7 +10,7 @@ from cumulus_library.actions import builder
 from cumulus_library.builders import file_upload_builder
 
 TEST_DATA_PATH = pathlib.Path(__file__).parents[1] / "test_data/file_upload"
-REF_DF = pandas.DataFrame(data={"a": [1, 4], "b": [2, 5], "c": [3, 6]})
+REF_DF = pandas.DataFrame(data={"a": ["1", "4"], "b": ["2", "5"], "c": ["3", "6"]})
 
 
 # pandas only officially supports SQLAlchemy, but the pep-compliant DuckDB

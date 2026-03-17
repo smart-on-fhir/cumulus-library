@@ -95,13 +95,6 @@ class FileUploadBuilder(BaseTableBuilder):
                 if "always_upload" not in table:
                     table["always_upload"] = True
                 df = df.rename(self.snake_case, axis="columns")
-                df.to_parquet(parquet_path)
-                remote_path = config.db.upload_file(
-                    file=parquet_path,
-                    study=manifest.get_study_prefix(),
-                    topic=parquet_path.stem,
-                    force_upload=table["always_upload"] or config.force_upload,
-                )
                 if table.get("col_types") is None:
                     table["col_types"] = ["STRING" for x in df.columns]
                 elif len(table["col_types"]) != len(df.columns):
@@ -109,6 +102,17 @@ class FileUploadBuilder(BaseTableBuilder):
                         f"{table_name} has {len(df.columns)} columns, but the provided "
                         f"col_types has {len(table['col_types'])} entries."
                     )
+                type_dict = {}
+                for pos in range(0, len(table["col_types"])):
+                    type_dict[df.columns[pos]] = table["col_types"][pos].lower()
+                df = df.astype(type_dict)
+                df.to_parquet(parquet_path)
+                remote_path = config.db.upload_file(
+                    file=parquet_path,
+                    study=manifest.get_study_prefix(),
+                    topic=parquet_path.stem,
+                    force_upload=table["always_upload"] or config.force_upload,
+                )
                 self.queries.append(
                     base_templates.get_ctas_from_parquet_query(
                         schema_name=config.schema,
@@ -119,5 +123,4 @@ class FileUploadBuilder(BaseTableBuilder):
                         remote_table_cols_types=table["col_types"],
                     )
                 )
-
                 progress.advance(task)

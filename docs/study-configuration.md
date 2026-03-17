@@ -1,15 +1,16 @@
 ---
-title: Creating Library Studies
+title: Study Configuration
 parent: Library
-nav_order: 3
+nav_order: 10
 # audience: clinical researcher or engineer familiar with project
-# type: tutorial
+# type: reference
 ---
 
-# Creating Library Studies
+# Study Configuration
 
-The following guide talks about how to use the Cumulus Library to create new
-aggregations in support of ongoing projects.
+The following guide discusses in detail the various options for configuring a study.
+If this is your first time, you may want to look at
+[Creating an example study](example.md).
 
 ## Setup
 
@@ -40,9 +41,13 @@ to update this value as appropriate.
 [toml file](https://toml.io/en/)
 is a config file format - you don't need to worry too much about the details of this 
 format, as we'll show you in this document how the library uses these files to run your
-study. You can copy the following template as an example, which has comments describing
-what each section does:
+study. 
 
+You can, alternatively, use the 
+[template study](https://github.com/smart-on-fhir/cumulus-library-template)
+as a starting point for configuring a study.
+
+## Manifest format
 ```toml
 # 'study_prefix' should be a string at the start of each table. We'll use this
 # to remove tables from prior builds, so it should be unique. Name your tables
@@ -239,76 +244,6 @@ If you're familiar with git workflows, we recommend creating a git repo for your
 help version your study in case of changes. You can also clone our
 [template study](https://github.com/smart-on-fhir/cumulus-library-template),
 which provides some other guidance on how to get started with authoring.
-
-### Alternate manifest/submanifest formatting
-
-The above examples use Toml's 
-[array of tables notation](https://toml.io/en/v1.0.0#array-of-tables)
-to compress whitespace/brackets in a file, but if you prefer, you can explicitly use lists
-of dicts instead. If you were to do that with the stages in the example manifest above, it
-would look like this instead:
-```toml
-stages ={
-  define_population=[
-    {
-      description = 'Upload files defining some conditions & select patients',
-      type = 'build:parallel',
-      files = [
-        'file_upload_workflow_definition.toml',
-      ],
-    },
-    {
-      description = 'Select patients by characteristics',
-      type= 'build:serial',
-      files = [
-        'select_patients.sql',
-      ],
-    }
-  ],
-  select_cohorts =[
-    {
-      description = 'Define cohorts',
-      files = [
-        'cohort_submanifest.toml',
-      ],
-      type = "submanifest",  
-    }
-  ],
-  count_cohorts =[
-    {
-      description = 'Define cohorts',
-      files = [
-        'cohort_by_age.py',
-        'cohort_by_gender.py'
-      ],
-      type = "build:parallel"
-    },
-    {
-
-      description = 'Export patient symptoms w/ LOINC codes',
-      type = 'export:annotated_counts',
-      tables = [
-        "my_study__count_influenza_test_month_annotated",
-      ]
-    },
-    {
-      description = 'Export summary statistics',
-      type = 'export:flat',
-      tables = [
-          "my_study__q_influenza",
-      ],
-    },
-    {
-      description = 'Export metadata',
-      type = 'export:metadata',
-      tables = [
-        "my_study__meta_date",
-        "my_study__meta_version",
-      ]      
-    }
-  ]
-}
-``` 
 
 ### Writing SQL queries
 

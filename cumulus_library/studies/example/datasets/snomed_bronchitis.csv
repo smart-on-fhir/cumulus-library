@@ -1,0 +1,22 @@
+code,display_name,system
+32398004,bronchitis,http://snomed.info/sct
+10509002,Acute bronchitis,http://snomed.info/sct
+405720007,Allergic bronchitis,http://snomed.info/sct
+405944004,Asthmatic bronchitis,http://snomed.info/sct
+846638002,Bronchitis caused by chemical fumes,http://snomed.info/sct
+10625791000119101,Bronchitis caused by chemical,http://snomed.info/sct
+846639005,Bronchitis caused by vapor,http://snomed.info/sct
+785728005,Bronchitis co-occurrent with wheeze,http://snomed.info/sct
+396285007,Bronchopneumonia,http://snomed.info/sct
+89549007,Catarrhal bronchitis,http://snomed.info/sct
+63480004,Chronic bronchitis,http://snomed.info/sct
+445058002,Inflammation of bronchus caused by Aspergillus,http://snomed.info/sct
+53926002,Plastic bronchitis,http://snomed.info/sct
+40600002,Pneumococcal bronchitis,http://snomed.info/sct
+713175006,Postoperative bronchitis,http://snomed.info/sct
+29591002,Purulent bronchitis,http://snomed.info/sct
+65878001,Septic bronchitis,http://snomed.info/sct
+36426008,Subacute bronchitis,http://snomed.info/sct
+13617004,Tracheobronchitis,http://snomed.info/sct
+186178000,Tuberculosis of bronchus,http://snomed.info/sct
+16146001,Viral bronchitis http://snomed.info/sct
