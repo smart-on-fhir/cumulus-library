@@ -36,7 +36,7 @@ files = [
 
 [[stages.analysis]]
 label = "Generate summary counts"
-type = "build:parallel"
+types = "build:parallel"
 files = [ 
     "workflows/counts.workflow",
 ]
