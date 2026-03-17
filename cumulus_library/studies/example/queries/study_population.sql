@@ -1,4 +1,4 @@
-CREATE TABLE cumulus_example__study_population AS (
+CREATE TABLE example__study_population AS (
     SELECT
         p.subject_ref,
         p.birthdate,

@@ -30,11 +30,11 @@ You'll need to do the following steps to get things set up for running studies:
 
 - Install [python](https://www.python.org/) if you haven't already, version 3.11 or later
 - Install cumulus library with `python -m pip install cumulus-library`
-- Make a directory called `cumulus-example` in a location of your choice to hold the files
+- Make a directory called `example` in a location of your choice to hold the files
   we'll be using for this. Create an empty file in that folder named `__init__.py`
   - If you don't have a dataset already, get the 
     [synthetic 1000 patient data set](https://github.com/smart-on-fhir/sample-bulk-fhir-datasets/archive/refs/heads/1000-patients.zip),
-    and unzip it to a folder named `1000-patients` in cumulus-example.
+    and unzip it to a folder named `1000-patients` in example.
 
 ### DuckDB
 We'll want to run the `core` study on the dataset, to flatten the FHIR data out to make
@@ -42,10 +42,10 @@ it easier to inspect. So, we'll run the following command:
 ```bash
   cumulus-library build --target core \
   --db-type duckdb \
-  --database /path/to/your/cumulus-example/duck.db \
-  --load_ndjson_dir /path/to/your/cumulus-example/1000-patients
+  --database /path/to/your/example/duck.db \
+  --load_ndjson_dir /path/to/your/example/1000-patients
 ```
-To view the database, you can run `duckdb /path/to/your/cumulus-example/duck.db -ui` to open a 
+To view the database, you can run `duckdb /path/to/your/example/duck.db -ui` to open a 
 duckdb viewer in your web browser. You can click on the plus next to Notebooks to get a new notebook.
 Then, you can click on 'add cell', and a cell will be added you can write queries in. Just click
 the arrow in the upper left to run a query. Notebooks are saved between sessions. 
@@ -174,16 +174,16 @@ are the things we'll be using later.
 
 Now that we're comfortable with the study population, we'll start creating our first files related
 to the study. Every study has a name, and we'll need to know it for some of the next steps, so
-we'll call our study `cumulus_example`. A good study name has no spaces and uses underscores to
+we'll call our study `example`. A good study name has no spaces and uses underscores to
 separate words.
 
 In the directory we set up to hold our study, let's create a folder called `queries`. In that folder,
 we'll create a file called `study_population.sql`. We'll wrap the query we used above in a create
-table statement to make a table named `cumulus_example__study_population`. We separate the study
+table statement to make a table named `example__study_population`. We separate the study
 prefix from the subject of the table with a double underscore.
 
 ```sql
-CREATE TABLE cumulus_example__study_population AS (
+CREATE TABLE example__study_population AS (
     SELECT
         p.subject_ref,
         p.birthdate,
@@ -203,7 +203,7 @@ of all the files in a study. We're going to define the study prefix, and then ad
 study should take to build the above table.
 
 ```toml
-study_prefix = "cumulus_example"
+study_prefix = "example"
 description = "An example study looking at medication usage by preteens with bronchitis"
 [[stages.default]]
 label = "study population tables" # this is shown when the study is being built
@@ -220,16 +220,16 @@ Let's go ahead and build our study, just to make sure that everything is working
   - if you're running the duckdb UI, you'll need to shut it down before running this command
     by typing `.exit` in the terminal:
   ```bash
-    cumulus-library build --target cumulus-example \
-    --study-dir /path/to/your/cumulus-example/ \
+    cumulus-library build --target example \
+    --study-dir /path/to/your/example/ \
     --db-type duckdb \
-    --database /path/to/your/cumulus-example/duck.db
+    --database /path/to/your/example/duck.db
   ```
 
 - For Athena:
   ```bash
-    cumulus-library build --target cumulus-example \
-    --study-dir /path/to/your/cumulus-example/ \
+    cumulus-library build --target example \
+    --study-dir /path/to/your/example/ \
     --database your-database-name \
     --profile aws-profile-name \
     --region your-aws-region \
@@ -335,11 +335,11 @@ config_type="file_upload"
 file = "../datasets/snomed_bronchitis.csv"
 ```
 
-This workflow will create a table named `cumulus_example__snomed_bronchitis` for us. Let's add an
+This workflow will create a table named `example__snomed_bronchitis` for us. Let's add an
 action to our manifest.toml to run this workflow:
 
 ```toml
-study_prefix = "cumulus_example"
+study_prefix = "example"
 
 [[stages.default]]
 label = "study population tables" # this is shown when the study is being built
@@ -353,16 +353,16 @@ files = [ "workflows/upload.workflow" ]
 We can then run this to make sure we've configured everything correctly:
 - For DuckDB:
   ```bash
-  cumulus-library build --target cumulus-example \
-  --study-dir /path/to/your/cumulus-example/ \
+  cumulus-library build --target example \
+  --study-dir /path/to/your/example/ \
   --db-type duckdb \
-  --database /path/to/your/cumulus-example/duck.db
+  --database /path/to/your/example/duck.db
   ```
 
 - For Athena:
   ```bash
-  cumulus-library build --target cumulus-example \
-  --study-dir /path/to/your/cumulus-example/ \
+  cumulus-library build --target example \
+  --study-dir /path/to/your/example/ \
   --database your-database-name \
   --profile aws-profile-name \
   --region your-aws-region \
@@ -374,9 +374,9 @@ to see what conditions match our valueset, as well as our study population:
 ```sql
 SELECT c.*
 FROM core__condition AS c
-INNER JOIN cumulus_example__snomed_bronchitis AS sb 
+INNER JOIN example__snomed_bronchitis AS sb 
   ON c.code = sb.code AND c.system = sb.system
-INNER JOIN cumulus_example__study_population AS sp
+INNER JOIN example__study_population AS sp
   ON c.subject_ref = sp.subject_ref;
 ```
 
@@ -385,12 +385,12 @@ to the `queries` folder , named `bronchitis_condition.sql` (we're going to use
 bronchitis from here on out as a prefix for files & tables to distinguish what's in that cohort:
 
 ```sql
-CREATE TABLE cumulus_example__bronchitis_condition AS (
+CREATE TABLE example__bronchitis_condition AS (
   SELECT DISTINCT c.*
   FROM core__condition AS c
-  INNER JOIN cumulus_example__snomed_bronchitis AS sb 
+  INNER JOIN example__snomed_bronchitis AS sb 
     ON c.code = sb.code AND c.system = sb.system
-  INNER JOIN cumulus_example__study_population AS sp
+  INNER JOIN example__study_population AS sp
     ON c.subject_ref = sp.subject_ref
 );
 ```
@@ -398,7 +398,7 @@ CREATE TABLE cumulus_example__bronchitis_condition AS (
 And we'll add a new action to our manifest to handle building this table:
 
 ```toml
-study_prefix = "cumulus_example"
+study_prefix = "example"
 
 [[stages.default]]
 label = "study population tables" # this is shown when the study is being built
@@ -423,30 +423,30 @@ parenthesis at the start and end of the query.
 
 `bronchitis_patient.sql`:
 ```sql
-CREATE TABLE cumulus_example__bronchitis_patient AS (
+CREATE TABLE example__bronchitis_patient AS (
   SELECT DISTINCT p.*
   FROM core__patient AS p
-  INNER JOIN cumulus_example__bronchitis_condition AS c
+  INNER JOIN example__bronchitis_condition AS c
     ON c.subject_ref = p.subject_ref
 );
 ```
 
 `bronchitis_encounter.sql`
 ```sql
-CREATE TABLE cumulus_example__bronchitis_encounter AS (
+CREATE TABLE example__bronchitis_encounter AS (
   SELECT DISTINCT e.*
   FROM core__encounter AS e
-  INNER JOIN cumulus_example__bronchitis_condition AS c
+  INNER JOIN example__bronchitis_condition AS c
     ON c.subject_ref = e.subject_ref
 );
 ```
 
 `bronchitis_medicationrequests.sql`
 ```sql
-CREATE TABLE cumulus_example__bronchitis_medicationrequest AS (
+CREATE TABLE example__bronchitis_medicationrequest AS (
   SELECT DISTINCT mr.*
   FROM core__medicationrequest AS mr
-  INNER JOIN cumulus_example__bronchitis_condition AS c
+  INNER JOIN example__bronchitis_condition AS c
     ON c.subject_ref = mr.subject_ref AND c.encounter_ref = mr.encounter_ref
 );
 ```
@@ -462,7 +462,7 @@ Let's combine the valueset upload and the cohort table, just to get an example o
 So our manifest now looks like this:
 
 ```toml
-study_prefix = "cumulus_example"
+study_prefix = "example"
 
 [[stages.default]]
 label = "study population tables"
@@ -534,7 +534,7 @@ requests. Run this query to get a list of distinct medicines used in the cohort:
 SELECT DISTINCT
     medication_code,
     medication_display 
-FROM cumulus_example__bronchitis_medicationrequest
+FROM example__bronchitis_medicationrequest
 ORDER BY medication_code;
 ```
 
@@ -587,7 +587,7 @@ col_types = ["STRING","STRING","STRING"]
 And then we'll update the manifest to reference that stage:
 
 ```toml
-study_prefix = "cumulus_example"
+study_prefix = "example"
 
 [[stages.default]]
 label = "study population tables"
@@ -621,16 +621,16 @@ point:
 
 - For DuckDB:
   ```bash
-    cumulus-library build --target cumulus-example --stage analysis\
-    --study-dir /path/to/your/cumulus-example/ \
+    cumulus-library build --target example --stage analysis\
+    --study-dir /path/to/your/example/ \
     --db-type duckdb \
-    --database /path/to/your/cumulus-example/duck.db
+    --database /path/to/your/example/duck.db
   ```
 
 - For Athena:
   ```bash
-    cumulus-library build --target cumulus-example --stage analysis\
-    --study-dir /path/to/your/cumulus-example/ \
+    cumulus-library build --target example --stage analysis\
+    --study-dir /path/to/your/example/ \
     --database your-database-name \
     --profile aws-profile-name \
     --region your-aws-region \
@@ -655,17 +655,17 @@ what we'd like to include. So you may want to run the following queries:
 
 ```sql
 SELECT * 
-FROM cumulus_example__bronchitis_encounter
+FROM example__bronchitis_encounter
 LIMIT 10;
 ```
 ```sql
 SELECT * 
-FROM cumulus_example__bronchitis_patient
+FROM example__bronchitis_patient
 LIMIT 10;
 ```
 ```sql
 SELECT * 
-FROM cumulus_example__bronchitis_medicationrequest
+FROM example__bronchitis_medicationrequest
 LIMIT 10;
 ```
 
@@ -681,7 +681,7 @@ stage. The following query, which we'll save as `queries/bronchitis_meds_by_pati
 get cases where a patient had a condition but was not prescribed a medication:
 
 ```sql
-CREATE TABLE cumulus_example__bronchitis_meds_by_patient AS (
+CREATE TABLE example__bronchitis_meds_by_patient AS (
     WITH step_1 as (
         SELECT 
             e.subject_ref,
@@ -689,8 +689,8 @@ CREATE TABLE cumulus_example__bronchitis_meds_by_patient AS (
             e.age_at_visit,
             p.gender,
             p.race_display,
-        FROM cumulus_example__bronchitis_encounter AS e
-        LEFT JOIN cumulus_example__bronchitis_patient AS p
+        FROM example__bronchitis_encounter AS e
+        LEFT JOIN example__bronchitis_patient AS p
         ON p.subject_ref = e.subject_ref
         order by e.subject_ref, e.encounter_ref
     )
@@ -702,7 +702,7 @@ CREATE TABLE cumulus_example__bronchitis_meds_by_patient AS (
         s.age_at_visit,
         m.medication_code
         FROM step_1 AS s
-        LEFT JOIN cumulus_example__bronchitis_medicationrequest AS m
+        LEFT JOIN example__bronchitis_medicationrequest AS m
         ON s.subject_ref = m.subject_ref
             AND s.encounter_ref = m.encounter_ref
 );
@@ -711,7 +711,7 @@ CREATE TABLE cumulus_example__bronchitis_meds_by_patient AS (
 And now we'll add this file to our action in the analysis stage:
 
 ```toml
-study_prefix = "cumulus_example"
+study_prefix = "example"
 
 [[stages.default]]
 label = "study population tables"
@@ -755,7 +755,7 @@ config_type = "counts"
 
 
 [tables.count_bronchitis_encounter]
-source_table = "cumulus_example__bronchitis_encounter"
+source_table = "example__bronchitis_encounter"
 description = """Encounters of patients with a diagnosis of bronchitis"""
 table_cols = [
     "period_start_month",
@@ -767,7 +767,7 @@ min_subject=2
 secondary_id="encounter_ref"
 
 [tables.count_bronchitis_medicationrequest]
-source_table = "cumulus_example__bronchitis_medicationrequest"
+source_table = "example__bronchitis_medicationrequest"
 description = """Details about requests for medication for patients with bronchitis"""
 table_cols = [
     "authoredon_month",
@@ -777,7 +777,7 @@ table_cols = [
 min_subject=2
 
 [tables.count_bronchitis_patient]
-source_table = "cumulus_example__bronchitis_patient"
+source_table = "example__bronchitis_patient"
 description = """Demographic details about patients with bronchitis"""
 table_cols = [
     "gender",
@@ -788,7 +788,7 @@ table_cols = [
 min_subject=2
 
 [tables.count_bronchitis_meds_by_patient]
-source_table = "cumulus_example__bronchitis_meds_by_patient"
+source_table = "example__bronchitis_meds_by_patient"
 description = """Details about medications for bronchitis with patient demographic details"""
 table_cols = [
     "gender",
@@ -800,7 +800,7 @@ min_subject=2
 
 [tables.count_bronchitis_meds_by_patient.annotation]
 field = "medication_code"
-join_table = "cumulus_example__med_delivery_mechanism"
+join_table = "example__med_delivery_mechanism"
 join_field = "medication_code"
 columns = [
     ["medication_display", "varchar"],
@@ -818,23 +818,23 @@ Now that we've got our analysis, we want to export it from the database so that 
 analytics tools, like the Cumulus dashboard. 
 
 We'll need to do one additional bit of table management - there are two metadata tables we need
-to create to help describe the study. We need a `cumulus_example__meta_date` table, describing the
-date range of data selected in the study, and a `cumulus_example__meta_version` table, which our
+to create to help describe the study. We need a `example__meta_date` table, describing the
+date range of data selected in the study, and a `example__meta_version` table, which our
 downstream tools will use for grouping like kinds of data. Let's add these tables to the `queries`
 folder now.
 
 `queries/meta_date.sql`:
 ```sql
-CREATE TABLE cumulus_example__meta_date AS
+CREATE TABLE example__meta_date AS
 SELECT
     min(period_start_day) AS min_date,
     max(period_end_day) AS max_date
-FROM cumulus_example__bronchitis_encounter;
+FROM example__bronchitis_encounter;
 ```
 
 `queries/meta_version.sql`:
 ```sql
-CREATE TABLE cumulus_example__meta_version AS
+CREATE TABLE example__meta_version AS
 SELECT 1 AS data_package_version;
 ```
 
@@ -848,7 +848,7 @@ And with those in place, we're going to make a few additional modifications to o
 With those additions, our manifest looks like this:
 
 ```toml
-study_prefix = "cumulus_example"
+study_prefix = "example"
 description = """A example study showing usage of bronchitis medication in preteens.default
 
 This study was designed to run against the 1000 patient sample bulk FHIR dataset. It's
@@ -895,16 +895,16 @@ files = [
 label = "Export count tables"
 type = "export:counts"
 tables = [ 
-    "cumulus_example__count_bronchitis_encounter",
-    "cumulus_example__count_bronchitis_medicationrequest",
-    "cumulus_example__count_bronchitis_patient",
+    "example__count_bronchitis_encounter",
+    "example__count_bronchitis_medicationrequest",
+    "example__count_bronchitis_patient",
 ]
 
 [[stages.analysis]]
 label = "Export count tables"
 type = "export:annotated_counts"
 tables = [ 
-    "cumulus_example__count_bronchitis_meds_by_patient",
+    "example__count_bronchitis_meds_by_patient",
 ]
 ```
 
@@ -913,17 +913,17 @@ as a zip file.
 
 - For DuckDB:
   ```bash
-    cumulus-library export --target cumulus-example --stage analysis\
-    --study-dir /path/to/your/cumulus-example/ \
+    cumulus-library export --target example --stage analysis\
+    --study-dir /path/to/your/example/ \
     --db-type duckdb \
-    --database /path/to/your/cumulus-example/duck.db \
+    --database /path/to/your/example/duck.db \
     /path/to/your/export/dir
   ```
 
 - For Athena:
   ```bash
-    cumulus-library export --target cumulus-example --stage analysis\
-    --study-dir /path/to/your/cumulus-example/ \
+    cumulus-library export --target example --stage analysis\
+    --study-dir /path/to/your/example/ \
     --database your-database-name \
     --profile aws-profile-name \
     --region your-aws-region \

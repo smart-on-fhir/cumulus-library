@@ -1,5 +1,5 @@
-study_prefix = "cumulus_example"
-description = """A example study showing usage of bronchitis medication in preteens.default
+study_prefix = "example"
+description = """A example study showing usage of bronchitis medication in preteens.
 
 This study was designed to run against the 1000 patient sample bulk FHIR dataset. It's
 intended to show how building a study works, while providing a realistic use case for

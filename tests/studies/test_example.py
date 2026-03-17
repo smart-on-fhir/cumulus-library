@@ -18,17 +18,15 @@ from tests import conftest
 def test_example_study_succeeds(tmp_path):
     build_args = conftest.duckdb_args(["build", "-t", "core"], tmp_path)
     cli.main(cli_args=build_args)
-    build_args = conftest.duckdb_args(["build", "-t", "cumulus_example"], tmp_path)
+    build_args = conftest.duckdb_args(["build", "-t", "example"], tmp_path)
     cli.main(cli_args=build_args)
-    build_args = conftest.duckdb_args(
-        ["build", "-t", "cumulus_example", "--stage", "analysis"], tmp_path
-    )
+    build_args = conftest.duckdb_args(["build", "-t", "example", "--stage", "analysis"], tmp_path)
     cli.main(cli_args=build_args)
     db = databases.DuckDatabaseBackend(f"{tmp_path}/duck.db")
     db.connect()
     found_tables = db.connection.execute(
         "SELECT table_schema,table_name FROM information_schema.tables "
-        "WHERE 'cumulus_example' IN table_name"
+        "WHERE 'example' IN table_name"
     ).fetchall()
     # TODO: Add bronchitis data to validate joins
     assert len(found_tables) == 16

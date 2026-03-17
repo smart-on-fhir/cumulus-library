@@ -1,5 +1,5 @@
-CREATE TABLE cumulus_example__meta_date AS
+CREATE TABLE example__meta_date AS
 SELECT
     min(period_start_day) AS min_date,
     max(period_end_day) AS max_date
-FROM cumulus_example__bronchitis_encounter;
+FROM example__bronchitis_encounter;
