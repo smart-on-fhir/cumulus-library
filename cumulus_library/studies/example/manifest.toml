@@ -45,14 +45,14 @@ files = [
 label = "Export count tables"
 type = "export:counts"
 tables = [ 
-    "cumulus_example__count_bronchitis_encounter",
-    "cumulus_example__count_bronchitis_medicationrequest",
-    "cumulus_example__count_bronchitis_patient",
+    "example__count_bronchitis_encounter",
+    "example__count_bronchitis_medicationrequest",
+    "example__count_bronchitis_patient",
 ]
 
 [[stages.analysis]]
 label = "Export count tables"
 type = "export:annotated_counts"
 tables = [ 
-    "cumulus_example__count_bronchitis_meds_by_patient",
+    "example__count_bronchitis_meds_by_patient",
 ]

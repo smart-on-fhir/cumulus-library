@@ -297,7 +297,7 @@ which does not require any special login information. Here we can see Bronchitis
 along with all its children - this provides a nice valueset of codes for us to use.
 
 Let's create a table based on this valueset. In our study directory, let's make a new folder,
-`datasets`, and inside it, we'll make a new file, `bronchitis_snomed.csv`:
+`datasets`, and inside it, we'll make a new file, `snomed_bronchitis.csv`:
 
 ```csv
 code,display_name,system
