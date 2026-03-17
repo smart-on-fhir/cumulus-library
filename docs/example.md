@@ -43,7 +43,7 @@ it easier to inspect. So, we'll run the following command:
 cumulus-library build --target core \
   --db-type duckdb \
   --database /path/to/your/example/duck.db \
-  --load_ndjson_dir /path/to/your/example/1000-patients
+  --load-ndjson-dir /path/to/your/example/1000-patients
 ```
 To view the database, you can run `duckdb /path/to/your/example/duck.db -ui` to open a 
 duckdb viewer in your web browser. You can click on the plus next to Notebooks to get a new notebook.
@@ -173,8 +173,10 @@ are the things we'll be using later.
 
 Now that we're comfortable with the study population, we'll start creating our first files related
 to the study. Every study has a name, and we'll need to know it for some of the next steps, so
-we'll call our study `example`. A valid study name has no spaces and uses underscores to
-separate words.
+we'll call our study `example`. 
+
+{: .note }
+A valid study name has no spaces and uses underscores to separate words.
 
 In the directory we set up to hold our study, let's create a folder called `queries`. In that folder,
 we'll create a file called `study_population.sql`. We'll wrap the query we used above in a create
@@ -199,7 +201,8 @@ CREATE TABLE example__study_population AS (
 
 With that done, back in the root directory of the study, we'll create a *manifest*. This contains a list
 of all the files in a study. We're going to define the study prefix, and then add an action that our
-study should take to build the above table.
+study should take to build the above table. Let's create a file named `manifest.toml` in our `example`
+directory, with the following contents:
 
 ```toml
 study_prefix = "example"
@@ -209,7 +212,8 @@ label = "study population tables" # this is shown when the study is being built
 files = [ "queries/study_population.sql" ]
 ```
 
-A note: the `[[stages.default]]` syntax indicates that we're adding the data below it to a list.
+{:.note } 
+The `[[stages.default]]` syntax indicates that we're adding the data below it to a list.
 We'll use this pattern repeatedly to add actions to our study.
 
 Let's go ahead and build our study, just to make sure that everything is working correctly.
