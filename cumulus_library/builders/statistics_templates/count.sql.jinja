@@ -185,7 +185,7 @@ CREATE TABLE {{ table_name }} AS (
     JOIN secondary_powerset AS s on s.id = p.id 
     {%- endif %}
     {%- if annotation is not none %}
-        JOIN {{ annotation.join_table }} j ON p.{{ annotation.field }} = j.{{ annotation.join_field }}
+        LEFT JOIN {{ annotation.join_table }} j ON p.{{ annotation.field }} = j.{{ annotation.join_field }}
     {%- endif -%}
     {%- if where_clauses is not none %}
     WHERE

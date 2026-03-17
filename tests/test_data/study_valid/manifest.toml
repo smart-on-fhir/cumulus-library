@@ -1,7 +1,6 @@
 study_prefix = "study_valid"
 
 [[stages.stage_1]]
-type = "build:serial"
 files = [
     "test.sql",
     "test2.sql"

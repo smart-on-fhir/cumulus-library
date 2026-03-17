@@ -1,0 +1,58 @@
+study_prefix = "cumulus_example"
+description = """A example study showing usage of bronchitis medication in preteens.default
+
+This study was designed to run against the 1000 patient sample bulk FHIR dataset. It's
+intended to show how building a study works, while providing a realistic use case for
+anchoring the clinical context."""
+
+[[stages.default]]
+label = "study population tables"
+files = [ "queries/study_population.sql" ]
+
+[[stages.default]]
+label = "upload valuesets & define cohort"
+files = [ 
+    "workflows/upload.workflow",
+    "queries/bronchitis_condition.sql"
+]
+
+[[stages.default]]
+label = "bronchitis cohort additional resources"
+type = "build:parallel"
+files = [ 
+    "queries/bronchitis_encounter.sql",
+    "queries/bronchitis_medicationrequest.sql",
+    "queries/bronchitis_patient.sql",
+]
+
+[[stages.analysis]]
+label = "Postprocess data for analysis"
+files = [ 
+    "workflows/upload_analysis.workflow",
+    "queries/bronchitis_meds_by_patient.sql",
+    "queries/meta_date.sql",
+    "queries/meta_version.sql",
+]
+
+[[stages.analysis]]
+label = "Generate summary counts"
+type = "build:parallel"
+files = [ 
+    "workflows/counts.workflow",
+]
+
+[[stages.analysis]]
+label = "Export count tables"
+type = "export:counts"
+tables = [ 
+    "cumulus_example__count_bronchitis_encounter",
+    "cumulus_example__count_bronchitis_medicationrequest",
+    "cumulus_example__count_bronchitis_patient",
+]
+
+[[stages.analysis]]
+label = "Export count tables"
+type = "export:annotated_counts"
+tables = [ 
+    "cumulus_example__count_bronchitis_meds_by_patient",
+]

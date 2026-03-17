@@ -6,7 +6,7 @@ Most studies should use these tables as the base for their work. For more info a
 core study, see https://docs.smarthealthit.org/cumulus/library/core-study-details.html
 """
 [[stages.build_core]]
-description = "FHIR support tables"
+label = "FHIR support tables"
 files = [
     "version.sql",
     "fhir_lookup_tables.sql",
@@ -14,7 +14,7 @@ files = [
 ]
 type = "build:parallel"
 [[stages.build_core]]
-description = "FHIR nested resource flattening"
+label = "FHIR nested resource flattening"
 files =[
     "builder_allergyintolerance_prereq.py",
     "builder_condition_prereq.py",
@@ -32,13 +32,13 @@ files =[
 ]
 type = "build:parallel"
 [[stages.build_core]]
-description = "Patient"
+label = "Patient"
 files =[
     "builder_patient.py",
 ]
 type = "build:serial"
 [[stages.build_core]]
-description= "Other FHIR resource tables"
+label= "Other FHIR resource tables"
 files=[
     "builder_allergyintolerance.py",
     "builder_condition.py",
@@ -55,14 +55,14 @@ files=[
 ]
 type = "build:parallel"
 [[stages.build_core]]
-description = "Tables derived from FHIR resource tables"
+label = "Tables derived from FHIR resource tables"
 files = [
     "observation_type.sql",
     "meta_date.sql"
 ]
 type = "build:parallel"
 [[stages.build_core]]
-description = "Summary counts of FHIR resources"
+label = "Summary counts of FHIR resources"
 files = ["count_core.workflow"]
 type = "build:parallel"
 

@@ -23,8 +23,9 @@ class ManifestExport:
 
 
 class ManifestAction(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
-    type: str
+    type: str | None = None
     description: str | None = None
+    label: str | None = None
     files: list[str] | None = None
     tables: list[str] | None = None
 
@@ -166,7 +167,11 @@ class StudyManifest:
                             actions.append(subaction)
                             all_actions.append(subaction)
                 else:
+                    if action.get("type") is None:
+                        action["type"] = "build:serial"
                     self._validate_action(action, study_path)
+                    if action.get("label") is None and action.get("description") is not None:
+                        action["label"] = action["description"]
                     actions.append(action)
                     all_actions.append(action)
             config["stages"][stage] = actions

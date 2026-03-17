@@ -95,6 +95,12 @@ class FileUploadBuilder(BaseTableBuilder):
                 if "always_upload" not in table:
                     table["always_upload"] = True
                 df = df.rename(self.snake_case, axis="columns")
+                if table.get("col_types") is None:
+                    table["col_types"] = ["STRING" for x in df.columns]
+                type_dict = {}
+                for pos in range(0, len(table["col_types"])):
+                    type_dict[df.columns[pos]] = table["col_types"][pos].lower()
+                df = df.astype(type_dict)
                 df.to_parquet(parquet_path)
                 remote_path = config.db.upload_file(
                     file=parquet_path,
@@ -119,5 +125,4 @@ class FileUploadBuilder(BaseTableBuilder):
                         remote_table_cols_types=table["col_types"],
                     )
                 )
-
                 progress.advance(task)

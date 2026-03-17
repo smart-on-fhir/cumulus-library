@@ -107,12 +107,12 @@ def test_submanifests(tmp_path):
             "stage_1": [
                 {
                     "type": "build:serial",
-                    "description": "action 1",
+                    "label": "action 1",
                     "files": ["foo", "bar"],
                 },
                 {
                     "type": "build:serial",
-                    "description": "action 2",
+                    "label": "action 2",
                     "files": ["baz"],
                 },
             ],
@@ -122,7 +122,7 @@ def test_submanifests(tmp_path):
     conftest.write_toml(tmp_path, manifest_dict)
     conftest.write_toml(
         tmp_path,
-        {"actions": [{"type": "build:serial", "description": "subaction 1", "files": ["foobar"]}]},
+        {"actions": [{"type": "build:serial", "label": "subaction 1", "files": ["foobar"]}]},
         "file.submanifest",
     )
     manifest = study_manifest.StudyManifest(tmp_path)
@@ -130,21 +130,19 @@ def test_submanifests(tmp_path):
         "study_prefix": "primary",
         "stages": {
             "all": [
-                {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
-                {"description": "action 2", "type": "build:serial", "files": ["baz"]},
-                {"description": "subaction 1", "type": "build:serial", "files": ["foobar"]},
+                {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
+                {"label": "action 2", "type": "build:serial", "files": ["baz"]},
+                {"label": "subaction 1", "type": "build:serial", "files": ["foobar"]},
             ],
             "default": [
-                {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
-                {"description": "action 2", "type": "build:serial", "files": ["baz"]},
+                {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
+                {"label": "action 2", "type": "build:serial", "files": ["baz"]},
             ],
             "stage_1": [
-                {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
-                {"description": "action 2", "type": "build:serial", "files": ["baz"]},
+                {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
+                {"label": "action 2", "type": "build:serial", "files": ["baz"]},
             ],
-            "stage_2": [
-                {"description": "subaction 1", "type": "build:serial", "files": ["foobar"]}
-            ],
+            "stage_2": [{"label": "subaction 1", "type": "build:serial", "files": ["foobar"]}],
         },
     }
 
@@ -194,9 +192,7 @@ def test_missing_action(tmp_path):
         tmp_path,
         {
             "study_prefix": "foo",
-            "stages": {
-                "stage_1": [{"description": "action 1", "files": ["foo"], "type": "invalid"}]
-            },
+            "stages": {"stage_1": [{"label": "action 1", "files": ["foo"], "type": "invalid"}]},
         },
     )
     with pytest.raises(errors.StudyManifestParsingError):
