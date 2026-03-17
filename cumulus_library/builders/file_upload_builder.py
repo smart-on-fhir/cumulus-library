@@ -97,6 +97,11 @@ class FileUploadBuilder(BaseTableBuilder):
                 df = df.rename(self.snake_case, axis="columns")
                 if table.get("col_types") is None:
                     table["col_types"] = ["STRING" for x in df.columns]
+                elif len(table["col_types"]) != len(df.columns):
+                    raise errors.FileUploadError(
+                        f"{table_name} has {len(df.columns)} columns, but the provided "
+                        f"col_types has {len(table['col_types'])} entries."
+                    )
                 type_dict = {}
                 for pos in range(0, len(table["col_types"])):
                     type_dict[df.columns[pos]] = table["col_types"][pos].lower()
@@ -108,13 +113,6 @@ class FileUploadBuilder(BaseTableBuilder):
                     topic=parquet_path.stem,
                     force_upload=table["always_upload"] or config.force_upload,
                 )
-                if table.get("col_types") is None:
-                    table["col_types"] = ["STRING" for x in df.columns]
-                elif len(table["col_types"]) != len(df.columns):
-                    raise errors.FileUploadError(
-                        f"{table_name} has {len(df.columns)} columns, but the provided "
-                        f"col_types has {len(table['col_types'])} entries."
-                    )
                 self.queries.append(
                     base_templates.get_ctas_from_parquet_query(
                         schema_name=config.schema,
