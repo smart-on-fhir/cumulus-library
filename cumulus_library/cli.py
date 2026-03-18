@@ -19,6 +19,7 @@ from cumulus_library import (
     enums,
     errors,
     log_utils,
+    note_utils,
     study_manifest,
 )
 from cumulus_library.actions import (
@@ -89,6 +90,7 @@ class StudyRunner:
         continue_from: str | None = None,
         prepare: bool = False,
         data_path: pathlib.Path | None = None,
+        notes: note_utils.NoteSource | None = None,
     ) -> None:
         """Recreates study views/tables
 
@@ -97,6 +99,7 @@ class StudyRunner:
         :keyword continue_from: Restart a run from a specific sql file (for dev only)
         :keyword prepare: If true, will render query instead of executing
         :keyword data_path: If prepare is true, the path to write rendered data to
+        :keyword notes: Source to read notes from (for NLP)
         """
         manifest = study_manifest.StudyManifest(target, self.data_path, options=options)
         try:
@@ -126,6 +129,7 @@ class StudyRunner:
                 manifest=manifest,
                 continue_from=continue_from,
                 data_path=data_path,
+                notes=notes,
                 prepare=prepare,
             )
             if not prepare:
@@ -156,6 +160,7 @@ class StudyRunner:
         options: dict[str, str],
         prepare: bool = False,
         data_path: pathlib.Path,
+        notes: note_utils.NoteSource,
     ) -> None:
         """Runs a single table builder
 
@@ -164,6 +169,7 @@ class StudyRunner:
         :keyword options: The dictionary of study-specific options
         :keyword prepare: If true, will render query instead of executing
         :keyword data_path: If prepare is true, the path to write rendered data to
+        :keyword notes: Source to read notes from (for NLP)
         """
         manifest = study_manifest.StudyManifest(target, options=options)
         # In case someone is using the --builder command with a study that hasn't been run,
@@ -175,6 +181,7 @@ class StudyRunner:
             builder=table_builder_name,
             prepare=prepare,
             data_path=data_path,
+            notes=notes,
         )
 
     ### Data exporters
@@ -341,6 +348,7 @@ def run_cli(args: dict):
                     options=args["options"],
                 )
             elif args["action"] == "build":
+                notes = note_utils.NoteSource(args["note_dir"], s3_region={args["region"]})
                 for target in args["target"]:
                     if args["builder"]:
                         runner.build_matching_files(
@@ -349,6 +357,7 @@ def run_cli(args: dict):
                             options=args["options"],
                             prepare=args["prepare"],
                             data_path=args["data_path"],
+                            notes=notes,
                         )
                     else:
                         runner.clean_and_build_study(
@@ -357,6 +366,7 @@ def run_cli(args: dict):
                             options=args["options"],
                             prepare=args["prepare"],
                             data_path=args["data_path"],
+                            notes=notes,
                         )
 
             elif args["action"] == "export":
@@ -424,6 +434,7 @@ def main(cli_args=None):
         ("schema_name", "CUMULUS_LIBRARY_SCHEMA_NAME"),
         ("database", "CUMULUS_LIBRARY_DATABASE"),
         ("max_concurrent", "CUMULUS_LIBRARY_MAX_CONCURRENT"),
+        ("note_dir", "CUMULUS_LIBRARY_NOTE_DIR"),
         ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
         ("umls_key", "UMLS_API_KEY"),
         ("loinc_user", "LOINC_USER"),
@@ -439,7 +450,7 @@ def main(cli_args=None):
     for pair in arg_env_pairs:
         if args.get(pair[0]) is None:
             if env_val := os.environ.get(pair[1]):
-                if pair[0] == "study_dir":
+                if pair[0] in {"note_dir", "study_dir"}:
                     args[pair[0]] = [env_val]
                 else:
                     args[pair[0]] = env_val

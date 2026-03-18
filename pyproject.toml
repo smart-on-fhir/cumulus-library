@@ -5,6 +5,8 @@ dependencies = [
     "awswrangler >= 3.11, < 4",
     "cumulus-fhir-support >= 1.6",
     "duckdb >= 1.4.1, <1.5.0",
+    "fsspec[s3]",
+    "inscriptis",
     "Jinja2 > 3",
     "openpyxl",
     "msgspec",
