@@ -939,6 +939,37 @@ with parquet files ready to upload to the
 [Cumulus Aggregator](sharing-data.md)
 if you're participating in a federated study.
 
+## Troubleshooting
+
+Hitting some issues? Here's some things to check:
+
+- Did you get a message in red containing a string like `Object contains unknown field`? This means
+  that your manifest has an incorrect key. It should mention a field name - look for that field in
+  the manifest and correct it to one of the expected values.
+- Did something happen and you're not sure what state the study is in? You can always reset it and
+  start again using the `clean` mode.
+  - For DuckDB:
+```bash
+cumulus-library clean --target example --stage all \
+  --study-dir /path/to/your/example/ \
+  --db-type duckdb \
+  --database /path/to/your/example/duck.db \
+```
+
+  - For Athena:
+```bash
+cumulus-library clean --target example --stage all \
+  --study-dir /path/to/your/example/ \
+  --database your-database-name \
+  --profile aws-profile-name \
+  --region your-aws-region \
+  --workgroup workgroup-name \
+  /path/to/your/export/dir
+```
+- Are you running into a SQL query error? Those are tricky to debug, but usually you'll get a line
+  number as a reference to start looking aroubnd for syntax errors.
+
+
 ## Next steps
 
 This guide covered basic authoring and configuration of a study - there's more things you can look
