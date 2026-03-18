@@ -98,7 +98,7 @@ class StudyManifest:
             raise errors.StudyManifestParsingError(
                 f"Manifest formatting error at path {path}: {e!s}. \n"
                 "You may be using an different version of a study manifest. See"
-                "https://docs.smarthealthit.org/cumulus/library/creating-studies.html "
+                "https://docs.smarthealthit.org/cumulus/library/study-configuration.html "
                 "for more information about what fields are expected in a manifest."
             )
 
@@ -162,7 +162,7 @@ class StudyManifest:
         if len(defined_stages) == 0:
             raise errors.StudyManifestParsingError(
                 f"{study_path} does not contain any stage definitions.\n"
-                "See https://docs.smarthealthit.org/cumulus/library/creating-studies.html "
+                "See https://docs.smarthealthit.org/cumulus/library/study-configuration.html "
                 "for more details about creating manifests."
             )
 
