@@ -102,13 +102,25 @@ class StudyManifest:
                 "for more information about what fields are expected in a manifest."
             )
 
-    def _validate_action(self, action, source):
+    def _validate_action(self, action: dict, source: pathlib.Path):
         action_type = action.get("type")
         if action_type is not None and action_type not in [e.value for e in enums.ManifestActions]:
             raise errors.StudyManifestParsingError(
                 f"Action type '{action_type}' in {source} is not a valid action.\n"
                 f"Valid action types: {', '.join(enums.ManifestActions)}."
             )
+        if action_type is None or action_type.startswith("build:"):
+            if action.get("files") is None:
+                raise errors.StudyManifestParsingError(
+                    f"The following action in {source} is missing an expected key, 'files':\n"
+                    f"{action}"
+                )
+        elif action_type.startswith("export:"):
+            if action.get("tables") is None:
+                raise errors.StudyManifestParsingError(
+                    f"The following action in {source} is missing an expected key, 'tables':\n"
+                    f"{action}"
+                )
 
     def _has_stats_workflows(self) -> bool:
         for stage in self._study_config.get("stages", {}).values():
