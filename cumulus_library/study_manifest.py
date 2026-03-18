@@ -123,6 +123,14 @@ class StudyManifest:
                                 return True
         return False
 
+    def _format_action(self, action):
+        """Handles optional param coercion for actions"""
+        if action.get("type") is None:
+            action["type"] = "build:serial"
+        if action.get("label") is None and action.get("description") is not None:
+            action["label"] = action["description"]
+        return action
+
     ### toml parsing helper functions
     def _load_study_manifest(self, study_path: pathlib.Path, options: dict[str, str]) -> None:
         """Reads in a config object from a directory containing a manifest.toml
@@ -164,15 +172,11 @@ class StudyManifest:
                         )
                         for subaction in subconfig.get("actions"):
                             self._validate_action(subaction, study_path.parent / submanifest)
-                            actions.append(subaction)
+                            actions.append(self._format_action(subaction))
                             all_actions.append(subaction)
                 else:
-                    if action.get("type") is None:
-                        action["type"] = "build:serial"
                     self._validate_action(action, study_path)
-                    if action.get("label") is None and action.get("description") is not None:
-                        action["label"] = action["description"]
-                    actions.append(action)
+                    actions.append(self._format_action(action))
                     all_actions.append(action)
             config["stages"][stage] = actions
 

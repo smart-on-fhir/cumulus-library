@@ -495,8 +495,8 @@ def _run_raw_queries(
             query_count,
         )
         return cleaned_queries
-    cleaned_queries = _update_build_source_table(config, manifest, cleaned_queries)
     if not parallel:
+        cleaned_queries = _update_build_source_table(config, manifest, cleaned_queries)
         # We'll explicitly create a cursor since recreating cursors for each
         # table in a study is slightly slower for some databases
         cursor = config.db.cursor()
