@@ -134,8 +134,7 @@ def add_target_argument(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-t",
         "--target",
-        action="append",
-        help=("Specify one or more studies to perform actions against."),
+        help=("Specify a study to perform actions against."),
     )
 
 
