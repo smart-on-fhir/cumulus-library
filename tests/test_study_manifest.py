@@ -247,12 +247,12 @@ def test_formatted_study_prefix(tmp_path):
         ({"type": "build:serial", "files": ["file.txt"]}, does_not_raise()),
         ({"type": "export:counts", "tables": ["table__name"]}, does_not_raise()),
         (
-            {"type": "build:serial", "raises": ["file.txt"]},
-            pytest.raises(errors.StudyManifestParsingError),
+            {"type": "build:serial", "tables": ["file.txt"]},
+            pytest.raises(errors.StudyManifestParsingError, match="expected key, 'files'"),
         ),
         (
             {"type": "export:counts", "files": ["table__name"]},
-            pytest.raises(errors.StudyManifestParsingError),
+            pytest.raises(errors.StudyManifestParsingError, match="expected key, 'tables'"),
         ),
     ],
 )

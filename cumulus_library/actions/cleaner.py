@@ -129,6 +129,10 @@ def clean_study(
 
     view_table_list = []
     if config.stage != "all" and not prefix:
+        # We're going to inspect the list of tables to see if we've got a build source
+        # table for the study being cleaned. If we don't, than the study was last built
+        # with a pre-V6 version of the library, and we'll fall back to prefix cleaning
+        # mode so a user doesn't have to manage migration themselves.
         query = base_templates.get_select_from_single_query(
             schema="information_schema",
             table_name="tables",
@@ -143,6 +147,7 @@ def clean_study(
             prefix = manifest.get_study_prefix()
             drop_prefix = prefix
             display_prefix = prefix
+
         else:
             query = base_templates.get_select_from_single_query(
                 schema=base_utils.get_schema(config=config, manifest=manifest),
