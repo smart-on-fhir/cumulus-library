@@ -128,6 +128,45 @@ def clean_study(
     cursor = config.db.cursor()
 
     view_table_list = []
+    if config.stage != "all" and not prefix:
+        # We're going to inspect the list of tables to see if we've got a build source
+        # table for the study being cleaned. If we don't, than the study was last built
+        # with a pre-V6 version of the library, and we'll fall back to prefix cleaning
+        # mode so a user doesn't have to manage migration themselves.
+        query = base_templates.get_select_from_single_query(
+            schema="information_schema",
+            table_name="tables",
+            columns=["table_name"],
+            where_clauses=[
+                f"table_name = '{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}'\n"
+                f"AND table_schema = '{config.schema}'"
+            ],
+        )
+        res = cursor.execute(query).fetchall()
+        if len(res) == 0:
+            prefix = manifest.get_study_prefix()
+            drop_prefix = prefix
+            display_prefix = prefix
+
+        else:
+            query = base_templates.get_select_from_single_query(
+                schema=base_utils.get_schema(config=config, manifest=manifest),
+                table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
+                columns=["name", "type"],
+                where_clauses=[f"stage = '{config.stage}'"],
+                distinct=True,
+            )
+            names_and_types = cursor.execute(query).fetchall()
+            if names_and_types != []:
+                view_table_list += _get_unprotected_stats_view_table(
+                    config,
+                    manifest,
+                    drop_prefix,
+                    display_prefix,
+                    config.stats_clean,
+                    clean_by_cli_prefix=isinstance(prefix, str),
+                    artifact_list=names_and_types,
+                )
     if config.stage == "all" or prefix:
         view_sql = base_templates.get_show_views(config.schema, drop_prefix)
         table_sql = base_templates.get_show_tables(config.schema, drop_prefix)
@@ -142,30 +181,10 @@ def clean_study(
                 query=query,
                 artifact_type=artifact_type,
             )
-    else:
-        query = base_templates.get_select_from_single_query(
-            schema=base_utils.get_schema(config=config, manifest=manifest),
-            table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
-            columns=["name", "type"],
-            where_clauses=[f"stage = '{config.stage}'"],
-            distinct=True,
-        )
-        names_and_types = cursor.execute(query).fetchall()
-        if names_and_types != []:
-            view_table_list += _get_unprotected_stats_view_table(
-                config,
-                manifest,
-                drop_prefix,
-                display_prefix,
-                config.stats_clean,
-                clean_by_cli_prefix=isinstance(prefix, str),
-                artifact_list=names_and_types,
-            )
 
     if not view_table_list:
         return view_table_list
-    # We'll do a pass to see if any of these tables were created outside of a
-    # study builder, and remove them from the list.
+    # We'll do a pass to see if any of these tables are protected, and remove them from the list.
     for view_table in view_table_list.copy():
         if any(
             (
