@@ -77,44 +77,42 @@ def upload_files(args: dict):
     filtered_paths = []
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
-    for target in args["target"]:
-        for path in file_paths:
-            if path.parent.name == target and path.name == f"{target}.zip":
-                filtered_paths.append(path)
-        if len(filtered_paths) == 0:
-            sys.exit("No files found for upload. Is your data path/target specified correctly?")
-        archive_path = filtered_paths[0]
-        upload_archive = zipfile.ZipFile(archive_path)
-        archive_contents = upload_archive.namelist()
-        invalid_contents = []
-        for file in archive_contents:
-            if not any(x in file for x in const.ALLOWED_UPLOADS):
-                invalid_contents.append(file)
-        if len(invalid_contents) > 0:
+    target = args["target"]
+    for path in file_paths:
+        if path.parent.name == target and path.name == f"{target}.zip":
+            filtered_paths.append(path)
+    if len(filtered_paths) == 0:
+        sys.exit("No files found for upload. Is your data path/target specified correctly?")
+    archive_path = filtered_paths[0]
+    upload_archive = zipfile.ZipFile(archive_path)
+    archive_contents = upload_archive.namelist()
+    invalid_contents = []
+    for file in archive_contents:
+        if not any(x in file for x in const.ALLOWED_UPLOADS):
+            invalid_contents.append(file)
+    if len(invalid_contents) > 0:
+        sys.exit(
+            f"{archive_path} contains files that are not allowed:"
+            f"  {invalid_contents}"
+            "This likely means you tried to upload an archive containing line level data, "
+            "but may also be a bug related to your study export names."
+        )
+    if target != "discovery":
+        if not any(f"{target}__meta_date.meta.parquet" == x for x in archive_contents):
             sys.exit(
-                f"{archive_path} contains files that are not allowed:"
-                f"  {invalid_contents}"
-                "This likely means you tried to upload an archive containing line level data, "
-                "but may also be a bug related to your study export names."
+                f"Study '{target}' does not contain a {target}__meta_date table.\n"
+                "See the documentation for more information about this required table.\n"
+                "https://docs.smarthealthit.org/cumulus/library/creating-studies.html#metadata-tables"
             )
-        if target != "discovery":
-            if not any(f"{target}__meta_date.meta.parquet" == x for x in archive_contents):
-                sys.exit(
-                    f"Study '{target}' does not contain a {target}__meta_date table.\n"
-                    "See the documentation for more information about this required table.\n"
-                    "https://docs.smarthealthit.org/cumulus/library/creating-studies.html#metadata-tables"
-                )
-        try:
-            meta_version = next(
-                filter(lambda x: str(x).endswith("__meta_version.meta.parquet"), archive_contents)
-            )
-            version = str(
-                read_parquet(upload_archive.open(meta_version))["data_package_version"][0]
-            )
-        except StopIteration:
-            version = "0"
-        # TODO: I looked into monitoring upload progress instead of completed files and it is
-        # non-trivial - potential point for improvement later
-        with base_utils.get_progress_bar() as progress_bar:
-            file_upload_progress = progress_bar.add_task(f"Uploading {target}...", total=1)
-            upload_data(progress_bar, file_upload_progress, filtered_paths[0], version, args)
+    try:
+        meta_version = next(
+            filter(lambda x: str(x).endswith("__meta_version.meta.parquet"), archive_contents)
+        )
+        version = str(read_parquet(upload_archive.open(meta_version))["data_package_version"][0])
+    except StopIteration:
+        version = "0"
+    # TODO: I looked into monitoring upload progress instead of completed files and it is
+    # non-trivial - potential point for improvement later
+    with base_utils.get_progress_bar() as progress_bar:
+        file_upload_progress = progress_bar.add_task(f"Uploading {target}...", total=1)
+        upload_data(progress_bar, file_upload_progress, filtered_paths[0], version, args)
