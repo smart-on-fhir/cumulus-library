@@ -40,7 +40,7 @@ def generate_umls_tables(
     valueset_config: valueset_utils.ValuesetConfig,
 ):
     base_path = pathlib.Path(__file__).resolve().parent
-    study_prefix = manifest.get_prefix_with_seperator()
+    study_prefix = manifest.get_schema_aware_prefix_with_seperator()
     cursor = config.db.cursor()
     table_prefix = valueset_config.get_table_prefix()
     create_table = True

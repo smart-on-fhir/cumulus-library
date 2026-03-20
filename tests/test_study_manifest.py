@@ -70,16 +70,17 @@ def test_load_manifest(manifest_path, expected, raises):
 
 
 @pytest.mark.parametrize(
-    "manifest_path,prefix",
+    "manifest_path,prefix, prefix_with_sep",
     [
-        ("test_data/study_valid", "study_valid__"),
-        ("test_data/study_dedicated_schema", "dedicated."),
+        ("test_data/study_valid", "study_valid", "study_valid__"),
+        ("test_data/study_dedicated_schema", "", ""),
     ],
 )
-def test_get_prefix_with_seperator(manifest_path, prefix):
+def test_schema_aware(manifest_path, prefix, prefix_with_sep):
     path = f"{pathlib.Path(__file__).resolve().parents[0]}/{manifest_path}"
     manifest = study_manifest.StudyManifest(path)
-    assert prefix == manifest.get_prefix_with_seperator()
+    assert prefix == manifest.get_schema_aware_prefix()
+    assert prefix_with_sep == manifest.get_schema_aware_prefix_with_seperator()
 
 
 def test_custom_pathing(tmp_path):
