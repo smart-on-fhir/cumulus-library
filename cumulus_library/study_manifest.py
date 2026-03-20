@@ -338,11 +338,17 @@ class StudyManifest:
         """Convenience method for getting workflow config files"""
         return self.get_all_files(".toml", stage_name)
 
-    def get_prefix_with_seperator(self) -> str:
+    def get_schema_aware_prefix_with_seperator(self) -> str:
         """Convenience method for getting the appropriate prefix for tables"""
-        if dedicated := self.get_dedicated_schema():
-            return f"{dedicated}."
+        if self.get_dedicated_schema():
+            return ""
         return f"{self.get_study_prefix()}__"
+
+    def get_schema_aware_prefix(self) -> str:
+        """Returns the appropriate prefix based on the presence of a dedicated schema"""
+        if self.get_dedicated_schema():
+            return ""
+        return self.get_study_prefix()
 
     def copy_manifest(self, path: pathlib.Path):
         """Writes a copy of the manifest to the provided path.

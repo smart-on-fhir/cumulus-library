@@ -20,7 +20,7 @@ class AdditionalRulesBuilder(BaseTableBuilder):
         **kwargs,
     ):
         self.parallel_allowed = False
-        study_prefix = manifest.get_prefix_with_seperator()
+        study_prefix = manifest.get_schema_aware_prefix_with_seperator()
         table_prefix = valueset_config.get_table_prefix()
         self.queries.append(
             base_templates.get_base_template(

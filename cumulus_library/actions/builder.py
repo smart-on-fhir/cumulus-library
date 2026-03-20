@@ -224,10 +224,7 @@ def _update_build_source_table(
     # it's possible to get a list of queries that contains no CREATE statements
     if len(table_names) > 0:
         # Otherwise, let's add new tables to the study build source tables.
-        if manifest.get_dedicated_schema():
-            prefix = ""
-        else:
-            prefix = f"{manifest.get_study_prefix()}__"
+        prefix = manifest.get_schema_aware_prefix_with_seperator()
         queries.insert(
             0,
             base_templates.get_insert_into_query(
@@ -682,15 +679,17 @@ def _check_query_for_errors(
             "This query is not a valid SQL query. Check the query against a database "
             "for more debugging information.",
         )
-    if f"{manifest.get_study_prefix()}__" not in table and not manifest.get_dedicated_schema():
+    if (
+        manifest.get_schema_aware_prefix_with_seperator() not in table
+        and manifest.get_schema_aware_prefix_with_seperator() != ""
+    ):
         _query_error(
             config,
             manifest,
             query,
             filename,
             "This query does not contain the study prefix. All tables should "
-            f"start with a string like `{manifest.get_study_prefix()}__`, "
-            "and it should be in the first line of the query.",
+            f"start with a string like `{manifest.get_schema_aware_prefix_with_seperator()}`.",
         )
     if any(
         f"{manifest.get_study_prefix()}__{word.value}_" in table
