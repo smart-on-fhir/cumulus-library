@@ -597,8 +597,6 @@ def _run_workflow(
         case "file_upload":
             builder = file_upload_builder.FileUploadBuilder(
                 toml_config_path=toml_path,
-                config=config,
-                workflow_config=workflow_config,
             )
         case "counts":
             builder = counts_builder.CountsBuilder(

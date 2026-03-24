@@ -22,5 +22,5 @@ STORED AS PARQUET
 LOCATION '{{ remote_location }}'
 tblproperties ("parquet.compression"="SNAPPY");
 {%-  elif db_type == 'duckdb' %}
-FROM read_parquet('{{ local_location }}')
+FROM read_parquet('{{ local_location }}/*.parquet')
 {%- endif %}
