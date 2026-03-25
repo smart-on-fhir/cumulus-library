@@ -268,3 +268,19 @@ table_cols = [
     # These core counts are just a rough idea of the data, not a polished final product.
     ["performedDateTime_month", "date"],
 ]
+
+[tables.count_servicerequest_month]
+source_table = "core__servicerequest"
+description = """A count of patient's general service requests by month.
+
+This table provides a summary snapshot of all the service requests for the entire patient population
+that have been loaded into a database for use by the Cumulus ecosystem. It bins by category,
+service request code, and the author date. It is primarily intended as a validation
+tool to ensure that data has been successfully extracted from a source system via the FHIR
+data format.
+"""
+table_cols = [
+    ["category_display", "varchar"],
+    ["code_display", "varchar"],
+    ["authoredOn_month", "date"],
+]

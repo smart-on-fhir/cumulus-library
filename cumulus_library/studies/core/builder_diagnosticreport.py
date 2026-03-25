@@ -9,7 +9,7 @@ expected_table_cols = {
         "subject": sql_utils.REFERENCE,
         "encounter": sql_utils.REFERENCE,
         "effectiveDateTime": [],
-        "effectivePeriod": ["start", "end"],
+        "effectivePeriod": sql_utils.PERIOD,
         "issued": [],
         "result": sql_utils.REFERENCE,
         "presentedForm": {

@@ -288,6 +288,21 @@ schema =
             'subject': {
                 'reference': True,
             },
+        },
+        'servicerequest': {
+            'encounter': {
+                'reference': True,
+            },
+            'id': True,
+            'occurrencePeriod': {
+              'start': True, 'end': True,
+            },
+            'requester': {
+                'reference': True,
+            },
+            'subject': {
+                'reference': True,
+            },
         }
     }
 source_table = source_table
