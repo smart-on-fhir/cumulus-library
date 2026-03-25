@@ -271,9 +271,9 @@ table_cols = [
 
 [tables.count_servicerequest_month]
 source_table = "core__servicerequest"
-description = """A count of patient's general service requests by month.
+description = """A count of patients with service requests by month.
 
-This table provides a summary snapshot of all the service requests for the entire patient population
+This table provides a summary snapshot of the entire patient population with service requests
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by category,
 service request code, and the author date. It is primarily intended as a validation
 tool to ensure that data has been successfully extracted from a source system via the FHIR
@@ -283,4 +283,18 @@ table_cols = [
     ["category_display", "varchar"],
     ["code_display", "varchar"],
     ["authoredOn_month", "date"],
+]
+
+[tables.count_specimen_month]
+source_table = "core__specimen"
+description = """A count of patients with specimens by month.
+
+This table provides a summary snapshot of the entire patient population with specimens
+that have been loaded into a database for use by the Cumulus ecosystem. It bins by category,
+service request code, and the author date. It is primarily intended as a validation
+tool to ensure that data has been successfully extracted from a source system via the FHIR
+data format.
+"""
+table_cols = [
+    ["type_display", "varchar"],
 ]

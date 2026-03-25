@@ -83,6 +83,7 @@ def get_ndjson_files(path: str) -> dict[dict[str]]:
         "PractitionerRole",
         "Procedure",
         "ServiceRequest",
+        "Specimen",
     ]
     for resource in resource_names:
         files = _list_files_for_resource(pathlib.Path(path), resource)

@@ -30,6 +30,7 @@ files =[
     "builder_practitionerrole_prereq.py",
     "builder_procedure_prereq.py",
     "builder_servicerequest_prereq.py",
+    "builder_specimen_prereq.py",
 ]
 type = "build:parallel"
 [[stages.build_core]]
@@ -54,6 +55,7 @@ files=[
     "builder_practitionerrole.py",
     "builder_procedure.py",
     "builder_servicerequest.py",
+    "builder_specimen.py",
 ]
 type = "build:parallel"
 [[stages.build_core]]
@@ -85,6 +87,7 @@ tables = [
     "core__count_patient",
     "core__count_procedure_month",
     "core__count_servicerequest_month",
+    "core__count_specimen_month",
 ]
 type = "export:counts"
 [[stages.build_core]]

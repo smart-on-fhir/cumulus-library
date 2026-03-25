@@ -303,7 +303,12 @@ schema =
             'subject': {
                 'reference': True,
             },
-        }
+        },
+        'specimen': {
+            'subject': {
+                'reference': True,
+            },
+        },
     }
 source_table = source_table
 source_id = source_id
