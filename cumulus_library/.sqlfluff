@@ -186,6 +186,14 @@ schema =
             }, 
             'id': True
         },
+        'episodeofcare': {
+            'patient': {
+                'reference': True,
+            },
+            'period': {
+                'start': True, 'end': False
+            },
+        },
         'etl__completion': {
             'group_name': True,
         },
