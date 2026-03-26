@@ -26,6 +26,7 @@ def test_core_servicerequest_simple(tmp_path):
             "occurrencePeriod": {"start": "2022-06-16T10:23:00Z", "end": "2022-06-19T10:24:00Z"},
             "authoredOn": "2022-06-20T11:23:00Z",
             "requester": {"reference": "Practitioner/pract"},
+            "specimen": [{"reference": "Specimen/spec"}],
         },
     )
 
@@ -64,6 +65,7 @@ def test_core_servicerequest_simple(tmp_path):
             "subject_ref": "Patient/pat",
             "encounter_ref": "Encounter/enc",
             "requester_ref": "Practitioner/pract",
+            "specimen_ref": "Specimen/spec",
         }
     ]
 
@@ -107,5 +109,6 @@ def test_core_servicerequest_minimal(tmp_path):
             "subject_ref": None,
             "encounter_ref": None,
             "requester_ref": None,
+            "specimen_ref": None,
         }
     ]

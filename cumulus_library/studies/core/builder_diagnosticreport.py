@@ -11,6 +11,7 @@ expected_table_cols = {
         "effectiveDateTime": [],
         "effectivePeriod": sql_utils.PERIOD,
         "issued": [],
+        "specimen": sql_utils.REFERENCE,
         "result": sql_utils.REFERENCE,
         "presentedForm": {
             "contentType": [],

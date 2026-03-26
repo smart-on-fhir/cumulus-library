@@ -24,6 +24,7 @@ WITH temp_observation AS (
                     ('valueQuantity', 'unit', 'valueQuantity_unit'),
                     ('valueQuantity', 'system', 'valueQuantity_system'),
                     ('valueQuantity', 'code', 'valueQuantity_code'),
+                    ('specimen', 'reference', 'specimen_ref'),
                 ],
                 schema
             ) 
@@ -90,5 +91,6 @@ SELECT
     dataAbsentReason_display,
     subject_ref,
     encounter_ref,
+    specimen_ref,
     concat('Observation/', id) AS observation_ref
 FROM temp_observation;

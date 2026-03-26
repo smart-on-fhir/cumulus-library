@@ -3,7 +3,8 @@ import pathlib
 import zipfile
 from unittest import mock
 
-from cumulus_library import study_manifest
+import cumulus_library
+from cumulus_library import cli
 from cumulus_library.actions import (
     exporter,
 )
@@ -13,8 +14,15 @@ from cumulus_library.actions import (
     os.environ,
     clear=True,
 )
-def test_export_study(tmp_path, mock_db_core_config):
-    manifest = study_manifest.StudyManifest(
+@mock.patch("cumulus_library.builders.counts_builder.DEFAULT_MIN_SUBJECT", new=1)
+def test_export_study(tmp_path, mock_db):
+    config = cumulus_library.StudyConfig(db=mock_db, schema="main")
+    builder = cli.StudyRunner(config, data_path=f"{tmp_path}/data_path")
+    builder.clean_and_build_study(
+        pathlib.Path(__file__).parent.parent.parent / "cumulus_library/studies/core",
+        options={},
+    )
+    manifest = cumulus_library.StudyManifest(
         pathlib.Path(__file__).parents[2] / "cumulus_library/studies/core",
         data_path=tmp_path / "export",
     )
@@ -23,7 +31,7 @@ def test_export_study(tmp_path, mock_db_core_config):
     with open(export_path / "to_be_deleted.file", "w") as f:
         f.write("foo")
     exporter.export_study(
-        config=mock_db_core_config,
+        config=config,
         manifest=manifest,
         data_path=tmp_path / "export",
         archive=False,

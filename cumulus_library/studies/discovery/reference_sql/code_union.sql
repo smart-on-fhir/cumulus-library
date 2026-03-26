@@ -166,6 +166,14 @@ SELECT
     code,
     display,
     system
+FROM discovery__tmp_episodeofcare_type
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
 FROM discovery__tmp_location_type
 UNION ALL
 SELECT
@@ -367,4 +375,132 @@ SELECT
     display,
     system
 FROM discovery__tmp_procedure_usedcode
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_servicerequest_category
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_servicerequest_code
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_servicerequest_orderdetail
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_servicerequest_asneededcodeableconcept
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_servicerequest_performertype
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_servicerequest_locationcode
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_servicerequest_reasoncode
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_servicerequest_bodysite
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_specimen_type
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_specimen_collection_method
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_specimen_collection_bodysite
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_specimen_collection_fastingstatuscodeableconcept
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_specimen_processing_procedure
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_specimen_container_type
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_specimen_container_additivecodeableconcept
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_specimen_condition
 ;

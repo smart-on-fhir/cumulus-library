@@ -15,6 +15,7 @@
 --
 -- AND ADDING:
 -- * the `conclusionCode` field, because it has clinical relevance
+-- * the `specimen` field, because we support specimen elsewhere
 --
 -- US Core profiles for reference:
 -- * https://hl7.org/fhir/us/core/STU4/StructureDefinition-us-core-diagnosticreport-lab.html
@@ -70,6 +71,22 @@ temp_performer AS (
                 t.id AS id,
                 generate_subscripts(t."performer", 1) AS row,
                 UNNEST(t."performer") AS data -- must unnest in SELECT here
+            FROM diagnosticreport AS t
+        )
+        SELECT
+            id,
+            row,
+            data."reference"
+        FROM data_and_row_num
+),
+
+temp_specimen AS (
+    WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."specimen", 1) AS row,
+                UNNEST(t."specimen") AS data -- must unnest in SELECT here
             FROM diagnosticreport AS t
         )
         SELECT
@@ -166,6 +183,7 @@ SELECT
     td.subject_ref,
     td.encounter_ref,
     tp.reference AS performer_ref,
+    ts.reference AS specimen_ref,
     tr.reference AS result_ref
 
 FROM temp_diagnosticreport AS td
@@ -175,4 +193,5 @@ LEFT JOIN core__diagnosticreport_dn_conclusioncode AS dn_conclusion
     ON td.id = dn_conclusion.id
 LEFT JOIN temp_performer AS tp ON td.id = tp.id
 LEFT JOIN temp_has_text AS tht ON td.id = tht.id
+LEFT JOIN temp_specimen AS ts ON td.id = ts.id
 LEFT JOIN temp_result AS tr ON td.id = tr.id;

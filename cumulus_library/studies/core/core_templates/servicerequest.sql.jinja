@@ -1,8 +1,10 @@
 {% import 'core_utils.jinja' as utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
 
 -- This table includes all fields of interest to the US Core ServiceRequest profile.
 -- BUT ADDING:
 -- * the `encounter` field, because come on, why is it left out of the US Core profile
+-- * the `specimen` field, because we support specimen elsewhere
 --
 -- There are lots of interesting possible fields to support from the base FHIR spec that aren't
 -- in the US Core profile, like bodySite and orderDetail. But EHR support seems low since
@@ -56,6 +58,10 @@ WITH temp_servicerequest AS (
         }}
     FROM servicerequest AS src
     WHERE (src.status IS NULL OR src.status <> 'entered-in-error')
+),
+
+temp_specimen AS (
+    {{ unnest_utils.flatten('servicerequest', 'reference', parent_field='specimen') }}
 )
 
 SELECT
@@ -94,8 +100,10 @@ SELECT
     concat('ServiceRequest/', src.id) AS servicerequest_ref,
     src.subject_ref,
     src.encounter_ref,
-    src.requester_ref
+    src.requester_ref,
+    ts.reference AS specimen_ref
 
 FROM temp_servicerequest AS src
 LEFT JOIN core__servicerequest_dn_code AS dn_code ON src.id = dn_code.id
-LEFT JOIN core__servicerequest_dn_category AS dn_category ON src.id = dn_category.id;
+LEFT JOIN core__servicerequest_dn_category AS dn_category ON src.id = dn_category.id
+LEFT JOIN temp_specimen AS ts ON src.id = ts.id;

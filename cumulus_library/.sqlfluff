@@ -155,6 +155,9 @@ schema =
             'subject': {
                 'reference': True,
             },
+            'specimen': {
+                'reference': True,
+            },
             'presentedForm': {
                 'contentType': True,
                 'data': True,
@@ -265,7 +268,10 @@ schema =
             }, 
             'encounter': {
                 'reference': True
-            }
+            },
+            'specimen': {
+                'reference': True,
+            },
         },
         'organization': {
             'id': True,
@@ -309,6 +315,9 @@ schema =
                 'reference': True,
             },
             'subject': {
+                'reference': True,
+            },
+            'specimen': {
                 'reference': True,
             },
         },

@@ -98,7 +98,7 @@ def test_duckdb_load_ndjson_dir(tmp_path):
     with pytest.raises(errors.CumulusLibraryError):
         databases.read_ndjson_dir(None, None)
     tables = databases.read_ndjson_dir(tmp_path, None)
-    assert len(tables) == 17
+    assert len(tables) == 19
 
 
 def test_duckdb_load_empty_dir(tmp_path):

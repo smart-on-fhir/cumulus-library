@@ -2,7 +2,7 @@
 
 import json
 
-from tests import conftest, testbed_utils
+from tests import testbed_utils
 
 
 def test_core_specimen_simple(tmp_path):

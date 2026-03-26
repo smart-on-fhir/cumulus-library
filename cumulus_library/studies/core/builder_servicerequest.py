@@ -13,6 +13,7 @@ expected_table_cols = {
         "occurrenceDateTime": [],
         "authoredOn": [],
         "requester": sql_utils.REFERENCE,
+        "specimen": sql_utils.REFERENCE,
     }
 }
 
