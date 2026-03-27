@@ -95,7 +95,7 @@ create_mode = "multiple"
 # When creating multple tables, if you provide a reference to a directory rather than a
 # file, we'll create a table for each file inside that directory.
 files =[
-  'dataset5.parquet',
-  'data_folder'
+  'dataset5.parquet', # creates a table named 'study_name__dataset5'
+  'data_folder' # if this folder contained 'one.csv' and 'two.csv', creates tables named 'study_name__one' and 'study_name__two'
 ]
 ```

@@ -198,7 +198,7 @@ class StaticBuilder(BaseTableBuilder):
                     path = self.data_path / table.table_name / table.filtered_path
                 else:
                     path = self.data_path / table.table_name / table.file_path
-                parquet_dir = self.data_path / table.table_name  # .with_suffix(".parquet")
+                parquet_dir = self.data_path / table.table_name
                 parquet_path = (parquet_dir / table.table_name).with_suffix(".parquet")
                 parquet_path.parent.mkdir(exist_ok=True, parents=True)
 

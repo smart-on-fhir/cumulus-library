@@ -33,7 +33,7 @@ class FileUploadTask(msgspec.Struct, forbid_unknown_fields=True):
     create_mode: str = "single"
     delimiter: str | None = None
     col_types: list[str] | None = None
-    always_upload: bool | None = False
+    always_upload: bool = False
 
 
 class FileUploadWorkflow(msgspec.Struct, forbid_unknown_fields=True):
@@ -51,37 +51,32 @@ class FileUploadBuilder(BaseTableBuilder):
 
     def __init__(self, *args, toml_config_path: pathlib.Path, **kwargs):
         super().__init__(*args, **kwargs)
-        if toml_config_path:
-            self._toml_config_path = toml_config_path
-            self._toml_config_dir = toml_config_path.parent
-            try:
-                with open(toml_config_path, "rb") as file:
-                    file_bytes = file.read()
-                    self._workflow_config = msgspec.to_builtins(
-                        msgspec.toml.decode(file_bytes, type=FileUploadWorkflow)
-                    )
-            except msgspec.ValidationError as e:
-                sys.exit(
-                    f"The file upload workflow at {toml_config_path!s} contains an "
-                    "unexpected param: \n"
-                    f"{e}"
+        self._toml_config_path = toml_config_path
+        self._toml_config_dir = toml_config_path.parent
+        try:
+            with open(toml_config_path, "rb") as file:
+                file_bytes = file.read()
+                self._workflow_config = msgspec.to_builtins(
+                    msgspec.toml.decode(file_bytes, type=FileUploadWorkflow)
                 )
-            for table in self._workflow_config["tables"]:
-                # migrate deprecated `file` key if found
-                if file := self._workflow_config["tables"][table]["file"]:
-                    self._workflow_config["tables"][table]["files"] = [file]
-                if mode := self._workflow_config["tables"][table]["create_mode"] not in (
-                    "single",
-                    "multiple",
-                ):
-                    raise errors.FileUploadError(
-                        f"Create mode '{mode}' in file upload workflow "
-                        f"{self._toml_config_path} is invalid."
-                    )
-        else:
-            self._workflow_config = None
-            self._toml_config_path = None
-            self._toml_config_dir = None
+        except msgspec.ValidationError as e:  # pragma: no cover
+            sys.exit(
+                f"The file upload workflow at {toml_config_path!s} contains an "
+                "unexpected param: \n"
+                f"{e}"
+            )
+        for table in self._workflow_config["tables"]:
+            # migrate deprecated `file` key if found
+            if file := self._workflow_config["tables"][table]["file"]:
+                self._workflow_config["tables"][table]["files"] = [file]
+            if mode := self._workflow_config["tables"][table]["create_mode"] not in (
+                "single",
+                "multiple",
+            ):
+                raise errors.FileUploadError(  # pragma: no cover
+                    f"Create mode '{mode}' in file upload workflow "
+                    f"{self._toml_config_path} is invalid."
+                )
 
     def prepare_queries(
         self,
@@ -90,10 +85,6 @@ class FileUploadBuilder(BaseTableBuilder):
         *args,
         **kwargs,
     ):
-        if self._toml_config_path is None or self._workflow_config is None:
-            raise errors.FileUploadError(
-                "Attempted to run a file upload workflow without a configuration."
-            )
         cache_dir = (
             pathlib.Path(platformdirs.user_cache_dir("cumulus-library", "smart-on-fhir"))
             / f"file_uploads/{manifest.get_study_prefix()}"
@@ -165,8 +156,8 @@ class FileUploadBuilder(BaseTableBuilder):
                         )
                     if table["create_mode"] == "single":
                         if types is None:
-                            types == df.dtypes
-                        elif types != df.types:
+                            types = df.dtypes
+                        elif list(types.items()) != list(df.dtypes.items()):
                             raise errors.FileUploadError(
                                 f"{table_filename} does not match the schema of the other files"
                             )
@@ -180,8 +171,6 @@ class FileUploadBuilder(BaseTableBuilder):
                     parquet_path = pathlib.Path().joinpath(*path_parts)
                     local_location = parquet_path.parent
 
-                    if "always_upload" not in table:
-                        table["always_upload"] = True
                     df = df.rename(self._snake_case, axis="columns")
                     if table["col_types"] is None:
                         table["col_types"] = ["STRING" for x in df.columns]

@@ -1,3 +1,4 @@
+import csv
 import pathlib
 import shutil
 from unittest import mock
@@ -88,6 +89,35 @@ def test_wrong_cols_filetype(mock_cache, mock_db_config, tmp_path):
     )
 
     with pytest.raises(errors.FileUploadError):
+        builder = file_upload_builder.FileUploadBuilder(
+            toml_config_path=tmp_path / "file_upload/workflow.toml",
+        )
+        builder.prepare_queries(config=mock_db_config, manifest=manifest)
+
+
+@mock.patch("platformdirs.user_cache_dir")
+def test_multifile_mismatch(mock_cache, mock_db_config, tmp_path):
+    mock_cache.return_value = tmp_path / "cache"
+    shutil.copytree(TEST_DATA_PATH, tmp_path / "file_upload", dirs_exist_ok=True)
+
+    manifest = study_manifest.StudyManifest(tmp_path / "file_upload")
+    with open(tmp_path / "file_upload/upload_commas_part2.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "a",
+                "b",
+                "c",
+            ]
+        )
+        writer.writerow(
+            [
+                7,
+                "8",
+                "xyz",
+            ]
+        )
+    with pytest.raises(errors.FileUploadError, match="does not match the schema"):
         builder = file_upload_builder.FileUploadBuilder(
             toml_config_path=tmp_path / "file_upload/workflow.toml",
         )
