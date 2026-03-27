@@ -56,7 +56,7 @@ config_type="file_upload"
 # So an entry like [tables.my_table] results in a table like `my_study__my_table`.
 [tables.table_1]
 # `file` should be a relative path from your workflow to the file you want to upload
-file = "dataset_1.csv"
+files = ["dataset_1.csv"]
 # in the case of csv/tsv/bsv, we all know the delimiters implied by the filetype 
 # are just a suggestion, so if you have a non-comma delimiter, you can specify it
 # with the delimiter key.
@@ -68,18 +68,34 @@ delimiter = '\t' # \t is shorthand for a tab
 # https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Types
 # for more info.
 col_types = ["STRING","DATE","DOUBLE"]
+# By default, the create mode is "single", which means we'll create one table from
+# the provided files. You can optionally specify it if you want to be explicit.
+create_mode = "single"
 # multiple uploads can be specified in a single workflow. In 99% of cases, you probably
 # want to have one upload workflow, and run it at the start of your manifest, and upload
 # everything you might need at once.
 [tables.table_2]
 # For excel files, we assume we are taking the first sheet in the spreadsheet.
-file = "dataset_2.xlsx"
+files = ["dataset_2.xlsx"]
 [tables.table_3]
 # You probably won't need to convert things directly to parquet, but if you do, there are
 # no caveats - what you upload is what you get.
-file = "dataset_3.parquet"
+files = ["dataset_3.parquet"]
 # By default, we'll upload a file every time a study runs. If you'd rather upload on demand,
 # like in the case of a coding study with a large payload, set always_upload to false.
 # You can then use the --force_upload cli flag to manually upload new versions.
 always_upload=false
+[tables.table_4]
+# If you want to back a table with a collection of files, just provide an array of those files.
+files = ["dataset_4a.parquet","dataset_4a.parquet"]
+[tables.table_5]
+# If you set create_mode to 'multiple', you'll create as many tables as you provide files.
+# We'll use the filename, less the suffix, as the name for the table
+create_mode = "multiple"
+# When creating multple tables, if you provide a reference to a directory rather than a
+# file, we'll create a table for each file inside that directory.
+files =[
+  'dataset5.parquet', # creates a table named 'study_name__dataset5'
+  'data_folder' # if this folder contained 'one.csv' and 'two.csv', creates tables named 'study_name__one' and 'study_name__two'
+]
 ```
