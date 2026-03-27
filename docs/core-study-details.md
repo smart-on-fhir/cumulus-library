@@ -86,9 +86,12 @@ for each of the following encounter-linked resources:
 - Condition
 - DiagnosticReport
 - DocumentReference
+- EpisodeOfCare
 - MedicationRequest
 - Observation
 - Procedure
+- ServiceRequest
+- Specimen
 
 ## Optional fields
 
@@ -115,11 +118,14 @@ Per resource, the optional fields are as follows:
   - recordedDate
 - DiagnosticReport
   - conclusionCode
+  - specimen
 - DocumentReference
   - docStatus
 - Encounter
   - serviceType
   - priority
+- EpisodeOfCare
+  - everything (it has no US Core profile)
 - Location
   - identifier
   - alias
@@ -146,6 +152,11 @@ Per resource, the optional fields are as follows:
 - Procedure
   - category
   - encounter
+- ServiceRequest
+  - encounter
+  - specimen
+- Specimen
+  - status
 
 ## Deprecation Notice
 
@@ -303,6 +314,24 @@ vital signs) instead.
 |category_display       |varchar|           |
 |code_display           |varchar|           |
 |performeddatetime_month|varchar|           |
+
+
+### core__count_servicerequest_month
+
+|     Column     | Type  |Description|
+|----------------|-------|-----------|
+|cnt             |bigint |           |
+|category_display|varchar|           |
+|code_display    |varchar|           |
+|authoredon_month|varchar|           |
+
+
+### core__count_specimen_month
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|cnt         |bigint |           |
+|type_display|varchar|           |
 
 
 ## core base tables
@@ -508,6 +537,7 @@ vital signs) instead.
 |subject_ref                |varchar|           |
 |encounter_ref              |varchar|           |
 |performer_ref              |varchar|           |
+|specimen_ref               |varchar|           |
 |result_ref                 |varchar|           |
 
 
@@ -603,18 +633,6 @@ vital signs) instead.
 |userselected|boolean|           |
 
 
-### core__ed_note
-
-|  Column   |   Type    |Description|
-|-----------|-----------|-----------|
-|from_system|varchar(3) |           |
-|from_code  |varchar(14)|           |
-|analyte    |varchar(28)|           |
-|code_system|varchar(16)|           |
-|code       |varchar(7) |           |
-|display    |varchar(33)|           |
-
-
 ### core__encounter
 
 |           Column           | Type  |Description|
@@ -649,6 +667,7 @@ vital signs) instead.
 |period_start_month          |date   |           |
 |period_start_year           |date   |           |
 |subject_ref                 |varchar|           |
+|episodeofcare_ref           |varchar|           |
 |participant_ref             |varchar|           |
 |serviceprovider_ref         |varchar|           |
 |encounter_ref               |varchar|           |
@@ -711,6 +730,39 @@ vital signs) instead.
 |userselected|boolean|           |
 
 
+### core__episodeofcare
+
+|      Column      | Type  |Description|
+|------------------|-------|-----------|
+|id                |varchar|           |
+|status            |varchar|           |
+|type_code         |varchar|           |
+|type_system       |varchar|           |
+|type_display      |varchar|           |
+|period_start_day  |date   |           |
+|period_start_week |date   |           |
+|period_start_month|date   |           |
+|period_start_year |date   |           |
+|period_end_day    |date   |           |
+|period_end_week   |date   |           |
+|period_end_month  |date   |           |
+|period_end_year   |date   |           |
+|episodeofcare_ref |varchar|           |
+|patient_ref       |varchar|           |
+
+
+### core__episodeofcare_dn_type
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
 ### core__fhir_act_encounter_code_v3
 
 |Column |   Type    |Description|
@@ -749,6 +801,15 @@ vital signs) instead.
 |Column| Type  |Description|
 |------|-------|-----------|
 |id    |varchar|           |
+
+
+### core__lib_build_source
+
+|Column| Type  |Description|
+|------|-------|-----------|
+|stage |varchar|           |
+|name  |varchar|           |
+|type  |varchar|           |
 
 
 ### core__lib_transactions
@@ -909,6 +970,7 @@ vital signs) instead.
 |dataabsentreason_display    |varchar|           |
 |subject_ref                 |varchar|           |
 |encounter_ref               |varchar|           |
+|specimen_ref                |varchar|           |
 |observation_ref             |varchar|           |
 
 
@@ -1049,6 +1111,7 @@ vital signs) instead.
 |status                      |varchar|           |
 |subject_ref                 |varchar|           |
 |encounter_ref               |varchar|           |
+|specimen_ref                |varchar|           |
 |observation_ref             |varchar|           |
 
 
@@ -1264,3 +1327,85 @@ vital signs) instead.
 |display     |varchar|           |
 |userselected|boolean|           |
 
+
+### core__servicerequest
+
+|           Column           | Type  |Description|
+|----------------------------|-------|-----------|
+|id                          |varchar|           |
+|status                      |varchar|           |
+|intent                      |varchar|           |
+|category_code               |varchar|           |
+|category_system             |varchar|           |
+|category_display            |varchar|           |
+|code_code                   |varchar|           |
+|code_system                 |varchar|           |
+|code_display                |varchar|           |
+|occurrencedatetime_day      |date   |           |
+|occurrencedatetime_week     |date   |           |
+|occurrencedatetime_month    |date   |           |
+|occurrencedatetime_year     |date   |           |
+|occurrenceperiod_start_day  |date   |           |
+|occurrenceperiod_start_week |date   |           |
+|occurrenceperiod_start_month|date   |           |
+|occurrenceperiod_start_year |date   |           |
+|occurrenceperiod_end_day    |date   |           |
+|occurrenceperiod_end_week   |date   |           |
+|occurrenceperiod_end_month  |date   |           |
+|occurrenceperiod_end_year   |date   |           |
+|authoredon_day              |date   |           |
+|authoredon_week             |date   |           |
+|authoredon_month            |date   |           |
+|authoredon_year             |date   |           |
+|servicerequest_ref          |varchar|           |
+|subject_ref                 |varchar|           |
+|encounter_ref               |varchar|           |
+|requester_ref               |varchar|           |
+|specimen_ref                |varchar|           |
+
+
+### core__servicerequest_dn_category
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__servicerequest_dn_code
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__specimen
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|status      |varchar|           |
+|type_code   |varchar|           |
+|type_system |varchar|           |
+|type_display|varchar|           |
+|specimen_ref|varchar|           |
+|subject_ref |varchar|           |
+
+
+### core__specimen_dn_type
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |

@@ -21,6 +21,7 @@ WITH temp_observation AS (
         o.valueQuantity.unit AS valueQuantity_unit,
         o.valueQuantity.system AS valueQuantity_system,
         o.valueQuantity.code AS valueQuantity_code,
+        o.specimen.reference AS specimen_ref,
         date_trunc('day', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
             AS effectiveDateTime_day,
         date_trunc('week', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
@@ -79,6 +80,7 @@ SELECT
     dataAbsentReason_display,
     subject_ref,
     encounter_ref,
+    specimen_ref,
     concat('Observation/', id) AS observation_ref
 FROM temp_observation;
 

@@ -1,0 +1,4 @@
+(1, 'Bursal Fluid')
+(1, 'Tissue')
+(3, 'Blood')
+(3, None)

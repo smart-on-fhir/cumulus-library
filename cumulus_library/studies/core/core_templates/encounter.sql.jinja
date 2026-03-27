@@ -67,6 +67,10 @@ temp_encounter_nullable AS (
     ) AND (e.status IS NULL OR e.status <> 'entered-in-error')
 ),
 
+temp_episodeofcare AS (
+    {{ unnest_utils.flatten('encounter', 'reference', parent_field='episodeOfCare') }}
+),
+
 temp_participant AS (
     SELECT
         id,
@@ -154,11 +158,13 @@ SELECT DISTINCT
     e.period_start_month AS period_start_month,
     e.period_start_year AS period_start_year,
     e.subject_ref,
+    teoc.reference AS episodeOfCare_ref,
     tp.participant_ref,
     e.serviceProvider_ref,
     concat('Encounter/', e.id) AS encounter_ref
 FROM temp_encounter AS e
 LEFT JOIN temp_participant AS tp ON e.id = tp.id
+LEFT JOIN temp_episodeofcare AS teoc ON e.id = teoc.id
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
     ON e.class_code = eac.found AND e.class_system = eac.found_system
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code

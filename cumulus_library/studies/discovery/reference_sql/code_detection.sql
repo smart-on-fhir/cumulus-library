@@ -289,6 +289,21 @@ CREATE TABLE discovery__tmp_encounter_hospitalization_dischargedisposition AS
 -- ###########################################################
 
 
+CREATE TABLE discovery__tmp_episodeofcare_type AS
+
+    SELECT DISTINCT
+        'episodeofcare' AS table_name,
+        'type' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM episodeofcare,
+    UNNEST(type) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_location_type AS
 SELECT *
 FROM (
@@ -680,6 +695,256 @@ FROM (
     VALUES (
         'procedure',
         'usedcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_category AS
+
+    SELECT DISTINCT
+        'servicerequest' AS table_name,
+        'category' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM servicerequest,
+    UNNEST(category) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_code AS
+
+    SELECT DISTINCT
+        'servicerequest' AS table_name,
+        'code' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM servicerequest,
+    UNNEST(code.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_orderdetail AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'orderDetail',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_asneededcodeableconcept AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'asNeededCodeableConcept',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_performertype AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'performerType',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_locationcode AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'locationCode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_reasoncode AS
+
+    SELECT DISTINCT
+        'servicerequest' AS table_name,
+        'reasonCode' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM servicerequest,
+    UNNEST(reasonCode) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_bodysite AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'bodySite',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_type AS
+
+    SELECT DISTINCT
+        'specimen' AS table_name,
+        'type' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM specimen,
+    UNNEST(type.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_collection_method AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'collection.method',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_collection_bodysite AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'collection.bodySite',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_collection_fastingstatuscodeableconcept AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'collection.fastingStatusCodeableConcept',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_processing_procedure AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'processing.procedure',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_container_type AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'container.type',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_container_additivecodeableconcept AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'container.additiveCodeableConcept',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_condition AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'condition',
         '',
         '',
         ''
