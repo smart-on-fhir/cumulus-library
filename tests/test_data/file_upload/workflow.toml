@@ -10,7 +10,7 @@ files = ["upload_excel.xlsx"]
 [tables.parquet]
 files = ["upload.parquet"]
 [tables.single_multi_files]
-files = ["upload_commas.csv","upload_commas_part2.csv" ]
+files = [ "multiple_upload", "upload_commas_part2.csv" ]
 [tables.multiple_upload]
 files = ["multiple_upload", "table_c.csv"]
 create_mode = "multiple"

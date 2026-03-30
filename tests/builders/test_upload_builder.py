@@ -33,7 +33,13 @@ def test_upload_builder_run(mock_cache, mock_db_config, tmp_path):
         assert df.equals(REF_DF)
     df = pandas.read_sql("SELECT * FROM file_upload__single_multi_files order by a", conn)
     assert df.equals(
-        pandas.DataFrame(data={"a": ["1", "4", "7"], "b": ["2", "5", "8"], "c": ["3", "6", "9"]})
+        pandas.DataFrame(
+            data={
+                "a": ["1", "1", "4", "4", "7"],
+                "b": ["2", "2", "5", "5", "8"],
+                "c": ["3", "3", "6", "6", "9"],
+            }
+        )
     )
     # Just validating that we're not writing to the same destination for each parquet conversion
     paths = [x.name for x in (tmp_path / "cache/file_uploads").glob("**/*.parquet")]
@@ -153,7 +159,7 @@ def test_athena_pathing(mock_session, mock_client, mock_cache, mock_template, tm
     # the workgroup response is checked once per call, so we'll add a number of
     # mock side effects for it
     mock_wg_responses = []
-    mock_wg_responses.extend([bucket_info] * 10)
+    mock_wg_responses.extend([bucket_info] * 15)
     db.connection._client.get_work_group.side_effect = mock_wg_responses
     mock_cache.return_value = tmp_path / "cache"
     shutil.copytree(TEST_DATA_PATH, tmp_path / "file_upload", dirs_exist_ok=True)
