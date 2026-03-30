@@ -17,11 +17,12 @@ from cumulus_library.template_sql import base_templates
 # *** Some convenience constants for providing to validate_schema() ***
 # * Only include necessary fields that we actually use.
 # * If any sub-field is not present, we may ignore the parent-field.
-# * Though, cumulus-fhir-support does guarantee a full Coding or Concept.
+# * Though, cumulus-fhir-support does guarantee a full Coding, Concept, and Period.
 CODING = ["code", "display", "system", "userSelected", "version"]
 # If you think you need CODEABLE_CONCEPT, you probably need a de-normalization table
 # instead, since CodeableConcepts can contain multiple entries.
 CODEABLE_CONCEPT = {"coding": CODING, "text": {}}
+PERIOD = ["start", "end"]
 REFERENCE = ["reference"]
 
 

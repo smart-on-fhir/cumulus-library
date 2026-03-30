@@ -19,6 +19,7 @@ SELECT
     co.status,
     co.subject_ref,
     co.encounter_ref,
+    co.specimen_ref,
     co.observation_ref
 FROM
     core__observation AS co

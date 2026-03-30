@@ -1,0 +1,109 @@
+{% import 'core_utils.jinja' as utils %}
+{% import 'unnest_utils.jinja' as unnest_utils %}
+
+-- This table includes all fields of interest to the US Core ServiceRequest profile.
+-- BUT ADDING:
+-- * the `encounter` field, because come on, why is it left out of the US Core profile
+-- * the `specimen` field, because we support specimen elsewhere
+--
+-- There are lots of interesting possible fields to support from the base FHIR spec that aren't
+-- in the US Core profile, like bodySite and orderDetail. But EHR support seems low since
+-- they aren't in the profile, so they have been left out so far.
+--
+-- US Core profile for reference:
+-- * http://hl7.org/fhir/us/core/STU6.1/StructureDefinition-us-core-servicerequest.html
+
+CREATE TABLE core__servicerequest AS
+WITH temp_servicerequest AS (
+    SELECT
+        {{- utils.basic_cols('servicerequest', 'src', ['id']) }},
+        {{-
+            utils.nullable_cols(
+                'servicerequest',
+                'src',
+                [
+                    'status',
+                    'intent',
+                    ('subject', 'reference', 'subject_ref'),
+                    ('encounter', 'reference', 'encounter_ref'),
+                    ('requester', 'reference', 'requester_ref'),
+                ],
+                schema
+            )
+        }},
+        {{-
+            utils.truncate_date_cols(
+                'servicerequest',
+                'src',
+                [
+                    ('occurrenceDateTime', 'day'),
+                    ('occurrenceDateTime', 'week'),
+                    ('occurrenceDateTime', 'month'),
+                    ('occurrenceDateTime', 'year'),
+                    ('occurrencePeriod', 'start', 'occurrencePeriod_start_day', 'day'),
+                    ('occurrencePeriod', 'start', 'occurrencePeriod_start_week', 'week'),
+                    ('occurrencePeriod', 'start', 'occurrencePeriod_start_month', 'month'),
+                    ('occurrencePeriod', 'start', 'occurrencePeriod_start_year', 'year'),
+                    ('occurrencePeriod', 'end', 'occurrencePeriod_end_day', 'day'),
+                    ('occurrencePeriod', 'end', 'occurrencePeriod_end_week', 'week'),
+                    ('occurrencePeriod', 'end', 'occurrencePeriod_end_month', 'month'),
+                    ('occurrencePeriod', 'end', 'occurrencePeriod_end_year', 'year'),
+                    ('authoredOn', 'day'),
+                    ('authoredOn', 'week'),
+                    ('authoredOn', 'month'),
+                    ('authoredOn', 'year'),
+                ],
+                schema
+            )
+        }}
+    FROM servicerequest AS src
+    WHERE (src.status IS NULL OR src.status <> 'entered-in-error')
+),
+
+temp_specimen AS (
+    {{ unnest_utils.flatten('servicerequest', 'reference', parent_field='specimen') }}
+)
+
+SELECT
+    src.id,
+    src.status,
+    src.intent,
+
+    dn_category.code AS category_code,
+    dn_category.system AS category_system,
+    dn_category.display AS category_display,
+
+    dn_code.code AS code_code,
+    dn_code.system AS code_system,
+    dn_code.display AS code_display,
+
+    src.occurrenceDateTime_day,
+    src.occurrenceDateTime_week,
+    src.occurrenceDateTime_month,
+    src.occurrenceDateTime_year,
+
+    src.occurrencePeriod_start_day,
+    src.occurrencePeriod_start_week,
+    src.occurrencePeriod_start_month,
+    src.occurrencePeriod_start_year,
+
+    src.occurrencePeriod_end_day,
+    src.occurrencePeriod_end_week,
+    src.occurrencePeriod_end_month,
+    src.occurrencePeriod_end_year,
+
+    src.authoredOn_day,
+    src.authoredOn_week,
+    src.authoredOn_month,
+    src.authoredOn_year,
+
+    concat('ServiceRequest/', src.id) AS servicerequest_ref,
+    src.subject_ref,
+    src.encounter_ref,
+    src.requester_ref,
+    ts.reference AS specimen_ref
+
+FROM temp_servicerequest AS src
+LEFT JOIN core__servicerequest_dn_code AS dn_code ON src.id = dn_code.id
+LEFT JOIN core__servicerequest_dn_category AS dn_category ON src.id = dn_category.id
+LEFT JOIN temp_specimen AS ts ON src.id = ts.id;

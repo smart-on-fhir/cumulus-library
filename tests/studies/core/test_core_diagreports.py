@@ -39,6 +39,7 @@ def test_core_diag_report_many_cases(tmp_path):
         effectiveDateTime="2019-12-11T10:10:10+05:00",
         issued="2019-12-12T10:10:10+05:00",
         performer=[{"reference": "Practitioner/P1"}, {"reference": "Practitioner/P2"}],
+        specimen=[{"reference": "Specimen/S1"}, {"reference": "Specimen/S2"}],
         result=[
             {"reference": "Observation/result1"},
             {"reference": "Observation/result2"},
@@ -52,7 +53,7 @@ def test_core_diag_report_many_cases(tmp_path):
     db = testbed.build()
     df = db.connection.sql("SELECT * FROM core__diagnosticreport").df()
     rows = json.loads(df.to_json(orient="records"))
-    assert len(rows) == 32
+    assert len(rows) == 64
 
     combos = combine_dictionaries(
         # Start with a list of size one - all the consistent elements across all rows
@@ -110,8 +111,12 @@ def test_core_diag_report_many_cases(tmp_path):
             {"performer_ref": "Practitioner/P1"},
             {"performer_ref": "Practitioner/P2"},
         ],
+        [
+            {"specimen_ref": "Specimen/S1"},
+            {"specimen_ref": "Specimen/S2"},
+        ],
     )
-    assert len(combos) == 32  # sanity check our product math
+    assert len(combos) == 64  # sanity check our product math
 
     assert dict_set_from_list(rows) == dict_set_from_list(combos)
 
@@ -157,6 +162,7 @@ def test_core_diag_report_minimal(tmp_path):
             "aux_has_text": False,
             "performer_ref": None,
             "result_ref": None,
+            "specimen_ref": None,
             "conclusionCode_code": None,
             "conclusionCode_system": None,
             "conclusionCode_display": None,

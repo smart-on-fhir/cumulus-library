@@ -30,7 +30,7 @@ from cumulus_library import (
 )
 from tests.conftest import create_protected_tables, duckdb_args
 
-FHIR_RESOURCE_TABLE_COUNT = 19
+FHIR_RESOURCE_TABLE_COUNT = 21
 
 
 @contextmanager
@@ -311,7 +311,7 @@ def test_clean(tmp_path, args, expected, raises):
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
-            83,
+            92,
             does_not_raise(),
             [],
         ),
@@ -549,6 +549,7 @@ def test_clean(tmp_path, args, expected, raises):
         ),
     ],
 )
+@mock.patch("cumulus_library.builders.counts_builder.DEFAULT_MIN_SUBJECT", new=1)
 def test_cli_executes_queries(
     tmp_path, build_args, export_args, expected_tables, raises, expected_missing
 ):

@@ -9,7 +9,7 @@ expected_table_cols = {
         "subject": sql_utils.REFERENCE,
         "encounter": sql_utils.REFERENCE,
         "performedDateTime": [],
-        "performedPeriod": ["start", "end"],
+        "performedPeriod": sql_utils.PERIOD,
     }
 }
 

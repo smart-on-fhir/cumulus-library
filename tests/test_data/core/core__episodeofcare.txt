@@ -1,0 +1,1 @@
+('example', 'active', 'hacc', 'http://terminology.hl7.org/CodeSystem/episodeofcare-type', 'Home and Community Care', datetime.date(2014, 9, 1), datetime.date(2014, 9, 1), datetime.date(2014, 9, 1), datetime.date(2014, 1, 1), None, None, None, None, 'EpisodeOfCare/example', 'Patient/example')

@@ -1,502 +1,626 @@
 cnt,category_display,code_display,performeddatetime_month
-1143,,,
-1143,,,cumulus__none
-1143,cumulus__none,,
-1143,cumulus__none,,cumulus__none
-1129,,Medication Reconciliation (procedure),
-1129,,Medication Reconciliation (procedure),cumulus__none
-1129,cumulus__none,Medication Reconciliation (procedure),
-1129,cumulus__none,Medication Reconciliation (procedure),cumulus__none
-953,,Depression screening (procedure),
-953,,Depression screening (procedure),cumulus__none
-953,cumulus__none,Depression screening (procedure),
-953,cumulus__none,Depression screening (procedure),cumulus__none
-931,,Assessment of anxiety (procedure),
-931,,Assessment of anxiety (procedure),cumulus__none
-931,cumulus__none,Assessment of anxiety (procedure),
-931,cumulus__none,Assessment of anxiety (procedure),cumulus__none
-890,,Assessment of substance use (procedure),
-890,,Assessment of substance use (procedure),cumulus__none
-890,cumulus__none,Assessment of substance use (procedure),
-890,cumulus__none,Assessment of substance use (procedure),cumulus__none
-865,,Assessment of health and social care needs (procedure),
-865,,Assessment of health and social care needs (procedure),cumulus__none
-865,cumulus__none,Assessment of health and social care needs (procedure),
-865,cumulus__none,Assessment of health and social care needs (procedure),cumulus__none
-858,,Depression screening using Patient Health Questionnaire Two-Item score (procedure),
-858,,Depression screening using Patient Health Questionnaire Two-Item score (procedure),cumulus__none
-858,cumulus__none,Depression screening using Patient Health Questionnaire Two-Item score (procedure),
-858,cumulus__none,Depression screening using Patient Health Questionnaire Two-Item score (procedure),cumulus__none
-756,,Screening for domestic abuse (procedure),
-756,,Screening for domestic abuse (procedure),cumulus__none
-756,cumulus__none,Screening for domestic abuse (procedure),
-756,cumulus__none,Screening for domestic abuse (procedure),cumulus__none
-715,,Screening for drug abuse (procedure),
-715,,Screening for drug abuse (procedure),cumulus__none
-715,cumulus__none,Screening for drug abuse (procedure),
-715,cumulus__none,Screening for drug abuse (procedure),cumulus__none
-707,,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),
-707,,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),cumulus__none
-707,cumulus__none,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),
-707,cumulus__none,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),cumulus__none
-519,,Depression screening using Patient Health Questionnaire Nine Item score (procedure),
-519,,Depression screening using Patient Health Questionnaire Nine Item score (procedure),cumulus__none
-519,cumulus__none,Depression screening using Patient Health Questionnaire Nine Item score (procedure),
-519,cumulus__none,Depression screening using Patient Health Questionnaire Nine Item score (procedure),cumulus__none
-300,,Throat culture (procedure),
-300,,Throat culture (procedure),cumulus__none
-300,cumulus__none,Throat culture (procedure),
-300,cumulus__none,Throat culture (procedure),cumulus__none
-299,,Initial patient assessment (procedure),
-299,,Initial patient assessment (procedure),cumulus__none
-299,,Development of individualized plan of care (procedure),
-299,,Development of individualized plan of care (procedure),cumulus__none
-299,cumulus__none,Initial patient assessment (procedure),
-299,cumulus__none,Initial patient assessment (procedure),cumulus__none
-299,cumulus__none,Development of individualized plan of care (procedure),
-299,cumulus__none,Development of individualized plan of care (procedure),cumulus__none
-277,,Colonoscopy,
-277,,Colonoscopy,cumulus__none
-277,cumulus__none,Colonoscopy,
-277,cumulus__none,Colonoscopy,cumulus__none
-240,,Measurement of respiratory function (procedure),
-240,,Measurement of respiratory function (procedure),cumulus__none
-240,cumulus__none,Measurement of respiratory function (procedure),
-240,cumulus__none,Measurement of respiratory function (procedure),cumulus__none
-222,,"Assessment using Car, Relax, Alone, Forget, Friends, Trouble Screening Test (procedure)",
-222,,"Assessment using Car, Relax, Alone, Forget, Friends, Trouble Screening Test (procedure)",cumulus__none
-222,cumulus__none,"Assessment using Car, Relax, Alone, Forget, Friends, Trouble Screening Test (procedure)",
-222,cumulus__none,"Assessment using Car, Relax, Alone, Forget, Friends, Trouble Screening Test (procedure)",cumulus__none
-215,,Assessment using Morse Fall Scale (procedure),
-215,,Assessment using Morse Fall Scale (procedure),cumulus__none
-215,cumulus__none,Assessment using Morse Fall Scale (procedure),
-215,cumulus__none,Assessment using Morse Fall Scale (procedure),cumulus__none
-208,,Anticipatory guidance (procedure),
-208,,Anticipatory guidance (procedure),cumulus__none
-208,cumulus__none,Anticipatory guidance (procedure),
-208,cumulus__none,Anticipatory guidance (procedure),cumulus__none
-201,,Blood group typing (procedure),
-201,,Blood group typing (procedure),cumulus__none
-201,cumulus__none,Blood group typing (procedure),
-201,cumulus__none,Blood group typing (procedure),cumulus__none
-193,,Physical examination procedure (procedure),
-193,,Physical examination procedure (procedure),cumulus__none
-193,cumulus__none,Physical examination procedure (procedure),
-193,cumulus__none,Physical examination procedure (procedure),cumulus__none
-190,,Ultrasound scan for fetal viability,
-190,,Ultrasound scan for fetal viability,cumulus__none
-190,,Standard pregnancy test,
-190,,Standard pregnancy test,cumulus__none
-190,cumulus__none,Ultrasound scan for fetal viability,
-190,cumulus__none,Ultrasound scan for fetal viability,cumulus__none
-190,cumulus__none,Standard pregnancy test,
-190,cumulus__none,Standard pregnancy test,cumulus__none
-186,,Depression screening,
-186,,Depression screening,cumulus__none
-186,cumulus__none,Depression screening,
-186,cumulus__none,Depression screening,cumulus__none
-172,,Suture open wound,
-172,,Suture open wound,cumulus__none
-172,cumulus__none,Suture open wound,
-172,cumulus__none,Suture open wound,cumulus__none
-168,,Evaluation of uterine fundal height,
-168,,Evaluation of uterine fundal height,cumulus__none
-168,,Auscultation of the fetal heart,
-168,,Auscultation of the fetal heart,cumulus__none
-168,cumulus__none,Evaluation of uterine fundal height,
-168,cumulus__none,Evaluation of uterine fundal height,cumulus__none
-168,cumulus__none,Auscultation of the fetal heart,
-168,cumulus__none,Auscultation of the fetal heart,cumulus__none
-165,,Urine screening test for diabetes,
-165,,Urine screening test for diabetes,cumulus__none
-165,,Urine protein test,
-165,,Urine protein test,cumulus__none
-165,,Urine culture,
-165,,Urine culture,cumulus__none
-165,,Syphilis infectious titer test (procedure),
-165,,Syphilis infectious titer test (procedure),cumulus__none
-165,,"Skin test for tuberculosis, Tine test (procedure)",
-165,,"Skin test for tuberculosis, Tine test (procedure)",cumulus__none
-165,,Rubella screening,
-165,,Rubella screening,cumulus__none
-165,,Measurement of Varicella-zoster virus antibody,
-165,,Measurement of Varicella-zoster virus antibody,cumulus__none
-165,,Human immunodeficiency virus antigen test,
-165,,Human immunodeficiency virus antigen test,cumulus__none
-165,,"Hepatitis C antibody, confirmatory test",
-165,,"Hepatitis C antibody, confirmatory test",cumulus__none
-165,,Hepatitis B Surface Antigen Measurement,
-165,,Hepatitis B Surface Antigen Measurement,cumulus__none
-165,,"Hemogram, automated, with RBC, WBC, Hgb, Hct, Indices, Platelet count, and manual WBC differential",
-165,,"Hemogram, automated, with RBC, WBC, Hgb, Hct, Indices, Platelet count, and manual WBC differential",cumulus__none
-165,,Gonorrhea infection titer test (procedure),
-165,,Gonorrhea infection titer test (procedure),cumulus__none
-165,,Detection of chromosomal aneuploidy in prenatal amniotic fluid specimen using fluorescence in situ hybridization screening technique (procedure),
-165,,Detection of chromosomal aneuploidy in prenatal amniotic fluid specimen using fluorescence in situ hybridization screening technique (procedure),cumulus__none
-165,,"Cytopathology procedure, preparation of smear, genital source",
-165,,"Cytopathology procedure, preparation of smear, genital source",cumulus__none
-165,,Chlamydia antigen test,
-165,,Chlamydia antigen test,cumulus__none
-165,cumulus__none,Urine screening test for diabetes,
-165,cumulus__none,Urine screening test for diabetes,cumulus__none
-165,cumulus__none,Urine protein test,
-165,cumulus__none,Urine protein test,cumulus__none
-165,cumulus__none,Urine culture,
-165,cumulus__none,Urine culture,cumulus__none
-165,cumulus__none,Syphilis infectious titer test (procedure),
-165,cumulus__none,Syphilis infectious titer test (procedure),cumulus__none
-165,cumulus__none,"Skin test for tuberculosis, Tine test (procedure)",
-165,cumulus__none,"Skin test for tuberculosis, Tine test (procedure)",cumulus__none
-165,cumulus__none,Rubella screening,
-165,cumulus__none,Rubella screening,cumulus__none
-165,cumulus__none,Measurement of Varicella-zoster virus antibody,
-165,cumulus__none,Measurement of Varicella-zoster virus antibody,cumulus__none
-165,cumulus__none,Human immunodeficiency virus antigen test,
-165,cumulus__none,Human immunodeficiency virus antigen test,cumulus__none
-165,cumulus__none,"Hepatitis C antibody, confirmatory test",
-165,cumulus__none,"Hepatitis C antibody, confirmatory test",cumulus__none
-165,cumulus__none,Hepatitis B Surface Antigen Measurement,
-165,cumulus__none,Hepatitis B Surface Antigen Measurement,cumulus__none
-165,cumulus__none,"Hemogram, automated, with RBC, WBC, Hgb, Hct, Indices, Platelet count, and manual WBC differential",
-165,cumulus__none,"Hemogram, automated, with RBC, WBC, Hgb, Hct, Indices, Platelet count, and manual WBC differential",cumulus__none
-165,cumulus__none,Gonorrhea infection titer test (procedure),
-165,cumulus__none,Gonorrhea infection titer test (procedure),cumulus__none
-165,cumulus__none,Detection of chromosomal aneuploidy in prenatal amniotic fluid specimen using fluorescence in situ hybridization screening technique (procedure),
-165,cumulus__none,Detection of chromosomal aneuploidy in prenatal amniotic fluid specimen using fluorescence in situ hybridization screening technique (procedure),cumulus__none
-165,cumulus__none,"Cytopathology procedure, preparation of smear, genital source",
-165,cumulus__none,"Cytopathology procedure, preparation of smear, genital source",cumulus__none
-165,cumulus__none,Chlamydia antigen test,
-165,cumulus__none,Chlamydia antigen test,cumulus__none
-161,,Nursing care/supplementary surveillance (regime/therapy),
-161,,Nursing care/supplementary surveillance (regime/therapy),cumulus__none
-161,cumulus__none,Nursing care/supplementary surveillance (regime/therapy),
-161,cumulus__none,Nursing care/supplementary surveillance (regime/therapy),cumulus__none
-160,,Fetal anatomy study,
-160,,Fetal anatomy study,cumulus__none
-160,,AFP test - antenatal,
-160,,AFP test - antenatal,cumulus__none
-160,cumulus__none,Fetal anatomy study,
-160,cumulus__none,Fetal anatomy study,cumulus__none
-160,cumulus__none,AFP test - antenatal,
-160,cumulus__none,AFP test - antenatal,cumulus__none
-158,,Notifications (procedure),
-158,,Notifications (procedure),cumulus__none
-158,,Hospice care (regime/therapy),
-158,,Hospice care (regime/therapy),cumulus__none
-158,,Certification procedure (procedure),
-158,,Certification procedure (procedure),cumulus__none
-158,cumulus__none,Notifications (procedure),
-158,cumulus__none,Notifications (procedure),cumulus__none
-158,cumulus__none,Hospice care (regime/therapy),
-158,cumulus__none,Hospice care (regime/therapy),cumulus__none
-158,cumulus__none,Certification procedure (procedure),
-158,cumulus__none,Certification procedure (procedure),cumulus__none
-155,,Urine screening for glucose,
-155,,Urine screening for glucose,cumulus__none
-155,,"Administration of diphtheria, pertussis, and tetanus vaccine",
-155,,"Administration of diphtheria, pertussis, and tetanus vaccine",cumulus__none
-155,cumulus__none,Urine screening for glucose,
-155,cumulus__none,Urine screening for glucose,cumulus__none
-155,cumulus__none,"Administration of diphtheria, pertussis, and tetanus vaccine",
-155,cumulus__none,"Administration of diphtheria, pertussis, and tetanus vaccine",cumulus__none
-154,,Streptococcus pneumoniae group B antigen assay,
-154,,Streptococcus pneumoniae group B antigen assay,cumulus__none
-154,cumulus__none,Streptococcus pneumoniae group B antigen assay,
-154,cumulus__none,Streptococcus pneumoniae group B antigen assay,cumulus__none
-153,,History AND physical examination (procedure),
-153,,History AND physical examination (procedure),cumulus__none
-153,cumulus__none,History AND physical examination (procedure),
-153,cumulus__none,History AND physical examination (procedure),cumulus__none
-149,,Pre-discharge assessment (procedure),
-149,,Pre-discharge assessment (procedure),cumulus__none
-149,,Discharge from skilled nursing facility (procedure),
-149,,Discharge from skilled nursing facility (procedure),cumulus__none
-149,cumulus__none,Pre-discharge assessment (procedure),
-149,cumulus__none,Pre-discharge assessment (procedure),cumulus__none
-149,cumulus__none,Discharge from skilled nursing facility (procedure),
-149,cumulus__none,Discharge from skilled nursing facility (procedure),cumulus__none
-144,,Childbirth,
-144,,Childbirth,cumulus__none
-144,cumulus__none,Childbirth,
-144,cumulus__none,Childbirth,cumulus__none
-134,,Professional / ancillary services care (regime/therapy),
-134,,Professional / ancillary services care (regime/therapy),cumulus__none
-134,cumulus__none,Professional / ancillary services care (regime/therapy),
-134,cumulus__none,Professional / ancillary services care (regime/therapy),cumulus__none
-127,,Review of systems (procedure),
-127,,Review of systems (procedure),cumulus__none
-127,,Peripheral blood smear interpretation,
-127,,Peripheral blood smear interpretation,cumulus__none
-127,,Brief general examination (procedure),
-127,,Brief general examination (procedure),cumulus__none
-127,cumulus__none,Review of systems (procedure),
-127,cumulus__none,Review of systems (procedure),cumulus__none
-127,cumulus__none,Peripheral blood smear interpretation,
-127,cumulus__none,Peripheral blood smear interpretation,cumulus__none
-127,cumulus__none,Brief general examination (procedure),
-127,cumulus__none,Brief general examination (procedure),cumulus__none
-124,,Physical therapy procedure (regime/therapy),
-124,,Physical therapy procedure (regime/therapy),cumulus__none
-124,cumulus__none,Physical therapy procedure (regime/therapy),
-124,cumulus__none,Physical therapy procedure (regime/therapy),cumulus__none
-122,,Occupational therapy (regime/therapy),
-122,,Occupational therapy (regime/therapy),cumulus__none
-122,cumulus__none,Occupational therapy (regime/therapy),
-122,cumulus__none,Occupational therapy (regime/therapy),cumulus__none
-115,,Plain chest X-ray (procedure),
-115,,Plain chest X-ray (procedure),cumulus__none
-115,cumulus__none,Plain chest X-ray (procedure),
-115,cumulus__none,Plain chest X-ray (procedure),cumulus__none
-109,,Angiography of coronary artery (procedure),
-109,,Angiography of coronary artery (procedure),cumulus__none
-109,cumulus__none,Angiography of coronary artery (procedure),
-109,cumulus__none,Angiography of coronary artery (procedure),cumulus__none
-108,,Patient discharge (procedure),
-108,,Patient discharge (procedure),cumulus__none
-108,cumulus__none,Patient discharge (procedure),
-108,cumulus__none,Patient discharge (procedure),cumulus__none
-107,,Consultation for treatment (procedure),
-107,,Consultation for treatment (procedure),cumulus__none
-107,cumulus__none,Consultation for treatment (procedure),
-107,cumulus__none,Consultation for treatment (procedure),cumulus__none
-106,,Intramuscular injection,
-106,,Intramuscular injection,cumulus__none
-106,,Health risks education (procedure),
-106,,Health risks education (procedure),cumulus__none
-106,cumulus__none,Intramuscular injection,
-106,cumulus__none,Intramuscular injection,cumulus__none
-106,cumulus__none,Health risks education (procedure),
-106,cumulus__none,Health risks education (procedure),cumulus__none
-102,,Face mask (physical object),
-102,,Face mask (physical object),cumulus__none
-102,cumulus__none,Face mask (physical object),
-102,cumulus__none,Face mask (physical object),cumulus__none
-99,,Referral to cardiology service (procedure),
-99,,Referral to cardiology service (procedure),cumulus__none
-99,,Post anesthesia care management (procedure),
-99,,Post anesthesia care management (procedure),cumulus__none
-99,cumulus__none,Referral to cardiology service (procedure),
-99,cumulus__none,Referral to cardiology service (procedure),cumulus__none
-99,cumulus__none,Post anesthesia care management (procedure),
-99,cumulus__none,Post anesthesia care management (procedure),cumulus__none
-96,,Bone immobilization,
-96,,Bone immobilization,cumulus__none
-96,cumulus__none,Bone immobilization,
-96,cumulus__none,Bone immobilization,cumulus__none
-95,,Sputum examination (procedure),
-95,,Sputum examination (procedure),cumulus__none
-95,cumulus__none,Sputum examination (procedure),
-95,cumulus__none,Sputum examination (procedure),cumulus__none
-88,,Speech and language therapy regime (regime/therapy),
-88,,Speech and language therapy regime (regime/therapy),cumulus__none
-88,cumulus__none,Speech and language therapy regime (regime/therapy),
-88,cumulus__none,Speech and language therapy regime (regime/therapy),cumulus__none
-85,,Insertion of subcutaneous contraceptive,
-85,,Insertion of subcutaneous contraceptive,cumulus__none
-85,cumulus__none,Insertion of subcutaneous contraceptive,
-85,cumulus__none,Insertion of subcutaneous contraceptive,cumulus__none
-83,,Movement therapy (regime/therapy),
-83,,Movement therapy (regime/therapy),cumulus__none
-83,cumulus__none,Movement therapy (regime/therapy),
-83,cumulus__none,Movement therapy (regime/therapy),cumulus__none
-78,,Insertion of intrauterine contraceptive device,
-78,,Insertion of intrauterine contraceptive device,cumulus__none
-78,cumulus__none,Insertion of intrauterine contraceptive device,
-78,cumulus__none,Insertion of intrauterine contraceptive device,cumulus__none
-77,,Postoperative care (regime/therapy),
-77,,Postoperative care (regime/therapy),cumulus__none
-77,,Percutaneous coronary intervention (procedure),
-77,,Percutaneous coronary intervention (procedure),cumulus__none
-77,cumulus__none,Postoperative care (regime/therapy),
-77,cumulus__none,Postoperative care (regime/therapy),cumulus__none
-77,cumulus__none,Percutaneous coronary intervention (procedure),
-77,cumulus__none,Percutaneous coronary intervention (procedure),cumulus__none
-70,,Allergy screening test,
-70,,Allergy screening test,cumulus__none
-70,cumulus__none,Allergy screening test,
-70,cumulus__none,Allergy screening test,cumulus__none
-67,,Screening for occult blood in feces (procedure),
-67,,Screening for occult blood in feces (procedure),cumulus__none
-67,,Rectal polypectomy,
-67,,Rectal polypectomy,cumulus__none
-67,cumulus__none,Screening for occult blood in feces (procedure),
-67,cumulus__none,Screening for occult blood in feces (procedure),cumulus__none
-67,cumulus__none,Rectal polypectomy,
-67,cumulus__none,Rectal polypectomy,cumulus__none
-66,,Bone density scan (procedure),
-66,,Bone density scan (procedure),cumulus__none
-66,cumulus__none,Bone density scan (procedure),
-66,cumulus__none,Bone density scan (procedure),cumulus__none
-65,,Rehabilitation therapy (regime/therapy),
-65,,Rehabilitation therapy (regime/therapy),cumulus__none
-65,cumulus__none,Rehabilitation therapy (regime/therapy),
-65,cumulus__none,Rehabilitation therapy (regime/therapy),cumulus__none
-62,,Removal of intrauterine device,
-62,,Removal of intrauterine device,cumulus__none
-62,cumulus__none,Removal of intrauterine device,
-62,cumulus__none,Removal of intrauterine device,cumulus__none
-61,,Pregnancy termination care,
-61,,Pregnancy termination care,cumulus__none
-61,,Induced termination of pregnancy,
-61,,Induced termination of pregnancy,cumulus__none
-61,,Episiotomy,
-61,,Episiotomy,cumulus__none
-61,,Counseling for termination of pregnancy,
-61,,Counseling for termination of pregnancy,cumulus__none
-61,cumulus__none,Pregnancy termination care,
-61,cumulus__none,Pregnancy termination care,cumulus__none
-61,cumulus__none,Induced termination of pregnancy,
-61,cumulus__none,Induced termination of pregnancy,cumulus__none
-61,cumulus__none,Episiotomy,
-61,cumulus__none,Episiotomy,cumulus__none
-61,cumulus__none,Counseling for termination of pregnancy,
-61,cumulus__none,Counseling for termination of pregnancy,cumulus__none
-58,,Echocardiography (procedure),
-58,,Echocardiography (procedure),cumulus__none
-58,cumulus__none,Echocardiography (procedure),
-58,cumulus__none,Echocardiography (procedure),cumulus__none
-57,,Sleep apnea assessment (procedure),
-57,,Sleep apnea assessment (procedure),cumulus__none
-57,cumulus__none,Sleep apnea assessment (procedure),
-57,cumulus__none,Sleep apnea assessment (procedure),cumulus__none
-56,,Removal of subcutaneous contraceptive,
-56,,Removal of subcutaneous contraceptive,cumulus__none
-56,,Oxygen administration by mask (procedure),
-56,,Oxygen administration by mask (procedure),cumulus__none
-56,cumulus__none,Removal of subcutaneous contraceptive,
-56,cumulus__none,Removal of subcutaneous contraceptive,cumulus__none
-56,cumulus__none,Oxygen administration by mask (procedure),
-56,cumulus__none,Oxygen administration by mask (procedure),cumulus__none
-55,,Renal dialysis (procedure),
-55,,Renal dialysis (procedure),cumulus__none
-55,,Epidural anesthesia,
-55,,Epidural anesthesia,cumulus__none
-55,cumulus__none,Renal dialysis (procedure),
-55,cumulus__none,Renal dialysis (procedure),cumulus__none
-55,cumulus__none,Epidural anesthesia,
-55,cumulus__none,Epidural anesthesia,cumulus__none
-54,,Electrocardiographic procedure (procedure),
-54,,Electrocardiographic procedure (procedure),cumulus__none
-54,cumulus__none,Electrocardiographic procedure (procedure),
-54,cumulus__none,Electrocardiographic procedure (procedure),cumulus__none
-51,,Referral to transplant surgeon (procedure),
-51,,Referral to transplant surgeon (procedure),cumulus__none
-51,cumulus__none,Referral to transplant surgeon (procedure),
-51,cumulus__none,Referral to transplant surgeon (procedure),cumulus__none
-49,,Medical induction of labor,
-49,,Medical induction of labor,cumulus__none
-49,cumulus__none,Medical induction of labor,
-49,cumulus__none,Medical induction of labor,cumulus__none
-41,,Upper arm X-ray,
-41,,Upper arm X-ray,cumulus__none
-41,,Admission to orthopedic department,
-41,,Admission to orthopedic department,cumulus__none
-41,cumulus__none,Upper arm X-ray,
-41,cumulus__none,Upper arm X-ray,cumulus__none
-41,cumulus__none,Admission to orthopedic department,
-41,cumulus__none,Admission to orthopedic department,cumulus__none
-40,,Subcutaneous immunotherapy,
-40,,Subcutaneous immunotherapy,cumulus__none
-40,cumulus__none,Subcutaneous immunotherapy,
-40,cumulus__none,Subcutaneous immunotherapy,cumulus__none
-39,,Transplantation of kidney regime (regime/therapy),
-39,,Transplantation of kidney regime (regime/therapy),cumulus__none
-39,,Transplant of kidney (procedure),
-39,,Transplant of kidney (procedure),cumulus__none
-39,,Spirometry (procedure),
-39,,Spirometry (procedure),cumulus__none
-39,,Renal disorder medication review (procedure),
-39,,Renal disorder medication review (procedure),cumulus__none
-39,,Pretransplant evaluation of kidney recipient (procedure),
-39,,Pretransplant evaluation of kidney recipient (procedure),cumulus__none
-39,,Placing subject in prone position (procedure),
-39,,Placing subject in prone position (procedure),cumulus__none
-39,,Cognitive and behavioral therapy (regime/therapy),
-39,,Cognitive and behavioral therapy (regime/therapy),cumulus__none
-39,cumulus__none,Transplantation of kidney regime (regime/therapy),
-39,cumulus__none,Transplantation of kidney regime (regime/therapy),cumulus__none
-39,cumulus__none,Transplant of kidney (procedure),
-39,cumulus__none,Transplant of kidney (procedure),cumulus__none
-39,cumulus__none,Spirometry (procedure),
-39,cumulus__none,Spirometry (procedure),cumulus__none
-39,cumulus__none,Renal disorder medication review (procedure),
-39,cumulus__none,Renal disorder medication review (procedure),cumulus__none
-39,cumulus__none,Pretransplant evaluation of kidney recipient (procedure),
-39,cumulus__none,Pretransplant evaluation of kidney recipient (procedure),cumulus__none
-39,cumulus__none,Placing subject in prone position (procedure),
-39,cumulus__none,Placing subject in prone position (procedure),cumulus__none
-39,cumulus__none,Cognitive and behavioral therapy (regime/therapy),
-39,cumulus__none,Cognitive and behavioral therapy (regime/therapy),cumulus__none
-37,,Replacement of contraceptive intrauterine device,
-37,,Replacement of contraceptive intrauterine device,cumulus__none
-37,,Referral to cardiac surgery service (procedure),
-37,,Referral to cardiac surgery service (procedure),cumulus__none
-37,,Pre-surgery testing (procedure),
-37,,Pre-surgery testing (procedure),cumulus__none
-37,,Notification of treatment plan (procedure),
-37,,Notification of treatment plan (procedure),cumulus__none
-37,cumulus__none,Replacement of contraceptive intrauterine device,
-37,cumulus__none,Replacement of contraceptive intrauterine device,cumulus__none
-37,cumulus__none,Referral to cardiac surgery service (procedure),
-37,cumulus__none,Referral to cardiac surgery service (procedure),cumulus__none
-37,cumulus__none,Pre-surgery testing (procedure),
-37,cumulus__none,Pre-surgery testing (procedure),cumulus__none
-37,cumulus__none,Notification of treatment plan (procedure),
-37,cumulus__none,Notification of treatment plan (procedure),cumulus__none
-36,,Scheduling (procedure),
-36,,Scheduling (procedure),cumulus__none
-36,,Intubation,
-36,,Intubation,cumulus__none
-36,,Administration of anesthesia for procedure (procedure),
-36,,Administration of anesthesia for procedure (procedure),cumulus__none
-36,cumulus__none,Scheduling (procedure),
-36,cumulus__none,Scheduling (procedure),cumulus__none
-36,cumulus__none,Intubation,
-36,cumulus__none,Intubation,cumulus__none
-36,cumulus__none,Administration of anesthesia for procedure (procedure),
-36,cumulus__none,Administration of anesthesia for procedure (procedure),cumulus__none
+1132,,,
+1132,,,cumulus__none
+1132,cumulus__none,,
+1132,cumulus__none,,cumulus__none
+1114,,Medication reconciliation (procedure),
+1114,,Medication reconciliation (procedure),cumulus__none
+1114,cumulus__none,Medication reconciliation (procedure),
+1114,cumulus__none,Medication reconciliation (procedure),cumulus__none
+1057,,Patient referral for dental care (procedure),
+1057,,Patient referral for dental care (procedure),cumulus__none
+1057,cumulus__none,Patient referral for dental care (procedure),
+1057,cumulus__none,Patient referral for dental care (procedure),cumulus__none
+1055,,Dental consultation and report (procedure),
+1055,,Dental consultation and report (procedure),cumulus__none
+1055,cumulus__none,Dental consultation and report (procedure),
+1055,cumulus__none,Dental consultation and report (procedure),cumulus__none
+1054,,Removal of supragingival plaque and calculus from all teeth using dental instrument (procedure),
+1054,,Removal of supragingival plaque and calculus from all teeth using dental instrument (procedure),cumulus__none
+1054,,Removal of subgingival plaque and calculus from all teeth using dental instrument (procedure),
+1054,,Removal of subgingival plaque and calculus from all teeth using dental instrument (procedure),cumulus__none
+1054,,Oral health education (procedure),
+1054,,Oral health education (procedure),cumulus__none
+1054,,Examination of gingivae (procedure),
+1054,,Examination of gingivae (procedure),cumulus__none
+1054,,Dental care (regime/therapy),
+1054,,Dental care (regime/therapy),cumulus__none
+1054,cumulus__none,Removal of supragingival plaque and calculus from all teeth using dental instrument (procedure),
+1054,cumulus__none,Removal of supragingival plaque and calculus from all teeth using dental instrument (procedure),cumulus__none
+1054,cumulus__none,Removal of subgingival plaque and calculus from all teeth using dental instrument (procedure),
+1054,cumulus__none,Removal of subgingival plaque and calculus from all teeth using dental instrument (procedure),cumulus__none
+1054,cumulus__none,Oral health education (procedure),
+1054,cumulus__none,Oral health education (procedure),cumulus__none
+1054,cumulus__none,Examination of gingivae (procedure),
+1054,cumulus__none,Examination of gingivae (procedure),cumulus__none
+1054,cumulus__none,Dental care (regime/therapy),
+1054,cumulus__none,Dental care (regime/therapy),cumulus__none
+951,,Dental fluoride treatment (procedure),
+951,,Dental fluoride treatment (procedure),cumulus__none
+951,cumulus__none,Dental fluoride treatment (procedure),
+951,cumulus__none,Dental fluoride treatment (procedure),cumulus__none
+938,,Depression screening (procedure),
+938,,Depression screening (procedure),cumulus__none
+938,cumulus__none,Depression screening (procedure),
+938,cumulus__none,Depression screening (procedure),cumulus__none
+934,,Dental plain X-ray bitewing (procedure),
+934,,Dental plain X-ray bitewing (procedure),cumulus__none
+934,cumulus__none,Dental plain X-ray bitewing (procedure),
+934,cumulus__none,Dental plain X-ray bitewing (procedure),cumulus__none
+905,,Assessment of anxiety (procedure),
+905,,Assessment of anxiety (procedure),cumulus__none
+905,cumulus__none,Assessment of anxiety (procedure),
+905,cumulus__none,Assessment of anxiety (procedure),cumulus__none
+885,,Assessment of substance use (procedure),
+885,,Assessment of substance use (procedure),cumulus__none
+885,cumulus__none,Assessment of substance use (procedure),
+885,cumulus__none,Assessment of substance use (procedure),cumulus__none
+856,,Assessment of health and social care needs (procedure),
+856,,Assessment of health and social care needs (procedure),cumulus__none
+856,cumulus__none,Assessment of health and social care needs (procedure),
+856,cumulus__none,Assessment of health and social care needs (procedure),cumulus__none
+754,,Screening for domestic abuse (procedure),
+754,,Screening for domestic abuse (procedure),cumulus__none
+754,cumulus__none,Screening for domestic abuse (procedure),
+754,cumulus__none,Screening for domestic abuse (procedure),cumulus__none
+723,,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),
+723,,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),cumulus__none
+723,cumulus__none,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),
+723,cumulus__none,Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure),cumulus__none
+720,,Screening for drug abuse (procedure),
+720,,Screening for drug abuse (procedure),cumulus__none
+720,cumulus__none,Screening for drug abuse (procedure),
+720,cumulus__none,Screening for drug abuse (procedure),cumulus__none
+579,,Postoperative care for dental procedure (regime/therapy),
+579,,Postoperative care for dental procedure (regime/therapy),cumulus__none
+579,,Dental surgical procedure (procedure),
+579,,Dental surgical procedure (procedure),cumulus__none
+579,,Dental application of desensitizing medicament (procedure),
+579,,Dental application of desensitizing medicament (procedure),cumulus__none
+579,cumulus__none,Postoperative care for dental procedure (regime/therapy),
+579,cumulus__none,Postoperative care for dental procedure (regime/therapy),cumulus__none
+579,cumulus__none,Dental surgical procedure (procedure),
+579,cumulus__none,Dental surgical procedure (procedure),cumulus__none
+579,cumulus__none,Dental application of desensitizing medicament (procedure),
+579,cumulus__none,Dental application of desensitizing medicament (procedure),cumulus__none
+527,,Depression screening using Patient Health Questionnaire Nine Item score (procedure),
+527,,Depression screening using Patient Health Questionnaire Nine Item score (procedure),cumulus__none
+527,cumulus__none,Depression screening using Patient Health Questionnaire Nine Item score (procedure),
+527,cumulus__none,Depression screening using Patient Health Questionnaire Nine Item score (procedure),cumulus__none
+525,,"Gingivectomy or gingivoplasty, per tooth (procedure)",
+525,,"Gingivectomy or gingivoplasty, per tooth (procedure)",cumulus__none
+525,cumulus__none,"Gingivectomy or gingivoplasty, per tooth (procedure)",
+525,cumulus__none,"Gingivectomy or gingivoplasty, per tooth (procedure)",cumulus__none
+420,,Application of composite dental filling material to dentin of tooth following fracture of tooth (procedure),
+420,,Application of composite dental filling material to dentin of tooth following fracture of tooth (procedure),cumulus__none
+420,cumulus__none,Application of composite dental filling material to dentin of tooth following fracture of tooth (procedure),
+420,cumulus__none,Application of composite dental filling material to dentin of tooth following fracture of tooth (procedure),cumulus__none
+411,,Restoration of tooth with coverage of all cusps using dental filling material (procedure),
+411,,Restoration of tooth with coverage of all cusps using dental filling material (procedure),cumulus__none
+411,cumulus__none,Restoration of tooth with coverage of all cusps using dental filling material (procedure),
+411,cumulus__none,Restoration of tooth with coverage of all cusps using dental filling material (procedure),cumulus__none
+278,,Colonoscopy (procedure),
+278,,Colonoscopy (procedure),cumulus__none
+278,cumulus__none,Colonoscopy (procedure),
+278,cumulus__none,Colonoscopy (procedure),cumulus__none
+267,,Initial patient assessment (procedure),
+267,,Initial patient assessment (procedure),cumulus__none
+267,,Development of individualized plan of care (procedure),
+267,,Development of individualized plan of care (procedure),cumulus__none
+267,cumulus__none,Initial patient assessment (procedure),
+267,cumulus__none,Initial patient assessment (procedure),cumulus__none
+267,cumulus__none,Development of individualized plan of care (procedure),
+267,cumulus__none,Development of individualized plan of care (procedure),cumulus__none
+250,,Throat culture (procedure),
+250,,Throat culture (procedure),cumulus__none
+250,cumulus__none,Throat culture (procedure),
+250,cumulus__none,Throat culture (procedure),cumulus__none
+241,,Measurement of respiratory function (procedure),
+241,,Measurement of respiratory function (procedure),cumulus__none
+241,cumulus__none,Measurement of respiratory function (procedure),
+241,cumulus__none,Measurement of respiratory function (procedure),cumulus__none
+226,,Assessment using Morse Fall Scale (procedure),
+226,,Assessment using Morse Fall Scale (procedure),cumulus__none
+226,cumulus__none,Assessment using Morse Fall Scale (procedure),
+226,cumulus__none,Assessment using Morse Fall Scale (procedure),cumulus__none
+216,,Standard pregnancy test (procedure),
+216,,Standard pregnancy test (procedure),cumulus__none
+216,cumulus__none,Standard pregnancy test (procedure),
+216,cumulus__none,Standard pregnancy test (procedure),cumulus__none
+214,,"Assessment using Car, Relax, Alone, Forget, Friends, Trouble Screening Test (procedure)",
+214,,"Assessment using Car, Relax, Alone, Forget, Friends, Trouble Screening Test (procedure)",cumulus__none
+214,cumulus__none,"Assessment using Car, Relax, Alone, Forget, Friends, Trouble Screening Test (procedure)",
+214,cumulus__none,"Assessment using Car, Relax, Alone, Forget, Friends, Trouble Screening Test (procedure)",cumulus__none
+210,,Physical examination procedure (procedure),
+210,,Physical examination procedure (procedure),cumulus__none
+210,cumulus__none,Physical examination procedure (procedure),
+210,cumulus__none,Physical examination procedure (procedure),cumulus__none
+206,,Blood group typing (procedure),
+206,,Blood group typing (procedure),cumulus__none
+206,cumulus__none,Blood group typing (procedure),
+206,cumulus__none,Blood group typing (procedure),cumulus__none
+202,,Anticipatory guidance (procedure),
+202,,Anticipatory guidance (procedure),cumulus__none
+202,cumulus__none,Anticipatory guidance (procedure),
+202,cumulus__none,Anticipatory guidance (procedure),cumulus__none
+198,,Ultrasound scan for fetal viability (procedure),
+198,,Ultrasound scan for fetal viability (procedure),cumulus__none
+198,cumulus__none,Ultrasound scan for fetal viability (procedure),
+198,cumulus__none,Ultrasound scan for fetal viability (procedure),cumulus__none
+185,,Nursing care/supplementary surveillance (regime/therapy),
+185,,Nursing care/supplementary surveillance (regime/therapy),cumulus__none
+185,,Discharge from hospital (procedure),
+185,,Discharge from hospital (procedure),cumulus__none
+185,cumulus__none,Nursing care/supplementary surveillance (regime/therapy),
+185,cumulus__none,Nursing care/supplementary surveillance (regime/therapy),cumulus__none
+185,cumulus__none,Discharge from hospital (procedure),
+185,cumulus__none,Discharge from hospital (procedure),cumulus__none
+177,,Evaluation of uterine fundal height (procedure),
+177,,Evaluation of uterine fundal height (procedure),cumulus__none
+177,,Auscultation of the fetal heart (procedure),
+177,,Auscultation of the fetal heart (procedure),cumulus__none
+177,cumulus__none,Evaluation of uterine fundal height (procedure),
+177,cumulus__none,Evaluation of uterine fundal height (procedure),cumulus__none
+177,cumulus__none,Auscultation of the fetal heart (procedure),
+177,cumulus__none,Auscultation of the fetal heart (procedure),cumulus__none
+176,,"Cytopathology procedure, preparation of smear, genital source (procedure)",
+176,,"Cytopathology procedure, preparation of smear, genital source (procedure)",cumulus__none
+176,cumulus__none,"Cytopathology procedure, preparation of smear, genital source (procedure)",
+176,cumulus__none,"Cytopathology procedure, preparation of smear, genital source (procedure)",cumulus__none
+173,,"Hemogram, automated, with red blood cells, white blood cells, hemoglobin, hematocrit, indices, platelet count, and manual white blood cell differential (procedure)",
+173,,"Hemogram, automated, with red blood cells, white blood cells, hemoglobin, hematocrit, indices, platelet count, and manual white blood cell differential (procedure)",cumulus__none
+173,cumulus__none,"Hemogram, automated, with red blood cells, white blood cells, hemoglobin, hematocrit, indices, platelet count, and manual white blood cell differential (procedure)",
+173,cumulus__none,"Hemogram, automated, with red blood cells, white blood cells, hemoglobin, hematocrit, indices, platelet count, and manual white blood cell differential (procedure)",cumulus__none
+171,,Detection of chromosomal aneuploidy in prenatal amniotic fluid specimen using fluorescence in situ hybridization screening technique (procedure),
+171,,Detection of chromosomal aneuploidy in prenatal amniotic fluid specimen using fluorescence in situ hybridization screening technique (procedure),cumulus__none
+171,cumulus__none,Detection of chromosomal aneuploidy in prenatal amniotic fluid specimen using fluorescence in situ hybridization screening technique (procedure),
+171,cumulus__none,Detection of chromosomal aneuploidy in prenatal amniotic fluid specimen using fluorescence in situ hybridization screening technique (procedure),cumulus__none
+170,,History AND physical examination (procedure),
+170,,History AND physical examination (procedure),cumulus__none
+170,cumulus__none,History AND physical examination (procedure),
+170,cumulus__none,History AND physical examination (procedure),cumulus__none
+169,,Urine screening test for diabetes (procedure),
+169,,Urine screening test for diabetes (procedure),cumulus__none
+169,,Urine culture (procedure),
+169,,Urine culture (procedure),cumulus__none
+169,,"Urinalysis, protein, qualitative (procedure)",
+169,,"Urinalysis, protein, qualitative (procedure)",cumulus__none
+169,,Syphilis infectious titer test (procedure),
+169,,Syphilis infectious titer test (procedure),cumulus__none
+169,,Suture open wound (procedure),
+169,,Suture open wound (procedure),cumulus__none
+169,,"Skin test for tuberculosis, Tine test (procedure)",
+169,,"Skin test for tuberculosis, Tine test (procedure)",cumulus__none
+169,,Rubella screening test (procedure),
+169,,Rubella screening test (procedure),cumulus__none
+169,,Measurement of Varicella-zoster virus antibody (procedure),
+169,,Measurement of Varicella-zoster virus antibody (procedure),cumulus__none
+169,,Human immunodeficiency virus antigen test (procedure),
+169,,Human immunodeficiency virus antigen test (procedure),cumulus__none
+169,,"Hepatitis C antibody, confirmatory test (procedure)",
+169,,"Hepatitis C antibody, confirmatory test (procedure)",cumulus__none
+169,,Hepatitis B surface antigen measurement (procedure),
+169,,Hepatitis B surface antigen measurement (procedure),cumulus__none
+169,,Gonorrhea infection titer test (procedure),
+169,,Gonorrhea infection titer test (procedure),cumulus__none
+169,,Chlamydia antigen test (procedure),
+169,,Chlamydia antigen test (procedure),cumulus__none
+169,cumulus__none,Urine screening test for diabetes (procedure),
+169,cumulus__none,Urine screening test for diabetes (procedure),cumulus__none
+169,cumulus__none,Urine culture (procedure),
+169,cumulus__none,Urine culture (procedure),cumulus__none
+169,cumulus__none,"Urinalysis, protein, qualitative (procedure)",
+169,cumulus__none,"Urinalysis, protein, qualitative (procedure)",cumulus__none
+169,cumulus__none,Syphilis infectious titer test (procedure),
+169,cumulus__none,Syphilis infectious titer test (procedure),cumulus__none
+169,cumulus__none,Suture open wound (procedure),
+169,cumulus__none,Suture open wound (procedure),cumulus__none
+169,cumulus__none,"Skin test for tuberculosis, Tine test (procedure)",
+169,cumulus__none,"Skin test for tuberculosis, Tine test (procedure)",cumulus__none
+169,cumulus__none,Rubella screening test (procedure),
+169,cumulus__none,Rubella screening test (procedure),cumulus__none
+169,cumulus__none,Measurement of Varicella-zoster virus antibody (procedure),
+169,cumulus__none,Measurement of Varicella-zoster virus antibody (procedure),cumulus__none
+169,cumulus__none,Human immunodeficiency virus antigen test (procedure),
+169,cumulus__none,Human immunodeficiency virus antigen test (procedure),cumulus__none
+169,cumulus__none,"Hepatitis C antibody, confirmatory test (procedure)",
+169,cumulus__none,"Hepatitis C antibody, confirmatory test (procedure)",cumulus__none
+169,cumulus__none,Hepatitis B surface antigen measurement (procedure),
+169,cumulus__none,Hepatitis B surface antigen measurement (procedure),cumulus__none
+169,cumulus__none,Gonorrhea infection titer test (procedure),
+169,cumulus__none,Gonorrhea infection titer test (procedure),cumulus__none
+169,cumulus__none,Chlamydia antigen test (procedure),
+169,cumulus__none,Chlamydia antigen test (procedure),cumulus__none
+166,,Pre-discharge assessment (procedure),
+166,,Pre-discharge assessment (procedure),cumulus__none
+166,cumulus__none,Pre-discharge assessment (procedure),
+166,cumulus__none,Pre-discharge assessment (procedure),cumulus__none
+165,,Urine screening for glucose (procedure),
+165,,Urine screening for glucose (procedure),cumulus__none
+165,,Fetal anatomy study (procedure),
+165,,Fetal anatomy study (procedure),cumulus__none
+165,,Alpha-fetoprotein test - antenatal (procedure),
+165,,Alpha-fetoprotein test - antenatal (procedure),cumulus__none
+165,,Administration of vaccine product containing only Bordetella pertussis and Clostridium tetani and Corynebacterium diphtheriae antigens (procedure),
+165,,Administration of vaccine product containing only Bordetella pertussis and Clostridium tetani and Corynebacterium diphtheriae antigens (procedure),cumulus__none
+165,cumulus__none,Urine screening for glucose (procedure),
+165,cumulus__none,Urine screening for glucose (procedure),cumulus__none
+165,cumulus__none,Fetal anatomy study (procedure),
+165,cumulus__none,Fetal anatomy study (procedure),cumulus__none
+165,cumulus__none,Alpha-fetoprotein test - antenatal (procedure),
+165,cumulus__none,Alpha-fetoprotein test - antenatal (procedure),cumulus__none
+165,cumulus__none,Administration of vaccine product containing only Bordetella pertussis and Clostridium tetani and Corynebacterium diphtheriae antigens (procedure),
+165,cumulus__none,Administration of vaccine product containing only Bordetella pertussis and Clostridium tetani and Corynebacterium diphtheriae antigens (procedure),cumulus__none
+162,,Simple extraction of tooth (procedure),
+162,,Simple extraction of tooth (procedure),cumulus__none
+162,cumulus__none,Simple extraction of tooth (procedure),
+162,cumulus__none,Simple extraction of tooth (procedure),cumulus__none
+161,,Streptococcus pneumoniae group B antigen assay (procedure),
+161,,Streptococcus pneumoniae group B antigen assay (procedure),cumulus__none
+161,cumulus__none,Streptococcus pneumoniae group B antigen assay (procedure),
+161,cumulus__none,Streptococcus pneumoniae group B antigen assay (procedure),cumulus__none
+151,,"Human parturition, function (observable entity)",
+151,,"Human parturition, function (observable entity)",cumulus__none
+151,cumulus__none,"Human parturition, function (observable entity)",
+151,cumulus__none,"Human parturition, function (observable entity)",cumulus__none
+143,,Professional / ancillary services care (regime/therapy),
+143,,Professional / ancillary services care (regime/therapy),cumulus__none
+143,cumulus__none,Professional / ancillary services care (regime/therapy),
+143,cumulus__none,Professional / ancillary services care (regime/therapy),cumulus__none
+141,,History taking (procedure),
+141,,History taking (procedure),cumulus__none
+141,cumulus__none,History taking (procedure),
+141,cumulus__none,History taking (procedure),cumulus__none
+139,,Plain X-ray of chest (procedure),
+139,,Plain X-ray of chest (procedure),cumulus__none
+139,cumulus__none,Plain X-ray of chest (procedure),
+139,cumulus__none,Plain X-ray of chest (procedure),cumulus__none
+137,,Take oral or dental impression (procedure),
+137,,Take oral or dental impression (procedure),cumulus__none
+137,,Fitting of denture (procedure),
+137,,Fitting of denture (procedure),cumulus__none
+137,cumulus__none,Take oral or dental impression (procedure),
+137,cumulus__none,Take oral or dental impression (procedure),cumulus__none
+137,cumulus__none,Fitting of denture (procedure),
+137,cumulus__none,Fitting of denture (procedure),cumulus__none
+134,,Patient discharge (procedure),
+134,,Patient discharge (procedure),cumulus__none
+134,cumulus__none,Patient discharge (procedure),
+134,cumulus__none,Patient discharge (procedure),cumulus__none
+130,,Bone immobilization (procedure),
+130,,Bone immobilization (procedure),cumulus__none
+130,cumulus__none,Bone immobilization (procedure),
+130,cumulus__none,Bone immobilization (procedure),cumulus__none
+127,,Face mask (physical object),
+127,,Face mask (physical object),cumulus__none
+127,cumulus__none,Face mask (physical object),
+127,cumulus__none,Face mask (physical object),cumulus__none
+126,,Physical therapy procedure (regime/therapy),
+126,,Physical therapy procedure (regime/therapy),cumulus__none
+126,cumulus__none,Physical therapy procedure (regime/therapy),
+126,cumulus__none,Physical therapy procedure (regime/therapy),cumulus__none
+123,,Discussion about signs and symptoms (procedure),
+123,,Discussion about signs and symptoms (procedure),cumulus__none
+123,cumulus__none,Discussion about signs and symptoms (procedure),
+123,cumulus__none,Discussion about signs and symptoms (procedure),cumulus__none
+122,,Antibiotic therapy (procedure),
+122,,Antibiotic therapy (procedure),cumulus__none
+122,cumulus__none,Antibiotic therapy (procedure),
+122,cumulus__none,Antibiotic therapy (procedure),cumulus__none
+119,,Occupational therapy (regime/therapy),
+119,,Occupational therapy (regime/therapy),cumulus__none
+119,cumulus__none,Occupational therapy (regime/therapy),
+119,cumulus__none,Occupational therapy (regime/therapy),cumulus__none
+118,,Urine specimen collection (procedure),
+118,,Urine specimen collection (procedure),cumulus__none
+118,,Urinalysis with reflex to microscopy and culture (procedure),
+118,,Urinalysis with reflex to microscopy and culture (procedure),cumulus__none
+118,cumulus__none,Urine specimen collection (procedure),
+118,cumulus__none,Urine specimen collection (procedure),cumulus__none
+118,cumulus__none,Urinalysis with reflex to microscopy and culture (procedure),
+118,cumulus__none,Urinalysis with reflex to microscopy and culture (procedure),cumulus__none
+115,,Review of systems (procedure),
+115,,Review of systems (procedure),cumulus__none
+115,,Peripheral blood smear interpretation (procedure),
+115,,Peripheral blood smear interpretation (procedure),cumulus__none
+115,,Notifications (procedure),
+115,,Notifications (procedure),cumulus__none
+115,,Hospice care (regime/therapy),
+115,,Hospice care (regime/therapy),cumulus__none
+115,,Certification procedure (procedure),
+115,,Certification procedure (procedure),cumulus__none
+115,,Brief general examination (procedure),
+115,,Brief general examination (procedure),cumulus__none
+115,cumulus__none,Review of systems (procedure),
+115,cumulus__none,Review of systems (procedure),cumulus__none
+115,cumulus__none,Peripheral blood smear interpretation (procedure),
+115,cumulus__none,Peripheral blood smear interpretation (procedure),cumulus__none
+115,cumulus__none,Notifications (procedure),
+115,cumulus__none,Notifications (procedure),cumulus__none
+115,cumulus__none,Hospice care (regime/therapy),
+115,cumulus__none,Hospice care (regime/therapy),cumulus__none
+115,cumulus__none,Certification procedure (procedure),
+115,cumulus__none,Certification procedure (procedure),cumulus__none
+115,cumulus__none,Brief general examination (procedure),
+115,cumulus__none,Brief general examination (procedure),cumulus__none
+112,,Health risks education (procedure),
+112,,Health risks education (procedure),cumulus__none
+112,cumulus__none,Health risks education (procedure),
+112,cumulus__none,Health risks education (procedure),cumulus__none
+99,,Angiography of coronary artery (procedure),
+99,,Angiography of coronary artery (procedure),cumulus__none
+99,cumulus__none,Angiography of coronary artery (procedure),
+99,cumulus__none,Angiography of coronary artery (procedure),cumulus__none
+98,,Sputum examination (procedure),
+98,,Sputum examination (procedure),cumulus__none
+98,cumulus__none,Sputum examination (procedure),
+98,cumulus__none,Sputum examination (procedure),cumulus__none
+97,,"History and physical examination, limited (procedure)",
+97,,"History and physical examination, limited (procedure)",cumulus__none
+97,cumulus__none,"History and physical examination, limited (procedure)",
+97,cumulus__none,"History and physical examination, limited (procedure)",cumulus__none
+96,,Intramuscular injection (procedure),
+96,,Intramuscular injection (procedure),cumulus__none
+96,cumulus__none,Intramuscular injection (procedure),
+96,cumulus__none,Intramuscular injection (procedure),cumulus__none
+95,,Insertion of intrauterine contraceptive device (procedure),
+95,,Insertion of intrauterine contraceptive device (procedure),cumulus__none
+95,cumulus__none,Insertion of intrauterine contraceptive device (procedure),
+95,cumulus__none,Insertion of intrauterine contraceptive device (procedure),cumulus__none
+93,,Movement therapy (regime/therapy),
+93,,Movement therapy (regime/therapy),cumulus__none
+93,cumulus__none,Movement therapy (regime/therapy),
+93,cumulus__none,Movement therapy (regime/therapy),cumulus__none
+92,,Speech and language therapy regime (regime/therapy),
+92,,Speech and language therapy regime (regime/therapy),cumulus__none
+92,cumulus__none,Speech and language therapy regime (regime/therapy),
+92,cumulus__none,Speech and language therapy regime (regime/therapy),cumulus__none
+89,,Consultation for treatment (procedure),
+89,,Consultation for treatment (procedure),cumulus__none
+89,cumulus__none,Consultation for treatment (procedure),
+89,cumulus__none,Consultation for treatment (procedure),cumulus__none
+87,,Implantation of subcutaneous contraceptive (procedure),
+87,,Implantation of subcutaneous contraceptive (procedure),cumulus__none
+87,cumulus__none,Implantation of subcutaneous contraceptive (procedure),
+87,cumulus__none,Implantation of subcutaneous contraceptive (procedure),cumulus__none
+85,,Referral to cardiology service (procedure),
+85,,Referral to cardiology service (procedure),cumulus__none
+85,,Post anesthesia care management (procedure),
+85,,Post anesthesia care management (procedure),cumulus__none
+85,,Evaluation procedure (procedure),
+85,,Evaluation procedure (procedure),cumulus__none
+85,cumulus__none,Referral to cardiology service (procedure),
+85,cumulus__none,Referral to cardiology service (procedure),cumulus__none
+85,cumulus__none,Post anesthesia care management (procedure),
+85,cumulus__none,Post anesthesia care management (procedure),cumulus__none
+85,cumulus__none,Evaluation procedure (procedure),
+85,cumulus__none,Evaluation procedure (procedure),cumulus__none
+83,,Postoperative care (regime/therapy),
+83,,Postoperative care (regime/therapy),cumulus__none
+83,,Electrocardiographic procedure (procedure),
+83,,Electrocardiographic procedure (procedure),cumulus__none
+83,cumulus__none,Postoperative care (regime/therapy),
+83,cumulus__none,Postoperative care (regime/therapy),cumulus__none
+83,cumulus__none,Electrocardiographic procedure (procedure),
+83,cumulus__none,Electrocardiographic procedure (procedure),cumulus__none
+81,,Bone density scan (procedure),
+81,,Bone density scan (procedure),cumulus__none
+81,cumulus__none,Bone density scan (procedure),
+81,cumulus__none,Bone density scan (procedure),cumulus__none
+80,,Allergy screening test (procedure),
+80,,Allergy screening test (procedure),cumulus__none
+80,cumulus__none,Allergy screening test (procedure),
+80,cumulus__none,Allergy screening test (procedure),cumulus__none
+69,,Pregnancy termination care (regime/therapy),
+69,,Pregnancy termination care (regime/therapy),cumulus__none
+69,,Induced termination of pregnancy (procedure),
+69,,Induced termination of pregnancy (procedure),cumulus__none
+69,,Episiotomy (procedure),
+69,,Episiotomy (procedure),cumulus__none
+69,,Echocardiography (procedure),
+69,,Echocardiography (procedure),cumulus__none
+69,,Counseling for termination of pregnancy (procedure),
+69,,Counseling for termination of pregnancy (procedure),cumulus__none
+69,cumulus__none,Pregnancy termination care (regime/therapy),
+69,cumulus__none,Pregnancy termination care (regime/therapy),cumulus__none
+69,cumulus__none,Induced termination of pregnancy (procedure),
+69,cumulus__none,Induced termination of pregnancy (procedure),cumulus__none
+69,cumulus__none,Episiotomy (procedure),
+69,cumulus__none,Episiotomy (procedure),cumulus__none
+69,cumulus__none,Echocardiography (procedure),
+69,cumulus__none,Echocardiography (procedure),cumulus__none
+69,cumulus__none,Counseling for termination of pregnancy (procedure),
+69,cumulus__none,Counseling for termination of pregnancy (procedure),cumulus__none
+67,,Rectal polypectomy (procedure),
+67,,Rectal polypectomy (procedure),cumulus__none
+67,cumulus__none,Rectal polypectomy (procedure),
+67,cumulus__none,Rectal polypectomy (procedure),cumulus__none
+66,,Screening for occult blood in feces (procedure),
+66,,Screening for occult blood in feces (procedure),cumulus__none
+66,,Removal of intrauterine contraceptive device (procedure),
+66,,Removal of intrauterine contraceptive device (procedure),cumulus__none
+66,cumulus__none,Screening for occult blood in feces (procedure),
+66,cumulus__none,Screening for occult blood in feces (procedure),cumulus__none
+66,cumulus__none,Removal of intrauterine contraceptive device (procedure),
+66,cumulus__none,Removal of intrauterine contraceptive device (procedure),cumulus__none
+64,,Oxygen administration by mask (procedure),
+64,,Oxygen administration by mask (procedure),cumulus__none
+64,cumulus__none,Oxygen administration by mask (procedure),
+64,cumulus__none,Oxygen administration by mask (procedure),cumulus__none
+62,,Rehabilitation therapy (regime/therapy),
+62,,Rehabilitation therapy (regime/therapy),cumulus__none
+62,,Percutaneous coronary intervention,
+62,,Percutaneous coronary intervention,cumulus__none
+62,cumulus__none,Rehabilitation therapy (regime/therapy),
+62,cumulus__none,Rehabilitation therapy (regime/therapy),cumulus__none
+62,cumulus__none,Percutaneous coronary intervention,
+62,cumulus__none,Percutaneous coronary intervention,cumulus__none
+59,,Visual acuity testing (procedure),
+59,,Visual acuity testing (procedure),cumulus__none
+59,,Ocular slit lamp examination (procedure),
+59,,Ocular slit lamp examination (procedure),cumulus__none
+59,,Intraocular pressure test (procedure),
+59,,Intraocular pressure test (procedure),cumulus__none
+59,,Indirect gonioscopy (procedure),
+59,,Indirect gonioscopy (procedure),cumulus__none
+59,,Diabetic retinal eye exam (procedure),
+59,,Diabetic retinal eye exam (procedure),cumulus__none
+59,,Camera fundoscopy (procedure),
+59,,Camera fundoscopy (procedure),cumulus__none
+59,cumulus__none,Visual acuity testing (procedure),
+59,cumulus__none,Visual acuity testing (procedure),cumulus__none
+59,cumulus__none,Ocular slit lamp examination (procedure),
+59,cumulus__none,Ocular slit lamp examination (procedure),cumulus__none
+59,cumulus__none,Intraocular pressure test (procedure),
+59,cumulus__none,Intraocular pressure test (procedure),cumulus__none
+59,cumulus__none,Indirect gonioscopy (procedure),
+59,cumulus__none,Indirect gonioscopy (procedure),cumulus__none
+59,cumulus__none,Diabetic retinal eye exam (procedure),
+59,cumulus__none,Diabetic retinal eye exam (procedure),cumulus__none
+59,cumulus__none,Camera fundoscopy (procedure),
+59,cumulus__none,Camera fundoscopy (procedure),cumulus__none
+55,,Epidural anesthesia (procedure),
+55,,Epidural anesthesia (procedure),cumulus__none
+55,cumulus__none,Epidural anesthesia (procedure),
+55,cumulus__none,Epidural anesthesia (procedure),cumulus__none
+51,,Removal of subcutaneous contraceptive (procedure),
+51,,Removal of subcutaneous contraceptive (procedure),cumulus__none
+51,cumulus__none,Removal of subcutaneous contraceptive (procedure),
+51,cumulus__none,Removal of subcutaneous contraceptive (procedure),cumulus__none
+47,,Triage: emergency center (procedure),
+47,,Triage: emergency center (procedure),cumulus__none
+47,,Taking patient vital signs (procedure),
+47,,Taking patient vital signs (procedure),cumulus__none
+47,,History and physical examination with evaluation and management of patient (procedure),
+47,,History and physical examination with evaluation and management of patient (procedure),cumulus__none
+47,cumulus__none,Triage: emergency center (procedure),
+47,cumulus__none,Triage: emergency center (procedure),cumulus__none
+47,cumulus__none,Taking patient vital signs (procedure),
+47,cumulus__none,Taking patient vital signs (procedure),cumulus__none
+47,cumulus__none,History and physical examination with evaluation and management of patient (procedure),
+47,cumulus__none,History and physical examination with evaluation and management of patient (procedure),cumulus__none
+46,,Medical induction of labor (procedure),
+46,,Medical induction of labor (procedure),cumulus__none
+46,cumulus__none,Medical induction of labor (procedure),
+46,cumulus__none,Medical induction of labor (procedure),cumulus__none
+43,,Sleep apnea assessment (procedure),
+43,,Sleep apnea assessment (procedure),cumulus__none
+43,,Replacement of contraceptive intrauterine device (procedure),
+43,,Replacement of contraceptive intrauterine device (procedure),cumulus__none
+43,,Placing subject in prone position (procedure),
+43,,Placing subject in prone position (procedure),cumulus__none
+43,cumulus__none,Sleep apnea assessment (procedure),
+43,cumulus__none,Sleep apnea assessment (procedure),cumulus__none
+43,cumulus__none,Replacement of contraceptive intrauterine device (procedure),
+43,cumulus__none,Replacement of contraceptive intrauterine device (procedure),cumulus__none
+43,cumulus__none,Placing subject in prone position (procedure),
+43,cumulus__none,Placing subject in prone position (procedure),cumulus__none
+42,,Subcutaneous immunotherapy (procedure),
+42,,Subcutaneous immunotherapy (procedure),cumulus__none
+42,,Plain X-ray of humerus (procedure),
+42,,Plain X-ray of humerus (procedure),cumulus__none
+42,cumulus__none,Subcutaneous immunotherapy (procedure),
+42,cumulus__none,Subcutaneous immunotherapy (procedure),cumulus__none
+42,cumulus__none,Plain X-ray of humerus (procedure),
+42,cumulus__none,Plain X-ray of humerus (procedure),cumulus__none
+40,,Discussion about pregnancy (procedure),
+40,,Discussion about pregnancy (procedure),cumulus__none
+40,cumulus__none,Discussion about pregnancy (procedure),
+40,cumulus__none,Discussion about pregnancy (procedure),cumulus__none
+38,,Referral to cardiac surgery service (procedure),
+38,,Referral to cardiac surgery service (procedure),cumulus__none
+38,,Pre-surgery testing (procedure),
+38,,Pre-surgery testing (procedure),cumulus__none
+38,,Notification of treatment plan (procedure),
+38,,Notification of treatment plan (procedure),cumulus__none
+38,,Intubation (procedure),
+38,,Intubation (procedure),cumulus__none
+38,,Administration of anesthesia for procedure (procedure),
+38,,Administration of anesthesia for procedure (procedure),cumulus__none
+38,cumulus__none,Referral to cardiac surgery service (procedure),
+38,cumulus__none,Referral to cardiac surgery service (procedure),cumulus__none
+38,cumulus__none,Pre-surgery testing (procedure),
+38,cumulus__none,Pre-surgery testing (procedure),cumulus__none
+38,cumulus__none,Notification of treatment plan (procedure),
+38,cumulus__none,Notification of treatment plan (procedure),cumulus__none
+38,cumulus__none,Intubation (procedure),
+38,cumulus__none,Intubation (procedure),cumulus__none
+38,cumulus__none,Administration of anesthesia for procedure (procedure),
+38,cumulus__none,Administration of anesthesia for procedure (procedure),cumulus__none
+37,,Scheduling (procedure),
+37,,Scheduling (procedure),cumulus__none
+37,cumulus__none,Scheduling (procedure),
+37,cumulus__none,Scheduling (procedure),cumulus__none
+36,,Referral to transplant surgeon (procedure),
+36,,Referral to transplant surgeon (procedure),cumulus__none
+36,,Cognitive and behavioral therapy (regime/therapy),
+36,,Cognitive and behavioral therapy (regime/therapy),cumulus__none
+36,cumulus__none,Referral to transplant surgeon (procedure),
+36,cumulus__none,Referral to transplant surgeon (procedure),cumulus__none
+36,cumulus__none,Cognitive and behavioral therapy (regime/therapy),
+36,cumulus__none,Cognitive and behavioral therapy (regime/therapy),cumulus__none
+35,,Renal dialysis (procedure),
+35,,Renal dialysis (procedure),cumulus__none
+35,,Admission to orthopedic department (procedure),
+35,,Admission to orthopedic department (procedure),cumulus__none
+35,cumulus__none,Renal dialysis (procedure),
+35,cumulus__none,Renal dialysis (procedure),cumulus__none
+35,cumulus__none,Admission to orthopedic department (procedure),
+35,cumulus__none,Admission to orthopedic department (procedure),cumulus__none
+34,,Tooth socket procedure (procedure),
+34,,Tooth socket procedure (procedure),cumulus__none
+34,,Plain X-ray of ankle region (procedure),
+34,,Plain X-ray of ankle region (procedure),cumulus__none
 34,,Insertion of catheter into artery (procedure),
 34,,Insertion of catheter into artery (procedure),cumulus__none
+34,,Cesarean section (procedure),
+34,,Cesarean section (procedure),cumulus__none
+34,cumulus__none,Tooth socket procedure (procedure),
+34,cumulus__none,Tooth socket procedure (procedure),cumulus__none
+34,cumulus__none,Plain X-ray of ankle region (procedure),
+34,cumulus__none,Plain X-ray of ankle region (procedure),cumulus__none
 34,cumulus__none,Insertion of catheter into artery (procedure),
 34,cumulus__none,Insertion of catheter into artery (procedure),cumulus__none
-33,,Injection of tetanus antitoxin,
-33,,Injection of tetanus antitoxin,cumulus__none
-33,,Discharge to ward (procedure),
-33,,Discharge to ward (procedure),cumulus__none
-33,,Discharge from hospital (procedure),
-33,,Discharge from hospital (procedure),cumulus__none
-33,,Cesarean section,
-33,,Cesarean section,cumulus__none
-33,cumulus__none,Injection of tetanus antitoxin,
-33,cumulus__none,Injection of tetanus antitoxin,cumulus__none
-33,cumulus__none,Discharge to ward (procedure),
-33,cumulus__none,Discharge to ward (procedure),cumulus__none
-33,cumulus__none,Discharge from hospital (procedure),
-33,cumulus__none,Discharge from hospital (procedure),cumulus__none
-33,cumulus__none,Cesarean section,
-33,cumulus__none,Cesarean section,cumulus__none
+34,cumulus__none,Cesarean section (procedure),
+34,cumulus__none,Cesarean section (procedure),cumulus__none
+33,,Spirometry (procedure),
+33,,Spirometry (procedure),cumulus__none
+33,,Pulmonary catheterization with Swan-Ganz catheter (procedure),
+33,,Pulmonary catheterization with Swan-Ganz catheter (procedure),cumulus__none
+33,,Preparation of patient for procedure (regime/therapy),
+33,,Preparation of patient for procedure (regime/therapy),cumulus__none
+33,,Injection of tetanus antitoxin (procedure),
+33,,Injection of tetanus antitoxin (procedure),cumulus__none
+33,,Documentation procedure (procedure),
+33,,Documentation procedure (procedure),cumulus__none
+33,cumulus__none,Spirometry (procedure),
+33,cumulus__none,Spirometry (procedure),cumulus__none
+33,cumulus__none,Pulmonary catheterization with Swan-Ganz catheter (procedure),
+33,cumulus__none,Pulmonary catheterization with Swan-Ganz catheter (procedure),cumulus__none
+33,cumulus__none,Preparation of patient for procedure (regime/therapy),
+33,cumulus__none,Preparation of patient for procedure (regime/therapy),cumulus__none
+33,cumulus__none,Injection of tetanus antitoxin (procedure),
+33,cumulus__none,Injection of tetanus antitoxin (procedure),cumulus__none
+33,cumulus__none,Documentation procedure (procedure),
+33,cumulus__none,Documentation procedure (procedure),cumulus__none
 32,,Removal of endotracheal tube (procedure),
 32,,Removal of endotracheal tube (procedure),cumulus__none
-32,,Pulmonary catheterization with Swan-Ganz catheter (procedure),
-32,,Pulmonary catheterization with Swan-Ganz catheter (procedure),cumulus__none
-32,,Preparation of patient for procedure (regime/therapy),
-32,,Preparation of patient for procedure (regime/therapy),cumulus__none
-32,,Documentation procedure (procedure),
-32,,Documentation procedure (procedure),cumulus__none
+32,,Median sternotomy (procedure),
+32,,Median sternotomy (procedure),cumulus__none
+32,,Discharge to ward (procedure),
+32,,Discharge to ward (procedure),cumulus__none
 32,cumulus__none,Removal of endotracheal tube (procedure),
 32,cumulus__none,Removal of endotracheal tube (procedure),cumulus__none
-32,cumulus__none,Pulmonary catheterization with Swan-Ganz catheter (procedure),
-32,cumulus__none,Pulmonary catheterization with Swan-Ganz catheter (procedure),cumulus__none
-32,cumulus__none,Preparation of patient for procedure (regime/therapy),
-32,cumulus__none,Preparation of patient for procedure (regime/therapy),cumulus__none
-32,cumulus__none,Documentation procedure (procedure),
-32,cumulus__none,Documentation procedure (procedure),cumulus__none
-31,,Median sternotomy (procedure),
-31,,Median sternotomy (procedure),cumulus__none
+32,cumulus__none,Median sternotomy (procedure),
+32,cumulus__none,Median sternotomy (procedure),cumulus__none
+32,cumulus__none,Discharge to ward (procedure),
+32,cumulus__none,Discharge to ward (procedure),cumulus__none
+31,,Plain X-ray of wrist region (procedure),
+31,,Plain X-ray of wrist region (procedure),cumulus__none
 31,,Assessment using New York Heart Association Classification (procedure),
 31,,Assessment using New York Heart Association Classification (procedure),cumulus__none
-31,cumulus__none,Median sternotomy (procedure),
-31,cumulus__none,Median sternotomy (procedure),cumulus__none
+31,cumulus__none,Plain X-ray of wrist region (procedure),
+31,cumulus__none,Plain X-ray of wrist region (procedure),cumulus__none
 31,cumulus__none,Assessment using New York Heart Association Classification (procedure),
 31,cumulus__none,Assessment using New York Heart Association Classification (procedure),cumulus__none
 30,,Walking exercise test (procedure),
@@ -505,253 +629,253 @@ cnt,category_display,code_display,performeddatetime_month
 30,,Stair-climbing test (procedure),cumulus__none
 30,,Postoperative procedure education (procedure),
 30,,Postoperative procedure education (procedure),cumulus__none
-30,,Electrocardiographic procedure,
-30,,Electrocardiographic procedure,cumulus__none
-30,,Clavicle X-ray,
-30,,Clavicle X-ray,cumulus__none
 30,cumulus__none,Walking exercise test (procedure),
 30,cumulus__none,Walking exercise test (procedure),cumulus__none
 30,cumulus__none,Stair-climbing test (procedure),
 30,cumulus__none,Stair-climbing test (procedure),cumulus__none
 30,cumulus__none,Postoperative procedure education (procedure),
 30,cumulus__none,Postoperative procedure education (procedure),cumulus__none
-30,cumulus__none,Electrocardiographic procedure,
-30,cumulus__none,Electrocardiographic procedure,cumulus__none
-30,cumulus__none,Clavicle X-ray,
-30,cumulus__none,Clavicle X-ray,cumulus__none
-29,,Radiography of wrist (procedure),
-29,,Radiography of wrist (procedure),cumulus__none
-29,cumulus__none,Radiography of wrist (procedure),
-29,cumulus__none,Radiography of wrist (procedure),cumulus__none
-27,,Transfusion of packed red blood cells (procedure),
-27,,Transfusion of packed red blood cells (procedure),cumulus__none
-27,cumulus__none,Transfusion of packed red blood cells (procedure),
-27,cumulus__none,Transfusion of packed red blood cells (procedure),cumulus__none
+29,,Injection of epinephrine (procedure),
+29,,Injection of epinephrine (procedure),cumulus__none
+29,cumulus__none,Injection of epinephrine (procedure),
+29,cumulus__none,Injection of epinephrine (procedure),cumulus__none
+28,,Plain X-ray of knee region (procedure),
+28,,Plain X-ray of knee region (procedure),cumulus__none
+28,,Plain X-ray of clavicle (procedure),
+28,,Plain X-ray of clavicle (procedure),cumulus__none
+28,cumulus__none,Plain X-ray of knee region (procedure),
+28,cumulus__none,Plain X-ray of knee region (procedure),cumulus__none
+28,cumulus__none,Plain X-ray of clavicle (procedure),
+28,cumulus__none,Plain X-ray of clavicle (procedure),cumulus__none
 26,,Transthoracic echocardiography (procedure),
 26,,Transthoracic echocardiography (procedure),cumulus__none
-26,,Sterilization education (procedure),
-26,,Sterilization education (procedure),cumulus__none
-26,,Bilateral tubal ligation,
-26,,Bilateral tubal ligation,cumulus__none
+26,,Coordination of care plan (procedure),
+26,,Coordination of care plan (procedure),cumulus__none
+26,,Augmentation of labor (procedure),
+26,,Augmentation of labor (procedure),cumulus__none
 26,cumulus__none,Transthoracic echocardiography (procedure),
 26,cumulus__none,Transthoracic echocardiography (procedure),cumulus__none
-26,cumulus__none,Sterilization education (procedure),
-26,cumulus__none,Sterilization education (procedure),cumulus__none
-26,cumulus__none,Bilateral tubal ligation,
-26,cumulus__none,Bilateral tubal ligation,cumulus__none
-25,,"Physical examination, complete (procedure)",
-25,,"Physical examination, complete (procedure)",cumulus__none
-25,,Information gathering (procedure),
-25,,Information gathering (procedure),cumulus__none
-25,cumulus__none,"Physical examination, complete (procedure)",
-25,cumulus__none,"Physical examination, complete (procedure)",cumulus__none
-25,cumulus__none,Information gathering (procedure),
-25,cumulus__none,Information gathering (procedure),cumulus__none
-24,,Passive immunization (procedure),
-24,,Passive immunization (procedure),cumulus__none
-24,,Mammography (procedure),
-24,,Mammography (procedure),cumulus__none
-24,,Laboratory test (procedure),
-24,,Laboratory test (procedure),cumulus__none
-24,cumulus__none,Passive immunization (procedure),
-24,cumulus__none,Passive immunization (procedure),cumulus__none
-24,cumulus__none,Mammography (procedure),
-24,cumulus__none,Mammography (procedure),cumulus__none
-24,cumulus__none,Laboratory test (procedure),
-24,cumulus__none,Laboratory test (procedure),cumulus__none
-23,,Vascular cannula removal (procedure),
-23,,Vascular cannula removal (procedure),cumulus__none
-23,,Removal of aortic cross clamp (procedure),
-23,,Removal of aortic cross clamp (procedure),cumulus__none
-23,,Placement of aortic cross clamp (procedure),
-23,,Placement of aortic cross clamp (procedure),cumulus__none
-23,,Induced cardioplegia (procedure),
-23,,Induced cardioplegia (procedure),cumulus__none
+26,cumulus__none,Coordination of care plan (procedure),
+26,cumulus__none,Coordination of care plan (procedure),cumulus__none
+26,cumulus__none,Augmentation of labor (procedure),
+26,cumulus__none,Augmentation of labor (procedure),cumulus__none
+25,,Passive immunization (procedure),
+25,,Passive immunization (procedure),cumulus__none
+25,,Laboratory test (procedure),
+25,,Laboratory test (procedure),cumulus__none
+25,cumulus__none,Passive immunization (procedure),
+25,cumulus__none,Passive immunization (procedure),cumulus__none
+25,cumulus__none,Laboratory test (procedure),
+25,cumulus__none,Laboratory test (procedure),cumulus__none
+24,,Transfusion of packed red blood cells (procedure),
+24,,Transfusion of packed red blood cells (procedure),cumulus__none
+24,,Grafting of periodontal bone defect (procedure),
+24,,Grafting of periodontal bone defect (procedure),cumulus__none
+24,,Diagnostic assessment (procedure),
+24,,Diagnostic assessment (procedure),cumulus__none
+24,,Assessment of cardiac status using monitoring device (procedure),
+24,,Assessment of cardiac status using monitoring device (procedure),cumulus__none
+24,cumulus__none,Transfusion of packed red blood cells (procedure),
+24,cumulus__none,Transfusion of packed red blood cells (procedure),cumulus__none
+24,cumulus__none,Grafting of periodontal bone defect (procedure),
+24,cumulus__none,Grafting of periodontal bone defect (procedure),cumulus__none
+24,cumulus__none,Diagnostic assessment (procedure),
+24,cumulus__none,Diagnostic assessment (procedure),cumulus__none
+24,cumulus__none,Assessment of cardiac status using monitoring device (procedure),
+24,cumulus__none,Assessment of cardiac status using monitoring device (procedure),cumulus__none
+23,,Sterilization education (procedure),
+23,,Sterilization education (procedure),cumulus__none
+23,,Ligation of bilateral fallopian tubes (procedure),
+23,,Ligation of bilateral fallopian tubes (procedure),cumulus__none
 23,,Heart failure education (procedure),
 23,,Heart failure education (procedure),cumulus__none
-23,,Electroencephalogram (procedure),
-23,,Electroencephalogram (procedure),cumulus__none
-23,,Cardiopulmonary bypass operation (procedure),
-23,,Cardiopulmonary bypass operation (procedure),cumulus__none
-23,,Cannulation (procedure),
-23,,Cannulation (procedure),cumulus__none
-23,cumulus__none,Vascular cannula removal (procedure),
-23,cumulus__none,Vascular cannula removal (procedure),cumulus__none
-23,cumulus__none,Removal of aortic cross clamp (procedure),
-23,cumulus__none,Removal of aortic cross clamp (procedure),cumulus__none
-23,cumulus__none,Placement of aortic cross clamp (procedure),
-23,cumulus__none,Placement of aortic cross clamp (procedure),cumulus__none
-23,cumulus__none,Induced cardioplegia (procedure),
-23,cumulus__none,Induced cardioplegia (procedure),cumulus__none
+23,cumulus__none,Sterilization education (procedure),
+23,cumulus__none,Sterilization education (procedure),cumulus__none
+23,cumulus__none,Ligation of bilateral fallopian tubes (procedure),
+23,cumulus__none,Ligation of bilateral fallopian tubes (procedure),cumulus__none
 23,cumulus__none,Heart failure education (procedure),
 23,cumulus__none,Heart failure education (procedure),cumulus__none
-23,cumulus__none,Electroencephalogram (procedure),
-23,cumulus__none,Electroencephalogram (procedure),cumulus__none
-23,cumulus__none,Cardiopulmonary bypass operation (procedure),
-23,cumulus__none,Cardiopulmonary bypass operation (procedure),cumulus__none
-23,cumulus__none,Cannulation (procedure),
-23,cumulus__none,Cannulation (procedure),cumulus__none
-22,,Pulmonary rehabilitation (regime/therapy),
-22,,Pulmonary rehabilitation (regime/therapy),cumulus__none
-22,,Diagnostic assessment (procedure),
-22,,Diagnostic assessment (procedure),cumulus__none
-22,,Augmentation of labor,
-22,,Augmentation of labor,cumulus__none
-22,,Assessment of cardiac status using monitoring device (procedure),
-22,,Assessment of cardiac status using monitoring device (procedure),cumulus__none
-22,cumulus__none,Pulmonary rehabilitation (regime/therapy),
-22,cumulus__none,Pulmonary rehabilitation (regime/therapy),cumulus__none
-22,cumulus__none,Diagnostic assessment (procedure),
-22,cumulus__none,Diagnostic assessment (procedure),cumulus__none
-22,cumulus__none,Augmentation of labor,
-22,cumulus__none,Augmentation of labor,cumulus__none
-22,cumulus__none,Assessment of cardiac status using monitoring device (procedure),
-22,cumulus__none,Assessment of cardiac status using monitoring device (procedure),cumulus__none
-21,,Coronary artery bypass grafting (procedure),
-21,,Coronary artery bypass grafting (procedure),cumulus__none
-21,,Coordination of care plan (procedure),
-21,,Coordination of care plan (procedure),cumulus__none
+22,,Transplantation of kidney regime (regime/therapy),
+22,,Transplantation of kidney regime (regime/therapy),cumulus__none
+22,,Transplant of kidney (procedure),
+22,,Transplant of kidney (procedure),cumulus__none
+22,,Surgical manipulation of joint of knee (procedure),
+22,,Surgical manipulation of joint of knee (procedure),cumulus__none
+22,,Renal disorder medication review (procedure),
+22,,Renal disorder medication review (procedure),cumulus__none
+22,,Referral to home health care service (procedure),
+22,,Referral to home health care service (procedure),cumulus__none
+22,,Referral for further care (procedure),
+22,,Referral for further care (procedure),cumulus__none
+22,,Pretransplant evaluation of kidney recipient (procedure),
+22,,Pretransplant evaluation of kidney recipient (procedure),cumulus__none
+22,,Comprehensive interview and evaluation (procedure),
+22,,Comprehensive interview and evaluation (procedure),cumulus__none
+22,cumulus__none,Transplantation of kidney regime (regime/therapy),
+22,cumulus__none,Transplantation of kidney regime (regime/therapy),cumulus__none
+22,cumulus__none,Transplant of kidney (procedure),
+22,cumulus__none,Transplant of kidney (procedure),cumulus__none
+22,cumulus__none,Surgical manipulation of joint of knee (procedure),
+22,cumulus__none,Surgical manipulation of joint of knee (procedure),cumulus__none
+22,cumulus__none,Renal disorder medication review (procedure),
+22,cumulus__none,Renal disorder medication review (procedure),cumulus__none
+22,cumulus__none,Referral to home health care service (procedure),
+22,cumulus__none,Referral to home health care service (procedure),cumulus__none
+22,cumulus__none,Referral for further care (procedure),
+22,cumulus__none,Referral for further care (procedure),cumulus__none
+22,cumulus__none,Pretransplant evaluation of kidney recipient (procedure),
+22,cumulus__none,Pretransplant evaluation of kidney recipient (procedure),cumulus__none
+22,cumulus__none,Comprehensive interview and evaluation (procedure),
+22,cumulus__none,Comprehensive interview and evaluation (procedure),cumulus__none
 21,,Care regimes assessment (procedure),
 21,,Care regimes assessment (procedure),cumulus__none
-21,cumulus__none,Coronary artery bypass grafting (procedure),
-21,cumulus__none,Coronary artery bypass grafting (procedure),cumulus__none
-21,cumulus__none,Coordination of care plan (procedure),
-21,cumulus__none,Coordination of care plan (procedure),cumulus__none
 21,cumulus__none,Care regimes assessment (procedure),
 21,cumulus__none,Care regimes assessment (procedure),cumulus__none
-20,,Knee X-ray,
-20,,Knee X-ray,cumulus__none
-20,,Ankle X-ray,
-20,,Ankle X-ray,cumulus__none
-20,cumulus__none,Knee X-ray,
-20,cumulus__none,Knee X-ray,cumulus__none
-20,cumulus__none,Ankle X-ray,
-20,cumulus__none,Ankle X-ray,cumulus__none
-19,,Instrumental delivery,
-19,,Instrumental delivery,cumulus__none
-19,cumulus__none,Instrumental delivery,
-19,cumulus__none,Instrumental delivery,cumulus__none
-18,,Antenatal RhD antibody screening,
-18,,Antenatal RhD antibody screening,cumulus__none
-18,cumulus__none,Antenatal RhD antibody screening,
-18,cumulus__none,Antenatal RhD antibody screening,cumulus__none
-17,,Combined chemotherapy and radiation therapy (procedure),
-17,,Combined chemotherapy and radiation therapy (procedure),cumulus__none
-17,cumulus__none,Combined chemotherapy and radiation therapy (procedure),
-17,cumulus__none,Combined chemotherapy and radiation therapy (procedure),cumulus__none
-16,,Surgical manipulation of joint of knee,
-16,,Surgical manipulation of joint of knee,cumulus__none
-16,,Risk assessment (procedure),
-16,,Risk assessment (procedure),cumulus__none
-16,,Injection of epinephrine (procedure),
-16,,Injection of epinephrine (procedure),cumulus__none
-16,,Digital examination of rectum,
-16,,Digital examination of rectum,cumulus__none
-16,cumulus__none,Surgical manipulation of joint of knee,
-16,cumulus__none,Surgical manipulation of joint of knee,cumulus__none
-16,cumulus__none,Risk assessment (procedure),
-16,cumulus__none,Risk assessment (procedure),cumulus__none
-16,cumulus__none,Injection of epinephrine (procedure),
-16,cumulus__none,Injection of epinephrine (procedure),cumulus__none
-16,cumulus__none,Digital examination of rectum,
-16,cumulus__none,Digital examination of rectum,cumulus__none
-15,,Referral to home health care service (procedure),
-15,,Referral to home health care service (procedure),cumulus__none
-15,,Premature birth of newborn,
-15,,Premature birth of newborn,cumulus__none
-15,,Comprehensive interview and evaluation (procedure),
-15,,Comprehensive interview and evaluation (procedure),cumulus__none
-15,cumulus__none,Referral to home health care service (procedure),
-15,cumulus__none,Referral to home health care service (procedure),cumulus__none
-15,cumulus__none,Premature birth of newborn,
-15,cumulus__none,Premature birth of newborn,cumulus__none
-15,cumulus__none,Comprehensive interview and evaluation (procedure),
-15,cumulus__none,Comprehensive interview and evaluation (procedure),cumulus__none
-14,,Referral to sleep apnea clinic (procedure),
-14,,Referral to sleep apnea clinic (procedure),cumulus__none
-14,,Chest X-ray,
-14,,Chest X-ray,cumulus__none
-14,,Asthma screening,
-14,,Asthma screening,cumulus__none
-14,cumulus__none,Referral to sleep apnea clinic (procedure),
-14,cumulus__none,Referral to sleep apnea clinic (procedure),cumulus__none
-14,cumulus__none,Chest X-ray,
-14,cumulus__none,Chest X-ray,cumulus__none
-14,cumulus__none,Asthma screening,
-14,cumulus__none,Asthma screening,cumulus__none
-13,,Pelvis X-ray,
-13,,Pelvis X-ray,cumulus__none
-13,,Manual pelvic examination (procedure),
-13,,Manual pelvic examination (procedure),cumulus__none
-13,,Extraction of wisdom tooth,
-13,,Extraction of wisdom tooth,cumulus__none
-13,,"Cytopathology procedure, preparation of smear, genital source (procedure)",
-13,,"Cytopathology procedure, preparation of smear, genital source (procedure)",cumulus__none
-13,cumulus__none,Pelvis X-ray,
-13,cumulus__none,Pelvis X-ray,cumulus__none
-13,cumulus__none,Manual pelvic examination (procedure),
-13,cumulus__none,Manual pelvic examination (procedure),cumulus__none
-13,cumulus__none,Extraction of wisdom tooth,
-13,cumulus__none,Extraction of wisdom tooth,cumulus__none
-13,cumulus__none,"Cytopathology procedure, preparation of smear, genital source (procedure)",
-13,cumulus__none,"Cytopathology procedure, preparation of smear, genital source (procedure)",cumulus__none
-12,,Referral to service (procedure),
-12,,Referral to service (procedure),cumulus__none
-12,,Partial resection of colon,
-12,,Partial resection of colon,cumulus__none
-12,,Nasal sinus endoscopy (procedure),
-12,,Nasal sinus endoscopy (procedure),cumulus__none
-12,,Human epidermal growth factor receptor 2 gene detection by immunohistochemistry (procedure),
-12,,Human epidermal growth factor receptor 2 gene detection by immunohistochemistry (procedure),cumulus__none
-12,,Human epidermal growth factor receptor 2 gene detection by fluorescence in situ hybridization (procedure),
-12,,Human epidermal growth factor receptor 2 gene detection by fluorescence in situ hybridization (procedure),cumulus__none
-12,,Cardiovascular stress testing (procedure),
-12,,Cardiovascular stress testing (procedure),cumulus__none
-12,,Biopsy of breast (procedure),
-12,,Biopsy of breast (procedure),cumulus__none
-12,,Appendectomy,
-12,,Appendectomy,cumulus__none
-12,cumulus__none,Referral to service (procedure),
-12,cumulus__none,Referral to service (procedure),cumulus__none
-12,cumulus__none,Partial resection of colon,
-12,cumulus__none,Partial resection of colon,cumulus__none
-12,cumulus__none,Nasal sinus endoscopy (procedure),
-12,cumulus__none,Nasal sinus endoscopy (procedure),cumulus__none
-12,cumulus__none,Human epidermal growth factor receptor 2 gene detection by immunohistochemistry (procedure),
-12,cumulus__none,Human epidermal growth factor receptor 2 gene detection by immunohistochemistry (procedure),cumulus__none
-12,cumulus__none,Human epidermal growth factor receptor 2 gene detection by fluorescence in situ hybridization (procedure),
-12,cumulus__none,Human epidermal growth factor receptor 2 gene detection by fluorescence in situ hybridization (procedure),cumulus__none
-12,cumulus__none,Cardiovascular stress testing (procedure),
-12,cumulus__none,Cardiovascular stress testing (procedure),cumulus__none
-12,cumulus__none,Biopsy of breast (procedure),
-12,cumulus__none,Biopsy of breast (procedure),cumulus__none
-12,cumulus__none,Appendectomy,
-12,cumulus__none,Appendectomy,cumulus__none
-11,,Resuscitation using intravenous fluid (procedure),
-11,,Resuscitation using intravenous fluid (procedure),cumulus__none
-11,,Discussion about options (procedure),
-11,,Discussion about options (procedure),cumulus__none
-11,cumulus__none,Resuscitation using intravenous fluid (procedure),
-11,cumulus__none,Resuscitation using intravenous fluid (procedure),cumulus__none
-11,cumulus__none,Discussion about options (procedure),
-11,cumulus__none,Discussion about options (procedure),cumulus__none
-10,,Transfer to stepdown unit (procedure),
-10,,Transfer to stepdown unit (procedure),cumulus__none
-10,,Intravenous blood transfusion of packed cells (procedure),
-10,,Intravenous blood transfusion of packed cells (procedure),cumulus__none
+20,,Risk assessment (procedure),
+20,,Risk assessment (procedure),cumulus__none
+20,,Combined chemotherapy and radiation therapy (procedure),
+20,,Combined chemotherapy and radiation therapy (procedure),cumulus__none
+20,cumulus__none,Risk assessment (procedure),
+20,cumulus__none,Risk assessment (procedure),cumulus__none
+20,cumulus__none,Combined chemotherapy and radiation therapy (procedure),
+20,cumulus__none,Combined chemotherapy and radiation therapy (procedure),cumulus__none
+19,,Referral to service (procedure),
+19,,Referral to service (procedure),cumulus__none
+19,,Premature birth of newborn (finding),
+19,,Premature birth of newborn (finding),cumulus__none
+19,,Optical coherence tomography of retina (procedure),
+19,,Optical coherence tomography of retina (procedure),cumulus__none
+19,cumulus__none,Referral to service (procedure),
+19,cumulus__none,Referral to service (procedure),cumulus__none
+19,cumulus__none,Premature birth of newborn (finding),
+19,cumulus__none,Premature birth of newborn (finding),cumulus__none
+19,cumulus__none,Optical coherence tomography of retina (procedure),
+19,cumulus__none,Optical coherence tomography of retina (procedure),cumulus__none
+18,,Vascular cannula removal (procedure),
+18,,Vascular cannula removal (procedure),cumulus__none
+18,,Removal of aortic cross clamp (procedure),
+18,,Removal of aortic cross clamp (procedure),cumulus__none
+18,,Pulmonary rehabilitation (regime/therapy),
+18,,Pulmonary rehabilitation (regime/therapy),cumulus__none
+18,,Placement of aortic cross clamp (procedure),
+18,,Placement of aortic cross clamp (procedure),cumulus__none
+18,,Instrumental delivery (procedure),
+18,,Instrumental delivery (procedure),cumulus__none
+18,,Induced cardioplegia (procedure),
+18,,Induced cardioplegia (procedure),cumulus__none
+18,,Cardiopulmonary bypass operation (procedure),
+18,,Cardiopulmonary bypass operation (procedure),cumulus__none
+18,,Cannulation (procedure),
+18,,Cannulation (procedure),cumulus__none
+18,cumulus__none,Vascular cannula removal (procedure),
+18,cumulus__none,Vascular cannula removal (procedure),cumulus__none
+18,cumulus__none,Removal of aortic cross clamp (procedure),
+18,cumulus__none,Removal of aortic cross clamp (procedure),cumulus__none
+18,cumulus__none,Pulmonary rehabilitation (regime/therapy),
+18,cumulus__none,Pulmonary rehabilitation (regime/therapy),cumulus__none
+18,cumulus__none,Placement of aortic cross clamp (procedure),
+18,cumulus__none,Placement of aortic cross clamp (procedure),cumulus__none
+18,cumulus__none,Instrumental delivery (procedure),
+18,cumulus__none,Instrumental delivery (procedure),cumulus__none
+18,cumulus__none,Induced cardioplegia (procedure),
+18,cumulus__none,Induced cardioplegia (procedure),cumulus__none
+18,cumulus__none,Cardiopulmonary bypass operation (procedure),
+18,cumulus__none,Cardiopulmonary bypass operation (procedure),cumulus__none
+18,cumulus__none,Cannulation (procedure),
+18,cumulus__none,Cannulation (procedure),cumulus__none
+17,,Partial resection of colon (procedure),
+17,,Partial resection of colon (procedure),cumulus__none
+17,,Coronary artery bypass grafting (procedure),
+17,,Coronary artery bypass grafting (procedure),cumulus__none
+17,cumulus__none,Partial resection of colon (procedure),
+17,cumulus__none,Partial resection of colon (procedure),cumulus__none
+17,cumulus__none,Coronary artery bypass grafting (procedure),
+17,cumulus__none,Coronary artery bypass grafting (procedure),cumulus__none
+16,,Extraction of wisdom tooth (procedure),
+16,,Extraction of wisdom tooth (procedure),cumulus__none
+16,,Digital examination of rectum (procedure),
+16,,Digital examination of rectum (procedure),cumulus__none
+16,cumulus__none,Extraction of wisdom tooth (procedure),
+16,cumulus__none,Extraction of wisdom tooth (procedure),cumulus__none
+16,cumulus__none,Digital examination of rectum (procedure),
+16,cumulus__none,Digital examination of rectum (procedure),cumulus__none
+15,,"Physical examination, complete (procedure)",
+15,,"Physical examination, complete (procedure)",cumulus__none
+15,,Off-pump coronary artery bypass (procedure),
+15,,Off-pump coronary artery bypass (procedure),cumulus__none
+15,,Mammography (procedure),
+15,,Mammography (procedure),cumulus__none
+15,,Electroencephalogram (procedure),
+15,,Electroencephalogram (procedure),cumulus__none
+15,,Antenatal RhD antibody screening (procedure),
+15,,Antenatal RhD antibody screening (procedure),cumulus__none
+15,cumulus__none,"Physical examination, complete (procedure)",
+15,cumulus__none,"Physical examination, complete (procedure)",cumulus__none
+15,cumulus__none,Off-pump coronary artery bypass (procedure),
+15,cumulus__none,Off-pump coronary artery bypass (procedure),cumulus__none
+15,cumulus__none,Mammography (procedure),
+15,cumulus__none,Mammography (procedure),cumulus__none
+15,cumulus__none,Electroencephalogram (procedure),
+15,cumulus__none,Electroencephalogram (procedure),cumulus__none
+15,cumulus__none,Antenatal RhD antibody screening (procedure),
+15,cumulus__none,Antenatal RhD antibody screening (procedure),cumulus__none
+14,,Excision of maxillary torus palatinus (procedure),
+14,,Excision of maxillary torus palatinus (procedure),cumulus__none
+14,cumulus__none,Excision of maxillary torus palatinus (procedure),
+14,cumulus__none,Excision of maxillary torus palatinus (procedure),cumulus__none
+13,,Range of motion testing (procedure),
+13,,Range of motion testing (procedure),cumulus__none
+13,,Plain X-ray of mandible (procedure),
+13,,Plain X-ray of mandible (procedure),cumulus__none
+13,,Oral examination (procedure),
+13,,Oral examination (procedure),cumulus__none
+13,cumulus__none,Range of motion testing (procedure),
+13,cumulus__none,Range of motion testing (procedure),cumulus__none
+13,cumulus__none,Plain X-ray of mandible (procedure),
+13,cumulus__none,Plain X-ray of mandible (procedure),cumulus__none
+13,cumulus__none,Oral examination (procedure),
+13,cumulus__none,Oral examination (procedure),cumulus__none
+12,,Referral to sleep apnea clinic (procedure),
+12,,Referral to sleep apnea clinic (procedure),cumulus__none
+12,,Information gathering (procedure),
+12,,Information gathering (procedure),cumulus__none
+12,,Excision of appendix (procedure),
+12,,Excision of appendix (procedure),cumulus__none
+12,cumulus__none,Referral to sleep apnea clinic (procedure),
+12,cumulus__none,Referral to sleep apnea clinic (procedure),cumulus__none
+12,cumulus__none,Information gathering (procedure),
+12,cumulus__none,Information gathering (procedure),cumulus__none
+12,cumulus__none,Excision of appendix (procedure),
+12,cumulus__none,Excision of appendix (procedure),cumulus__none
+11,,Percutaneous mechanical thrombectomy of portal vein using fluoroscopic guidance with contrast (procedure),
+11,,Percutaneous mechanical thrombectomy of portal vein using fluoroscopic guidance with contrast (procedure),cumulus__none
+11,,Intravenous blood transfusion of packed cells (procedure),
+11,,Intravenous blood transfusion of packed cells (procedure),cumulus__none
+11,,Biopsy of prostate (procedure),
+11,,Biopsy of prostate (procedure),cumulus__none
+11,cumulus__none,Percutaneous mechanical thrombectomy of portal vein using fluoroscopic guidance with contrast (procedure),
+11,cumulus__none,Percutaneous mechanical thrombectomy of portal vein using fluoroscopic guidance with contrast (procedure),cumulus__none
+11,cumulus__none,Intravenous blood transfusion of packed cells (procedure),
+11,cumulus__none,Intravenous blood transfusion of packed cells (procedure),cumulus__none
+11,cumulus__none,Biopsy of prostate (procedure),
+11,cumulus__none,Biopsy of prostate (procedure),cumulus__none
+10,,Telemedicine consultation with patient (procedure),
+10,,Telemedicine consultation with patient (procedure),cumulus__none
 10,,Home health aide service (regime/therapy),
 10,,Home health aide service (regime/therapy),cumulus__none
-10,,Chemotherapy (procedure),
-10,,Chemotherapy (procedure),cumulus__none
-10,,Biopsy of prostate,
-10,,Biopsy of prostate,cumulus__none
-10,cumulus__none,Transfer to stepdown unit (procedure),
-10,cumulus__none,Transfer to stepdown unit (procedure),cumulus__none
-10,cumulus__none,Intravenous blood transfusion of packed cells (procedure),
-10,cumulus__none,Intravenous blood transfusion of packed cells (procedure),cumulus__none
+10,,Complete blood count (procedure),
+10,,Complete blood count (procedure),cumulus__none
+10,,Cardiovascular stress testing (procedure),
+10,,Cardiovascular stress testing (procedure),cumulus__none
+10,,Asthma screening (procedure),
+10,,Asthma screening (procedure),cumulus__none
+10,cumulus__none,Telemedicine consultation with patient (procedure),
+10,cumulus__none,Telemedicine consultation with patient (procedure),cumulus__none
 10,cumulus__none,Home health aide service (regime/therapy),
 10,cumulus__none,Home health aide service (regime/therapy),cumulus__none
-10,cumulus__none,Chemotherapy (procedure),
-10,cumulus__none,Chemotherapy (procedure),cumulus__none
-10,cumulus__none,Biopsy of prostate,
-10,cumulus__none,Biopsy of prostate,cumulus__none
+10,cumulus__none,Complete blood count (procedure),
+10,cumulus__none,Complete blood count (procedure),cumulus__none
+10,cumulus__none,Cardiovascular stress testing (procedure),
+10,cumulus__none,Cardiovascular stress testing (procedure),cumulus__none
+10,cumulus__none,Asthma screening (procedure),
+10,cumulus__none,Asthma screening (procedure),cumulus__none

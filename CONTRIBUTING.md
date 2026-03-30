@@ -63,8 +63,18 @@ cumulus-library generate-sql \
   --db-type duckdb \
   --database :memory: \
   --load-ndjson-dir tests/test_data/duckdb_data \
-  --target core \
-  --target discovery \
+  --target core
+
+cumulus-library generate-sql \
+  --db-type duckdb \
+  --database :memory: \
+  --load-ndjson-dir tests/test_data/duckdb_data \
+  --target discovery
+
+cumulus-library generate-sql \
+  --db-type duckdb \
+  --database :memory: \
+  --load-ndjson-dir tests/test_data/duckdb_data \
   --target example_nlp
 ```
 

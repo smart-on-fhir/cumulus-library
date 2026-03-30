@@ -16,6 +16,7 @@ expected_table_cols = {
         "valueString": [],
         "subject": sql_utils.REFERENCE,
         "encounter": sql_utils.REFERENCE,
+        "specimen": sql_utils.REFERENCE,
     }
 }
 
