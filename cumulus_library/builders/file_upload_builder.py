@@ -110,24 +110,26 @@ class FileUploadBuilder(BaseTableBuilder):
                     # SQL level. If there's one file, this will get set but then never used
                     # for validation
                     types = None
-                else:
-                    # For multiple table mode, we scan through the list of files. If something is
-                    # a directory, we replace the reference to the directory with a list of
-                    # every file in that directory
-                    new_files = []
-                    for file_or_dir in table["files"]:
-                        if (self._toml_config_dir / file_or_dir).is_dir():
-                            dir_contents = [
-                                f"{file_or_dir}/{x.name}"
-                                for x in (self._toml_config_dir / file_or_dir).glob("**/*")
-                            ]
-                            new_files = new_files + dir_contents
-                        else:
-                            new_files.append(file_or_dir)
-                    table["files"] = new_files
+
+                # To handle cases where we're using a folder of data to back either a single
+                # table with multiple files, or creation of multiple tables, we'll scan for
+                # directories and replace them with their contents
+                new_files = []
+                for file_or_dir in table["files"]:
+                    if (self._toml_config_dir / file_or_dir).is_dir():
+                        dir_contents = [
+                            f"{file_or_dir}/{x.name}"
+                            for x in (self._toml_config_dir / file_or_dir).glob("**/*")
+                        ]
+                        new_files = new_files + dir_contents
+                    else:
+                        new_files.append(file_or_dir)
+                table["files"] = new_files
                 for file in table["files"]:
                     table_filename = pathlib.Path(file).name
-                    if file.endswith(".xlsx"):
+                    if file.endswith(".md"):
+                        continue
+                    elif file.endswith(".xlsx"):
                         parquet_path = cache_dir / table_filename.replace(".xlsx", ".parquet")
                         df = pandas.read_excel(self._toml_config_dir / file)
 

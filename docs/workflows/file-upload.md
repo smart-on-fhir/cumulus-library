@@ -87,7 +87,8 @@ files = ["dataset_3.parquet"]
 always_upload=false
 [tables.table_4]
 # If you want to back a table with a collection of files, just provide an array of those files.
-files = ["dataset_4a.parquet","dataset_4a.parquet"]
+# If a directory is supplied, we'll use all files in that directory, except for markdown files.
+files = ["dataset_4a.parquet","dataset_4a.parquet", "data_folder"]
 [tables.table_5]
 # If you set create_mode to 'multiple', you'll create as many tables as you provide files.
 # We'll use the filename, less the suffix, as the name for the table
@@ -96,6 +97,6 @@ create_mode = "multiple"
 # file, we'll create a table for each file inside that directory.
 files =[
   'dataset5.parquet', # creates a table named 'study_name__dataset5'
-  'data_folder' # if this folder contained 'one.csv' and 'two.csv', creates tables named 'study_name__one' and 'study_name__two'
+  'data_folder' # if this folder contained 'one.csv' and 'two.csv', creates tables named 'study_name__one' and 'study_name__two'. Ingores .md files if present.
 ]
 ```
