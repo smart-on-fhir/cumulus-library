@@ -37,9 +37,12 @@ temp_encounter_completion AS (
                 AND BOOL_OR(ec.table_name = 'condition')
                 AND BOOL_OR(ec.table_name = 'diagnosticreport')
                 AND BOOL_OR(ec.table_name = 'documentreference')
+                AND BOOL_OR(ec.table_name = 'episodeofcare')
                 AND BOOL_OR(ec.table_name = 'medicationrequest')
                 AND BOOL_OR(ec.table_name = 'observation')
                 AND BOOL_OR(ec.table_name = 'procedure')
+                AND BOOL_OR(ec.table_name = 'servicerequest')
+                AND BOOL_OR(ec.table_name = 'specimen')
             ) AS is_complete
         FROM etl__completion_encounters AS ece
         INNER JOIN temp_completion_times AS tct ON tct.encounter_id = ece.encounter_id
@@ -84,7 +87,23 @@ temp_encounter_nullable AS (
         -- NULL completion just means it's a row that isn't completion-tracked
         -- (likely a legacy row), so allow it in.
         tec.is_complete IS NULL OR tec.is_complete
-    )
+    ) AND (e.status IS NULL OR e.status <> 'entered-in-error')
+),
+
+temp_episodeofcare AS (
+    WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."episodeOfCare", 1) AS row,
+                UNNEST(t."episodeOfCare") AS data -- must unnest in SELECT here
+            FROM encounter AS t
+        )
+        SELECT
+            id,
+            row,
+            data."reference"
+        FROM data_and_row_num
 ),
 
 temp_participant AS (
@@ -169,11 +188,13 @@ SELECT DISTINCT
     e.period_start_month AS period_start_month,
     e.period_start_year AS period_start_year,
     e.subject_ref,
+    teoc.reference AS episodeOfCare_ref,
     tp.participant_ref,
     e.serviceProvider_ref,
     concat('Encounter/', e.id) AS encounter_ref
 FROM temp_encounter AS e
 LEFT JOIN temp_participant AS tp ON e.id = tp.id
+LEFT JOIN temp_episodeofcare AS teoc ON e.id = teoc.id
 LEFT JOIN core__fhir_mapping_expected_act_encounter_code_v3 AS eac
     ON e.class_code = eac.found AND e.class_system = eac.found_system
 LEFT JOIN core__fhir_act_encounter_code_v3 AS ac ON eac.expected = ac.code
@@ -210,9 +231,12 @@ temp_encounter_completion AS (
                 AND BOOL_OR(ec.table_name = 'condition')
                 AND BOOL_OR(ec.table_name = 'diagnosticreport')
                 AND BOOL_OR(ec.table_name = 'documentreference')
+                AND BOOL_OR(ec.table_name = 'episodeofcare')
                 AND BOOL_OR(ec.table_name = 'medicationrequest')
                 AND BOOL_OR(ec.table_name = 'observation')
                 AND BOOL_OR(ec.table_name = 'procedure')
+                AND BOOL_OR(ec.table_name = 'servicerequest')
+                AND BOOL_OR(ec.table_name = 'specimen')
             ) AS is_complete
         FROM etl__completion_encounters AS ece
         INNER JOIN temp_completion_times AS tct ON tct.encounter_id = ece.encounter_id

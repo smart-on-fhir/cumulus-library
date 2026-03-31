@@ -1,4 +1,5 @@
 import builtins
+import pathlib
 from contextlib import nullcontext as does_not_raise
 from unittest import mock
 
@@ -108,6 +109,20 @@ def test_clean_study(
                 assert ("study_valid__456",) not in remaining_tables
             if prefix != "study_valid":
                 assert ("study_valid__nlp_extra",) in remaining_tables
+
+
+def test_clean_no_build_source(mock_db_core_config):
+    cursor = mock_db_core_config.db.cursor()
+    cursor.execute("DROP TABLE core__lib_build_source")
+    manifest = study_manifest.StudyManifest(
+        study_path=pathlib.Path(__file__).parents[2] / "cumulus_library/studies/core"
+    )
+    with mock.patch.object(builtins, "input", lambda _: "y"):
+        cleaner.clean_study(mock_db_core_config, manifest)
+    res = cursor.execute(
+        "SELECT table_name FROM information_schema.tables WHERE 'core' in table_name"
+    ).fetchall()
+    assert res == [("core__lib_transactions",)]
 
 
 def test_clean_dedicated_schema(mock_db_config):

@@ -24,6 +24,7 @@ CREATE TABLE core__medicationrequest AS (
         date_trunc('month', cast(from_iso8601_timestamp(mr."authoredOn") AS date))
             AS authoredOn_month
         FROM medicationrequest AS mr
+        WHERE (mr.status IS NULL OR mr.status <> 'entered-in-error')
     ),
 
     contained_refs AS (

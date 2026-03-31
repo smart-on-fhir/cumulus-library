@@ -210,7 +210,7 @@ def test_run_psm_statistics_builders(
             assert expects in tables
 
 
-@mock.patch("cumulus_library.builders.valueset_builder.ValuesetBuilder.execute_queries")
+@mock.patch("cumulus_library.builders.valueset_builder.ValuesetBuilder")
 def test_invoke_valueset_builder(mock_builder, mock_db_config, tmp_path):
     manifest = study_manifest.StudyManifest(
         pathlib.Path(__file__).parents[1] / "test_data/valueset", data_path=tmp_path
@@ -223,7 +223,7 @@ def test_invoke_valueset_builder(mock_builder, mock_db_config, tmp_path):
         db=mock_db_config.db, schema=mock_db_config.schema, stats_build=True
     )
     builder.build_study(config=config, manifest=manifest, prepare=False, data_path=None)
-    assert mock_builder.is_called()
+    assert mock_builder.execute_queries.is_called()
 
 
 def test_builder_init_error(mock_db_config):
