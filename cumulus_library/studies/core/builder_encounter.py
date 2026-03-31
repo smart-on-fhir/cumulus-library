@@ -12,6 +12,7 @@ expected_table_cols = {
         ],
         "class": sql_utils.CODING,
         "subject": sql_utils.REFERENCE,
+        "episodeOfCare": sql_utils.REFERENCE,
         "participant": {
             "individual": sql_utils.REFERENCE,
         },

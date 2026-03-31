@@ -1,6 +1,6 @@
 study_prefix="counts"
 [[stages.build_counts]]
-description = "counts workflow"
+label = "counts workflow"
 files = [
     "counts.workflow",
 ]

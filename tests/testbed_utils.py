@@ -126,9 +126,12 @@ class LocalTestbed:
                 "condition",
                 "diagnosticreport",
                 "documentreference",
+                "episodeofcare",
                 "medicationrequest",
                 "observation",
                 "procedure",
+                "servicerequest",
+                "specimen",
             }
         else:
             include = set(include)

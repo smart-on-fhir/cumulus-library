@@ -43,7 +43,7 @@ class StaticBuilder(BaseTableBuilder):
                     headers=["STR"],
                     dtypes={"STR": "str"},
                     parquet_types=["STRING"],
-                    filtered_path=self.data_path / "./keywords.filtered.tsv",
+                    filtered_path=self.data_path / "valueset_cache/keywords.filtered.tsv",
                 )
             ]
         else:
@@ -115,7 +115,7 @@ class StaticBuilder(BaseTableBuilder):
         :param filtered_path: The name of the file to write the filtered dataset to
 
         """
-        target = self.data_path / f"{path.stem}.filtered.tsv"
+        target = self.data_path / f"valueset_cache/{path.stem}.filtered.tsv"
         with open(path) as file:
             reader = csv.reader(file, delimiter=delimiter)
             keywords = sorted((row[0] for row in reader), key=len)
@@ -140,6 +140,7 @@ class StaticBuilder(BaseTableBuilder):
         self.valueset_config = valueset_config
         self.study_path = manifest._study_path
         self.data_path = valueset_utils.get_valueset_cache_dir(toml_path, None)
+        (self.data_path / "valueset_cache").mkdir(exist_ok=True, parents=True)
         table_prefix = valueset_config.get_table_prefix()
 
         self.tables = self.get_keywords_table_configs(config, manifest, table_prefix)
@@ -165,12 +166,12 @@ class StaticBuilder(BaseTableBuilder):
             steward_df["oid"] = valueset_config.vsac_stewards[key]
             vsac_df = pandas.concat([vsac_df, steward_df])
             vsac_df["rxcui"] = vsac_df["rxcui"].astype("str")
-        vsac_df.to_csv(self.data_path / "all_vsac.tsv", sep="\t", index=False)
+        vsac_df.to_csv(self.data_path / "valueset_cache/all_vsac.tsv", sep="\t", index=False)
 
         # And now we'll add the VSAC static table to the list of tables to upload
         self.tables.append(
             TableConfig(
-                file_path=self.data_path / "all_vsac.tsv",
+                file_path=self.data_path / "valueset_cache/all_vsac.tsv",
                 delimiter="\t",
                 table_name=f"{table_prefix}vsac_valuesets",
                 headers=["sab", "rxcui", "str", "steward", "oid"],
@@ -194,10 +195,12 @@ class StaticBuilder(BaseTableBuilder):
                     self.filter_duplicate_entries(
                         table.file_path, table.delimiter, table.filtered_path
                     )
-                    path = self.data_path / table.filtered_path
+                    path = self.data_path / table.table_name / table.filtered_path
                 else:
-                    path = self.data_path / table.file_path
-                parquet_path = path.with_suffix(".parquet")
+                    path = self.data_path / table.table_name / table.file_path
+                parquet_dir = self.data_path / table.table_name
+                parquet_path = (parquet_dir / table.table_name).with_suffix(".parquet")
+                parquet_path.parent.mkdir(exist_ok=True, parents=True)
 
                 # Read the file, using lots of the TableConfig params, and generate
                 # a parquet file
@@ -227,7 +230,7 @@ class StaticBuilder(BaseTableBuilder):
                     base_templates.get_ctas_from_parquet_query(
                         schema_name=config.schema,
                         table_name=f"{manifest.get_study_prefix()}__{table.table_name}",
-                        local_location=parquet_path,
+                        local_location=parquet_dir,
                         remote_location=remote_path,
                         table_cols=table.headers,
                         remote_table_cols_types=table.parquet_types,

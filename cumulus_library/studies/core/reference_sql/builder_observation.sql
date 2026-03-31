@@ -21,6 +21,7 @@ WITH temp_observation AS (
         o.valueQuantity.unit AS valueQuantity_unit,
         o.valueQuantity.system AS valueQuantity_system,
         o.valueQuantity.code AS valueQuantity_code,
+        o.specimen.reference AS specimen_ref,
         date_trunc('day', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
             AS effectiveDateTime_day,
         date_trunc('week', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
@@ -48,6 +49,7 @@ WITH temp_observation AS (
     LEFT JOIN core__observation_dn_interpretation AS odi ON o.id = odi.id
     LEFT JOIN core__observation_dn_valuecodeableconcept AS odvcc ON o.id = odvcc.id
     LEFT JOIN core__observation_dn_dataabsentreason AS odda ON o.id = odda.id
+    WHERE (o.status IS NULL OR o.status <> 'entered-in-error')
 )
 
 SELECT
@@ -78,6 +80,7 @@ SELECT
     dataAbsentReason_display,
     subject_ref,
     encounter_ref,
+    specimen_ref,
     concat('Observation/', id) AS observation_ref
 FROM temp_observation;
 
@@ -87,46 +90,13 @@ FROM temp_observation;
 
 
 CREATE TABLE core__observation_component_valuequantity AS (
-    WITH
-
-    flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."component", 1) AS row,
-                UNNEST(t."component") AS "component" -- must unnest in SELECT here
-            FROM observation AS t
-        )
-        SELECT
-            id,
-            row,
-            "component"
-        FROM data_and_row_num
-    ),
-
-    flattened_quantities AS (
-        SELECT
-            f.id,
-            f.row,
-        f.component.valueQuantity.value AS value,
-        cast(NULL as varchar) AS comparator,
-        f.component.valueQuantity.unit AS unit,
-        f.component.valueQuantity.system AS system,
-        f.component.valueQuantity.code AS code
-        FROM flattened_rows AS f
-        WHERE f.component.valueQuantity IS NOT NULL
-    )
-
     SELECT
-        f.id,
-        f.row,
-        -- We ensure value is a double, because nullable_cols() above will cast
-        -- as varchar if value isn't in the schema.
-        CAST(f.value AS DOUBLE) AS value, -- noqa: disable=L029
-        f.comparator,
-        f.unit,
-        f.system,
-        f.code
-    FROM flattened_quantities AS f
+        'x' AS id,
+        CAST(NULL AS BIGINT) AS row,
+        CAST(NULL AS DOUBLE) AS value, -- noqa: disable=L029
+        'x' AS comparator,
+        'x' AS unit,
+        'x' AS system,
+        'x' AS code
+    WHERE 1=0 -- empty table
 );

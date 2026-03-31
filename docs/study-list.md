@@ -27,7 +27,7 @@ for more details and any associated publications.
 ### 2025
 - [Opioid Valueset](https://github.com/smart-on-fhir/cumulus-library-opioid-valueset)
 - [Kidney Transplant](https://github.com/smart-on-fhir/cumulus-library-kidney-transplant)
-- [Loinc Database](github.com/smart-on-fhir/cumulus-library-loinc)
+- [Loinc Database](https://github.com/smart-on-fhir/cumulus-library-loinc)
 
 ### 2026
 - [Pediatric low-grade glioma](https://github.com/smart-on-fhir/cumulus-library-glioma/)

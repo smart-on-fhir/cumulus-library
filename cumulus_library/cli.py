@@ -55,7 +55,7 @@ class StudyRunner:
 
     def clean_study(
         self,
-        targets: list[str],
+        target: str,
         study_dict: dict,
         *,
         options: dict[str, str],
@@ -67,20 +67,17 @@ class StudyRunner:
         this can be useful for cleaning up tables if a study prefix is changed
         for some reason.
 
-        :param targets: The study prefixes to use for IDing tables to remove
-        :param study_dict: The dictionary of available study targets
+        :param target: The study prefixes to use for IDing tables to remove
+        :param study_dict: The dictionary of available study target
         :param options: The dictionary of study-specific options
         :keyword prefix: If True, does a search by string prefix in place of study name
         """
-        for target in targets:
-            if prefix:
-                manifest = study_manifest.StudyManifest(options=options)
-                cleaner.clean_study(
-                    config=self.get_config(manifest), manifest=manifest, prefix=target
-                )
-            else:
-                manifest = study_manifest.StudyManifest(study_dict[target], options=options)
-                cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)
+        if prefix:
+            manifest = study_manifest.StudyManifest(options=options)
+            cleaner.clean_study(config=self.get_config(manifest), manifest=manifest, prefix=target)
+        else:
+            manifest = study_manifest.StudyManifest(study_dict[target], options=options)
+            cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)
 
     def clean_and_build_study(
         self,
@@ -243,7 +240,7 @@ def get_abs_path(path: str) -> pathlib.Path:
 
 
 def get_study_dict(alt_dir_paths: list) -> dict[str, pathlib.Path] | None:
-    """Gets valid study targets from ./studies/, and any pip installed studies
+    """Gets valid study target from ./studies/, and any pip installed studies
 
     :returns: A list of Path objects
     """
@@ -293,7 +290,7 @@ def run_cli(args: dict):
     """Controls which library tasks are run based on CLI arguments"""
     console = rich.get_console()
     if args["action"] != "import" and not args.get("target"):
-        sys.exit("Please specify one or more studies with `-t [study_name]`.")
+        sys.exit("Please specify a study with `-t [study_name]`.")
     if args["action"] == "upload":
         try:
             uploader.upload_files(args)
@@ -331,43 +328,41 @@ def run_cli(args: dict):
                 runner.config.db.cursor().execute("SHOW DATABASES")
             study_dict = get_study_dict(args.get("study_dir"))
             if "prefix" not in args.keys():
-                if args.get("target"):
-                    for target in args["target"]:
-                        if target not in study_dict:
-                            sys.exit(
-                                f"{target} was not found in available studies: "
-                                f"{list(study_dict.keys())}.\n\n"
-                                "If you are trying to run a custom study, make sure "
-                                "you include `-s path/to/study/dir` as an argument."
-                            )
+                if target := args.get("target"):
+                    if target not in study_dict:
+                        sys.exit(
+                            f"{target} was not found in available studies: "
+                            f"{list(study_dict.keys())}.\n\n"
+                            "If you are trying to run a custom study, make sure "
+                            "you include `-s path/to/study/dir` as an argument."
+                        )
             if args["action"] == "clean":
                 runner.clean_study(
-                    targets=args["target"],
+                    target=args["target"],
                     study_dict=study_dict,
                     prefix=args["prefix"],
                     options=args["options"],
                 )
             elif args["action"] == "build":
                 notes = note_utils.NoteSource(args["note_dir"], s3_region={args["region"]})
-                for target in args["target"]:
-                    if args["builder"]:
-                        runner.build_matching_files(
-                            study_dict[target],
-                            args["builder"],
-                            options=args["options"],
-                            prepare=args["prepare"],
-                            data_path=args["data_path"],
-                            notes=notes,
-                        )
-                    else:
-                        runner.clean_and_build_study(
-                            study_dict[target],
-                            continue_from=args["continue_from"],
-                            options=args["options"],
-                            prepare=args["prepare"],
-                            data_path=args["data_path"],
-                            notes=notes,
-                        )
+                if args["builder"]:
+                    runner.build_matching_files(
+                        study_dict[args["target"]],
+                        args["builder"],
+                        options=args["options"],
+                        prepare=args["prepare"],
+                        data_path=args["data_path"],
+                        notes=notes,
+                    )
+                else:
+                    runner.clean_and_build_study(
+                        study_dict[target],
+                        continue_from=args["continue_from"],
+                        options=args["options"],
+                        prepare=args["prepare"],
+                        data_path=args["data_path"],
+                        notes=notes,
+                    )
 
             elif args["action"] == "export":
                 if args["archive"]:
@@ -385,13 +380,12 @@ def run_cli(args: dict):
                     response = input()
                     if response.lower() != "y":
                         sys.exit()
-                for target in args["target"]:
-                    runner.export_study(
-                        study_dict[target],
-                        args["data_path"],
-                        args["archive"],
-                        options=args["options"],
-                    )
+                runner.export_study(
+                    study_dict[args["target"]],
+                    args["data_path"],
+                    args["archive"],
+                    options=args["options"],
+                )
 
             elif args["action"] == "import":
                 for archive in args["archive_path"]:
@@ -399,12 +393,10 @@ def run_cli(args: dict):
                     importer.import_archive(config, archive_path=archive)
 
             elif args["action"] == "generate-sql":
-                for target in args["target"]:
-                    runner.generate_study_sql(study_dict[target], options=args["options"])
+                runner.generate_study_sql(study_dict[args["target"]], options=args["options"])
 
             elif args["action"] == "generate-md":
-                for target in args["target"]:
-                    runner.generate_study_markdown(study_dict[target])
+                runner.generate_study_markdown(study_dict[args["target"]])
         finally:
             config.db.close()
         # For unit testing only

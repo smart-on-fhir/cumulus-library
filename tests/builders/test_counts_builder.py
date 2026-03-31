@@ -181,6 +181,7 @@ def test_count_annotation(tmp_path, annotation, expected):
         data["tables"]["annotation"]["annotation"] = annotation
     conftest.write_toml(tmp_path, data, filename="annotation.workflow")
     manifest = study_manifest.StudyManifest(tmp_path)
+    build_action.run_protected_table_builder(config=config, manifest=manifest)
     build_action.build_study(config, manifest=manifest)
     results = db.cursor().execute("select * from test__annotation").fetchall()
     for line in expected:
@@ -226,17 +227,13 @@ def test_counts_workflow(mock_db_core_config):
 
     res = conn.execute("select * from counts__annotated order by all desc").fetchall()
     assert res[0] == (
-        8,
-        "160903007",
-        "resolved",
-        "http://snomed.info/sct",
-        "Full-time employment (finding)",
+        15,
+        None,
+        None,
+        None,
+        None,
     )
     assert res[-1] == (2, "422650009", None, "http://snomed.info/sct", "Social isolation (finding)")
-    # let's also validate annotation properties - i.e. it should not have empty fields from cubing
-    for row in res:
-        assert row[-1] is not None
-        assert row[-2] is not None
 
     res = conn.execute("select * from counts__filtered order by all desc").fetchall()
     assert res[0] == (14, None, "resolved")

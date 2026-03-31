@@ -16,7 +16,11 @@ CREATE TABLE discovery__tmp_allergyintolerance_clinicalstatus AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM allergyintolerance,
-    UNNEST(clinicalstatus.coding) AS table_1 (col_1);
+    UNNEST(clinicalstatus.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_allergyintolerance_verificationstatus AS
 
     SELECT DISTINCT
@@ -26,7 +30,11 @@ CREATE TABLE discovery__tmp_allergyintolerance_verificationstatus AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM allergyintolerance,
-    UNNEST(verificationstatus.coding) AS table_1 (col_1);
+    UNNEST(verificationstatus.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_allergyintolerance_code AS
 
     SELECT DISTINCT
@@ -36,7 +44,11 @@ CREATE TABLE discovery__tmp_allergyintolerance_code AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM allergyintolerance,
-    UNNEST(code.coding) AS table_1 (col_1);
+    UNNEST(code.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_allergyintolerance_reaction_substance AS
 SELECT *
 FROM (
@@ -48,7 +60,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_allergyintolerance_reaction_manifestation AS
 SELECT *
 FROM (
@@ -60,7 +76,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_allergyintolerance_reaction_exposureroute AS
 SELECT *
 FROM (
@@ -72,7 +92,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_condition_category AS
 
     SELECT DISTINCT
@@ -83,7 +107,11 @@ CREATE TABLE discovery__tmp_condition_category AS
         table_2.col_2.system
     FROM condition,
     UNNEST(category) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2);
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_condition_code AS
 
     SELECT DISTINCT
@@ -93,7 +121,11 @@ CREATE TABLE discovery__tmp_condition_code AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM condition,
-    UNNEST(code.coding) AS table_1 (col_1);
+    UNNEST(code.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_diagnosticreport_category AS
 
     SELECT DISTINCT
@@ -104,7 +136,11 @@ CREATE TABLE discovery__tmp_diagnosticreport_category AS
         table_2.col_2.system
     FROM diagnosticreport,
     UNNEST(category) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2);
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_diagnosticreport_code AS
 
     SELECT DISTINCT
@@ -114,7 +150,11 @@ CREATE TABLE discovery__tmp_diagnosticreport_code AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM diagnosticreport,
-    UNNEST(code.coding) AS table_1 (col_1);
+    UNNEST(code.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_diagnosticreport_conclusioncode AS
 SELECT *
 FROM (
@@ -126,7 +166,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_documentreference_type AS
 
     SELECT DISTINCT
@@ -136,7 +180,11 @@ CREATE TABLE discovery__tmp_documentreference_type AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM documentreference,
-    UNNEST(type.coding) AS table_1 (col_1);
+    UNNEST(type.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_documentreference_category AS
 
     SELECT DISTINCT
@@ -147,7 +195,11 @@ CREATE TABLE discovery__tmp_documentreference_category AS
         table_2.col_2.system
     FROM documentreference,
     UNNEST(category) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2);
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_encounter_class AS
 
     SELECT DISTINCT
@@ -156,7 +208,11 @@ CREATE TABLE discovery__tmp_encounter_class AS
         class.code,
         class.display,
         class.system
-    FROM encounter;
+    FROM encounter
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_encounter_type AS
 
     SELECT DISTINCT
@@ -167,7 +223,11 @@ CREATE TABLE discovery__tmp_encounter_type AS
         table_2.col_2.system
     FROM encounter,
     UNNEST(type) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2);
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_encounter_servicetype AS
 SELECT *
 FROM (
@@ -179,7 +239,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_encounter_priority AS
 SELECT *
 FROM (
@@ -191,7 +255,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_encounter_reasoncode AS
 
     SELECT DISTINCT
@@ -202,7 +270,11 @@ CREATE TABLE discovery__tmp_encounter_reasoncode AS
         table_2.col_2.system
     FROM encounter,
     UNNEST(reasoncode) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2);
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_encounter_hospitalization_dischargedisposition AS
 
     SELECT DISTINCT
@@ -212,7 +284,26 @@ CREATE TABLE discovery__tmp_encounter_hospitalization_dischargedisposition AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM encounter,
-    UNNEST(hospitalization.dischargedisposition.coding) AS table_1 (col_1);
+    UNNEST(hospitalization.dischargedisposition.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_episodeofcare_type AS
+
+    SELECT DISTINCT
+        'episodeofcare' AS table_name,
+        'type' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM episodeofcare,
+    UNNEST(type) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_location_type AS
 SELECT *
 FROM (
@@ -224,7 +315,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_medication_codecodeableconcept AS
 SELECT *
 FROM (
@@ -236,7 +331,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_medication_medicationcode AS
 SELECT *
 FROM (
@@ -248,7 +347,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_medicationrequest_medicationcodeableconcept AS
 
     SELECT DISTINCT
@@ -258,7 +361,11 @@ CREATE TABLE discovery__tmp_medicationrequest_medicationcodeableconcept AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM medicationrequest,
-    UNNEST(medicationcodeableconcept.coding) AS table_1 (col_1);
+    UNNEST(medicationcodeableconcept.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_observation_category AS
 
     SELECT DISTINCT
@@ -269,7 +376,11 @@ CREATE TABLE discovery__tmp_observation_category AS
         table_2.col_2.system
     FROM observation,
     UNNEST(category) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2);
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_observation_code AS
 
     SELECT DISTINCT
@@ -279,7 +390,11 @@ CREATE TABLE discovery__tmp_observation_code AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM observation,
-    UNNEST(code.coding) AS table_1 (col_1);
+    UNNEST(code.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_observation_component_code AS
 
     SELECT DISTINCT
@@ -290,7 +405,11 @@ CREATE TABLE discovery__tmp_observation_component_code AS
         table_2.col_2.system
     FROM observation,
     UNNEST(component) AS table_1 (col_1),
-    UNNEST(col_1.code.coding) as table_2 (col_2);
+    UNNEST(col_1.code.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_observation_interpretation AS
 SELECT *
 FROM (
@@ -302,7 +421,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_observation_valuecodeableconcept AS
 
     SELECT DISTINCT
@@ -312,7 +435,11 @@ CREATE TABLE discovery__tmp_observation_valuecodeableconcept AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM observation,
-    UNNEST(valuecodeableconcept.coding) AS table_1 (col_1);
+    UNNEST(valuecodeableconcept.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_observation_dataabsentreason AS
 SELECT *
 FROM (
@@ -324,7 +451,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_organization_type AS
 
     SELECT DISTINCT
@@ -335,7 +466,11 @@ CREATE TABLE discovery__tmp_organization_type AS
         table_2.col_2.system
     FROM organization,
     UNNEST(type) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2);
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_patient_maritalstatus AS
 
     SELECT DISTINCT
@@ -345,7 +480,11 @@ CREATE TABLE discovery__tmp_patient_maritalstatus AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM patient,
-    UNNEST(maritalstatus.coding) AS table_1 (col_1);
+    UNNEST(maritalstatus.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_practitioner_qualification_code AS
 SELECT *
 FROM (
@@ -357,7 +496,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_practitionerrole_code AS
 
     SELECT DISTINCT
@@ -368,7 +511,11 @@ CREATE TABLE discovery__tmp_practitionerrole_code AS
         table_2.col_2.system
     FROM practitionerrole,
     UNNEST(code) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2);
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_practitionerrole_specialty AS
 
     SELECT DISTINCT
@@ -379,7 +526,11 @@ CREATE TABLE discovery__tmp_practitionerrole_specialty AS
         table_2.col_2.system
     FROM practitionerrole,
     UNNEST(specialty) AS table_1 (col_1),
-    UNNEST(col_1.coding) as table_2 (col_2);
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_statusreason AS
 SELECT *
 FROM (
@@ -391,7 +542,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_category AS
 SELECT *
 FROM (
@@ -403,7 +558,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_code AS
 
     SELECT DISTINCT
@@ -413,7 +572,11 @@ CREATE TABLE discovery__tmp_procedure_code AS
         table_1.col_1.display,
         table_1.col_1.system
     FROM procedure,
-    UNNEST(code.coding) AS table_1 (col_1);
+    UNNEST(code.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_performer_function AS
 SELECT *
 FROM (
@@ -425,7 +588,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_reasoncode AS
 SELECT *
 FROM (
@@ -437,7 +604,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_bodysite AS
 SELECT *
 FROM (
@@ -449,7 +620,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_outcome AS
 SELECT *
 FROM (
@@ -461,7 +636,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_complication AS
 SELECT *
 FROM (
@@ -473,7 +652,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_followup AS
 SELECT *
 FROM (
@@ -485,7 +668,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_focaldevice_action AS
 SELECT *
 FROM (
@@ -497,7 +684,11 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
 CREATE TABLE discovery__tmp_procedure_usedcode AS
 SELECT *
 FROM (
@@ -509,366 +700,254 @@ FROM (
         ''
     )
 )
-    AS t (table_name, column_name, code, display, system);
-CREATE TABLE discovery__code_sources AS
---noqa: disable=LTO2,LT09,CV06
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_allergyintolerance_clinicalstatus
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_allergyintolerance_verificationstatus
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_allergyintolerance_code
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_allergyintolerance_reaction_substance
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_allergyintolerance_reaction_manifestation
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_allergyintolerance_reaction_exposureroute
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_condition_category
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_condition_code
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_diagnosticreport_category
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_diagnosticreport_code
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_diagnosticreport_conclusioncode
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_documentreference_type
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_documentreference_category
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_encounter_class
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_encounter_type
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_encounter_servicetype
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_encounter_priority
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_encounter_reasoncode
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_encounter_hospitalization_dischargedisposition
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_location_type
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_medication_codecodeableconcept
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_medication_medicationcode
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_medicationrequest_medicationcodeableconcept
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_observation_category
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_observation_code
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_observation_component_code
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_observation_interpretation
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_observation_valuecodeableconcept
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_observation_dataabsentreason
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_organization_type
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_patient_maritalstatus
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_practitioner_qualification_code
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_practitionerrole_code
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_practitionerrole_specialty
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_statusreason
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_category
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_code
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_performer_function
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_reasoncode
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_bodysite
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_outcome
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_complication
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_followup
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_focaldevice_action
-UNION ALL
-SELECT
-    table_name,
-    column_name,
-    code,
-    display,
-    system
-FROM discovery__tmp_procedure_usedcode
-;
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_category AS
+
+    SELECT DISTINCT
+        'servicerequest' AS table_name,
+        'category' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM servicerequest,
+    UNNEST(category) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_code AS
+
+    SELECT DISTINCT
+        'servicerequest' AS table_name,
+        'code' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM servicerequest,
+    UNNEST(code.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_orderdetail AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'orderDetail',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_asneededcodeableconcept AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'asNeededCodeableConcept',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_performertype AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'performerType',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_locationcode AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'locationCode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_reasoncode AS
+
+    SELECT DISTINCT
+        'servicerequest' AS table_name,
+        'reasonCode' AS column_name,
+        table_2.col_2.code,
+        table_2.col_2.display,
+        table_2.col_2.system
+    FROM servicerequest,
+    UNNEST(reasonCode) AS table_1 (col_1),
+    UNNEST(col_1.coding) as table_2 (col_2)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_servicerequest_bodysite AS
+SELECT *
+FROM (
+    VALUES (
+        'servicerequest',
+        'bodySite',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_type AS
+
+    SELECT DISTINCT
+        'specimen' AS table_name,
+        'type' AS column_name,
+        table_1.col_1.code,
+        table_1.col_1.display,
+        table_1.col_1.system
+    FROM specimen,
+    UNNEST(type.coding) AS table_1 (col_1)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_collection_method AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'collection.method',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_collection_bodysite AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'collection.bodySite',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_collection_fastingstatuscodeableconcept AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'collection.fastingStatusCodeableConcept',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_processing_procedure AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'processing.procedure',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_container_type AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'container.type',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_container_additivecodeableconcept AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'container.additiveCodeableConcept',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+
+CREATE TABLE discovery__tmp_specimen_condition AS
+SELECT *
+FROM (
+    VALUES (
+        'specimen',
+        'condition',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)

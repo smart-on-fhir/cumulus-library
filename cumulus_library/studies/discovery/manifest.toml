@@ -1,19 +1,19 @@
 study_prefix = "discovery"
 
 [[stages.build_discovery]]
-description= "code detection"
+label= "code detection"
 files = [
     "code_detection.py",
 ]
 type="build:parallel"
 [[stages.build_discovery]]
-description = "code union"
+label = "code union"
 files= [
     "code_union.py"
 ]
 type="build:parallel"
 [[stages.build_discovery]]
-description = "temp data cleanup"
+label = "temp data cleanup"
 files = [
     "cleanup_tmp.py"
 ]

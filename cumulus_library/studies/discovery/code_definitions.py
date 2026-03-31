@@ -90,6 +90,11 @@ code_list = [
         ],
         "expected": {"dischargedisposition": sql_utils.CODEABLE_CONCEPT},
     },
+    # EpisodeOfCare
+    {
+        "table_name": "episodeofcare",
+        "column_hierarchy": [("type", list), ("coding", list)],
+    },
     # Location
     {
         "table_name": "location",
@@ -203,5 +208,79 @@ code_list = [
     {
         "table_name": "procedure",
         "column_hierarchy": [("usedcode", list), ("coding", list)],
+    },
+    # ServiceRequest
+    {
+        "table_name": "servicerequest",
+        "column_hierarchy": [("category", list), ("coding", list)],
+    },
+    {
+        "table_name": "servicerequest",
+        "column_hierarchy": [("code", dict), ("coding", list)],
+    },
+    {
+        "table_name": "servicerequest",
+        "column_hierarchy": [("orderDetail", list), ("coding", list)],
+    },
+    {
+        "table_name": "servicerequest",
+        "column_hierarchy": [("asNeededCodeableConcept", dict), ("coding", list)],
+    },
+    {
+        "table_name": "servicerequest",
+        "column_hierarchy": [("performerType", dict), ("coding", list)],
+    },
+    {
+        "table_name": "servicerequest",
+        "column_hierarchy": [("locationCode", list), ("coding", list)],
+    },
+    {
+        "table_name": "servicerequest",
+        "column_hierarchy": [("reasonCode", list), ("coding", list)],
+    },
+    {
+        "table_name": "servicerequest",
+        "column_hierarchy": [("bodySite", list), ("coding", list)],
+    },
+    # Specimen
+    {
+        "table_name": "specimen",
+        "column_hierarchy": [("type", dict), ("coding", list)],
+    },
+    {
+        "table_name": "specimen",
+        "column_hierarchy": [("collection", dict), ("method", dict), ("coding", list)],
+    },
+    {
+        "table_name": "specimen",
+        "column_hierarchy": [("collection", dict), ("bodySite", dict), ("coding", list)],
+    },
+    {
+        "table_name": "specimen",
+        "column_hierarchy": [
+            ("collection", dict),
+            ("fastingStatusCodeableConcept", dict),
+            ("coding", list),
+        ],
+    },
+    {
+        "table_name": "specimen",
+        "column_hierarchy": [("processing", list), ("procedure", dict), ("coding", list)],
+    },
+    {
+        "table_name": "specimen",
+        "column_hierarchy": [("container", list), ("type", dict), ("coding", list)],
+    },
+    {
+        "table_name": "specimen",
+        "column_hierarchy": [
+            ("container", list),
+            ("additiveCodeableConcept", dict),
+            ("coding", list),
+        ],
+    },
+    {
+        "table_name": "specimen",
+        "column_hierarchy": [("condition", list), ("coding", list)],
     },
 ]

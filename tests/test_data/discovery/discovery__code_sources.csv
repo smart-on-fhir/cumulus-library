@@ -87,6 +87,8 @@ encounter,type,448337001,Telemedicine consultation with patient,http://snomed.in
 encounter,type,50849002,Emergency room admission (procedure),http://snomed.info/sct
 encounter,type,698314001,Consultation for treatment,http://snomed.info/sct
 encounter,type,702927004,Urgent care clinic (environment),http://snomed.info/sct
+episodeofcare,type,hacc,Home and Community Care,http://terminology.hl7.org/CodeSystem/episodeofcare-type
+location,type,,,
 medication,codecodeableconcept,,,
 medication,medicationcode,,,
 medicationrequest,medicationcodeableconcept,1000126,1 ML medroxyPROGESTERone acetate 150 MG/ML Injection,http://www.nlm.nih.gov/research/umls/rxnorm
@@ -117,14 +119,19 @@ observation,code,34533-0,Odor of Urine,http://loinc.org
 observation,code,39156-5,Body mass index (BMI) [Ratio],http://loinc.org
 observation,code,5778-6,Color of Urine,http://loinc.org
 observation,code,72514-3,Pain severity - 0-10 verbal numeric rating [Score] - Reported,http://loinc.org
+observation,component.code,{score},,
 observation,dataabsentreason,,,
 observation,interpretation,,,
 observation,valuecodeableconcept,167248002,Urine smell ammoniacal (finding),http://snomed.info/sct
 observation,valuecodeableconcept,371254008,Brown color (qualifier value),http://snomed.info/sct
+organization,type,prov,Healthcare Provider,http://terminology.hl7.org/CodeSystem/organization-type
 patient,maritalstatus,D,Divorced,http://terminology.hl7.org/CodeSystem/v3-MaritalStatus
 patient,maritalstatus,M,Married,http://terminology.hl7.org/CodeSystem/v3-MaritalStatus
 patient,maritalstatus,S,Never Married,http://terminology.hl7.org/CodeSystem/v3-MaritalStatus
 patient,maritalstatus,W,Widowed,http://terminology.hl7.org/CodeSystem/v3-MaritalStatus
+practitioner,qualification.code,,,
+practitionerrole,code,208D00000X,General Practice Physician,http://nucc.org/provider-taxonomy
+practitionerrole,specialty,208D00000X,General Practice Physician,http://nucc.org/provider-taxonomy
 procedure,bodysite,,,
 procedure,category,,,
 procedure,code,103750000,Sleep apnea assessment (procedure),http://snomed.info/sct
@@ -246,3 +253,63 @@ procedure,performer.function,,,
 procedure,reasoncode,,,
 procedure,statusreason,,,
 procedure,usedcode,,,
+servicerequest,asNeededCodeableConcept,,,
+servicerequest,bodySite,,,
+servicerequest,category,1,Procedures,urn:oid:1.2.840.114350.1.13.0.1.7.10.798268.30
+servicerequest,category,24,Cardiac Services,urn:oid:1.2.840.114350.1.13.0.1.7.10.798268.30
+servicerequest,category,29,Echocardiography,urn:oid:1.2.840.114350.1.13.0.1.7.10.798268.30
+servicerequest,category,5,Imaging,urn:oid:1.2.840.114350.1.13.0.1.7.10.798268.30
+servicerequest,category,59,Pathology and Cytology,urn:oid:1.2.840.114350.1.13.0.1.7.10.798268.30
+servicerequest,category,7,Lab,urn:oid:1.2.840.114350.1.13.0.1.7.10.798268.30
+servicerequest,code,104609,TRANSTHORACIC ECHO (TTE) COMPLETE,urn:oid:1.2.840.114350.1.13.0.1.7.2.696580
+servicerequest,code,2093-3,Cholesterol [Mass/volume] in Serum or Plasma,http://loinc.org
+servicerequest,code,26604007,CBC,http://snomed.info/sct
+servicerequest,code,36643-5,XR Chest 2 Views,http://loinc.org
+servicerequest,code,39358,CAST APPLICATION,urn:oid:1.2.840.114350.1.13.0.1.7.2.696580
+servicerequest,code,43396009,HEMOGLOBIN A1C,http://snomed.info/sct
+servicerequest,code,4548-4,Hemoglobin A1c/Hemoglobin.total in Blood,http://loinc.org
+servicerequest,code,52302001,"GLUCOSE, FASTING",http://snomed.info/sct
+servicerequest,code,71020,CHG CHEST X-RAY 2 VW,http://www.ama-assn.org/go/cpt
+servicerequest,code,71020,HC XR CHEST 2V,http://www.ama-assn.org/go/cpt
+servicerequest,code,80053,"PR METABOLIC PANEL,COMPREHENSIVE",http://www.ama-assn.org/go/cpt
+servicerequest,code,80061,PR LIPID PANEL,http://www.ama-assn.org/go/cpt
+servicerequest,code,82465,"HC ASSAY, BLD/SERUM CHOLESTEROL",http://www.ama-assn.org/go/cpt
+servicerequest,code,82465,"PR ASSAY, BLD/SERUM CHOLESTEROL",http://www.ama-assn.org/go/cpt
+servicerequest,code,83498,PR ASSAY OF PROGESTERONE 17-D,http://www.ama-assn.org/go/cpt
+servicerequest,code,83525,"PR ASSAY OF INSULIN,TOTAL",http://www.ama-assn.org/go/cpt
+servicerequest,code,83721,"PR ASSAY OF BLOOD LIPOPROTEIN,LDL CHOLEST",http://www.ama-assn.org/go/cpt
+servicerequest,code,84402,PR ASSAY OF TESTOSTERONE,http://www.ama-assn.org/go/cpt
+servicerequest,code,88300,"PR SURG PATH,GROSS,LEVEL I",http://www.ama-assn.org/go/cpt
+servicerequest,code,88305,"PR SURG PATH,LEVEL IV",http://www.ama-assn.org/go/cpt
+servicerequest,code,89930,STRESS TEST ONLY,urn:oid:1.2.840.114350.1.13.0.1.7.2.696580
+servicerequest,code,93306,HC TRANSTHORACIC ECHO,http://www.ama-assn.org/go/cpt
+servicerequest,code,9564003,CBC AND DIFFERENTIAL,http://snomed.info/sct
+servicerequest,code,LAB10052,PHARMACOGENOMICS PANEL,http://www.ama-assn.org/go/cpt
+servicerequest,locationCode,,,
+servicerequest,orderDetail,,,
+servicerequest,performerType,,,
+servicerequest,reasonCode,225566008,Ischemic chest pain (finding),http://snomed.info/sct
+servicerequest,reasonCode,23406007,Fracture of upper limb (disorder),http://snomed.info/sct
+servicerequest,reasonCode,256.4,Polycystic ovaries,http://hl7.org/fhir/sid/icd-9-cm
+servicerequest,reasonCode,271681002,Stomach ache (finding),http://snomed.info/sct
+servicerequest,reasonCode,315016007,At risk of coronary heart disease (finding),http://snomed.info/sct
+servicerequest,reasonCode,536.8,Dyspepsia and other specified disorders of function of stomach,http://hl7.org/fhir/sid/icd-9-cm
+servicerequest,reasonCode,69878008,Polycystic ovaries (disorder),http://snomed.info/sct
+servicerequest,reasonCode,786.50,"Chest pain, unspecified",http://hl7.org/fhir/sid/icd-9-cm
+servicerequest,reasonCode,818.1,Ill-defined open fractures of upper limb,http://hl7.org/fhir/sid/icd-9-cm
+servicerequest,reasonCode,E28.2,Polycystic ovarian syndrome,http://hl7.org/fhir/sid/icd-10-cm
+servicerequest,reasonCode,I20.9,"Angina pectoris, unspecified",http://hl7.org/fhir/sid/icd-10-cm
+servicerequest,reasonCode,R10.9,Unspecified abdominal pain,http://hl7.org/fhir/sid/icd-10-cm
+servicerequest,reasonCode,S42.302B,"Unspecified fracture of shaft of humerus, left arm, initial encounter for open fracture",http://hl7.org/fhir/sid/icd-10-cm
+servicerequest,reasonCode,V49.89,Other specified conditions influencing health status(V49.89),http://hl7.org/fhir/sid/icd-9-cm
+servicerequest,reasonCode,Z91.89,"Other specified personal risk factors, not elsewhere classified",http://hl7.org/fhir/sid/icd-10-cm
+specimen,collection.bodySite,,,
+specimen,collection.fastingStatusCodeableConcept,,,
+specimen,collection.method,,,
+specimen,condition,,,
+specimen,container.additiveCodeableConcept,,,
+specimen,container.type,,,
+specimen,processing.procedure,,,
+specimen,type,100,Bursal Fluid,urn:oid:1.2.840.114350.1.13.0.1.7.4.798268.300
+specimen,type,19,Tissue,urn:oid:1.2.840.114350.1.13.0.1.7.4.798268.300
+specimen,type,3,Blood,urn:oid:1.2.840.114350.1.13.0.1.7.4.798268.300

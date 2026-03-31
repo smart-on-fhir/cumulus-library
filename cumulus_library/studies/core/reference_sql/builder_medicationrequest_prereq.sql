@@ -6,42 +6,15 @@
 
 -- ###########################################################
 
-CREATE TABLE core__medication_dn_code AS (
-    WITH
-
-    system_code_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            0 AS row,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system,
-            u.coding.userSelected
-        FROM
-            medication AS s,
-            UNNEST(s.code.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_code_0
-        
+CREATE TABLE IF NOT EXISTS "main"."core__medication_dn_code"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-    SELECT
-        id,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
 );
-
 
 -- ###########################################################
 

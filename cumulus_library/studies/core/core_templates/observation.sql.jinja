@@ -24,6 +24,7 @@ WITH temp_observation AS (
                     ('valueQuantity', 'unit', 'valueQuantity_unit'),
                     ('valueQuantity', 'system', 'valueQuantity_system'),
                     ('valueQuantity', 'code', 'valueQuantity_code'),
+                    ('specimen', 'reference', 'specimen_ref'),
                 ],
                 schema
             ) 
@@ -59,6 +60,7 @@ WITH temp_observation AS (
     LEFT JOIN core__observation_dn_interpretation AS odi ON o.id = odi.id
     LEFT JOIN core__observation_dn_valuecodeableconcept AS odvcc ON o.id = odvcc.id
     LEFT JOIN core__observation_dn_dataabsentreason AS odda ON o.id = odda.id
+    WHERE (o.status IS NULL OR o.status <> 'entered-in-error')
 )
 
 SELECT
@@ -89,5 +91,6 @@ SELECT
     dataAbsentReason_display,
     subject_ref,
     encounter_ref,
+    specimen_ref,
     concat('Observation/', id) AS observation_ref
 FROM temp_observation;

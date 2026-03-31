@@ -70,16 +70,17 @@ def test_load_manifest(manifest_path, expected, raises):
 
 
 @pytest.mark.parametrize(
-    "manifest_path,prefix",
+    "manifest_path,prefix, prefix_with_sep",
     [
-        ("test_data/study_valid", "study_valid__"),
-        ("test_data/study_dedicated_schema", "dedicated."),
+        ("test_data/study_valid", "study_valid", "study_valid__"),
+        ("test_data/study_dedicated_schema", "", ""),
     ],
 )
-def test_get_prefix_with_seperator(manifest_path, prefix):
+def test_schema_aware(manifest_path, prefix, prefix_with_sep):
     path = f"{pathlib.Path(__file__).resolve().parents[0]}/{manifest_path}"
     manifest = study_manifest.StudyManifest(path)
-    assert prefix == manifest.get_prefix_with_seperator()
+    assert prefix == manifest.get_schema_aware_prefix()
+    assert prefix_with_sep == manifest.get_schema_aware_prefix_with_seperator()
 
 
 def test_custom_pathing(tmp_path):
@@ -107,12 +108,12 @@ def test_submanifests(tmp_path):
             "stage_1": [
                 {
                     "type": "build:serial",
-                    "description": "action 1",
+                    "label": "action 1",
                     "files": ["foo", "bar"],
                 },
                 {
                     "type": "build:serial",
-                    "description": "action 2",
+                    "label": "action 2",
                     "files": ["baz"],
                 },
             ],
@@ -122,7 +123,7 @@ def test_submanifests(tmp_path):
     conftest.write_toml(tmp_path, manifest_dict)
     conftest.write_toml(
         tmp_path,
-        {"actions": [{"type": "build:serial", "description": "subaction 1", "files": ["foobar"]}]},
+        {"actions": [{"type": "build:serial", "label": "subaction 1", "files": ["foobar"]}]},
         "file.submanifest",
     )
     manifest = study_manifest.StudyManifest(tmp_path)
@@ -130,21 +131,19 @@ def test_submanifests(tmp_path):
         "study_prefix": "primary",
         "stages": {
             "all": [
-                {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
-                {"description": "action 2", "type": "build:serial", "files": ["baz"]},
-                {"description": "subaction 1", "type": "build:serial", "files": ["foobar"]},
+                {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
+                {"label": "action 2", "type": "build:serial", "files": ["baz"]},
+                {"label": "subaction 1", "type": "build:serial", "files": ["foobar"]},
             ],
             "default": [
-                {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
-                {"description": "action 2", "type": "build:serial", "files": ["baz"]},
+                {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
+                {"label": "action 2", "type": "build:serial", "files": ["baz"]},
             ],
             "stage_1": [
-                {"description": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
-                {"description": "action 2", "type": "build:serial", "files": ["baz"]},
+                {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
+                {"label": "action 2", "type": "build:serial", "files": ["baz"]},
             ],
-            "stage_2": [
-                {"description": "subaction 1", "type": "build:serial", "files": ["foobar"]}
-            ],
+            "stage_2": [{"label": "subaction 1", "type": "build:serial", "files": ["foobar"]}],
         },
     }
 
@@ -194,9 +193,7 @@ def test_missing_action(tmp_path):
         tmp_path,
         {
             "study_prefix": "foo",
-            "stages": {
-                "stage_1": [{"description": "action 1", "files": ["foo"], "type": "invalid"}]
-            },
+            "stages": {"stage_1": [{"label": "action 1", "files": ["foo"], "type": "invalid"}]},
         },
     )
     with pytest.raises(errors.StudyManifestParsingError):
@@ -243,3 +240,24 @@ def test_formatted_study_prefix(tmp_path):
     )
     manifest = study_manifest.StudyManifest(tmp_path)
     assert manifest.get_formatted_study_prefix() == "bar."
+
+
+@pytest.mark.parametrize(
+    "action,raises",
+    [
+        ({"type": "build:serial", "files": ["file.txt"]}, does_not_raise()),
+        ({"type": "export:counts", "tables": ["table__name"]}, does_not_raise()),
+        (
+            {"type": "build:serial", "tables": ["file.txt"]},
+            pytest.raises(errors.StudyManifestParsingError, match="expected key, 'files'"),
+        ),
+        (
+            {"type": "export:counts", "files": ["table__name"]},
+            pytest.raises(errors.StudyManifestParsingError, match="expected key, 'tables'"),
+        ),
+    ],
+)
+def test_validate_action(action, raises, tmp_path):
+    with raises:
+        manifest = study_manifest.StudyManifest()
+        manifest._validate_action(action=action, source=tmp_path)

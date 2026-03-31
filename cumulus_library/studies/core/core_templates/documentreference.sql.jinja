@@ -54,6 +54,7 @@ WITH temp_documentreference AS (
     LEFT JOIN core__documentreference_dn_type AS cdrt ON dr.id = cdrt.id
     LEFT JOIN core__documentreference_dn_category AS cdrc ON dr.id = cdrc.id
     LEFT JOIN core__documentreference_dn_format AS cdrf ON dr.id = cdrf.id
+    WHERE (dr.status IS NULL OR dr.status <> 'entered-in-error')
 ),
 
 temp_author AS (

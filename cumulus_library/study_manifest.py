@@ -23,8 +23,9 @@ class ManifestExport:
 
 
 class ManifestAction(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
-    type: str
+    type: str | None = None
     description: str | None = None
+    label: str | None = None
     files: list[str] | None = None
     tables: list[str] | None = None
 
@@ -97,17 +98,29 @@ class StudyManifest:
             raise errors.StudyManifestParsingError(
                 f"Manifest formatting error at path {path}: {e!s}. \n"
                 "You may be using an different version of a study manifest. See "
-                "https://docs.smarthealthit.org/cumulus/library/creating-studies.html "
+                "https://docs.smarthealthit.org/cumulus/library/study-configuration.html "
                 "for more information about what fields are expected in a manifest."
             )
 
-    def _validate_action(self, action, source):
+    def _validate_action(self, action: dict, source: pathlib.Path):
         action_type = action.get("type")
         if action_type is not None and action_type not in [e.value for e in enums.ManifestActions]:
             raise errors.StudyManifestParsingError(
                 f"Action type '{action_type}' in {source} is not a valid action.\n"
                 f"Valid action types: {', '.join(enums.ManifestActions)}."
             )
+        if action_type is None or action_type.startswith("build:"):
+            if action.get("files") is None:
+                raise errors.StudyManifestParsingError(
+                    f"The following action in {source} is missing an expected key, 'files':\n"
+                    f"{action}"
+                )
+        elif action_type.startswith("export:"):
+            if action.get("tables") is None:
+                raise errors.StudyManifestParsingError(
+                    f"The following action in {source} is missing an expected key, 'tables':\n"
+                    f"{action}"
+                )
 
     def _has_stats_workflows(self) -> bool:
         for stage in self._study_config.get("stages", {}).values():
@@ -121,6 +134,14 @@ class StudyManifest:
                             ]:
                                 return True
         return False
+
+    def _format_action(self, action):
+        """Handles optional param coercion for actions"""
+        if action.get("type") is None:
+            action["type"] = "build:serial"
+        if action.get("label") is None and action.get("description") is not None:
+            action["label"] = action["description"]
+        return action
 
     ### toml parsing helper functions
     def _load_study_manifest(self, study_path: pathlib.Path, options: dict[str, str]) -> None:
@@ -141,7 +162,7 @@ class StudyManifest:
         if len(defined_stages) == 0:
             raise errors.StudyManifestParsingError(
                 f"{study_path} does not contain any stage definitions.\n"
-                "See https://docs.smarthealthit.org/cumulus/library/creating-studies.html "
+                "See https://docs.smarthealthit.org/cumulus/library/study-configuration.html "
                 "for more details about creating manifests."
             )
 
@@ -163,11 +184,11 @@ class StudyManifest:
                         )
                         for subaction in subconfig.get("actions"):
                             self._validate_action(subaction, study_path.parent / submanifest)
-                            actions.append(subaction)
+                            actions.append(self._format_action(subaction))
                             all_actions.append(subaction)
                 else:
                     self._validate_action(action, study_path)
-                    actions.append(action)
+                    actions.append(self._format_action(action))
                     all_actions.append(action)
             config["stages"][stage] = actions
 
@@ -317,11 +338,17 @@ class StudyManifest:
         """Convenience method for getting workflow config files"""
         return self.get_all_files(".toml", stage_name)
 
-    def get_prefix_with_seperator(self) -> str:
+    def get_schema_aware_prefix_with_seperator(self) -> str:
         """Convenience method for getting the appropriate prefix for tables"""
-        if dedicated := self.get_dedicated_schema():
-            return f"{dedicated}."
+        if self.get_dedicated_schema():
+            return ""
         return f"{self.get_study_prefix()}__"
+
+    def get_schema_aware_prefix(self) -> str:
+        """Returns the appropriate prefix based on the presence of a dedicated schema"""
+        if self.get_dedicated_schema():
+            return ""
+        return self.get_study_prefix()
 
     def copy_manifest(self, path: pathlib.Path):
         """Writes a copy of the manifest to the provided path.

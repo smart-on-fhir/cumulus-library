@@ -155,6 +155,9 @@ schema =
             'subject': {
                 'reference': True,
             },
+            'specimen': {
+                'reference': True,
+            },
             'presentedForm': {
                 'contentType': True,
                 'data': True,
@@ -185,6 +188,14 @@ schema =
                 'reference': True, 'display': False, 'type': True
             }, 
             'id': True
+        },
+        'episodeofcare': {
+            'patient': {
+                'reference': True,
+            },
+            'period': {
+                'start': True, 'end': False
+            },
         },
         'etl__completion': {
             'group_name': True,
@@ -257,7 +268,10 @@ schema =
             }, 
             'encounter': {
                 'reference': True
-            }
+            },
+            'specimen': {
+                'reference': True,
+            },
         },
         'organization': {
             'id': True,
@@ -288,7 +302,30 @@ schema =
             'subject': {
                 'reference': True,
             },
-        }
+        },
+        'servicerequest': {
+            'encounter': {
+                'reference': True,
+            },
+            'id': True,
+            'occurrencePeriod': {
+              'start': True, 'end': True,
+            },
+            'requester': {
+                'reference': True,
+            },
+            'subject': {
+                'reference': True,
+            },
+            'specimen': {
+                'reference': True,
+            },
+        },
+        'specimen': {
+            'subject': {
+                'reference': True,
+            },
+        },
     }
 source_table = source_table
 source_id = source_id

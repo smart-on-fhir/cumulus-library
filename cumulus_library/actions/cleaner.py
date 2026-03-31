@@ -35,8 +35,7 @@ def _get_unprotected_stats_view_table(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
     drop_prefix: str,
-    display_prefix: str,
-    stats_clean: bool,
+    study_prefix: str,
     clean_by_cli_prefix: bool,
     query: str | None = None,
     artifact_type: str | None = None,
@@ -47,8 +46,7 @@ def _get_unprotected_stats_view_table(
     :param config: A StudyConfig object
     :param manifest: A StudyManifest object
     :param drop_prefix: The prefix requested to drop
-    :param display_prefix: The expected study prefix
-    :param stats_clean: A boolean indicating if stats tables are being cleaned
+    :param study_prefix: The expected study prefix
     :param clean_by_cli_prefix: if True, `--prefix` was passed in as an arg
     :keyword query: A query to get the raw list of items from the db
     :keyword artifact_type: either 'table' or 'view'
@@ -68,11 +66,11 @@ def _get_unprotected_stats_view_table(
             "  - 'query' and 'artifact_type' are provided\n"
             "  - 'artifact_list' is provided"
         )
-    if manifest.has_stats() and not stats_clean and not clean_by_cli_prefix:
+    if manifest.has_stats() and not config.stats_clean and not clean_by_cli_prefix:
         protected_list = cursor.execute(
             f"""SELECT table_name
             FROM {drop_prefix}{enums.ProtectedTables.STATISTICS.value}
-            WHERE study_name = '{display_prefix}'"""  # noqa: S608
+            WHERE study_name = '{study_prefix}'"""  # noqa: S608
         ).fetchall()
         for protected_tuple in protected_list:
             db_contents = list(filter(lambda x: x[0] != protected_tuple[0], db_contents))
@@ -107,20 +105,20 @@ def clean_study(
         raise errors.CumulusLibraryError(
             "Either a manifest parser or a filter prefix must be provided"
         )
-    if manifest and manifest.get_dedicated_schema():
-        drop_prefix = ""
-        display_prefix = ""
-    elif not prefix:
-        drop_prefix = f"{manifest.get_study_prefix()}__"
-        display_prefix = manifest.get_study_prefix()
-    else:
+    if prefix:
         drop_prefix = prefix
-        display_prefix = drop_prefix
+        study_prefix = prefix
+    else:
+        drop_prefix = manifest.get_schema_aware_prefix_with_seperator()
+        study_prefix = manifest.get_schema_aware_prefix()
 
     if config.stats_clean:
+        # Note: we don't expect dedicated schema studies to have stats,
+        # so this prompt does not need to handle the case where the study
+        # prefix is an empty string
         confirm = input(
             "This will remove all historical stats tables in the "
-            f"{display_prefix} study - are you sure? (y/N)"
+            f"{study_prefix} study - are you sure? (y/N)"
         )
         if confirm is None or confirm.lower() not in ("y", "yes"):
             sys.exit("Table cleaning aborted")
@@ -128,6 +126,44 @@ def clean_study(
     cursor = config.db.cursor()
 
     view_table_list = []
+    if config.stage != "all" and not prefix:
+        # We're going to inspect the list of tables to see if we've got a build source
+        # table for the study being cleaned. If we don't, than the study was last built
+        # with a pre-V6 version of the library, and we'll fall back to prefix cleaning
+        # mode so a user doesn't have to manage migration themselves.
+        query = base_templates.get_select_from_single_query(
+            schema="information_schema",
+            table_name="tables",
+            columns=["table_name"],
+            where_clauses=[
+                f"table_name = '{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}'\n"
+                f"AND table_schema = '{config.schema}'"
+            ],
+        )
+        res = cursor.execute(query).fetchall()
+        if len(res) == 0:
+            prefix = manifest.get_study_prefix()
+            drop_prefix = prefix
+            study_prefix = prefix
+
+        else:
+            query = base_templates.get_select_from_single_query(
+                schema=base_utils.get_schema(config=config, manifest=manifest),
+                table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
+                columns=["name", "type"],
+                where_clauses=[f"stage = '{config.stage}'"],
+                distinct=True,
+            )
+            names_and_types = cursor.execute(query).fetchall()
+            if names_and_types != []:
+                view_table_list += _get_unprotected_stats_view_table(
+                    config,
+                    manifest,
+                    drop_prefix,
+                    study_prefix,
+                    clean_by_cli_prefix=isinstance(prefix, str),
+                    artifact_list=names_and_types,
+                )
     if config.stage == "all" or prefix:
         view_sql = base_templates.get_show_views(config.schema, drop_prefix)
         table_sql = base_templates.get_show_tables(config.schema, drop_prefix)
@@ -136,36 +172,15 @@ def clean_study(
                 config,
                 manifest,
                 drop_prefix,
-                display_prefix,
-                config.stats_clean,
+                study_prefix,
                 clean_by_cli_prefix=isinstance(prefix, str),
                 query=query,
                 artifact_type=artifact_type,
             )
-    else:
-        query = base_templates.get_select_from_single_query(
-            schema=base_utils.get_schema(config=config, manifest=manifest),
-            table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
-            columns=["name", "type"],
-            where_clauses=[f"stage = '{config.stage}'"],
-            distinct=True,
-        )
-        names_and_types = cursor.execute(query).fetchall()
-        if names_and_types != []:
-            view_table_list += _get_unprotected_stats_view_table(
-                config,
-                manifest,
-                drop_prefix,
-                display_prefix,
-                config.stats_clean,
-                clean_by_cli_prefix=isinstance(prefix, str),
-                artifact_list=names_and_types,
-            )
 
     if not view_table_list:
         return view_table_list
-    # We'll do a pass to see if any of these tables were created outside of a
-    # study builder, and remove them from the list.
+    # We'll do a pass to see if any of these tables are protected, and remove them from the list.
     for view_table in view_table_list.copy():
         if any(
             (
@@ -199,7 +214,7 @@ def clean_study(
     # We want to only show a progress bar if we are :not: printing SQL lines
     with base_utils.get_progress_bar(disable=config.verbose) as progress:
         task = progress.add_task(
-            f"Removing {display_prefix} study artifacts...",
+            f"Removing {study_prefix} study artifacts...",
             total=len(view_table_list),
             visible=not config.verbose,
         )

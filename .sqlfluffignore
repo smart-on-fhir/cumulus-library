@@ -16,3 +16,7 @@ count.sql.jinja
 # The following files try to adapt syntax to databases and so are not
 # well checkable via static sqlfluff variables
 ctas_from_parquet.sql.jinja
+
+# We allow a wildcard in the example study because it's easier for less IT-centric
+# users to write queries this way.
+cumulus_library/studies/example/

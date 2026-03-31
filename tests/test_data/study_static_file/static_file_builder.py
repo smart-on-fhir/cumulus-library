@@ -48,7 +48,7 @@ class StaticFileBuilder(cumulus_library.BaseTableBuilder):
             base_templates.get_ctas_from_parquet_query(
                 schema_name=config.schema,
                 table_name=table_name,
-                local_location=path / "bsvs/*.parquet",
+                local_location=path / "bsvs",
                 remote_location=remote_path,
                 table_cols=headers,
                 remote_table_cols_types=header_types,

@@ -157,31 +157,7 @@ CREATE TABLE core__observation_component_code AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__observation_component_dataabsentreason"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
-    )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
-);
-
--- ###########################################################
-
-CREATE TABLE IF NOT EXISTS "main"."core__observation_component_interpretation"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
-    )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
-);
-
--- ###########################################################
-
-CREATE TABLE core__observation_component_valuecodeableconcept AS (
+CREATE TABLE core__observation_component_dataabsentreason AS (
     WITH
 
     flattened_rows AS (
@@ -196,11 +172,11 @@ CREATE TABLE core__observation_component_valuecodeableconcept AS (
         SELECT
             id,
             row,
-            data."valuecodeableconcept"
+            data."dataabsentreason"
         FROM data_and_row_num
     ),
 
-    system_valuecodeableconcept_0 AS (
+    system_dataabsentreason_0 AS (
         SELECT DISTINCT
             s.id AS id,
             s.row,
@@ -210,7 +186,7 @@ CREATE TABLE core__observation_component_valuecodeableconcept AS (
             u.coding.userSelected
         FROM
             flattened_rows AS s,
-            UNNEST(s.valuecodeableconcept.coding) AS u (coding)
+            UNNEST(s.dataabsentreason.coding) AS u (coding)
     ), --noqa: LT07
 
     union_table AS (
@@ -221,7 +197,7 @@ CREATE TABLE core__observation_component_valuecodeableconcept AS (
             code,
             display,
             userSelected
-        FROM system_valuecodeableconcept_0
+        FROM system_dataabsentreason_0
         
     )
     SELECT
@@ -234,6 +210,84 @@ CREATE TABLE core__observation_component_valuecodeableconcept AS (
     FROM union_table
 );
 
+
+-- ###########################################################
+
+CREATE TABLE core__observation_component_interpretation AS (
+    WITH
+
+    flattened_rows AS (
+        WITH
+        data_and_row_num AS (
+            SELECT
+                t.id AS id,
+                generate_subscripts(t."component", 1) AS row,
+                UNNEST(t."component") AS data -- must unnest in SELECT here
+            FROM observation AS t
+        )
+        SELECT
+            id,
+            row,
+            data."interpretation"
+        FROM data_and_row_num
+    ),
+
+    child_flattened_rows AS (
+        SELECT DISTINCT
+            s.id,
+            s.row, -- keep the parent row number
+            u."interpretation"
+        FROM
+            flattened_rows AS s,
+            UNNEST(s.interpretation) AS u ("interpretation")
+    ),
+
+    system_interpretation_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            s.row,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            child_flattened_rows AS s,
+            UNNEST(s.interpretation.coding) AS u (coding)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_interpretation_0
+        
+    )
+    SELECT
+        id,
+        row,
+        code,
+        system,
+        display,
+        userSelected
+    FROM union_table
+);
+
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "main"."core__observation_component_valuecodeableconcept"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);
 
 -- ###########################################################
 

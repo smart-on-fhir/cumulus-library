@@ -111,8 +111,8 @@ def duckdb_args(args: list, tmp_path, stats=False):
     return [*args, "--db-type", "duckdb", "--database", f"{tmp_path}/duck.db"]
 
 
-def write_toml(path, manifest_dict, filename="manifest.toml"):
-    manifest_str = msgspec.toml.encode(manifest_dict)
+def write_toml(path, toml_dict, filename="manifest.toml"):
+    manifest_str = msgspec.toml.encode(toml_dict)
     with open(path / filename, "wb") as f:
         f.write(manifest_str)
 

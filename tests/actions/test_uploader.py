@@ -60,7 +60,7 @@ def do_upload(
             "data_path": data_path,
             "id": id_token,
             "preview": preview,
-            "target": [study],
+            "target": study,
             "network": network,
             "url": "https://upload.url.test/",
             "user": user,

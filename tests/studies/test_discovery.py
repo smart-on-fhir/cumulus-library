@@ -16,25 +16,7 @@ def test_discovery(tmp_path):
             [
                 "build",
                 "-t",
-                "core",
-                "-s",
-                "./tests/test_data",
-                "--database",
-                "test",
-            ],
-            tmp_path,
-        )
-    )
-    cli.main(
-        cli_args=conftest.duckdb_args(
-            [
-                "build",
-                "-t",
                 "discovery",
-                "-s",
-                "./tests/test_data",
-                "--database",
-                f"{tmp_path}/duck.db",
             ],
             tmp_path,
         )
@@ -61,10 +43,12 @@ def test_discovery(tmp_path):
             "/test_data/discovery/discovery__code_sources.csv",
         ) as ref:
             reader = csv.reader(ref)
-            for row in reader:
-                assert tuple(row) in table_rows
+            expected_rows = [tuple(row) for row in reader]
+            for row in expected_rows:
+                assert row in table_rows
+            assert len(expected_rows) == len(table_rows)
     except Exception as e:
-        conftest.debug_diff_tables(cols, table_rows, ref, pos=0)
+        conftest.debug_diff_tables(cols, table_rows, expected_rows, pos=0)
         raise e
 
 

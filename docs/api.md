@@ -1,7 +1,7 @@
 ---
 title: Clinical study API reference
 parent: Library
-nav_order: 10
+nav_order: 11
 # audience: Clinical researchers/engineers trying to create a study
 # type: reference
 ---
