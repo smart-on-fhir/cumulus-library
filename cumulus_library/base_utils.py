@@ -12,7 +12,7 @@ import rich
 import sqlglot
 from rich import progress
 
-from cumulus_library import databases, study_manifest
+from cumulus_library import databases, errors, study_manifest
 
 
 @dataclasses.dataclass
@@ -202,3 +202,26 @@ def get_viewtable_names_from_create_queries(
             table_name = table_name.split(".", 1)[1].replace('"', "").replace("`", "")
         artifacts.append((table_name, parser.kind))
     return artifacts
+
+
+def numpy_types_from_hive_types(field_types: list[str]):
+    new_types = []
+    for field in field_types:
+        match field.lower():
+            case "tinyint" | "smallint" | "int" | "integer" | "bigint":
+                new_types.append("int")
+            case "float" | "double" | "double precision" | "decimal":
+                new_types.append("float")
+            case "date" | "timestamp":
+                new_types.append("datetime64[ns]")
+            case "interval":
+                new_types.append("timedelta64[ns]")
+            case "string" | "varchar" | "char":
+                new_types.append("string")
+            case "boolean" | "binary":
+                new_types.append("bool")
+            case _:
+                raise errors.CumulusLibraryError(
+                    f"Field type {field} is not a supported hive data type"
+                )
+    return new_types

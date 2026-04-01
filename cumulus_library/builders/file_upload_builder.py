@@ -182,8 +182,9 @@ class FileUploadBuilder(BaseTableBuilder):
                             f"col_types has {len(table['col_types'])} entries."
                         )
                     type_dict = {}
-                    for pos in range(0, len(table["col_types"])):
-                        type_dict[df.columns[pos]] = table["col_types"][pos].lower()
+                    numpy_types = base_utils.numpy_types_from_hive_types(table["col_types"])
+                    for pos in range(0, len(numpy_types)):
+                        type_dict[df.columns[pos]] = numpy_types[pos]
                     df = df.astype(type_dict)
                     parquet_path.parent.mkdir(parents=True, exist_ok=True)
                     df.to_parquet(parquet_path)

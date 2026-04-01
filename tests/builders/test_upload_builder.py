@@ -102,6 +102,52 @@ def test_wrong_cols_filetype(mock_cache, mock_db_config, tmp_path):
 
 
 @mock.patch("platformdirs.user_cache_dir")
+def test_date_handling(mock_cache, mock_db_config, tmp_path):
+    mock_cache.return_value = tmp_path / "cache"
+    manifest = study_manifest.StudyManifest()
+    manifest._study_config = {
+        "study_prefix": "upload_date",
+        "stages": {
+            "test": [
+                {"type": "build:serial", "files": ["workflow.toml"]},
+            ],
+        },
+    }
+    manifest._study_prefix = "upload_date"
+    manifest.write_manifest(tmp_path)
+    conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "file_upload",
+            "tables": {"dates": {"files": ["dates.csv"], "col_types": ["DATE", "DATE", "boolean"]}},
+        },
+        filename="workflow.toml",
+    )
+
+    with open(tmp_path / "dates.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["period_start", "period_end", "include_history"])
+        writer.writerow(["2016-01-01", "2026-01-01", "true"])
+    builder = file_upload_builder.FileUploadBuilder(
+        toml_config_path=tmp_path / "workflow.toml",
+    )
+    builder.execute_queries(config=mock_db_config, manifest=manifest)
+    col_types = (
+        mock_db_config.db.cursor()
+        .execute(
+            "SELECT column_name, data_type FROM information_schema.columns "
+            "WHERE table_name='upload_date__dates'"
+        )
+        .fetchall()
+    )
+    assert col_types == [
+        ("period_start", "TIMESTAMP_NS"),
+        ("period_end", "TIMESTAMP_NS"),
+        ("include_history", "BOOLEAN"),
+    ]
+
+
+@mock.patch("platformdirs.user_cache_dir")
 def test_multifile_mismatch(mock_cache, mock_db_config, tmp_path):
     mock_cache.return_value = tmp_path / "cache"
     shutil.copytree(TEST_DATA_PATH, tmp_path / "file_upload", dirs_exist_ok=True)
