@@ -25,13 +25,6 @@ from tests import conftest
                                 "tables": ["study_valid__table", "study_valid__table2"],
                             },
                         ],
-                        "default": [
-                            {"type": "build:serial", "files": ["test.sql", "test2.sql"]},
-                            {
-                                "type": "export:counts",
-                                "tables": ["study_valid__table", "study_valid__table2"],
-                            },
-                        ],
                         "stage_1": [
                             {"type": "build:serial", "files": ["test.sql", "test2.sql"]},
                             {
@@ -135,10 +128,6 @@ def test_submanifests(tmp_path):
                 {"label": "action 2", "type": "build:serial", "files": ["baz"]},
                 {"label": "subaction 1", "type": "build:serial", "files": ["foobar"]},
             ],
-            "default": [
-                {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
-                {"label": "action 2", "type": "build:serial", "files": ["baz"]},
-            ],
             "stage_1": [
                 {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
                 {"label": "action 2", "type": "build:serial", "files": ["baz"]},
@@ -200,7 +189,7 @@ def test_missing_action(tmp_path):
         study_manifest.StudyManifest(tmp_path)
 
 
-def test_all_protected(mock_db_config, tmp_path):
+def test_all_protected(tmp_path):
     manifest_dict = {
         "study_prefix": "test",
         "stages": {"all": [{"files": ["foo"], "type": "build:serial"}]},
@@ -208,6 +197,36 @@ def test_all_protected(mock_db_config, tmp_path):
     conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
     with pytest.raises(errors.StudyManifestParsingError):
         study_manifest.StudyManifest(tmp_path)
+
+
+def test_default_handling(tmp_path):
+    manifest_dict = {
+        "study_prefix": "test",
+        "stages": {
+            "one": [{"files": ["foo"], "type": "build:serial"}],
+            "two": [{"files": ["bar"], "type": "build:serial"}],
+        },
+    }
+    conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
+    manifest = study_manifest.StudyManifest(tmp_path)
+    stage = manifest.get_stage("default")
+    assert stage == [
+        {"type": "build:serial", "files": ["foo"]},
+        {"type": "build:serial", "files": ["bar"]},
+    ]
+    manifest_dict = {
+        "study_prefix": "test",
+        "stages": {
+            "default": [{"files": ["foo"], "type": "build:serial"}],
+            "two": [{"files": ["bar"], "type": "build:serial"}],
+        },
+    }
+    conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
+    manifest = study_manifest.StudyManifest(tmp_path)
+    stage = manifest.get_stage("default")
+    assert stage == [
+        {"type": "build:serial", "files": ["foo"]},
+    ]
 
 
 def test_empty_stage(mock_db_config, tmp_path):

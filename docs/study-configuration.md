@@ -86,7 +86,7 @@ study with some descriptive text. \
 
 # There are two special kinds of stage names:
 # - 'default': this stage will be run if the stage is not specified. If not defined,
-#   we'll use the first stage in the list as the default.
+#   we'll assume we should use the 'all' behavior
 # - 'all': this will run all the stages, in the order they are defined in the manifest.
 #    This behavior can't be overriden.
 

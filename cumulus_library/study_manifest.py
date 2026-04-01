@@ -1,5 +1,6 @@
 """Class for loading study configuration data from manifest.toml files"""
 
+import copy
 import dataclasses
 import pathlib
 import re
@@ -192,10 +193,6 @@ class StudyManifest:
                     all_actions.append(action)
             config["stages"][stage] = actions
 
-        # if there isn't a default stage, we'll assume that we should run the first one
-        if "default" not in defined_stages:
-            config["stages"]["default"] = config["stages"][defined_stages[0]]
-
         config["stages"]["all"] = all_actions
 
         # We'll set these to class vars now so we can reuse the class getters
@@ -243,7 +240,11 @@ class StudyManifest:
 
     def get_stage(self, stage) -> list:
         """Returns the contents of the specified stage"""
-        return self._study_config.get("stages", {}).get(stage, [])
+        stage_contents = self._study_config.get("stages", {}).get(stage, [])
+        # if we're looking for a default stage and we don't find it, assume we should run everything
+        if stage == "default" and stage_contents == []:
+            stage_contents = self._study_config.get("stages", {}).get("all", [])
+        return stage_contents
 
     def get_file_list(
         self,
@@ -366,10 +367,10 @@ class StudyManifest:
             path = path / "manifest.toml"
         path.parent.mkdir(exist_ok=True, parents=True)
         with open(path, "wb") as f:
-            # we'll remove the all key we auto created before writing out a copy
-            config = self._study_config
+            config = copy.deepcopy(self._study_config)
             config["stages"].pop("all", None)
-            f.write(msgspec.toml.encode(ManifestConfig(self._study_config)))
+            # we'll remove the all key we auto created before writing out a copy
+            f.write(msgspec.toml.encode(ManifestConfig(config)))
 
     ### Dynamic Python code support
 
