@@ -243,7 +243,7 @@ class StudyManifest:
         stage_contents = self._study_config.get("stages", {}).get(stage, [])
         # if we're looking for a default stage and we don't find it, assume we should run everything
         if stage == "default" and stage_contents == []:
-            stage_contents = self._study_config.get("stages", {})["all"]
+            stage_contents = self._study_config.get("stages", {}).get("all", [])
         return stage_contents
 
     def get_file_list(
