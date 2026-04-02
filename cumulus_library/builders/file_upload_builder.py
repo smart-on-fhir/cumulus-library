@@ -7,6 +7,7 @@ import sys
 import msgspec
 import pandas
 import platformdirs
+import pyarrow
 
 from cumulus_library import BaseTableBuilder, base_utils, errors, study_manifest
 from cumulus_library.template_sql import base_templates
@@ -182,12 +183,14 @@ class FileUploadBuilder(BaseTableBuilder):
                             f"col_types has {len(table['col_types'])} entries."
                         )
                     type_dict = {}
-                    numpy_types = base_utils.numpy_types_from_hive_types(table["col_types"])
-                    for pos in range(0, len(numpy_types)):
-                        type_dict[df.columns[pos]] = numpy_types[pos]
-                    df = df.astype(type_dict)
+                    pyarrow_types = base_utils.pyarrow_types_from_hive_types(table["col_types"])
+                    arrow_table = pyarrow.Table.from_pandas(df, preserve_index=False)
+                    for pos in range(0, len(pyarrow_types)):
+                        type_dict[df.columns[pos]] = pyarrow_types[pos]
+                    schema = pyarrow.schema([pyarrow.field(x[0], x[1]) for x in type_dict.items()])
+                    arrow_table = arrow_table.cast(schema)
                     parquet_path.parent.mkdir(parents=True, exist_ok=True)
-                    df.to_parquet(parquet_path)
+                    pyarrow.parquet.write_table(arrow_table, parquet_path)
                     remote_path = config.db.upload_file(
                         file=parquet_path,
                         study=manifest.get_study_prefix(),

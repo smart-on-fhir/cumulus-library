@@ -119,7 +119,9 @@ def test_date_handling(mock_cache, mock_db_config, tmp_path):
         tmp_path,
         {
             "config_type": "file_upload",
-            "tables": {"dates": {"files": ["dates.csv"], "col_types": ["DATE", "DATE", "boolean"]}},
+            "tables": {
+                "dates": {"files": ["dates.csv"], "col_types": ["DATE", "TIMESTAMP", "boolean"]}
+            },
         },
         filename="workflow.toml",
     )
@@ -141,7 +143,7 @@ def test_date_handling(mock_cache, mock_db_config, tmp_path):
         .fetchall()
     )
     assert col_types == [
-        ("period_start", "TIMESTAMP_NS"),
+        ("period_start", "DATE"),
         ("period_end", "TIMESTAMP_NS"),
         ("include_history", "BOOLEAN"),
     ]

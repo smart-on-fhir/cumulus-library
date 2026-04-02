@@ -1,3 +1,4 @@
+import pyarrow
 import pytest
 
 from cumulus_library import base_utils, errors
@@ -23,28 +24,28 @@ def test_numpy_from_hive():
         "boolean",
         "binary",
     ]
-    res = base_utils.numpy_types_from_hive_types(hive_types)
+    res = base_utils.pyarrow_types_from_hive_types(hive_types)
     assert res == [
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "float",
-        "float",
-        "float",
-        "float",
-        "datetime64[ns]",
-        "datetime64[ns]",
-        "timedelta64[ns]",
-        "string",
-        "string",
-        "string",
-        "bool",
-        "bool",
+        pyarrow.int64(),
+        pyarrow.int64(),
+        pyarrow.int64(),
+        pyarrow.int64(),
+        pyarrow.int64(),
+        pyarrow.float64(),
+        pyarrow.float64(),
+        pyarrow.float64(),
+        pyarrow.float64(),
+        pyarrow.date64(),
+        pyarrow.timestamp("ns"),
+        pyarrow.duration("ns"),
+        pyarrow.string(),
+        pyarrow.string(),
+        pyarrow.string(),
+        pyarrow.bool_(),
+        pyarrow.bool_(),
     ]
 
 
-def test_numpy_from_hive_error():
+def test_pyarrow_from_hive_error():
     with pytest.raises(errors.CumulusLibraryError):
-        base_utils.numpy_types_from_hive_types(["EnterpriseBeanFactoryFactory"])
+        base_utils.pyarrow_types_from_hive_types(["EnterpriseBeanFactoryFactory"])

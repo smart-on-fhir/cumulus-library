@@ -8,6 +8,7 @@ import zipfile
 from contextlib import contextmanager
 
 import platformdirs
+import pyarrow
 import rich
 import sqlglot
 from rich import progress
@@ -204,22 +205,24 @@ def get_viewtable_names_from_create_queries(
     return artifacts
 
 
-def numpy_types_from_hive_types(field_types: list[str]):
+def pyarrow_types_from_hive_types(field_types: list[str]):
     new_types = []
     for field in field_types:
         match field.lower():
             case "tinyint" | "smallint" | "int" | "integer" | "bigint":
-                new_types.append("int")
+                new_types.append(pyarrow.int64())
             case "float" | "double" | "double precision" | "decimal":
-                new_types.append("float")
-            case "date" | "timestamp":
-                new_types.append("datetime64[ns]")
+                new_types.append(pyarrow.float64())
+            case "timestamp":
+                new_types.append(pyarrow.timestamp("ns"))
+            case "date":
+                new_types.append(pyarrow.date64())
             case "interval":
-                new_types.append("timedelta64[ns]")
+                new_types.append(pyarrow.duration("ns"))
             case "string" | "varchar" | "char":
-                new_types.append("string")
+                new_types.append(pyarrow.string())
             case "boolean" | "binary":
-                new_types.append("bool")
+                new_types.append(pyarrow.bool_())
             case _:
                 raise errors.CumulusLibraryError(
                     f"Field type {field} is not a supported hive data type"
