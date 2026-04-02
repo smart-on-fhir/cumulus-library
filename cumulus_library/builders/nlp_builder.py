@@ -7,7 +7,8 @@ from collections.abc import Callable
 import msgspec
 import rich
 
-from cumulus_library import BaseTableBuilder, note_utils
+import cumulus_library
+from cumulus_library import note_utils
 
 # NLP is driven by a workflow config. See docs/workflows/nlp.md for more details
 # on syntax and expectations.
@@ -35,7 +36,7 @@ class NlpWorkflow(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True
     shared: NlpShared = msgspec.field(default_factory=NlpShared)
 
 
-class NlpBuilder(BaseTableBuilder):
+class NlpBuilder(cumulus_library.BaseTableBuilder):
     def __init__(
         self,
         *args,
@@ -72,12 +73,19 @@ class NlpBuilder(BaseTableBuilder):
                     shared_val = getattr(self._workflow_config.shared, field)
                     setattr(task, field, shared_val)
 
-    def _make_note_filter(self, task: NlpTask) -> Callable[[dict, str], bool]:
+    def _make_note_filter(
+        self, table_refs: dict[str, note_utils.TableRefs], task: NlpTask
+    ) -> Callable[[dict, str], bool]:
+        extra = {}
+        if refs := table_refs.get(task.select_by_table):
+            extra["select_by_note_ref"] = refs.notes
+            extra["select_by_patient_ref"] = refs.patients
         return note_utils.make_note_filter(
             reject_by_regex=task.reject_by_regex,
             reject_by_word=task.reject_by_word,
             select_by_regex=task.select_by_regex,
             select_by_word=task.select_by_word,
+            **extra,
         )
 
     def _print_note_stats(
@@ -102,6 +110,7 @@ class NlpBuilder(BaseTableBuilder):
     def prepare_queries(
         self,
         *args,
+        config: cumulus_library.StudyConfig,
         **kwargs,
     ):
         # Set up some stat counters
@@ -110,7 +119,22 @@ class NlpBuilder(BaseTableBuilder):
         considered = [0] * len(self._workflow_config.task)
         got_response = [0] * len(self._workflow_config.task)
 
-        note_filters = [self._make_note_filter(task) for task in self._workflow_config.task]
+        # Gather note filters together
+        cursor = config.db.cursor()
+        select_by_tables = {task.select_by_table for task in self._workflow_config.task}
+
+        if list(filter(None, select_by_tables)) and not self._notes.salt:
+            raise RuntimeError(
+                "Cannot calculate anonymized resource IDs without a PHI dir defined. "
+                "Pass --etl-phi-dir and try again."
+            )
+
+        table_refs = {
+            table: note_utils.get_table_refs(cursor, table) for table in select_by_tables if table
+        }
+        note_filters = [
+            self._make_note_filter(table_refs, task) for task in self._workflow_config.task
+        ]
 
         # Go through notes one by one and run NLP on them
         for note_res in self._notes.progress_iter("Running NLP..."):
@@ -123,7 +147,7 @@ class NlpBuilder(BaseTableBuilder):
             had_text += 1
 
             for idx, task in enumerate(self._workflow_config.task):
-                if not note_filters[idx](note_res, text):
+                if not note_filters[idx](note_res, text=text, salt=self._notes.salt):
                     continue
                 considered[idx] += 1
 

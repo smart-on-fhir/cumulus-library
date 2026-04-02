@@ -1,4 +1,5 @@
 import pathlib
+import string
 import sys
 from collections.abc import Iterable
 from concurrent import futures
@@ -11,6 +12,8 @@ import rich
 
 from cumulus_library import base_utils, db_config, errors
 from cumulus_library.databases import athena, base, duckdb
+
+SQL_NAME_CHARS = set(string.ascii_letters + string.digits + "_")
 
 
 def _list_files_for_resource(path: pathlib.Path, resource: str) -> list[str]:

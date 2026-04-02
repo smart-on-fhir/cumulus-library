@@ -127,6 +127,17 @@ def add_note_dir_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def add_etl_phi_dir_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--etl-phi-dir",
+        metavar="DIR",
+        help=(
+            "The directory in which Cumulus ETL drops PHI mapping information. "
+            "Can be an s3:// URL or local path. Only relevant for NLP workflows."
+        ),
+    )
+
+
 def add_stage_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --stage arg to a subparser"""
     parser.add_argument(
@@ -220,6 +231,7 @@ AWS Athena, the following order of preference is used to select credentials:
     add_db_config(build, input_mode=True)
     add_study_dir_argument(build)
     add_note_dir_argument(build)
+    add_etl_phi_dir_argument(build)
     add_table_builder_argument(build)
     add_target_argument(build)
     add_verbose_argument(build)

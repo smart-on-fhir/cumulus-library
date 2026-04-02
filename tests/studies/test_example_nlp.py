@@ -102,7 +102,7 @@ def test_merging_two_sources(tmp_path):
 
 def test_full_build(tmp_path):
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
-        json.dump({"resourceType": "DiagnosticReport"}, f)
+        json.dump({"resourceType": "DiagnosticReport", "id": "1"}, f)
 
     build_args = duckdb_args(
         [

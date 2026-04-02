@@ -1,4 +1,5 @@
 import base64
+import binascii
 import json
 import os
 from unittest import mock
@@ -8,6 +9,10 @@ import pytest
 from cumulus_library import (
     note_utils,
 )
+
+# Some convenience salt values to use
+SALT_STR = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
+SALT_BYTES = binascii.unhexlify(SALT_STR)
 
 
 @mock.patch("rich.progress.Progress.advance")
@@ -55,6 +60,40 @@ def test_note_source_s3(mock_filesystem, mock_read, mock_list):
     assert mock_filesystem.call_args == mock.call("s3", client_kwargs={"region_name": "cloud9"})
     assert mock_list.call_args[1]["fsspec_fs"] == fs
     assert mock_read.call_args[1]["fsspec_fs"] == fs
+
+
+def test_note_source_phi_dir(tmp_path):
+    """Just confirm we parse the salt from a codebook file"""
+    with open(f"{tmp_path}/codebook.json", "w") as f:
+        json.dump({"id_salt": SALT_STR}, f)
+
+    source = note_utils.NoteSource(phi_dir=tmp_path)
+    assert source.salt == SALT_BYTES
+
+
+@pytest.mark.parametrize(
+    "id_val,expected",
+    [
+        (None, None),
+        ("", None),
+        ("abc", "75b245a08d21040487dde2efe7038f93ea7ecb06dfc1dc7275e4ad3a22f57a22"),
+    ],
+)
+def test_anon_id(id_val, expected):
+    assert note_utils.anon_id(id_val, SALT_BYTES) == expected
+
+
+@pytest.mark.parametrize(
+    "ref_val,expected",
+    [
+        (None, None),
+        ("", None),
+        ("abc", None),
+        ("Device/abc", "Device/75b245a08d21040487dde2efe7038f93ea7ecb06dfc1dc7275e4ad3a22f57a22"),
+    ],
+)
+def test_anon_ref(ref_val, expected):
+    assert note_utils.anon_ref(ref_val, SALT_BYTES) == expected
 
 
 @pytest.mark.parametrize(
@@ -177,208 +216,347 @@ def test_get_text_from_note_res(res_type, attachments, result):
 
 
 @pytest.mark.parametrize(
+    "cols,row,result",
+    [
+        (  # basic id match
+            "patient_id,DocumentREFERENCE_ID",
+            "xxx,yyy",
+            ("DocumentReference/yyy", None),
+        ),
+        (  # basic ref match
+            "patient_id,diagnosticreport_ref",
+            "xxx,DiagnosticReport/yyy",
+            ("DiagnosticReport/yyy", None),
+        ),
+        (  # custom document_ref alias
+            "patient_id,document_ref",
+            "xxx,DiagnosticReport/ref",
+            ("DiagnosticReport/ref", None),
+        ),
+        (  # custom note_ref alias
+            "patient_id,note_ref",
+            "xxx,DocumentReference/ref",
+            ("DocumentReference/ref", None),
+        ),
+        (  # custom docref_id alias
+            "patient_id,docref_id",
+            "xxx,ref",
+            ("DocumentReference/ref", None),
+        ),
+        (  # patient id match (can't be note ref in there)
+            "patient_id,other_col",
+            "xxx,blarg",
+            (None, "Patient/xxx"),
+        ),
+        (  # patient ref match (can't be note ref in there)
+            "patient_ref,other_col",
+            "Patient/abc,blarg",
+            (None, "Patient/abc"),
+        ),
+        (  # custom subject_id alias
+            "subject_id,other_col",
+            "abc,blarg",
+            (None, "Patient/abc"),
+        ),
+        (  # custom subject_ref alias
+            "subject_ref,other_col",
+            "Patient/abc,blarg",
+            (None, "Patient/abc"),
+        ),
+        (  # prefer anon version of id columns
+            "anon_patient_id,patient_id",
+            "anon,orig",
+            (None, "Patient/anon"),
+        ),
+        (  # prefer anon version of ref columns
+            "note_ref,anon_note_ref",
+            "DocumentReference/orig,DocumentReference/anon",
+            ("DocumentReference/anon", None),
+        ),
+        (  # unsupported ref type
+            "note_ref",
+            "Patient/abc",
+            (None, None),
+        ),
+        (  # no valid cols found
+            "other,nope",
+            "xxx,yyy",
+            ValueError,
+        ),
+    ],
+)
+def test_get_table_refs(cols, row, result):
+    cursor = mock.MagicMock()
+    cursor.execute.return_value.fetchall.return_value = [row.split(",")]
+    cursor.execute.return_value.description = [[x] for x in cols.split(",")]
+
+    if isinstance(result, type):
+        with pytest.raises(result):
+            note_utils.get_table_refs(cursor, "my_table")
+    else:
+        note, pat = result
+        refs = note_utils.get_table_refs(cursor, "my_table")
+        assert ({note} if note else None) == refs.notes, cols
+        assert ({pat} if pat else None) == refs.patients, cols
+
+
+def test_get_table_refs_bad_table():
+    with pytest.raises(ValueError, match="Invalid SQL table name"):
+        note_utils.get_table_refs(None, "table; drop USERS")
+
+
+def test_get_table_refs_no_args():
+    assert note_utils.get_table_refs(None, None) == note_utils.TableRefs()
+
+
+@pytest.mark.parametrize(
     "res,text,kwargs,selected",
     [
         (  # default, no regexes, no status - should pass
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "",
             {},
             True,
         ),
         (  # unsupported type
-            {"resourceType": "Patient"},
+            {"resourceType": "Patient", "id": "1"},
+            "",
+            {},
+            False,
+        ),
+        (  # No ID
+            {"resourceType": "DiagnosticReport"},
             "",
             {},
             False,
         ),
         (  # bad status
-            {"resourceType": "DiagnosticReport", "status": "registered"},
+            {"resourceType": "DiagnosticReport", "id": "1", "status": "registered"},
             "",
             {},
             False,
         ),
         (  # bad status
-            {"resourceType": "DiagnosticReport", "status": "partial"},
+            {"resourceType": "DiagnosticReport", "id": "1", "status": "partial"},
             "",
             {},
             False,
         ),
         (  # bad status
-            {"resourceType": "DiagnosticReport", "status": "preliminary"},
+            {"resourceType": "DiagnosticReport", "id": "1", "status": "preliminary"},
             "",
             {},
             False,
         ),
         (  # bad status
-            {"resourceType": "DiagnosticReport", "status": "cancelled"},
+            {"resourceType": "DiagnosticReport", "id": "1", "status": "cancelled"},
             "",
             {},
             False,
         ),
         (  # bad status
-            {"resourceType": "DiagnosticReport", "status": "entered-in-error"},
+            {"resourceType": "DiagnosticReport", "id": "1", "status": "entered-in-error"},
             "",
             {},
             False,
         ),
         (  # bad status
-            {"resourceType": "DocumentReference", "status": "superseded"},
+            {"resourceType": "DocumentReference", "id": "1", "status": "superseded"},
             "",
             {},
             False,
         ),
         (  # bad status
-            {"resourceType": "DocumentReference", "status": "entered-in-error"},
+            {"resourceType": "DocumentReference", "id": "1", "status": "entered-in-error"},
             "",
             {},
             False,
         ),
         (  # bad docStatus
-            {"resourceType": "DocumentReference", "docStatus": "preliminary"},
+            {"resourceType": "DocumentReference", "id": "1", "docStatus": "preliminary"},
             "",
             {},
             False,
         ),
         (  # bad docStatus
-            {"resourceType": "DocumentReference", "docStatus": "entered-in-error"},
+            {"resourceType": "DocumentReference", "id": "1", "docStatus": "entered-in-error"},
             "",
             {},
             False,
         ),
         (  # select word (negative case)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"select_by_word": ["bye"]},
+            {"select_by_word": {"bye"}},
             False,
         ),
         (  # select word (positive case)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello, world",
-            {"select_by_word": ["hello"]},
+            {"select_by_word": {"hello"}},
             True,
         ),
         (  # select word (multiple selections, or'd together)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"select_by_word": ["bye", "hello"]},
+            {"select_by_word": {"bye", "hello"}},
             True,
         ),
         (  # select word (weird characters)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hel*lo.1+ world",
-            {"select_by_word": ["hel*lo.1+"]},
+            {"select_by_word": {"hel*lo.1+"}},
             True,
         ),
         (  # select word (substring isn't matched)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"select_by_word": ["hell"]},
+            {"select_by_word": {"hell"}},
             False,
         ),
         (  # select word (multi word)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world, mr smith",
-            {"select_by_word": ["mr smith"]},
+            {"select_by_word": {"mr smith"}},
             True,
         ),
         (  # select regex (matches)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"select_by_regex": ["hell."]},
+            {"select_by_regex": {"hell."}},
             True,
         ),
         (  # select regex (can cross word boundaries)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"select_by_regex": ["hell.*d"]},
+            {"select_by_regex": {"hell.*d"}},
             True,
         ),
         (  # select regex (can cross word boundaries, but still respects word ends)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"select_by_regex": ["hell.*r"]},
+            {"select_by_regex": {"hell.*r"}},
             False,
         ),
         (  # select word and regex (matches either)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"select_by_word": ["world"], "select_by_regex": ["h."]},
+            {"select_by_word": {"world"}, "select_by_regex": {"h."}},
             True,
         ),
         (  # reject word (by itself, without matching, we should select note)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"reject_by_word": ["bye"]},
+            {"reject_by_word": {"bye"}},
             True,
         ),
         (  # reject word (by itself, with matching, we should reject note)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"reject_by_word": ["hello"]},
+            {"reject_by_word": {"hello"}},
             False,
         ),
         (  # reject word (multiple options, will reject either)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"reject_by_word": ["hello", "bye"]},
+            {"reject_by_word": {"hello", "bye"}},
             False,
         ),
         (  # reject word (and select it, reject should win)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"reject_by_word": ["hello"], "select_by_word": ["hello"]},
+            {"reject_by_word": {"hello"}, "select_by_word": {"hello"}},
             False,
         ),
         (  # reject word (miss) and select word (hit)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"reject_by_word": ["bye"], "select_by_word": ["hello"]},
+            {"reject_by_word": {"bye"}, "select_by_word": {"hello"}},
             True,
         ),
         (  # reject regex (simple match)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"reject_by_regex": ["he..o"]},
+            {"reject_by_regex": {"he..o"}},
             False,
         ),
         (  # reject regex (across words)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"reject_by_regex": ["he.*rld"]},
+            {"reject_by_regex": {"he.*rld"}},
             False,
         ),
         (  # reject word and regex (either should reject)
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello world",
-            {"reject_by_regex": ["he..o"], "reject_by_word": ["bye"]},
+            {"reject_by_regex": {"he..o"}, "reject_by_word": {"bye"}},
             False,
         ),
         (  # select on non-first lines
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello\nworld",
-            {"select_by_word": ["world"]},
+            {"select_by_word": {"world"}},
             True,
         ),
         (  # reject on non-first lines
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello\nworld",
-            {"reject_by_word": ["world"]},
+            {"reject_by_word": {"world"}},
             False,
         ),
         (  # select across lines and whitespace, if multiple words provided
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello  \n  world",
-            {"select_by_word": ["hello world"]},
+            {"select_by_word": {"hello world"}},
             True,
         ),
         (  # (don't) select across lines with other stuff in there, confirming a lack of match
-            {"resourceType": "DiagnosticReport"},
+            {"resourceType": "DiagnosticReport", "id": "1"},
             "hello\n.world",
-            {"select_by_word": ["hello world"]},
+            {"select_by_word": {"hello world"}},
+            False,
+        ),
+        (  # select note ref
+            {"resourceType": "DocumentReference", "id": "1"},
+            "",
+            {
+                "select_by_note_ref": {
+                    "DocumentReference/69123f5b2305aba4bc734b41c66cedab639b3e81d4ae8eeb9569d6dc1476a1e7"
+                }
+            },
+            True,
+        ),
+        (  # select note ref and word (miss on ref, so we never consider the word)
+            {"resourceType": "DocumentReference", "id": "1"},
+            "hello world",
+            {"select_by_note_ref": {"DocumentReference/xxx"}, "select_by_word": {"world"}},
+            False,
+        ),
+        (  # select patient ref
+            {"resourceType": "DiagnosticReport", "id": "1", "subject": {"reference": "Patient/1"}},
+            "",
+            {
+                "select_by_patient_ref": {
+                    "Patient/69123f5b2305aba4bc734b41c66cedab639b3e81d4ae8eeb9569d6dc1476a1e7"
+                }
+            },
+            True,
+        ),
+        (  # select patient ref (miss)
+            {"resourceType": "DiagnosticReport", "id": "1", "subject": {"reference": "Patient/1"}},
+            "",
+            {"select_by_patient_ref": {"Patient/xxx"}},
             False,
         ),
     ],
 )
 def test_note_filter(res, text, kwargs, selected):
     note_filter = note_utils.make_note_filter(**kwargs)
-    assert selected == note_filter(res, text), kwargs
+    assert note_filter(res, text=text, salt=SALT_BYTES) is selected, kwargs
+
+
+def test_note_filter_no_salt():
+    note_filter = note_utils.make_note_filter(select_by_note_ref={"xxx"})
+    # Normally, this would be rejected because the given note filter doesn't match.
+    # But since we're not passing in a salt, we never check the note refs and pass it.
+    assert note_filter({"resourceType": "DiagnosticReport", "id": "1"}, text="") is True
