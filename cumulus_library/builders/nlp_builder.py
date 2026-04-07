@@ -2,8 +2,8 @@
 
 import pathlib
 import sys
-from collections.abc import Callable
 
+import cumulus_fhir_support as cfs
 import msgspec
 import rich
 
@@ -73,16 +73,14 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
                     shared_val = getattr(self._workflow_config.shared, field)
                     setattr(task, field, shared_val)
 
-    def _make_note_filter(
-        self, table_refs: dict[str, note_utils.TableRefs], task: NlpTask
-    ) -> Callable[[dict, str], bool]:
+    def _make_note_filter(self, table_refs: dict[str, cfs.RefSet], task: NlpTask) -> cfs.NoteFilter:
         extra = {}
         if refs := table_refs.get(task.select_by_table):
-            extra["select_by_note_ref"] = refs.notes
-            extra["select_by_patient_ref"] = refs.patients
-        return note_utils.make_note_filter(
+            extra["select_by_ref"] = refs
+        return cfs.make_note_filter(
             reject_by_regex=task.reject_by_regex,
             reject_by_word=task.reject_by_word,
+            salt=self._notes.salt,
             select_by_regex=task.select_by_regex,
             select_by_word=task.select_by_word,
             **extra,
@@ -121,17 +119,17 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
 
         # Gather note filters together
         cursor = config.db.cursor()
-        select_by_tables = {task.select_by_table for task in self._workflow_config.task}
+        select_by_tables = {
+            task.select_by_table for task in self._workflow_config.task if task.select_by_table
+        }
 
-        if list(filter(None, select_by_tables)) and not self._notes.salt:
+        if select_by_tables and not self._notes.salt:
             raise RuntimeError(
                 "Cannot calculate anonymized resource IDs without a PHI dir defined. "
                 "Pass --etl-phi-dir and try again."
             )
 
-        table_refs = {
-            table: note_utils.get_table_refs(cursor, table) for table in select_by_tables if table
-        }
+        table_refs = {table: note_utils.get_table_refs(cursor, table) for table in select_by_tables}
         note_filters = [
             self._make_note_filter(table_refs, task) for task in self._workflow_config.task
         ]
@@ -141,13 +139,13 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             available += 1
 
             try:
-                text = note_utils.get_text_from_note_res(note_res)
+                text = cfs.get_text_from_note_res(note_res)
             except Exception:  # noqa: S112
                 continue
             had_text += 1
 
             for idx, task in enumerate(self._workflow_config.task):
-                if not note_filters[idx](note_res, text=text, salt=self._notes.salt):
+                if not note_filters[idx](note_res, text=text):
                     continue
                 considered[idx] += 1
 
