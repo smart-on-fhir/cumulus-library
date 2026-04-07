@@ -6,6 +6,7 @@ import json
 import os
 from unittest import mock
 
+import cumulus_fhir_support as cfs
 import pytest
 
 from cumulus_library import cli, note_utils
@@ -124,10 +125,10 @@ name="all"
     mock_db_config.db.cursor().execute(f"""
         CREATE TABLE prev_table AS SELECT * FROM (
             VALUES
-            ('{note_utils.anon_id("1", SALT_BYTES)}'),
-            ('{note_utils.anon_id("2", SALT_BYTES)}'),
-            ('{note_utils.anon_id("3", SALT_BYTES)}'),
-            ('{note_utils.anon_id("4", SALT_BYTES)}')
+            ('{cfs.anon_id("1", SALT_BYTES)}'),
+            ('{cfs.anon_id("2", SALT_BYTES)}'),
+            ('{cfs.anon_id("3", SALT_BYTES)}'),
+            ('{cfs.anon_id("4", SALT_BYTES)}')
         )
         AS t (diagnosticreport_id)
     """)
