@@ -92,6 +92,7 @@ def clean_study(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest | None,
     prefix: str | None = None,
+    skip_validation: bool = False,
 ) -> list:
     """Removes tables beginning with the study prefix from the database schema
 
@@ -193,7 +194,7 @@ def clean_study(
             for word in enums.ProtectedTableKeywords
         ):
             view_table_list.remove(view_table)
-    if prefix:
+    if prefix and not skip_validation:
         rich.print("The following views/tables were selected by prefix:")
         for view_table in view_table_list:
             rich.print(f"  {view_table[0]}")

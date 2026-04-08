@@ -59,6 +59,7 @@ class StudyRunner:
         *,
         options: dict[str, str],
         prefix: bool = False,
+        skip_validation: bool = False,
     ) -> None:
         """Removes study table/views from Athena.
 
@@ -73,7 +74,12 @@ class StudyRunner:
         """
         if prefix:
             manifest = study_manifest.StudyManifest(options=options)
-            cleaner.clean_study(config=self.get_config(manifest), manifest=manifest, prefix=target)
+            cleaner.clean_study(
+                config=self.get_config(manifest),
+                manifest=manifest,
+                prefix=target,
+                skip_validation=skip_validation,
+            )
         else:
             manifest = study_manifest.StudyManifest(study_dict[target], options=options)
             cleaner.clean_study(config=self.get_config(manifest), manifest=manifest)
@@ -334,6 +340,7 @@ def run_cli(args: dict):
                     target=args["target"],
                     study_dict=study_dict,
                     prefix=args["prefix"],
+                    skip_validation=args["skip_validation"],
                     options=args["options"],
                 )
             elif args["action"] == "build":

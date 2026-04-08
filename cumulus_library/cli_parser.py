@@ -188,6 +188,13 @@ AWS Athena, the following order of preference is used to select credentials:
         action="store_true",
         help=argparse.SUPPRESS,
     )
+
+    clean.add_argument(
+        "--skip_validation",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
+
     clean.add_argument(
         "--statistics",
         action="store_true",
