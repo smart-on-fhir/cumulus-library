@@ -411,7 +411,9 @@ def get_ctas_empty_query(
     )
 
 
-def get_delete_from_table_query(schema: str, table_name: str, where_clauses: list[str]) -> str:
+def get_delete_from_table_query(
+    schema: str, table_name: str, where_clauses: list[list[str]]
+) -> str:
     return get_template(
         "delete_from_table", schema=schema, table_name=table_name, where_clauses=where_clauses
     )
@@ -504,9 +506,11 @@ def get_select_from_single_query(
     columns: list[str],
     schema: str,
     table_name: str,
-    where_clauses: list[str],
+    where_clauses: list[list[str]] | None = None,
     distinct: bool = False,
 ):
+    if not where_clauses:
+        where_clauses = []
     return get_template(
         "select_from_single",
         schema=schema,

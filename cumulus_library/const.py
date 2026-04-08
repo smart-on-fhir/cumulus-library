@@ -32,3 +32,6 @@ STATISTICS_COLS_TYPES = [
 BUILD_SOURCE_COLS = ["stage", "name", "type"]
 BUILD_SOURCE_COLS_ATHENA_TYPE = ["string", "string", "string"]
 BUILD_SOURCE_COLS_SQL_TYPE = ["varchar", "varchar", "varchar"]
+
+REF_SUMMARY_COLS = ["table_name", "ref_type", "ref_count", "delta_percent", "event_time"]
+REF_SUMMARY_COLS_TYPES = ["varchar", "varchar", "integer", "double", "timestamp"]

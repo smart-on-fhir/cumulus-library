@@ -1,6 +1,7 @@
 """Handles the creation of new tables"""
 
 import contextlib
+import datetime
 import importlib.util
 import inspect
 import pathlib
@@ -141,7 +142,7 @@ def build_study(
                         total=query_count,
                         visible=not config.verbose,
                     )
-                    config.db.parallel_write(
+                    config.db.parallel_execute(
                         queries=queries,
                         verbose=config.verbose,
                         progress_bar=progress_bar,
@@ -153,6 +154,8 @@ def build_study(
         ) as z:
             for file in data_dir.iterdir():
                 z.write(file, file.relative_to(data_dir))
+    else:
+        log_ref_summary(config, manifest)
 
 
 def build_matching_files(
@@ -629,6 +632,131 @@ def _run_workflow(
                 view_name=target_table,
             )
     return builder.queries, bool(builder and builder.parallel_allowed)
+
+
+def log_ref_summary(config: base_utils.StudyConfig, manifest: study_manifest.StudyManifest):
+    """Updates the study ref_summary table with build results.
+
+    The goal here is to do the following:
+    - Find every table in a study containing a ref field
+    - Get the most recent previous log results, if they exist
+    - Get a count of the number of unique refs in the table
+    - If there is a previous run, and that table is present, calculate the percent change
+    - Write the count & results to the log table.
+
+    :param config: a StudyConfig object
+    :param manifest: a StudyManifest object
+    """
+    prefix = manifest.get_schema_aware_prefix_with_seperator()
+    summary_table = f"{prefix}{enums.ProtectedTables.REF_SUMMARY.value}"
+
+    # We'll set this up early in indeterminate mode while we wait for the
+    # information_schema.tables query to run, since this can take a while
+    # in athena
+    with base_utils.get_progress_bar() as progress_bar:
+        task = progress_bar.add_task(
+            "Generating summary statistics...",
+            total=None,
+            visible=not config.verbose,
+        )
+
+        # In Athena, if we try to do a like/regex type lookup on table name while
+        # looking for columns in an info schema query, we end up scanning the whole database.
+        # It ends up being much faster to get a list of tables and do a filter on the table
+        # being in the list instead, which bypasses the global search
+
+        study_tables_query = base_templates.get_select_from_single_query(
+            schema="information_schema",
+            table_name="tables",
+            columns=["table_name"],
+            where_clauses=[
+                [f"table_schema = '{config.schema}'", f"REGEXP_LIKE(table_name, '^({prefix}(.*))')"]
+            ],
+        )
+        study_tables = config.db.cursor().execute(study_tables_query).fetchall()
+        # Let's remove all the plumbing level tables from this list
+        for reserved_slug in ["_dn_", "__etl_", "__nlp_", "__lib_"]:
+            study_tables = [x for x in study_tables if reserved_slug not in x[0]]
+        study_tables = f"""('{"', '".join([x[0] for x in study_tables])}')"""
+        ref_cols_query = base_templates.get_select_from_single_query(
+            schema="information_schema",
+            table_name="columns",
+            columns=["table_name", "column_name"],
+            where_clauses=[
+                [
+                    f"table_schema = '{config.schema}'",
+                    f"table_name in {study_tables}",
+                    "REGEXP_LIKE(column_name, '((.*)_ref)$')",
+                ]
+            ],
+        )
+
+        ref_cols = config.db.cursor().execute(ref_cols_query).fetchall()
+
+        prior_results_query = base_templates.get_select_from_single_query(
+            schema=config.schema,
+            table_name=summary_table,
+            columns=const.REF_SUMMARY_COLS,
+            where_clauses=[
+                [
+                    "event_time = (SELECT MAX(event_time) FROM "  # noqa: S608
+                    f'"{config.schema}"."{summary_table}")'
+                ]
+            ],
+        )
+        prior_results_raw = config.db.cursor().execute(prior_results_query).fetchall()
+        prior_results = {}
+        for res in prior_results_raw:
+            if res[0] not in prior_results.keys():
+                prior_results[res[0]] = {}
+            prior_results[res[0]][res[1]] = res[2]
+
+        ref_queries = []
+        for ref_col in ref_cols:
+            ref_queries.append(
+                base_templates.get_select_from_single_query(
+                    schema=config.schema,
+                    table_name=ref_col[0],
+                    columns=[f"count(DISTINCT {ref_col[1]}) AS {ref_col[1]}"],
+                )
+            )
+        progress_bar.update(task, total=len(ref_queries))
+        parallel_results = config.db.parallel_execute(
+            queries=ref_queries,
+            verbose=config.verbose,
+            progress_bar=progress_bar,
+            task=task,
+        )
+        new_rows = []
+        event_time = str(datetime.datetime.utcnow())
+        deltas = False
+        for res in parallel_results:
+            formatted_table = (
+                str(sqlglot.parse_one(res.query, dialect=config.db.db_type).find(sqlglot.exp.Table))
+                .split(".")[1]
+                .replace('"', "")
+            )
+            prior = prior_results.get(formatted_table, {}).get(res.columns[0], None)
+            if prior:
+                prior = format(((res.rows[0][0] - prior) / prior) * 100, ".3f")
+                if prior != 0:
+                    deltas = True
+            new_rows.append((formatted_table, res.columns[0], res.rows[0][0], prior, event_time))
+        if len(new_rows) > 0:
+            update_query = base_templates.get_insert_into_query(
+                schema=config.schema,
+                table_name=summary_table,
+                table_cols=const.REF_SUMMARY_COLS,
+                dataset=new_rows,
+                type_casts={
+                    "ref_count": "integer",
+                    "delta_percent": "double",
+                    "event_time": "timestamp",
+                },
+            )
+            config.db.cursor().execute(update_query)
+    if deltas:
+        rich.print(f"Ref counts have changed. Check {summary_table} for more info.")
 
 
 ######### error handlers #########

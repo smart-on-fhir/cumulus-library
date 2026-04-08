@@ -136,8 +136,10 @@ def clean_study(
             table_name="tables",
             columns=["table_name"],
             where_clauses=[
-                f"table_name = '{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}'\n"
-                f"AND table_schema = '{config.schema}'"
+                [
+                    f"table_name = '{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}'\n",
+                    f"table_schema = '{config.schema}'",
+                ]
             ],
         )
         res = cursor.execute(query).fetchall()
@@ -151,7 +153,7 @@ def clean_study(
                 schema=base_utils.get_schema(config=config, manifest=manifest),
                 table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
                 columns=["name", "type"],
-                where_clauses=[f"stage = '{config.stage}'"],
+                where_clauses=[[f"stage = '{config.stage}'"]],
                 distinct=True,
             )
             names_and_types = cursor.execute(query).fetchall()
@@ -237,7 +239,7 @@ def clean_study(
         cleanup_query = base_templates.get_delete_from_table_query(
             schema=base_utils.get_schema(config=config, manifest=manifest),
             table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
-            where_clauses=[f"stage = '{config.stage}'"],
+            where_clauses=[[f"stage = '{config.stage}'"]],
         )
         cursor.execute(cleanup_query)
 
