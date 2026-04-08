@@ -707,9 +707,11 @@ def log_ref_summary(config: base_utils.StudyConfig, manifest: study_manifest.Stu
         prior_results_raw = config.db.cursor().execute(prior_results_query).fetchall()
         prior_results = {}
         for res in prior_results_raw:
-            if res[0] not in prior_results.keys():
-                prior_results[res[0]] = {}
-            prior_results[res[0]][res[1]] = res[2]
+            table_name = res[0]
+            ref_type = res[1]
+            ref_count = res[2]
+            table_dict = prior_results.setdefault(table_name, {})
+            table_dict[ref_type] = ref_count
 
         ref_queries = []
         for ref_col in ref_cols:
@@ -736,11 +738,13 @@ def log_ref_summary(config: base_utils.StudyConfig, manifest: study_manifest.Stu
                 .split(".")[1]
                 .replace('"', "")
             )
-            prior = prior_results.get(formatted_table, {}).get(res.columns[0], None)
-            if prior:
-                prior = format(((res.rows[0][0] - prior) / prior) * 100, ".3f")
-                if prior != 0:
+            prior_raw = prior_results.get(formatted_table, {}).get(res.columns[0], None)
+            if prior_raw:
+                prior = format(((res.rows[0][0] - prior_raw) / prior_raw) * 100, ".3f")
+                if prior_raw != 0:
                     deltas = True
+            else:
+                prior = None
             new_rows.append((formatted_table, res.columns[0], res.rows[0][0], prior, event_time))
         if len(new_rows) > 0:
             update_query = base_templates.get_insert_into_query(
