@@ -739,10 +739,13 @@ def log_ref_summary(config: base_utils.StudyConfig, manifest: study_manifest.Stu
                 .replace('"', "")
             )
             prior_raw = prior_results.get(formatted_table, {}).get(res.columns[0], None)
+
             if prior_raw is not None:
-                prior = format(((res.rows[0][0] - prior_raw) / prior_raw) * 100, ".3f")
+                deltas = True
                 if prior_raw != 0:
-                    deltas = True
+                    prior = format(((res.rows[0][0] - prior_raw) / prior_raw) * 100, ".3f")
+                else:
+                    prior = "100.000"
             else:
                 prior = None
             new_rows.append((formatted_table, res.columns[0], res.rows[0][0], prior, event_time))
