@@ -211,7 +211,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         progress_bar: progress.Progress,
         task: progress.Task,
     ) -> list[base.ParallelResult]:
-        def query_completed(f: futures.Future) -> None:
+        def query_completed(f: futures.Future) -> None:  # pragma: no cover
             with base_utils.query_console_output(verbose, query, progress_bar, task):
                 pass
 
