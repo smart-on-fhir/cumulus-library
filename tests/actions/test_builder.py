@@ -1,4 +1,5 @@
 import contextlib
+import datetime
 import io
 import pathlib
 from contextlib import nullcontext as does_not_raise
@@ -8,11 +9,9 @@ import pytest
 import time_machine
 
 from cumulus_library import base_utils, enums, errors, log_utils, study_manifest
-from cumulus_library.actions import (
-    builder,
-)
+from cumulus_library.actions import builder, cleaner
 from cumulus_library.template_sql import base_templates, sql_utils
-from tests import conftest
+from tests import conftest, testbed_utils
 
 
 @pytest.mark.parametrize(
@@ -258,3 +257,80 @@ def test_invalid_stage(mock_db_config, tmp_path):
     mock_db_config.stage = "definetely_not_a_stage"
     with pytest.raises(errors.StudyManifestParsingError):
         builder.build_study(mock_db_config, manifest)
+
+
+def test_ref_summary(tmp_path):
+    manifest = study_manifest.StudyManifest(
+        pathlib.Path(pathlib.Path(__file__).parents[2] / "cumulus_library/studies/core")
+    )
+    manifest._study_config["stages"] = {
+        "all": [
+            {
+                "type": "build:parallel",
+                "label": "FHIR nested resource flattening",
+                "files": [
+                    "builder_patient_prereq.py",
+                ],
+            },
+            {"type": "build:serial", "label": "Patient", "files": ["builder_patient.py"]},
+        ]
+    }
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    for i in range(5):
+        testbed.add_patient(str(i))
+    db = testbed.create_backend()
+    config = base_utils.StudyConfig(schema="main", db=db)
+    builder.run_protected_table_builder(config, manifest)
+
+    # On first run, delta should be None
+    with time_machine.travel("2024-01-01T00:00:00Z", tick=False):
+        builder.build_study(config=config, manifest=manifest)
+    res = config.db.cursor().execute("SELECT * FROM core__lib_ref_summary").fetchall()
+    assert len(res) == 1
+    assert res[0] == ("core__patient", "subject_ref", 6, None, datetime.datetime(2024, 1, 1, 0, 0))
+
+    # On subsequent run with no changes, delta should be zero
+    cleaner.clean_study(config=config, manifest=manifest)
+    with time_machine.travel("2024-01-02T00:00:00Z", tick=False):
+        builder.build_study(config=config, manifest=manifest)
+    res = (
+        config.db.cursor()
+        .execute("SELECT * FROM core__lib_ref_summary ORDER BY event_time DESC")
+        .fetchall()
+    )
+    assert len(res) == 2
+    assert res[0] == ("core__patient", "subject_ref", 6, 0.0, datetime.datetime(2024, 1, 2, 0, 0))
+
+    # On subsequent run with changes, delta should be non-zero
+    config.db.close()
+    testbed.add_patient(str(6))
+    db = testbed.create_backend()
+    config.db = db
+    cleaner.clean_study(config=config, manifest=manifest)
+    with time_machine.travel("2024-01-03T00:00:00Z", tick=False):
+        builder.build_study(config=config, manifest=manifest)
+    res = (
+        config.db.cursor()
+        .execute("SELECT * FROM core__lib_ref_summary ORDER BY event_time DESC")
+        .fetchall()
+    )
+    assert len(res) == 3
+    assert res[0] == (
+        "core__patient",
+        "subject_ref",
+        7,
+        16.667,
+        datetime.datetime(2024, 1, 3, 0, 0),
+    )
+
+    # Changes should only show up once
+    cleaner.clean_study(config=config, manifest=manifest)
+    with time_machine.travel("2024-01-04T00:00:00Z", tick=False):
+        builder.build_study(config=config, manifest=manifest)
+    res = (
+        config.db.cursor()
+        .execute("SELECT * FROM core__lib_ref_summary ORDER BY event_time DESC")
+        .fetchall()
+    )
+    assert len(res) == 4
+    assert res[0] == ("core__patient", "subject_ref", 7, 0.0, datetime.datetime(2024, 1, 4, 0, 0))

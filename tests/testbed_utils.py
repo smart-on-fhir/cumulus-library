@@ -258,7 +258,7 @@ class LocalTestbed:
     def get_db_file(self, study: str = "core") -> str:
         return f"{self.path}/{study}.db"
 
-    def build(self, study: str = "core") -> duckdb.DuckDatabaseBackend:
+    def create_backend(self, study: str = "core") -> duckdb.DuckDatabaseBackend:
         db_file = self.get_db_file(study)
         db, _ = create_db_backend(
             {
@@ -271,6 +271,10 @@ class LocalTestbed:
                 f"{pathlib.Path(__file__).parent}/test_data/duckdb_data/pyarrow_cache.parquet"
             ),
         )
+        return db
+
+    def build(self, study: str = "core") -> duckdb.DuckDatabaseBackend:
+        db = self.create_backend(study)
         config = base_utils.StudyConfig(
             db=db,
             schema="main",

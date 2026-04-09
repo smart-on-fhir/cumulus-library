@@ -11,8 +11,12 @@ VALUES
 (
     {%- for field in row -%}
     {%- if table_cols[loop.index0] in type_casts.keys() -%}
+    {%- if field is none -%}
+    CAST(NULL AS {{ type_casts[table_cols[loop.index0]] }})
+    {%- else -%}
     {{ type_casts[table_cols[loop.index0]] }} '{{ field }}'
-    {%- elif not field -%}
+    {%- endif -%}
+    {%- elif field is none -%}
     CAST(NULL AS VARCHAR)
     {%- else -%}
     '{{ field }}'

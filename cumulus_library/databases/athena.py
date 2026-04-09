@@ -204,14 +204,14 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self._clean_bucket_path(s3_client, bucket, res)
         return True
 
-    def parallel_write(
+    def parallel_execute(
         self,
         queries: list[str],
         verbose: bool,
         progress_bar: progress.Progress,
         task: progress.Task,
-    ) -> None:
-        def query_completed(f: futures.Future):
+    ) -> list[base.ParallelResult]:
+        def query_completed(f: futures.Future) -> None:  # pragma: no cover
             with base_utils.query_console_output(verbose, query, progress_bar, task):
                 pass
 
@@ -222,6 +222,17 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             future.add_done_callback(query_completed)
             res.append((query, future))
         utils.handle_concurrent_errors(res, self.db_type)
+        res_resolved = []
+        for f in res:
+            result_set = f[1].result()
+            res_resolved.append(
+                base.ParallelResult(
+                    query=f[0],
+                    columns=[x[0] for x in result_set.description],
+                    rows=result_set.fetchmany(),
+                )
+            )
+        return res_resolved
 
     def create_schema(self, schema_name) -> None:
         """Creates a new schema object inside the database"""

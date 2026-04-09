@@ -3,8 +3,12 @@
 DELETE FROM "{{ schema }}"."{{ table_name }}"
 {%- if where_clauses !=[] %}
 WHERE
-{%- for clause in where_clauses %}
-    {# TODO: replace with where clause parser #}
-    {{- syntax.or_delineate(loop) -}} {{ clause }}
+    {%- for clause_group in where_clauses %} --noqa: LT02
+    ( 
+        {%- for clause in clause_group %}
+        {{ syntax.and_delineate(loop) -}} {{ clause }}
+        {%- endfor -%}
+    ) --noqa: LT02
+    {{- syntax.or_delineate(loop) }}
 {%- endfor %}
 {%- endif %}

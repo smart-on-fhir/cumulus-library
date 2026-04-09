@@ -10,11 +10,19 @@ wrapper method in one of DatabaseCursor or DatabaseBackend.
 
 import abc
 import collections
+import dataclasses
 import pathlib
 from typing import Any, Protocol
 
 import pandas
 from rich import progress
+
+
+@dataclasses.dataclass(kw_only=True)
+class ParallelResult:
+    query: str
+    columns: list[str]
+    rows: list[tuple]
 
 
 class DatabaseCursor(Protocol):
@@ -225,14 +233,17 @@ class DatabaseBackend(abc.ABC):
         so we don't have to infer schema information. Only do schema inferring if your
         DB engine does not support parquet natively. If a table is empty, return None."""
 
+    def parallel_write(self, *args, **kwargs) -> list[ParallelResult]:
+        return self.parallel_execute(*args, **kwargs)
+
     @abc.abstractmethod
-    def parallel_write(
+    def parallel_execute(
         self,
         queries: list[str],
         verbose: bool,
         progress_bar: progress.Progress,
         task: progress.Task,
-    ) -> None:
+    ) -> list[ParallelResult]:
         """Executes queries in parallel
 
         If you're implementing for a database that does not support concurrent writes,

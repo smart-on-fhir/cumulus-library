@@ -359,4 +359,4 @@ view_cols = ["c","d"]
 view_name = test_view
 view_or_table_name = test_view_or_table
 view_or_table = TABLE
-where_clauses = ['cnt_subject >= 99', 'cnt_encounter >= 5']
+where_clauses = [['cnt_subject >= 99', 'cnt_encounter >= 5']]

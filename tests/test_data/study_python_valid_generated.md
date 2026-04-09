@@ -18,6 +18,17 @@
 |type  |VARCHAR|           |
 
 
+### study_python_valid__lib_ref_summary
+
+|   Column    |  Type   |Description|
+|-------------|---------|-----------|
+|table_name   |VARCHAR  |           |
+|ref_type     |VARCHAR  |           |
+|ref_count    |INTEGER  |           |
+|delta_percent|DOUBLE   |           |
+|event_time   |TIMESTAMP|           |
+
+
 ### study_python_valid__lib_transactions
 
 |    Column     |  Type   |Description|

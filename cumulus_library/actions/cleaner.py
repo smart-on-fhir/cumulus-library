@@ -92,6 +92,7 @@ def clean_study(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest | None,
     prefix: str | None = None,
+    skip_validation: bool = False,
 ) -> list:
     """Removes tables beginning with the study prefix from the database schema
 
@@ -136,8 +137,10 @@ def clean_study(
             table_name="tables",
             columns=["table_name"],
             where_clauses=[
-                f"table_name = '{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}'\n"
-                f"AND table_schema = '{config.schema}'"
+                [
+                    f"table_name = '{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}'\n",
+                    f"table_schema = '{config.schema}'",
+                ]
             ],
         )
         res = cursor.execute(query).fetchall()
@@ -151,7 +154,7 @@ def clean_study(
                 schema=base_utils.get_schema(config=config, manifest=manifest),
                 table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
                 columns=["name", "type"],
-                where_clauses=[f"stage = '{config.stage}'"],
+                where_clauses=[[f"stage = '{config.stage}'"]],
                 distinct=True,
             )
             names_and_types = cursor.execute(query).fetchall()
@@ -191,7 +194,7 @@ def clean_study(
             for word in enums.ProtectedTableKeywords
         ):
             view_table_list.remove(view_table)
-    if prefix:
+    if prefix and not skip_validation:
         rich.print("The following views/tables were selected by prefix:")
         for view_table in view_table_list:
             rich.print(f"  {view_table[0]}")
@@ -237,7 +240,7 @@ def clean_study(
         cleanup_query = base_templates.get_delete_from_table_query(
             schema=base_utils.get_schema(config=config, manifest=manifest),
             table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
-            where_clauses=[f"stage = '{config.stage}'"],
+            where_clauses=[[f"stage = '{config.stage}'"]],
         )
         cursor.execute(cleanup_query)
 
