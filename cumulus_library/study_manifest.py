@@ -122,6 +122,12 @@ class StudyManifest:
                     f"The following action in {source} is missing an expected key, 'tables':\n"
                     f"{action}"
                 )
+        if any(x in action.get("label", "") for x in ["[", "]"]):
+            raise errors.StudyManifestParsingError(
+                "The following label contains square brackets, which are reserved characters:\n"
+                f"{action['label']}\n"
+                "Please update the label to remove these brackets."
+            )
 
     def _has_stats_workflows(self) -> bool:
         for stage in self._study_config.get("stages", {}).values():
@@ -184,12 +190,12 @@ class StudyManifest:
                             study_path.parent / submanifest, SubmanifestConfig
                         )
                         for subaction in subconfig.get("actions"):
-                            self._validate_action(subaction, study_path.parent / submanifest)
                             actions.append(self._format_action(subaction))
+                            self._validate_action(subaction, study_path.parent / submanifest)
                             all_actions.append(subaction)
                 else:
-                    self._validate_action(action, study_path)
                     actions.append(self._format_action(action))
+                    self._validate_action(action, study_path)
                     all_actions.append(action)
             config["stages"][stage] = actions
 

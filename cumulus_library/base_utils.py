@@ -7,6 +7,8 @@ import shutil
 import zipfile
 from contextlib import contextmanager
 
+import numpy
+import pandas
 import platformdirs
 import pyarrow
 import rich
@@ -223,6 +225,29 @@ def pyarrow_types_from_hive_types(field_types: list[str]):
                 new_types.append(pyarrow.string())
             case "boolean" | "binary":
                 new_types.append(pyarrow.bool_())
+            case _:
+                raise errors.CumulusLibraryError(
+                    f"Field type {field} is not a supported hive data type"
+                )
+    return new_types
+
+
+def pandas_types_from_hive_types(field_types: list[str]):
+    new_types = []
+    for field in field_types:
+        match field.lower():
+            case "tinyint" | "smallint" | "int" | "integer" | "bigint":
+                new_types.append(pandas.Int64Dtype())
+            case "float" | "double" | "double precision" | "decimal":
+                new_types.append(pandas.Float64DType())
+            case "timestamp" | "date":
+                new_types.append(numpy.datetime64)
+            case "interval":
+                new_types.append(pandas.IntervalDtype())
+            case "string" | "varchar" | "char":
+                new_types.append(pandas.StringDtype())
+            case "boolean" | "binary":
+                new_types.append(pandas.BooleanDtype())
             case _:
                 raise errors.CumulusLibraryError(
                     f"Field type {field} is not a supported hive data type"

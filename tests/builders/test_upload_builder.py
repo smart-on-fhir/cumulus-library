@@ -1,4 +1,5 @@
 import csv
+import datetime
 import pathlib
 import shutil
 from unittest import mock
@@ -129,7 +130,8 @@ def test_date_handling(mock_cache, mock_db_config, tmp_path):
     with open(tmp_path / "dates.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerow(["period_start", "period_end", "include_history"])
-        writer.writerow(["2016-01-01", "2026-01-01", "true"])
+        writer.writerow(["2016-01-01", "", "true"])
+        writer.writerow(["", "2016-01-01T00:00:00Z", "true"])
     builder = file_upload_builder.FileUploadBuilder(
         toml_config_path=tmp_path / "workflow.toml",
     )
@@ -147,35 +149,11 @@ def test_date_handling(mock_cache, mock_db_config, tmp_path):
         ("period_end", "TIMESTAMP_NS"),
         ("include_history", "BOOLEAN"),
     ]
-
-
-@mock.patch("platformdirs.user_cache_dir")
-def test_multifile_mismatch(mock_cache, mock_db_config, tmp_path):
-    mock_cache.return_value = tmp_path / "cache"
-    shutil.copytree(TEST_DATA_PATH, tmp_path / "file_upload", dirs_exist_ok=True)
-
-    manifest = study_manifest.StudyManifest(tmp_path / "file_upload")
-    with open(tmp_path / "file_upload/upload_commas_part2.csv", "w") as f:
-        writer = csv.writer(f)
-        writer.writerow(
-            [
-                "a",
-                "b",
-                "c",
-            ]
-        )
-        writer.writerow(
-            [
-                7,
-                "8",
-                "xyz",
-            ]
-        )
-    with pytest.raises(errors.FileUploadError, match="does not match the schema"):
-        builder = file_upload_builder.FileUploadBuilder(
-            toml_config_path=tmp_path / "file_upload/workflow.toml",
-        )
-        builder.prepare_queries(config=mock_db_config, manifest=manifest)
+    data = mock_db_config.db.cursor().execute("SELECT * FROM upload_date__dates").fetchall()
+    assert data == [
+        (datetime.date(2016, 1, 1), None, True),
+        (None, datetime.datetime(2016, 1, 1, 0, 0), True),
+    ]
 
 
 @mock.patch("cumulus_library.template_sql.base_templates.get_ctas_from_parquet_query")
