@@ -65,12 +65,29 @@ class FileUploadBuilder(BaseTableBuilder):
                     f"{self._toml_config_path} is invalid."
                 )
 
-    def get_pandas_types(self, df, pandas_types):
+    def get_pandas_read_params(
+        self, df: pandas.DataFrame, pandas_types: list | None, task_name: str
+    ) -> (dict, list):
+        """Sets up proper typing for reading data into a dataframe
+
+        :param df: a dataframe, read with naieve typing
+        :param pandas_types: a list, cast from table['col_types'], of types to use
+        :param task_name: the name of the task being run, for error messages
+        :returns: a type dict, and a list of date columns
+
+        Due to how pandas wants to handle nullable date casting, when we detect a date
+        column, we will cast it as a string object, and then use the date column list
+        later to perform conversions after load.
+        """
         dtype_dict = {}
         date_cols = []
-        if pandas_types is None or len(pandas_types) != len(df.columns):
+        if pandas_types is None:
             pandas_types = [pandas.StringDtype() for x in list(df.columns)]
-        dtype_dict = {}
+        if len(pandas_types) != len(df.columns):
+            raise errors.FileUploadError(
+                f"{task_name} has {len(df.columns)} columns, but the provided "
+                f"col_types has {len(pandas_types)} entries."
+            )
         for index in range(0, len(df.columns)):
             if pandas_types[index] == numpy.datetime64:
                 dtype_dict[df.columns[index]] = pandas.StringDtype()
@@ -147,7 +164,9 @@ class FileUploadBuilder(BaseTableBuilder):
                     elif file.endswith(".xlsx"):
                         parquet_path = cache_dir / table_filename.replace(".xlsx", ".parquet")
                         df = pandas.read_excel(self._toml_config_dir / file)
-                        dtype_dict, date_cols = self.get_pandas_types(df, pandas_types)
+                        dtype_dict, date_cols = self.get_pandas_read_params(
+                            df, pandas_types, task_name
+                        )
                         df = pandas.read_excel(self._toml_config_dir / file, dtype=pandas_types)
                     elif file.endswith(".csv") or file.endswith(".tsv") or file.endswith(".bsv"):
                         parquet_path = cache_dir / f"{table_filename[:-4]}.parquet"
@@ -163,7 +182,9 @@ class FileUploadBuilder(BaseTableBuilder):
                             self._toml_config_dir / file,
                             delimiter=table["delimiter"],
                         )
-                        dtype_dict, date_cols = self.get_pandas_types(df, pandas_types)
+                        dtype_dict, date_cols = self.get_pandas_read_params(
+                            df, pandas_types, task_name
+                        )
                         df = pandas.read_csv(
                             self._toml_config_dir / file,
                             delimiter=table["delimiter"],
@@ -173,7 +194,9 @@ class FileUploadBuilder(BaseTableBuilder):
                     elif file.endswith(".parquet"):
                         parquet_path = cache_dir / table_filename
                         df = pandas.read_parquet(self._toml_config_dir / file)
-                        dtype_dict, date_cols = self.get_pandas_types(df, pandas_types)
+                        dtype_dict, date_cols = self.get_pandas_read_params(
+                            df, pandas_types, task_name
+                        )
 
                     else:
                         raise errors.FileUploadError(
@@ -196,12 +219,6 @@ class FileUploadBuilder(BaseTableBuilder):
                     local_location = parquet_path.parent
 
                     df = df.rename(self._snake_case, axis="columns")
-                    if len(table["col_types"]) != len(df.columns):
-                        raise errors.FileUploadError(
-                            f"{task_name} has {len(df.columns)} columns, but the provided "
-                            f"col_types has {len(table['col_types'])} entries."
-                        )
-                    type_dict = {}
 
                     # Now we're going to do a type dance :again: to get the types we want
                     # for athena, mostly to distinguish dates from timestamps. We don't start
@@ -209,6 +226,7 @@ class FileUploadBuilder(BaseTableBuilder):
                     # tried to read if we had a pyarrow only solution. So we'll get a different
                     # type system, create an arrow table using it, and use that to write out the
                     # parquet for writing to athena.
+                    type_dict = {}
                     pyarrow_types = base_utils.pyarrow_types_from_hive_types(table["col_types"])
                     arrow_table = pyarrow.Table.from_pandas(df, preserve_index=False)
                     for pos in range(0, len(pyarrow_types)):
