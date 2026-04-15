@@ -274,6 +274,10 @@ def test_formatted_study_prefix(tmp_path):
             {"type": "export:counts", "files": ["table__name"]},
             pytest.raises(errors.StudyManifestParsingError, match="expected key, 'tables'"),
         ),
+        (
+            {"type": "build:serial", "files": ["table__name"], "label": "foo [bar]"},
+            pytest.raises(errors.StudyManifestParsingError, match="square brackets"),
+        ),
     ],
 )
 def test_validate_action(action, raises, tmp_path):

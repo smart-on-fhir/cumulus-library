@@ -177,7 +177,7 @@ tables = [
 
 [[stages.count_cohorts]]
 description = 'Export metadata'
-type = 'export:metadata'
+type = 'export:meta'
 tables = [
   "my_study__meta_date",
   "my_study__meta_version",
