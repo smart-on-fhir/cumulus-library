@@ -239,7 +239,7 @@ def pandas_types_from_hive_types(field_types: list[str]):
             case "tinyint" | "smallint" | "int" | "integer" | "bigint":
                 new_types.append(pandas.Int64Dtype())
             case "float" | "double" | "double precision" | "decimal":
-                new_types.append(pandas.Float64DType())
+                new_types.append(pandas.Float64Dtype())
             case "timestamp" | "date":
                 new_types.append(numpy.datetime64)
             case "interval":
