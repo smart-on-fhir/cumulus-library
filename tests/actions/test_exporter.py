@@ -1,5 +1,6 @@
 import os
 import pathlib
+import tomllib
 import zipfile
 from unittest import mock
 
@@ -58,3 +59,7 @@ def test_export_study(tmp_path, mock_db):
                 )
         else:
             raise Exception("Unexpected file type in export dir")
+    archive.extract("manifest.toml", tmp_path)
+    with open(tmp_path / "manifest.toml", "rb") as file:
+        manifest = tomllib.load(file)
+    assert manifest["study_prefix"] == "core"
