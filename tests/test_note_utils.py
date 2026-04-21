@@ -45,22 +45,6 @@ def test_note_source_iter(mock_advance, tmp_path):
     assert ids == ["dxr1", "dxr2", "docref1", "docref2"]
 
 
-@mock.patch("cumulus_fhir_support.list_multiline_json_in_dir", return_value=["a"])
-@mock.patch("cumulus_fhir_support.read_multiline_json_with_details", return_value=[])
-@mock.patch("fsspec.filesystem")
-def test_note_source_s3(mock_filesystem, mock_read, mock_list):
-    """Confirm that we correctly create and pass the fsspec object around - no actual I/O here"""
-    fs = mock_filesystem.return_value
-    fs.sizes.return_value = [10]
-
-    source = note_utils.NoteSource(["s3://mockbucket/"], s3_region="cloud9")
-
-    assert list(source.progress_iter("testing")) == []
-    assert mock_filesystem.call_args == mock.call("s3", client_kwargs={"region_name": "cloud9"})
-    assert mock_list.call_args[1]["fsspec_fs"] == fs
-    assert mock_read.call_args[1]["fsspec_fs"] == fs
-
-
 def test_note_source_phi_dir(tmp_path):
     """Just confirm we parse the salt from a codebook file"""
     with open(f"{tmp_path}/codebook.json", "w") as f:

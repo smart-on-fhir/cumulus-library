@@ -8,6 +8,7 @@ import os
 import pathlib
 import sys
 
+import cumulus_fhir_support as cfs
 import requests
 import rich
 
@@ -344,9 +345,7 @@ def run_cli(args: dict):
                     options=args["options"],
                 )
             elif args["action"] == "build":
-                notes = note_utils.NoteSource(
-                    args["note_dir"], phi_dir=args["etl_phi_dir"], s3_region={args["region"]}
-                )
+                notes = note_utils.NoteSource(args["note_dir"], phi_dir=args["etl_phi_dir"])
                 if args["builder"]:
                     runner.build_matching_files(
                         study_dict[args["target"]],
@@ -504,6 +503,8 @@ def main(cli_args=None):
             )
         options[c_arg[0]] = c_arg[1]
     args["options"] = options
+
+    cfs.FsPath.register_options(region=args.get("region"))
 
     if args.get("data_path"):
         args["data_path"] = get_abs_path(args["data_path"])
