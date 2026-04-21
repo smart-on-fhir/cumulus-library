@@ -374,9 +374,10 @@ class StudyManifest:
         path.parent.mkdir(exist_ok=True, parents=True)
         with open(path, "wb") as f:
             config = copy.deepcopy(self._study_config)
-            config["stages"].pop("all", None)
             # we'll remove the all key we auto created before writing out a copy
-            f.write(msgspec.toml.encode(ManifestConfig(config)))
+            config["stages"].pop("all", None)
+            output = msgspec.toml.encode(config)
+            f.write(output)
 
     ### Dynamic Python code support
 
