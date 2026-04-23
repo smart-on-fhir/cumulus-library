@@ -89,6 +89,7 @@ class StudyRunner:
         prepare: bool = False,
         data_path: pathlib.Path | None = None,
         notes: note_utils.NoteSource | None = None,
+        nlp_config: note_utils.NlpConfig | None = None,
     ) -> None:
         """Recreates study views/tables
 
@@ -98,6 +99,7 @@ class StudyRunner:
         :keyword prepare: If true, will render query instead of executing
         :keyword data_path: If prepare is true, the path to write rendered data to
         :keyword notes: Source to read notes from (for NLP)
+        :keyword nlp_config: NLP config options from command line
         """
         manifest = study_manifest.StudyManifest(target, self.data_path, options=options)
         try:
@@ -128,6 +130,7 @@ class StudyRunner:
                 continue_from=continue_from,
                 data_path=data_path,
                 notes=notes,
+                nlp_config=nlp_config,
                 prepare=prepare,
             )
             if not prepare:
@@ -159,6 +162,7 @@ class StudyRunner:
         prepare: bool = False,
         data_path: pathlib.Path,
         notes: note_utils.NoteSource,
+        nlp_config: note_utils.NlpConfig,
     ) -> None:
         """Runs a single table builder
 
@@ -168,6 +172,7 @@ class StudyRunner:
         :keyword prepare: If true, will render query instead of executing
         :keyword data_path: If prepare is true, the path to write rendered data to
         :keyword notes: Source to read notes from (for NLP)
+        :keyword nlp_config: NLP config options from command line
         """
         manifest = study_manifest.StudyManifest(target, options=options)
         # In case someone is using the --builder command with a study that hasn't been run,
@@ -180,6 +185,7 @@ class StudyRunner:
             prepare=prepare,
             data_path=data_path,
             notes=notes,
+            nlp_config=nlp_config,
         )
 
     ### Data exporters
@@ -345,7 +351,8 @@ def run_cli(args: dict):
                     options=args["options"],
                 )
             elif args["action"] == "build":
-                notes = note_utils.NoteSource(args["note_dir"], phi_dir=args["etl_phi_dir"])
+                notes = note_utils.NoteSource(args["note_dir"])
+                nlp_config = note_utils.NlpConfig(args)
                 if args["builder"]:
                     runner.build_matching_files(
                         study_dict[args["target"]],
@@ -354,6 +361,7 @@ def run_cli(args: dict):
                         prepare=args["prepare"],
                         data_path=args["data_path"],
                         notes=notes,
+                        nlp_config=nlp_config,
                     )
                 else:
                     runner.clean_and_build_study(
@@ -363,6 +371,7 @@ def run_cli(args: dict):
                         prepare=args["prepare"],
                         data_path=args["data_path"],
                         notes=notes,
+                        nlp_config=nlp_config,
                     )
 
             elif args["action"] == "export":

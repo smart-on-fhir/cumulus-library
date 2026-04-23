@@ -2,6 +2,8 @@ config_type = "nlp"
 
 [[task]]
 
+name = "age"
+
 # Version History:
 # ** 1 (2025-10): New serialized format **
 # ** 0 (2025-08): Initial work **
