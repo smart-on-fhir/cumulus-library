@@ -11,7 +11,6 @@ MRCONSO.RRF
 *.zip
 coverage.xml
 valueset_data/
-/cumulus_library/studies/example_nlp/age.json
 
 # parquet and csv files show up during an export, which devs might do a fair bit in odd places.
 # So for safety, ignore them both here, except in the tests dir where we use them for test data.

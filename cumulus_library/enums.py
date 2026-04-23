@@ -22,7 +22,7 @@ class ProtectedTables(enum.Enum):
 
 
 class ProtectedTableKeywords(enum.Enum):
-    """Tables with a pattern like '_{keyword}_' are not manually dropped."""
+    """Tables with a pattern like '_{keyword}_' are not automatically dropped."""
 
     ETL = "etl"
     LIB = "lib"

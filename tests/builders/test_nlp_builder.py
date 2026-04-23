@@ -8,13 +8,16 @@ from unittest import mock
 
 import cumulus_fhir_support as cfs
 import pytest
+import respx
 
 from cumulus_library import cli, note_utils
 from cumulus_library.builders import nlp_builder
+from tests import nlp_utils
 from tests.conftest import duckdb_args
 
 SALT_STR = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
 SALT_BYTES = binascii.unhexlify(SALT_STR)
+EMPTY_SCHEMA = 'response_schema=\'{"title":"test", "type": "object"}\''
 
 
 def add_dxr(id_val: str, text: str | None, file) -> None:
@@ -52,7 +55,12 @@ extra_field="yup"
 def test_empty_note_dir(tmp_path):
     workflow_path = f"{tmp_path}/nlp.workflow"
     with open(workflow_path, "w", encoding="utf8") as f:
-        f.write('config_type="nlp"\n[[task]]')
+        f.write(f"""
+config_type="nlp"
+[[task]]
+name="test"
+{EMPTY_SCHEMA}
+""")
     with pytest.raises(SystemExit, match="there are no notes to work with"):
         nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_utils.NoteSource())
 
@@ -60,10 +68,12 @@ def test_empty_note_dir(tmp_path):
 def test_table_filter_but_no_salt(tmp_path, note_source, mock_db_config):
     workflow_path = f"{tmp_path}/nlp.workflow"
     with open(workflow_path, "w", encoding="utf8") as f:
-        f.write("""
+        f.write(f"""
 config_type="nlp"
 [[task]]
+name="test"
 select_by_table="table"
+{EMPTY_SCHEMA}
 """)
     builder = nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
     err_msg = "Cannot calculate anonymized resource IDs without a PHI dir defined"
@@ -74,37 +84,39 @@ select_by_table="table"
 def test_flattened_config(tmp_path, note_source):
     workflow_path = f"{tmp_path}/nlp.workflow"
     with open(workflow_path, "w", encoding="utf8") as f:
-        f.write("""
+        f.write(f"""
 config_type="nlp"
 [shared]
 system_prompt="hello"
 [[task]]
 name="override"
 system_prompt="bye"
+{EMPTY_SCHEMA}
 [[task]]
 name="fallthrough"
+{EMPTY_SCHEMA}
 """)
     builder = nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
     assert builder._workflow_config.task[0].system_prompt == "bye"
     assert builder._workflow_config.task[1].system_prompt == "hello"
 
 
+@respx.mock
 def test_filter(tmp_path, mock_db_config):
-    codebook_path = f"{tmp_path}/codebook.json"
-    with open(codebook_path, "w", encoding="utf8") as f:
-        json.dump({"id_salt": SALT_STR}, f)
-
     workflow_path = f"{tmp_path}/nlp.workflow"
     with open(workflow_path, "w", encoding="utf8") as f:
-        f.write("""
+        f.write(f"""
 config_type="nlp"
+[shared]
 [[task]]
 name="filtered"
 select_by_word=["fever"]
 reject_by_word=["cold"]
 select_by_table="prev_table"
+{EMPTY_SCHEMA}
 [[task]]
 name="all"
+{EMPTY_SCHEMA}
 """)
 
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
@@ -133,9 +145,12 @@ name="all"
         AS t (diagnosticreport_id)
     """)
 
-    source = note_utils.NoteSource([tmp_path], phi_dir=tmp_path)
+    source = note_utils.NoteSource([tmp_path])
+    model = nlp_utils.MockModel()
 
-    builder = nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=source)
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
+    )
 
     console_output = io.StringIO()
     with contextlib.redirect_stdout(console_output):
@@ -151,11 +166,9 @@ def test_args_passed_down(mock_builder, tmp_path):
         dxr = {"resourceType": "DiagnosticReport", "id": "1"}
         json.dump(dxr, f)
 
-    os.makedirs(f"{tmp_path}/phi")
-    with open(f"{tmp_path}/phi/codebook.json", "w", encoding="utf8") as f:
-        json.dump({"id_salt": SALT_STR}, f)
-
     mock_builder.side_effect = RuntimeError("nope")
+
+    mock_model = nlp_utils.MockModel()
 
     build_args = duckdb_args(
         [
@@ -164,7 +177,7 @@ def test_args_passed_down(mock_builder, tmp_path):
             "--target=example_nlp",
             "--stage=nlp",
             f"--note-dir={tmp_path}",
-            f"--etl-phi-dir={tmp_path}/phi",
+            *mock_model.cli_args(),
         ],
         tmp_path,
     )
@@ -172,6 +185,46 @@ def test_args_passed_down(mock_builder, tmp_path):
     with pytest.raises(RuntimeError, match="nope"):
         cli.main(cli_args=build_args)
 
+    config = mock_builder.call_args[1]["nlp_config"]
+    assert config.salt == SALT_BYTES
+
     source = mock_builder.call_args[1]["notes"]
-    assert source.salt == SALT_BYTES
     assert list(source.progress_iter("label")) == [dxr]
+
+
+@respx.mock
+def test_cached_response(tmp_path, mock_db_config):
+    workflow_path = f"{tmp_path}/nlp.workflow"
+    with open(workflow_path, "w", encoding="utf8") as f:
+        f.write("""
+config_type="nlp"
+[[task]]
+name="hello_world"
+response_schema='{"title":"test", "type": "object", "properties": {"hello": {"type": "string"}}}'
+""")
+
+    with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
+        add_dxr("1", "say hello to the world", f)
+
+    source = note_utils.NoteSource([tmp_path])
+
+    model = nlp_utils.MockModel()
+    model.mock_response({"hello": "world"})
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
+    )
+    builder.prepare_queries(config=mock_db_config)
+
+    assert builder.stats.got_response[0] == 1
+
+    # Confirm that we cache the response and don't hit the endpoint again
+    # (and add a new note to sanity check that we do actually fail on the new one)
+    model.chat_route.respond(status_code=500)
+
+    with open(f"{tmp_path}/dxr.ndjson", "a", encoding="utf8") as f:
+        add_dxr("2", "goodbye", f)
+
+    builder.prepare_queries(config=mock_db_config)
+    assert builder.stats.considered[0] == 2
+    assert builder.stats.got_response[0] == 1  # still got our cached result
