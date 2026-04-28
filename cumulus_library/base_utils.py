@@ -123,7 +123,7 @@ def get_tablename_safe_iso_timestamp() -> str:
 
 def zip_dir(read_path, write_path, archive_name, archive_csvs=False, zip_subdirs=True):
     """Moves a directory to an archive"""
-    if zip_subdirs:
+    if zip_subdirs or archive_csvs:
         glob_pattern = "**/*"
     else:
         glob_pattern = "*"
