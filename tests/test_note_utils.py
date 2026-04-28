@@ -50,8 +50,8 @@ def test_note_source_phi_dir(tmp_path):
     with open(f"{tmp_path}/codebook.json", "w") as f:
         json.dump({"id_salt": SALT_STR}, f)
 
-    source = note_utils.NoteSource(phi_dir=tmp_path)
-    assert source.salt == SALT_BYTES
+    config = note_utils.NlpConfig({"etl_phi_dir": tmp_path})
+    assert config.salt == SALT_BYTES
 
 
 def test_get_table_refs():

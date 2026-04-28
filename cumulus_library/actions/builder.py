@@ -47,6 +47,7 @@ def build_study(
     prepare: bool = False,
     data_path: pathlib.Path | None = None,
     notes: note_utils.NoteSource | None = None,
+    nlp_config: note_utils.NlpConfig | None = None,
 ) -> None:
     """Creates tables in the schema by iterating through the stages in the specified build type
 
@@ -58,6 +59,7 @@ def build_study(
     :keyword prepare: If true, will render query instead of executing
     :keyword data_path: If prepare is true, the path to write rendered data to
     :keyword notes: Source to read notes from (for NLP)
+    :keyword nlp_config: NLP config options from command line
     """
     if prepare:
         _check_if_preparable(manifest.get_study_prefix())
@@ -115,6 +117,7 @@ def build_study(
                     filename=file,
                     data_path=data_path,
                     notes=notes,
+                    nlp_config=nlp_config,
                     prepare=prepare,
                     parallel=parallel,
                     query_count=query_count,
@@ -169,6 +172,7 @@ def build_matching_files(
     prepare: bool,
     data_path: pathlib.Path,
     notes: note_utils.NoteSource | None = None,
+    nlp_config: note_utils.NlpConfig | None = None,
 ):
     """targets all table builders matching a target string for running
 
@@ -179,6 +183,7 @@ def build_matching_files(
     :keyword prepare: If true, will render query instead of executing
     :keyword data_path: If prepare is true, the path to write rendered data to
     :keyword notes: Source to read notes from (for NLP)
+    :keyword nlp_config: NLP config options from command line
     """
     if prepare:
         _check_if_preparable(manifest.get_study_prefix())  # pragma: no cover
@@ -201,6 +206,7 @@ def build_matching_files(
         prepare=prepare,
         data_path=data_path,
         notes=notes,
+        nlp_config=nlp_config,
     )
 
 
@@ -538,6 +544,7 @@ def _run_workflow(
     data_path: pathlib.Path,
     query_count: int,
     notes: note_utils.NoteSource | None = None,
+    nlp_config: note_utils.NlpConfig | None = None,
     parallel: bool = False,
 ) -> tuple[list[str], bool]:
     """Loads workflow config from toml definitions and executes workflow
@@ -548,6 +555,7 @@ def _run_workflow(
     :keyword prepare: If true, will render query instead of executing
     :keyword data_path: If prepare is true, the path to write rendered data to
     :keyword notes: Source to read notes from (for NLP)
+    :keyword nlp_config: NLP config options from command line
     :keyword query_count: if prepare is true, the number of queries already rendered
     :keyword stage_name: the stage in the build currently being processed
     :keyword parallel; If true, execute queries in parallel if workflow allows
@@ -592,6 +600,7 @@ def _run_workflow(
                 manifest=manifest,
                 toml_config_path=toml_path,
                 notes=notes or note_utils.NoteSource(),
+                nlp_config=nlp_config or note_utils.NlpConfig(),
             )
         case "psm":
             existing_stats = []

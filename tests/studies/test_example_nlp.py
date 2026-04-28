@@ -4,9 +4,10 @@ import json
 
 import duckdb
 import pandas
+import respx
 
 from cumulus_library import cli
-from tests import testbed_utils
+from tests import nlp_utils, testbed_utils
 from tests.conftest import duckdb_args
 
 
@@ -100,9 +101,12 @@ def test_merging_two_sources(tmp_path):
     ]
 
 
+@respx.mock
 def test_full_build(tmp_path):
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         json.dump({"resourceType": "DiagnosticReport", "id": "1"}, f)
+
+    model = nlp_utils.MockModel()
 
     build_args = duckdb_args(
         [
@@ -114,6 +118,7 @@ def test_full_build(tmp_path):
             "all",
             "--note-dir",
             str(tmp_path),
+            *model.cli_args(),
         ],
         tmp_path,
     )
