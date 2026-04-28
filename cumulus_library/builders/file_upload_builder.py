@@ -182,18 +182,19 @@ class FileUploadBuilder(BaseTableBuilder):
                                         table["delimiter"] = ","
                                     case "tsv":
                                         table["delimiter"] = "\t"
-                                df = pandas.read_csv(
-                                    self._toml_config_dir / file,
-                                    delimiter=table["delimiter"],
-                                )
-                                dtype_dict, date_cols = self.get_pandas_read_params(
-                                    df, pandas_types, task_name
-                                )
-                                df = pandas.read_csv(
-                                    self._toml_config_dir / file,
-                                    delimiter=table["delimiter"],
-                                    dtype=dtype_dict,
-                                )
+                            df = pandas.read_csv(
+                                self._toml_config_dir / file,
+                                delimiter=table["delimiter"],
+                            )
+                            dtype_dict, date_cols = self.get_pandas_read_params(
+                                df, pandas_types, task_name
+                            )
+                            df = pandas.read_csv(
+                                self._toml_config_dir / file,
+                                delimiter=table["delimiter"],
+                                dtype=dtype_dict,
+                            )
+
                         elif file.endswith(".parquet"):
                             parquet_path = cache_dir / table_filename
                             df = pandas.read_parquet(self._toml_config_dir / file)
