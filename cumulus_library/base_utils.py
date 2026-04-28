@@ -121,9 +121,13 @@ def get_tablename_safe_iso_timestamp() -> str:
     return safe_timestamp
 
 
-def zip_dir(read_path, write_path, archive_name, archive_csvs=False):
+def zip_dir(read_path, write_path, archive_name, archive_csvs=False, zip_subdirs=True):
     """Moves a directory to an archive"""
-    file_list = [file for file in read_path.glob("**/*") if file.is_file()]
+    if zip_subdirs or archive_csvs:
+        glob_pattern = "**/*"
+    else:
+        glob_pattern = "*"
+    file_list = [file for file in read_path.glob(glob_pattern) if file.is_file()]
     timestamp = get_utc_datetime().isoformat().replace("+00:00", "Z")
     if archive_csvs:
         # archives including csvs are meant to be permanent and are kept outside the study data dirs
