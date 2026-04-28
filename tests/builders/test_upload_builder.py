@@ -60,6 +60,43 @@ def test_snake_case():
 
 
 @mock.patch("platformdirs.user_cache_dir")
+def test_bad_datasource(mock_cache, mock_db_config, tmp_path):
+    mock_cache.return_value = tmp_path / "cache"
+    conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "file_upload",
+            "tables": {"bad_csv": {"file": "a.csv"}},
+        },
+        filename="workflow.toml",
+    )
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "study",
+            "stages": {"default": [{"files": ["a.csv"]}]},
+        },
+        filename="manifest.toml",
+    )
+    manifest = study_manifest.StudyManifest(tmp_path)
+    with open(tmp_path / "a.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["x", "y"])
+        writer.writerow(
+            [
+                "1",
+                "2",
+            ]
+        )
+        writer.writerow(["3", "4", "5"])
+    with pytest.raises(SystemExit):
+        builder = file_upload_builder.FileUploadBuilder(
+            toml_config_path=tmp_path / "workflow.toml",
+        )
+        builder.prepare_queries(config=mock_db_config, manifest=manifest)
+
+
+@mock.patch("platformdirs.user_cache_dir")
 def test_unsupported_filetype(mock_cache, mock_db_config, tmp_path):
     mock_cache.return_value = tmp_path / "cache"
     shutil.copytree(TEST_DATA_PATH, tmp_path / "file_upload", dirs_exist_ok=True)

@@ -9,6 +9,7 @@ import numpy
 import pandas
 import platformdirs
 import pyarrow
+import rich
 
 from cumulus_library import BaseTableBuilder, base_utils, errors, study_manifest
 from cumulus_library.template_sql import base_templates
@@ -159,51 +160,55 @@ class FileUploadBuilder(BaseTableBuilder):
                         pandas_types = None
                     else:
                         pandas_types = base_utils.pandas_types_from_hive_types(table["col_types"])
-                    if file.endswith(".md"):
-                        continue
-                    elif file.endswith(".xlsx"):
-                        parquet_path = cache_dir / table_filename.replace(".xlsx", ".parquet")
-                        df = pandas.read_excel(self._toml_config_dir / file)
-                        dtype_dict, date_cols = self.get_pandas_read_params(
-                            df, pandas_types, task_name
-                        )
-                        df = pandas.read_excel(self._toml_config_dir / file, dtype=pandas_types)
-                    elif file.endswith(".csv") or file.endswith(".tsv") or file.endswith(".bsv"):
-                        parquet_path = cache_dir / f"{table_filename[:-4]}.parquet"
-                        if table["delimiter"] is None:
-                            match file.split(".")[-1]:
-                                case "bsv":
-                                    table["delimiter"] = "|"
-                                case "csv":
-                                    table["delimiter"] = ","
-                                case "tsv":
-                                    table["delimiter"] = "\t"
-                        df = pandas.read_csv(
-                            self._toml_config_dir / file,
-                            delimiter=table["delimiter"],
-                        )
-                        dtype_dict, date_cols = self.get_pandas_read_params(
-                            df, pandas_types, task_name
-                        )
-                        df = pandas.read_csv(
-                            self._toml_config_dir / file,
-                            delimiter=table["delimiter"],
-                            dtype=dtype_dict,
-                        )
+                    try:
+                        if file.endswith(".md"):
+                            continue
+                        elif file.endswith(".xlsx"):
+                            parquet_path = cache_dir / table_filename.replace(".xlsx", ".parquet")
+                            df = pandas.read_excel(self._toml_config_dir / file)
+                            dtype_dict, date_cols = self.get_pandas_read_params(
+                                df, pandas_types, task_name
+                            )
+                            df = pandas.read_excel(self._toml_config_dir / file, dtype=pandas_types)
+                        elif (
+                            file.endswith(".csv") or file.endswith(".tsv") or file.endswith(".bsv")
+                        ):
+                            parquet_path = cache_dir / f"{table_filename[:-4]}.parquet"
+                            if table["delimiter"] is None:
+                                match file.split(".")[-1]:
+                                    case "bsv":
+                                        table["delimiter"] = "|"
+                                    case "csv":
+                                        table["delimiter"] = ","
+                                    case "tsv":
+                                        table["delimiter"] = "\t"
+                                df = pandas.read_csv(
+                                    self._toml_config_dir / file,
+                                    delimiter=table["delimiter"],
+                                )
+                                dtype_dict, date_cols = self.get_pandas_read_params(
+                                    df, pandas_types, task_name
+                                )
+                                df = pandas.read_csv(
+                                    self._toml_config_dir / file,
+                                    delimiter=table["delimiter"],
+                                    dtype=dtype_dict,
+                                )
+                        elif file.endswith(".parquet"):
+                            parquet_path = cache_dir / table_filename
+                            df = pandas.read_parquet(self._toml_config_dir / file)
+                            dtype_dict, date_cols = self.get_pandas_read_params(
+                                df, pandas_types, task_name
+                            )
 
-                    elif file.endswith(".parquet"):
-                        parquet_path = cache_dir / table_filename
-                        df = pandas.read_parquet(self._toml_config_dir / file)
-                        dtype_dict, date_cols = self.get_pandas_read_params(
-                            df, pandas_types, task_name
-                        )
-
-                    else:
-                        raise errors.FileUploadError(
-                            f"{table['file']} is not a supported upload file type.\n"
-                            "Supported file types: csv, bsv, tsv, xlsx, parquet"
-                        )
-
+                        else:
+                            raise errors.FileUploadError(
+                                f"{table['file']} is not a supported upload file type.\n"
+                                "Supported file types: csv, bsv, tsv, xlsx, parquet"
+                            )
+                    except pandas.errors.ParserError as e:
+                        rich.print(f"Error reading {file}: {e}")
+                        sys.exit()
                     df = self.reformat_dates(df, date_cols)
                     if table["create_mode"] == "single":
                         # for single table mode, we can use the name of the task from the workflow
