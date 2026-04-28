@@ -1,7 +1,10 @@
+import zipfile
+
 import numpy
 import pandas
 import pyarrow
 import pytest
+import time_machine
 
 from cumulus_library import base_utils, errors
 
@@ -80,3 +83,25 @@ def test_pandas_from_hive():
 def test_pandas_from_hive_error():
     with pytest.raises(errors.CumulusLibraryError):
         base_utils.pandas_types_from_hive_types(["EnterpriseBeanFactoryFactory"])
+
+
+@pytest.mark.parametrize(
+    "subdirs,csv,archive_path,expected",
+    [
+        (True, False, "data/data.zip", ["a.parquet", "subdir/b.parquet"]),
+        (False, False, "data/data.zip", ["a.parquet"]),
+        (False, True, "data__2024-01-01T00:00:00Z.zip", ["a.csv"]),
+    ],
+)
+@time_machine.travel("2024-01-01T00:00:00Z", tick=False)
+def test_zip_dir(tmp_path, subdirs, csv, archive_path, expected):
+    data_path = tmp_path / "data"
+    data_path.mkdir()
+    (data_path / "a.parquet").write_text("")
+    (data_path / "a.csv").write_text("")
+    (data_path / "subdir").mkdir()
+    (data_path / "subdir/b.parquet").write_text("")
+
+    base_utils.zip_dir(data_path, tmp_path, "data")
+    with zipfile.ZipFile(tmp_path / "data/data.zip") as z:
+        assert z.namelist() == ["a.parquet", "subdir/b.parquet"]

@@ -82,4 +82,6 @@ def export_study(
         for table in skipped_tables:
             rich.print(f"  - {table}")
     manifest.write_manifest(data_path / manifest.get_study_prefix())
-    base_utils.zip_dir(path, data_path, manifest.get_study_prefix(), archive_csvs=archive)
+    base_utils.zip_dir(
+        path, data_path, manifest.get_study_prefix(), archive_csvs=archive, zip_subdirs=False
+    )
