@@ -102,6 +102,64 @@ class FileUploadBuilder(BaseTableBuilder):
             df[col] = pandas.to_datetime(df[col])
         return df
 
+    def _read_file(self, file, table, cache_dir, task_name):
+        table_filename = pathlib.Path(file).name
+
+        # First, we're going to read data into a pandas dataframe.
+        # For non-parquet cases, we have to jump through some hoops to support
+        # date casting. So, we'll first check if column types were supplied.
+        # Then we're going to naievely load the file, so we can inspect it to get the
+        # names of columns and create a list of expected data types if needed (subbing
+        # out dates for objects, so we can do that postprocessing later) and the actual
+        # column names, which we don't ask the user to provide. We'll then load it a
+        # second time with the required types (getting around some type casting issues
+        # after the dataframe has been created), and then manually cast the date columns
+        # from objects to dates. Yeesh!
+        if table["col_types"] is None:
+            pandas_types = None
+        else:
+            pandas_types = base_utils.pandas_types_from_hive_types(table["col_types"])
+        if file.endswith(".md"):
+            return None, None
+        elif file.endswith(".xlsx"):
+            parquet_path = cache_dir / table_filename.replace(".xlsx", ".parquet")
+            df = pandas.read_excel(self._toml_config_dir / file)
+            dtype_dict, date_cols = self.get_pandas_read_params(df, pandas_types, task_name)
+            df = pandas.read_excel(self._toml_config_dir / file, dtype=pandas_types)
+        elif file.endswith(".csv") or file.endswith(".tsv") or file.endswith(".bsv"):
+            parquet_path = cache_dir / f"{table_filename[:-4]}.parquet"
+            if table["delimiter"] is None:
+                match file.split(".")[-1]:
+                    case "bsv":
+                        table["delimiter"] = "|"
+                    case "csv":
+                        table["delimiter"] = ","
+                    case "tsv":
+                        table["delimiter"] = "\t"
+            df = pandas.read_csv(
+                self._toml_config_dir / file,
+                delimiter=table["delimiter"],
+            )
+            dtype_dict, date_cols = self.get_pandas_read_params(df, pandas_types, task_name)
+            df = pandas.read_csv(
+                self._toml_config_dir / file,
+                delimiter=table["delimiter"],
+                dtype=dtype_dict,
+            )
+
+        elif file.endswith(".parquet"):
+            parquet_path = cache_dir / table_filename
+            df = pandas.read_parquet(self._toml_config_dir / file)
+            dtype_dict, date_cols = self.get_pandas_read_params(df, pandas_types, task_name)
+
+        else:
+            raise errors.FileUploadError(
+                f"{table['file']} is not a supported upload file type.\n"
+                "Supported file types: csv, bsv, tsv, xlsx, parquet"
+            )
+        df = self.reformat_dates(df, date_cols)
+        return df, parquet_path
+
     def prepare_queries(
         self,
         config: base_utils.StudyConfig,
@@ -144,73 +202,14 @@ class FileUploadBuilder(BaseTableBuilder):
                 table["files"] = new_files
 
                 for file in table["files"]:
-                    table_filename = pathlib.Path(file).name
-
-                    # First, we're going to read data into a pandas dataframe.
-                    # For non-parquet cases, we have to jump through some hoops to support
-                    # date casting. So, we'll first check if column types were supplied.
-                    # Then we're going to naievely load the file, so we can inspect it to get the
-                    # names of columns and create a list of expected data types if needed (subbing
-                    # out dates for objects, so we can do that postprocessing later) and the actual
-                    # column names, which we don't ask the user to provide. We'll then load it a
-                    # second time with the required types (getting around some type casting issues
-                    # after the dataframe has been created), and then manually cast the date columns
-                    # from objects to dates. Yeesh!
-                    if table["col_types"] is None:
-                        pandas_types = None
-                    else:
-                        pandas_types = base_utils.pandas_types_from_hive_types(table["col_types"])
                     try:
-                        if file.endswith(".md"):
-                            continue
-                        elif file.endswith(".xlsx"):
-                            parquet_path = cache_dir / table_filename.replace(".xlsx", ".parquet")
-                            df = pandas.read_excel(self._toml_config_dir / file)
-                            dtype_dict, date_cols = self.get_pandas_read_params(
-                                df, pandas_types, task_name
-                            )
-                            df = pandas.read_excel(self._toml_config_dir / file, dtype=pandas_types)
-                        elif (
-                            file.endswith(".csv") or file.endswith(".tsv") or file.endswith(".bsv")
-                        ):
-                            parquet_path = cache_dir / f"{table_filename[:-4]}.parquet"
-                            if table["delimiter"] is None:
-                                match file.split(".")[-1]:
-                                    case "bsv":
-                                        table["delimiter"] = "|"
-                                    case "csv":
-                                        table["delimiter"] = ","
-                                    case "tsv":
-                                        table["delimiter"] = "\t"
-                            df = pandas.read_csv(
-                                self._toml_config_dir / file,
-                                delimiter=table["delimiter"],
-                            )
-                            dtype_dict, date_cols = self.get_pandas_read_params(
-                                df, pandas_types, task_name
-                            )
-                            df = pandas.read_csv(
-                                self._toml_config_dir / file,
-                                delimiter=table["delimiter"],
-                                dtype=dtype_dict,
-                            )
+                        df, parquet_path = self._read_file(file, table, cache_dir, task_name)
 
-                        elif file.endswith(".parquet"):
-                            parquet_path = cache_dir / table_filename
-                            df = pandas.read_parquet(self._toml_config_dir / file)
-                            dtype_dict, date_cols = self.get_pandas_read_params(
-                                df, pandas_types, task_name
-                            )
-
-                        else:
-                            raise errors.FileUploadError(
-                                f"{table['file']} is not a supported upload file type.\n"
-                                "Supported file types: csv, bsv, tsv, xlsx, parquet"
-                            )
                     except pandas.errors.ParserError as e:
                         rich.print(f"Error reading {file}: {e}")
                         sys.exit()
-                    df = self.reformat_dates(df, date_cols)
+                    if df is None:
+                        continue
                     if table["create_mode"] == "single":
                         # for single table mode, we can use the name of the task from the workflow
                         table_name = task_name
