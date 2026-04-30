@@ -116,6 +116,34 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             table.add_row(f" Got response{suffix}:", f"{stats.got_response[idx]:,}")
         rich.get_console().print(table)
 
+    def _print_token_stats(self, stats: driver.NlpStats) -> None:
+        tokens = stats.token_stats
+        rich.print("\n Token usage:")
+        table = rich.table.Table("", "", box=None, show_header=False)
+        table.add_row(" New input tokens:", f"{tokens.new_input_tokens:,}")
+        table.add_row(" Input tokens read from cache:", f"{tokens.cache_read_input_tokens:,}")
+        if tokens.cache_written_input_tokens:
+            # This stat is only relevant for bedrock, so only show it if it's used
+            table.add_row(
+                " Input tokens written to cache:", f"{tokens.cache_written_input_tokens:,}"
+            )
+        table.add_row(" Output tokens:", f"{tokens.output_tokens:,}")
+
+        # Estimate cost, if provided
+        if prices := stats.token_prices:
+            cost = (
+                tokens.new_input_tokens * prices.new_input_tokens
+                + tokens.cache_read_input_tokens * prices.cache_read_input_tokens
+                + tokens.cache_written_input_tokens * prices.cache_written_input_tokens
+                + tokens.output_tokens * prices.output_tokens
+            )
+            cost /= 1_000  # all prices are "per 1,000 tokens"
+            cost *= prices.multiplier
+            when = prices.date.strftime("%b %Y")
+            table.add_row(f" Estimated cost (as of {when}):", f"${cost:.2f}")
+
+        rich.get_console().print(table)
+
     def _run_nlp(self, config: cumulus_library.StudyConfig) -> None:
         # Gather note filters together
         cursor = config.db.cursor()
@@ -145,8 +173,10 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         )
 
         # Print stat block, because that's interesting feedback
-        # TODO MIKE: print token stats too
-        self._print_note_stats(names=[t.name for t in self._workflow_config.task], stats=self.stats)
+        if self._nlp_config.show_stats:
+            task_names = [t.name for t in self._workflow_config.task]
+            self._print_note_stats(names=task_names, stats=self.stats)
+            self._print_token_stats(self.stats)
 
     def _table_is_view(self, study_config: cumulus_library.StudyConfig) -> bool:
         # When we create a table from parquet with duckdb, we are injecting the data and it

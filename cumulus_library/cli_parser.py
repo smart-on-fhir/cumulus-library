@@ -173,6 +173,12 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Previous NLP task results will be deleted before uploading the new ones",
     )
+    group.add_argument(
+        "--no-nlp-stats",
+        dest="nlp_stats",
+        action="store_false",
+        help="Disable printing of NLP note and token statistics",
+    )
 
 
 def add_stage_argument(parser: argparse.ArgumentParser) -> None:

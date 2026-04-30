@@ -251,8 +251,7 @@ class OpenAIProvider(Provider):
         if self.supports_schema:
             response_format = self.pydantic_to_response_format(schema)
         else:
-            # MIKE TODO: add coverage
-            response_format = {"type": "json_object"}  # pragma: no cover
+            response_format = {"type": "json_object"}
 
         return {
             "model": self.deployment,
@@ -278,11 +277,7 @@ class OpenAIProvider(Provider):
             self.stats.output_tokens += response.usage.completion_tokens
 
         choice = response.choices[0]
-        if self.supports_schema and choice.message.parsed:
-            # TODO MIKE: add coverage
-            parsed = choice.message.parsed  # pragma: no cover
-        else:
-            parsed = schema.model_validate_json(choice.message.content)
+        parsed = schema.model_validate_json(choice.message.content)
 
         if choice.finish_reason != "stop":
             raise ValueError(f"did not complete, with finish reason: {choice.finish_reason}")
@@ -554,8 +549,7 @@ class Model:
 
     @property
     def stats(self) -> TokenStats:
-        # MIKE TODO: drop no cover once used
-        return self.provider.stats  # pragma: no cover
+        return self.provider.stats
 
     # override to add your own checks
     def post_init_check(self) -> None:
