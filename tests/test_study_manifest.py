@@ -271,7 +271,10 @@ def test_formatted_study_prefix(tmp_path):
             pytest.raises(errors.StudyManifestParsingError, match="expected key, 'files'"),
         ),
         (
-            {"type": "export:counts", "files": ["table__name"]},
+            {
+                "type": "export:counts",
+                "files": ["table__name", {"name": "table__other_name", "description": "text"}],
+            },
             pytest.raises(errors.StudyManifestParsingError, match="expected key, 'tables'"),
         ),
         (
@@ -284,3 +287,122 @@ def test_validate_action(action, raises, tmp_path):
     with raises:
         manifest = study_manifest.StudyManifest()
         manifest._validate_action(action=action, source=tmp_path)
+
+
+@pytest.mark.parametrize(
+    "stages,stage,expected,raises",
+    [
+        (
+            {
+                "stage_one": [
+                    {
+                        "type": "export:counts",
+                        "tables": ["test__name", {"name": "test__name2", "description": "text"}],
+                    }
+                ]
+            },
+            None,
+            [
+                study_manifest.ManifestExport(
+                    name="test__name", export_type="cube", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__name2", export_type="cube", description="text"
+                ),
+            ],
+            does_not_raise(),
+        ),
+        (
+            {
+                "stage_one": [
+                    {
+                        "type": "export:counts",
+                        "tables": ["test__name", {"name": "test__name2", "description": "text"}],
+                    }
+                ]
+            },
+            "stage_one",
+            [
+                study_manifest.ManifestExport(
+                    name="test__name", export_type="cube", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__name2", export_type="cube", description="text"
+                ),
+            ],
+            does_not_raise(),
+        ),
+        (
+            {
+                "stage_one": [{"type": "export:counts", "tables": ["test__name"]}],
+                "stage_two": [{"type": "export:counts", "tables": ["test__name2"]}],
+            },
+            "stage_one",
+            [
+                study_manifest.ManifestExport(
+                    name="test__name", export_type="cube", description=None
+                ),
+            ],
+            does_not_raise(),
+        ),
+        (
+            {
+                "stage_one": [{"type": "export:counts", "tables": ["test__name"]}],
+                "stage_two": [{"type": "export:counts", "tables": ["test__name2"]}],
+            },
+            "all",
+            [
+                study_manifest.ManifestExport(
+                    name="test__name", export_type="cube", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__name2", export_type="cube", description=None
+                ),
+            ],
+            does_not_raise(),
+        ),
+        (
+            {
+                "stage_one": [{"type": "export:counts", "tables": ["bad_prefix__name"]}],
+            },
+            None,
+            [],
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
+        (
+            {
+                "stage_one": [
+                    {"type": "export:counts", "tables": ["test__counts"]},
+                    {"type": "export:annotated_counts", "tables": ["test__annotated_counts"]},
+                    {"type": "export:flat", "tables": ["test__flat"]},
+                    {"type": "export:meta", "tables": ["test__meta"]},
+                ],
+            },
+            None,
+            [
+                study_manifest.ManifestExport(
+                    name="test__counts", export_type="cube", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__annotated_counts", export_type="annotated_counts", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__flat", export_type="flat", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__meta", export_type="meta", description=None
+                ),
+            ],
+            does_not_raise(),
+        ),
+    ],
+)
+def test_export_list(stages, stage, expected, raises, tmp_path):
+    with raises:
+        conftest.write_toml(tmp_path, {"study_prefix": "test", "stages": stages})
+        manifest = study_manifest.StudyManifest(tmp_path)
+        if stage is None:
+            export_list = manifest.get_export_table_list()
+        else:
+            export_list = manifest.get_export_table_list(stage)
+        assert export_list == expected

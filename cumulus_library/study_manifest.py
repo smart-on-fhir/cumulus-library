@@ -18,17 +18,23 @@ from cumulus_library import enums, errors
 class ManifestExport:
     name: str
     export_type: str
+    description: str | None = None
 
 
 # These msgspec Structs define the expected formats for manifests & submanifests
 
 
+class ManifestExportTable(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
+    name: str
+    description: str
+
+
 class ManifestAction(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
     type: str | None = None
-    description: str | None = None
+    description: str | None = None  # deprecated
     label: str | None = None
     files: list[str] | None = None
-    tables: list[str] | None = None
+    tables: list[str | ManifestExportTable] | None = None
 
 
 class ManifestAdvancedOptions(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
@@ -284,7 +290,7 @@ class StudyManifest:
             raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
         return files
 
-    def get_export_table_list(self, stage_name: str = "default") -> list[ManifestExport] | None:
+    def get_export_table_list(self, stage_name: str = "all") -> list[ManifestExport] | None:
         """Reads the exportable tables from the manifest
 
         :param stage_name: if present, just search the stages defined in the stage_name list
@@ -301,9 +307,17 @@ class StudyManifest:
             if export_type == "counts":
                 # the aggregator is looking for the cube keyword, so we'll swap it out
                 export_type = "cube"
-            for table in action.get("tables", []):
+            for str_or_dict in action.get("tables", []):
+                if isinstance(str_or_dict, str):
+                    table = str_or_dict
+                    description = None
+                else:
+                    table = str_or_dict.get("name")
+                    description = str_or_dict.get("description")
                 if table.startswith(f"{self.get_study_prefix()}__"):
-                    export_table_list.append(ManifestExport(name=table, export_type=export_type))
+                    export_table_list.append(
+                        ManifestExport(name=table, export_type=export_type, description=description)
+                    )
                 elif "__" in table:  # has a prefix, just the wrong one
                     raise errors.StudyManifestParsingError(
                         f"{table} in export list does not start with prefix "
@@ -314,7 +328,9 @@ class StudyManifest:
                     # is not known ahead of time)
                     export_table_list.append(
                         ManifestExport(
-                            name=f"{self.get_study_prefix()}__{table}", export_type=export_type
+                            name=f"{self.get_study_prefix()}__{table}",
+                            export_type=export_type,
+                            description=description,
                         )
                     )
 
