@@ -7,7 +7,7 @@ nav_order: 1
 # type: reference
 ---
 
-# File Upload
+# Counts
 
 This document aims to provide help in configuring counts workflows as part of a
 Cumulus Library study

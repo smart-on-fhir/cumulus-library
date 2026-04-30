@@ -91,7 +91,7 @@ study with some descriptive text. \
 #    This behavior can't be overriden.
 
 # A stage is a list of actions. Actions can have the following fields:
-#   - 'description', which will be displayed in the CLI while the action is being run
+#   - 'label', which will be displayed in the CLI while the action is being run
 #   - 'type', which determines what the action does, and which parts of the library CLI the
 #     action is invoked by. Valid types:
 #      - 'build:serial' (default if action_type is not specified) runs the files in order, one at a time
@@ -109,7 +109,7 @@ study with some descriptive text. \
 
 # This double bracket defines a new array inside of stages, define_population
 [[stages.define_population]]
-description = 'Upload files defining some conditions & select patients'
+label = 'Upload files defining some conditions & select patients'
 type= 'build:parallel'
 files = [
   'file_upload_workflow_definition.toml',
@@ -117,19 +117,19 @@ files = [
 # Using this same name again inside a double bracket causes a new item to be added
 # to the end of the define_population list.
 [[stages.define_population]]
-description = 'Select patients by characteristics'
+label = 'Select patients by characteristics'
 type= 'build:serial'
 files = [
   'select_patients.sql',
 ]
 [[stages.select_cohorts]]
-description = 'Define cohorts'
+label = 'Define cohorts'
 files = [
   'cohort_submanifest.toml'
 ]
 type = "submanifest"
 [[stages.count_cohorts]]
-description = 'Define cohorts'
+label = 'Define cohorts'
 files = [
   'cohort_by_age.py',
   'cohort_by_gender.py'
@@ -137,13 +137,18 @@ files = [
 type = "build:parallel"
 
 # Most cumulus exports should be count tables, created as powerset cubes for deid binning
-# purposes.
+# purposes. A table can be defined two ways:
+#   - As a string, in which case the string is an assumed name
+#   - As a dictionary, with two keys: 'name', which is the name of the table, and
+#     'description', which is text that describes what the table is about. The description
+#     can be used by a UI to expose this information to an end user.
 
 [[stages.count_cohorts]]
-description = 'Export patient counts'
+label = 'Export patient counts'
 type = 'export:counts'
 tables = [
     "my_study__count_influenza_test_month",
+    {name = "my_study__count_influenza_test_week", description = "Influenza testing by test type"}
 ]
 
 # In some cases, you may want to annotate count data with metadata from another
@@ -151,7 +156,7 @@ tables = [
 # display value or code system) from another source.
 
 [[stages.count_cohorts]]
-description = 'Export patient symptoms w/ LOINC codes'
+label = 'Export patient symptoms w/ LOINC codes'
 type = 'export:annotated_counts'
 tables = [
     "my_study__count_influenza_test_month_annotated",
@@ -162,7 +167,7 @@ tables = [
 # categorization
 
 [[stages.count_cohorts]]
-description = 'Export summary statistics'
+label = 'Export summary statistics'
 type = 'export:flat'
 tables = [
     "my_study__q_influenza",
@@ -176,7 +181,7 @@ tables = [
 # these tables.
 
 [[stages.count_cohorts]]
-description = 'Export metadata'
+label = 'Export metadata'
 type = 'export:meta'
 tables = [
   "my_study__meta_date",
@@ -220,15 +225,15 @@ Here's an example submanifest (note that this is optional and you don't have to 
 # A submanifest contains a top level list of actions, and then uses the same action
 # syntax. At runtime, we'll map it into the stage the submanifest was referenced from.
 [[actions]]
-description = "Select cohorts by age"
+label = "Select cohorts by age"
 files = ['age_cohort.sql']
 type = 'build:serial'
 [[actions]]
-description = "Create cohorts by medications"
+label = "Create cohorts by medications"
 files = ['cohort_rx_1.py', 'cohort_rx_2.py']
 type = 'build:parallel'
 [[actions]]
-description = 'Export patient medication counts'
+label = 'Export patient medication counts'
 type = 'export:counts'
 tables = [
     "my_study__count_patient_rx",
