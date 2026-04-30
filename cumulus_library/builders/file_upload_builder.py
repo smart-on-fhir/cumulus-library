@@ -6,7 +6,6 @@ import sys
 
 import msgspec
 import pandas
-import platformdirs
 
 from cumulus_library import BaseTableBuilder, base_utils, errors, study_manifest
 from cumulus_library.template_sql import base_templates
@@ -85,10 +84,7 @@ class FileUploadBuilder(BaseTableBuilder):
         *args,
         **kwargs,
     ):
-        cache_dir = (
-            pathlib.Path(platformdirs.user_cache_dir("cumulus-library", "smart-on-fhir"))
-            / f"file_uploads/{manifest.get_study_prefix()}"
-        )
+        cache_dir = base_utils.get_user_cache_dir() / f"file_uploads/{manifest.get_study_prefix()}"
         cache_dir.mkdir(parents=True, exist_ok=True)
 
         with base_utils.get_progress_bar() as progress:

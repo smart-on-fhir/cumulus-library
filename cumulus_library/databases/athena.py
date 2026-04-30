@@ -98,7 +98,11 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             match field:
                 case numpy.dtypes.ObjectDType():
                     output.append("STRING")
-                case pandas.core.arrays.integer.Int64Dtype() | numpy.dtypes.Int64DType():
+                case (
+                    pandas.core.arrays.integer.Int64Dtype()
+                    | numpy.dtypes.Int64DType()
+                    | numpy.dtypes.Int32DType()
+                ):
                     output.append("INT")
                 case numpy.dtypes.Float64DType():
                     output.append("DOUBLE")
@@ -112,11 +116,22 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     )
         return output
 
+    def _get_result_config(self) -> dict:
+        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
+        return workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
+
+    def _get_upload_subdir(self, study: str, topic: str) -> str:
+        return f"cumulus_user_uploads/{self.schema_name}/{study}/{topic}"
+
     def get_remote_path(self) -> str | None:
         """Retreives the base S3 path we use for file uploads from the S3 client"""
-        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
-        wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
-        return wg_conf["OutputLocation"]
+        return self._get_result_config()["OutputLocation"]
+
+    def get_remote_upload_path(self, study: str, topic: str) -> str | None:
+        """Retrieves the target S3 path we use for file uploads from the S3 client"""
+        s3_path = self.get_remote_path()
+        subdir = self._get_upload_subdir(study, topic)
+        return f"{s3_path}{subdir}"
 
     def upload_file(
         self,
@@ -128,8 +143,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         force_upload=False,
     ) -> str | None:
         # We'll investigate the connection to get the relevant S3 upload path.
-        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
-        wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
+        wg_conf = self._get_result_config()
         s3_path = wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
         key_prefix = "/".join(s3_path.split("/")[3:])
@@ -142,7 +156,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 "Cumulus requires encryption as part of ensuring safety for limited data sets"
             )
         kms_arn = wg_conf.get("EncryptionConfiguration", {}).get("KmsKey", None)
-        s3_key = f"{key_prefix}cumulus_user_uploads/{self.schema_name}/{study}/{topic}"
+        s3_key = f"{key_prefix}{self._get_upload_subdir(study, topic)}"
         if not remote_filename:
             remote_filename = file.name
 

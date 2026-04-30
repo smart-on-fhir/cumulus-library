@@ -3,14 +3,17 @@
 import json
 import pathlib
 import sys
+import tempfile
 
 import cumulus_fhir_support as cfs
 import jambo
 import msgspec
+import pandas
+import pyarrow
 import rich
 
 import cumulus_library
-from cumulus_library import note_utils
+from cumulus_library import databases, note_utils
 from cumulus_library.builders.nlp import driver, workflow
 from cumulus_library.template_sql import base_templates
 
@@ -138,6 +141,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             tasks=self._workflow_config.task,
             filters=note_filters,
             nlp_config=self._nlp_config,
+            db=config.db,
         )
 
         # Print stat block, because that's interesting feedback
@@ -153,31 +157,26 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         # or a materialized table.
         return study_config.db.db_type == "athena"
 
-    def _headers(self) -> list[str]:
-        # If you change these, change the schema definition in nlp_builder.py too
-        return [
-            "note_ref",
-            "encounter_ref",
-            "subject_ref",
-            "generated_on",
-            "task_version",
-            "model",
-            "system_fingerprint",
-            "result",
-        ]
+    def _pyarrow_schema_to_parquet(
+        self, schema: pyarrow.Schema, db: databases.DatabaseBackend
+    ) -> list:
+        """Turns a pyarrow schema into a list of parquet types."""
+        # SQL templates expect a list of parquet types. But the NLP code operates on Pyarrow
+        # schemas for the most part (with a smattering of pydantic).
+        #
+        # The easiest way to convert these is through pandas, because the DatabaseBackend class has
+        # a conversion method for that. and the easiest way through pandas is reading a parquet from
+        # disk.
+        #
+        # So we write an empty parquet to disk, have pandas read it, then have the database convert
+        # the pandas dtype to parquet types. Simple...
 
-    def _col_types_for_task(self, task: workflow.NlpTask) -> list[str]:
-        # If you change these, change the schema definition in nlp_builder.py too
-        return [
-            "VARCHAR",
-            "VARCHAR",
-            "VARCHAR",
-            "VARCHAR",
-            "INT",
-            "VARCHAR",
-            "VARCHAR",
-            "VARCHAR",  # TODO MIKE: this last one is a lie for now - convert to struct
-        ]
+        with tempfile.NamedTemporaryFile() as tmpfile:
+            table = pyarrow.Table.from_pylist([], schema=schema)
+            pyarrow.parquet.write_table(table, tmpfile.name)
+            dtypes = pandas.read_parquet(tmpfile.name).dtypes
+
+        return db.col_parquet_types_from_pandas(dtypes.values)
 
     def prepare_queries(
         self,
@@ -188,15 +187,20 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         if not self._table_is_view(config):
             self._run_nlp(config)
 
-        self.queries = [
-            base_templates.get_ctas_empty_query(  # TODO MIKE: use _from_parquet
-                schema_name=config.schema,
-                table_name=driver.table_name_for_task(task, self._nlp_config),
-                table_cols=self._headers(),
-                table_cols_types=self._col_types_for_task(task),
+        for task in self._workflow_config.task:
+            table_schema = driver.schema_for_task(task)
+            location = str(driver.output_path_for_task(self._nlp_config.target, task, config.db))
+            remote_types = self._pyarrow_schema_to_parquet(table_schema, config.db)
+            self.queries.append(
+                base_templates.get_ctas_from_parquet_query(
+                    schema_name=config.schema,
+                    table_name=driver.table_name_for_task(task, self._nlp_config),
+                    local_location=location,
+                    remote_location=location,
+                    table_cols=table_schema.names,
+                    remote_table_cols_types=remote_types,
+                )
             )
-            for task in self._workflow_config.task
-        ]
 
     def post_execution(
         self,
@@ -205,5 +209,4 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         **kwargs,
     ):
         if self._table_is_view(config):
-            # TODO MIKE: add athena tests
-            self._run_nlp(config)  # pragma: no cover
+            self._run_nlp(config)

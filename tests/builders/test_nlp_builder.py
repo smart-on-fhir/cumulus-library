@@ -7,10 +7,13 @@ import os
 from unittest import mock
 
 import cumulus_fhir_support as cfs
+import fsspec.implementations.memory
+import pandas
 import pytest
 import respx
 
-from cumulus_library import cli, errors, note_utils
+import cumulus_library
+from cumulus_library import cli, databases, errors, note_utils
 from cumulus_library.builders import nlp_builder
 from tests import conftest, nlp_utils
 from tests.conftest import duckdb_args
@@ -61,6 +64,11 @@ def note_source(tmp_path) -> note_utils.NoteSource:
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         add_dxr("hello", "hello world", f)
     yield note_utils.NoteSource([tmp_path])
+
+
+def read_rows(db, table: str) -> list[dict]:
+    df = db.db.connection.sql(f"SELECT * FROM {table} ORDER BY note_ref").df()
+    return json.loads(df.to_json(orient="records"))
 
 
 def test_unexpected_config_field(tmp_path, note_source):
@@ -140,7 +148,7 @@ def test_table_filter_but_no_salt(tmp_path, note_source, mock_db_config):
     builder = nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
     err_msg = "Cannot calculate anonymized resource IDs without a PHI dir defined"
     with pytest.raises(RuntimeError, match=err_msg):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 def test_flattened_config(tmp_path, note_source):
@@ -228,8 +236,28 @@ def test_filter(tmp_path, mock_db_config):
 
     console_output = io.StringIO()
     with contextlib.redirect_stdout(console_output):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
     assert expected_stats in console_output.getvalue()
+
+
+@respx.mock
+def test_already_uploaded(tmp_path, mock_db_config, note_source):
+    """Verify that we skip notes that we've already uploaded before"""
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel()
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+    builder.execute_queries(mock_db_config, None)
+    assert builder.stats.got_response[0] == 1
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config(clean=False)
+    )
+    builder.execute_queries(mock_db_config, None)
+    assert builder.stats.had_text == 1
+    assert builder.stats.considered[0] == 0
 
 
 @mock.patch.dict(os.environ, clear=True)
@@ -274,7 +302,7 @@ def test_unreachable_vllm(tmp_path, note_source, mock_db_config):
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
     )
     with pytest.raises(errors.CumulusLibraryError, match="Try running 'docker compose up"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 @respx.mock
@@ -287,7 +315,7 @@ def test_cached_response(tmp_path, mock_db_config):
                 {
                     "name": "hello_world",
                     "response_schema": '{"title":"test", "type": "object", '
-                    '"properties": {"hello": {"type": "string"}}}',
+                    '"properties": {"hello": {"type": "integer"}}}',
                 },
             ],
         },
@@ -300,23 +328,26 @@ def test_cached_response(tmp_path, mock_db_config):
     source = note_utils.NoteSource([tmp_path])
 
     model = nlp_utils.MockModel()
-    model.mock_openai_response({"hello": "world"})
+    model.mock_openai_response({"hello": 3})
 
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
     )
-    builder.prepare_queries(config=mock_db_config)
+    builder.execute_queries(mock_db_config, None)
 
     assert builder.stats.got_response[0] == 1
 
     # Confirm that we cache the response and don't hit the endpoint again
-    # (and add a new note to sanity check that we do actually fail on the new one)
     model.mock_openai_response({}, status_code=500)
 
+    # Add a new note to sanity check that we do actually fail on the new one
     with open(f"{tmp_path}/dxr.ndjson", "a", encoding="utf8") as f:
         add_dxr("2", "goodbye", f)
 
-    builder.prepare_queries(config=mock_db_config)
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
+    )
+    builder.execute_queries(mock_db_config, None)
     assert builder.stats.considered[0] == 2
     assert builder.stats.got_response[0] == 1  # still got our cached result
 
@@ -374,10 +405,11 @@ def test_span_correction(tmp_path, mock_db_config):
 
     console_output = io.StringIO()
     with contextlib.redirect_stdout(console_output):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
-    assert builder.stats.got_response[0] == 1
-    assert "'spans': [(0, 5), (7, 21)]" in console_output.getvalue()
+    rows = read_rows(mock_db_config, "test__nlp2_hello_world")
+    assert rows[0]["result"] == {"parent_list": [{"parent_dict": {"spans": [[0, 5], [7, 21]]}}]}
+
     failure_msg = "Could not match span received from NLP server for DiagnosticReport/dxr: forth"
     assert failure_msg in console_output.getvalue()
 
@@ -401,16 +433,53 @@ def test_writes_out_at_note_limit(tmp_path, mock_db_config):
         nlp_config=config,
     )
 
-    with mock.patch("cumulus_library.builders.nlp.driver.NlpNotePool._write_to_disk") as mock_write:
+    with mock.patch("cumulus_library.builders.nlp.driver.add_upload_refs_for_task") as mock_write:
         # Fake an error too, to confirm we gracefully handle that and print message
         mock_write.side_effect = [RuntimeError("test1"), RuntimeError("test2")]
         console_output = io.StringIO()
         with contextlib.redirect_stdout(console_output):
-            builder.prepare_queries(config=mock_db_config)
+            builder.execute_queries(mock_db_config, None)
 
     assert mock_write.call_count == 2
     assert "Failed to process note: test1" in console_output.getvalue()
     assert "Failed to process note: test2" in console_output.getvalue()
+
+
+@respx.mock
+def test_various_value_types(tmp_path, mock_db_config, note_source):
+    workflow_path = conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "nlp",
+            "task": [
+                {
+                    "name": "test",
+                    "response_schema": '{"title":"test", "type": "object", "properties": {'
+                    '"float": {"type": "number"},'
+                    '"int": {"type": "integer"},'
+                    '"str": {"type": "string"},'
+                    '"bool": {"type": "boolean"},'
+                    '"enum": {"enum": ["red", "amber", "green"]}'
+                    "}}",
+                },
+            ],
+        },
+        "nlp.workflow",
+    )
+
+    results = {"float": 1.5, "int": 3, "str": "a", "bool": True, "enum": "red"}
+    model = nlp_utils.MockModel()
+    model.mock_openai_response(results)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(),
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    rows = read_rows(mock_db_config, "test__nlp2_test")
+    assert rows[0]["result"] == results
 
 
 @respx.mock
@@ -425,7 +494,7 @@ def test_no_batching_support(tmp_path, mock_db_config, note_source):
     )
 
     with pytest.raises(errors.CumulusLibraryError, match="does not support batching"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 @respx.mock
@@ -440,7 +509,7 @@ def test_no_phi_dir(tmp_path, mock_db_config, note_source):
     )
 
     with pytest.raises(errors.CumulusLibraryError, match="Please provide a PHI dir"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 @respx.mock
@@ -455,11 +524,11 @@ def test_bad_nlp_model(tmp_path, mock_db_config, note_source):
 
     config.model = "nope"
     with pytest.raises(errors.CumulusLibraryError, match="Unknown NLP model ID"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
     config.model = None
     with pytest.raises(errors.CumulusLibraryError, match="An NLP model ID must be provided"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 @respx.mock
@@ -473,7 +542,7 @@ def test_missing_nlp_model(tmp_path, mock_db_config, note_source):
     )
 
     with pytest.raises(errors.CumulusLibraryError, match="NLP server does not have model ID"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 @respx.mock
@@ -488,7 +557,7 @@ def test_bad_stop(tmp_path, mock_db_config, note_source):
 
     console_output = io.StringIO()
     with contextlib.redirect_stdout(console_output):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
     assert builder.stats.got_response[0] == 0
     assert "did not complete, with finish reason: bad_reason" in console_output.getvalue()
@@ -504,7 +573,7 @@ def test_cloud_model_but_local_provider(tmp_path, mock_db_config, note_source):
     )
 
     with pytest.raises(errors.CumulusLibraryError, match="does not support the 'local' provider"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 @respx.mock
@@ -517,7 +586,7 @@ def test_azure_happy_path(tmp_path, mock_db_config, note_source):
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
     )
 
-    builder.prepare_queries(config=mock_db_config)
+    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
 
@@ -530,7 +599,7 @@ def test_azure_bad_model(tmp_path, mock_db_config, note_source):
     )
 
     with pytest.raises(errors.CumulusLibraryError, match="does not support the 'azure' provider"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 def test_azure_no_env(tmp_path, mock_db_config, note_source):
@@ -542,7 +611,7 @@ def test_azure_no_env(tmp_path, mock_db_config, note_source):
     )
 
     with pytest.raises(errors.CumulusLibraryError, match="Missing Azure environment variables"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 def test_bedrock_happy_path(tmp_path, mock_db_config, note_source):
@@ -553,7 +622,7 @@ def test_bedrock_happy_path(tmp_path, mock_db_config, note_source):
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
     )
 
-    builder.prepare_queries(config=mock_db_config)
+    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
 
@@ -568,7 +637,7 @@ def test_bedrock_bad_stop(tmp_path, mock_db_config, note_source):
 
     console_output = io.StringIO()
     with contextlib.redirect_stdout(console_output):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
     assert builder.stats.got_response[0] == 0
     assert "did not complete, with stop reason: bad_reason" in console_output.getvalue()
@@ -583,7 +652,7 @@ def test_bedrock_bad_model(tmp_path, mock_db_config, note_source):
     )
 
     with pytest.raises(errors.CumulusLibraryError, match="does not support the 'bedrock' provider"):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
 
 def test_bedrock_skips_wrapper_in_response(tmp_path, mock_db_config, note_source):
@@ -609,13 +678,10 @@ def test_bedrock_skips_wrapper_in_response(tmp_path, mock_db_config, note_source
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
     )
+    builder.execute_queries(mock_db_config, None)
 
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.prepare_queries(config=mock_db_config)
-
-    assert builder.stats.got_response[0] == 1
-    assert "'result': {'hello': 'world'}" in console_output.getvalue()
+    rows = read_rows(mock_db_config, "test__nlp2_hello_world")
+    assert rows[0]["result"] == {"hello": "world"}
 
 
 def test_bedrock_text_response(tmp_path, mock_db_config, note_source):
@@ -628,7 +694,7 @@ def test_bedrock_text_response(tmp_path, mock_db_config, note_source):
                 {
                     "name": "hello_world",
                     "response_schema": '{"title":"test", "type": "object", '
-                    '"properties": {"hello": {"type": "string"}}}',
+                    '"properties": {"hello": {"type": "number"}}}',
                 }
             ],
         },
@@ -641,7 +707,7 @@ def test_bedrock_text_response(tmp_path, mock_db_config, note_source):
 Preamble...
 
 ```json
-{"hello": "goodbye"}
+{"hello": 0.5}
 ```
 
 Summary.
@@ -653,12 +719,10 @@ Summary.
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
     )
 
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.prepare_queries(config=mock_db_config)
+    builder.execute_queries(mock_db_config, None)
 
-    assert builder.stats.got_response[0] == 1
-    assert "'result': {'hello': 'goodbye'}" in console_output.getvalue()
+    rows = read_rows(mock_db_config, "test__nlp2_hello_world")
+    assert rows[0]["result"] == {"hello": 0.5}
 
 
 def test_bedrock_no_response(tmp_path, mock_db_config, note_source):
@@ -672,7 +736,63 @@ def test_bedrock_no_response(tmp_path, mock_db_config, note_source):
 
     console_output = io.StringIO()
     with contextlib.redirect_stdout(console_output):
-        builder.prepare_queries(config=mock_db_config)
+        builder.execute_queries(mock_db_config, None)
 
     assert builder.stats.got_response[0] == 0
     assert "Failed to process note: no response content found" in console_output.getvalue()
+
+
+@respx.mock
+@nlp_utils.mock_env()
+@mock.patch("botocore.client")
+def test_write_to_athena(mock_client, tmp_path, note_source):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="testdb",
+    )
+    db.connection = mock.MagicMock()
+    bucket_info = {
+        "WorkGroup": {
+            "Configuration": {"ResultConfiguration": {"OutputLocation": "s3://testbucket/athena/"}}
+        }
+    }
+    db.connection._client.get_work_group.return_value = bucket_info
+
+    study_config = cumulus_library.StudyConfig(db=db, schema="main")
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel()
+
+    # Mock out FsPath's s3 filesystem (it should grow a fancier mock itself ideally)
+    mem_fs = fsspec.implementations.memory.MemoryFileSystem()
+    with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": mem_fs}):
+        builder = nlp_builder.NlpBuilder(
+            toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+        )
+        builder.execute_queries(study_config, None)
+
+    assert builder.stats.got_response[0] == 1
+
+    # Confirm we wrote the parquet file out correctly
+    path = "s3://testbucket/athena/cumulus_user_uploads/testdb/test/nlp2_test_v0/nlp.0.parquet"
+    with mem_fs.open(path, "rb") as f:
+        df = pandas.read_parquet(f)
+        rows = json.loads(df.to_json(orient="records"))
+
+    assert len(rows) == 1
+    assert rows[0]["note_ref"] == "DiagnosticReport/hello"
+
+    # And the id file
+    id_path = "s3://testbucket/athena/cumulus_user_uploads/testdb/test/nlp2_test_v0.ids"
+    with mem_fs.open(id_path, "r") as f:
+        assert f.read() == "DiagnosticReport/hello\n"
+
+    # And confirm the query looks right
+    assert builder.queries == [
+        'CREATE TABLE IF NOT EXISTS "main"."test__nlp2_test" AS SELECT "note_ref", '
+        '"encounter_ref", "subject_ref", "generated_on", "task_version", "model", '
+        '"system_fingerprint", "result"\n'
+        "FROM read_parquet('memory://s3://testbucket/athena/cumulus_user_uploads/"
+        "testdb/test/nlp2_test_v0/*.parquet')"
+    ]
