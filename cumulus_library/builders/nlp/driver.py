@@ -1,16 +1,22 @@
 import datetime
+import enum
 import json
 import re
 import string
+import types
+import typing
 
 import cumulus_fhir_support as cfs
+import pyarrow
+import pydantic
 import rich
 
-from cumulus_library import errors, note_utils
+from cumulus_library import base_utils, databases, errors, note_utils
 
 from . import caching, models, workflow
 
 ESCAPED_WHITESPACE = re.compile(r"(\\\s)+")
+PARQUET_PATTERN = re.compile(r"nlp\.([0-9]+)\.parquet")
 
 
 class NlpStats:
@@ -27,13 +33,33 @@ def run_nlp(
     nlp_config: note_utils.NlpConfig,
     tasks: list[workflow.NlpTask],
     filters: list[cfs.NoteFilter],
+    db: databases.DatabaseBackend,
 ) -> NlpStats:
     """Iterates through the notes, filtering as it goes, and passes notes to NLP"""
     stats = NlpStats(len(tasks))
-    pool = NlpNotePool(nlp_config)
 
+    # If asked to clean, do it
+    if nlp_config.clean:
+        for task in tasks:
+            # We wanna clean out all previous uploads for this table.
+            # Do this before making the pool because that looks at the files in the folder to
+            # get the first batch number to use.
+            root = output_path_for_task(nlp_config.target, task, db).parent
+            slug = table_slug_for_task(task)
+            table_with_version = re.compile(rf"/{slug}_v[0-9]+(\.ids)?$")
+            for folder in root.ls():
+                if table_with_version.search(str(folder)):
+                    folder.rm()
+
+    # Read ID refs for any already-uploaded notes
+    prev_upload_refs = [read_upload_refs_for_task(nlp_config.target, task, db) for task in tasks]
+
+    # Loop through every note and add to the note pool for NLP processing
+    pool = NlpNotePool(nlp_config, db=db, tasks=tasks)
     for note_res in notes.progress_iter("Running NLP..."):
         stats.available += 1
+
+        note_ref = f"{note_res['resourceType']}/{note_res['id']}"
 
         try:
             text = cfs.get_text_from_note_res(note_res)
@@ -42,6 +68,8 @@ def run_nlp(
         stats.had_text += 1
 
         for idx, task in enumerate(tasks):
+            if note_ref in prev_upload_refs[idx]:
+                continue
             if not filters[idx](note_res, text=text):
                 continue
             stats.considered[idx] += 1
@@ -61,6 +89,44 @@ def run_nlp(
     return stats
 
 
+def table_name_for_task(task: workflow.NlpTask, nlp_config: note_utils.NlpConfig) -> str:
+    slug = table_slug_for_task(task)
+    return f"{nlp_config.target}__{slug}"
+
+
+def table_slug_for_task(task: workflow.NlpTask) -> str:
+    return f"nlp2_{task.name}"  # TODO MIKE: nlp prefix?
+
+
+def schema_for_task(task: workflow.NlpTask) -> pyarrow.Schema:
+    result_schema = convert_pydantic_fields_to_pyarrow(task.response_schema.model_fields)
+    return pyarrow.schema(
+        [
+            pyarrow.field("note_ref", pyarrow.string()),
+            pyarrow.field("encounter_ref", pyarrow.string()),
+            pyarrow.field("subject_ref", pyarrow.string()),
+            pyarrow.field("generated_on", pyarrow.string()),
+            pyarrow.field("task_version", pyarrow.int32()),
+            pyarrow.field("model", pyarrow.string()),
+            pyarrow.field("system_fingerprint", pyarrow.string()),
+            pyarrow.field("result", result_schema),
+        ]
+    )
+
+
+def output_path_for_task(
+    prefix: str, task: workflow.NlpTask, db: databases.DatabaseBackend
+) -> cfs.FsPath:
+    upload_slug = table_slug_for_task(task) + f"_v{task.version}"
+    if base_path := db.get_remote_upload_path(prefix, upload_slug):
+        return cfs.FsPath(base_path)
+
+    # OK, database backend doesn't support remote files, let's write it locally to our cache
+    # Note: this is the same location for all duckdb files... file_upload has same issue.
+    cache_root = base_utils.get_user_cache_dir()
+    return cfs.FsPath(cache_root, "nlp", prefix, upload_slug)
+
+
 ### Internal driver API to help manage the process
 
 
@@ -78,10 +144,18 @@ class NlpNotePool:
     either send them out to NLP or not depending on where the limits are.
     """
 
-    def __init__(self, nlp_config: note_utils.NlpConfig):
+    def __init__(
+        self,
+        nlp_config: note_utils.NlpConfig,
+        *,
+        db: databases.DatabaseBackend,
+        tasks: list[workflow.NlpTask],
+    ):
         self._config = nlp_config
         self._model = models.create_model(nlp_config)
         self._provider = self._model.provider
+        self._db = db
+        self._tasks = tasks
 
         self._notes = {}  # task_name -> list[output row]
 
@@ -111,7 +185,15 @@ class NlpNotePool:
             # TODO MIKE: finish batching support
             return 0  # pragma: no cover
 
-        self._write_notes_to_output()
+        try:
+            self._write_notes_to_output()
+        finally:
+            # If any of our tasks wrote no rows, let's write out a zero-row parquet so that we can
+            # still create a table based off it for duckdb (which requires parquets).
+            for task in self._tasks:
+                if self._next_parquet_path(task).name == "nlp.0.parquet":
+                    self._write_single_parquet(task, [])
+
         return 0
 
     def _make_prompt(self, task: workflow.NlpTask, text: str) -> models.Prompt:
@@ -153,7 +235,7 @@ class NlpNotePool:
         parsed = response.answer.model_dump(mode="json", serialize_as_any=True)
         self._fix_spans(note_ref, text, parsed)
 
-        # If you change these, change the schema definition in nlp_builder.py too
+        # If you change these, change the schema definition in schema_for_task() too
         new_row = {
             "note_ref": note_ref,
             "encounter_ref": encounter_ref,
@@ -167,8 +249,7 @@ class NlpNotePool:
         }
 
         # Add new row to pending notes
-        table = self._table_name(task)
-        self._notes.setdefault(table, []).append(new_row)
+        self._notes.setdefault(task.name, []).append(new_row)
 
         # Do we have enough to write out?
         pending_notes = sum(len(x) for x in self._notes.values())
@@ -218,13 +299,103 @@ class NlpNotePool:
         return all_found
 
     def _write_notes_to_output(self) -> None:
-        print("TODO MIKE: write this to parquet", self._notes)  # noqa: T201
+        notes = self._notes
         self._notes = {}
-        self._write_to_disk()  # just for tests to override
 
-    def _write_to_disk(self) -> None:
-        pass
+        for task in self._tasks:
+            if task.name in notes:
+                rows = notes[task.name]
+                self._write_single_parquet(task, rows)
+                add_upload_refs_for_task(self._config.target, task, self._db, rows)
+
+    def _next_parquet_path(self, task: workflow.NlpShared) -> cfs.FsPath:
+        folder = output_path_for_task(self._config.target, task, self._db)
+
+        # First, determine what the next upload number should be
+        basenames = [path.name for path in folder.ls()]
+        matches = [PARQUET_PATTERN.match(basename) for basename in basenames]
+        numbers = [int(match.group(1)) for match in matches if match]
+        next_index = max(numbers, default=-1) + 1
+
+        return folder.joinpath(f"nlp.{next_index}.parquet")
+
+    def _write_single_parquet(self, task: workflow.NlpTask, rows: list[dict]) -> int:
+        path = self._next_parquet_path(task)
+        path.parent.makedirs()
+
+        # Build the pyarrow table (with schema) and write it out
+        table = pyarrow.Table.from_pylist(rows, schema=schema_for_task(task))
+        pyarrow.parquet.write_table(table, str(path), compression="snappy", filesystem=path.fs)
 
 
-def table_name_for_task(task: workflow.NlpTask, nlp_config: note_utils.NlpConfig) -> str:
-    return f"{nlp_config.target}__nlp2_{task.name}"  # TODO MIKE: nlp prefix?
+def upload_refs_path(
+    prefix: str, task: workflow.NlpTask, db: databases.DatabaseBackend
+) -> cfs.FsPath:
+    path = output_path_for_task(prefix, task, db)
+    return cfs.FsPath(str(path) + ".ids")
+
+
+def read_upload_refs_for_task(
+    prefix: str, task: workflow.NlpTask, db: databases.DatabaseBackend
+) -> set[str]:
+    path = upload_refs_path(prefix, task, db)
+    refs = path.read_text(default="")
+    return set(refs.splitlines())
+
+
+def add_upload_refs_for_task(
+    prefix: str, task: workflow.NlpTask, db: databases.DatabaseBackend, rows: list[dict]
+) -> set[str]:
+    refs = sorted(f"{row['note_ref']}" for row in rows)  # sort for tests
+    path = upload_refs_path(prefix, task, db)
+    path.parent.makedirs()
+    mode = "a" if path.exists() else "w"  # work around memory:// fs having bad "a" semantics
+    with path.open(mode) as f:
+        for ref in refs:
+            f.write(ref)
+            f.write("\n")
+
+
+def convert_pydantic_fields_to_pyarrow(
+    fields: dict[str, pydantic.fields.FieldInfo],
+) -> pyarrow.StructType:
+    return pyarrow.struct(
+        [
+            pyarrow.field(name, pyarrow.list_(pyarrow.list_(pyarrow.int32(), 2)), nullable=True)
+            if name == "spans"
+            else pyarrow.field(name, _convert_type_to_pyarrow(info.annotation), nullable=True)
+            for name, info in fields.items()
+        ]
+    )
+
+
+def _convert_type_to_pyarrow(annotation) -> pyarrow.DataType:
+    # Since we only need to handle a small amount of possible types, we just do this ourselves
+    # rather than relying on an external library.
+    if origin := typing.get_origin(annotation):  # e.g. "Annotated", "UnionType", "list"
+        sub_type = typing.get_args(annotation)[0]
+        if origin is typing.Union or origin is types.UnionType:
+            # This is gonna be something like "str | None" so just grab first arg.
+            # We mark all our fields are nullable at the pyarrow layer.
+            return _convert_type_to_pyarrow(sub_type)
+        elif origin is typing.Annotated:
+            annotation = sub_type
+        elif issubclass(origin, list):
+            return pyarrow.list_(_convert_type_to_pyarrow(sub_type))
+        else:
+            raise ValueError(f"Unsupported type {annotation}")  # pragma: no cover
+
+    if issubclass(annotation, str):
+        return pyarrow.string()
+    elif issubclass(annotation, bool):
+        return pyarrow.bool_()
+    elif issubclass(annotation, int):
+        return pyarrow.int32()
+    elif issubclass(annotation, float):
+        return pyarrow.float32()
+    elif issubclass(annotation, enum.Enum):
+        return pyarrow.string()  # for now, assume all enums are strings
+    elif issubclass(annotation, pydantic.BaseModel):
+        return convert_pydantic_fields_to_pyarrow(annotation.model_fields)
+
+    raise ValueError(f"Unsupported type {annotation}")  # pragma: no cover

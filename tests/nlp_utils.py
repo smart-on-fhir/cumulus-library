@@ -11,7 +11,8 @@ import respx
 from cumulus_library import note_utils
 from tests import conftest
 
-EMPTY_SCHEMA = '{"title":"test", "type": "object"}'
+# Not fully empty, because parquet doesn't like that. But just throw an unused property in there.
+EMPTY_SCHEMA = '{"title":"test", "type": "object", "properties": {"ignored": {"type": "string"}}}'
 
 
 def mock_env(provider: str = "local"):
@@ -82,17 +83,20 @@ class MockModel:
             f"--nlp-provider={config.provider}",
             f"--etl-phi-dir={config.phi_dir}",
         ]
+        if config.clean:
+            args.append("--clean-nlp")
         if config.use_batching:
             args.append("--batch-nlp")
         return args
 
-    def nlp_config(self, batching: bool = False) -> note_utils.NlpConfig:
+    def nlp_config(self, batching: bool = False, clean: bool = True) -> note_utils.NlpConfig:
         args = {
             "nlp_model": self.model_id,
             "nlp_provider": self.provider,
             "etl_phi_dir": self.phi,
             "target": "test",
             "batch_nlp": batching,
+            "clean_nlp": clean,
         }
         return note_utils.NlpConfig(args)
 
