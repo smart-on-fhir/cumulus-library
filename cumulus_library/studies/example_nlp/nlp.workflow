@@ -1,8 +1,6 @@
 config_type = "nlp"
 
-[[task]]
-
-name = "age"
+[tables.age]
 
 # Version History:
 # ** 1 (2025-10): New serialized format **

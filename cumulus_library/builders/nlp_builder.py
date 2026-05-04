@@ -56,7 +56,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
     def _flatten_config(self, config_dir: pathlib.Path) -> None:
         """Takes any non-specified task values from the [shared] table"""
         fields = [x.name for x in msgspec.inspect.type_info(workflow.NlpShared).fields]
-        for task in self._workflow_config.task:
+        for table_slug, task in self._workflow_config.tables.items():
             # Grab values from [shared] if not specified
             for field in fields:
                 if getattr(task, field) is None:
@@ -64,10 +64,8 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
                     setattr(task, field, shared_val)
 
             # Validate task a little
-            if not task.name:
-                raise ValueError("A task name must be provided")
             if not task.response_schema:
-                raise ValueError(f"A response schema must be provided for task '{task.name}'")
+                raise ValueError(f"A response schema must be provided for table '{table_slug}'")
 
             # Convert task schema filenames to the JSON schema itself.
             # Be strict here, just for safety's sake - we can ease up if needed later.
@@ -148,7 +146,9 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         # Gather note filters together
         cursor = config.db.cursor()
         select_by_tables = {
-            task.select_by_table for task in self._workflow_config.task if task.select_by_table
+            task.select_by_table
+            for task in self._workflow_config.tables.values()
+            if task.select_by_table
         }
 
         if select_by_tables and not self._nlp_config.salt:
@@ -159,14 +159,15 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
 
         table_refs = {table: note_utils.get_table_refs(cursor, table) for table in select_by_tables}
         note_filters = [
-            self._make_note_filter(table_refs, task) for task in self._workflow_config.task
+            self._make_note_filter(table_refs, task)
+            for task in self._workflow_config.tables.values()
         ]
 
         # Go through notes one by one and run NLP on them (save it to class, so we can examine them
         # in tests)
         self.stats = driver.run_nlp(
             self._notes,
-            tasks=self._workflow_config.task,
+            tables=self._workflow_config.tables,
             filters=note_filters,
             nlp_config=self._nlp_config,
             db=config.db,
@@ -174,8 +175,8 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
 
         # Print stat block, because that's interesting feedback
         if self._nlp_config.show_stats:
-            task_names = [t.name for t in self._workflow_config.task]
-            self._print_note_stats(names=task_names, stats=self.stats)
+            task_slugs = list(self._workflow_config.tables)
+            self._print_note_stats(names=task_slugs, stats=self.stats)
             self._print_token_stats(self.stats)
 
     def _table_is_view(self, study_config: cumulus_library.StudyConfig) -> bool:
@@ -217,14 +218,16 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         if not self._table_is_view(config):
             self._run_nlp(config)
 
-        for task in self._workflow_config.task:
+        for table_slug, task in self._workflow_config.tables.items():
             table_schema = driver.schema_for_task(task)
-            location = str(driver.output_path_for_task(self._nlp_config.target, task, config.db))
+            location = str(
+                driver.output_path_for_task(self._nlp_config.target, table_slug, task, config.db)
+            )
             remote_types = self._pyarrow_schema_to_parquet(table_schema, config.db)
             self.queries.append(
                 base_templates.get_ctas_from_parquet_query(
                     schema_name=config.schema,
-                    table_name=driver.table_name_for_task(task, self._nlp_config),
+                    table_name=driver.table_name_for_task(table_slug, self._nlp_config),
                     local_location=location,
                     remote_location=location,
                     table_cols=table_schema.names,

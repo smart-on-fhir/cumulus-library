@@ -85,29 +85,16 @@ def test_unexpected_config_field(tmp_path, note_source):
         nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
 
 
-def test_task_without_name(tmp_path, note_source):
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "task": [{}],
-        },
-        "nlp.workflow",
-    )
-    with pytest.raises(ValueError, match="A task name must be provided"):
-        nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
-
-
 def test_task_without_schema(tmp_path, note_source):
     workflow_path = conftest.write_toml(
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [{"name": "test"}],
+            "tables": {"test": {}},
         },
         "nlp.workflow",
     )
-    with pytest.raises(ValueError, match="response schema must be provided for task 'test'"):
+    with pytest.raises(ValueError, match="response schema must be provided for table 'test'"):
         nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
 
 
@@ -116,7 +103,7 @@ def test_sketch_schema_path(tmp_path, note_source):
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [{"name": "test", "response_schema": "../../../passwd"}],
+            "tables": {"test": {"response_schema": "../../../passwd"}},
         },
         "nlp.workflow",
     )
@@ -135,13 +122,12 @@ def test_table_filter_but_no_salt(tmp_path, note_source, mock_db_config):
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [
-                {
-                    "name": "test",
+            "tables": {
+                "test": {
                     "select_by_table": "table",
                     "response_schema": nlp_utils.EMPTY_SCHEMA,
                 }
-            ],
+            },
         },
         "nlp.workflow",
     )
@@ -159,23 +145,21 @@ def test_flattened_config(tmp_path, note_source):
             "shared": {
                 "system_prompt": "hello",
             },
-            "task": [
-                {
-                    "name": "override",
+            "tables": {
+                "override": {
                     "system_prompt": "bye",
                     "response_schema": nlp_utils.EMPTY_SCHEMA,
                 },
-                {
-                    "name": "fallthrough",
+                "fallthrough": {
                     "response_schema": nlp_utils.EMPTY_SCHEMA,
                 },
-            ],
+            },
         },
         "nlp.workflow",
     )
     builder = nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
-    assert builder._workflow_config.task[0].system_prompt == "bye"
-    assert builder._workflow_config.task[1].system_prompt == "hello"
+    assert builder._workflow_config.tables["override"].system_prompt == "bye"
+    assert builder._workflow_config.tables["fallthrough"].system_prompt == "hello"
 
 
 @respx.mock
@@ -184,19 +168,17 @@ def test_filter(tmp_path, mock_db_config):
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [
-                {
-                    "name": "filtered",
+            "tables": {
+                "filtered": {
                     "select_by_word": ["fever"],
                     "reject_by_word": ["cold"],
                     "select_by_table": "prev_table",
                     "response_schema": nlp_utils.EMPTY_SCHEMA,
                 },
-                {
-                    "name": "all",
+                "all": {
                     "response_schema": nlp_utils.EMPTY_SCHEMA,
                 },
-            ],
+            },
         },
         "nlp.workflow",
     )
@@ -311,13 +293,12 @@ def test_cached_response(tmp_path, mock_db_config):
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [
-                {
-                    "name": "hello_world",
+            "tables": {
+                "hello_world": {
                     "response_schema": '{"title":"test", "type": "object", '
                     '"properties": {"hello": {"type": "integer"}}}',
                 },
-            ],
+            },
         },
         "nlp.workflow",
     )
@@ -358,9 +339,8 @@ def test_span_correction(tmp_path, mock_db_config):
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [
-                {
-                    "name": "hello_world",
+            "tables": {
+                "hello_world": {
                     # Make spans array deeply nested, to prove we can find it anywhere
                     "response_schema": """{
                         "title":"test", "type": "object", "properties": {
@@ -384,7 +364,7 @@ def test_span_correction(tmp_path, mock_db_config):
                         }
                     }""",
                 },
-            ],
+            },
         },
         "nlp.workflow",
     )
@@ -451,9 +431,8 @@ def test_various_value_types(tmp_path, mock_db_config, note_source):
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [
-                {
-                    "name": "task",
+            "tables": {
+                "task": {
                     "response_schema": '{"title":"test", "type": "object", "properties": {'
                     '"float": {"type": "number"},'
                     '"int": {"type": "integer"},'
@@ -462,7 +441,7 @@ def test_various_value_types(tmp_path, mock_db_config, note_source):
                     '"enum": {"enum": ["red", "amber", "green"]}'
                     "}}",
                 },
-            ],
+            },
         },
         "nlp.workflow",
     )
@@ -698,13 +677,12 @@ def test_bedrock_skips_wrapper_in_response(tmp_path, mock_db_config, note_source
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [
-                {
-                    "name": "hello_world",
+            "tables": {
+                "hello_world": {
                     "response_schema": '{"title":"test", "type": "object", '
                     '"properties": {"hello": {"type": "string"}}}',
                 }
-            ],
+            },
         },
         "nlp.workflow",
     )
@@ -727,13 +705,12 @@ def test_bedrock_text_response(tmp_path, mock_db_config, note_source):
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [
-                {
-                    "name": "hello_world",
+            "tables": {
+                "hello_world": {
                     "response_schema": '{"title":"test", "type": "object", '
                     '"properties": {"hello": {"type": "number"}}}',
                 }
-            ],
+            },
         },
         "nlp.workflow",
     )
