@@ -636,7 +636,9 @@ def _run_workflow(
     return builder.queries, bool(builder and builder.parallel_allowed)
 
 
-def log_ref_summary(config: base_utils.StudyConfig, manifest: study_manifest.StudyManifest):
+def log_ref_summary(
+    config: base_utils.StudyConfig, manifest: study_manifest.StudyManifest
+):  # pragma: no cover
     """Updates the study ref_summary table with build results.
 
     # TODO: switch to a sqlglot-based parsing to get the table/column data from the queries
