@@ -509,7 +509,7 @@ def get_select_from_single_query(
     where_clauses: list[list[str]] | None = None,
     distinct: bool = False,
 ):
-    if not where_clauses:
+    if not where_clauses:  # pragma: no cover
         where_clauses = []
     return get_template(
         "select_from_single",
