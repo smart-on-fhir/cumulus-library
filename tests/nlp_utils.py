@@ -59,7 +59,7 @@ class MockModel:
         else:
             if provider == "azure":
                 url = "https://example.com/azure/openai"
-                chat_prefix = f"/deployments/{model_id}"
+                chat_prefix = "/deployments/.*"
                 params = {"api-version": "2024-10-21"}
             else:
                 urls = {
@@ -72,7 +72,9 @@ class MockModel:
 
             # Do some basic always-on mocking
             self._list_route = respx.get(f"{url}/models", params=params)
-            self._chat_route = respx.post(f"{url}{chat_prefix}/chat/completions", params=params)
+            self._chat_route = respx.post(
+                url__regex=f"{url}{chat_prefix}/chat/completions", params=params
+            )
             self.mock_openai_model_list()
             self.mock_openai_response({})
 
@@ -87,9 +89,13 @@ class MockModel:
             args.append("--clean-nlp")
         if config.use_batching:
             args.append("--batch-nlp")
+        if not config.show_stats:
+            args.append("--no-nlp-stats")
         return args
 
-    def nlp_config(self, batching: bool = False, clean: bool = True) -> note_utils.NlpConfig:
+    def nlp_config(
+        self, batching: bool = False, clean: bool = True, stats: bool = True
+    ) -> note_utils.NlpConfig:
         args = {
             "nlp_model": self.model_id,
             "nlp_provider": self.provider,
@@ -97,6 +103,7 @@ class MockModel:
             "target": "test",
             "batch_nlp": batching,
             "clean_nlp": clean,
+            "nlp_stats": stats,
         }
         return note_utils.NlpConfig(args)
 
@@ -105,6 +112,12 @@ class MockModel:
     ) -> None:
         response = {
             "stopReason": stop_reason,
+            "usage": {
+                "cacheReadInputTokens": 100,
+                "cacheWriteInputTokens": 101,
+                "inputTokens": 43,
+                "outputTokens": 44,
+            },
         }
         if mode == "text":
             response["output"] = {"message": {"content": [{"text": value}]}}
@@ -120,6 +133,7 @@ class MockModel:
         if models is None:
             model_aliases = {
                 "gpt-oss-120b": ["gpt-oss-120b", "openai.gpt-oss-120b-1:0", "openai/gpt-oss-120b"],
+                "gpt35": ["gpt35", "gpt-35-turbo-0125"],
             }
             models = model_aliases.get(self.model_id, [])
 
@@ -167,7 +181,7 @@ def basic_workflow(tmp_path) -> pathlib.Path:
             "config_type": "nlp",
             "task": [
                 {
-                    "name": "test",
+                    "name": "task",
                     "response_schema": EMPTY_SCHEMA,
                 },
             ],

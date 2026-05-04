@@ -25,6 +25,8 @@ class NlpStats:
         self.had_text = 0
         self.considered = [0] * size
         self.got_response = [0] * size
+        self.token_stats = models.TokenStats()
+        self.token_prices = None
 
 
 def run_nlp(
@@ -86,6 +88,9 @@ def run_nlp(
         except Exception as exc:
             rich.print("Failed to process note:", exc)
 
+    stats.token_stats = pool.token_stats
+    stats.token_prices = pool.token_prices
+
     return stats
 
 
@@ -95,7 +100,8 @@ def table_name_for_task(task: workflow.NlpTask, nlp_config: note_utils.NlpConfig
 
 
 def table_slug_for_task(task: workflow.NlpTask) -> str:
-    return f"nlp2_{task.name}"  # TODO MIKE: nlp prefix?
+    """Simple - for now, we just use the task name directly"""
+    return task.name
 
 
 def schema_for_task(task: workflow.NlpTask) -> pyarrow.Schema:
@@ -167,6 +173,14 @@ class NlpNotePool:
             raise errors.CumulusLibraryError(
                 "NLP requires the --etl-phi-dir argument. Please provide a PHI dir and try again."
             )
+
+    @property
+    def token_stats(self) -> models.TokenStats:
+        return self._model.stats
+
+    @property
+    def token_prices(self) -> models.TokenStats:
+        return self._model.prices
 
     def add_note(self, task: workflow.NlpTask, note_res: dict, text: str) -> int:
         """Returns number of successfully processed notes. Might raise an exception."""

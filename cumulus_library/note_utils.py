@@ -111,14 +111,14 @@ class NlpConfig:
         self.clean = args.get("clean_nlp", False)
         self.phi_dir = args.get("etl_phi_dir")
         self.target = args.get("target")
+        self.show_stats = args.get("nlp_stats")
 
+        self.salt = None
         if self.phi_dir:
             codebook_path = cfs.FsPath(self.phi_dir, "codebook.json")
             codebook = codebook_path.read_json(default={})
             if id_salt := codebook.get("id_salt"):
                 self.salt = binascii.unhexlify(id_salt)
-        else:
-            self.salt = None
 
         # Hard code a global memory limit for now. This limit is the number of notes we're willing
         # to hold in memory at once. Once we hit this limit, we write out the current notes.

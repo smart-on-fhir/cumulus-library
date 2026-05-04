@@ -407,7 +407,7 @@ def test_span_correction(tmp_path, mock_db_config):
     with contextlib.redirect_stdout(console_output):
         builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "test__nlp2_hello_world")
+    rows = read_rows(mock_db_config, "test__hello_world")
     assert rows[0]["result"] == {"parent_list": [{"parent_dict": {"spans": [[0, 5], [7, 21]]}}]}
 
     failure_msg = "Could not match span received from NLP server for DiagnosticReport/dxr: forth"
@@ -453,7 +453,7 @@ def test_various_value_types(tmp_path, mock_db_config, note_source):
             "config_type": "nlp",
             "task": [
                 {
-                    "name": "test",
+                    "name": "task",
                     "response_schema": '{"title":"test", "type": "object", "properties": {'
                     '"float": {"type": "number"},'
                     '"int": {"type": "integer"},'
@@ -478,7 +478,7 @@ def test_various_value_types(tmp_path, mock_db_config, note_source):
     )
     builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "test__nlp2_test")
+    rows = read_rows(mock_db_config, "test__task")
     assert rows[0]["result"] == results
 
 
@@ -564,6 +564,24 @@ def test_bad_stop(tmp_path, mock_db_config, note_source):
 
 
 @respx.mock
+def test_disabling_stats(tmp_path, mock_db_config, note_source):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel()
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config(stats=False)
+    )
+
+    console_output = io.StringIO()
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+
+    assert builder.stats.got_response[0] == 1
+    assert "Notes processed:" not in console_output.getvalue()
+    assert "Token usage:" not in console_output.getvalue()
+
+
+@respx.mock
 def test_cloud_model_but_local_provider(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(model_id="gpt5")
@@ -612,6 +630,25 @@ def test_azure_no_env(tmp_path, mock_db_config, note_source):
 
     with pytest.raises(errors.CumulusLibraryError, match="Missing Azure environment variables"):
         builder.execute_queries(mock_db_config, None)
+
+
+@respx.mock
+@nlp_utils.mock_env("azure")
+def test_azure_no_schema_support(tmp_path, mock_db_config, note_source):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(provider="azure", model_id="gpt35")
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(),
+    )
+
+    builder.execute_queries(mock_db_config, None)
+
+    # Confirm that we requested just "give us json please" if model doesn't support schemas
+    last_json = json.loads(respx.calls.last.request.content)
+    assert last_json["response_format"] == {"type": "json_object"}
 
 
 def test_bedrock_happy_path(tmp_path, mock_db_config, note_source):
@@ -680,7 +717,7 @@ def test_bedrock_skips_wrapper_in_response(tmp_path, mock_db_config, note_source
     )
     builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "test__nlp2_hello_world")
+    rows = read_rows(mock_db_config, "test__hello_world")
     assert rows[0]["result"] == {"hello": "world"}
 
 
@@ -721,7 +758,7 @@ Summary.
 
     builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "test__nlp2_hello_world")
+    rows = read_rows(mock_db_config, "test__hello_world")
     assert rows[0]["result"] == {"hello": 0.5}
 
 
@@ -775,7 +812,7 @@ def test_write_to_athena(mock_client, tmp_path, note_source):
     assert builder.stats.got_response[0] == 1
 
     # Confirm we wrote the parquet file out correctly
-    path = "s3://testbucket/athena/cumulus_user_uploads/testdb/test/nlp2_test_v0/nlp.0.parquet"
+    path = "s3://testbucket/athena/cumulus_user_uploads/testdb/test/task_v0/nlp.0.parquet"
     with mem_fs.open(path, "rb") as f:
         df = pandas.read_parquet(f)
         rows = json.loads(df.to_json(orient="records"))
@@ -784,15 +821,15 @@ def test_write_to_athena(mock_client, tmp_path, note_source):
     assert rows[0]["note_ref"] == "DiagnosticReport/hello"
 
     # And the id file
-    id_path = "s3://testbucket/athena/cumulus_user_uploads/testdb/test/nlp2_test_v0.ids"
+    id_path = "s3://testbucket/athena/cumulus_user_uploads/testdb/test/task_v0.ids"
     with mem_fs.open(id_path, "r") as f:
         assert f.read() == "DiagnosticReport/hello\n"
 
     # And confirm the query looks right
     assert builder.queries == [
-        'CREATE TABLE IF NOT EXISTS "main"."test__nlp2_test" AS SELECT "note_ref", '
+        'CREATE TABLE IF NOT EXISTS "main"."test__task" AS SELECT "note_ref", '
         '"encounter_ref", "subject_ref", "generated_on", "task_version", "model", '
         '"system_fingerprint", "result"\n'
         "FROM read_parquet('memory://s3://testbucket/athena/cumulus_user_uploads/"
-        "testdb/test/nlp2_test_v0/*.parquet')"
+        "testdb/test/task_v0/*.parquet')"
     ]
