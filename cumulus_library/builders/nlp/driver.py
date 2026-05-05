@@ -33,31 +33,33 @@ def run_nlp(
     notes: note_utils.NoteSource,
     *,
     nlp_config: note_utils.NlpConfig,
-    tasks: list[workflow.NlpTask],
+    tables: dict[str, workflow.NlpTask],
     filters: list[cfs.NoteFilter],
     db: databases.DatabaseBackend,
 ) -> NlpStats:
     """Iterates through the notes, filtering as it goes, and passes notes to NLP"""
-    stats = NlpStats(len(tasks))
+    stats = NlpStats(len(tables))
 
     # If asked to clean, do it
     if nlp_config.clean:
-        for task in tasks:
+        for table_slug, task in tables.items():
             # We wanna clean out all previous uploads for this table.
             # Do this before making the pool because that looks at the files in the folder to
             # get the first batch number to use.
-            root = output_path_for_task(nlp_config.target, task, db).parent
-            slug = table_slug_for_task(task)
-            table_with_version = re.compile(rf"/{slug}_v[0-9]+(\.ids)?$")
+            root = output_path_for_task(nlp_config.target, table_slug, task, db).parent
+            table_with_version = re.compile(rf"/{table_slug}_v[0-9]+(\.ids)?$")
             for folder in root.ls():
                 if table_with_version.search(str(folder)):
                     folder.rm()
 
     # Read ID refs for any already-uploaded notes
-    prev_upload_refs = [read_upload_refs_for_task(nlp_config.target, task, db) for task in tasks]
+    prev_upload_refs = [
+        read_upload_refs_for_task(nlp_config.target, table_slug, task, db)
+        for table_slug, task in tables.items()
+    ]
 
     # Loop through every note and add to the note pool for NLP processing
-    pool = NlpNotePool(nlp_config, db=db, tasks=tasks)
+    pool = NlpNotePool(nlp_config, db=db, tables=tables)
     for note_res in notes.progress_iter("Running NLP..."):
         stats.available += 1
 
@@ -69,7 +71,7 @@ def run_nlp(
             continue
         stats.had_text += 1
 
-        for idx, task in enumerate(tasks):
+        for idx, table_slug in enumerate(tables):
             if note_ref in prev_upload_refs[idx]:
                 continue
             if not filters[idx](note_res, text=text):
@@ -77,16 +79,15 @@ def run_nlp(
             stats.considered[idx] += 1
 
             try:
-                stats.got_response[idx] += pool.add_note(task, note_res, text)
+                stats.got_response[idx] += pool.add_note(table_slug, note_res, text)
             except Exception as exc:
                 rich.print("Failed to process note:", exc)
 
     # Finalize each task (in case a batch is waiting to be sent)
-    for idx, task in enumerate(tasks):
-        try:
-            stats.got_response[idx] += pool.finalize(task)
-        except Exception as exc:
-            rich.print("Failed to process note:", exc)
+    try:
+        pool.finalize()
+    except Exception as exc:
+        rich.print("Failed to process note:", exc)
 
     stats.token_stats = pool.token_stats
     stats.token_prices = pool.token_prices
@@ -94,14 +95,8 @@ def run_nlp(
     return stats
 
 
-def table_name_for_task(task: workflow.NlpTask, nlp_config: note_utils.NlpConfig) -> str:
-    slug = table_slug_for_task(task)
-    return f"{nlp_config.target}__{slug}"
-
-
-def table_slug_for_task(task: workflow.NlpTask) -> str:
-    """Simple - for now, we just use the task name directly"""
-    return task.name
+def table_name_for_task(table_slug: str, nlp_config: note_utils.NlpConfig) -> str:
+    return f"{nlp_config.target}__{table_slug}"
 
 
 def schema_for_task(task: workflow.NlpTask) -> pyarrow.Schema:
@@ -121,9 +116,9 @@ def schema_for_task(task: workflow.NlpTask) -> pyarrow.Schema:
 
 
 def output_path_for_task(
-    prefix: str, task: workflow.NlpTask, db: databases.DatabaseBackend
+    prefix: str, table_slug: str, task: workflow.NlpTask, db: databases.DatabaseBackend
 ) -> cfs.FsPath:
-    upload_slug = table_slug_for_task(task) + f"_v{task.version}"
+    upload_slug = table_slug + f"_v{task.version}"
     if base_path := db.get_remote_upload_path(prefix, upload_slug):
         return cfs.FsPath(base_path)
 
@@ -155,15 +150,15 @@ class NlpNotePool:
         nlp_config: note_utils.NlpConfig,
         *,
         db: databases.DatabaseBackend,
-        tasks: list[workflow.NlpTask],
+        tables: dict[str, workflow.NlpTask],
     ):
         self._config = nlp_config
         self._model = models.create_model(nlp_config)
         self._provider = self._model.provider
         self._db = db
-        self._tasks = tasks
+        self._tables = tables
 
-        self._notes = {}  # task_name -> list[output row]
+        self._notes = {}  # table_slug -> list[output row]
 
         if self._config.use_batching and not self._provider.supports_batches:
             raise errors.CumulusLibraryError(
@@ -182,18 +177,20 @@ class NlpNotePool:
     def token_prices(self) -> models.TokenStats:
         return self._model.prices
 
-    def add_note(self, task: workflow.NlpTask, note_res: dict, text: str) -> int:
+    def add_note(self, table_slug: str, note_res: dict, text: str) -> int:
         """Returns number of successfully processed notes. Might raise an exception."""
+        task = self._tables[table_slug]
+
         if self._config.use_batching:
             # TODO MIKE: finish batching support
             return 0  # pragma: no cover
 
         prompt = self._make_prompt(task, text)
         response = self._model.prompt(prompt)
-        self._add_response(task, note_res, text, response)
+        self._add_response(table_slug, task, note_res, text, response)
         return 1
 
-    def finalize(self, task: workflow.NlpTask) -> int:
+    def finalize(self) -> int:
         """Returns number of successfully processed notes. Might raise an exception."""
         if self._config.use_batching:
             # TODO MIKE: finish batching support
@@ -204,9 +201,9 @@ class NlpNotePool:
         finally:
             # If any of our tasks wrote no rows, let's write out a zero-row parquet so that we can
             # still create a table based off it for duckdb (which requires parquets).
-            for task in self._tasks:
-                if self._next_parquet_path(task).name == "nlp.0.parquet":
-                    self._write_single_parquet(task, [])
+            for table_slug, task in self._tables.items():
+                if self._next_parquet_path(table_slug, task).name == "nlp.0.parquet":
+                    self._write_single_parquet(table_slug, task, [])
 
         return 0
 
@@ -227,11 +224,16 @@ class NlpNotePool:
             cache_checksum=caching.cache_checksum(text),
         )
 
-    def _table_name(self, task: workflow.NlpTask) -> str:
-        return table_name_for_task(task, self._config)
+    def _table_name(self, table_slug: str) -> str:
+        return table_name_for_task(table_slug, self._config)
 
     def _add_response(
-        self, task: workflow.NlpTask, note_res: dict, text: str, response: models.PromptResponse
+        self,
+        table_slug: str,
+        task: workflow.NlpTask,
+        note_res: dict,
+        text: str,
+        response: models.PromptResponse,
     ) -> None:
         # Track some basic note metadata (ref, subject, encounter)
         note_ref = f"{note_res.get('resourceType')}/{note_res.get('id')}"
@@ -249,7 +251,8 @@ class NlpNotePool:
         parsed = response.answer.model_dump(mode="json", serialize_as_any=True)
         self._fix_spans(note_ref, text, parsed)
 
-        # If you change these, change the schema definition in schema_for_task() too
+        # If you change these, change the schema definition in schema_for_task() as well as the
+        # nlp.md documentation.
         new_row = {
             "note_ref": note_ref,
             "encounter_ref": encounter_ref,
@@ -263,7 +266,7 @@ class NlpNotePool:
         }
 
         # Add new row to pending notes
-        self._notes.setdefault(task.name, []).append(new_row)
+        self._notes.setdefault(table_slug, []).append(new_row)
 
         # Do we have enough to write out?
         pending_notes = sum(len(x) for x in self._notes.values())
@@ -316,14 +319,14 @@ class NlpNotePool:
         notes = self._notes
         self._notes = {}
 
-        for task in self._tasks:
-            if task.name in notes:
-                rows = notes[task.name]
-                self._write_single_parquet(task, rows)
-                add_upload_refs_for_task(self._config.target, task, self._db, rows)
+        for table_slug, task in self._tables.items():
+            if table_slug in notes:
+                rows = notes[table_slug]
+                self._write_single_parquet(table_slug, task, rows)
+                add_upload_refs_for_task(self._config.target, table_slug, task, self._db, rows)
 
-    def _next_parquet_path(self, task: workflow.NlpShared) -> cfs.FsPath:
-        folder = output_path_for_task(self._config.target, task, self._db)
+    def _next_parquet_path(self, table_slug: str, task: workflow.NlpShared) -> cfs.FsPath:
+        folder = output_path_for_task(self._config.target, table_slug, task, self._db)
 
         # First, determine what the next upload number should be
         basenames = [path.name for path in folder.ls()]
@@ -333,8 +336,10 @@ class NlpNotePool:
 
         return folder.joinpath(f"nlp.{next_index}.parquet")
 
-    def _write_single_parquet(self, task: workflow.NlpTask, rows: list[dict]) -> int:
-        path = self._next_parquet_path(task)
+    def _write_single_parquet(
+        self, table_slug: str, task: workflow.NlpTask, rows: list[dict]
+    ) -> int:
+        path = self._next_parquet_path(table_slug, task)
         path.parent.makedirs()
 
         # Build the pyarrow table (with schema) and write it out
@@ -343,25 +348,29 @@ class NlpNotePool:
 
 
 def upload_refs_path(
-    prefix: str, task: workflow.NlpTask, db: databases.DatabaseBackend
+    prefix: str, table_slug: str, task: workflow.NlpTask, db: databases.DatabaseBackend
 ) -> cfs.FsPath:
-    path = output_path_for_task(prefix, task, db)
+    path = output_path_for_task(prefix, table_slug, task, db)
     return cfs.FsPath(str(path) + ".ids")
 
 
 def read_upload_refs_for_task(
-    prefix: str, task: workflow.NlpTask, db: databases.DatabaseBackend
+    prefix: str, table_slug: str, task: workflow.NlpTask, db: databases.DatabaseBackend
 ) -> set[str]:
-    path = upload_refs_path(prefix, task, db)
+    path = upload_refs_path(prefix, table_slug, task, db)
     refs = path.read_text(default="")
     return set(refs.splitlines())
 
 
 def add_upload_refs_for_task(
-    prefix: str, task: workflow.NlpTask, db: databases.DatabaseBackend, rows: list[dict]
+    prefix: str,
+    table_slug: str,
+    task: workflow.NlpTask,
+    db: databases.DatabaseBackend,
+    rows: list[dict],
 ) -> set[str]:
     refs = sorted(f"{row['note_ref']}" for row in rows)  # sort for tests
-    path = upload_refs_path(prefix, task, db)
+    path = upload_refs_path(prefix, table_slug, task, db)
     path.parent.makedirs()
     mode = "a" if path.exists() else "w"  # work around memory:// fs having bad "a" semantics
     with path.open(mode) as f:

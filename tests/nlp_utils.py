@@ -179,12 +179,11 @@ def basic_workflow(tmp_path) -> pathlib.Path:
         tmp_path,
         {
             "config_type": "nlp",
-            "task": [
-                {
-                    "name": "task",
+            "tables": {
+                "task": {
                     "response_schema": EMPTY_SCHEMA,
                 },
-            ],
+            },
         },
         "nlp.workflow",
     )

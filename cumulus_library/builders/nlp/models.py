@@ -451,7 +451,7 @@ class VllmProvider(OpenAIProvider):
         url = url or f"http://localhost:{port}/v1"  # offer non-docker fallback
         super().__init__(
             model_name,
-            openai.OpenAI(base_url=url, api_key=""),
+            openai.OpenAI(base_url=url, api_key="EMPTY"),
             supports_schema=True,
             max_batch_count=None,
         )
