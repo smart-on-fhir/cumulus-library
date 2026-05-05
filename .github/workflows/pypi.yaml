@@ -6,7 +6,12 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-24.04-arm
+    # Note: the github pypi action, as of this writing (2026-05-05) relies on pulling a
+    # docker image, and the image is only available for X64 processors. Trying to use this
+    # on an ARM machine results in an error. So, don't switch over the requested architecture
+    # until this is addressed (and, realistically, the speed advantage for a release is not
+    # the most important anyway).
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
 
