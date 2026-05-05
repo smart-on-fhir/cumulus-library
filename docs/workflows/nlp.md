@@ -128,7 +128,7 @@ reject_by_word: ["default", "words"]
 reject_by_regex: ["default", regex"]
 ```
 
-## Result Table Format
+### Result Table Format
 
 Tables created by the NLP workflow will have the following fields:
 
@@ -166,6 +166,79 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
 - `--clean-nlp`: if set, previous NLP results for the workflow will be deleted first
 - `--no-nlp-stats`: if set, note and token stats will not be printed to the console
 
-## Using a Local LLM
+### What Data Gets Sent Where
 
-TODO MIKE
+Naturally, NLP workflows deal with a lot of PHI since they work directly with clinical notes.
+Let's look at how the data flows through the system.
+
+1. The workflow sends the prompts and clinical note text to the model you specify.
+1. Each note's result is cached in the PHI folder (specified with `--etl-phi-dir`).
+1. Any text span fragments that the model gives back are turned into text offsets (numbers)
+   instead of actual clinical note fragments.
+1. Results are packaged together and uploaded to the S3 bucket associated with the Athena workgroup
+   (this is the same S3 bucket that Athena query results get stored and the same bucket that
+   `file_upload` workflows use).
+1. An Athena table is created that points at those parquet files in S3.
+
+#### Examining Results Before Sending to the Cloud
+
+You may have requirements around inspecting data before uploading files to S3/Athena.
+You can first do an NLP run into a local duckdb database to inspect the resulting parquet files
+yourself.
+And then once satisfied, upload to Athena.
+
+1. Start by passing arguments like `--db-type duckdb --database ./testing.db` instead of the usual
+   AWS/Athena arguments.
+   - NLP parquet files will be written to a user cache folder.
+     On Linux, this will be somewhere like `~/.cache/cumulus-library/nlp/{my_study}/{table}_v0/`
+   - The tables themselves (that point to those parquet files) will be in the database path you
+     gave Cumulus Library (i.e. `./testing.db`).
+1. You can inspect the parquet files with a tool like
+   [parquet-tools](https://pypi.org/project/parquet-tools/).
+   - Call `parquet-tools show ~/path/to/parquet/files/*` to see a dump of their contents.
+1. You can inspect the resulting database with a tool like
+   [duckdb-cli](https://pypi.org/project/duckdb-cli/).
+   - Call `duckdb -ui ./testing.db` and browse the tables in your browser.
+1. If everything looks good, you can now rerun the NLP workflow but instead of `--db-type duckdb`,
+   you can pass all the normal AWS Athena arguments.
+   The existing cache of NLP results sitting in the ETL PHI dir will prevent this second run from
+   actually consuming LLM tokens.
+
+### Using a Local LLM
+
+For cost, reproducibility, or PHI-control reasons, you may prefer a locally-run LLM instead of a
+cloud LLM.
+
+We ship a convenient Docker compose file that makes it easy to launch a local LLM yourself.
+
+You'll find the `docs/compose-nlp.yaml` file (referenced in the below commands) in
+[cumulus-library](https://github.com/smart-on-fhir/cumulus-library)'s git files,
+so make sure you have a local checkout of that.
+
+#### gpt-oss-120b
+
+Run the following command on a machine with at least 80GB of GPU memory.
+
+```
+docker compose -f docs/compose-nlp.yaml up gpt-oss-120b --wait
+```
+
+#### llama4-scout
+
+{: .note }
+Llama4 local Docker support is offered as an experimental work-in-progress.
+The commands below may not work.
+
+Llama4 is a gated model, so it can't simply be downloaded at will.
+You'll need a [Hugging Face](https://huggingface.co/) account and have approval to access the
+[llama4](https://huggingface.co/nvidia/Llama-4-Scout-17B-16E-Instruct-NVFP4/) model.
+
+Then, go to the "Access Tokens" section of your Hugging Face account settings and make a read-only
+access token, to use below so that Docker can download the model.
+
+Then, you can run the following command on a machine with at least 80GB of GPU memory.
+
+```
+export HUGGING_FACE_HUB_TOKEN=xxx
+docker compose -f docs/compose-nlp.yaml up llama4-scout --wait
+```
