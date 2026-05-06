@@ -3,6 +3,7 @@ import enum
 import json
 import re
 import string
+import tempfile
 import types
 import typing
 
@@ -60,6 +61,7 @@ def run_nlp(
 
     # Loop through every note and add to the note pool for NLP processing
     pool = NlpNotePool(nlp_config, db=db, tables=tables)
+    pool.prepare(notes)
     for note_res in notes.progress_iter("Running NLP..."):
         stats.available += 1
 
@@ -177,25 +179,32 @@ class NlpNotePool:
     def token_prices(self) -> models.TokenStats:
         return self._model.prices
 
+    def prepare(self, notes: note_utils.NoteSource) -> None:
+        # In batching mode, we need to do some preparations.
+        # Namely, we (a) have to resume any previous batches.
+        # And (b) we need to send our own (new) batches off.
+        # Then when we do the normal loop of adding notes later, we'll get the cached results of
+        # both (a) and (b) above.
+        # We want to get it from the cache, because when we send batches off, we don't include
+        # enough metadata to generate a proper PromptResult (like the references and span
+        # conversion, etc).
+        # So we need to crawl through the input notes and match it up with the cached NLP results.
+
+        if self._config.use_batching:
+            self._resume_existing_batches()
+            self._create_new_batches(notes)
+
     def add_note(self, table_slug: str, note_res: dict, text: str) -> int:
         """Returns number of successfully processed notes. Might raise an exception."""
         task = self._tables[table_slug]
 
-        if self._config.use_batching:
-            # TODO MIKE: finish batching support
-            return 0  # pragma: no cover
-
-        prompt = self._make_prompt(task, text)
+        prompt = self._make_prompt(table_slug, task, text)
         response = self._model.prompt(prompt)
         self._add_response(table_slug, task, note_res, text, response)
         return 1
 
-    def finalize(self) -> int:
+    def finalize(self) -> None:
         """Returns number of successfully processed notes. Might raise an exception."""
-        if self._config.use_batching:
-            # TODO MIKE: finish batching support
-            return 0  # pragma: no cover
-
         try:
             self._write_notes_to_output()
         finally:
@@ -205,9 +214,16 @@ class NlpNotePool:
                 if self._next_parquet_path(table_slug, task).name == "nlp.0.parquet":
                     self._write_single_parquet(table_slug, task, [])
 
-        return 0
+    def _table_name(self, table_slug: str) -> str:
+        return table_name_for_task(table_slug, self._config)
 
-    def _make_prompt(self, task: workflow.NlpTask, text: str) -> models.Prompt:
+    def _cache_dir(self) -> cfs.FsPath:
+        return cfs.FsPath(self._config.phi_dir)
+
+    def _cache_namespace(self, table_slug: str, task: workflow.NlpTask) -> str:
+        return f"{self._table_name(table_slug)}_v{task.version}_{self._model.MODEL_ID}"
+
+    def _make_prompt(self, table_slug: str, task: workflow.NlpTask, text: str) -> models.Prompt:
         schema = task.response_schema.model_json_schema()
         system = task.system_prompt or ""
         system = system.replace("%JSON-SCHEMA%", json.dumps(schema))
@@ -219,13 +235,10 @@ class NlpNotePool:
             system=system,
             user=user,
             schema=task.response_schema,
-            cache_dir=cfs.FsPath(self._config.phi_dir),
-            cache_namespace=f"{self._table_name(task)}_v{task.version}",
+            cache_dir=self._cache_dir(),
+            cache_namespace=self._cache_namespace(table_slug, task),
             cache_checksum=caching.cache_checksum(text),
         )
-
-    def _table_name(self, table_slug: str) -> str:
-        return table_name_for_task(table_slug, self._config)
 
     def _add_response(
         self,
@@ -272,6 +285,87 @@ class NlpNotePool:
         pending_notes = sum(len(x) for x in self._notes.values())
         if pending_notes >= self._config.note_limit:
             self._write_notes_to_output()
+
+    def _resume_existing_batches(self) -> None:
+        # Maybe we got interrupted and need to resume.
+        # Check all tables for any existing batch file.
+        for table_slug, task in self._tables.items():
+            cache_namespace = self._cache_namespace(table_slug, task)
+            metadata = caching.cache_metadata_read(self._cache_dir(), cache_namespace)
+            batch_ids = metadata.get(f"batches-{self._config.provider}")
+            if batch_ids:
+                rich.print(f" Resuming previously created batches for '{table_slug}'.")
+                self._wait_for_batches(
+                    batch_ids,
+                    schema=task.response_schema,
+                    cache_namespace=cache_namespace,
+                )
+
+    def _create_new_batches(self, notes: note_utils.NoteSource) -> None:
+        table_batches = {}  # table_slug -> set[batch_id]
+        cache_dir = self._cache_dir()
+
+        # Feed every note into the provider
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            for note_res in notes.progress_iter("Creating batches..."):
+                try:
+                    text = cfs.get_text_from_note_res(note_res)
+                except Exception:  # noqa: S112
+                    continue
+
+                for table_slug, task in self._tables.items():
+                    prompt = self._make_prompt(table_slug, task, text)
+                    batch_ids = table_batches.setdefault(table_slug, set())
+                    batch_ids.add(self._provider.add_to_batch(prompt, tmp_dir))
+
+            for table_slug, task in self._tables.items():
+                cache_namespace = self._cache_namespace(table_slug, task)
+                batch_ids.add(self._provider.finish_batch(cache_dir, cache_namespace))
+                batch_ids.discard(None)  # drop any None's from calls that didn't create a batch
+
+        # Now wait for all the results
+        for table_slug, task in self._tables.items():
+            if batch_ids := table_batches.get(table_slug):
+                rich.print(
+                    f" Waiting for batches for '{table_slug}' to finish "
+                    "(can be resumed if interrupted)."
+                )
+                self._wait_for_batches(
+                    batch_ids,
+                    cache_namespace=self._cache_namespace(table_slug, task),
+                    schema=task.response_schema,
+                )
+
+    def _wait_for_batches(
+        self,
+        batch_ids: set[str],
+        *,
+        schema: type[pydantic.BaseModel],
+        cache_namespace: str,
+    ) -> None:
+        status_box = rich.text.Text()
+        count = len(batch_ids)
+        cache_dir = self._cache_dir()
+
+        with rich.get_console().status(status_box):
+            for batch_id in batch_ids:
+                plural = "" if count == 1 else "es"
+                status_box.plain = (
+                    f"Waiting for {count} batch{plural} to finish… (may take up to a day)"
+                )
+
+                self._provider.wait_for_batch(
+                    batch_id,
+                    schema=schema,
+                    cache_dir=cache_dir,
+                    cache_namespace=cache_namespace,
+                )
+
+                count -= 1
+
+        count = len(batch_ids)
+        batch_plural = "" if count == 1 else "es"
+        rich.print(f" Waited for {count} batch{batch_plural}.")
 
     def _fix_spans(self, note_ref: str, text: str, parsed: dict) -> bool:
         """Converts string spans into integer spans."""

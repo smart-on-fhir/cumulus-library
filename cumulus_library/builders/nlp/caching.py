@@ -8,21 +8,20 @@ import cumulus_fhir_support as cfs
 
 Obj = TypeVar("Obj")
 
-# TODO MIKE: add back when implementing batching
 
-# def _cache_metadata_path(cache_dir: cfs.FsPath, namespace: str, filename: str) -> cfs.FsPath:
-#     return cache_dir.joinpath(f"nlp-cache/{namespace}/{filename}")
-
-
-# def cache_metadata_write(cache_dir: cfs.FsPath, namespace: str, content: dict) -> None:
-#     path = _cache_metadata_path(cache_dir, namespace, "metadata.json")
-#     path.parent.makedirs()
-#     path.write_json(content, indent=2)
+def _cache_metadata_path(cache_dir: cfs.FsPath, namespace: str, filename: str) -> cfs.FsPath:
+    return cache_dir.joinpath(f"nlp-cache/{namespace}/{filename}")
 
 
-# def cache_metadata_read(cache_dir: cfs.FsPath, namespace: str) -> dict:
-#     path = _cache_metadata_path(cache_dir, namespace, "metadata.json")
-#     return path.read_json(default={})
+def cache_metadata_write(cache_dir: cfs.FsPath, namespace: str, content: dict) -> None:
+    path = _cache_metadata_path(cache_dir, namespace, "metadata.json")
+    path.parent.makedirs()
+    path.write_json(content, indent=2)
+
+
+def cache_metadata_read(cache_dir: cfs.FsPath, namespace: str) -> dict:
+    path = _cache_metadata_path(cache_dir, namespace, "metadata.json")
+    return path.read_json(default={})
 
 
 def _cache_path(cache_dir: cfs.FsPath, namespace: str, checksum: str) -> cfs.FsPath:
