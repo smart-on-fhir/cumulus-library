@@ -35,10 +35,14 @@ WITH temp_condition AS (
             ) 
         }},
         {{- 
-            utils.date_cols_from_str(
+            utils.timestamp_cols_from_str(
                 'condition',
                 'c',
-                ['recordedDate'],
+                [
+                    'recordedDate',
+                    'onsetDateTime',
+                    'abatementDateTime'
+                ],
                 schema
             ) 
         }},
@@ -73,6 +77,8 @@ SELECT
     tc.recordedDate_week,
     tc.recordedDate_month,
     tc.recordedDate_year,
+    tc.onsetDateTime,
+    tc.abatementDateTime,
     {#- We don't expose system for these next two since we filter
         down to a single system in the denormalization table #}
     cdcs.code AS clinicalStatus_code,

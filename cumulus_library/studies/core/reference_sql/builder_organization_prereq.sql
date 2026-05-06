@@ -10,19 +10,13 @@ CREATE TABLE core__organization_dn_type AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."type", 1) AS row,
-                UNNEST(t."type") AS "type" -- must unnest in SELECT here
-            FROM organization AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            "type"
-        FROM data_and_row_num
+            r."type"
+        FROM
+            organization AS t,
+            UNNEST(t."type") WITH ORDINALITY AS r ("type", row)
     ),
 
     system_type_0 AS (

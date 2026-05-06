@@ -6,7 +6,7 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__practitioner_dn_qualification_code"
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__practitioner_dn_qualification_code"
 AS (
     SELECT * FROM (
         VALUES

@@ -30,7 +30,7 @@ CREATE TABLE core__medicationrequest AS (
                     schema
                 )
             }},
-            {{- utils.date_cols_from_str(
+            {{- utils.timestamp_cols_from_str(
                     'medicationrequest',
                     'mr',
                     ['authoredOn'],

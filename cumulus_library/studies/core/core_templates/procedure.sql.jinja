@@ -33,6 +33,18 @@ WITH temp_procedure AS (
                 schema
             )
         }},
+        {{- utils.timestamp_cols_from_str(
+                'procedure',
+                'src',
+                [
+                    'performedDateTime',
+                    ('performedPeriod', 'start', 'performedPeriod_start'),
+                    ('performedPeriod', 'end', 'performedPeriod_end')
+
+                ],
+                schema
+            ) 
+        }},
         {{-
             utils.truncate_date_cols(
                 'procedure',
@@ -70,16 +82,19 @@ SELECT
     dn_code.system AS code_system,
     dn_code.display AS code_display,
 
+    tp.performedDateTime,
     tp.performedDateTime_day,
     tp.performedDateTime_week,
     tp.performedDateTime_month,
     tp.performedDateTime_year,
 
+    tp.performedPeriod_start,
     tp.performedPeriod_start_day,
     tp.performedPeriod_start_week,
     tp.performedPeriod_start_month,
     tp.performedPeriod_start_year,
 
+    tp.performedPeriod_end,
     tp.performedPeriod_end_day,
     tp.performedPeriod_end_week,
     tp.performedPeriod_end_month,

@@ -20,7 +20,7 @@ CREATE TABLE core__medicationrequest AS (
         mr.subject.reference AS subject_ref,
         mr.medicationReference.reference AS med_ref,
         mr.requester.reference AS requester_ref,
-        cast(from_iso8601_timestamp(mr.authoredOn) AS date) AS authoredOn,
+        cast(from_iso8601_timestamp(mr."authoredOn") AS timestamp) AS authoredOn,
         date_trunc('month', cast(from_iso8601_timestamp(mr."authoredOn") AS date))
             AS authoredOn_month
         FROM medicationrequest AS mr

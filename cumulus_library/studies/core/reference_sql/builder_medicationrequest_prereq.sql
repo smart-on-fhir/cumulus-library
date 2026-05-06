@@ -6,7 +6,7 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__medication_dn_code"
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medication_dn_code"
 AS (
     SELECT * FROM (
         VALUES
@@ -57,7 +57,7 @@ CREATE TABLE core__medicationrequest_dn_inline_code AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__medicationrequest_dn_contained_code"
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationrequest_dn_contained_code"
 AS (
     SELECT * FROM (
         VALUES
@@ -73,19 +73,13 @@ CREATE TABLE core__medicationrequest_dn_category AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."category", 1) AS row,
-                UNNEST(t."category") AS "category" -- must unnest in SELECT here
-            FROM medicationrequest AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            "category"
-        FROM data_and_row_num
+            r."category"
+        FROM
+            medicationrequest AS t,
+            UNNEST(t."category") WITH ORDINALITY AS r ("category", row)
     ),
 
     system_category_0 AS (

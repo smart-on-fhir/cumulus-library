@@ -6,6 +6,8 @@ expected_table_cols = {
     "condition": {
         "id": [],
         "recordedDate": [],
+        "onsetDateTime": [],
+        "abatementDateTime ": [],
         "subject": sql_utils.REFERENCE,
         "encounter": sql_utils.REFERENCE,
     }

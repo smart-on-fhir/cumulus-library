@@ -22,6 +22,7 @@ WITH temp_observation AS (
         o.valueQuantity.system AS valueQuantity_system,
         o.valueQuantity.code AS valueQuantity_code,
         o.specimen.reference AS specimen_ref,
+        cast(from_iso8601_timestamp(o."effectiveDateTime") AS timestamp) AS effectiveDateTime,
         date_trunc('day', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
             AS effectiveDateTime_day,
         date_trunc('week', cast(from_iso8601_timestamp(o."effectiveDateTime") AS date))
@@ -62,6 +63,7 @@ SELECT
     interpretation_code,
     interpretation_system,
     interpretation_display,
+    effectiveDateTime,
     effectiveDateTime_day,
     effectiveDateTime_week,
     effectiveDateTime_month,
@@ -90,13 +92,40 @@ FROM temp_observation;
 
 
 CREATE TABLE core__observation_component_valuequantity AS (
+    WITH
+
+    flattened_rows AS (
+        SELECT
+            t.id AS id,
+            row,
+            r."component"
+        FROM
+            observation AS t,
+            UNNEST(t."component") WITH ORDINALITY AS r ("component", row)
+    ),
+
+    flattened_quantities AS (
+        SELECT
+            f.id,
+            f.row,
+        f.component.valueQuantity.value AS value,
+        cast(NULL as varchar) AS comparator,
+        f.component.valueQuantity.unit AS unit,
+        f.component.valueQuantity.system AS system,
+        f.component.valueQuantity.code AS code
+        FROM flattened_rows AS f
+        WHERE f.component.valueQuantity IS NOT NULL
+    )
+
     SELECT
-        'x' AS id,
-        CAST(NULL AS BIGINT) AS row,
-        CAST(NULL AS DOUBLE) AS value, -- noqa: disable=L029
-        'x' AS comparator,
-        'x' AS unit,
-        'x' AS system,
-        'x' AS code
-    WHERE 1=0 -- empty table
+        f.id,
+        f.row,
+        -- We ensure value is a double, because nullable_cols() above will cast
+        -- as varchar if value isn't in the schema.
+        CAST(f.value AS DOUBLE) AS value, -- noqa: disable=L029
+        f.comparator,
+        f.unit,
+        f.system,
+        f.code
+    FROM flattened_quantities AS f
 );

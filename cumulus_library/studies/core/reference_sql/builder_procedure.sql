@@ -32,6 +32,9 @@ WITH temp_procedure AS (
         src.status,
         src.subject.reference AS subject_ref,
         src.encounter.reference AS encounter_ref,
+        cast(from_iso8601_timestamp(src."performedDateTime") AS timestamp) AS performedDateTime,
+        cast(from_iso8601_timestamp(src."performedPeriod"."start") AS timestamp) AS performedPeriod_start,
+        cast(from_iso8601_timestamp(src."performedPeriod"."end") AS timestamp) AS performedPeriod_end,
         date_trunc('day', cast(from_iso8601_timestamp(src."performedDateTime") AS date))
             AS performedDateTime_day,
         date_trunc('week', cast(from_iso8601_timestamp(src."performedDateTime") AS date))
@@ -72,16 +75,19 @@ SELECT
     dn_code.system AS code_system,
     dn_code.display AS code_display,
 
+    tp.performedDateTime,
     tp.performedDateTime_day,
     tp.performedDateTime_week,
     tp.performedDateTime_month,
     tp.performedDateTime_year,
 
+    tp.performedPeriod_start,
     tp.performedPeriod_start_day,
     tp.performedPeriod_start_week,
     tp.performedPeriod_start_month,
     tp.performedPeriod_start_year,
 
+    tp.performedPeriod_end,
     tp.performedPeriod_end_day,
     tp.performedPeriod_end_week,
     tp.performedPeriod_end_month,

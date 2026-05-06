@@ -28,6 +28,10 @@ WITH temp_diagnosticreport AS (
         d.status,
         d.subject.reference AS subject_ref,
         d.encounter.reference AS encounter_ref,
+        cast(from_iso8601_timestamp(d."effectiveDateTime") AS timestamp) AS effectiveDateTime,
+        cast(from_iso8601_timestamp(d."effectivePeriod"."start") AS timestamp) AS effectivePeriod_start,
+        cast(from_iso8601_timestamp(d."effectivePeriod"."end") AS timestamp) AS effectivePeriod_end,
+        cast(from_iso8601_timestamp(d."issued") AS timestamp) AS issued,
         date_trunc('day', cast(from_iso8601_timestamp(d."effectiveDateTime") AS date))
             AS effectiveDateTime_day,
         date_trunc('week', cast(from_iso8601_timestamp(d."effectiveDateTime") AS date))
@@ -65,58 +69,49 @@ WITH temp_diagnosticreport AS (
 ),
 
 temp_performer AS (
-    WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."performer", 1) AS row,
-                UNNEST(t."performer") AS data -- must unnest in SELECT here
-            FROM diagnosticreport AS t
-        )
-        SELECT
-            id,
+    SELECT
+            t.id AS id,
             row,
-            data."reference"
-        FROM data_and_row_num
+            r."reference"
+        FROM
+            diagnosticreport AS t,
+            UNNEST(t."performer") WITH ORDINALITY AS parent (r, row)
 ),
 
 temp_specimen AS (
-    WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."specimen", 1) AS row,
-                UNNEST(t."specimen") AS data -- must unnest in SELECT here
-            FROM diagnosticreport AS t
-        )
-        SELECT
-            id,
+    SELECT
+            t.id AS id,
             row,
-            data."reference"
-        FROM data_and_row_num
+            r."reference"
+        FROM
+            diagnosticreport AS t,
+            UNNEST(t."specimen") WITH ORDINALITY AS parent (r, row)
 ),
 
 temp_result AS (
-    WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."result", 1) AS row,
-                UNNEST(t."result") AS data -- must unnest in SELECT here
-            FROM diagnosticreport AS t
-        )
-        SELECT
-            id,
+    SELECT
+            t.id AS id,
             row,
-            data."reference"
-        FROM data_and_row_num
+            r."reference"
+        FROM
+            diagnosticreport AS t,
+            UNNEST(t."result") WITH ORDINALITY AS parent (r, row)
 ),
 
 temp_has_text AS (
     WITH
     temp_has_text_from_ext AS (
         SELECT
-        'empty' AS id, FALSE AS has_text WHERE 1=0 -- forces an empty table
+            src.id,
+            -- This is a marker that Cumulus ETL will drop, if it strips data during its de-identification step
+            (
+                e.extension.url = 'http://hl7.org/fhir/StructureDefinition/data-absent-reason'
+                AND e.extension.valueCode = 'masked'
+            ) AS has_text
+        FROM diagnosticreport AS src,
+             unnest(presentedForm) AS u (presentedForm),
+             unnest(u.presentedForm._data.extension) AS e (extension)
+        WHERE split_part(u.presentedForm.contentType, ';', 1) IN ('text/html', 'text/plain', 'application/xhtml+xml')
     ),
 
     temp_has_text_from_data AS (
@@ -153,21 +148,25 @@ SELECT
     dn_code.system AS code_system,
     dn_code.display AS code_display,
 
+    td.effectiveDateTime,
     td.effectiveDateTime_day,
     td.effectiveDateTime_week,
     td.effectiveDateTime_month,
     td.effectiveDateTime_year,
 
+    td.effectivePeriod_start,
     td.effectivePeriod_start_day,
     td.effectivePeriod_start_week,
     td.effectivePeriod_start_month,
     td.effectivePeriod_start_year,
 
+    td.effectivePeriod_end,
     td.effectivePeriod_end_day,
     td.effectivePeriod_end_week,
     td.effectivePeriod_end_month,
     td.effectivePeriod_end_year,
 
+    td.issued,
     td.issued_day,
     td.issued_week,
     td.issued_month,

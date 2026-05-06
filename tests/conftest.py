@@ -127,6 +127,27 @@ def date_to_epoch(year: int, month: int, day: int) -> int:
     return int(datetime.datetime(year, month, day, tzinfo=datetime.UTC).timestamp())
 
 
+def timestamp_to_epoch(
+    year: int, month: int, day: int, hour: int, minute: int, sec: int, offset: int
+) -> int:
+    """Convert a date to a seconds-since-epoch count.
+
+    The round trip from duckdb to pandas seems to do a timestamp conversion and when
+    comparing against values pulled from duckdb/pandas, you can use this to get the right
+    number of seconds.
+    """
+    ts = datetime.datetime(
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        sec,
+        tzinfo=datetime.timezone(datetime.timedelta(seconds=3600 * offset)),
+    ).timestamp()
+    return int(ts)
+
+
 def ndjson_data_generator(source_dir: pathlib.Path, target_dir: pathlib.Path, iterations: int):
     """Uses the test data as a template to create large datasets
 

@@ -13,7 +13,7 @@ WITH temp_patient AS (
         p.id,
         p.gender,
         p.address,
-        cast(from_iso8601_timestamp(p.birthDate) AS date) AS birthDate,
+        cast(from_iso8601_timestamp(p."birthDate") AS date) AS birthDate,
         er.race_display,
         ee.ethnicity_display
     FROM

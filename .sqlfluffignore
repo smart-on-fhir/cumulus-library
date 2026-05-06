@@ -7,6 +7,7 @@ output.sql
 # date column, which is likely a Sqlfluff error
 documentreference.sql.jinja
 encounter.sql.jinja
+episodeofcare.sql.jinja
 
 # This file has namespace collisions with vars in other sqlfluff templates.
 # Ignoring for now - could be addressed with an in-folder .sqlfluff config
