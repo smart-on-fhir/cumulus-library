@@ -17,7 +17,7 @@ WITH temp_documentreference AS (
         dr.docStatus,
         dr.context,
         dr.subject.reference AS subject_ref,
-        cast(from_iso8601_timestamp(dr.date) AS date) AS date,
+        cast(from_iso8601_timestamp(dr."date") AS timestamp) AS date,
         date_trunc('day', cast(from_iso8601_timestamp(dr."context"."period"."start") AS date))
             AS author_day,
         date_trunc('week', cast(from_iso8601_timestamp(dr."context"."period"."start") AS date))

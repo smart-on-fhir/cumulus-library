@@ -29,6 +29,13 @@ WITH temp_observation AS (
                 schema
             ) 
         }},
+        {{- utils.timestamp_cols_from_str(
+                    'observation',
+                    'o',
+                    ['effectiveDateTime'],
+                    schema
+                )
+            }},
         {{- utils.truncate_date_cols(
                 'observation',
                 'o',
@@ -73,6 +80,7 @@ SELECT
     interpretation_code,
     interpretation_system,
     interpretation_display,
+    effectiveDateTime,
     effectiveDateTime_day,
     effectiveDateTime_week,
     effectiveDateTime_month,

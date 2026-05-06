@@ -6,95 +6,24 @@
 
 -- ###########################################################
 
-CREATE TABLE core__servicerequest_dn_category AS (
-    WITH
-
-    flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."category", 1) AS row,
-                UNNEST(t."category") AS "category" -- must unnest in SELECT here
-            FROM servicerequest AS t
-        )
-        SELECT
-            id,
-            row,
-            "category"
-        FROM data_and_row_num
-    ),
-
-    system_category_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            s.row,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system,
-            u.coding.userSelected
-        FROM
-            flattened_rows AS s,
-            UNNEST(s.category.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_category_0
-        
+CREATE TABLE IF NOT EXISTS "main"."core__servicerequest_dn_category"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-    SELECT
-        id,
-        row,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
 );
-
 
 -- ###########################################################
 
-CREATE TABLE core__servicerequest_dn_code AS (
-    WITH
-
-    system_code_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            0 AS row,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system,
-            u.coding.userSelected
-        FROM
-            servicerequest AS s,
-            UNNEST(s.code.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_code_0
-        
+CREATE TABLE IF NOT EXISTS "main"."core__servicerequest_dn_code"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-    SELECT
-        id,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
 );
-

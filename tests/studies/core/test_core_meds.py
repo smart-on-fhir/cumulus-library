@@ -54,7 +54,7 @@ def test_core_med_all_types(tmp_path):
         "reported_ref": "Patient/Q",
         "subject_ref": "Patient/P",
         "encounter_ref": "Encounter/E",
-        "authoredOn": conftest.date_to_epoch(2021, 10, 16),
+        "authoredOn": conftest.timestamp_to_epoch(2021, 10, 16, 12, 0, 0, 0),
         "authoredOn_month": conftest.date_to_epoch(2021, 10, 1),
         "medication_code": "c",
         "medication_system": "letters",

@@ -30,6 +30,10 @@ WITH temp_servicerequest AS (
         src.subject.reference AS subject_ref,
         src.encounter.reference AS encounter_ref,
         src.requester.reference AS requester_ref,
+        cast(from_iso8601_timestamp(src."occurrenceDateTime") AS timestamp) AS occurrenceDateTime,
+        cast(from_iso8601_timestamp(src."occurrencePeriod"."start") AS timestamp) AS occurrencePeriod_start,
+        cast(from_iso8601_timestamp(src."occurrencePeriod"."end") AS timestamp) AS occurrencePeriod_end,
+        cast(from_iso8601_timestamp(src."authoredOn") AS timestamp) AS authoredOn,
         date_trunc('day', cast(from_iso8601_timestamp(src."occurrenceDateTime") AS date))
             AS occurrenceDateTime_day,
         date_trunc('week', cast(from_iso8601_timestamp(src."occurrenceDateTime") AS date))
@@ -95,21 +99,25 @@ SELECT
     dn_code.system AS code_system,
     dn_code.display AS code_display,
 
+    src.occurrenceDateTime,
     src.occurrenceDateTime_day,
     src.occurrenceDateTime_week,
     src.occurrenceDateTime_month,
     src.occurrenceDateTime_year,
 
+    src.occurrencePeriod_start,
     src.occurrencePeriod_start_day,
     src.occurrencePeriod_start_week,
     src.occurrencePeriod_start_month,
     src.occurrencePeriod_start_year,
 
+    src.occurrencePeriod_end,
     src.occurrencePeriod_end_day,
     src.occurrencePeriod_end_week,
     src.occurrencePeriod_end_month,
     src.occurrencePeriod_end_year,
 
+    src.authoredOn,
     src.authoredOn_day,
     src.authoredOn_week,
     src.authoredOn_month,

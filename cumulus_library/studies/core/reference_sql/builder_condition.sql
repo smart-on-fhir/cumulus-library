@@ -17,7 +17,7 @@ WITH temp_condition AS (
         cca.code,
         cca.system,
         cca.display,
-        cast(from_iso8601_timestamp(c.recordedDate) AS date) AS recordedDate,
+        cast(from_iso8601_timestamp(c."recordedDate") AS timestamp) AS recordedDate,
         date_trunc('week', cast(from_iso8601_timestamp(c."recordedDate") AS date))
             AS recordedDate_week,
         date_trunc('month', cast(from_iso8601_timestamp(c."recordedDate") AS date))

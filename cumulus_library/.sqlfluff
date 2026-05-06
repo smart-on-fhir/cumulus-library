@@ -101,6 +101,10 @@ local_location = /var/study/data/
 neg_source_table = neg_source_table
 output_table_name = 'created_table'
 parent_field = 'parent'
+period = {
+        "start":"2024-01-01T00:00:00Z",
+        "end":"2024-01-01T00:00:00Z"
+    }
 prefix = Test
 primary_ref = encounter_ref
 pos_source_table = pos_source_table

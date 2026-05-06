@@ -28,6 +28,10 @@ WITH temp_diagnosticreport AS (
         d.status,
         d.subject.reference AS subject_ref,
         d.encounter.reference AS encounter_ref,
+        cast(from_iso8601_timestamp(d."effectiveDateTime") AS timestamp) AS effectiveDateTime,
+        cast(from_iso8601_timestamp(d."effectivePeriod"."start") AS timestamp) AS effectivePeriod_start,
+        cast(from_iso8601_timestamp(d."effectivePeriod"."end") AS timestamp) AS effectivePeriod_end,
+        cast(from_iso8601_timestamp(d."issued") AS timestamp) AS issued,
         date_trunc('day', cast(from_iso8601_timestamp(d."effectiveDateTime") AS date))
             AS effectiveDateTime_day,
         date_trunc('week', cast(from_iso8601_timestamp(d."effectiveDateTime") AS date))
@@ -153,21 +157,25 @@ SELECT
     dn_code.system AS code_system,
     dn_code.display AS code_display,
 
+    td.effectiveDateTime,
     td.effectiveDateTime_day,
     td.effectiveDateTime_week,
     td.effectiveDateTime_month,
     td.effectiveDateTime_year,
 
+    td.effectivePeriod_start,
     td.effectivePeriod_start_day,
     td.effectivePeriod_start_week,
     td.effectivePeriod_start_month,
     td.effectivePeriod_start_year,
 
+    td.effectivePeriod_end,
     td.effectivePeriod_end_day,
     td.effectivePeriod_end_week,
     td.effectivePeriod_end_month,
     td.effectivePeriod_end_year,
 
+    td.issued,
     td.issued_day,
     td.issued_week,
     td.issued_month,

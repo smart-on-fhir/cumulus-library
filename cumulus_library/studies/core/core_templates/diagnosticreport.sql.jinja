@@ -30,6 +30,19 @@ WITH temp_diagnosticreport AS (
                 schema
             )
         }},
+        {{- 
+            utils.timestamp_cols_from_str(
+                'diagnosticreport',
+                'd',
+                [
+                    'effectiveDateTime',
+                    ('effectivePeriod', 'start', 'effectivePeriod_start'),
+                    ('effectivePeriod', 'end', 'effectivePeriod_end'),
+                    'issued'
+                ],
+                schema
+            ) 
+        }},
         {{-
             utils.truncate_date_cols(
                 'diagnosticreport',
@@ -92,21 +105,25 @@ SELECT
     dn_code.system AS code_system,
     dn_code.display AS code_display,
 
+    td.effectiveDateTime,
     td.effectiveDateTime_day,
     td.effectiveDateTime_week,
     td.effectiveDateTime_month,
     td.effectiveDateTime_year,
 
+    td.effectivePeriod_start,
     td.effectivePeriod_start_day,
     td.effectivePeriod_start_week,
     td.effectivePeriod_start_month,
     td.effectivePeriod_start_year,
 
+    td.effectivePeriod_end,
     td.effectivePeriod_end_day,
     td.effectivePeriod_end_week,
     td.effectivePeriod_end_month,
     td.effectivePeriod_end_year,
 
+    td.issued,
     td.issued_day,
     td.issued_week,
     td.issued_month,
