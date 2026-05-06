@@ -1,20 +1,24 @@
 import base64
 import binascii
 import contextlib
+import hashlib
 import io
 import json
 import os
+from types import SimpleNamespace
 from unittest import mock
 
 import cumulus_fhir_support as cfs
 import fsspec.implementations.memory
+import httpx
+import openai
 import pandas
 import pytest
-import respx
 
 import cumulus_library
 from cumulus_library import cli, databases, errors, note_utils
 from cumulus_library.builders import nlp_builder
+from cumulus_library.builders.nlp.models import OpenAIProvider
 from tests import conftest, nlp_utils
 from tests.conftest import duckdb_args
 
@@ -162,7 +166,6 @@ def test_flattened_config(tmp_path, note_source):
     assert builder._workflow_config.tables["fallthrough"].system_prompt == "hello"
 
 
-@respx.mock
 def test_filter(tmp_path, mock_db_config):
     workflow_path = conftest.write_toml(
         tmp_path,
@@ -222,7 +225,6 @@ def test_filter(tmp_path, mock_db_config):
     assert expected_stats in console_output.getvalue()
 
 
-@respx.mock
 def test_already_uploaded(tmp_path, mock_db_config, note_source):
     """Verify that we skip notes that we've already uploaded before"""
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -279,7 +281,7 @@ def test_args_passed_down(mock_builder, tmp_path):
 def test_unreachable_vllm(tmp_path, note_source, mock_db_config):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel()
-    model.mock_openai_model_list(status_code=500)
+    model.mock_openai_model_list(fail=True)
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
     )
@@ -287,7 +289,6 @@ def test_unreachable_vllm(tmp_path, note_source, mock_db_config):
         builder.execute_queries(mock_db_config, None)
 
 
-@respx.mock
 def test_cached_response(tmp_path, mock_db_config):
     workflow_path = conftest.write_toml(
         tmp_path,
@@ -319,7 +320,7 @@ def test_cached_response(tmp_path, mock_db_config):
     assert builder.stats.got_response[0] == 1
 
     # Confirm that we cache the response and don't hit the endpoint again
-    model.mock_openai_response({}, status_code=500)
+    model.mock_openai_response({}, fail=True)
 
     # Add a new note to sanity check that we do actually fail on the new one
     with open(f"{tmp_path}/dxr.ndjson", "a", encoding="utf8") as f:
@@ -333,7 +334,6 @@ def test_cached_response(tmp_path, mock_db_config):
     assert builder.stats.got_response[0] == 1  # still got our cached result
 
 
-@respx.mock
 def test_span_correction(tmp_path, mock_db_config):
     workflow_path = conftest.write_toml(
         tmp_path,
@@ -394,7 +394,6 @@ def test_span_correction(tmp_path, mock_db_config):
     assert failure_msg in console_output.getvalue()
 
 
-@respx.mock
 def test_writes_out_at_note_limit(tmp_path, mock_db_config):
     with open(f"{tmp_path}/doc.ndjson", "w", encoding="utf8") as f:
         add_doc("1", "Note one", f)
@@ -425,7 +424,6 @@ def test_writes_out_at_note_limit(tmp_path, mock_db_config):
     assert "Failed to process note: test2" in console_output.getvalue()
 
 
-@respx.mock
 def test_various_value_types(tmp_path, mock_db_config, note_source):
     workflow_path = conftest.write_toml(
         tmp_path,
@@ -461,7 +459,6 @@ def test_various_value_types(tmp_path, mock_db_config, note_source):
     assert rows[0]["result"] == results
 
 
-@respx.mock
 def test_no_batching_support(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel()
@@ -476,7 +473,6 @@ def test_no_batching_support(tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@respx.mock
 def test_no_phi_dir(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel()
@@ -491,7 +487,6 @@ def test_no_phi_dir(tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@respx.mock
 def test_bad_nlp_model(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel()
@@ -510,7 +505,6 @@ def test_bad_nlp_model(tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@respx.mock
 def test_missing_nlp_model(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel()
@@ -524,11 +518,10 @@ def test_missing_nlp_model(tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@respx.mock
 def test_bad_stop(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel()
-    model.mock_openai_response({}, finish_reason="bad_reason")
+    model.mock_openai_response({}, finish_reason="content_filter")
 
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
@@ -539,10 +532,9 @@ def test_bad_stop(tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
     assert builder.stats.got_response[0] == 0
-    assert "did not complete, with finish reason: bad_reason" in console_output.getvalue()
+    assert "did not complete, with finish reason: content_filter" in console_output.getvalue()
 
 
-@respx.mock
 def test_disabling_stats(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel()
@@ -560,7 +552,6 @@ def test_disabling_stats(tmp_path, mock_db_config, note_source):
     assert "Token usage:" not in console_output.getvalue()
 
 
-@respx.mock
 def test_cloud_model_but_local_provider(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(model_id="gpt5")
@@ -573,7 +564,6 @@ def test_cloud_model_but_local_provider(tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@respx.mock
 @nlp_utils.mock_env("azure")
 def test_azure_happy_path(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -611,7 +601,6 @@ def test_azure_no_env(tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@respx.mock
 @nlp_utils.mock_env("azure")
 def test_azure_no_schema_support(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -626,8 +615,8 @@ def test_azure_no_schema_support(tmp_path, mock_db_config, note_source):
     builder.execute_queries(mock_db_config, None)
 
     # Confirm that we requested just "give us json please" if model doesn't support schemas
-    last_json = json.loads(respx.calls.last.request.content)
-    assert last_json["response_format"] == {"type": "json_object"}
+    last_kwargs = model.openai.chat.completions.parse.call_args[1]
+    assert last_kwargs["response_format"] == {"type": "json_object"}
 
 
 def test_bedrock_happy_path(tmp_path, mock_db_config, note_source):
@@ -645,7 +634,7 @@ def test_bedrock_happy_path(tmp_path, mock_db_config, note_source):
 def test_bedrock_bad_stop(tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(provider="bedrock")
-    model.mock_bedrock_response({}, stop_reason="bad_reason")
+    model.mock_bedrock_response({}, stop_reason="content_filter")
 
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
@@ -656,7 +645,7 @@ def test_bedrock_bad_stop(tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
     assert builder.stats.got_response[0] == 0
-    assert "did not complete, with stop reason: bad_reason" in console_output.getvalue()
+    assert "did not complete, with stop reason: content_filter" in console_output.getvalue()
 
 
 def test_bedrock_bad_model(tmp_path, mock_db_config, note_source):
@@ -756,7 +745,6 @@ def test_bedrock_no_response(tmp_path, mock_db_config, note_source):
     assert "Failed to process note: no response content found" in console_output.getvalue()
 
 
-@respx.mock
 @nlp_utils.mock_env()
 @mock.patch("botocore.client")
 def test_write_to_athena(mock_client, tmp_path, note_source):
@@ -810,3 +798,291 @@ def test_write_to_athena(mock_client, tmp_path, note_source):
         "FROM read_parquet('memory://s3://testbucket/athena/cumulus_user_uploads/"
         "testdb/test/task_v0/*.parquet')"
     ]
+
+
+def batch_line(contents: str, answer: str = "answer") -> str:
+    checksum = hashlib.sha256(contents.encode("utf8"), usedforsecurity=False).hexdigest()
+    return json.dumps(
+        {
+            "custom_id": checksum,
+            "response": {
+                "body": {
+                    "id": f"blarg-{checksum}",
+                    "choices": [
+                        {
+                            "index": 0,
+                            "finish_reason": "stop",
+                            "message": {
+                                "role": "assistant",
+                                "content": json.dumps({"ignored": answer}),
+                            },
+                        }
+                    ],
+                    "created": 1000000,
+                    "model": "gpt-4o",
+                    "object": "chat.completion",
+                },
+            },
+        },
+    )
+
+
+def mock_files_content(model: nlp_utils.MockModel, contents: list | None = None) -> None:
+    if contents is None:
+        contents = [
+            batch_line("hello world"),
+        ]
+    model.openai.files.content.return_value = openai.HttpxBinaryResponseContent(
+        httpx.Response(status_code=200, text="\n".join(contents)),
+    )
+
+
+@nlp_utils.mock_env("azure")
+def test_azure_batching_happy_path(tmp_path, mock_db_config, note_source):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(provider="azure", model_id="gpt4o")
+
+    def upload_file(**kwargs):
+        assert kwargs["purpose"] == "batch"
+        file_text = cfs.FsPath(str(kwargs["file"])).read_text()
+        lines = [json.loads(line) for line in file_text.split("\n") if line]
+        assert len(lines) == 1
+        assert (
+            lines[0]["custom_id"]
+            == "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+        )
+        assert lines[0]["method"] == "POST"
+        assert lines[0]["url"] == "/v1/chat/completions"
+        assert lines[0]["body"]["model"] == "gpt-4o"
+        assert lines[0]["body"]["messages"][1]["content"] == "hello world"
+        return SimpleNamespace(id="input")
+
+    model.openai.files.create = upload_file
+    model.openai.batches.create.return_value = SimpleNamespace(id="batch")
+    model.openai.batches.retrieve.return_value = SimpleNamespace(
+        id="batch", status="completed", error_file_id=None, output_file_id="output"
+    )
+    mock_files_content(model)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+
+    builder.execute_queries(mock_db_config, None)
+    assert builder.stats.got_response[0] == 1
+
+    rows = read_rows(mock_db_config, "test__task")
+    assert rows[0]["result"] == {"ignored": "answer"}
+
+    assert model.openai.batches.create.call_args_list[0][1] == {
+        "completion_window": "24h",
+        "endpoint": "/v1/chat/completions",
+        "input_file_id": "input",
+    }
+    assert model.openai.batches.retrieve.call_args_list[0][1] == {
+        "batch_id": "batch",
+    }
+
+
+@nlp_utils.mock_env("azure")
+def test_azure_resume_batching(tmp_path, mock_db_config, note_source):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(provider="azure", model_id="gpt4o")
+
+    path_dir = f"{model.phi}/nlp-cache/test__task_v0_gpt4o"
+    os.makedirs(path_dir)
+    with open(f"{path_dir}/metadata.json", "w", encoding="utf8") as f:
+        json.dump({"batches-azure": ["b1", "b2"]}, f)
+
+    # Just mock the retrieval bits, make the creation bits blow up
+    model.openai.files.create.side_effect = RuntimeError
+    model.openai.batches.retrieve.return_value = SimpleNamespace(
+        id="batch", status="completed", error_file_id=None, output_file_id="output"
+    )
+    mock_files_content(model)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+
+    builder.execute_queries(mock_db_config, None)
+    assert builder.stats.got_response[0] == 1
+
+    rows = read_rows(mock_db_config, "test__task")
+    assert rows[0]["result"] == {"ignored": "answer"}
+
+
+@nlp_utils.mock_env("azure")
+@mock.patch("time.sleep", new=lambda x: None)
+def test_azure_batching_errors(tmp_path, mock_db_config, note_source):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(provider="azure", model_id="gpt4o")
+
+    model.openai.files.create.return_value = SimpleNamespace(id="input")
+    model.openai.batches.create.return_value = SimpleNamespace(id="batch")
+    model.openai.batches.retrieve.side_effect = [
+        SimpleNamespace(id="batch", status="validating"),
+        SimpleNamespace(id="batch", status="in_progress"),
+        SimpleNamespace(id="batch", status="finalizing"),
+        SimpleNamespace(
+            # Will still process error/output files when failed, just prints a message
+            id="batch",
+            status="failed",
+            error_file_id="error",
+            output_file_id="output",
+        ),
+    ]
+    model.openai.files.content.side_effect = [
+        openai.HttpxBinaryResponseContent(  # error file
+            httpx.Response(
+                status_code=200,
+                text="\n".join(
+                    [
+                        # Test all the various ways we can stuff errors in there
+                        json.dumps({"error": {"message": {"error": {"message": "error1"}}}}),
+                        "{'blarg'",  # invalid json
+                    ],
+                ),
+            ),
+        ),
+        openai.HttpxBinaryResponseContent(  # output file
+            httpx.Response(
+                status_code=200,
+                text="\n".join(
+                    [
+                        # Test all the various ways we can stuff errors in there
+                        json.dumps({"error": {"message": "error2"}}),
+                        json.dumps({"response": {"status_code": 400}}),
+                        json.dumps({"response": {"body": {"model": "gpt-4o"}}}),  # no custom_id
+                        json.dumps({"custom_id": "xx", "response": {"id": "yy"}}),  # no body
+                    ],
+                ),
+            ),
+        ),
+    ]
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+
+    console_output = io.StringIO()
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+
+    assert "Batch did not complete, got status: 'failed'" in console_output.getvalue()
+    assert "Error from NLP: error1" in console_output.getvalue()
+    assert "Could not process error message: '{'blarg''" in console_output.getvalue()
+    assert "Error from NLP: error2" in console_output.getvalue()
+    assert "Unexpected status code from NLP: 400" in console_output.getvalue()
+    assert "Unexpected response from NLP: missing data" in console_output.getvalue()
+
+
+@mock.patch.object(OpenAIProvider, "AZURE_MAX_BATCH_COUNT", 2)
+@mock.patch.object(OpenAIProvider, "AZURE_MAX_BATCH_BYTES", 6000)
+@nlp_utils.mock_env("azure")
+def test_azure_splitting_batch(tmp_path, mock_db_config):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(provider="azure", model_id="gpt4o")
+
+    long_str = "a" * 5900  # very long string that hits size limit
+
+    with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
+        add_dxr("hello1", "world1", f)
+        add_dxr("hello2", "world2", f)
+        # Now there will be a break because of max count of 2 rows
+        add_dxr("hello3", long_str, f)
+        # Now there will be a break because of max byte limit
+        add_dxr("hello4", "world4", f)
+    note_source = note_utils.NoteSource([tmp_path])
+
+    model.openai.files.create.side_effect = [
+        SimpleNamespace(id="input1"),
+        SimpleNamespace(id="input2"),
+        SimpleNamespace(id="input3"),
+    ]
+    model.openai.batches.create.side_effect = [
+        SimpleNamespace(id="batch1"),
+        SimpleNamespace(id="batch2"),
+        SimpleNamespace(id="batch3"),
+    ]
+    model.openai.batches.retrieve.side_effect = [
+        SimpleNamespace(
+            id="batch1", status="completed", error_file_id=None, output_file_id="output1"
+        ),
+        SimpleNamespace(
+            id="batch2", status="completed", error_file_id=None, output_file_id="output2"
+        ),
+        SimpleNamespace(
+            id="batch3", status="completed", error_file_id=None, output_file_id="output3"
+        ),
+    ]
+    model.openai.files.content.side_effect = [
+        openai.HttpxBinaryResponseContent(
+            httpx.Response(
+                status_code=200,
+                text="\n".join(
+                    [batch_line("world1", answer="w1"), batch_line("world2", answer="w2")]
+                ),
+            ),
+        ),
+        openai.HttpxBinaryResponseContent(
+            httpx.Response(status_code=200, text=batch_line(long_str, answer="w3")),
+        ),
+        openai.HttpxBinaryResponseContent(
+            httpx.Response(status_code=200, text=batch_line("world4", answer="w4")),
+        ),
+    ]
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+
+    builder.execute_queries(mock_db_config, None)
+    assert builder.stats.got_response[0] == 4
+
+    rows = read_rows(mock_db_config, "test__task")
+    assert [row["result"] for row in rows] == [
+        {"ignored": "w1"},
+        {"ignored": "w2"},
+        {"ignored": "w3"},
+        {"ignored": "w4"},
+    ]
+
+
+@nlp_utils.mock_env("azure")
+def test_azure_batches_with_bad_notes(tmp_path, mock_db_config):
+    """Just confirm that the batch flow handles it gracefully too, since it iterates notes"""
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(provider="azure", model_id="gpt4o")
+
+    with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
+        add_dxr("hello1", None, f)
+        add_dxr("hello2", "world2", f)
+    note_source = note_utils.NoteSource([tmp_path])
+
+    model.openai.files.create.return_value = SimpleNamespace(id="input1")
+    model.openai.batches.create.return_value = SimpleNamespace(id="batch1")
+    model.openai.batches.retrieve.return_value = SimpleNamespace(
+        id="batch1", status="completed", error_file_id=None, output_file_id="output1"
+    )
+    model.openai.files.content.return_value = openai.HttpxBinaryResponseContent(
+        httpx.Response(status_code=200, text=batch_line("world2", answer="w2")),
+    )
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+
+    builder.execute_queries(mock_db_config, None)
+    assert builder.stats.available == 2
+    assert builder.stats.got_response[0] == 1

@@ -27,6 +27,15 @@ class UnreachableModel(errors.CumulusLibraryError):
     """Raised when a server can't be contacted"""
 
 
+def print_error(msg: str) -> None:
+    """Convenience method to avoid adding highlights to error messages.
+
+    They can be mildly misleading (numbers tend to appear in odd places) and also,
+    they interfere with tests checking stdout output.
+    """
+    rich.get_console().print(msg, highlight=False)
+
+
 @dataclasses.dataclass(kw_only=True)
 class Prompt:
     system: str
@@ -377,7 +386,7 @@ class OpenAIProvider(Provider):
             batch = self.client.batches.retrieve(batch_id=batch_id)
 
         if batch.status != "completed":
-            rich.print(f"Batch did not complete, got status: '{batch.status}'")
+            print_error(f"Batch did not complete, got status: '{batch.status}'")
             # Don't exit function - process the errors and output that we do have, and remove the
             # batch from our metadata cache like normal
 
@@ -390,9 +399,9 @@ class OpenAIProvider(Provider):
                     # Yes, error.message.error.message is really where this is kept.
                     msg = line.get("error", {}).get("message", {}).get("error", {}).get("message")
                     if msg:
-                        rich.print(f"Error from NLP: {msg}")
+                        print_error(f"Error from NLP: {msg}")
                 except json.JSONDecodeError:
-                    rich.print(f"Could not process error message: '{line}'")
+                    print_error(f"Could not process error message: '{line}'")
 
         # Get the results!
         if batch.output_file_id:
@@ -403,16 +412,16 @@ class OpenAIProvider(Provider):
                 # If an error happens, it seems to come in via the error_file_id above.
                 # But just for safety, we'll also check here.
                 if line.get("error") and (error := line["error"].get("message")):
-                    rich.print(f"Error from NLP: {error}")
+                    print_error(f"Error from NLP: {error}")
                     continue
                 status = line.get("response", {}).get("status_code", 200)
                 if status >= 300:
-                    rich.print(f"Unexpected status code from NLP: {status}")
+                    print_error(f"Unexpected status code from NLP: {status}")
                     continue
                 checksum = line.get("custom_id")
                 body = line.get("response", {}).get("body")
                 if not body or not checksum:
-                    rich.print("Unexpected response from NLP: missing data")
+                    print_error("Unexpected response from NLP: missing data")
                     continue
 
                 # Write each valid response to cache

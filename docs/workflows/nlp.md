@@ -204,6 +204,21 @@ And then once satisfied, upload to Athena.
    The existing cache of NLP results sitting in the ETL PHI dir will prevent this second run from
    actually consuming LLM tokens.
 
+### Batching
+
+Some providers support NLP batching, which lets you bundle up a lot of requests at once and send
+them in one go to the LLM server at a discount.
+Then you wait up to day for the results.
+So you trade predictable timing for 50% cheaper tokens.
+
+As of this writing, Cumulus Library only supports batching with the Azure provider.
+Make sure you've set up a deployment that uses batching, and then pass in the following arguments:
+`--azure-deployment=xxx --batch-nlp`.
+
+Then be prepared to wait a little bit.
+Note that the 50% discount is mitigated somewhat by the fact that batching does not use token
+caching at all. So some of that discount is lost. But overall, you'll probably save money.
+
 ### Using a Local LLM
 
 For cost, reproducibility, or PHI-control reasons, you may prefer a locally-run LLM instead of a
