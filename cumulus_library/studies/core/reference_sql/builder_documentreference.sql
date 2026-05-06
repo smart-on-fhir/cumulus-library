@@ -39,19 +39,13 @@ WITH temp_documentreference AS (
 ),
 
 temp_author AS (
-    WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."author", 1) AS row,
-                UNNEST(t."author") AS data -- must unnest in SELECT here
-            FROM documentreference AS t
-        )
-        SELECT
-            id,
+    SELECT
+            t.id AS id,
             row,
-            data."reference"
-        FROM data_and_row_num
+            r."reference"
+        FROM
+            documentreference AS t,
+            UNNEST(t."author") WITH ORDINALITY AS parent (r, row)
 ),
 
 temp_encounters AS (
@@ -70,16 +64,21 @@ temp_has_text AS (
     WITH
     temp_has_text_from_ext AS (
         SELECT
-        'empty' AS id, FALSE AS has_text WHERE 1=0 -- forces an empty table
+            src.id,
+            -- This is a marker that Cumulus ETL will drop, if it strips data during its de-identification step
+            (
+                e.extension.url = 'http://hl7.org/fhir/StructureDefinition/data-absent-reason'
+                AND e.extension.valueCode = 'masked'
+            ) AS has_text
+        FROM documentreference AS src,
+             unnest(content) AS u (content),
+             unnest(u.content.attachment._data.extension) AS e (extension)
+        WHERE split_part(u.content.attachment.contentType, ';', 1) IN ('text/html', 'text/plain', 'application/xhtml+xml')
     ),
 
     temp_has_text_from_data AS (
         SELECT
-            src.id,
-            u.content.attachment.data IS NOT NULL AS has_text
-        FROM documentreference AS src,
-             unnest(content) AS u (content)
-        WHERE split_part(u.content.attachment.contentType, ';', 1) IN ('text/html', 'text/plain', 'application/xhtml+xml')
+        'empty' AS id, FALSE AS has_text WHERE 1=0 -- forces an empty table
     ),
 
     temp_has_text_combined AS (

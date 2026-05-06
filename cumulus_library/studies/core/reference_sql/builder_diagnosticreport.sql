@@ -69,58 +69,49 @@ WITH temp_diagnosticreport AS (
 ),
 
 temp_performer AS (
-    WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."performer", 1) AS row,
-                UNNEST(t."performer") AS data -- must unnest in SELECT here
-            FROM diagnosticreport AS t
-        )
-        SELECT
-            id,
+    SELECT
+            t.id AS id,
             row,
-            data."reference"
-        FROM data_and_row_num
+            r."reference"
+        FROM
+            diagnosticreport AS t,
+            UNNEST(t."performer") WITH ORDINALITY AS parent (r, row)
 ),
 
 temp_specimen AS (
-    WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."specimen", 1) AS row,
-                UNNEST(t."specimen") AS data -- must unnest in SELECT here
-            FROM diagnosticreport AS t
-        )
-        SELECT
-            id,
+    SELECT
+            t.id AS id,
             row,
-            data."reference"
-        FROM data_and_row_num
+            r."reference"
+        FROM
+            diagnosticreport AS t,
+            UNNEST(t."specimen") WITH ORDINALITY AS parent (r, row)
 ),
 
 temp_result AS (
-    WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."result", 1) AS row,
-                UNNEST(t."result") AS data -- must unnest in SELECT here
-            FROM diagnosticreport AS t
-        )
-        SELECT
-            id,
+    SELECT
+            t.id AS id,
             row,
-            data."reference"
-        FROM data_and_row_num
+            r."reference"
+        FROM
+            diagnosticreport AS t,
+            UNNEST(t."result") WITH ORDINALITY AS parent (r, row)
 ),
 
 temp_has_text AS (
     WITH
     temp_has_text_from_ext AS (
         SELECT
-        'empty' AS id, FALSE AS has_text WHERE 1=0 -- forces an empty table
+            src.id,
+            -- This is a marker that Cumulus ETL will drop, if it strips data during its de-identification step
+            (
+                e.extension.url = 'http://hl7.org/fhir/StructureDefinition/data-absent-reason'
+                AND e.extension.valueCode = 'masked'
+            ) AS has_text
+        FROM diagnosticreport AS src,
+             unnest(presentedForm) AS u (presentedForm),
+             unnest(u.presentedForm._data.extension) AS e (extension)
+        WHERE split_part(u.presentedForm.contentType, ';', 1) IN ('text/html', 'text/plain', 'application/xhtml+xml')
     ),
 
     temp_has_text_from_data AS (

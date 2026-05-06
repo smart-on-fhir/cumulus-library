@@ -10,19 +10,13 @@ CREATE TABLE core__observation_dn_category AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."category", 1) AS row,
-                UNNEST(t."category") AS "category" -- must unnest in SELECT here
-            FROM observation AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            "category"
-        FROM data_and_row_num
+            r."category"
+        FROM
+            observation AS t,
+            UNNEST(t."category") WITH ORDINALITY AS r ("category", row)
     ),
 
     system_category_0 AS (
@@ -105,19 +99,13 @@ CREATE TABLE core__observation_component_code AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."component", 1) AS row,
-                UNNEST(t."component") AS data -- must unnest in SELECT here
-            FROM observation AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            data."code"
-        FROM data_and_row_num
+            r."code"
+        FROM
+            observation AS t,
+            UNNEST(t."component") WITH ORDINALITY AS parent (r, row)
     ),
 
     system_code_0 AS (
@@ -157,7 +145,7 @@ CREATE TABLE core__observation_component_code AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__observation_component_dataabsentreason"
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__observation_component_dataabsentreason"
 AS (
     SELECT * FROM (
         VALUES
@@ -169,7 +157,7 @@ AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__observation_component_interpretation"
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__observation_component_interpretation"
 AS (
     SELECT * FROM (
         VALUES
@@ -185,19 +173,13 @@ CREATE TABLE core__observation_component_valuecodeableconcept AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."component", 1) AS row,
-                UNNEST(t."component") AS data -- must unnest in SELECT here
-            FROM observation AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            data."valuecodeableconcept"
-        FROM data_and_row_num
+            r."valuecodeableconcept"
+        FROM
+            observation AS t,
+            UNNEST(t."component") WITH ORDINALITY AS parent (r, row)
     ),
 
     system_valuecodeableconcept_0 AS (
@@ -237,7 +219,7 @@ CREATE TABLE core__observation_component_valuecodeableconcept AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__observation_dn_interpretation"
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__observation_dn_interpretation"
 AS (
     SELECT * FROM (
         VALUES
@@ -288,12 +270,39 @@ CREATE TABLE core__observation_dn_valuecodeableconcept AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__observation_dn_dataabsentreason"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+CREATE TABLE core__observation_dn_dataabsentreason AS (
+    WITH
+
+    system_dataabsentreason_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            observation AS s,
+            UNNEST(s.dataabsentreason.coding) AS u (coding)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_dataabsentreason_0
+        
     )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
+    SELECT
+        id,
+        code,
+        system,
+        display,
+        userSelected
+    FROM union_table
 );
+

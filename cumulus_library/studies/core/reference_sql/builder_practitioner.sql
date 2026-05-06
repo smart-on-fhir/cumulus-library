@@ -26,19 +26,13 @@ WITH flat AS (
     FROM practitioner AS src
 ),
 
-identifiers AS (WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."identifier", 1) AS row,
-                UNNEST(t."identifier") AS "identifier" -- must unnest in SELECT here
-            FROM practitioner AS t
-        )
-        SELECT
-            id,
+identifiers AS (SELECT
+            t.id AS id,
             row,
-            "identifier"
-        FROM data_and_row_num)
+            r."identifier"
+        FROM
+            practitioner AS t,
+            UNNEST(t."identifier") WITH ORDINALITY AS r ("identifier", row))
 
 SELECT
     flat.id,

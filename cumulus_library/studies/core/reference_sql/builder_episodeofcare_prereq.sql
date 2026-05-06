@@ -6,12 +6,50 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__episodeofcare_dn_type"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+CREATE TABLE core__episodeofcare_dn_type AS (
+    WITH
+
+    flattened_rows AS (
+        SELECT
+            t.id AS id,
+            row,
+            r."type"
+        FROM
+            episodeofcare AS t,
+            UNNEST(t."type") WITH ORDINALITY AS r ("type", row)
+    ),
+
+    system_type_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            s.row,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            flattened_rows AS s,
+            UNNEST(s.type.coding) AS u (coding)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_type_0
+        
     )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
+    SELECT
+        id,
+        row,
+        code,
+        system,
+        display,
+        userSelected
+    FROM union_table
 );
+

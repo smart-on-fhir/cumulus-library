@@ -33,33 +33,21 @@ WITH flat AS (
     FROM practitionerrole AS src
 ),
 
-identifiers AS (WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."identifier", 1) AS row,
-                UNNEST(t."identifier") AS "identifier" -- must unnest in SELECT here
-            FROM practitionerrole AS t
-        )
-        SELECT
-            id,
+identifiers AS (SELECT
+            t.id AS id,
             row,
-            "identifier"
-        FROM data_and_row_num),
+            r."identifier"
+        FROM
+            practitionerrole AS t,
+            UNNEST(t."identifier") WITH ORDINALITY AS r ("identifier", row)),
 
-locations AS (WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."location", 1) AS row,
-                UNNEST(t."location") AS "location" -- must unnest in SELECT here
-            FROM practitionerrole AS t
-        )
-        SELECT
-            id,
+locations AS (SELECT
+            t.id AS id,
             row,
-            "location"
-        FROM data_and_row_num)
+            r."location"
+        FROM
+            practitionerrole AS t,
+            UNNEST(t."location") WITH ORDINALITY AS r ("location", row))
 
 SELECT
     flat.id,

@@ -6,7 +6,7 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__location_dn_type"
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__location_dn_type"
 AS (
     SELECT * FROM (
         VALUES

@@ -95,19 +95,13 @@ CREATE TABLE core__observation_component_valuequantity AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."component", 1) AS row,
-                UNNEST(t."component") AS "component" -- must unnest in SELECT here
-            FROM observation AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            "component"
-        FROM data_and_row_num
+            r."component"
+        FROM
+            observation AS t,
+            UNNEST(t."component") WITH ORDINALITY AS r ("component", row)
     ),
 
     flattened_quantities AS (

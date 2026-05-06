@@ -71,19 +71,13 @@ WITH temp_servicerequest AS (
 ),
 
 temp_specimen AS (
-    WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."specimen", 1) AS row,
-                UNNEST(t."specimen") AS data -- must unnest in SELECT here
-            FROM servicerequest AS t
-        )
-        SELECT
-            id,
+    SELECT
+            t.id AS id,
             row,
-            data."reference"
-        FROM data_and_row_num
+            r."reference"
+        FROM
+            servicerequest AS t,
+            UNNEST(t."specimen") WITH ORDINALITY AS parent (r, row)
 )
 
 SELECT

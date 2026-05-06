@@ -37,19 +37,13 @@ temp_category AS (
         unnest(a.category) AS t (category)
 ),
 
-flattened_reaction AS (WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."reaction", 1) AS row,
-                UNNEST(t."reaction") AS "reaction" -- must unnest in SELECT here
-            FROM allergyintolerance AS t
-        )
-        SELECT
-            id,
+flattened_reaction AS (SELECT
+            t.id AS id,
             row,
-            "reaction"
-        FROM data_and_row_num),
+            r."reaction"
+        FROM
+            allergyintolerance AS t,
+            UNNEST(t."reaction") WITH ORDINALITY AS r ("reaction", row)),
 
 temp_reaction AS (
     SELECT

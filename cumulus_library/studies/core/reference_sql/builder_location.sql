@@ -31,19 +31,13 @@ WITH flat AS (
     FROM location AS src
 ),
 
-identifiers AS (WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."identifier", 1) AS row,
-                UNNEST(t."identifier") AS "identifier" -- must unnest in SELECT here
-            FROM location AS t
-        )
-        SELECT
-            id,
+identifiers AS (SELECT
+            t.id AS id,
             row,
-            "identifier"
-        FROM data_and_row_num)
+            r."identifier"
+        FROM
+            location AS t,
+            UNNEST(t."identifier") WITH ORDINALITY AS r ("identifier", row))
 
 SELECT
     flat.id,
@@ -58,8 +52,8 @@ SELECT
         CASE
         WHEN flat.name IS NULL AND flat.alias IS NULL THEN NULL
         WHEN flat.name IS NULL THEN flat.alias
-        WHEN flat.alias IS NULL THEN [flat.name]
-        ELSE [flat.name] || flat.alias
+        WHEN flat.alias IS NULL THEN array[flat.name]
+        ELSE array[flat.name] || flat.alias
     END, ', '
     ) AS "alias", -- noqa: RF06
 

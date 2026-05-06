@@ -18,6 +18,8 @@ WITH temp_condition AS (
         cca.system,
         cca.display,
         cast(from_iso8601_timestamp(c."recordedDate") AS timestamp) AS recordedDate,
+        cast(from_iso8601_timestamp(c."onsetDateTime") AS timestamp) AS onsetDateTime,
+        cast(NULL AS timestamp) AS abatementDateTime,
         date_trunc('week', cast(from_iso8601_timestamp(c."recordedDate") AS date))
             AS recordedDate_week,
         date_trunc('month', cast(from_iso8601_timestamp(c."recordedDate") AS date))
@@ -43,6 +45,8 @@ SELECT
     tc.recordedDate_week,
     tc.recordedDate_month,
     tc.recordedDate_year,
+    tc.onsetDateTime,
+    tc.abatementDateTime,
     cdcs.code AS clinicalStatus_code,
     cdvs.code AS verificationStatus_code
 FROM temp_condition AS tc
