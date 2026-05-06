@@ -103,7 +103,7 @@ output_table_name = 'created_table'
 parent_field = 'parent'
 period = {
         "start":"2024-01-01T00:00:00Z",
-        "end":"2024-01-01T00:00:00Z"
+        "end": "2024-01-01T00:00:00Z"
     }
 prefix = Test
 primary_ref = encounter_ref
