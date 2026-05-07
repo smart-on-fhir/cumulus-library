@@ -1,16 +1,20 @@
 """Tests for example_nlp"""
 
 import json
+from unittest import mock
 
 import duckdb
 import pandas
+import pytest
 
-from tests import testbed_utils
+from cumulus_library import cli
+from tests import nlp_utils, testbed_utils
+from tests.conftest import duckdb_args
 
 
 def test_empty_build(tmp_path):
     testbed = testbed_utils.LocalTestbed(tmp_path)
-    db = testbed.build("example_nlp")
+    db = testbed.build("example_nlp", stage="ranges")
     df = db.connection.sql("SELECT * FROM example_nlp__range_labels").df()
     assert df.empty  # should exist, but be empty
 
@@ -54,7 +58,7 @@ def test_merging_two_sources(tmp_path):
     )
     con.sql("CREATE TABLE example_nlp__nlp_llama4_scout AS SELECT * FROM llama4_df")
 
-    db = testbed.build("example_nlp")
+    db = testbed.build("example_nlp", stage="ranges")
     df = db.connection.sql(
         "SELECT * FROM example_nlp__range_labels ORDER BY note_ref, origin, span"
     ).df()
@@ -96,3 +100,30 @@ def test_merging_two_sources(tmp_path):
             "origin": "example_nlp__nlp_llama4_scout",
         },
     ]
+
+
+@pytest.mark.xdist_group(name="nlp_builder")
+@mock.patch("openai.OpenAI")
+def test_full_build(mock_client, tmp_path):
+    with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
+        json.dump({"resourceType": "DiagnosticReport", "id": "1"}, f)
+
+    model = nlp_utils.MockModel(mock_client)
+
+    build_args = duckdb_args(
+        [
+            "build",
+            "-t",
+            "example_nlp",
+            str(tmp_path),
+            "--stage",
+            "all",
+            "--note-dir",
+            str(tmp_path),
+            *model.cli_args(),
+        ],
+        tmp_path,
+    )
+
+    # For now, just test that it doesn't blow up
+    cli.main(cli_args=build_args)

@@ -8,6 +8,7 @@ import os
 import pathlib
 import sys
 
+import cumulus_fhir_support as cfs
 import requests
 import rich
 
@@ -19,6 +20,7 @@ from cumulus_library import (
     enums,
     errors,
     log_utils,
+    note_utils,
     study_manifest,
 )
 from cumulus_library.actions import (
@@ -92,6 +94,8 @@ class StudyRunner:
         continue_from: str | None = None,
         prepare: bool = False,
         data_path: pathlib.Path | None = None,
+        notes: note_utils.NoteSource | None = None,
+        nlp_config: note_utils.NlpConfig | None = None,
     ) -> None:
         """Recreates study views/tables
 
@@ -100,6 +104,8 @@ class StudyRunner:
         :keyword continue_from: Restart a run from a specific sql file (for dev only)
         :keyword prepare: If true, will render query instead of executing
         :keyword data_path: If prepare is true, the path to write rendered data to
+        :keyword notes: Source to read notes from (for NLP)
+        :keyword nlp_config: NLP config options from command line
         """
         manifest = study_manifest.StudyManifest(target, self.data_path, options=options)
         try:
@@ -129,6 +135,8 @@ class StudyRunner:
                 manifest=manifest,
                 continue_from=continue_from,
                 data_path=data_path,
+                notes=notes,
+                nlp_config=nlp_config,
                 prepare=prepare,
             )
             if not prepare:
@@ -159,6 +167,8 @@ class StudyRunner:
         options: dict[str, str],
         prepare: bool = False,
         data_path: pathlib.Path,
+        notes: note_utils.NoteSource,
+        nlp_config: note_utils.NlpConfig,
     ) -> None:
         """Runs a single table builder
 
@@ -167,6 +177,8 @@ class StudyRunner:
         :keyword options: The dictionary of study-specific options
         :keyword prepare: If true, will render query instead of executing
         :keyword data_path: If prepare is true, the path to write rendered data to
+        :keyword notes: Source to read notes from (for NLP)
+        :keyword nlp_config: NLP config options from command line
         """
         manifest = study_manifest.StudyManifest(target, options=options)
         # In case someone is using the --builder command with a study that hasn't been run,
@@ -178,6 +190,8 @@ class StudyRunner:
             builder=table_builder_name,
             prepare=prepare,
             data_path=data_path,
+            notes=notes,
+            nlp_config=nlp_config,
         )
 
     ### Data exporters
@@ -344,6 +358,8 @@ def run_cli(args: dict):
                     options=args["options"],
                 )
             elif args["action"] == "build":
+                notes = note_utils.NoteSource(args["note_dir"])
+                nlp_config = note_utils.NlpConfig(args)
                 if args["builder"]:
                     runner.build_matching_files(
                         study_dict[args["target"]],
@@ -351,6 +367,8 @@ def run_cli(args: dict):
                         options=args["options"],
                         prepare=args["prepare"],
                         data_path=args["data_path"],
+                        notes=notes,
+                        nlp_config=nlp_config,
                     )
                 else:
                     runner.clean_and_build_study(
@@ -359,6 +377,8 @@ def run_cli(args: dict):
                         options=args["options"],
                         prepare=args["prepare"],
                         data_path=args["data_path"],
+                        notes=notes,
+                        nlp_config=nlp_config,
                     )
 
             elif args["action"] == "export":
@@ -423,6 +443,7 @@ def main(cli_args=None):
         ("schema_name", "CUMULUS_LIBRARY_SCHEMA_NAME"),
         ("database", "CUMULUS_LIBRARY_DATABASE"),
         ("max_concurrent", "CUMULUS_LIBRARY_MAX_CONCURRENT"),
+        ("note_dir", "CUMULUS_LIBRARY_NOTE_DIR"),
         ("study_dir", "CUMULUS_LIBRARY_STUDY_DIR"),
         ("umls_key", "UMLS_API_KEY"),
         ("loinc_user", "LOINC_USER"),
@@ -438,7 +459,7 @@ def main(cli_args=None):
     for pair in arg_env_pairs:
         if args.get(pair[0]) is None:
             if env_val := os.environ.get(pair[1]):
-                if pair[0] == "study_dir":
+                if pair[0] in {"note_dir", "study_dir"}:
                     args[pair[0]] = [env_val]
                 else:
                     args[pair[0]] = env_val
@@ -498,6 +519,8 @@ def main(cli_args=None):
             )
         options[c_arg[0]] = c_arg[1]
     args["options"] = options
+
+    cfs.FsPath.register_options(region=args.get("region"))
 
     if args.get("data_path"):
         args["data_path"] = get_abs_path(args["data_path"])

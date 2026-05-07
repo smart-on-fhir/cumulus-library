@@ -3,9 +3,14 @@
 
 study_prefix = "example_nlp"
 
-[[stages.example_build]]
+[[stages.nlp]]
+label = "NLP"
+files = [
+    "nlp.workflow",
+]
+
+[[stages.ranges]]
 label = "Range calculation"
 files = [
     "calculate_ranges.py",
 ]
-type = "build:serial"

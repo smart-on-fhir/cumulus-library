@@ -22,11 +22,13 @@ from cumulus_library import (
     enums,
     errors,
     log_utils,
+    note_utils,
     study_manifest,
 )
 from cumulus_library.builders import (
     counts_builder,
     file_upload_builder,
+    nlp_builder,
     protected_table_builder,
     psm_builder,
     valueset_builder,
@@ -45,6 +47,8 @@ def build_study(
     file_list: list | None = None,
     prepare: bool = False,
     data_path: pathlib.Path | None = None,
+    notes: note_utils.NoteSource | None = None,
+    nlp_config: note_utils.NlpConfig | None = None,
 ) -> None:
     """Creates tables in the schema by iterating through the stages in the specified build type
 
@@ -55,6 +59,8 @@ def build_study(
     :keyword file_list: If provided, a list of files to build; otherwise pulled from manifest
     :keyword prepare: If true, will render query instead of executing
     :keyword data_path: If prepare is true, the path to write rendered data to
+    :keyword notes: Source to read notes from (for NLP)
+    :keyword nlp_config: NLP config options from command line
     """
     if prepare:
         _check_if_preparable(manifest.get_study_prefix())
@@ -111,6 +117,8 @@ def build_study(
                     manifest=manifest,
                     filename=file,
                     data_path=data_path,
+                    notes=notes,
+                    nlp_config=nlp_config,
                     prepare=prepare,
                     parallel=parallel,
                     query_count=query_count,
@@ -168,6 +176,8 @@ def build_matching_files(
     db_parser: databases.DatabaseParser = None,
     prepare: bool,
     data_path: pathlib.Path,
+    notes: note_utils.NoteSource | None = None,
+    nlp_config: note_utils.NlpConfig | None = None,
 ):
     """targets all table builders matching a target string for running
 
@@ -177,6 +187,8 @@ def build_matching_files(
     :keyword db_parser: an object implementing DatabaseParser for the target database
     :keyword prepare: If true, will render query instead of executing
     :keyword data_path: If prepare is true, the path to write rendered data to
+    :keyword notes: Source to read notes from (for NLP)
+    :keyword nlp_config: NLP config options from command line
     """
     if prepare:
         _check_if_preparable(manifest.get_study_prefix())  # pragma: no cover
@@ -198,6 +210,8 @@ def build_matching_files(
         file_list=matches,
         prepare=prepare,
         data_path=data_path,
+        notes=notes,
+        nlp_config=nlp_config,
     )
 
 
@@ -534,6 +548,8 @@ def _run_workflow(
     prepare: str,
     data_path: pathlib.Path,
     query_count: int,
+    notes: note_utils.NoteSource | None = None,
+    nlp_config: note_utils.NlpConfig | None = None,
     parallel: bool = False,
 ) -> tuple[list[str], bool]:
     """Loads workflow config from toml definitions and executes workflow
@@ -543,6 +559,8 @@ def _run_workflow(
     :keyword filename: Filename of the workflow config
     :keyword prepare: If true, will render query instead of executing
     :keyword data_path: If prepare is true, the path to write rendered data to
+    :keyword notes: Source to read notes from (for NLP)
+    :keyword nlp_config: NLP config options from command line
     :keyword query_count: if prepare is true, the number of queries already rendered
     :keyword stage_name: the stage in the build currently being processed
     :keyword parallel; If true, execute queries in parallel if workflow allows
@@ -573,6 +591,22 @@ def _run_workflow(
         target_table = workflow_config.get("target_table", workflow_config.get("table_prefix", ""))
 
     match config_type:
+        case "counts":
+            builder = counts_builder.CountsBuilder(
+                manifest=manifest,
+                toml_config_path=toml_path,
+            )
+        case "file_upload":
+            builder = file_upload_builder.FileUploadBuilder(
+                toml_config_path=toml_path,
+            )
+        case "nlp":
+            builder = nlp_builder.NlpBuilder(
+                manifest=manifest,
+                toml_config_path=toml_path,
+                notes=notes or note_utils.NoteSource(),
+                nlp_config=nlp_config or note_utils.NlpConfig(),
+            )
         case "psm":
             existing_stats = []
             if not config.stats_build:
@@ -598,15 +632,6 @@ def _run_workflow(
                 config=config,
                 workflow_config=workflow_config,
                 data_path=manifest.data_path / f"{manifest.get_study_prefix()}/valueset",
-            )
-        case "file_upload":
-            builder = file_upload_builder.FileUploadBuilder(
-                toml_config_path=toml_path,
-            )
-        case "counts":
-            builder = counts_builder.CountsBuilder(
-                manifest=manifest,
-                toml_config_path=toml_path,
             )
         case _:  # pragma: no cover
             raise errors.StudyManifestParsingError(

@@ -273,11 +273,12 @@ class LocalTestbed:
         )
         return db
 
-    def build(self, study: str = "core") -> duckdb.DuckDatabaseBackend:
+    def build(self, study: str = "core", stage: str = "default") -> duckdb.DuckDatabaseBackend:
         db = self.create_backend(study)
         config = base_utils.StudyConfig(
             db=db,
             schema="main",
+            stage=stage,
             # verbose=True,
         )
         study_runner = cli.StudyRunner(config, data_path=str(self.path))
