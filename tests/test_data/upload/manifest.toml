@@ -1,8 +1,15 @@
 study_prefix = "upload"
-
+description = "This study is used to test study uploads to the aggregator"
 
 [[stages.stage_1]]
 type = "export:counts"
 tables = [
     "upload__count_synthea_patient",
+]
+
+[[stages.stage_1]]
+type = "export:meta"
+tables = [
+    "upload__meta_date",
+    "upload__meta_version",
 ]

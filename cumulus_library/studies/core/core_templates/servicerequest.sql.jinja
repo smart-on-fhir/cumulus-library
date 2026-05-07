@@ -31,6 +31,19 @@ WITH temp_servicerequest AS (
                 schema
             )
         }},
+        {{- utils.timestamp_cols_from_str(
+                'servicerequest',
+                'src',
+                [
+                    'occurrenceDateTime',
+                    ('occurrencePeriod', 'start', 'occurrencePeriod_start'),
+                    ('occurrencePeriod', 'end', 'occurrencePeriod_end'),
+                    'authoredOn'
+
+                ],
+                schema
+            ) 
+        }},
         {{-
             utils.truncate_date_cols(
                 'servicerequest',
@@ -77,21 +90,25 @@ SELECT
     dn_code.system AS code_system,
     dn_code.display AS code_display,
 
+    src.occurrenceDateTime,
     src.occurrenceDateTime_day,
     src.occurrenceDateTime_week,
     src.occurrenceDateTime_month,
     src.occurrenceDateTime_year,
 
+    src.occurrencePeriod_start,
     src.occurrencePeriod_start_day,
     src.occurrencePeriod_start_week,
     src.occurrencePeriod_start_month,
     src.occurrencePeriod_start_year,
 
+    src.occurrencePeriod_end,
     src.occurrencePeriod_end_day,
     src.occurrencePeriod_end_week,
     src.occurrencePeriod_end_month,
     src.occurrencePeriod_end_year,
 
+    src.authoredOn,
     src.authoredOn_day,
     src.authoredOn_week,
     src.authoredOn_month,

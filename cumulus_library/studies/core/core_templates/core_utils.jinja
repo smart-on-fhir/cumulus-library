@@ -64,22 +64,54 @@ targets is an array expecting a data type of the following:
         {#- depth one nested column-#}
         {%- if col is not string and col|length ==3%}
         {%- if schema[table][col[0]][col[1]] %}
-        cast(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}) AS date) AS {{ col[2] }}
+        cast(from_iso8601_timestamp({{ alias }}."{{ col[0] }}"."{{ col[1] }}") AS date) AS {{ col[2] }}
         {%- else %}
         cast(NULL AS date) AS {{ col[1] }}
         {% endif %}
         {#- depth two nested column -#}
         {%- elif col is not string and col|length ==4%}
         {%- if schema[table][col[0]][col[1]][col[2]] %}
-        cast(from_iso8601_timestamp({{ alias }}.{{ col[0] }}.{{ col[1] }}.{{ col[2] }}) AS date) AS {{col[3]}}
+        cast(from_iso8601_timestamp({{ alias }}."{{ col[0] }}"."{{ col[1] }}"."{{ col[2] }}") AS date) AS {{col[3]}}
         {%- else %}
         cast(NULL AS date) AS {{ col[3] }}
         {%- endif %}
         {#- SQL primitive column column-#}
         {%- elif schema[table][col] %}
-        cast(from_iso8601_timestamp({{ alias }}.{{ col }}) AS date) AS {{ col }}
+        cast(from_iso8601_timestamp({{ alias }}."{{ col }}") AS date) AS {{ col }}
         {%- else %}
         cast(NULL AS date) AS {{ col }}
+        {%- endif %}    
+        {{- syntax.comma_delineate(loop) }}
+        {%- endfor %}
+{%- endmacro %}
+
+{#- creates a timestamp from a from an ISO formatted date str 
+targets is an array expecting a data type of the following:
+    string: refers to a vanilla SQL primitive column
+    tuple(col, object, col_alias): refers to a one level nested SQL object
+    tuple(col, object, child, col_alias): refers to a two level nested SQL obj
+-#}
+{% macro timestamp_cols_from_str(table, alias, targets, schema) %}
+        {%- for col in targets %}
+        {#- depth one nested column-#}
+        {%- if col is not string and col|length ==3%}
+        {%- if schema[table][col[0]][col[1]] %}
+        cast(from_iso8601_timestamp({{ alias }}."{{ col[0] }}"."{{ col[1] }}") AS timestamp) AS {{ col[2] }}
+        {%- else %}
+        cast(NULL AS timestamp) AS {{ col[1] }}
+        {% endif %}
+        {#- depth two nested column -#}
+        {%- elif col is not string and col|length ==4%}
+        {%- if schema[table][col[0]][col[1]][col[2]] %}
+        cast(from_iso8601_timestamp({{ alias }}."{{ col[0] }}"."{{ col[1] }}"."{{ col[2] }}") AS timestamp) AS {{col[3]}}
+        {%- else %}
+        cast(NULL AS timestamp) AS {{ col[3] }}
+        {%- endif %}
+        {#- SQL primitive column column-#}
+        {%- elif schema[table][col] %}
+        cast(from_iso8601_timestamp({{ alias }}."{{ col }}") AS timestamp) AS {{ col }}
+        {%- else %}
+        cast(NULL AS timestamp) AS {{ col }}
         {%- endif %}    
         {{- syntax.comma_delineate(loop) }}
         {%- endfor %}

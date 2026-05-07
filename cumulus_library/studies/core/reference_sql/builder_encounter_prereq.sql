@@ -10,19 +10,13 @@ CREATE TABLE core__encounter_dn_type AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."type", 1) AS row,
-                UNNEST(t."type") AS "type" -- must unnest in SELECT here
-            FROM encounter AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            "type"
-        FROM data_and_row_num
+            r."type"
+        FROM
+            encounter AS t,
+            UNNEST(t."type") WITH ORDINALITY AS r ("type", row)
     ),
 
     system_type_0 AS (
@@ -321,27 +315,313 @@ CREATE TABLE core__encounter_dn_type AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__encounter_dn_servicetype"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+CREATE TABLE core__encounter_dn_servicetype AS (
+    WITH
+
+    system_servicetype_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '0' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            encounter AS s,
+            UNNEST(s.servicetype.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^http://terminology\.hl7\.org/CodeSystem/service-type$')
+    ), --noqa: LT07
+
+    system_servicetype_1 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '1' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            encounter AS s,
+            UNNEST(s.servicetype.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^http://snomed\.info/sct$')
+    ), --noqa: LT07
+
+    system_servicetype_2 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '2' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            encounter AS s,
+            UNNEST(s.servicetype.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^urn:oid:2\.16\.840\.1\.113883\.4\.642\.3\.518$')
+    ), --noqa: LT07
+
+    system_servicetype_3 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '3' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            encounter AS s,
+            UNNEST(s.servicetype.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^https://fhir\.cerner\.com/.*/codeSet/34$')
+    ), --noqa: LT07
+
+    system_servicetype_4 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '4' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            encounter AS s,
+            UNNEST(s.servicetype.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\..*\.7\.10\.698084\.18886$')
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_servicetype_0
+        UNION
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_servicetype_1
+        UNION
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_servicetype_2
+        UNION
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_servicetype_3
+        UNION
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_servicetype_4
+        
+    ),
+
+    partitioned_table AS (
+        SELECT
+            id,
+            row,
+            code,
+            system,
+            display,
+            userSelected,
+            priority,
+            ROW_NUMBER()
+                OVER (
+                    PARTITION BY id
+                    ORDER BY priority ASC, code ASC
+                ) AS available_priority
+        FROM union_table
+        GROUP BY
+            id, row, priority, system, code, display, userSelected
     )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
+
+    SELECT
+        id,
+        code,
+        system,
+        display,
+        userSelected
+    FROM partitioned_table
+    WHERE available_priority = 1
 );
+
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__encounter_dn_priority"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+CREATE TABLE core__encounter_dn_priority AS (
+    WITH
+
+    system_priority_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '0' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            encounter AS s,
+            UNNEST(s.priority.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^http://terminology\.hl7\.org/CodeSystem/v3-ActPriority$')
+    ), --noqa: LT07
+
+    system_priority_1 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '1' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            encounter AS s,
+            UNNEST(s.priority.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^http://snomed\.info/sct$')
+    ), --noqa: LT07
+
+    system_priority_2 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '2' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            encounter AS s,
+            UNNEST(s.priority.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^https://fhir\.cerner\.com/.*/codeSet/3$')
+    ), --noqa: LT07
+
+    system_priority_3 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            '3' AS priority,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            encounter AS s,
+            UNNEST(s.priority.coding) AS u (coding)
+        WHERE
+            REGEXP_LIKE(u.coding.system, '^urn:oid:1\.2\.840\.114350\.1\.13\..*\.7\.10\.698084\.410$')
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_priority_0
+        UNION
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_priority_1
+        UNION
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_priority_2
+        UNION
+        SELECT
+            id,
+            row,
+            priority,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_priority_3
+        
+    ),
+
+    partitioned_table AS (
+        SELECT
+            id,
+            row,
+            code,
+            system,
+            display,
+            userSelected,
+            priority,
+            ROW_NUMBER()
+                OVER (
+                    PARTITION BY id
+                    ORDER BY priority ASC, code ASC
+                ) AS available_priority
+        FROM union_table
+        GROUP BY
+            id, row, priority, system, code, display, userSelected
     )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
+
+    SELECT
+        id,
+        code,
+        system,
+        display,
+        userSelected
+    FROM partitioned_table
+    WHERE available_priority = 1
 );
+
 
 -- ###########################################################
 
@@ -349,19 +629,13 @@ CREATE TABLE core__encounter_dn_reasoncode AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."reasoncode", 1) AS row,
-                UNNEST(t."reasoncode") AS "reasoncode" -- must unnest in SELECT here
-            FROM encounter AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            "reasoncode"
-        FROM data_and_row_num
+            r."reasoncode"
+        FROM
+            encounter AS t,
+            UNNEST(t."reasoncode") WITH ORDINALITY AS r ("reasoncode", row)
     ),
 
     system_reasoncode_0 AS (

@@ -18,6 +18,17 @@ WITH temp_episodeofcare AS (
                 schema
             )
         }},
+        {{- 
+            utils.timestamp_cols_from_str(
+                'episodeofcare',
+                'src',
+                [
+                    ('period', 'start', 'period_start'),
+                    ('period', 'end', 'period_end')
+                ],
+                schema
+            ) 
+        }},
         {{-
             utils.truncate_date_cols(
                 'episodeofcare',
@@ -47,11 +58,13 @@ SELECT
     dn_type.system AS type_system,
     dn_type.display AS type_display,
 
+    src.period_start,
     src.period_start_day,
     src.period_start_week,
     src.period_start_month,
     src.period_start_year,
 
+    src.period_end,
     src.period_end_day,
     src.period_end_week,
     src.period_end_month,

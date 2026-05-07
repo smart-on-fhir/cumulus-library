@@ -21,33 +21,37 @@ class ProtectedTableBuilder(BaseTableBuilder):
     def prepare_queries(
         self,
         config: base_utils.StudyConfig,
-        manifest: study_manifest.StudyManifest | None = None,
+        manifest: study_manifest.StudyManifest,
         *args,
         study_stats: dict | None = None,
         **kwargs,
     ):
         study_stats = study_stats or {}
-        if manifest and manifest.get_dedicated_schema():
+        if manifest.get_dedicated_schema():
             db_schema = manifest.get_dedicated_schema()
             self.queries.append(f"CREATE SCHEMA IF NOT EXISTS {db_schema}")
-            transactions = enums.ProtectedTables.TRANSACTIONS.value
-            statistics = enums.ProtectedTables.STATISTICS.value
-            build_source = enums.ProtectedTables.BUILD_SOURCE.value
         else:
             db_schema = config.schema
-            transactions = (
-                f"{manifest.get_study_prefix()}__{enums.ProtectedTables.TRANSACTIONS.value}"
-            )
-            statistics = f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}"
-            build_source = (
-                f"{manifest.get_study_prefix()}__{enums.ProtectedTables.BUILD_SOURCE.value}"
-            )
+        prefix = manifest.get_schema_aware_prefix_with_seperator()
+        transactions = f"{prefix}{enums.ProtectedTables.TRANSACTIONS.value}"
+        statistics = f"{prefix}{enums.ProtectedTables.STATISTICS.value}"
+        build_source = f"{prefix}{enums.ProtectedTables.BUILD_SOURCE.value}"
+        ref_summary = f"{prefix}{enums.ProtectedTables.REF_SUMMARY.value}"
+
         self.queries.append(
             base_templates.get_ctas_empty_query(
                 db_schema,
                 transactions,
                 const.TRANSACTIONS_COLS,
                 const.TRANSACTION_COLS_TYPES,
+            )
+        )
+        self.queries.append(
+            base_templates.get_ctas_empty_query(
+                db_schema,
+                ref_summary,
+                const.REF_SUMMARY_COLS,
+                const.REF_SUMMARY_COLS_TYPES,
             )
         )
         self.queries.append(

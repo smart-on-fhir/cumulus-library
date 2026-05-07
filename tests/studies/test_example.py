@@ -29,4 +29,4 @@ def test_example_study_succeeds(tmp_path):
         "WHERE 'example' IN table_name"
     ).fetchall()
     # TODO: Add bronchitis data to validate joins
-    assert len(found_tables) == 16
+    assert len(found_tables) == 17

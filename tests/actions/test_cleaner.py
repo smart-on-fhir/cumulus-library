@@ -122,7 +122,7 @@ def test_clean_no_build_source(mock_db_core_config):
     res = cursor.execute(
         "SELECT table_name FROM information_schema.tables WHERE 'core' in table_name"
     ).fetchall()
-    assert res == [("core__lib_transactions",)]
+    assert res == [("core__lib_ref_summary",), ("core__lib_transactions",)]
 
 
 def test_clean_dedicated_schema(mock_db_config):

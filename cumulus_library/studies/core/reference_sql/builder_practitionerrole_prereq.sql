@@ -10,19 +10,13 @@ CREATE TABLE core__practitionerrole_dn_code AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."code", 1) AS row,
-                UNNEST(t."code") AS "code" -- must unnest in SELECT here
-            FROM practitionerrole AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            "code"
-        FROM data_and_row_num
+            r."code"
+        FROM
+            practitionerrole AS t,
+            UNNEST(t."code") WITH ORDINALITY AS r ("code", row)
     ),
 
     system_code_0 AS (
@@ -66,19 +60,13 @@ CREATE TABLE core__practitionerrole_dn_specialty AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."specialty", 1) AS row,
-                UNNEST(t."specialty") AS "specialty" -- must unnest in SELECT here
-            FROM practitionerrole AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            "specialty"
-        FROM data_and_row_num
+            r."specialty"
+        FROM
+            practitionerrole AS t,
+            UNNEST(t."specialty") WITH ORDINALITY AS r ("specialty", row)
     ),
 
     system_specialty_0 AS (

@@ -15,10 +15,10 @@ data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
 @pytest.mark.parametrize(
     ("config_path,tables,raises"),
     [
-        (data_path / "valueset.toml", 20, does_not_raise()),
-        (data_path / "valueset_vsac_only.toml", 19, does_not_raise()),
-        (data_path / "valueset_umls_only.toml", 20, does_not_raise()),
-        (data_path / "valueset_keyword_only.toml", 19, does_not_raise()),
+        (data_path / "valueset.toml", 21, does_not_raise()),
+        (data_path / "valueset_vsac_only.toml", 20, does_not_raise()),
+        (data_path / "valueset_umls_only.toml", 21, does_not_raise()),
+        (data_path / "valueset_keyword_only.toml", 20, does_not_raise()),
         (data_path / "invalid.toml", 0, pytest.raises(SystemExit)),
     ],
 )

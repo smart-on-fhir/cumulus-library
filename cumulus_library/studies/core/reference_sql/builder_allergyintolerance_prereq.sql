@@ -173,7 +173,7 @@ CREATE TABLE core__allergyintolerance_dn_code AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__allergyintolerance_dn_reaction_substance"
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__allergyintolerance_dn_reaction_substance"
 AS (
     SELECT * FROM (
         VALUES
@@ -189,19 +189,13 @@ CREATE TABLE core__allergyintolerance_dn_reaction_manifestation AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."reaction", 1) AS row,
-                UNNEST(t."reaction") AS data -- must unnest in SELECT here
-            FROM allergyintolerance AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            data."manifestation"
-        FROM data_and_row_num
+            r."manifestation"
+        FROM
+            allergyintolerance AS t,
+            UNNEST(t."reaction") WITH ORDINALITY AS parent (r, row)
     ),
 
     child_flattened_rows AS (

@@ -30,7 +30,7 @@ from cumulus_library import (
 )
 from tests.conftest import create_protected_tables, duckdb_args
 
-FHIR_RESOURCE_TABLE_COUNT = 21
+FHIR_RESOURCE_TABLE_COUNT = 22
 
 
 @contextmanager

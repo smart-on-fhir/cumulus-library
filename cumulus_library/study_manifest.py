@@ -1,5 +1,6 @@
 """Class for loading study configuration data from manifest.toml files"""
 
+import copy
 import dataclasses
 import pathlib
 import re
@@ -17,17 +18,23 @@ from cumulus_library import enums, errors
 class ManifestExport:
     name: str
     export_type: str
+    description: str | None = None
 
 
 # These msgspec Structs define the expected formats for manifests & submanifests
 
 
+class ManifestExportTable(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
+    name: str
+    description: str
+
+
 class ManifestAction(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
     type: str | None = None
-    description: str | None = None
+    description: str | None = None  # deprecated
     label: str | None = None
     files: list[str] | None = None
-    tables: list[str] | None = None
+    tables: list[str | ManifestExportTable] | None = None
 
 
 class ManifestAdvancedOptions(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
@@ -121,6 +128,12 @@ class StudyManifest:
                     f"The following action in {source} is missing an expected key, 'tables':\n"
                     f"{action}"
                 )
+        if any(x in action.get("label", "") for x in ["[", "]"]):
+            raise errors.StudyManifestParsingError(
+                "The following label contains square brackets, which are reserved characters:\n"
+                f"{action['label']}\n"
+                "Please update the label to remove these brackets."
+            )
 
     def _has_stats_workflows(self) -> bool:
         for stage in self._study_config.get("stages", {}).values():
@@ -183,18 +196,14 @@ class StudyManifest:
                             study_path.parent / submanifest, SubmanifestConfig
                         )
                         for subaction in subconfig.get("actions"):
-                            self._validate_action(subaction, study_path.parent / submanifest)
                             actions.append(self._format_action(subaction))
+                            self._validate_action(subaction, study_path.parent / submanifest)
                             all_actions.append(subaction)
                 else:
-                    self._validate_action(action, study_path)
                     actions.append(self._format_action(action))
+                    self._validate_action(action, study_path)
                     all_actions.append(action)
             config["stages"][stage] = actions
-
-        # if there isn't a default stage, we'll assume that we should run the first one
-        if "default" not in defined_stages:
-            config["stages"]["default"] = config["stages"][defined_stages[0]]
 
         config["stages"]["all"] = all_actions
 
@@ -243,7 +252,11 @@ class StudyManifest:
 
     def get_stage(self, stage) -> list:
         """Returns the contents of the specified stage"""
-        return self._study_config.get("stages", {}).get(stage, [])
+        stage_contents = self._study_config.get("stages", {}).get(stage, [])
+        # if we're looking for a default stage and we don't find it, assume we should run everything
+        if stage == "default" and stage_contents == []:
+            stage_contents = self._study_config.get("stages", {}).get("all", [])
+        return stage_contents
 
     def get_file_list(
         self,
@@ -277,7 +290,7 @@ class StudyManifest:
             raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
         return files
 
-    def get_export_table_list(self, stage_name: str = "default") -> list[ManifestExport] | None:
+    def get_export_table_list(self, stage_name: str = "all") -> list[ManifestExport] | None:
         """Reads the exportable tables from the manifest
 
         :param stage_name: if present, just search the stages defined in the stage_name list
@@ -294,9 +307,17 @@ class StudyManifest:
             if export_type == "counts":
                 # the aggregator is looking for the cube keyword, so we'll swap it out
                 export_type = "cube"
-            for table in action.get("tables", []):
+            for str_or_dict in action.get("tables", []):
+                if isinstance(str_or_dict, str):
+                    table = str_or_dict
+                    description = None
+                else:
+                    table = str_or_dict.get("name")
+                    description = str_or_dict.get("description")
                 if table.startswith(f"{self.get_study_prefix()}__"):
-                    export_table_list.append(ManifestExport(name=table, export_type=export_type))
+                    export_table_list.append(
+                        ManifestExport(name=table, export_type=export_type, description=description)
+                    )
                 elif "__" in table:  # has a prefix, just the wrong one
                     raise errors.StudyManifestParsingError(
                         f"{table} in export list does not start with prefix "
@@ -307,7 +328,9 @@ class StudyManifest:
                     # is not known ahead of time)
                     export_table_list.append(
                         ManifestExport(
-                            name=f"{self.get_study_prefix()}__{table}", export_type=export_type
+                            name=f"{self.get_study_prefix()}__{table}",
+                            export_type=export_type,
+                            description=description,
                         )
                     )
 
@@ -366,10 +389,11 @@ class StudyManifest:
             path = path / "manifest.toml"
         path.parent.mkdir(exist_ok=True, parents=True)
         with open(path, "wb") as f:
+            config = copy.deepcopy(self._study_config)
             # we'll remove the all key we auto created before writing out a copy
-            config = self._study_config
             config["stages"].pop("all", None)
-            f.write(msgspec.toml.encode(ManifestConfig(self._study_config)))
+            output = msgspec.toml.encode(config)
+            f.write(output)
 
     ### Dynamic Python code support
 

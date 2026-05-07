@@ -10,19 +10,13 @@ CREATE TABLE core__diagnosticreport_dn_category AS (
     WITH
 
     flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."category", 1) AS row,
-                UNNEST(t."category") AS "category" -- must unnest in SELECT here
-            FROM diagnosticreport AS t
-        )
         SELECT
-            id,
+            t.id AS id,
             row,
-            "category"
-        FROM data_and_row_num
+            r."category"
+        FROM
+            diagnosticreport AS t,
+            UNNEST(t."category") WITH ORDINALITY AS r ("category", row)
     ),
 
     system_category_0 AS (
@@ -101,7 +95,7 @@ CREATE TABLE core__diagnosticreport_dn_code AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "main"."core__diagnosticreport_dn_conclusioncode"
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__diagnosticreport_dn_conclusioncode"
 AS (
     SELECT * FROM (
         VALUES

@@ -25,13 +25,6 @@ from tests import conftest
                                 "tables": ["study_valid__table", "study_valid__table2"],
                             },
                         ],
-                        "default": [
-                            {"type": "build:serial", "files": ["test.sql", "test2.sql"]},
-                            {
-                                "type": "export:counts",
-                                "tables": ["study_valid__table", "study_valid__table2"],
-                            },
-                        ],
                         "stage_1": [
                             {"type": "build:serial", "files": ["test.sql", "test2.sql"]},
                             {
@@ -135,10 +128,6 @@ def test_submanifests(tmp_path):
                 {"label": "action 2", "type": "build:serial", "files": ["baz"]},
                 {"label": "subaction 1", "type": "build:serial", "files": ["foobar"]},
             ],
-            "default": [
-                {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
-                {"label": "action 2", "type": "build:serial", "files": ["baz"]},
-            ],
             "stage_1": [
                 {"label": "action 1", "type": "build:serial", "files": ["foo", "bar"]},
                 {"label": "action 2", "type": "build:serial", "files": ["baz"]},
@@ -200,7 +189,7 @@ def test_missing_action(tmp_path):
         study_manifest.StudyManifest(tmp_path)
 
 
-def test_all_protected(mock_db_config, tmp_path):
+def test_all_protected(tmp_path):
     manifest_dict = {
         "study_prefix": "test",
         "stages": {"all": [{"files": ["foo"], "type": "build:serial"}]},
@@ -208,6 +197,36 @@ def test_all_protected(mock_db_config, tmp_path):
     conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
     with pytest.raises(errors.StudyManifestParsingError):
         study_manifest.StudyManifest(tmp_path)
+
+
+def test_default_handling(tmp_path):
+    manifest_dict = {
+        "study_prefix": "test",
+        "stages": {
+            "one": [{"files": ["foo"], "type": "build:serial"}],
+            "two": [{"files": ["bar"], "type": "build:serial"}],
+        },
+    }
+    conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
+    manifest = study_manifest.StudyManifest(tmp_path)
+    stage = manifest.get_stage("default")
+    assert stage == [
+        {"type": "build:serial", "files": ["foo"]},
+        {"type": "build:serial", "files": ["bar"]},
+    ]
+    manifest_dict = {
+        "study_prefix": "test",
+        "stages": {
+            "default": [{"files": ["foo"], "type": "build:serial"}],
+            "two": [{"files": ["bar"], "type": "build:serial"}],
+        },
+    }
+    conftest.write_toml(tmp_path, manifest_dict, "manifest.toml")
+    manifest = study_manifest.StudyManifest(tmp_path)
+    stage = manifest.get_stage("default")
+    assert stage == [
+        {"type": "build:serial", "files": ["foo"]},
+    ]
 
 
 def test_empty_stage(mock_db_config, tmp_path):
@@ -252,8 +271,15 @@ def test_formatted_study_prefix(tmp_path):
             pytest.raises(errors.StudyManifestParsingError, match="expected key, 'files'"),
         ),
         (
-            {"type": "export:counts", "files": ["table__name"]},
+            {
+                "type": "export:counts",
+                "files": ["table__name", {"name": "table__other_name", "description": "text"}],
+            },
             pytest.raises(errors.StudyManifestParsingError, match="expected key, 'tables'"),
+        ),
+        (
+            {"type": "build:serial", "files": ["table__name"], "label": "foo [bar]"},
+            pytest.raises(errors.StudyManifestParsingError, match="square brackets"),
         ),
     ],
 )
@@ -261,3 +287,122 @@ def test_validate_action(action, raises, tmp_path):
     with raises:
         manifest = study_manifest.StudyManifest()
         manifest._validate_action(action=action, source=tmp_path)
+
+
+@pytest.mark.parametrize(
+    "stages,stage,expected,raises",
+    [
+        (
+            {
+                "stage_one": [
+                    {
+                        "type": "export:counts",
+                        "tables": ["test__name", {"name": "test__name2", "description": "text"}],
+                    }
+                ]
+            },
+            None,
+            [
+                study_manifest.ManifestExport(
+                    name="test__name", export_type="cube", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__name2", export_type="cube", description="text"
+                ),
+            ],
+            does_not_raise(),
+        ),
+        (
+            {
+                "stage_one": [
+                    {
+                        "type": "export:counts",
+                        "tables": ["test__name", {"name": "test__name2", "description": "text"}],
+                    }
+                ]
+            },
+            "stage_one",
+            [
+                study_manifest.ManifestExport(
+                    name="test__name", export_type="cube", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__name2", export_type="cube", description="text"
+                ),
+            ],
+            does_not_raise(),
+        ),
+        (
+            {
+                "stage_one": [{"type": "export:counts", "tables": ["test__name"]}],
+                "stage_two": [{"type": "export:counts", "tables": ["test__name2"]}],
+            },
+            "stage_one",
+            [
+                study_manifest.ManifestExport(
+                    name="test__name", export_type="cube", description=None
+                ),
+            ],
+            does_not_raise(),
+        ),
+        (
+            {
+                "stage_one": [{"type": "export:counts", "tables": ["test__name"]}],
+                "stage_two": [{"type": "export:counts", "tables": ["test__name2"]}],
+            },
+            "all",
+            [
+                study_manifest.ManifestExport(
+                    name="test__name", export_type="cube", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__name2", export_type="cube", description=None
+                ),
+            ],
+            does_not_raise(),
+        ),
+        (
+            {
+                "stage_one": [{"type": "export:counts", "tables": ["bad_prefix__name"]}],
+            },
+            None,
+            [],
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
+        (
+            {
+                "stage_one": [
+                    {"type": "export:counts", "tables": ["test__counts"]},
+                    {"type": "export:annotated_counts", "tables": ["test__annotated_counts"]},
+                    {"type": "export:flat", "tables": ["test__flat"]},
+                    {"type": "export:meta", "tables": ["test__meta"]},
+                ],
+            },
+            None,
+            [
+                study_manifest.ManifestExport(
+                    name="test__counts", export_type="cube", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__annotated_counts", export_type="annotated_counts", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__flat", export_type="flat", description=None
+                ),
+                study_manifest.ManifestExport(
+                    name="test__meta", export_type="meta", description=None
+                ),
+            ],
+            does_not_raise(),
+        ),
+    ],
+)
+def test_export_list(stages, stage, expected, raises, tmp_path):
+    with raises:
+        conftest.write_toml(tmp_path, {"study_prefix": "test", "stages": stages})
+        manifest = study_manifest.StudyManifest(tmp_path)
+        if stage is None:
+            export_list = manifest.get_export_table_list()
+        else:
+            export_list = manifest.get_export_table_list(stage)
+        assert export_list == expected

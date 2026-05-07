@@ -10,7 +10,6 @@ import awswrangler
 import botocore
 import pandas
 import pyathena
-import pytest
 
 from cumulus_library import base_utils, databases, study_manifest
 from tests import conftest
@@ -162,8 +161,9 @@ def test_export_table(mock_wrangler, mock_client, tmp_path):
     assert res is False
 
 
+@mock.patch("cumulus_library.databases.base.ParallelResult")
 @mock.patch("cumulus_library.databases.athena.AthenaDatabaseBackend.async_cursor")
-def test_parallel_write(mock_cursor_getter):
+def test_parallel_execute(mock_cursor_getter, mock_result):
     db = databases.AthenaDatabaseBackend(
         region="test",
         work_group="test",
@@ -173,27 +173,30 @@ def test_parallel_write(mock_cursor_getter):
     mock_cursor = mock.MagicMock()
     mock_cursor_getter.return_value = mock_cursor
     queries = []
-    cursor_returns = []
+    future_mock = mock.MagicMock()
+    cursor_returns = [(None, future_mock), (None, future_mock), (None, future_mock)]
 
     def mock_query_run():
         time.sleep(0.25)
 
-    with pytest.raises(SystemExit):
-        with futures.ThreadPoolExecutor(max_workers=5) as executor:
-            for i in range(0, 20):
-                queries.append(f"select {i} from foo")
-                cursor_returns.append((i, executor.submit(mock_query_run)))
-                mock_cursor.execute.side_effect = cursor_returns
-            with base_utils.get_progress_bar() as progress_bar:
-                task = progress_bar.add_task(
-                    "test queries",
-                    total=len(queries),
-                    visible=True,
-                )
-                db.parallel_write(queries, False, progress_bar, task)
-        assert len(mock_cursor.execute.call_args_list) == 20
-        assert mock_cursor.execute.call_args_list[0][0][0] == "select 0 from foo"
-        assert mock_cursor.execute.call_args_list[19][0][0] == "select 19 from foo"
+    with futures.ThreadPoolExecutor(max_workers=5) as executor:
+        for i in range(0, 3):
+            queries.append(f"select {i} from foo")
+            cursor_returns.append((i, executor.submit(mock_query_run)))
+            mock_cursor.execute.side_effect = cursor_returns
+        with base_utils.get_progress_bar() as progress_bar:
+            task = progress_bar.add_task(
+                "test queries",
+                total=len(queries),
+                visible=True,
+            )
+            db.parallel_write(queries, False, progress_bar, task)
+    assert len(mock_result.call_args_list) == 3
+    assert mock_result.call_args_list[0][1]["query"] == "select 0 from foo"
+    assert mock_result.call_args_list[2][1]["query"] == "select 2 from foo"
+    assert len(mock_cursor.execute.call_args_list) == 3
+    assert mock_cursor.execute.call_args_list[0][0][0] == "select 0 from foo"
+    assert mock_cursor.execute.call_args_list[2][0][0] == "select 2 from foo"
 
 
 @mock.patch("botocore.client")

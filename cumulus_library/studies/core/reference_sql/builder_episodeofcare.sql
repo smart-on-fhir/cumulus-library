@@ -17,6 +17,8 @@ WITH temp_episodeofcare AS (
         src.id,
         src.status,
         src.patient.reference AS patient_ref,
+        cast(from_iso8601_timestamp(src."period"."start") AS timestamp) AS period_start,
+        cast(from_iso8601_timestamp(src."period"."end") AS timestamp) AS period_end,
         date_trunc('day', cast(from_iso8601_timestamp(src."period"."start") AS date))
             AS period_start_day,
         date_trunc('week', cast(from_iso8601_timestamp(src."period"."start") AS date))
@@ -45,11 +47,13 @@ SELECT
     dn_type.system AS type_system,
     dn_type.display AS type_display,
 
+    src.period_start,
     src.period_start_day,
     src.period_start_week,
     src.period_start_month,
     src.period_start_year,
 
+    src.period_end,
     src.period_end_day,
     src.period_end_week,
     src.period_end_month,

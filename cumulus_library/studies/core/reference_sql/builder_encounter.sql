@@ -70,7 +70,7 @@ temp_encounter_nullable AS (
         e.class.display AS class_display,
         e.subject.reference AS subject_ref,
         e.serviceProvider.reference AS serviceProvider_ref,
-        cast(from_iso8601_timestamp(e.period.start) AS date) AS period_start,
+        cast(from_iso8601_timestamp(e."period"."start") AS timestamp) AS period_start,
         date_trunc('day', cast(from_iso8601_timestamp(e."period"."end") AS date))
             AS period_end_day,
         date_trunc('day', cast(from_iso8601_timestamp(e."period"."start") AS date))
@@ -91,19 +91,13 @@ temp_encounter_nullable AS (
 ),
 
 temp_episodeofcare AS (
-    WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."episodeOfCare", 1) AS row,
-                UNNEST(t."episodeOfCare") AS data -- must unnest in SELECT here
-            FROM encounter AS t
-        )
-        SELECT
-            id,
+    SELECT
+            t.id AS id,
             row,
-            data."reference"
-        FROM data_and_row_num
+            r."reference"
+        FROM
+            encounter AS t,
+            UNNEST(t."episodeOfCare") WITH ORDINALITY AS parent (r, row)
 ),
 
 temp_participant AS (

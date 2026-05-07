@@ -1,4 +1,5 @@
 import csv
+import datetime
 import pathlib
 import shutil
 from unittest import mock
@@ -59,6 +60,43 @@ def test_snake_case():
 
 
 @mock.patch("platformdirs.user_cache_dir")
+def test_bad_datasource(mock_cache, mock_db_config, tmp_path):
+    mock_cache.return_value = tmp_path / "cache"
+    conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "file_upload",
+            "tables": {"bad_csv": {"file": "a.csv"}},
+        },
+        filename="workflow.toml",
+    )
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "study",
+            "stages": {"default": [{"files": ["a.csv"]}]},
+        },
+        filename="manifest.toml",
+    )
+    manifest = study_manifest.StudyManifest(tmp_path)
+    with open(tmp_path / "a.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["x", "y"])
+        writer.writerow(
+            [
+                "1",
+                "2",
+            ]
+        )
+        writer.writerow(["3", "4", "5"])
+    with pytest.raises(SystemExit):
+        builder = file_upload_builder.FileUploadBuilder(
+            toml_config_path=tmp_path / "workflow.toml",
+        )
+        builder.prepare_queries(config=mock_db_config, manifest=manifest)
+
+
+@mock.patch("platformdirs.user_cache_dir")
 def test_unsupported_filetype(mock_cache, mock_db_config, tmp_path):
     mock_cache.return_value = tmp_path / "cache"
     shutil.copytree(TEST_DATA_PATH, tmp_path / "file_upload", dirs_exist_ok=True)
@@ -102,32 +140,57 @@ def test_wrong_cols_filetype(mock_cache, mock_db_config, tmp_path):
 
 
 @mock.patch("platformdirs.user_cache_dir")
-def test_multifile_mismatch(mock_cache, mock_db_config, tmp_path):
+def test_date_handling(mock_cache, mock_db_config, tmp_path):
     mock_cache.return_value = tmp_path / "cache"
-    shutil.copytree(TEST_DATA_PATH, tmp_path / "file_upload", dirs_exist_ok=True)
+    manifest = study_manifest.StudyManifest()
+    manifest._study_config = {
+        "study_prefix": "upload_date",
+        "stages": {
+            "test": [
+                {"type": "build:serial", "files": ["workflow.toml"]},
+            ],
+        },
+    }
+    manifest._study_prefix = "upload_date"
+    manifest.write_manifest(tmp_path)
+    conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "file_upload",
+            "tables": {
+                "dates": {"files": ["dates.csv"], "col_types": ["DATE", "TIMESTAMP", "boolean"]}
+            },
+        },
+        filename="workflow.toml",
+    )
 
-    manifest = study_manifest.StudyManifest(tmp_path / "file_upload")
-    with open(tmp_path / "file_upload/upload_commas_part2.csv", "w") as f:
+    with open(tmp_path / "dates.csv", "w") as f:
         writer = csv.writer(f)
-        writer.writerow(
-            [
-                "a",
-                "b",
-                "c",
-            ]
+        writer.writerow(["period_start", "period_end", "include_history"])
+        writer.writerow(["2016-01-01", "", "true"])
+        writer.writerow(["", "2016-01-01T00:00:00Z", "true"])
+    builder = file_upload_builder.FileUploadBuilder(
+        toml_config_path=tmp_path / "workflow.toml",
+    )
+    builder.execute_queries(config=mock_db_config, manifest=manifest)
+    col_types = (
+        mock_db_config.db.cursor()
+        .execute(
+            "SELECT column_name, data_type FROM information_schema.columns "
+            "WHERE table_name='upload_date__dates'"
         )
-        writer.writerow(
-            [
-                7,
-                "8",
-                "xyz",
-            ]
-        )
-    with pytest.raises(errors.FileUploadError, match="does not match the schema"):
-        builder = file_upload_builder.FileUploadBuilder(
-            toml_config_path=tmp_path / "file_upload/workflow.toml",
-        )
-        builder.prepare_queries(config=mock_db_config, manifest=manifest)
+        .fetchall()
+    )
+    assert col_types == [
+        ("period_start", "DATE"),
+        ("period_end", "TIMESTAMP_NS"),
+        ("include_history", "BOOLEAN"),
+    ]
+    data = mock_db_config.db.cursor().execute("SELECT * FROM upload_date__dates").fetchall()
+    assert data == [
+        (datetime.date(2016, 1, 1), None, True),
+        (None, datetime.datetime(2016, 1, 1, 0, 0), True),
+    ]
 
 
 @mock.patch("cumulus_library.template_sql.base_templates.get_ctas_from_parquet_query")

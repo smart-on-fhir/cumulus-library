@@ -101,6 +101,10 @@ local_location = /var/study/data/
 neg_source_table = neg_source_table
 output_table_name = 'created_table'
 parent_field = 'parent'
+period = {
+        "start":"2024-01-01T00:00:00Z",
+        "end": "2024-01-01T00:00:00Z"
+    }
 prefix = Test
 primary_ref = encounter_ref
 pos_source_table = pos_source_table
@@ -359,4 +363,4 @@ view_cols = ["c","d"]
 view_name = test_view
 view_or_table_name = test_view_or_table
 view_or_table = TABLE
-where_clauses = ['cnt_subject >= 99', 'cnt_encounter >= 5']
+where_clauses = [['cnt_subject >= 99', 'cnt_encounter >= 5']]

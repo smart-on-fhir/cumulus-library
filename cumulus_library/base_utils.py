@@ -7,12 +7,15 @@ import shutil
 import zipfile
 from contextlib import contextmanager
 
+import numpy
+import pandas
 import platformdirs
+import pyarrow
 import rich
 import sqlglot
 from rich import progress
 
-from cumulus_library import databases, study_manifest
+from cumulus_library import databases, errors, study_manifest
 
 
 @dataclasses.dataclass
@@ -118,9 +121,13 @@ def get_tablename_safe_iso_timestamp() -> str:
     return safe_timestamp
 
 
-def zip_dir(read_path, write_path, archive_name, archive_csvs=False):
+def zip_dir(read_path, write_path, archive_name, archive_csvs=False, zip_subdirs=True):
     """Moves a directory to an archive"""
-    file_list = [file for file in read_path.glob("**/*") if file.is_file()]
+    if zip_subdirs or archive_csvs:
+        glob_pattern = "**/*"
+    else:
+        glob_pattern = "*"
+    file_list = [file for file in read_path.glob(glob_pattern) if file.is_file()]
     timestamp = get_utc_datetime().isoformat().replace("+00:00", "Z")
     if archive_csvs:
         # archives including csvs are meant to be permanent and are kept outside the study data dirs
@@ -202,3 +209,51 @@ def get_viewtable_names_from_create_queries(
             table_name = table_name.split(".", 1)[1].replace('"', "").replace("`", "")
         artifacts.append((table_name, parser.kind))
     return artifacts
+
+
+def pyarrow_types_from_hive_types(field_types: list[str]):
+    new_types = []
+    for field in field_types:
+        match field.lower():
+            case "tinyint" | "smallint" | "int" | "integer" | "bigint":
+                new_types.append(pyarrow.int64())
+            case "float" | "double" | "double precision" | "decimal":
+                new_types.append(pyarrow.float64())
+            case "timestamp":
+                new_types.append(pyarrow.timestamp("ns"))
+            case "date":
+                new_types.append(pyarrow.date64())
+            case "interval":
+                new_types.append(pyarrow.duration("ns"))
+            case "string" | "varchar" | "char":
+                new_types.append(pyarrow.string())
+            case "boolean" | "binary":
+                new_types.append(pyarrow.bool_())
+            case _:
+                raise errors.CumulusLibraryError(
+                    f"Field type {field} is not a supported hive data type"
+                )
+    return new_types
+
+
+def pandas_types_from_hive_types(field_types: list[str]):
+    new_types = []
+    for field in field_types:
+        match field.lower():
+            case "tinyint" | "smallint" | "int" | "integer" | "bigint":
+                new_types.append(pandas.Int64Dtype())
+            case "float" | "double" | "double precision" | "decimal":
+                new_types.append(pandas.Float64Dtype())
+            case "timestamp" | "date":
+                new_types.append(numpy.datetime64)
+            case "interval":
+                new_types.append(pandas.IntervalDtype())
+            case "string" | "varchar" | "char":
+                new_types.append(pandas.StringDtype())
+            case "boolean" | "binary":
+                new_types.append(pandas.BooleanDtype())
+            case _:
+                raise errors.CumulusLibraryError(
+                    f"Field type {field} is not a supported hive data type"
+                )
+    return new_types

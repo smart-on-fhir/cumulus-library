@@ -207,13 +207,13 @@ directory, with the following contents:
 ```toml
 study_prefix = "example"
 description = "An example study looking at medication usage by preteens with bronchitis"
-[[stages.default]]
+[[stages.cohort]]
 label = "study population tables" # this is shown when the study is being built
 files = [ "queries/study_population.sql" ]
 ```
 
 {:.note } 
-The `[[stages.default]]` syntax indicates that we're adding the data below it to a list.
+The `[[stages.cohort]]` syntax indicates that we're adding the data below it to a list.
 We'll use this pattern repeatedly to add actions to our study.
 
 Let's go ahead and build our study, just to make sure that everything is working correctly.
@@ -344,11 +344,11 @@ action to our manifest.toml to run this workflow:
 ```toml
 study_prefix = "example"
 
-[[stages.default]]
+[[stages.cohort]]
 label = "study population tables" # this is shown when the study is being built
 files = [ "queries/study_population.sql" ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "upload valuesets"
 files = [ "workflows/upload.workflow" ]
 ```
@@ -403,15 +403,15 @@ And we'll add a new action to our manifest to handle building this table:
 ```toml
 study_prefix = "example"
 
-[[stages.default]]
+[[stages.cohort]]
 label = "study population tables" # this is shown when the study is being built
 files = [ "queries/study_population.sql" ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "upload valuesets"
 files = [ "workflows/upload.workflow" ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "bronchitis cohort definition"
 files = [ "queries/bronchitis_condition.sql" ]
 ```
@@ -467,18 +467,18 @@ So our manifest now looks like this:
 ```toml
 study_prefix = "example"
 
-[[stages.default]]
+[[stages.cohort]]
 label = "study population tables"
 files = [ "queries/study_population.sql" ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "upload valuesets & define cohort"
 files = [ 
     "workflows/upload.workflow",
     "queries/bronchitis_condition.sql"
 ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "bronchitis cohort additional resources"
 type = "build:parallel"
 files = [ 
@@ -572,7 +572,7 @@ and replacing them with new ones, and if the underlying data changes, the shape 
 also change. 
 
 Since we're in the analysis phase, we're going to make use of the concept of a *stage* - we've been
-doing this already, every time we've used `[[stages.default]]` in the manifest. A study can support
+doing this already, every time we've used `[[stages.cohort]]` in the manifest. A study can support
 more than one stage, and only cleans up the tables associated with the stage you're running. So, let's
 add a new stage, `analysis`, and add a file upload workflow there as well.
 
@@ -592,18 +592,18 @@ And then we'll update the manifest to reference that stage:
 ```toml
 study_prefix = "example"
 
-[[stages.default]]
+[[stages.cohort]]
 label = "study population tables"
 files = [ "queries/study_population.sql" ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "upload valuesets & define cohort"
 files = [ 
     "workflows/upload.workflow",
     "queries/bronchitis_condition.sql"
 ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "bronchitis cohort additional resources"
 type = "build:parallel"
 files = [ 
@@ -619,8 +619,15 @@ files = [
 ]
 ```
 
-To run this, we're going to add a `--stage` command to the arguments we've been using up until this
-point:
+By default, we'll run all stages in the order they are found in the manifest. If we didn't like
+this behavior, there are two things we could do:
+
+- If we create a stage named `default`, that stage is the only one that will be run unless we specify
+otherwise
+- We can use the `--stage` command to run a single stage of our choice.
+
+Let's use the second one here. We're going to add a `--stage` command to the arguments we've been using
+up until this point:
 
 - For DuckDB:
   ```bash
@@ -716,18 +723,18 @@ And now we'll add this file to our action in the analysis stage:
 ```toml
 study_prefix = "example"
 
-[[stages.default]]
+[[stages.cohort]]
 label = "study population tables"
 files = [ "queries/study_population.sql" ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "upload valuesets & define cohort"
 files = [ 
     "workflows/upload.workflow",
     "queries/bronchitis_condition.sql"
 ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "bronchitis cohort additional resources"
 type = "build:parallel"
 files = [ 
@@ -858,18 +865,18 @@ This study was designed to run against the 1000 patient sample bulk FHIR dataset
 intended to show how building a study works, while providing a realistic use case for
 anchoring the clinical context."""
 
-[[stages.default]]
+[[stages.cohort]]
 label = "study population tables"
 files = [ "queries/study_population.sql" ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "upload valuesets & define cohort"
 files = [ 
     "workflows/upload.workflow",
     "queries/bronchitis_condition.sql"
 ]
 
-[[stages.default]]
+[[stages.cohort]]
 label = "bronchitis cohort additional resources"
 type = "build:parallel"
 files = [ 

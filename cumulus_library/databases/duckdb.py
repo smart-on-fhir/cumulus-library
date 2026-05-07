@@ -288,15 +288,18 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         for name, dataset in datasets.items():
             thread_con.register(f"{name}", dataset)
         with query_console_output(verbose, query, progress_bar, task):
-            thread_con.execute(query)
+            res = thread_con.execute(query)
+            return base.ParallelResult(
+                query=query, columns=[x[0] for x in res.description], rows=res.fetchall()
+            )
 
-    def parallel_write(
+    def parallel_execute(
         self,
         queries: list[str],
         verbose: bool,
         progress_bar: progress.Progress,
         task: progress.Task,
-    ):
+    ) -> list[base.ParallelResult]:
         datasets = self.get_cached_datasets()
         with futures.ThreadPoolExecutor(max_workers=self.max_concurrent) as executor:
             res = []
@@ -321,6 +324,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         # after the threads have resolved, where if you try to recreate a table it may throw
         # an error, which is only affecting the --statistics flag ¯\_(ツ)_/¯
         time.sleep(0.25)
+        return [x[1].result() for x in res]
 
     def create_schema(self, schema_name):
         """Creates a new schema object inside the database"""
