@@ -151,7 +151,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             if task.select_by_table
         }
 
-        if select_by_tables and not self._nlp_config.salt:
+        if select_by_tables and not self._nlp_config.salt and not config.db.can_hold_original_ids():
             raise RuntimeError(
                 "Cannot calculate anonymized resource IDs without a PHI dir defined. "
                 "Pass --etl-phi-dir and try again."

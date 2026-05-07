@@ -269,3 +269,14 @@ class DatabaseBackend(abc.ABC):
     @abc.abstractmethod
     def close(self) -> None:
         """Clean up any resources necessary"""
+
+    def can_hold_original_ids(self) -> bool:
+        """Indicates whether this database can possibly hold original (non-anonymized) IDs.
+
+        For example, duckdb can hold original IDs if you feed it original FHIR data with
+        --load-ndjson-dir, but it can also hold anonymized IDs if you feed it the ETL output
+        results in ndjson format.
+
+        But Athena can only hold anonymized IDs.
+        """
+        return False

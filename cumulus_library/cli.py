@@ -520,6 +520,8 @@ def main(cli_args=None):
         options[c_arg[0]] = c_arg[1]
     args["options"] = options
 
+    if args.get("profile") and args["profile"] != "default":
+        os.environ["AWS_PROFILE"] = args["profile"]
     cfs.FsPath.register_options(region=args.get("region"))
 
     if args.get("data_path"):

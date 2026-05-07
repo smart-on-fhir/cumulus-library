@@ -89,7 +89,7 @@ def run_nlp(
     try:
         pool.finalize()
     except Exception as exc:
-        rich.print("Failed to process note:", exc)
+        rich.print("Failed to finalize notes:", exc)
 
     stats.token_stats = pool.token_stats
     stats.token_prices = pool.token_prices

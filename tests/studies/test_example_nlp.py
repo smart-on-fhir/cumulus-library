@@ -1,129 +1,62 @@
 """Tests for example_nlp"""
 
-import json
 from unittest import mock
 
 import duckdb
-import pandas
 import pytest
 
 from cumulus_library import cli
-from tests import nlp_utils, testbed_utils
+from tests import nlp_utils
 from tests.conftest import duckdb_args
-
-
-def test_empty_build(tmp_path):
-    testbed = testbed_utils.LocalTestbed(tmp_path)
-    db = testbed.build("example_nlp", stage="ranges")
-    df = db.connection.sql("SELECT * FROM example_nlp__range_labels").df()
-    assert df.empty  # should exist, but be empty
-
-
-def test_merging_two_sources(tmp_path):
-    # Set up two of the input tables
-    testbed = testbed_utils.LocalTestbed(tmp_path)
-    db_file = testbed.get_db_file("example_nlp")
-    con = duckdb.connect(db_file)
-
-    gpt4o_df = pandas.json_normalize(  # noqa: F841
-        [
-            {
-                "note_ref": "noteA",
-                "subject_ref": "patA",
-                "result": {"spans": [(1, 5), (8, 12)], "age": 1},
-            },
-            {
-                "note_ref": "noteB",
-                "subject_ref": "patA",
-                "result": {"spans": [(32, 55)], "age": -13},
-            },
-        ],
-        max_level=0,
-    )
-    con.sql("CREATE TABLE example_nlp__nlp_gpt4o AS SELECT * FROM gpt4o_df")
-    llama4_df = pandas.json_normalize(  # noqa: F841
-        [
-            {  # duplicate of above, but from different source
-                "note_ref": "noteA",
-                "subject_ref": "patA",
-                "result": {"spans": [(1, 5)], "age": 1},
-            },
-            {
-                "note_ref": "noteB",
-                "subject_ref": "patA",
-                "result": {"spans": [(34, 50)], "age": 54},
-            },
-        ],
-        max_level=0,
-    )
-    con.sql("CREATE TABLE example_nlp__nlp_llama4_scout AS SELECT * FROM llama4_df")
-
-    db = testbed.build("example_nlp", stage="ranges")
-    df = db.connection.sql(
-        "SELECT * FROM example_nlp__range_labels ORDER BY note_ref, origin, span"
-    ).df()
-    rows = json.loads(df.to_json(orient="records"))
-    assert rows == [
-        {
-            "note_ref": "noteA",
-            "subject_ref": "patA",
-            "label": "infant (0-1)",
-            "span": "1:5",
-            "origin": "example_nlp__nlp_gpt4o",
-        },
-        {
-            "note_ref": "noteA",
-            "subject_ref": "patA",
-            "label": "infant (0-1)",
-            "span": "8:12",
-            "origin": "example_nlp__nlp_gpt4o",
-        },
-        {
-            "note_ref": "noteA",
-            "subject_ref": "patA",
-            "label": "infant (0-1)",
-            "span": "1:5",
-            "origin": "example_nlp__nlp_llama4_scout",
-        },
-        {
-            "note_ref": "noteB",
-            "subject_ref": "patA",
-            "label": "unknown",
-            "span": "32:55",
-            "origin": "example_nlp__nlp_gpt4o",
-        },
-        {
-            "note_ref": "noteB",
-            "subject_ref": "patA",
-            "label": "middle aged (45-64)",
-            "span": "34:50",
-            "origin": "example_nlp__nlp_llama4_scout",
-        },
-    ]
 
 
 @pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_full_build(mock_client, tmp_path):
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
-        json.dump({"resourceType": "DiagnosticReport", "id": "1"}, f)
+        nlp_utils.add_dxr("1", "Three year old white female", f)
 
-    model = nlp_utils.MockModel(mock_client)
+    model = nlp_utils.MockModel(mock_client, make_codebook=False)
+    model.mock_openai_response(
+        [
+            {"has_mention": True, "spans": ["three"], "age": 3},
+            {"has_mention": True, "spans": ["white"], "race": "white"},
+        ]
+    )
 
+    # Build core first
+    build_args = duckdb_args(
+        [
+            "build",
+            "-t",
+            "core",
+            str(tmp_path),
+        ],
+        tmp_path,
+        ndjson_dir=str(tmp_path),
+    )
+    cli.main(cli_args=build_args)
+
+    # Then build example_nlp
     build_args = duckdb_args(
         [
             "build",
             "-t",
             "example_nlp",
             str(tmp_path),
-            "--stage",
-            "all",
             "--note-dir",
             str(tmp_path),
             *model.cli_args(),
         ],
         tmp_path,
     )
-
-    # For now, just test that it doesn't blow up
     cli.main(cli_args=build_args)
+
+    db = duckdb.connect(f"{tmp_path}/duck.db")
+    age_rows = db.cursor().execute("select result from example_nlp__age").fetchall()
+    race_rows = db.cursor().execute("select result from example_nlp__race").fetchall()
+    label_rows = db.cursor().execute("select label from example_nlp__range_labels").fetchall()
+
+    assert age_rows[0][0] == {"age": 3, "has_mention": True, "spans": [[0, 5]]}
+    assert race_rows[0][0] == {"race": "white", "has_mention": True, "spans": [[15, 20]]}
+    assert label_rows[0][0] == "child (2-12)"

@@ -33,8 +33,8 @@ class NoteSource:
             for file, size in self._files.items():
                 offset = 0
                 for row in cfs.read_multiline_json_with_details(file):
+                    progress.advance(task, row["byte_offset"] - offset)
                     offset = row["byte_offset"]
-                    progress.advance(task, offset)
                     yield row["json"]
                 progress.advance(task, size - offset)
 

@@ -338,6 +338,9 @@ class DuckDatabaseBackend(base.DatabaseBackend):
         if self.connection is not None:
             self.connection.close()
 
+    def can_hold_original_ids(self) -> bool:
+        return True  # can be fed original IDs via --load-ndjson-dir
+
 
 class DuckDbParser(base.DatabaseParser):
     """Table parser for DuckDB schemas"""

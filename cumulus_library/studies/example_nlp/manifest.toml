@@ -4,13 +4,19 @@
 study_prefix = "example_nlp"
 
 [[stages.nlp]]
+label = "selecting cohort"
+files = [
+    "select_cohort.sql",
+]
+
+[[stages.nlp]]
 label = "NLP"
 files = [
     "nlp.workflow",
 ]
 
-[[stages.ranges]]
-label = "Range calculation"
+[[stages.nlp]]
+label = "range calculation"
 files = [
-    "calculate_ranges.py",
+    "calculate_ranges.sql",
 ]
