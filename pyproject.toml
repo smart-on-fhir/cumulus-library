@@ -42,12 +42,12 @@ dev = [
     "sqlfluff  >= 3",
 ]
 test = [
+    "httpx",
     "time-machine",
     "pytest",
     "pytest-cov",
     "pytest-xdist",
     "responses",
-    "respx",
 ]
 
 [project.urls]

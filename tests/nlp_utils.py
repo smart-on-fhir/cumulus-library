@@ -4,9 +4,11 @@ import os
 import pathlib
 import tempfile
 import weakref
+from types import SimpleNamespace
 from unittest import mock
 
-import respx
+import openai
+from openai.types import chat, completion_usage
 
 from cumulus_library import note_utils
 from tests import conftest
@@ -57,24 +59,16 @@ class MockModel:
             client_mock.return_value = self._boto
             self.mock_bedrock_response({})
         else:
-            if provider == "azure":
-                url = "https://example.com/azure/openai"
-                chat_prefix = "/deployments/.*"
-                params = {"api-version": "2024-10-21"}
-            else:
-                urls = {
-                    "gpt-oss-120b": "http://localhost:8086/v1",
-                    "llama4-scout": "http://localhost:8087/v1",
-                }
-                url = urls.get(model_id, "nope://invalid")
-                chat_prefix = ""
-                params = {}
+            openai_patcher = mock.patch("openai.OpenAI")
+            weakref.finalize(self, openai_patcher.stop)
+            azure_patcher = mock.patch("openai.AzureOpenAI")
+            weakref.finalize(self, azure_patcher.stop)
+
+            self.openai = mock.MagicMock()
+            openai_patcher.start().return_value = self.openai
+            azure_patcher.start().return_value = self.openai
 
             # Do some basic always-on mocking
-            self._list_route = respx.get(f"{url}/models", params=params)
-            self._chat_route = respx.post(
-                url__regex=f"{url}{chat_prefix}/chat/completions", params=params
-            )
             self.mock_openai_model_list()
             self.mock_openai_response({})
 
@@ -127,50 +121,44 @@ class MockModel:
             response["output"] = {"message": {"content": []}}
         self._boto.converse.return_value = response
 
-    def mock_openai_model_list(
-        self, models: list[str] | None = None, status_code: int = 200
-    ) -> None:
+    def mock_openai_model_list(self, models: list[str] | None = None, fail: bool = False) -> None:
         if models is None:
             model_aliases = {
                 "gpt-oss-120b": ["gpt-oss-120b", "openai.gpt-oss-120b-1:0", "openai/gpt-oss-120b"],
                 "gpt35": ["gpt35", "gpt-35-turbo-0125"],
+                "gpt4o": ["gpt4o", "gpt-4o"],
             }
             models = model_aliases.get(self.model_id, [])
 
-        data = [{"id": alias} for alias in models]
-        self._list_route.respond(status_code=status_code, json={"object": "list", "data": data})
+        data = [SimpleNamespace(id=alias) for alias in models]
+        self.openai.models.list.return_value = data
+
+        if fail:
+            error = openai.APIError("test failure", mock.MagicMock(), body=None)
+            self.openai.models.list.side_effect = error
 
     def mock_openai_response(
-        self, value: dict, finish_reason: str = "stop", status_code: int = 200
+        self, value: dict, finish_reason: str = "stop", fail: bool = False
     ) -> None:
-        # https://developers.openai.com/api/reference/chat-completions/overview
-        self._chat_route.respond(
-            status_code=status_code,
-            json={
-                "id": "test-completion",
-                "object": "chat.completion",
-                "created": 1741569952,
-                "model": self.model_id,
-                "choices": [
-                    {
-                        "index": 0,
-                        "message": {
-                            "role": "assistant",
-                            "content": json.dumps(value),
-                        },
-                        "finish_reason": finish_reason,
-                    },
-                ],
-                "usage": {
-                    "prompt_tokens": 19,
-                    "completion_tokens": 10,
-                    "total_tokens": 29,
-                    "prompt_tokens_details": {
-                        "cached_tokens": 5,
-                    },
-                },
-            },
+        message = chat.ParsedChatCompletionMessage(role="assistant", content=json.dumps(value))
+        self.openai.chat.completions.parse.return_value = chat.ParsedChatCompletion(
+            id="test-completion",
+            choices=[chat.ParsedChoice(finish_reason=finish_reason, index=0, message=message)],
+            usage=completion_usage.CompletionUsage(
+                completion_tokens=10,
+                prompt_tokens=19,
+                total_tokens=29,
+                prompt_tokens_details=completion_usage.PromptTokensDetails(cached_tokens=5),
+            ),
+            created=1741569952,
+            model=self.model_id,
+            object="chat.completion",
+            system_fingerprint="test-fp",
         )
+
+        if fail:
+            error = openai.APIError("test failure", mock.MagicMock(), body=None)
+            self.openai.chat.completions.parse.side_effect = error
 
 
 def basic_workflow(tmp_path) -> pathlib.Path:

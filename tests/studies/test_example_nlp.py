@@ -4,7 +4,6 @@ import json
 
 import duckdb
 import pandas
-import respx
 
 from cumulus_library import cli
 from tests import nlp_utils, testbed_utils
@@ -101,7 +100,6 @@ def test_merging_two_sources(tmp_path):
     ]
 
 
-@respx.mock
 def test_full_build(tmp_path):
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         json.dump({"resourceType": "DiagnosticReport", "id": "1"}, f)
