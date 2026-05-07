@@ -3,7 +3,6 @@ import json
 import os
 import pathlib
 import tempfile
-import weakref
 from types import SimpleNamespace
 from unittest import mock
 
@@ -37,8 +36,19 @@ def mock_env(provider: str = "local"):
     return outer
 
 
+def mock_model(model_id: str = "gpt-oss-120b", provider: str = "local"):
+    def outer(func):
+        def inner(*args, **kwargs):
+            model = MockModel(model_id, provider)
+            return func(*args, model, **kwargs)
+
+        return inner
+
+    return outer
+
+
 class MockModel:
-    def __init__(self, model_id: str = "gpt-oss-120b", provider: str = "local"):
+    def __init__(self, mock_client, model_id: str = "gpt-oss-120b", provider: str = "local"):
         self.model_id = model_id
         self.provider = provider
 
@@ -52,21 +62,12 @@ class MockModel:
 
         # Determine the server to use for this model
         if provider == "bedrock":
-            boto_patcher = mock.patch("boto3.client")
-            weakref.finalize(self, boto_patcher.stop)
             self._boto = mock.MagicMock()
-            client_mock = boto_patcher.start()
-            client_mock.return_value = self._boto
+            mock_client.return_value = self._boto
             self.mock_bedrock_response({})
         else:
-            openai_patcher = mock.patch("openai.OpenAI")
-            weakref.finalize(self, openai_patcher.stop)
-            azure_patcher = mock.patch("openai.AzureOpenAI")
-            weakref.finalize(self, azure_patcher.stop)
-
             self.openai = mock.MagicMock()
-            openai_patcher.start().return_value = self.openai
-            azure_patcher.start().return_value = self.openai
+            mock_client.return_value = self.openai
 
             # Do some basic always-on mocking
             self.mock_openai_model_list()
