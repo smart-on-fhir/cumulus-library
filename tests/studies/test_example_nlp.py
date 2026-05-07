@@ -1,9 +1,11 @@
 """Tests for example_nlp"""
 
 import json
+from unittest import mock
 
 import duckdb
 import pandas
+import pytest
 
 from cumulus_library import cli
 from tests import nlp_utils, testbed_utils
@@ -100,11 +102,13 @@ def test_merging_two_sources(tmp_path):
     ]
 
 
-def test_full_build(tmp_path):
+@pytest.mark.xdist_group(name="nlp_builder")
+@mock.patch("openai.OpenAI")
+def test_full_build(mock_client, tmp_path):
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         json.dump({"resourceType": "DiagnosticReport", "id": "1"}, f)
 
-    model = nlp_utils.MockModel()
+    model = nlp_utils.MockModel(mock_client)
 
     build_args = duckdb_args(
         [
