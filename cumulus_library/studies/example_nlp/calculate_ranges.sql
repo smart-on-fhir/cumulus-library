@@ -4,7 +4,10 @@ SELECT
     src.subject_ref,
     CASE
         -- Based on MeSH age groups: https://www.ncbi.nlm.nih.gov/mesh/68009273
-        WHEN src.result.age < 0 OR src.result.age > 120 THEN 'unknown'
+        WHEN
+            src.result.age IS NULL
+            OR src.result.age < 0
+            OR src.result.age > 120 THEN 'unknown'
         WHEN src.result.age < 2 THEN 'infant (0-1)'
         WHEN src.result.age < 13 THEN 'child (2-12)'
         WHEN src.result.age < 19 THEN 'adolescent (13-18)'

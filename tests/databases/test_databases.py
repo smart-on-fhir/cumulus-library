@@ -10,6 +10,7 @@ from unittest import mock
 
 import duckdb
 import pandas
+import pyarrow
 import pyathena
 import pytest
 
@@ -28,47 +29,62 @@ DUCKDB_KWARGS = {
 
 
 @pytest.mark.parametrize(
-    "db,data,expected,raises",
+    "db,schema,expected,raises",
     [
         (
             databases.AthenaDatabaseBackend(**ATHENA_KWARGS),
-            pandas.DataFrame(
-                {
-                    "str": ["str"],
-                    "int": [123],
-                    "float": [1.23],
-                    "bool": [True],
-                    "datetime": [datetime.datetime.now()],
-                }
+            pyarrow.schema(
+                [
+                    pyarrow.field("str", pyarrow.string()),
+                    pyarrow.field("int", pyarrow.int32()),
+                    pyarrow.field("float", pyarrow.float32()),
+                    pyarrow.field("bool", pyarrow.bool_()),
+                    pyarrow.field("datetime", pyarrow.timestamp("s")),
+                    pyarrow.field("list", pyarrow.list_(pyarrow.float32())),
+                    pyarrow.field("fixed_list", pyarrow.list_(pyarrow.int8(), 2)),
+                    pyarrow.field("struct", pyarrow.struct([("str", pyarrow.string())])),
+                ]
             ),
-            ["STRING", "INT", "DOUBLE", "BOOLEAN", "TIMESTAMP"],
+            [
+                "STRING",
+                "INT",
+                "DOUBLE",
+                "BOOLEAN",
+                "TIMESTAMP",
+                "ARRAY<DOUBLE>",
+                "ARRAY<INT>",
+                "STRUCT<str: STRING>",
+            ],
             does_not_raise(),
         ),
         (
             databases.DuckDatabaseBackend(**DUCKDB_KWARGS),
-            pandas.DataFrame(
-                {
-                    "str": ["str"],
-                    "int": [123],
-                    "float": [1.23],
-                    "bool": [True],
-                    "datetime": [datetime.datetime.now()],
-                }
+            pyarrow.schema(
+                [
+                    pyarrow.field("str", pyarrow.string()),
+                    pyarrow.field("int", pyarrow.int32()),
+                    pyarrow.field("float", pyarrow.float32()),
+                    pyarrow.field("bool", pyarrow.bool_()),
+                    pyarrow.field("datetime", pyarrow.timestamp("s")),
+                    pyarrow.field("list", pyarrow.list_(pyarrow.float32())),
+                    pyarrow.field("fixed_list", pyarrow.list_(pyarrow.int8(), 2)),
+                    pyarrow.field("struct", pyarrow.struct([("str", pyarrow.string())])),
+                ]
             ),
             [],
             does_not_raise(),
         ),
         (
             databases.AthenaDatabaseBackend(**ATHENA_KWARGS),
-            pandas.DataFrame({"cat": pandas.Series(["a"], dtype="category")}),
-            ["STRING", "INT", "DOUBLE", "BOOLEAN", "TIMESTAMP"],
+            pyarrow.schema([pyarrow.field("cat", pyarrow.duration("s"))]),
+            [],
             pytest.raises(errors.CumulusLibraryError),
         ),
     ],
 )
-def test_col_types_from_pandas(db, data, expected, raises):
+def test_col_types_from_pyarrow(db, schema, expected, raises):
     with raises:
-        vals = db.col_parquet_types_from_pandas(data.dtypes)
+        vals = db.col_parquet_types_from_pyarrow(schema)
         assert set(expected) == set(vals)
 
 

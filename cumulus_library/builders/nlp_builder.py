@@ -3,17 +3,14 @@
 import json
 import pathlib
 import sys
-import tempfile
 
 import cumulus_fhir_support as cfs
 import jambo
 import msgspec
-import pandas
-import pyarrow
 import rich
 
 import cumulus_library
-from cumulus_library import databases, note_utils
+from cumulus_library import note_utils
 from cumulus_library.builders.nlp import driver, workflow
 from cumulus_library.template_sql import base_templates
 
@@ -188,27 +185,6 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         # or a materialized table.
         return study_config.db.db_type == "athena"
 
-    def _pyarrow_schema_to_parquet(
-        self, schema: pyarrow.Schema, db: databases.DatabaseBackend
-    ) -> list:
-        """Turns a pyarrow schema into a list of parquet types."""
-        # SQL templates expect a list of parquet types. But the NLP code operates on Pyarrow
-        # schemas for the most part (with a smattering of pydantic).
-        #
-        # The easiest way to convert these is through pandas, because the DatabaseBackend class has
-        # a conversion method for that. and the easiest way through pandas is reading a parquet from
-        # disk.
-        #
-        # So we write an empty parquet to disk, have pandas read it, then have the database convert
-        # the pandas dtype to parquet types. Simple...
-
-        with tempfile.NamedTemporaryFile() as tmpfile:
-            table = pyarrow.Table.from_pylist([], schema=schema)
-            pyarrow.parquet.write_table(table, tmpfile.name)
-            dtypes = pandas.read_parquet(tmpfile.name).dtypes
-
-        return db.col_parquet_types_from_pandas(dtypes.values)
-
     def prepare_queries(
         self,
         *args,
@@ -223,7 +199,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             location = str(
                 driver.output_path_for_task(self._nlp_config.target, table_slug, task, config.db)
             )
-            remote_types = self._pyarrow_schema_to_parquet(table_schema, config.db)
+            remote_types = config.db.col_parquet_types_from_pyarrow(table_schema)
             self.queries.append(
                 base_templates.get_ctas_from_parquet_query(
                     schema_name=config.schema,

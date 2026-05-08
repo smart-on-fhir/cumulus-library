@@ -99,11 +99,14 @@ def test_empty_note_dir(tmp_path):
 @pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env()
 def test_table_filter_but_no_salt(tmp_path, note_source):
-    db = databases.AthenaDatabaseBackend(
-        region="test",
-        work_group="test",
-        profile="test",
-        schema_name="testdb",
+    db, _schema = databases.create_db_backend(
+        {
+            "db_type": "athena",
+            "region": "test",
+            "work_group": "test",
+            "profile": "test",
+            "schema_name": "testdb",
+        }
     )
     db.connection = mock.MagicMock()
     study_config = cumulus_library.StudyConfig(db=db, schema="main")
@@ -797,11 +800,14 @@ def test_bedrock_no_response(mock_client, tmp_path, mock_db_config, note_source)
 @mock.patch("botocore.client")
 @mock.patch("openai.OpenAI")
 def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_source):
-    db = databases.AthenaDatabaseBackend(
-        region="test",
-        work_group="test",
-        profile="test",
-        schema_name="testdb",
+    db, _schema = databases.create_db_backend(
+        {
+            "db_type": "athena",
+            "region": "test",
+            "work_group": "test",
+            "profile": "test",
+            "schema_name": "testdb",
+        }
     )
     db.connection = mock.MagicMock()
     bucket_info = {
@@ -841,11 +847,13 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
 
     # And confirm the query looks right
     assert builder.queries == [
-        'CREATE TABLE IF NOT EXISTS "main"."test__task" AS SELECT "note_ref", '
-        '"encounter_ref", "subject_ref", "generated_on", "task_version", "model", '
-        '"system_fingerprint", "result"\n'
-        "FROM read_parquet('memory://s3://testbucket/athena/cumulus_user_uploads/"
-        "testdb/test/task_v0/*.parquet')"
+        "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`test__task` ( note_ref STRING, "
+        "encounter_ref STRING, subject_ref STRING, generated_on STRING, task_version INT, "
+        "model STRING, system_fingerprint STRING, result STRUCT<ignored: STRING>\n)\n"
+        "STORED AS PARQUET\n"
+        "LOCATION 'memory://s3://testbucket/athena/cumulus_user_uploads/"
+        "testdb/test/task_v0'\n"
+        'tblproperties ("parquet.compression"="SNAPPY");'
     ]
 
 

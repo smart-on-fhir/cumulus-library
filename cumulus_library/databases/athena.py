@@ -12,8 +12,8 @@ from concurrent import futures
 import awswrangler
 import boto3
 import botocore
-import numpy
 import pandas
+import pyarrow
 import pyathena
 from pyathena.async_cursor import AsyncCursor as AthenaAsyncCursor
 from pyathena.common import BaseCursor as AthenaCursor
@@ -92,29 +92,46 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def operational_errors(self) -> tuple[type[Exception], ...]:
         return (pyathena.OperationalError,)
 
-    def col_parquet_types_from_pandas(self, field_types: list) -> list:
-        output = []
-        for field in field_types:
-            match field:
-                case numpy.dtypes.ObjectDType():
-                    output.append("STRING")
-                case (
-                    pandas.core.arrays.integer.Int64Dtype()
-                    | numpy.dtypes.Int64DType()
-                    | numpy.dtypes.Int32DType()
-                ):
-                    output.append("INT")
-                case numpy.dtypes.Float64DType():
-                    output.append("DOUBLE")
-                case numpy.dtypes.BoolDType():
-                    output.append("BOOLEAN")
-                case numpy.dtypes.DateTime64DType():
-                    output.append("TIMESTAMP")
-                case _:
-                    raise errors.CumulusLibraryError(
-                        f"Unsupported pandas type {type(field)} found."
-                    )
-        return output
+    def col_parquet_types_from_pyarrow(self, schema: pyarrow.Schema) -> list[str]:
+        return self._pyarrow_schema_to_athena_cols(schema)
+
+    def _pyarrow_schema_to_athena_cols(
+        self, schema: pyarrow.DataType, is_dict: bool = False
+    ) -> list[str]:
+        cols = []
+
+        is_schema = isinstance(schema, pyarrow.Schema)
+        field_count = len(schema.names) if is_schema else schema.num_fields
+        for i in range(field_count):
+            field = schema.field(i)
+            athena_type = ""
+            if pyarrow.types.is_string(field.type):
+                athena_type = "STRING"
+            elif pyarrow.types.is_integer(field.type):
+                athena_type = "INT"
+            elif pyarrow.types.is_floating(field.type):
+                athena_type = "DOUBLE"
+            elif pyarrow.types.is_boolean(field.type):
+                athena_type = "BOOLEAN"
+            elif pyarrow.types.is_timestamp(field.type):
+                athena_type = "TIMESTAMP"
+            elif pyarrow.types.is_list(field.type) or pyarrow.types.is_fixed_size_list(field.type):
+                inner_cols = self._pyarrow_schema_to_athena_cols(field.type)
+                athena_type = "ARRAY<" + ", ".join(inner_cols) + ">"
+            elif pyarrow.types.is_struct(field.type):
+                inner_cols = self._pyarrow_schema_to_athena_cols(field.type, is_dict=True)
+                athena_type = "STRUCT<" + ", ".join(inner_cols) + ">"
+            else:
+                raise errors.CumulusLibraryError(
+                    f"Unsupported pyarrow type {type(field.type)} found."
+                )
+
+            if is_dict:
+                cols.append(f"{field.name}: {athena_type}")
+            else:
+                cols.append(athena_type)
+
+        return cols
 
     def _get_result_config(self) -> dict:
         workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)

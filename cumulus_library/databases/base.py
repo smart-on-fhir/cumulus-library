@@ -15,6 +15,7 @@ import pathlib
 from typing import Any, Protocol
 
 import pandas
+import pyarrow
 from rich import progress
 
 
@@ -172,33 +173,15 @@ class DatabaseBackend(abc.ABC):
         """
         return ()  # pragma: no cover
 
-    def col_parquet_types_from_pandas(self, field_types: list) -> list:
+    def col_parquet_types_from_pyarrow(self, schema: pyarrow.Schema) -> list[str]:
         """Returns appropriate types for creating tables based from parquet.
 
         By default, returns an empty list (which assumes that the DB infers directly
         from parquet data types). Only override if your DB uses an explicit SerDe
         format, or otherwise needs a modified typing to inject directly into a query."""
 
-        # The following example shows the types we're expecting to catch with this
-        # approach and the rough type to cast them to.
-        # TODO: consider handling complex types.
-        # output = []
-        # for field in field_types:
-        #     match field:
-        #         case numpy.dtypes.ObjectDType():
-        #             output.append('string')
-        #         case pandas.core.arrays.integer.Int64Dtype():
-        #             output.append('int')
-        #         case numpy.dtypes.Float64DType():
-        #             output.append('float')
-        #         case numpy.dtypes.BoolDType():
-        #             output.append('bool')
-        #         case numpy.dtypes.DateTime64DType():
-        #             output.append('date')
-        #         case _:
-        #             raise errors.CumulusLibraryError(
-        #                 f"Unsupported type {type(field)} found."
-        #             )
+        # See AthenaBackend for an example of what implementing this would look like.
+
         return []
 
     def upload_file(
