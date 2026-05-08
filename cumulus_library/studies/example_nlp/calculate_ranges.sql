@@ -1,8 +1,4 @@
-{%- import 'syntax.sql.jinja' as syntax -%}
-
 CREATE TABLE example_nlp__range_labels AS
-{%- if table_names %}
-{%- for table_name in table_names %}
 SELECT
     src.note_ref,
     src.subject_ref,
@@ -16,19 +12,5 @@ SELECT
         WHEN src.result.age < 45 THEN 'adult (25-44)'
         WHEN src.result.age < 65 THEN 'middle aged (45-64)'
         ELSE 'aged (65+)'
-    END AS label,
-    CONCAT(CAST(u.span[1] AS VARCHAR), ':', CAST(u.span[2] AS VARCHAR)) AS span,
-    '{{ table_name }}' AS origin
-FROM {{ table_name }} AS src,
-    UNNEST(src.result.spans) AS u (span)
-{{ syntax.union_all_delineate(loop) }}
-{%- endfor %}
-{%- else %}
-SELECT
-    'x' AS note_ref,
-    'x' AS subject_ref,
-    'x' AS label,
-    'x' AS span,
-    'x' AS origin
-WHERE 1=0 -- empty table
-{%- endif %}
+    END AS label
+FROM example_nlp__age AS src

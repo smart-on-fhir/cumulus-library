@@ -1,3 +1,4 @@
+import base64
 import functools
 import json
 import os
@@ -48,7 +49,13 @@ def mock_model(model_id: str = "gpt-oss-120b", provider: str = "local"):
 
 
 class MockModel:
-    def __init__(self, mock_client, model_id: str = "gpt-oss-120b", provider: str = "local"):
+    def __init__(
+        self,
+        mock_client,
+        model_id: str = "gpt-oss-120b",
+        provider: str = "local",
+        make_codebook: bool = True,
+    ):
         self.model_id = model_id
         self.provider = provider
 
@@ -56,9 +63,10 @@ class MockModel:
         self.tempdir = tempfile.TemporaryDirectory()
         self.phi = pathlib.Path(self.tempdir.name, "phi")
         self.phi.mkdir()
-        with open(self.phi / "codebook.json", "w", encoding="utf8") as f:
-            salt = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
-            json.dump({"id_salt": salt}, f)
+        if make_codebook:
+            with open(self.phi / "codebook.json", "w", encoding="utf8") as f:
+                salt = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
+                json.dump({"id_salt": salt}, f)
 
         # Determine the server to use for this model
         if provider == "bedrock":
@@ -138,13 +146,20 @@ class MockModel:
             error = openai.APIError("test failure", mock.MagicMock(), body=None)
             self.openai.models.list.side_effect = error
 
-    def mock_openai_response(
-        self, value: dict, finish_reason: str = "stop", fail: bool = False
-    ) -> None:
-        message = chat.ParsedChatCompletionMessage(role="assistant", content=json.dumps(value))
-        self.openai.chat.completions.parse.return_value = chat.ParsedChatCompletion(
+    def _completion_for_value(
+        self, value: dict, finish_reason: str = "stop"
+    ) -> chat.ParsedChatCompletion:
+        return chat.ParsedChatCompletion(
             id="test-completion",
-            choices=[chat.ParsedChoice(finish_reason=finish_reason, index=0, message=message)],
+            choices=[
+                chat.ParsedChoice(
+                    finish_reason=finish_reason,
+                    index=0,
+                    message=chat.ParsedChatCompletionMessage(
+                        role="assistant", content=json.dumps(value)
+                    ),
+                )
+            ],
             usage=completion_usage.CompletionUsage(
                 completion_tokens=10,
                 prompt_tokens=19,
@@ -157,9 +172,20 @@ class MockModel:
             system_fingerprint="test-fp",
         )
 
+    def mock_openai_response(
+        self, values: dict | list[dict], finish_reason: str = "stop", fail: bool = False
+    ) -> None:
         if fail:
             error = openai.APIError("test failure", mock.MagicMock(), body=None)
             self.openai.chat.completions.parse.side_effect = error
+        elif isinstance(values, dict):
+            completion = self._completion_for_value(values, finish_reason=finish_reason)
+            self.openai.chat.completions.parse.return_value = completion
+        else:
+            completions = [
+                self._completion_for_value(value, finish_reason=finish_reason) for value in values
+            ]
+            self.openai.chat.completions.parse.side_effect = completions
 
 
 def basic_workflow(tmp_path) -> pathlib.Path:
@@ -176,3 +202,39 @@ def basic_workflow(tmp_path) -> pathlib.Path:
         },
         "nlp.workflow",
     )
+
+
+def add_doc(id_val: str, text: str | None, file) -> None:
+    doc = {
+        "resourceType": "DocumentReference",
+        "id": id_val,
+        "context": {"encounter": [{"reference": "Encounter/enc1"}]},
+    }
+    if text is not None:
+        doc["content"] = [
+            {
+                "attachment": {
+                    "contentType": "text/plain",
+                    "data": base64.standard_b64encode(text.encode()).decode(),
+                },
+            },
+        ]
+    json.dump(doc, file)
+    file.write("\n")
+
+
+def add_dxr(id_val: str, text: str | None, file) -> None:
+    dxr = {
+        "resourceType": "DiagnosticReport",
+        "id": id_val,
+        "encounter": {"reference": "Encounter/enc1"},
+    }
+    if text is not None:
+        dxr["presentedForm"] = [
+            {
+                "contentType": "text/plain",
+                "data": base64.standard_b64encode(text.encode()).decode(),
+            }
+        ]
+    json.dump(dxr, file)
+    file.write("\n")

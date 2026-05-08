@@ -1,0 +1,39 @@
+{
+  "properties": {
+    "has_mention": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Has Mention"
+    },
+    "spans": {
+      "description": "Supporting text spans",
+      "items": {
+        "type": "string"
+      },
+      "title": "Spans",
+      "type": "array"
+    },
+    "race": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The race of the patient",
+      "title": "Race"
+    }
+  },
+  "title": "RaceMention",
+  "type": "object"
+}

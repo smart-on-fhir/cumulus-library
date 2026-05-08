@@ -81,9 +81,11 @@ def get_sorted_table_data(cursor, table):
     return data, cursor.description
 
 
-def duckdb_args(args: list, tmp_path, stats=False):
+def duckdb_args(args: list, tmp_path, stats=False, ndjson_dir=None):
     """Convenience function for adding duckdb args to a CLI mock"""
-    if stats:
+    if ndjson_dir:
+        target = ndjson_dir
+    elif stats:
         ndjson_data_generator(pathlib.Path(MOCK_DATA_DIR), pathlib.Path(f"{tmp_path}/stats_db"), 20)
         target = f"{tmp_path}/stats_db"
     else:

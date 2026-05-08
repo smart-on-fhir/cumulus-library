@@ -5,7 +5,6 @@ These tests are all in the same xdist "group" because when run across xdist work
 test failures. We weren't able to debug why, so we grouped these tests up. TODO: investigate that
 """
 
-import base64
 import binascii
 import contextlib
 import hashlib
@@ -28,45 +27,10 @@ from cumulus_library.builders import nlp_builder
 from cumulus_library.builders.nlp.models import OpenAIProvider
 from tests import conftest, nlp_utils
 from tests.conftest import duckdb_args
+from tests.nlp_utils import add_doc, add_dxr
 
 SALT_STR = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
 SALT_BYTES = binascii.unhexlify(SALT_STR)
-
-
-def add_doc(id_val: str, text: str | None, file) -> None:
-    doc = {
-        "resourceType": "DocumentReference",
-        "id": id_val,
-        "context": {"encounter": [{"reference": "Encounter/enc1"}]},
-    }
-    if text is not None:
-        doc["content"] = [
-            {
-                "attachment": {
-                    "contentType": "text/plain",
-                    "data": base64.standard_b64encode(text.encode()).decode(),
-                },
-            },
-        ]
-    json.dump(doc, file)
-    file.write("\n")
-
-
-def add_dxr(id_val: str, text: str | None, file) -> None:
-    dxr = {
-        "resourceType": "DiagnosticReport",
-        "id": id_val,
-        "encounter": {"reference": "Encounter/enc1"},
-    }
-    if text is not None:
-        dxr["presentedForm"] = [
-            {
-                "contentType": "text/plain",
-                "data": base64.standard_b64encode(text.encode()).decode(),
-            }
-        ]
-    json.dump(dxr, file)
-    file.write("\n")
 
 
 @pytest.fixture
@@ -133,7 +97,16 @@ def test_empty_note_dir(tmp_path):
 
 
 @pytest.mark.xdist_group(name="nlp_builder")
-def test_table_filter_but_no_salt(tmp_path, note_source, mock_db_config):
+@nlp_utils.mock_env()
+def test_table_filter_but_no_salt(tmp_path, note_source):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="testdb",
+    )
+    db.connection = mock.MagicMock()
+    study_config = cumulus_library.StudyConfig(db=db, schema="main")
     workflow_path = conftest.write_toml(
         tmp_path,
         {
@@ -150,7 +123,7 @@ def test_table_filter_but_no_salt(tmp_path, note_source, mock_db_config):
     builder = nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
     err_msg = "Cannot calculate anonymized resource IDs without a PHI dir defined"
     with pytest.raises(RuntimeError, match=err_msg):
-        builder.execute_queries(mock_db_config, None)
+        builder.execute_queries(study_config, None)
 
 
 @pytest.mark.xdist_group(name="nlp_builder")
@@ -275,12 +248,23 @@ def test_args_passed_down(mock_builder, mock_client, tmp_path):
 
     mock_model = nlp_utils.MockModel(mock_client)
 
+    # Build core first (example_nlp__cohort table needs it)
+    build_args = duckdb_args(
+        [
+            "build",
+            str(tmp_path),
+            "--target=core",
+        ],
+        tmp_path,
+    )
+    cli.main(cli_args=build_args)
+
+    # Now build NLP
     build_args = duckdb_args(
         [
             "build",
             str(tmp_path),
             "--target=example_nlp",
-            "--stage=nlp",
             f"--note-dir={tmp_path}",
             *mock_model.cli_args(),
         ],
@@ -448,7 +432,7 @@ def test_writes_out_at_note_limit(mock_client, tmp_path, mock_db_config):
 
     assert mock_write.call_count == 2
     assert "Failed to process note: test1" in console_output.getvalue()
-    assert "Failed to process note: test2" in console_output.getvalue()
+    assert "Failed to finalize notes: test2" in console_output.getvalue()
 
 
 @pytest.mark.xdist_group(name="nlp_builder")
@@ -1161,3 +1145,26 @@ def test_azure_batches_with_bad_notes(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
     assert builder.stats.available == 2
     assert builder.stats.got_response[0] == 1
+
+
+@mock.patch.dict(os.environ, clear=True)
+@mock.patch("cumulus_fhir_support.FsPath.register_options", side_effect=RuntimeError("boom"))
+def test_aws_profile_env_is_set(mock_register, tmp_path):
+    """Confirm that we set the AWS_PROFILE env var from the CLI if provided.
+
+    This way FsPath instances will see the env var."""
+    assert "AWS_PROFILE" not in os.environ
+
+    build_args = duckdb_args(
+        [
+            "build",
+            str(tmp_path),
+            "--target=core",
+            "--profile=test-profile",
+        ],
+        tmp_path,
+    )
+    with pytest.raises(RuntimeError, match="boom"):
+        cli.main(cli_args=build_args)
+
+    assert os.environ.get("AWS_PROFILE") == "test-profile"

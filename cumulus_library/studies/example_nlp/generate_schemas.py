@@ -14,8 +14,17 @@ class AgeMention(pydantic.BaseModel):
     age: int | None = pydantic.Field(None, description="The age of the patient")
 
 
+class RaceMention(pydantic.BaseModel):
+    has_mention: bool | None = pydantic.Field(None)
+    spans: list[str] = pydantic.Field(default_factory=list, description="Supporting text spans")
+    race: str | None = pydantic.Field(None, description="The race of the patient")
+
+
 if __name__ == "__main__":
     basedir = os.path.dirname(__file__)
 
     with open(f"{basedir}/age.json", "w", encoding="utf8") as f:
         json.dump(AgeMention.model_json_schema(), f, indent=2)
+
+    with open(f"{basedir}/race.json", "w", encoding="utf8") as f:
+        json.dump(RaceMention.model_json_schema(), f, indent=2)

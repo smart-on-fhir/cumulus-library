@@ -1,11 +1,8 @@
 config_type = "nlp"
 
-[tables.age]
+# This workflow grabs some basic demographic info from patient.
 
-# Version History:
-# ** 1 (2025-10): New serialized format **
-# ** 0 (2025-08): Initial work **
-version = 1
+[shared]
 
 system_prompt = """
 You are a clinical chart reviewer.
@@ -24,4 +21,21 @@ Pydantic Schema:
 %JSON-SCHEMA%
 """
 
+select_by_table = "example_nlp__cohort"
+
+[tables.age]
+
+# Version History:
+# ** 1 (2025-10): New serialized format **
+# ** 0 (2025-08): Initial work **
+version = 1
+
 response_schema = "age.json"  # ./generate_schemas.py will regenerate this file
+
+[tables.race]
+
+# Version History:
+# ** 0 (2026-05): Initial work **
+version = 0
+
+response_schema = "race.json"  # ./generate_schemas.py will regenerate this file
