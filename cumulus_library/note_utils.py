@@ -1,9 +1,11 @@
 import argparse
 import binascii
+import io
 import pathlib
 from collections.abc import Generator
 
 import cumulus_fhir_support as cfs
+import rich
 
 from cumulus_library import base_utils, databases
 
@@ -43,6 +45,7 @@ class NoteSource:
         if self._files is not None:
             return  # already scanned
 
+        rich.print("Scanning note dir...")
         self._files = self._flatten_note_dirs()
         self._total_size = sum(self._files.values())
 
@@ -59,11 +62,18 @@ class NoteSource:
         for one_dir in self._note_dirs or []:
             fspath = cfs.FsPath(one_dir)
 
-            # Actually scan for matching files
+            # Actually scan for matching files and grab their size
             paths = list(cfs.list_multiline_json_in_dir(fspath, note_types, recursive=True))
-            sizes = fspath.fs.sizes(paths)
             for idx, path in enumerate(paths):
-                infos[cfs.FsPath(path)] = sizes[idx]
+                path = cfs.FsPath(path)
+                with path.open() as f:
+                    # There doesn't seem to be a reliable way to get the uncompressed size of
+                    # gzip'd files, so we'll open and seek to the end. We want the uncompressed
+                    # size, because when iterating through it, cfs will give us the byte_offset
+                    # of the uncompressed stream. This can take time for big files, but accurate
+                    # progress bars are super helpful feedback.
+                    size = f.seek(0, io.SEEK_END)
+                infos[path] = size
 
         return infos
 
