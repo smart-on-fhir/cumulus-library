@@ -98,7 +98,8 @@ def test_empty_note_dir(tmp_path):
 
 @pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env()
-def test_table_filter_but_no_salt(tmp_path, note_source):
+@mock.patch("openai.OpenAI")
+def test_table_filter_but_no_salt(mock_client, tmp_path, note_source):
     db, _schema = databases.create_db_backend(
         {
             "db_type": "athena",
@@ -123,7 +124,10 @@ def test_table_filter_but_no_salt(tmp_path, note_source):
         },
         "nlp.workflow",
     )
-    builder = nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
+    model = nlp_utils.MockModel(mock_client, make_codebook=False)
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
     err_msg = "Cannot calculate anonymized resource IDs without a PHI dir defined"
     with pytest.raises(RuntimeError, match=err_msg):
         builder.execute_queries(study_config, None)
@@ -399,7 +403,7 @@ def test_span_correction(mock_client, tmp_path, mock_db_config):
     with contextlib.redirect_stdout(console_output):
         builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "test__hello_world")
+    rows = read_rows(mock_db_config, "example_nlp__hello_world")
     assert rows[0]["result"] == {"parent_list": [{"parent_dict": {"spans": [[0, 5], [7, 21]]}}]}
 
     failure_msg = "Could not match span received from NLP server for DiagnosticReport/dxr: forth"
@@ -471,7 +475,7 @@ def test_various_value_types(mock_client, tmp_path, mock_db_config, note_source)
     )
     builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "test__task")
+    rows = read_rows(mock_db_config, "example_nlp__task")
     assert rows[0]["result"] == results
 
 
@@ -730,7 +734,7 @@ def test_bedrock_skips_wrapper_in_response(mock_client, tmp_path, mock_db_config
     )
     builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "test__hello_world")
+    rows = read_rows(mock_db_config, "example_nlp__hello_world")
     assert rows[0]["result"] == {"hello": "world"}
 
 
@@ -772,7 +776,7 @@ Summary.
 
     builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "test__hello_world")
+    rows = read_rows(mock_db_config, "example_nlp__hello_world")
     assert rows[0]["result"] == {"hello": 0.5}
 
 
@@ -832,7 +836,7 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     assert builder.stats.got_response[0] == 1
 
     # Confirm we wrote the parquet file out correctly
-    path = "s3://testbucket/athena/cumulus_user_uploads/testdb/test/task_v0/nlp.0.parquet"
+    path = "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/task_v0/nlp.0.parquet"
     with mem_fs.open(path, "rb") as f:
         df = pandas.read_parquet(f)
         rows = json.loads(df.to_json(orient="records"))
@@ -841,18 +845,18 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     assert rows[0]["note_ref"] == "DiagnosticReport/hello"
 
     # And the id file
-    id_path = "s3://testbucket/athena/cumulus_user_uploads/testdb/test/task_v0.ids"
+    id_path = "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/task_v0.ids"
     with mem_fs.open(id_path, "r") as f:
         assert f.read() == "DiagnosticReport/hello\n"
 
     # And confirm the query looks right
     assert builder.queries == [
-        "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`test__task` ( note_ref STRING, "
+        "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__task` ( note_ref STRING, "
         "encounter_ref STRING, subject_ref STRING, generated_on STRING, task_version INT, "
         "model STRING, system_fingerprint STRING, result STRUCT<ignored: STRING>\n)\n"
         "STORED AS PARQUET\n"
         "LOCATION 'memory://s3://testbucket/athena/cumulus_user_uploads/"
-        "testdb/test/task_v0'\n"
+        "testdb/example_nlp/task_v0'\n"
         'tblproperties ("parquet.compression"="SNAPPY");'
     ]
 
@@ -932,7 +936,7 @@ def test_azure_batching_happy_path(mock_client, tmp_path, mock_db_config, note_s
     builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
-    rows = read_rows(mock_db_config, "test__task")
+    rows = read_rows(mock_db_config, "example_nlp__task")
     assert rows[0]["result"] == {"ignored": "answer"}
 
     assert model.openai.batches.create.call_args_list[0][1] == {
@@ -952,7 +956,7 @@ def test_azure_resume_batching(mock_client, tmp_path, mock_db_config, note_sourc
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="azure", model_id="gpt4o")
 
-    path_dir = f"{model.phi}/nlp-cache/test__task_v0_gpt4o"
+    path_dir = f"{model.phi}/nlp-cache/example_nlp__task_v0_gpt4o"
     os.makedirs(path_dir)
     with open(f"{path_dir}/metadata.json", "w", encoding="utf8") as f:
         json.dump({"batches-azure": ["b1", "b2"]}, f)
@@ -973,7 +977,7 @@ def test_azure_resume_batching(mock_client, tmp_path, mock_db_config, note_sourc
     builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
-    rows = read_rows(mock_db_config, "test__task")
+    rows = read_rows(mock_db_config, "example_nlp__task")
     assert rows[0]["result"] == {"ignored": "answer"}
 
 
@@ -1113,7 +1117,7 @@ def test_azure_splitting_batch(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 4
 
-    rows = read_rows(mock_db_config, "test__task")
+    rows = read_rows(mock_db_config, "example_nlp__task")
     assert [row["result"] for row in rows] == [
         {"ignored": "w1"},
         {"ignored": "w2"},
@@ -1176,3 +1180,32 @@ def test_aws_profile_env_is_set(mock_register, tmp_path):
         cli.main(cli_args=build_args)
 
     assert os.environ.get("AWS_PROFILE") == "test-profile"
+
+
+@pytest.mark.xdist_group(name="nlp_builder")
+@nlp_utils.mock_env()
+@mock.patch("openai.OpenAI")
+def test_invalid_study_name(mock_client, tmp_path, note_source):
+    db, _schema = databases.create_db_backend(
+        {
+            "db_type": "athena",
+            "region": "test",
+            "work_group": "test",
+            "profile": "test",
+            "schema_name": "testdb",
+        }
+    )
+    db.connection = mock.MagicMock()
+    study_config = cumulus_library.StudyConfig(db=db, schema="main")
+
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client)
+    nlp_config = model.nlp_config()
+    nlp_config.target = "blarg"
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=nlp_config,
+    )
+    with pytest.raises(RuntimeError, match="The 'blarg' study is not authorized to run NLP"):
+        builder.execute_queries(study_config, None)

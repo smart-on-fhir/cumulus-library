@@ -126,10 +126,10 @@ def test_cli_path_mapping(mock_load_json, monkeypatch, tmp_path, args, raises, e
         monkeypatch.syspath_prepend(f"{Path(__file__).resolve().parents[0]}/test_data/")
         mock_load_json.return_value = {
             "__desc__": "",
-            "allowlist": [
-                "study_python_valid",
-                "study_bad_manifest",
-            ],
+            "allowlist": {
+                "valid": "study_python_valid",
+                "bad": "study_bad_manifest",
+            },
         }
         args = duckdb_args(args, tmp_path)
         cli.main(cli_args=args)

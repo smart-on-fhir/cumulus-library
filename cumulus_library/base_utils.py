@@ -2,6 +2,7 @@
 
 import dataclasses
 import datetime
+import json
 import pathlib
 import shutil
 import zipfile
@@ -257,3 +258,18 @@ def pandas_types_from_hive_types(field_types: list[str]):
                     f"Field type {field} is not a supported hive data type"
                 )
     return new_types
+
+
+def get_study_allowlist() -> dict[str, str]:
+    """
+    Returns the set of studies that we know about and trust.
+
+    Trust in the sense of allowing to run arbitrary Python code by importing the study.
+    And in the sense that we will let the study run NLP.
+
+    Returns a dict of {study_prefix: module_name} (note: module_name might be None)
+    """
+    module_path = pathlib.Path(__file__).resolve().parents[0]
+    allowlist_path = module_path / "module_allowlist.json"
+    with open(allowlist_path, encoding="utf-8") as f:
+        return json.load(f)["allowlist"]

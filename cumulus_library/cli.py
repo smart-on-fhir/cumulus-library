@@ -3,7 +3,6 @@
 
 import copy
 import importlib.util
-import json
 import os
 import pathlib
 import sys
@@ -264,11 +263,8 @@ def get_study_dict(alt_dir_paths: list) -> dict[str, pathlib.Path] | None:
     paths = [pathlib.Path(cli_path, "studies")]
 
     # then, we'll get any installed public studies
-    with open(
-        pathlib.Path(cli_path, "./module_allowlist.json"), encoding="utf-8"
-    ) as study_allowlist_json:
-        study_allowlist = json.load(study_allowlist_json)["allowlist"]
-    for module_name in study_allowlist:
+    study_allowlist = base_utils.get_study_allowlist()
+    for module_name in filter(None, study_allowlist.values()):
         if spec := importlib.util.find_spec(module_name):
             paths += [pathlib.Path(x) for x in spec.submodule_search_locations]
 
