@@ -1,9 +1,11 @@
 """tests for study parser against mocks in test_data"""
 
+import json
 import pathlib
 from contextlib import nullcontext as does_not_raise
 
 import pytest
+import tomli_w
 
 from cumulus_library import errors, study_manifest
 from tests import conftest
@@ -406,3 +408,83 @@ def test_export_list(stages, stage, expected, raises, tmp_path):
         else:
             export_list = manifest.get_export_table_list(stage)
         assert export_list == expected
+
+
+@pytest.mark.parametrize(
+    "data,file_type,expected,raises",
+    [
+        ("name,display\na,b", "csv", [{"display": "b", "name": "a"}], does_not_raise()),
+        (
+            {"fields": [{"name": "a", "display": "b"}]},
+            "json",
+            [{"display": "b", "name": "a"}],
+            does_not_raise(),
+        ),
+        (
+            {"fields": [{"name": "a", "display": "b"}]},
+            "toml",
+            [{"display": "b", "name": "a"}],
+            does_not_raise(),
+        ),
+        (
+            {
+                "fields": [
+                    {
+                        "name": "a",
+                        "display": "b",
+                        "description": "c",
+                        "details": "d",
+                        "type": "string",
+                    }
+                ]
+            },
+            "json",
+            [{"name": "a", "display": "b", "description": "c", "details": "d", "type": "string"}],
+            does_not_raise(),
+        ),
+        (
+            {"fields": [{"name": "a", "foo": "bar"}]},
+            "json",
+            None,
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
+        (
+            {"fields": [{"name": "a", "display": "b"}]},
+            "docx",
+            None,
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
+        (
+            {"fields": [{"description": "b"}]},
+            "json",
+            None,
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
+        (
+            {"fields": [{"name": "a", "type": "EnterpriseBeanFactory"}]},
+            "json",
+            None,
+            pytest.raises(errors.StudyManifestParsingError),
+        ),
+    ],
+)
+def test_data_dictionary(tmp_path, data, file_type, expected, raises):
+    with raises:
+        with open(tmp_path / f"data.{file_type}", "w") as f:
+            match file_type:
+                case "csv":
+                    f.write(data)
+                case "json":
+                    f.write(json.dumps(data))
+                case "toml":
+                    f.write(tomli_w.dumps(data))
+        conftest.write_toml(
+            tmp_path,
+            {
+                "study_prefix": "test",
+                "data_dictionary": f"data.{file_type}",
+                "stages": {"stage_one": [{"type": "export:counts", "tables": ["test__name"]}]},
+            },
+        )
+        manifest = study_manifest.StudyManifest(tmp_path)
+        assert expected == manifest._study_config["data_dictionary"]

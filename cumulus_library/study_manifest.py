@@ -1,7 +1,9 @@
 """Class for loading study configuration data from manifest.toml files"""
 
 import copy
+import csv
 import dataclasses
+import json
 import pathlib
 import re
 import shutil
@@ -13,6 +15,17 @@ import msgspec
 
 from cumulus_library import enums, errors
 
+DASHBOARD_TYPES = [
+    "string",
+    "integer",
+    "float",
+    "boolean",
+    "day",
+    "week",
+    "month",
+    "year",
+]
+
 
 @dataclasses.dataclass(kw_only=True)
 class ManifestExport:
@@ -22,6 +35,18 @@ class ManifestExport:
 
 
 # These msgspec Structs define the expected formats for manifests & submanifests
+
+
+class DataDictionaryRow(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
+    name: str
+    display: str | None = None
+    description: str | None = None
+    details: str | None = None
+    type: str | None = None
+
+
+class DataDictionary(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
+    fields: list[DataDictionaryRow] | None = None
 
 
 class ManifestExportTable(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
@@ -45,6 +70,7 @@ class ManifestAdvancedOptions(msgspec.Struct, forbid_unknown_fields=True, omit_d
 class ManifestConfig(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
     study_prefix: str | None = None
     description: str | None = None
+    data_dictionary: str | DataDictionary | None = None
     stages: dict[str, list[ManifestAction]] | None = None
     advanced_options: ManifestAdvancedOptions | None = None
 
@@ -156,6 +182,44 @@ class StudyManifest:
             action["label"] = action["description"]
         return action
 
+    def _load_data_dictionary(self):
+        if self._study_config.get("data_dictionary") is None:
+            return
+        dict_file = self._study_config["data_dictionary"]
+        try:
+            with open(self._study_path / dict_file) as file_buf:
+                if dict_file.endswith(".csv"):
+                    reader = csv.DictReader(file_buf)
+                    data_dict = {"fields": [row for row in reader]}
+                    # we'll round trip this through json to get it through msgspec validation
+                    data_dict = msgspec.json.encode(data_dict)
+                    data_dict = msgspec.json.decode(data_dict, type=DataDictionary)
+                elif dict_file.endswith(".json"):
+                    file = file_buf.read()
+                    data_dict = msgspec.json.decode(file, type=DataDictionary)
+                elif dict_file.endswith(".toml"):
+                    file = file_buf.read()
+                    data_dict = msgspec.toml.decode(file, type=DataDictionary)
+                else:
+                    raise errors.StudyManifestParsingError(
+                        f"{dict_file} is not a supported format. Expected formats: csv,json,toml"
+                    )
+        except msgspec.ValidationError as e:
+            if "name" in str(e):
+                raise errors.StudyManifestParsingError(
+                    f"Missing required field 'name' in {dict_file}."
+                )
+            raise errors.StudyManifestParsingError(
+                f"Found unexpected field '{str(e).split('`')[1]}' in {dict_file}."
+            )
+        self._study_config["data_dictionary"] = json.loads(msgspec.json.encode(data_dict.fields))
+        if "type" in self._study_config["data_dictionary"][0].keys():
+            for row in self._study_config["data_dictionary"]:
+                if row["type"] not in DASHBOARD_TYPES:
+                    raise errors.StudyManifestParsingError(
+                        f"Found unexpected type '{row['type']}'' for {row['name']} in {dict_file}"
+                    )
+
     ### toml parsing helper functions
     def _load_study_manifest(self, study_path: pathlib.Path, options: dict[str, str]) -> None:
         """Reads in a config object from a directory containing a manifest.toml
@@ -221,9 +285,10 @@ class StudyManifest:
             raise errors.StudyManifestParsingError(f"Invalid prefix in manifest at {study_path}")
         self._study_prefix = self._study_prefix.lower()
 
-        # Finally, let's see if we're using a sampling workflow
+        # Finally, let's see if we're using a sampling workflow or have a data dictionary
 
         self._has_stats = self._has_stats_workflows()
+        self._load_data_dictionary()
 
     def get_study_prefix(self) -> str | None:
         """Reads the name of a study prefix from the in-memory study config
@@ -372,6 +437,9 @@ class StudyManifest:
         if self.get_dedicated_schema():
             return ""
         return self.get_study_prefix()
+
+    def get_data_dictionary(self) -> list[dict] | None:
+        return self._study_config.get("data_dictionary")
 
     def copy_manifest(self, path: pathlib.Path):
         """Writes a copy of the manifest to the provided path.

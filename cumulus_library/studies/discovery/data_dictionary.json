@@ -1,0 +1,29 @@
+{
+    "fields": [
+        {
+            "name": "table_name",
+            "description": "FHIR resource",
+            "details": ""
+        },
+        {
+            "name": "column_name",
+            "description": "FHIR CodeableConcept",
+            "details": "This may be a deeply nested path, depending on the location of the element in the FHIR spec"
+        },
+        {
+            "name": "code",
+            "description": "Coding value",
+            "details": ""
+        },
+        {
+            "name": "display",
+            "description": "Display Text",
+            "details": "When possible, consider using a known good source for this data, since it is not always consistent, depending on the EHR implementation"
+        },
+        {
+            "name": "system",
+            "description": "Coding System",
+            "details": ""
+        }
+    ]
+}
