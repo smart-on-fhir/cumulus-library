@@ -10,7 +10,7 @@ import msgspec
 import rich
 
 import cumulus_library
-from cumulus_library import note_utils
+from cumulus_library import base_utils, note_utils
 from cumulus_library.builders.nlp import driver, workflow
 from cumulus_library.template_sql import base_templates
 
@@ -148,11 +148,25 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             if task.select_by_table
         }
 
-        if select_by_tables and not self._nlp_config.salt and not config.db.can_hold_original_ids():
-            raise RuntimeError(
-                "Cannot calculate anonymized resource IDs without a PHI dir defined. "
-                "Pass --etl-phi-dir and try again."
-            )
+        # Add some extra checks if we are writing to a database like Athena that does not hold PHI
+        if not config.db.can_hold_original_ids():
+            # Only let approved studies run NLP, just because NLP can easily allow PHI through,
+            # if you're careless with your prompts. Like having NLP quote directly from the note
+            # into a field that isn't named "spans" (we automatically convert "spans" at least).
+            study_allowlist = base_utils.get_study_allowlist()
+            if self._nlp_config.target not in study_allowlist:
+                raise RuntimeError(
+                    f"The '{self._nlp_config.target}' study is not authorized to run NLP against "
+                    "this database. Consider using a local duckdb database instead, or contact "
+                    "the Cumulus Library project to allow this study to use unrestricted NLP."
+                )
+
+            # In order to compare anonymized IDs, we need the salt.
+            if select_by_tables and not self._nlp_config.salt:
+                raise RuntimeError(
+                    "Cannot calculate anonymized resource IDs without a PHI dir defined. "
+                    "Pass --etl-phi-dir and try again."
+                )
 
         table_refs = {table: note_utils.get_table_refs(cursor, table) for table in select_by_tables}
         note_filters = [

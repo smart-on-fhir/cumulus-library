@@ -1,17 +1,18 @@
 {
-    "desc" : 
-        "this dict maps pip installable studies to expected paths inside site-packages",
-    "allowlist" : [
-        "cumulus_library_catalog",
-        "cumulus_library_covid",
-        "cumulus_library_data_metrics",
-        "cumulus_library_hypertension",
-        "cumulus_library_kidney_transplant",
-        "cumulus_library_loinc",
-        "cumulus_library_opioid",
-        "cumulus_library_rxnorm",
-        "cumulus_library_suicidality_los",
-        "cumulus_library_umls",
-        "cumulus_library_glioma"
-    ]
+    "desc":
+        "this dict lists which modules are allowed to be Python-imported (and their study_prefix)",
+    "allowlist": {
+        "catalog": "cumulus_library_catalog",
+        "covid_symptom": "cumulus_library_covid",
+        "data_metrics": "cumulus_library_data_metrics",
+        "example_nlp": null,
+        "glioma": "cumulus_library_glioma",
+        "htn": "cumulus_library_hypertension",
+        "irae": "cumulus_library_kidney_transplant",
+        "loinc": "cumulus_library_loinc",
+        "opioid": "cumulus_library_opioid",
+        "rxnorm": "cumulus_library_rxnorm",
+        "suicide_los": "cumulus_library_suicidality_los",
+        "umls": "cumulus_library_umls"
+    }
 }

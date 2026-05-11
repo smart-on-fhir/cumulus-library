@@ -103,7 +103,7 @@ class MockModel:
             "nlp_model": self.model_id,
             "nlp_provider": self.provider,
             "etl_phi_dir": self.phi,
-            "target": "test",
+            "target": "example_nlp",  # use the example_nlp name, so we pass the allowlisting
             "batch_nlp": batching,
             "clean_nlp": clean,
             "nlp_stats": stats,
