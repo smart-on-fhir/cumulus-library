@@ -2,7 +2,7 @@ import pathlib
 import tempfile
 import zipfile
 
-import pandas
+import pyarrow.parquet
 
 from cumulus_library import base_utils, errors, study_manifest
 from cumulus_library.actions import cleaner
@@ -12,11 +12,8 @@ from cumulus_library.template_sql import base_templates
 def _create_table_from_parquet(archive, file, study_name, config):
     try:
         parquet_path = pathlib.Path(archive.extract(file), path=tempfile.TemporaryFile())
-        # While convenient to access, this exposes us to panda's type system,
-        # which is messy - this could be optionally be replaced by pyarrow if it
-        # becomes problematic.
-        table_types = pandas.read_parquet(parquet_path).dtypes
-        remote_types = config.db.col_parquet_types_from_pandas(table_types.values)
+        table_types = pyarrow.parquet.read_schema(parquet_path)
+        remote_types = config.db.col_parquet_types_from_pyarrow(table_types)
         s3_path = config.db.upload_file(
             file=parquet_path,
             study=study_name,
@@ -29,7 +26,7 @@ def _create_table_from_parquet(archive, file, study_name, config):
             table_name=parquet_path.stem.replace(".", "_"),
             local_location=f"{parquet_path.parent}",
             remote_location=s3_path,
-            table_cols=list(table_types.index),
+            table_cols=table_types.names,
             remote_table_cols_types=remote_types,
         )
         config.db.cursor().execute(query)
