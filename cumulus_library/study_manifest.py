@@ -205,7 +205,7 @@ class StudyManifest:
                         f"{dict_file} is not a supported format. Expected formats: csv,json,toml"
                     )
         except msgspec.ValidationError as e:
-            if "name" in str(e):
+            if "required field `name`" in str(e):
                 raise errors.StudyManifestParsingError(
                     f"Missing required field 'name' in {dict_file}."
                 )
