@@ -438,9 +438,6 @@ class StudyManifest:
             return ""
         return self.get_study_prefix()
 
-    def get_data_dictionary(self) -> list[dict] | None:
-        return self._study_config.get("data_dictionary")
-
     def copy_manifest(self, path: pathlib.Path):
         """Writes a copy of the manifest to the provided path.
 
