@@ -76,20 +76,6 @@ def test_task_without_schema(tmp_path, note_source):
 
 
 @pytest.mark.xdist_group(name="nlp_builder")
-def test_sketch_schema_path(tmp_path, note_source):
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {"test": {"response_schema": "../../../passwd"}},
-        },
-        "nlp.workflow",
-    )
-    with pytest.raises(ValueError, match="response_schema must be a simple filename"):
-        nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
-
-
-@pytest.mark.xdist_group(name="nlp_builder")
 def test_empty_note_dir(tmp_path):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     with pytest.raises(SystemExit, match="there are no notes to work with"):

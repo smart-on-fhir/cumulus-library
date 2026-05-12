@@ -77,7 +77,7 @@ Pydantic Schema:
 # be used (i.e. the default is `"%CLINICAL-NOTE%"`).
 user_prompt = ""
 
-# `response_schema` points at a file adjacent to this workflow file. It contains a JSON schema
+# `response_schema` points at a file relative to this workflow file. It contains a JSON schema
 # for the expected response from the LLM. If the LLM's response cannot be parsed into this format,
 # it will be ignored. This schema also helps defines the resulting table schema.
 # Often, studies will use a bit of Python code to generate this file from some Pydantic models.

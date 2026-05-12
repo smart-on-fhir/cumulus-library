@@ -64,11 +64,6 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             if not task.response_schema:
                 raise ValueError(f"A response schema must be provided for table '{table_slug}'")
 
-            # Convert task schema filenames to the JSON schema itself.
-            # Be strict here, just for safety's sake - we can ease up if needed later.
-            if "/" in task.response_schema:
-                raise ValueError("response_schema must be a simple filename, no path elements")
-
             # Load and parse the response JSON schema into a pydantic model, but check first to
             # ensure we don't already have an inline JSON definition (useful in tests).
             if task.response_schema.lstrip().startswith("{"):
