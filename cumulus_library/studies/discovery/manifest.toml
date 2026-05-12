@@ -1,4 +1,5 @@
 study_prefix = "discovery"
+data_dictionary="data_dictionary.json"
 
 [[stages.build_discovery]]
 label= "code detection"
