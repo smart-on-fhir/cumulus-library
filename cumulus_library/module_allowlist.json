@@ -8,6 +8,7 @@
         "example_nlp": null,
         "glioma": "cumulus_library_glioma",
         "htn": "cumulus_library_hypertension",
+        "ibd": "cumulus_library_ibd_cds",
         "irae": "cumulus_library_kidney_transplant",
         "loinc": "cumulus_library_loinc",
         "opioid": "cumulus_library_opioid",
