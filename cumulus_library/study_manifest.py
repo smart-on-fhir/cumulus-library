@@ -369,7 +369,7 @@ class StudyManifest:
             found_configs = []
             for str_or_dict in action.get("tables", []):
                 if isinstance(str_or_dict, dict):
-                    continue
+                    continue  # pragma: no cover
                 if str_or_dict.endswith(".toml") or str_or_dict.endswith(".workflow"):
                     workflow = counts_utils.load_toml_config(self._study_path / str_or_dict)
 
