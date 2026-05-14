@@ -39,7 +39,7 @@ if it's correctly formatted, but starting from the template can help you avoid p
 
 # config_type should be "counts" - we use this to distinguish from other
 # configurable workflows
-type="counts"
+config_type="counts"
 
 [tables.name] # the table in db will be called 'study_prefix__name', snaked cased for sql compatibility
 # The following keys must be defined in all cases

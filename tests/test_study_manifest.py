@@ -488,3 +488,44 @@ def test_data_dictionary(tmp_path, data, file_type, expected, raises):
         )
         manifest = study_manifest.StudyManifest(tmp_path)
         assert expected == manifest._study_config["data_dictionary"]
+
+
+def test_manifest_materialization(tmp_path):
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "test",
+            "stages": {
+                "stage_one": [
+                    {"type": "export:counts", "tables": ["test__name", "counts.workflow"]}
+                ]
+            },
+        },
+    )
+    conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "counts",
+            "tables": {
+                "count_1": {
+                    "source_table": "patient",
+                    "description": "A table",
+                    "table_cols": ["foo"],
+                },
+                "count_2": {"source_table": "patient", "table_cols": ["foo"]},
+            },
+        },
+        "counts.workflow",
+    )
+    manifest = study_manifest.StudyManifest(tmp_path)
+    manifest.materialize_counts_builder_exports()
+    assert manifest._study_config["stages"]["all"] == [
+        {
+            "type": "export:counts",
+            "tables": [
+                "test__name",
+                {"name": "count_1", "description": "A table"},
+                {"name": "count_2", "description": None},
+            ],
+        }
+    ]
