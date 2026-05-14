@@ -581,9 +581,10 @@ def test_cli_executes_queries(
             else:
                 manifest_dir = cli.get_study_dict([cli.get_abs_path(build_args[4])])[build_args[2]]
 
-            config = StudyManifest(f"{manifest_dir}/manifest.toml")
+            manifest = StudyManifest(f"{manifest_dir}/manifest.toml")
+            manifest.materialize_counts_builder_exports()
             csv_files = glob.glob(f"{tmp_path}/export/{build_args[2]}/*.csv")
-            export_list = [t.name for t in config.get_export_table_list()]
+            export_list = [t.name for t in manifest.get_export_table_list()]
             for export_table in export_list:
                 if export_table not in expected_missing:
                     assert any(export_table in x for x in csv_files)

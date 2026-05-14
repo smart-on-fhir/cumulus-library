@@ -9,7 +9,9 @@ from cumulus_library.actions import cleaner
 from cumulus_library.template_sql import base_templates
 
 
-def _create_table_from_parquet(archive, file, study_name, config):
+def _create_table_from_parquet(
+    archive: zipfile.ZipFile, file: str, study_name: str, config: base_utils.StudyConfig
+):
     try:
         parquet_path = pathlib.Path(archive.extract(file), path=tempfile.TemporaryFile())
         table_types = pyarrow.parquet.read_schema(parquet_path)
