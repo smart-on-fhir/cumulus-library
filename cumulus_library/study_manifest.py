@@ -374,7 +374,12 @@ class StudyManifest:
                     workflow = counts_utils.load_toml_config(self._study_path / str_or_dict)
 
                     for table, data in workflow["tables"].items():
-                        new_tables.append({"name": table, "description": data.get("description")})
+                        new_tables.append(
+                            {
+                                "name": f"{self._study_prefix}__{table}",
+                                "description": data.get("description"),
+                            }
+                        )
                     found_configs.append(str_or_dict)
             for config in found_configs:
                 action["tables"].remove(config)

@@ -497,7 +497,14 @@ def test_manifest_materialization(tmp_path):
             "study_prefix": "test",
             "stages": {
                 "stage_one": [
-                    {"type": "export:counts", "tables": ["test__name", "counts.workflow"]}
+                    {
+                        "type": "export:counts",
+                        "tables": [
+                            "test__name",
+                            {"name": "test__name2", "description": "desc"},
+                            "counts.workflow",
+                        ],
+                    }
                 ]
             },
         },
@@ -524,8 +531,9 @@ def test_manifest_materialization(tmp_path):
             "type": "export:counts",
             "tables": [
                 "test__name",
-                {"name": "count_1", "description": "A table"},
-                {"name": "count_2", "description": None},
+                {"name": "test__name2", "description": "desc"},
+                {"name": "test__count_1", "description": "A table"},
+                {"name": "test__count_2", "description": None},
             ],
         }
     ]
