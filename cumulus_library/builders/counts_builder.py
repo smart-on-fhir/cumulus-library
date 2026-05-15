@@ -1,12 +1,11 @@
 """Class for generating counts tables from templates"""
 
 import pathlib
-import sys
 
-import msgspec
 import rich
 
 from cumulus_library import BaseTableBuilder, base_utils, errors, study_manifest
+from cumulus_library.builders import counts_utils
 from cumulus_library.builders.statistics_templates import counts_templates
 
 # Defined here for easy overriding by tests
@@ -14,42 +13,8 @@ DEFAULT_MIN_SUBJECT = 10
 
 
 # Counts can be driven by a workflow config. See docs/workflows/counts.md for more details
-# on syntax and expectations.
-
-
-class CountsWorkflowAnnotation(msgspec.Struct, forbid_unknown_fields=True):
-    field: str
-    join_table: str
-    join_field: str
-    columns: list[list[str]]
-    alt_target: str | None = None
-
-
-class CountsFilterColumn(msgspec.Struct, forbid_unknown_fields=True):
-    name: str
-    values: list[str]
-    include_nulls: bool
-
-
-class CountsWorkflowTable(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
-    source_table: str
-    table_cols: list
-
-    description: str | None = None
-    where_clauses: list[str] | None = None
-    min_subject: int | None = None
-    primary_id: str | None = None
-    secondary_table: str | None = None
-    secondary_cols: list[str] | None = None
-    secondary_id: str | None = None
-    alt_secondary_join_id: str | None = None
-    annotation: CountsWorkflowAnnotation | None = None
-    filter_cols: list[CountsFilterColumn] | None = None
-
-
-class CountsWorkflow(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
-    config_type: str
-    tables: dict[str, CountsWorkflowTable]
+# on syntax and expectations. Loading is handled via the separate counts_utils modules to
+# prevent circular imports, since it is also used in the export action to look for tables.
 
 
 class CountsBuilder(BaseTableBuilder):
@@ -66,29 +31,7 @@ class CountsBuilder(BaseTableBuilder):
 
         self.study_prefix = manifest.get_study_prefix()
         if toml_config_path:
-            try:
-                with open(toml_config_path, "rb") as file:
-                    file_bytes = file.read()
-                    self._workflow_config = msgspec.to_builtins(
-                        msgspec.toml.decode(file_bytes, type=CountsWorkflow)
-                    )
-            except msgspec.ValidationError as e:
-                sys.exit(
-                    f"The counts workflow at {toml_config_path!s} contains an unexpected param: \n"
-                    f"{e}"
-                )
-
-            # for cases where we want to load a portion of a parseed dict into objects
-            for table_name, contents in self._workflow_config["tables"].items():
-                if annotation := contents.get("annotation"):
-                    self._workflow_config["tables"][table_name]["annotation"] = (
-                        counts_templates.CountAnnotation(**annotation)
-                    )
-                if filter_cols := contents.get("filter_cols"):
-                    parsed_filters = []
-                    for col in filter_cols:
-                        parsed_filters.append(counts_templates.FilterColumn(**col))
-                    self._workflow_config["tables"][table_name]["filter_cols"] = parsed_filters
+            self._workflow_config = counts_utils.load_toml_config(toml_config_path)
         else:
             self._workflow_config = None
 

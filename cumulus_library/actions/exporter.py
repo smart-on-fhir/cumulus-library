@@ -41,6 +41,7 @@ def export_study(
     """
     skipped_tables = []
     reset_counts_exports(manifest)
+    manifest.materialize_counts_builder_exports()
     if manifest.get_dedicated_schema():
         prefix = f"{manifest.get_dedicated_schema()}."
     else:
@@ -56,6 +57,7 @@ def export_study(
         table_list = manifest.get_export_table_list(config.stage)
     path = pathlib.Path(f"{data_path}/{manifest.get_study_prefix()}/")
     path.mkdir(parents=True, exist_ok=True)
+
     for table in track(
         table_list,
         description=f"Exporting {manifest.get_study_prefix()} data...",

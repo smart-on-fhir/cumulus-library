@@ -129,13 +129,19 @@ def test_core_count_missing_data(tmp_path):
 
 
 def test_core_counts_exported(mock_db_core):
-    with open(f"{conftest.LIBRARY_ROOT}/studies/core/manifest.toml", "rb") as f:
+    folder_path = pathlib.Path(__file__).parent
+    # Use for regenerating expected manifest if the counts workflow changes
+    # manifest = StudyManifest(f"{conftest.LIBRARY_ROOT}/studies/core/manifest.toml")
+    # manifest.materialize_counts_builder_exports()
+    # manifest.write_manifest(folder_path/"manifest.toml")
+    with open(folder_path / "manifest.toml", "rb") as f:
         manifest = tomllib.load(f)
     actions = manifest["stages"]["build_core"]
     expected_count_tables = []
     for action in actions:
         if action["type"] == "export:counts":
-            expected_count_tables = expected_count_tables + action["tables"]
+            for table in action["tables"]:
+                expected_count_tables.append(f"core__{table['name']}")
     count_tables = (
         mock_db_core.cursor()
         .execute(

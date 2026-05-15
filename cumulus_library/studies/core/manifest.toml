@@ -74,22 +74,7 @@ type = "build:parallel"
 
 [[stages.build_core]]
 tables = [
-    "core__count_allergyintolerance_month",
-    "core__count_condition_month",
-    "core__count_diagnosticreport_month",
-    "core__count_documentreference_month",
-    "core__count_encounter_month",
-    "core__count_encounter_all_types",
-    "core__count_encounter_all_types_month",
-    "core__count_encounter_service_month",
-    "core__count_encounter_priority_month",
-    "core__count_encounter_type_month",
-    "core__count_medicationrequest_month",
-    "core__count_observation_lab_month",
-    "core__count_patient",
-    "core__count_procedure_month",
-    "core__count_servicerequest_month",
-    "core__count_specimen_month",
+    "count_core.workflow"
 ]
 type = "export:counts"
 [[stages.build_core]]

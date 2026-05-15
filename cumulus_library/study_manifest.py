@@ -14,6 +14,7 @@ import tomllib
 import msgspec
 
 from cumulus_library import enums, errors
+from cumulus_library.builders import counts_utils
 
 DASHBOARD_TYPES = [
     "string",
@@ -354,6 +355,36 @@ class StudyManifest:
         if continue_from and len(files) == 0:
             raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
         return files
+
+    def materialize_counts_builder_exports(self, stage_name: str = "all"):
+        """Replaces refs to counts builders in the exports with the tables they contain
+
+        Note that this modifies the manifest structure. It's assumed you will only need this
+        during export, when you'll be working with a copy of the manifest object."""
+        stage = self.get_stage(stage_name)
+        for action in stage:
+            if not action.get("type", "").startswith("export:"):
+                continue
+            new_tables = []
+            found_configs = []
+            for str_or_dict in action.get("tables", []):
+                if isinstance(str_or_dict, dict):
+                    continue
+                if str_or_dict.endswith(".toml") or str_or_dict.endswith(".workflow"):
+                    workflow = counts_utils.load_toml_config(self._study_path / str_or_dict)
+
+                    for table, data in workflow["tables"].items():
+                        new_tables.append(
+                            {
+                                "name": f"{self._study_prefix}__{table}",
+                                "description": data.get("description"),
+                            }
+                        )
+                    found_configs.append(str_or_dict)
+            for config in found_configs:
+                action["tables"].remove(config)
+            for table in new_tables:
+                action["tables"].append(table)
 
     def get_export_table_list(self, stage_name: str = "all") -> list[ManifestExport] | None:
         """Reads the exportable tables from the manifest
