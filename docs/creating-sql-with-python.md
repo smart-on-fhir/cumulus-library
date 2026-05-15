@@ -1,7 +1,7 @@
 ---
 title: Creating SQL with Python
 parent: Library
-nav_order: 4
+nav_order: 11
 # audience: clinical researcher or engineer familiar with project
 # type: tutorial
 ---
