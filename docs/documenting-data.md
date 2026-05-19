@@ -125,7 +125,7 @@ details = ""
 type = "string"
 ```
 
-### What fields to document
+### Which fields should be documented?
 
 The fields Cumulus uses are those related to exported data - so your count outputs should have some of this documentation. But, from
 an understandibility perspective, you may want to document your entire study data model. This can be a helpful artifact for the
