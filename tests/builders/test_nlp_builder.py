@@ -78,7 +78,7 @@ def test_task_without_schema(tmp_path, note_source):
 @pytest.mark.xdist_group(name="nlp_builder")
 def test_empty_note_dir(tmp_path):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
-    with pytest.raises(SystemExit, match="there are no notes to work with"):
+    with pytest.raises(SystemExit, match="early because an NLP workflow was encountered"):
         nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_utils.NoteSource())
 
 

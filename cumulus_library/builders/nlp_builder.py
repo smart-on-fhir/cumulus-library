@@ -45,8 +45,9 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         self._notes = notes
         if not self._notes:
             sys.exit(
-                "NLP workflow requested, but there are no notes to work with. "
-                "Pass --note-dir to provide a folder with FHIR resources like DiagnosticReport "
+                "Finishing the build early because an NLP workflow was encountered.\n"
+                "If you want to run this study's NLP tasks, pass --note-dir to "
+                "provide a folder with FHIR resources like DiagnosticReport "
                 "or DocumentReference with inlined clinical notes."
             )
 
