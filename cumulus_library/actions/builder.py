@@ -147,7 +147,7 @@ def build_study(
                 with base_utils.get_progress_bar() as progress_bar:
                     task = progress_bar.add_task(
                         f"Building {action.get('label', '')} tables...",
-                        total=query_count,
+                        total=len(queries),
                         visible=not config.verbose,
                     )
                     config.db.parallel_execute(
