@@ -47,11 +47,11 @@ You can specify a data dictionary in csv, json, or toml formats. Here's examples
 CSV:
 ```csv
 name,display,description,details,type
-table_name,"Table name","FHIR resource",,string
-column_name,"Column name","FHIR CodeableConcept","This may be a deeply nested path, depending on the location of the element in the FHIR spec",string
-code,"Code","Coding value",,string
-display,"Display","Display Text","When possible, consider using a known good source for this data, since it is not always consistent, depending on the EHR implementation",string
-system,"System","Coding System",,string
+table_name,"Table name","FHIR resource",,"string"
+column_name,"Column name","FHIR CodeableConcept","This may be a deeply nested path, depending on the location of the element in the FHIR spec","string"
+code,"Code","Coding value",,"string"
+display,"Display","Display text","When possible, consider using a known good source for this data, since it is not always consistent, depending on the EHR implementation","string"
+system,"System","Coding system",,"string"
 ```
 
 JSON:
@@ -60,31 +60,36 @@ JSON:
     "fields": [
         {
             "name": "table_name",
+            "display": "Table Name",
             "description": "FHIR resource",
             "details": "",
             "type": "string"
         },
         {
             "name": "column_name",
+            "display": "Column Name",
             "description": "FHIR CodeableConcept",
             "details": "This may be a deeply nested path, depending on the location of the element in the FHIR spec",
             "type": "string"
         },
         {
             "name": "code",
+            "display": "Code",
             "description": "Coding value",
             "details": "",
             "type": "string"
         },
         {
             "name": "display",
-            "description": "Display Text",
+            "display": "Display",
+            "description": "Display text",
             "details": "When possible, consider using a known good source for this data, since it is not always consistent, depending on the EHR implementation",
             "type": "string"
         },
         {
             "name": "system",
-            "description": "Coding System",
+            "display": "System",
+            "description": "Coding system",
             "details": "",
             "type": "string"
         }
@@ -96,31 +101,36 @@ TOML:
 ```toml
 [[fields]]
 name = "table_name"
+display = "Table Name"
 description = "FHIR resource"
 details = ""
 type = "string"
 
 [[fields]]
 name = "column_name"
+display = "Column Name"
 description = "FHIR CodeableConcept"
 details = "This may be a deeply nested path, depending on the location of the element in the FHIR spec"
 type = "string"
 
 [[fields]]
 name = "code"
+display = "Code"
 description = "Coding value"
 details = ""
 type = "string"
 
 [[fields]]
 name = "display"
-description = "Display Text"
+display = "Display"
+description = "Display text"
 details = "When possible, consider using a known good source for this data, since it is not always consistent, depending on the EHR implementation"
 type = "string"
 
 [[fields]]
 name = "system"
-description = "Coding System"
+display = "System"
+description = "Coding system"
 details = ""
 type = "string"
 ```
@@ -142,6 +152,7 @@ You can provide this in one of two ways:
 - As an entry in a
 [counts workflow](workflows/counts.md),
 as shown in this example from the core study, which is the preferred way of doing this:
+
 ```toml
 config_type = "counts"
 
@@ -164,6 +175,7 @@ table_cols = [
 ]
 ```
 - As an entry in the manifest, in the related export action. You can mix tables with and without descriptions.
+
 ```toml
 study_prefix = "my_study"
 [[stages.counts]]
@@ -180,6 +192,7 @@ type = "export:counts"
 In the manifest, you can also provide a description for the study as a whole. This is a good place to describe your research goals,
 and also to talk about any relevant inclusion criterion or information about your study cohort(s). Here's how we use this in the
 core study:
+
 ```toml
 study_prefix = "core"
 description = """This study aims to provide a flattened set of tables suitable for analysts
