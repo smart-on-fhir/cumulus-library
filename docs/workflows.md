@@ -16,6 +16,7 @@ for use in Cumulus studies.
 
 - [Counts](workflows/counts.md)
 - [File Upload](workflows/file-upload.md)
+- [NLP](workflows/nlp.md)
 - [Propensity Score Matching](workflows/propensity-score-matching.md)
 - [Valueset Compilation](workflows/valueset.md)
 
