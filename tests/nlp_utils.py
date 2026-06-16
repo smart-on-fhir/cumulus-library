@@ -136,6 +136,9 @@ class MockModel:
                 "gpt-oss-120b": ["gpt-oss-120b", "openai.gpt-oss-120b-1:0", "openai/gpt-oss-120b"],
                 "gpt35": ["gpt35", "gpt-35-turbo-0125"],
                 "gpt4o": ["gpt4o", "gpt-4o"],
+                "gpt54": ["gpt54", "gpt-5.4"],
+                "gpt54-mini": ["gpt54-mini", "gpt-5.4-mini"],
+                "gpt54-nano": ["gpt54-nano", "gpt-5.4-nano"],
             }
             models = model_aliases.get(self.model_id, [])
 
