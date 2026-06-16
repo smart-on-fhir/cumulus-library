@@ -633,11 +633,60 @@ class Gpt5Model(Model):
     AZURE_BATCHES = False
 
 
+class Gpt54Model(Model):
+    MODEL_ID = "gpt54"
+    AZURE_ID = "gpt-5.4"
+    AZURE_PRICES = TokenPrices(
+        # https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/
+        # "GPT-5.4 (>272k context length) Global" as an upper bound
+        # (assumes no batching since that's only available at <272k length)
+        date=datetime.date(2026, 6, 16),
+        new_input_tokens=0.0050,
+        cache_read_input_tokens=0.0005,
+        output_tokens=0.02250,
+    )
+    AZURE_BATCHES = False
+
+
+class Gpt54MiniModel(Model):
+    MODEL_ID = "gpt54-mini"
+    AZURE_ID = "gpt-5.4-mini"
+    AZURE_PRICES = TokenPrices(
+        # https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/
+        # "GPT-5.4 mini Global"
+        date=datetime.date(2026, 6, 16),
+        new_input_tokens=0.00075,
+        cache_read_input_tokens=0.00008,
+        output_tokens=0.00450,
+    )
+    AZURE_BATCHES = False
+
+
+class Gpt54NanoModel(Model):
+    MODEL_ID = "gpt54-nano"
+    AZURE_ID = "gpt-5.4-nano"
+    AZURE_PRICES = TokenPrices(
+        # https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/
+        # "GPT-5.4 nano Global"
+        date=datetime.date(2026, 6, 16),
+        new_input_tokens=0.00020,
+        cache_read_input_tokens=0.00002,
+        output_tokens=0.00125,
+    )
+    AZURE_BATCHES = False
+
+
 class GptOss120bModel(Model):
     MODEL_ID = "gpt-oss-120b"
     AZURE_ID = "gpt-oss-120b"
     AZURE_BATCHES = False
-    # AZURE_PRICES = TokenPrices(...)  # TODO: find online
+    AZURE_PRICES = TokenPrices(
+        # https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/
+        # "gpt-oss-120b"
+        date=datetime.date(2026, 6, 16),
+        new_input_tokens=0.00015,
+        output_tokens=0.00060,
+    )
     BEDROCK_ID = "openai.gpt-oss-120b-1:0"
     BEDROCK_CACHE = False
     BEDROCK_PRICES = TokenPrices(
@@ -681,12 +730,43 @@ class ClaudeSonnet45Model(Model):
     )
 
 
+class ClaudeSonnet46Model(Model):
+    MODEL_ID = "claude-sonnet46"
+    BEDROCK_ID = "us.anthropic.claude-sonnet-4-6"
+    BEDROCK_PRICES = TokenPrices(
+        # https://aws.amazon.com/bedrock/pricing/ for us-east-1
+        date=datetime.date(2025, 10, 15),
+        new_input_tokens=0.0033,
+        cache_read_input_tokens=0.00033,
+        cache_written_input_tokens=0.004125,
+        output_tokens=0.0165,
+    )
+
+
+class ClaudeOpus48Model(Model):
+    MODEL_ID = "claude-opus48"
+    BEDROCK_ID = "us.anthropic.claude-opus-4-8"
+    BEDROCK_PRICES = TokenPrices(
+        # https://aws.amazon.com/bedrock/pricing/ for us-east-1
+        date=datetime.date(2025, 10, 15),
+        new_input_tokens=0.0033,
+        cache_read_input_tokens=0.00033,
+        cache_written_input_tokens=0.004125,
+        output_tokens=0.0165,
+    )
+
+
 _MODELS = [
     ClaudeSonnet45Model,
+    ClaudeSonnet46Model,
+    ClaudeOpus48Model,
     Gpt35Model,
     Gpt4Model,
     Gpt4oModel,
     Gpt5Model,
+    Gpt54Model,
+    Gpt54MiniModel,
+    Gpt54NanoModel,
     GptOss120bModel,
     Llama4ScoutModel,
 ]
