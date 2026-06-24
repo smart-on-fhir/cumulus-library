@@ -537,3 +537,33 @@ def test_manifest_materialization(tmp_path):
             ],
         }
     ]
+
+
+def test_skippable_actions(tmp_path):
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "test",
+            "stages": {
+                "stage_1": [{"type": "build:serial", "files": ["foo"]}],
+                "stage_two": [{"type": "build:serial", "files": ["bar"]}],
+                "stage_three": [
+                    {"type": "build:serial", "files": ["baz"], "skip_by_default": True},
+                    {"type": "build:serial", "files": ["foobar"]},
+                ],
+            },
+        },
+    )
+
+    manifest = study_manifest.StudyManifest(tmp_path)
+    stage = manifest.get_stage("all")
+    assert stage == [
+        {"type": "build:serial", "files": ["foo"]},
+        {"type": "build:serial", "files": ["bar"]},
+        {"type": "build:serial", "files": ["foobar"]},
+    ]
+    stage = manifest.get_stage("stage_three")
+    assert stage == [
+        {"type": "build:serial", "files": ["baz"], "skip_by_default": True},
+        {"type": "build:serial", "files": ["foobar"]},
+    ]

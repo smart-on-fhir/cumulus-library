@@ -135,6 +135,15 @@ files = [
   'cohort_by_gender.py'
 ]
 type = "build:parallel"
+# If we want to explicitly exclude an action from being run by default, we can use the
+# skip_by_default argument - this will only get run if the stage name is specified. This
+# is often useful in NLP contexts
+[[stages.run_nlp]]
+label = 'Kick off an NLP job'
+files = [
+  'run_nlp.py',
+]
+skip_by_default=true
 
 # Most cumulus exports should be count tables, created as powerset cubes for deid binning
 # purposes. A table can be defined two ways:

@@ -61,6 +61,7 @@ class ManifestAction(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=T
     label: str | None = None
     files: list[str] | None = None
     tables: list[str | ManifestExportTable] | None = None
+    skip_by_default: bool | None = False
 
 
 class ManifestAdvancedOptions(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
@@ -270,7 +271,7 @@ class StudyManifest:
                     all_actions.append(action)
             config["stages"][stage] = actions
 
-        config["stages"]["all"] = all_actions
+        config["stages"]["all"] = [x for x in all_actions if not x.get("skip_by_default")]
 
         # We'll set these to class vars now so we can reuse the class getters
         # to finish setup and validation
