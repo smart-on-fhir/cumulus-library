@@ -87,6 +87,7 @@ class MockModel:
             f"--nlp-model={config.model}",
             f"--nlp-provider={config.provider}",
             f"--etl-phi-dir={config.phi_dir}",
+            f"--nlp-chunksize={config.chunksize}",
         ]
         if config.clean:
             args.append("--clean-nlp")

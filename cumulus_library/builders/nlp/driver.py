@@ -283,7 +283,7 @@ class NlpNotePool:
 
         # Do we have enough to write out?
         pending_notes = sum(len(x) for x in self._notes.values())
-        if pending_notes >= self._config.note_limit:
+        if pending_notes >= self._config.chunksize:
             self._write_notes_to_output()
 
     def _resume_existing_batches(self) -> None:

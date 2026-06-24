@@ -41,12 +41,17 @@ def note_source(tmp_path) -> note_utils.NoteSource:
     yield note_utils.NoteSource([tmp_path])
 
 
+@pytest.fixture(autouse=True)
+def mock_cache_dir(tmp_path):
+    with mock.patch("cumulus_library.base_utils.get_user_cache_dir", return_value=tmp_path):
+        yield
+
+
 def read_rows(db, table: str) -> list[dict]:
     df = db.db.connection.sql(f"SELECT * FROM {table} ORDER BY note_ref").df()
     return json.loads(df.to_json(orient="records"))
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 def test_unexpected_config_field(tmp_path, note_source):
     workflow_path = conftest.write_toml(
         tmp_path,
@@ -61,7 +66,6 @@ def test_unexpected_config_field(tmp_path, note_source):
         nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 def test_task_without_schema(tmp_path, note_source):
     workflow_path = conftest.write_toml(
         tmp_path,
@@ -75,14 +79,12 @@ def test_task_without_schema(tmp_path, note_source):
         nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 def test_empty_note_dir(tmp_path):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     with pytest.raises(SystemExit, match="early because an NLP workflow was encountered"):
         nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_utils.NoteSource())
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env()
 @mock.patch("openai.OpenAI")
 def test_table_filter_but_no_salt(mock_client, tmp_path, note_source):
@@ -119,7 +121,6 @@ def test_table_filter_but_no_salt(mock_client, tmp_path, note_source):
         builder.execute_queries(study_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 def test_flattened_config(tmp_path, note_source):
     workflow_path = conftest.write_toml(
         tmp_path,
@@ -145,7 +146,6 @@ def test_flattened_config(tmp_path, note_source):
     assert builder._workflow_config.tables["fallthrough"].system_prompt == "hello"
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_filter(mock_client, tmp_path, mock_db_config):
     workflow_path = conftest.write_toml(
@@ -206,7 +206,6 @@ def test_filter(mock_client, tmp_path, mock_db_config):
     assert expected_stats in console_output.getvalue()
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_already_uploaded(mock_client, tmp_path, mock_db_config, note_source):
     """Verify that we skip notes that we've already uploaded before"""
@@ -227,7 +226,6 @@ def test_already_uploaded(mock_client, tmp_path, mock_db_config, note_source):
     assert builder.stats.considered[0] == 0
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 @mock.patch.dict(os.environ, clear=True)
 @mock.patch("cumulus_library.builders.nlp_builder.NlpBuilder")
@@ -274,7 +272,6 @@ def test_args_passed_down(mock_builder, mock_client, tmp_path):
     assert list(source.progress_iter("label")) == [dxr]
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_unreachable_vllm(mock_client, tmp_path, note_source, mock_db_config):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -287,7 +284,6 @@ def test_unreachable_vllm(mock_client, tmp_path, note_source, mock_db_config):
         builder.execute_queries(mock_db_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_cached_response(mock_client, tmp_path, mock_db_config):
     workflow_path = conftest.write_toml(
@@ -334,7 +330,6 @@ def test_cached_response(mock_client, tmp_path, mock_db_config):
     assert builder.stats.got_response[0] == 1  # still got our cached result
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_span_correction(mock_client, tmp_path, mock_db_config):
     workflow_path = conftest.write_toml(
@@ -396,9 +391,8 @@ def test_span_correction(mock_client, tmp_path, mock_db_config):
     assert failure_msg in console_output.getvalue()
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
-def test_writes_out_at_note_limit(mock_client, tmp_path, mock_db_config):
+def test_writes_out_at_chunksize(mock_client, tmp_path, mock_db_config):
     with open(f"{tmp_path}/doc.ndjson", "w", encoding="utf8") as f:
         add_doc("1", "Note one", f)
         add_doc("2", "Note two", f)
@@ -408,7 +402,7 @@ def test_writes_out_at_note_limit(mock_client, tmp_path, mock_db_config):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client)
     config = model.nlp_config()
-    config.note_limit = 2
+    config.chunksize = 2
 
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path,
@@ -428,7 +422,6 @@ def test_writes_out_at_note_limit(mock_client, tmp_path, mock_db_config):
     assert "Failed to finalize notes: test2" in console_output.getvalue()
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_various_value_types(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = conftest.write_toml(
@@ -465,7 +458,6 @@ def test_various_value_types(mock_client, tmp_path, mock_db_config, note_source)
     assert rows[0]["result"] == results
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_no_batching_support(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -481,7 +473,6 @@ def test_no_batching_support(mock_client, tmp_path, mock_db_config, note_source)
         builder.execute_queries(mock_db_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_no_phi_dir(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -497,7 +488,6 @@ def test_no_phi_dir(mock_client, tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_bad_nlp_model(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -517,7 +507,6 @@ def test_bad_nlp_model(mock_client, tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_missing_nlp_model(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -532,7 +521,6 @@ def test_missing_nlp_model(mock_client, tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_bad_stop(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -551,7 +539,6 @@ def test_bad_stop(mock_client, tmp_path, mock_db_config, note_source):
     assert "did not complete, with finish reason: content_filter" in console_output.getvalue()
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_disabling_stats(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -570,7 +557,6 @@ def test_disabling_stats(mock_client, tmp_path, mock_db_config, note_source):
     assert "Token usage:" not in console_output.getvalue()
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
 def test_cloud_model_but_local_provider(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -584,7 +570,6 @@ def test_cloud_model_but_local_provider(mock_client, tmp_path, mock_db_config, n
         builder.execute_queries(mock_db_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_azure_happy_path(mock_client, tmp_path, mock_db_config, note_source):
@@ -599,7 +584,6 @@ def test_azure_happy_path(mock_client, tmp_path, mock_db_config, note_source):
     assert builder.stats.got_response[0] == 1
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.AzureOpenAI")
 def test_azure_bad_model(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -613,7 +597,6 @@ def test_azure_bad_model(mock_client, tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.AzureOpenAI")
 def test_azure_no_env(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -627,7 +610,6 @@ def test_azure_no_env(mock_client, tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_azure_no_schema_support(mock_client, tmp_path, mock_db_config, note_source):
@@ -647,7 +629,6 @@ def test_azure_no_schema_support(mock_client, tmp_path, mock_db_config, note_sou
     assert last_kwargs["response_format"] == {"type": "json_object"}
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("boto3.client")
 def test_bedrock_happy_path(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -661,7 +642,6 @@ def test_bedrock_happy_path(mock_client, tmp_path, mock_db_config, note_source):
     assert builder.stats.got_response[0] == 1
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("boto3.client")
 def test_bedrock_bad_stop(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -680,7 +660,6 @@ def test_bedrock_bad_stop(mock_client, tmp_path, mock_db_config, note_source):
     assert "did not complete, with stop reason: content_filter" in console_output.getvalue()
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("boto3.client")
 def test_bedrock_bad_model(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -694,7 +673,6 @@ def test_bedrock_bad_model(mock_client, tmp_path, mock_db_config, note_source):
         builder.execute_queries(mock_db_config, None)
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("boto3.client")
 def test_bedrock_skips_wrapper_in_response(mock_client, tmp_path, mock_db_config, note_source):
     """Confirm we drop a "parameter" wrapper object in response"""
@@ -724,7 +702,6 @@ def test_bedrock_skips_wrapper_in_response(mock_client, tmp_path, mock_db_config
     assert rows[0]["result"] == {"hello": "world"}
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("boto3.client")
 def test_bedrock_text_response(mock_client, tmp_path, mock_db_config, note_source):
     """Confirm we find json inside a text response"""
@@ -766,7 +743,6 @@ Summary.
     assert rows[0]["result"] == {"hello": 0.5}
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("boto3.client")
 def test_bedrock_no_response(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -785,7 +761,6 @@ def test_bedrock_no_response(mock_client, tmp_path, mock_db_config, note_source)
     assert "Failed to process note: no response content found" in console_output.getvalue()
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env()
 @mock.patch("botocore.client")
 @mock.patch("openai.OpenAI")
@@ -884,7 +859,6 @@ def mock_files_content(model: nlp_utils.MockModel, contents: list | None = None)
     )
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_azure_batching_happy_path(mock_client, tmp_path, mock_db_config, note_source):
@@ -935,7 +909,6 @@ def test_azure_batching_happy_path(mock_client, tmp_path, mock_db_config, note_s
     }
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_azure_resume_batching(mock_client, tmp_path, mock_db_config, note_source):
@@ -967,7 +940,6 @@ def test_azure_resume_batching(mock_client, tmp_path, mock_db_config, note_sourc
     assert rows[0]["result"] == {"ignored": "answer"}
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 @mock.patch("time.sleep", new=lambda x: None)
@@ -1036,7 +1008,6 @@ def test_azure_batching_errors(mock_client, tmp_path, mock_db_config, note_sourc
     assert "Unexpected response from NLP: missing data" in console_output.getvalue()
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch.object(OpenAIProvider, "AZURE_MAX_BATCH_COUNT", 2)
 @mock.patch.object(OpenAIProvider, "AZURE_MAX_BATCH_BYTES", 6000)
 @nlp_utils.mock_env("azure")
@@ -1112,7 +1083,6 @@ def test_azure_splitting_batch(mock_client, tmp_path, mock_db_config):
     ]
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_azure_batches_with_bad_notes(mock_client, tmp_path, mock_db_config):
@@ -1168,7 +1138,6 @@ def test_aws_profile_env_is_set(mock_register, tmp_path):
     assert os.environ.get("AWS_PROFILE") == "test-profile"
 
 
-@pytest.mark.xdist_group(name="nlp_builder")
 @nlp_utils.mock_env()
 @mock.patch("openai.OpenAI")
 def test_invalid_study_name(mock_client, tmp_path, note_source):

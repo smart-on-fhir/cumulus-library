@@ -515,7 +515,7 @@ class Model:
 
     def __init__(self, config: note_utils.NlpConfig):
         self.prices = None
-        self.max_batch_count = config.note_limit
+        self.max_batch_count = config.chunksize
 
         if config.provider == "azure":
             if not self.AZURE_ID:

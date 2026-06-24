@@ -174,6 +174,12 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
         help="Use NLP batching mode (saves money, might take longer, not all models support it)",
     )
     group.add_argument(
+        "--nlp-chunksize",
+        type=int,
+        dest="chunksize",
+        help="Number of notes to process before writing results out to storage",
+    )
+    group.add_argument(
         "--clean-nlp",
         action="store_true",
         help="Previous NLP task results will be deleted before uploading the new ones",
