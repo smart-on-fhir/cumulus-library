@@ -118,6 +118,7 @@ class NlpConfig:
         self.provider = args.get("nlp_provider", "local")
         self.azure_deployment = args.get("azure_deployment")
         self.use_batching = args.get("batch_nlp", False)
+        self.chunksize = args.get("chunk_size", 100000)
         self.clean = args.get("clean_nlp", False)
         self.phi_dir = args.get("etl_phi_dir")
         self.target = args.get("target")
@@ -129,8 +130,3 @@ class NlpConfig:
             codebook = codebook_path.read_json(default={})
             if id_salt := codebook.get("id_salt"):
                 self.salt = binascii.unhexlify(id_salt)
-
-        # Hard code a global memory limit for now. This limit is the number of notes we're willing
-        # to hold in memory at once. Once we hit this limit, we write out the current notes.
-        # This can be configurable in the future, as needed.
-        self.note_limit = 100_000
