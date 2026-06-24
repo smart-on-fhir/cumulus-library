@@ -96,7 +96,7 @@ keyword_file = ""
 # the valueset definitions using the VSAC API.
 
 [vsac_stewards]
-stweard_1 = "1.23.456.7.891012.3.4.5678.90"
+steward_1 = "1.23.456.7.891012.3.4.5678.90"
 steward_2 = "1.2.3.4.5.6.7890.1.2.3.456.789.0.1"
 
 # The umls_stewards section allows you to specify lookups in a source vocabulary
@@ -111,7 +111,7 @@ sab = "MED-RT"
 search_terms = ["Asprin"]
 [umls_stewards.steward_4]
 sab = "MED-RT"
-search_terms = ["Tylenol", "Ibuprofin"]
+search_terms = ["Tylenol", "Ibuprofen"]
 ```
 
 ## Using the constructed outputs:
