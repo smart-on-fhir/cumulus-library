@@ -4,7 +4,7 @@ import pandas
 import rich
 from rich.progress import track
 
-from cumulus_library import base_utils, study_manifest
+from cumulus_library import __version__, base_utils, study_manifest
 from cumulus_library.template_sql import base_templates
 
 # Database exporting functions
@@ -39,6 +39,7 @@ def export_study(
     :keyword archive: If true, get all study data and zip with timestamp
     :keyword chunksize: number of rows to export in a single transaction
     """
+    rich.print(f"[bold]cumulus-library version:[/] {__version__}")
     skipped_tables = []
     reset_counts_exports(manifest)
     manifest.materialize_counts_builder_exports()

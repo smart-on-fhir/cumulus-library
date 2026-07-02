@@ -8,7 +8,7 @@ import requests
 import rich
 from pandas import read_parquet
 
-from cumulus_library import base_utils, const
+from cumulus_library import __version__, base_utils, const
 
 
 def upload_data(
@@ -111,6 +111,8 @@ def upload_files(args: dict):
         version = str(read_parquet(upload_archive.open(meta_version))["data_package_version"][0])
     except StopIteration:
         version = "0"
+    rich.print(f"[bold]cumulus-library version:[/] {__version__}")
+    rich.print(f"[bold]data package version:[/] {version}")
     # TODO: I looked into monitoring upload progress instead of completed files and it is
     # non-trivial - potential point for improvement later
     with base_utils.get_progress_bar() as progress_bar:
