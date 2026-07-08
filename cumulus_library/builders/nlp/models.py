@@ -237,9 +237,17 @@ class OpenAIProvider(Provider):
             raise UnreachableModel(f"NLP server is unreachable: {exc}") from exc
 
         if self.model_name not in names:
-            raise errors.CumulusLibraryError(
-                f"NLP server does not have model ID '{self.model_name}'."
-            )
+            # Instead of failing, let's do a request to check if the deployment works.
+            # (This is a workaround for Azure, which uses deployment names instead of model names.)
+            try:
+                self.client.chat.completions.create(
+                    model=self.deployment,
+                    messages=[{"role": "system", "content": "Hello"}],
+                )
+            except openai.APIError as exc:
+                raise errors.CumulusLibraryError(
+                    f"NLP server does not have model ID '{self.model_name}'."
+                )
 
     @staticmethod
     def pydantic_to_response_format(schema: type[BaseModel]):
