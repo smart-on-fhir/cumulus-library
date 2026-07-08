@@ -246,7 +246,7 @@ class OpenAIProvider(Provider):
                 )
             except openai.APIError as exc:
                 raise errors.CumulusLibraryError(
-                    f"NLP server does not have model ID '{self.model_name}'."
+                    f"NLP server does not have model ID '{self.model_name}: {exc}'."
                 )
 
     @staticmethod
