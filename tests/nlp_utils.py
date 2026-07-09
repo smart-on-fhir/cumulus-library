@@ -150,6 +150,18 @@ class MockModel:
             error = openai.APIError("test failure", mock.MagicMock(), body=None)
             self.openai.models.list.side_effect = error
 
+    def mock_openai_deployment_check(self, fail: bool = False) -> None:
+        """Controls the Azure-style deployment fallback request in post_init_check.
+
+        This is the request made when a model ID isn't in the server's model list, to check
+        whether a deployment of that name still works (a workaround for Azure).
+        """
+        if fail:
+            error = openai.APIError("test failure", mock.MagicMock(), body=None)
+            self.openai.chat.completions.create.side_effect = error
+        else:
+            self.openai.chat.completions.create.side_effect = None
+
     def _completion_for_value(
         self, value: dict, finish_reason: str = "stop"
     ) -> chat.ParsedChatCompletion:
