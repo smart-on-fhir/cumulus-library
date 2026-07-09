@@ -508,10 +508,28 @@ def test_bad_nlp_model(mock_client, tmp_path, mock_db_config, note_source):
 
 
 @mock.patch("openai.OpenAI")
-def test_missing_nlp_model(mock_client, tmp_path, mock_db_config, note_source):
+def test_missing_nlp_model_but_deployment_works(mock_client, tmp_path, mock_db_config, note_source):
+    # The model ID isn't in the server's model list, but the deployment fallback request
+    # succeeds (the Azure workaround), so we should proceed without error.
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client)
     model.mock_openai_model_list(models=[])
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+
+    builder.execute_queries(mock_db_config, None)
+
+
+@mock.patch("openai.OpenAI")
+def test_missing_nlp_model(mock_client, tmp_path, mock_db_config, note_source):
+    # The model ID isn't in the server's model list, and the deployment fallback request also
+    # fails with an APIError, so we should surface a CumulusLibraryError.
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client)
+    model.mock_openai_model_list(models=[])
+    model.mock_openai_deployment_check(fail=True)
 
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
