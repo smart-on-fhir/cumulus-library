@@ -1220,3 +1220,14 @@ def test_env_vs_default_arg_handling(mock_run, tmp_path):
     os.environ["CUMULUS_LIBRARY_DB_TYPE"] = "duckdb"
     cli.main(cli_args=["clean", "-t", "core"])
     assert mock_run.call_args[0][0]["db_type"] == "duckdb"
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+def test_cohorts_protected():
+    with pytest.raises(SystemExit):
+        cli.main(cli_args=["build", "-t", "cohorts"])
+    with pytest.raises(SystemExit, match="no way to undo"):
+        cli.main(cli_args=["clean", "-t", "cohorts"])
