@@ -473,7 +473,7 @@ def main(cli_args=None):
     if args["action"] is None:
         sys.exit("No actions selected. Run 'cumulus-library -h' for details about actions.")
 
-    if args["target"] is not None and args["target"].lower() == "cohorts":
+    if args.get("target") and args["target"].lower() == "cohorts":
         exit_msg = "'cohorts' is a reserved study name. Please choose a different target."
         if args["action"] == "clean":
             exit_msg += (
