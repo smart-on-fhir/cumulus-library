@@ -473,6 +473,16 @@ def main(cli_args=None):
     if args["action"] is None:
         sys.exit("No actions selected. Run 'cumulus-library -h' for details about actions.")
 
+    if args.get("target") and args["target"].lower() == "cohorts":
+        exit_msg = "'cohorts' is a reserved study name. Please choose a different target."
+        if args["action"] == "clean":
+            exit_msg += (
+                "\nIf you want to remove all manually created cohorts, you can use the args "
+                "'--prefix --target cohorts__' to delete these tables. Note that there is "
+                "no way to undo this action."
+            )
+        sys.exit(exit_msg)
+
     if args["action"] == "version":
         table = rich.table.Table(title=f"cumulus-library version: {__version__}")
         table.add_column("Study Name", style="green")
