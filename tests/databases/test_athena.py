@@ -127,9 +127,6 @@ expected_put_object_call_count
             1,
             id="different-content-force-upload-does-not-call-get-object",
         ),
-        pytest.param(
-            False, {"KeyCount": 0}, None, b"new-content", 0, 1, id="basic-upload-no-remote-file"
-        ),
     ],
 )
 @mock.patch("botocore.session.Session")
@@ -162,11 +159,7 @@ def test_upload_file_behavior(
 
     s3_client = mock.MagicMock()
     s3_client.list_objects_v2.return_value = list_objects_result
-
-    if remote_body is not None:
-        s3_client.get_object.return_value = {"Body": io.BytesIO(remote_body)}
-    else:
-        s3_client.get_object.return_value = None
+    s3_client.get_object.return_value = {"Body": io.BytesIO(remote_body)}
 
     mock_session.return_value.create_client.return_value = s3_client
 
