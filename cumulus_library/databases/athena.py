@@ -5,6 +5,7 @@ features, like pyathena's async cursors, to simplify cross-db behavior.
 """
 
 import collections
+import hashlib
 import os
 import pathlib
 from concurrent import futures
@@ -185,7 +186,26 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 Prefix=f"{s3_key}/{remote_filename}",
             )
             if res["KeyCount"] > 0:
-                return f"s3://{bucket}/{s3_key}"
+                if not file.exists():
+                    return f"s3://{bucket}/{s3_key}"
+
+                local_file_hash = hashlib.sha256(
+                    file.read_bytes(), usedforsecurity=False
+                ).hexdigest()
+
+                res = s3_client.get_object(
+                    Bucket=bucket,
+                    Key=f"{s3_key}/{remote_filename}",
+                )
+
+                local_file_hash = hashlib.sha256(
+                    file.read_bytes(), usedforsecurity=False
+                ).hexdigest()
+                res_hash = hashlib.sha256(res["Body"].read(), usedforsecurity=False).hexdigest()
+
+                if res_hash == local_file_hash:
+                    return f"s3://{bucket}/{s3_key}"
+
         with open(file, "rb") as b_file:
             s3_client.put_object(
                 Bucket=bucket,

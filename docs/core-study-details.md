@@ -22,7 +22,7 @@ for validating the integrity of the data you're extracting from your EHR system
 If you are authoring a study, and are focused only on clinical analysis (i.e. you
 aren't working on data quality/data governance issues), we **strongly** recommend you
 use the core study as the starting point for your own work. See 
-[Creating Studies](./creating-studies.md)
+[Creating Studies](./example.md)
 for more information.
 
 ## Design philosophy

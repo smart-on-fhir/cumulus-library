@@ -1,5 +1,6 @@
 """Edge case testing for Athena database support"""
 
+import io
 import json
 import pathlib
 import time
@@ -10,6 +11,7 @@ import awswrangler
 import botocore
 import pandas
 import pyathena
+import pytest
 
 from cumulus_library import base_utils, databases, study_manifest
 from tests import conftest
@@ -78,6 +80,111 @@ def test_upload_parquet_response_handling(mock_session):
     assert resp == (
         "s3://cumulus-athena-123456789012-us-east-1/results/cumulus_user_uploads/db_schema/test_study/count_patient"
     )
+
+
+@pytest.mark.parametrize(
+    """force_upload,
+list_objects_result,
+remote_body,
+local_bytes,
+expected_get_object_call_count,
+expected_put_object_call_count
+""",
+    [
+        pytest.param(
+            False,
+            {"KeyCount": 1},
+            b"same-content",
+            b"same-content",
+            1,
+            0,
+            id="remote-file-and-local-same-content",
+        ),
+        pytest.param(
+            False,
+            {"KeyCount": 1},
+            b"old-content",
+            b"new-content",
+            1,
+            1,
+            id="remote-file-and-local-different-content",
+        ),
+        pytest.param(
+            True,
+            {"KeyCount": 1},
+            b"same-content",
+            b"same-content",
+            0,
+            1,
+            id="same-content-force-upload-does-not-call-get-object",
+        ),
+        pytest.param(
+            True,
+            {"KeyCount": 1},
+            b"old-content",
+            b"new-content",
+            0,
+            1,
+            id="different-content-force-upload-does-not-call-get-object",
+        ),
+        pytest.param(
+            False, {"KeyCount": 0}, None, b"new-content", 0, 1, id="basic-upload-no-remote-file"
+        ),
+    ],
+)
+@mock.patch("botocore.session.Session")
+def test_upload_file_behavior(
+    mock_session,
+    tmp_path,
+    force_upload,
+    list_objects_result,
+    remote_body,
+    local_bytes,
+    expected_get_object_call_count,
+    expected_put_object_call_count,
+):
+    path = pathlib.Path(__file__).resolve().parents[1]
+    local_file = tmp_path / "count.parquet"
+    local_file.write_bytes(local_bytes)
+
+    db = databases.AthenaDatabaseBackend(
+        region="us-east-1",
+        work_group="work_group",
+        profile="profile",
+        schema_name="db_schema",
+    )
+    db.connect()
+
+    client = mock.MagicMock()
+    with open(path / "test_data/aws/boto3.client.athena.get_work_group.json") as f:
+        client.get_work_group.return_value = json.load(f)
+    db.connection._client = client
+
+    s3_client = mock.MagicMock()
+    s3_client.list_objects_v2.return_value = list_objects_result
+
+    if remote_body is not None:
+        s3_client.get_object.return_value = {"Body": io.BytesIO(remote_body)}
+    else:
+        s3_client.get_object.return_value = None
+
+    mock_session.return_value.create_client.return_value = s3_client
+
+    resp = db.upload_file(
+        file=local_file,
+        study="test_study",
+        topic="count_patient",
+        remote_filename="count.csv",
+        force_upload=force_upload,
+    )
+
+    assert resp == (
+        "s3://cumulus-athena-123456789012-us-east-1/results/"
+        "cumulus_user_uploads/db_schema/test_study/count_patient"
+    )
+
+    s3_client.get_object.call_count = expected_get_object_call_count
+    s3_client.put_object.call_count = expected_put_object_call_count
 
 
 @mock.patch("botocore.client")
