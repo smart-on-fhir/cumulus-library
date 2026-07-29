@@ -186,7 +186,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 Prefix=f"{s3_key}/{remote_filename}",
             )
             if res["KeyCount"] > 0:
-
                 local_file_hash = hashlib.sha256(
                     file.read_bytes(), usedforsecurity=False
                 ).hexdigest()
