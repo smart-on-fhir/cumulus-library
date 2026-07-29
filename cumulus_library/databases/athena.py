@@ -71,6 +71,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             self.connect_kwargs["aws_access_key_id"] = c.access_key
             self.connect_kwargs["aws_secret_access_key"] = c.secret_key
             self.connect_kwargs["aws_session_token"] = c.token
+            self.connect_kwargs.pop("profile_name", None)
 
         self.connection = pyathena.connect(
             region_name=self.region,
