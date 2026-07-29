@@ -66,12 +66,15 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         if self.connect_kwargs == {} or not any(
             [self.connect_kwargs.get(x.lower()) is not None for x in AWS_ENV_VARS]
         ):
-            s = boto3.Session()
-            c = s.get_credentials()
-            self.connect_kwargs["aws_access_key_id"] = c.access_key
-            self.connect_kwargs["aws_secret_access_key"] = c.secret_key
-            self.connect_kwargs["aws_session_token"] = c.token
-            self.connect_kwargs.pop("profile_name", None)
+            session = boto3.Session()
+            creds = session.get_credentials()
+            if creds is not None:
+                self.connect_kwargs["aws_access_key_id"] = creds.access_key
+                self.connect_kwargs["aws_secret_access_key"] = creds.secret_key
+                self.connect_kwargs["aws_session_token"] = creds.token
+                # We'll remove the default profile arg, since it can interfere with
+                # boto lookups
+                self.connect_kwargs.pop("profile_name", None)
 
         self.connection = pyathena.connect(
             region_name=self.region,
