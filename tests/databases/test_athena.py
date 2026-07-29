@@ -70,12 +70,18 @@ def test_upload_parquet_response_handling(mock_session):
     s3_client = mock.MagicMock()
     with open(path / "test_data/aws/boto3.client.s3.list_objects_v2.json") as f:
         s3_client.list_objects_v2.return_value = json.load(f)
+
+    parquet_path = path / "test_data/file_upload/upload.parquet"
+    parquet_bytes = parquet_path.read_bytes()
+    s3_client.get_object.return_value = {"Body": io.BytesIO(parquet_bytes)}
+
     mock_session.return_value.create_client.return_value = s3_client
+    print(path)
     resp = db.upload_file(
-        file=path / "test_data/count_synthea_patient.parquet",
+        file=path / "test_data/file_upload/upload.parquet",
         study="test_study",
-        topic="count_patient",
-        remote_filename="count_synthea_patient.parquet",
+        topic="upload",
+        remote_filename="upload.parquet",
     )
     assert resp == (
         "s3://cumulus-athena-123456789012-us-east-1/results/cumulus_user_uploads/db_schema/test_study/count_patient"
