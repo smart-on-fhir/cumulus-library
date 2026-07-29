@@ -1,6 +1,7 @@
 """Edge case testing for Athena database support"""
 
 import json
+import os
 import pathlib
 import time
 from concurrent import futures
@@ -228,3 +229,26 @@ def test_get_remote_path(mock_client):
     }
     db.connection._client.get_work_group.side_effect = [bucket_info, bucket_info]
     assert db.get_remote_path() == "s3://testbucket/athena"
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("botocore.session")
+def test_boto_fallback(mock_session):
+    mock_session.get_session.return_value.get_credentials.return_value = (
+        botocore.credentials.Credentials(access_key="access", secret_key="secret", token="token")
+    )
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+    db.connect()
+    assert db.connect_kwargs == {
+        "aws_access_key_id": "access",
+        "aws_secret_access_key": "secret",
+        "aws_session_token": "token",
+    }
