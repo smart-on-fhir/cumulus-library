@@ -136,7 +136,7 @@ def test_upload_file_behavior(
     expected_put_object_call_count,
 ):
     path = pathlib.Path(__file__).resolve().parents[1]
-    local_file = tmp_path / "count.parquet"
+    local_file = tmp_path / "upload_file_behavior.csv"
     local_file.write_bytes(local_bytes)
 
     db = databases.AthenaDatabaseBackend(
@@ -161,14 +161,14 @@ def test_upload_file_behavior(
     resp = db.upload_file(
         file=local_file,
         study="test_study",
-        topic="count_patient",
-        remote_filename="count.csv",
+        topic="upload_file_behavior",
+        remote_filename="upload_file_behavior.csv",
         force_upload=force_upload,
     )
 
     assert resp == (
         "s3://cumulus-athena-123456789012-us-east-1/results/"
-        "cumulus_user_uploads/db_schema/test_study/count_patient"
+        "cumulus_user_uploads/db_schema/test_study/upload_file_behavior"
     )
 
     s3_client.get_object.call_count = expected_get_object_call_count
