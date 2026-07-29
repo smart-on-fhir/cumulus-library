@@ -188,7 +188,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             if res["KeyCount"] > 0:
                 local_file_hash = hashlib.md5(file.read_bytes(), usedforsecurity=False).hexdigest()
 
-                if "ETag" in res and res["ETag"].strip() == local_file_hash:
+                if "ETag" in res and res["ETag"].strip('" ') == local_file_hash:
                     return f"s3://{bucket}/{s3_key}"
 
                 res = s3_client.get_object(
