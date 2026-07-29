@@ -88,13 +88,14 @@ def test_upload_parquet_response_handling(mock_session):
 
 
 @pytest.mark.parametrize(
-    """force_upload,
-list_objects_result,
-remote_body,
-local_bytes,
-expected_get_object_call_count,
-expected_put_object_call_count
-""",
+    (
+        "force_upload,"
+        "list_objects_result,"
+        "remote_body,"
+        "local_bytes,"
+        "expected_get_object_call_count,"
+        "expected_put_object_call_count"
+    ),
     [
         pytest.param(
             False,
