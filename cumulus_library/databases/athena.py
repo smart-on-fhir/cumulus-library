@@ -23,6 +23,8 @@ from rich import progress
 from cumulus_library import base_utils, errors
 from cumulus_library.databases import base, utils
 
+AWS_ENV_VARS = ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"]
+
 
 class AthenaDatabaseBackend(base.DatabaseBackend):
     """Database backend that can talk to AWS Athena"""
@@ -56,13 +58,19 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         # are set. If both are present, the env vars take precedence
         if self.profile is not None:
             self.connect_kwargs["profile_name"] = self.profile
-        for aws_env_name in [
-            "AWS_ACCESS_KEY_ID",
-            "AWS_SECRET_ACCESS_KEY",
-            "AWS_SESSION_TOKEN",
-        ]:
+        for aws_env_name in AWS_ENV_VARS:
             if aws_env_val := os.environ.get(aws_env_name):
                 self.connect_kwargs[aws_env_name.lower()] = aws_env_val
+
+        # if we don't have connection info, we'll try to get it from boto defaults
+        if self.connect_kwargs == {} or not any(
+            [self.connect_kwargs.get(x.lower()) is not None for x in AWS_ENV_VARS]
+        ):
+            s = boto3.Session()
+            c = s.get_credentials()
+            self.connect_kwargs["aws_access_key_id"] = c.access_key
+            self.connect_kwargs["aws_secret_access_key"] = c.secret_key
+            self.connect_kwargs["aws_session_token"] = c.token
 
         self.connection = pyathena.connect(
             region_name=self.region,
