@@ -1,5 +1,6 @@
 """Edge case testing for Athena database support"""
 
+import hashlib
 import io
 import json
 import pathlib
@@ -71,18 +72,18 @@ def test_upload_parquet_response_handling(mock_session):
     with open(path / "test_data/aws/boto3.client.s3.list_objects_v2.json") as f:
         s3_client.list_objects_v2.return_value = json.load(f)
 
-    with open(path / "test_data/file_upload/upload.parquet", "rb") as f:
+    with open(path / "test_data/upload/upload__count_synthea_patient.cube.parquet", "rb") as f:
         s3_client.get_object.return_value = {"Body": io.BytesIO(f.read())}
 
     mock_session.return_value.create_client.return_value = s3_client
     resp = db.upload_file(
-        file=path / "test_data/file_upload/upload.parquet",
+        file=path / "test_data/upload/upload__count_synthea_patient.cube.parquet",
         study="test_study",
-        topic="upload",
-        remote_filename="upload.parquet",
+        topic="count_patient",
+        remote_filename="count_synthea_patient.cube.parquet",
     )
     assert resp == (
-        "s3://cumulus-athena-123456789012-us-east-1/results/cumulus_user_uploads/db_schema/test_study/upload"
+        "s3://cumulus-athena-123456789012-us-east-1/results/cumulus_user_uploads/db_schema/test_study/count_patient"
     )
 
 
@@ -95,6 +96,18 @@ expected_get_object_call_count,
 expected_put_object_call_count
 """,
     [
+        pytest.param(
+            False,
+            {
+                "KeyCount": 1,
+                "ETag": hashlib.md5(b"same-content", usedforsecurity=False).hexdigest(),
+            },
+            b"same-content",
+            b"same-content",
+            0,
+            0,
+            id="remote-file-etag-and-local-hash-match-does-not-call-get-or-put-object",
+        ),
         pytest.param(
             False,
             {"KeyCount": 1},
