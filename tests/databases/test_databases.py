@@ -3,6 +3,7 @@
 This is intended to exercise edge cases not covered via more integrated testing"""
 
 import datetime
+import io
 import os
 import pathlib
 from contextlib import nullcontext as does_not_raise
@@ -237,6 +238,8 @@ def test_upload_file_athena(mock_botocore, args, sse, keycount, expected, raises
     mock_clientobj = mock_botocore.ClientCreator.return_value.create_client.return_value
     mock_clientobj.get_work_group.return_value = mock_data
     mock_clientobj.list_objects_v2.return_value = {"KeyCount": keycount}
+    if keycount > 0:
+        mock_clientobj.get_object.return_value = {"Body": io.BytesIO(args["file"].read_bytes())}
     db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
     db.connect()
     with raises:

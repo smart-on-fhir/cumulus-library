@@ -120,16 +120,7 @@ expected_put_object_call_count
             b"same-content",
             0,
             1,
-            id="same-content-force-upload-does-not-call-get-object",
-        ),
-        pytest.param(
-            True,
-            {"KeyCount": 1},
-            b"old-content",
-            b"new-content",
-            0,
-            1,
-            id="different-content-force-upload-does-not-call-get-object",
+            id="force-upload-does-not-call-get-object",
         ),
     ],
 )
