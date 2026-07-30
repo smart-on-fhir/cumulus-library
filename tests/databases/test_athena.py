@@ -168,15 +168,14 @@ def test_upload_file_behavior(
     s3_client = mock.MagicMock()
     s3_client.list_objects_v2.return_value = list_objects_result
 
-    s3_client.head_object.return_value = {}
     if remote_bytes:
-        s3_client.head_object.return_value = (
-            {
-                "ChecksumSHA256": base64.b64encode(
-                    hashlib.sha256(remote_bytes, usedforsecurity=False).digest()
-                ).decode("utf-8")
-            },
-        )
+        s3_client.head_object.return_value = {
+            "ChecksumSHA256": base64.b64encode(
+                hashlib.sha256(remote_bytes, usedforsecurity=False).digest()
+            ).decode("utf-8")
+        }
+    else:
+        s3_client.head_object.return_value = {}
 
     mock_session.return_value.create_client.return_value = s3_client
 
