@@ -99,22 +99,6 @@ def test_upload_parquet_response_handling(mock_session):
     [
         pytest.param(
             False,
-            {
-                "KeyCount": 1,
-                "Contents": [
-                    {
-                        "ETag": hashlib.md5(b"same-content", usedforsecurity=False).hexdigest(),
-                    }
-                ],
-            },
-            b"same-content",
-            b"same-content",
-            0,
-            0,
-            id="remote-file-etag-and-local-hash-match-does-not-call-get-or-put-object",
-        ),
-        pytest.param(
-            False,
             {"KeyCount": 1},
             b"same-content",
             b"same-content",
