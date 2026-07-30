@@ -165,6 +165,15 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
   will be much cheaper
 - `--clean-nlp`: if set, previous NLP results for the workflow will be deleted first
 - `--no-nlp-stats`: if set, note and token stats will not be printed to the console
+- `--select-table=TABLE`: restrict the build to only the given table(s) within the workflow (i.e.
+  a single `[tables.X]` entry). Can be repeated to select more than one table. This is most useful
+  during study development, when you want to iterate on one NLP table without building the whole
+  workflow every time. Combine with `--builder=my_workflow.workflow` to target a specific workflow
+  file if your study has more than one.
+- `--select-by-table=TABLE`: overrides the `select_by_table` config value for every NLP table being
+  built in this run, regardless of what's set in the workflow file. Handy for quickly testing NLP
+  against a different candidate-notes table while you're still iterating on it, without editing (or
+  forgetting to revert) the workflow file itself.
 
 ### What Data Gets Sent Where
 

@@ -123,6 +123,8 @@ class NlpConfig:
         self.phi_dir = args.get("etl_phi_dir")
         self.target = args.get("target")
         self.show_stats = args.get("nlp_stats")
+        self.select_table = args.get("select_table")
+        self.select_by_table = args.get("select_by_table")
 
         self.salt = None
         if self.phi_dir:

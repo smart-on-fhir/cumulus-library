@@ -40,7 +40,14 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         except Exception as e:
             sys.exit(f"The NLP workflow at {toml_config_path!s} is invalid: \n{e}")
 
+        if select_table := self._nlp_config.select_table:
+            self._filter_tables(select_table)
+
         self._flatten_config(toml_config_path.parent)
+
+        if select_by_table := self._nlp_config.select_by_table:
+            for task in self._workflow_config.tables.values():
+                task.select_by_table = select_by_table
 
         self._notes = notes
         if not self._notes:
@@ -50,6 +57,19 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
                 "provide a folder with FHIR resources like DiagnosticReport "
                 "or DocumentReference with inlined clinical notes."
             )
+
+    def _filter_tables(self, select_table: list[str]) -> None:
+        """Restricts this workflow's tables to just the ones requested via --select-table"""
+        available = self._workflow_config.tables
+        unknown = [name for name in select_table if name not in available]
+        if unknown:
+            sys.exit(
+                f"Unknown NLP table(s) requested via --select-table: {unknown}\n"
+                f"Available tables in this workflow: {sorted(available)}"
+            )
+        self._workflow_config.tables = {
+            name: task for name, task in available.items() if name in select_table
+        }
 
     def _flatten_config(self, config_dir: pathlib.Path) -> None:
         """Takes any non-specified task values from the [shared] table"""

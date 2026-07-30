@@ -190,6 +190,30 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
         action="store_false",
         help="Disable printing of NLP note and token statistics",
     )
+    group.add_argument(
+        "--select-table",
+        dest="select_table",
+        action="append",
+        metavar="TABLE",
+        help=(
+            "Restrict this build to only the given NLP table(s) within a workflow "
+            "(matches a `[tables.X]` entry's name in an NLP workflow config). Can be "
+            "repeated to select more than one table. Most useful combined with "
+            "--builder to target a single workflow file."
+        ),
+    )
+    group.add_argument(
+        "--select-by-table",
+        dest="select_by_table",
+        metavar="TABLE",
+        help=(
+            "Overrides the `select_by_table` config value for every NLP table being "
+            "built in this run, regardless of what's set in the workflow file. Handy "
+            "for quickly pointing NLP at a different candidate-notes table during "
+            "study development, without editing (and accidentally checking in changes "
+            "to) the workflow file."
+        ),
+    )
 
 
 def add_stage_argument(parser: argparse.ArgumentParser) -> None:

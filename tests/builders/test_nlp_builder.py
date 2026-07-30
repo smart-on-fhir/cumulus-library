@@ -146,6 +146,82 @@ def test_flattened_config(tmp_path, note_source):
     assert builder._workflow_config.tables["fallthrough"].system_prompt == "hello"
 
 
+def _workflow_with_two_tables(tmp_path):
+    return conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "nlp",
+            "shared": {
+                "select_by_table": "shared_table",
+            },
+            "tables": {
+                "age": {
+                    "response_schema": nlp_utils.EMPTY_SCHEMA,
+                },
+                "race": {
+                    "select_by_table": "race_table",
+                    "response_schema": nlp_utils.EMPTY_SCHEMA,
+                },
+            },
+        },
+        "nlp.workflow",
+    )
+
+
+def test_select_table_filter(tmp_path, note_source):
+    """--select-table should restrict which [tables.X] entries get built"""
+    workflow_path = _workflow_with_two_tables(tmp_path)
+    nlp_config = note_utils.NlpConfig({"select_table": ["age"]})
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=nlp_config
+    )
+    assert list(builder._workflow_config.tables) == ["age"]
+
+
+def test_select_table_filter_multiple(tmp_path, note_source):
+    """--select-table can be repeated to build more than one table"""
+    workflow_path = _workflow_with_two_tables(tmp_path)
+    nlp_config = note_utils.NlpConfig({"select_table": ["age", "race"]})
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=nlp_config
+    )
+    assert set(builder._workflow_config.tables) == {"age", "race"}
+
+
+def test_select_table_unknown(tmp_path, note_source):
+    """An unknown --select-table value should exit with a helpful message"""
+    workflow_path = _workflow_with_two_tables(tmp_path)
+    nlp_config = note_utils.NlpConfig({"select_table": ["bogus"]})
+    with pytest.raises(SystemExit, match=r"(?s)Unknown NLP table\(s\).*bogus.*age.*race"):
+        nlp_builder.NlpBuilder(
+            toml_config_path=workflow_path, notes=note_source, nlp_config=nlp_config
+        )
+
+
+def test_select_by_table_override(tmp_path, note_source):
+    """--select-by-table should override select_by_table for every built table"""
+    workflow_path = _workflow_with_two_tables(tmp_path)
+    nlp_config = note_utils.NlpConfig({"select_by_table": "override_table"})
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=nlp_config
+    )
+    assert builder._workflow_config.tables["age"].select_by_table == "override_table"
+    assert builder._workflow_config.tables["race"].select_by_table == "override_table"
+
+
+def test_select_table_and_select_by_table_combined(tmp_path, note_source):
+    """The two new CLI args can be combined to build one table against a new select target"""
+    workflow_path = _workflow_with_two_tables(tmp_path)
+    nlp_config = note_utils.NlpConfig(
+        {"select_table": ["race"], "select_by_table": "override_table"}
+    )
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=nlp_config
+    )
+    assert list(builder._workflow_config.tables) == ["race"]
+    assert builder._workflow_config.tables["race"].select_by_table == "override_table"
+
+
 @mock.patch("openai.OpenAI")
 def test_filter(mock_client, tmp_path, mock_db_config):
     workflow_path = conftest.write_toml(
