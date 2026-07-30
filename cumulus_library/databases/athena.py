@@ -4,6 +4,7 @@ See base.py for design rules of thumb - notably, don't use non-PEP249 database
 features, like pyathena's async cursors, to simplify cross-db behavior.
 """
 
+import base64
 import collections
 import hashlib
 import os
@@ -192,22 +193,28 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
         session = boto3.Session(profile_name=self.connection.profile_name)
         s3_client = session.client("s3")
+
+        local_file_hash = hashlib.sha256(file.read_bytes(), usedforsecurity=False).digest()
         if not force_upload:
             res = s3_client.list_objects_v2(
                 Bucket=bucket,
                 Prefix=f"{s3_key}/{remote_filename}",
             )
+
             if res["KeyCount"] > 0:
-                local_file_hash = hashlib.md5(file.read_bytes(), usedforsecurity=False).hexdigest()
-
-                res = s3_client.get_object(
-                    Bucket=bucket,
-                    Key=f"{s3_key}/{remote_filename}",
+                # Retrieve metadata about the remote file.
+                # ChecksumMode returns any checksum if it exists.
+                res = s3_client.head_object(
+                    Bucket=bucket, Key=f"{s3_key}/{remote_filename}", ChecksumMode="ENABLED"
                 )
-                res_hash = hashlib.md5(res["Body"].read(), usedforsecurity=False).hexdigest()
 
-                if res_hash == local_file_hash:
-                    return f"s3://{bucket}/{s3_key}"
+                # If the checksum exists and is equal to the local file's checksum, skip upload.
+                # Otherwise - overwrite if the files are different, or if the checksum doesn't
+                # exist. Metadata in S3 is immutable so the object needs to be copied or overwritten.
+                if "ChecksumSHA256" in res:
+                    res_hash = base64.b64decode(res["ChecksumSHA256"])
+                    if res_hash == local_file_hash:
+                        return f"s3://{bucket}/{s3_key}"
 
         with open(file, "rb") as b_file:
             s3_client.put_object(
@@ -216,6 +223,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 Body=b_file,
                 ServerSideEncryption="aws:kms",
                 SSEKMSKeyId=kms_arn,
+                ChecksumAlgorithm="SHA256",
+                ChecksumSHA256=base64.b64encode(local_file_hash).decode("utf-8"),
             )
         return f"s3://{bucket}/{s3_key}"
 
