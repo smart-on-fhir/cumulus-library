@@ -1,5 +1,6 @@
 """Edge case testing for Athena database support"""
 
+import base64
 import hashlib
 import io
 import json
@@ -92,7 +93,7 @@ def test_upload_parquet_response_handling(mock_session):
     (
         "force_upload",
         "list_objects_result",
-        "head_object_result",
+        "remote_bytes",
         "local_bytes",
         "expected_head_object_call_count",
         "expected_put_object_call_count",
@@ -101,7 +102,7 @@ def test_upload_parquet_response_handling(mock_session):
         pytest.param(
             False,
             {"KeyCount": 1},
-            {"ChecksumSHA256": hashlib.sha256(b"same-content", usedforsecurity=False).digest()},
+            b"same-content",
             b"same-content",
             1,
             0,
@@ -110,7 +111,7 @@ def test_upload_parquet_response_handling(mock_session):
         pytest.param(
             False,
             {"KeyCount": 1},
-            {"ChecksumSHA256": hashlib.sha256(b"new-content", usedforsecurity=False).digest()},
+            b"new-content",
             b"old-content",
             1,
             1,
@@ -119,7 +120,7 @@ def test_upload_parquet_response_handling(mock_session):
         pytest.param(
             False,
             {"KeyCount": 1},
-            {},
+            "",
             b"new-content",
             1,
             1,
@@ -128,7 +129,7 @@ def test_upload_parquet_response_handling(mock_session):
         pytest.param(
             True,
             {"KeyCount": 1},
-            {"ChecksumSHA256": hashlib.sha256(b"same-content", usedforsecurity=False).digest()},
+            b"same-content",
             b"same-content",
             0,
             1,
@@ -142,7 +143,7 @@ def test_upload_file_behavior(
     tmp_path,
     force_upload,
     list_objects_result,
-    head_object_result,
+    remote_bytes,
     local_bytes,
     expected_head_object_call_count,
     expected_put_object_call_count,
@@ -166,7 +167,16 @@ def test_upload_file_behavior(
 
     s3_client = mock.MagicMock()
     s3_client.list_objects_v2.return_value = list_objects_result
-    s3_client.head_object.return_value = {"ContentLength": len(head_object_result)}
+
+    s3_client.head_object.return_value = {}
+    if remote_bytes:
+        s3_client.head_object.return_value = (
+            {
+                "ChecksumSHA256": base64.b64encode(
+                    hashlib.sha256(remote_bytes, usedforsecurity=False).digest()
+                ).decode("utf-8")
+            },
+        )
 
     mock_session.return_value.create_client.return_value = s3_client
 
