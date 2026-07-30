@@ -9,7 +9,7 @@ nav_order: 11
 # Creating SQL with python
 
 Before jumping into this doc, take a look at 
-[Creating Studies](creating-studies.md).
+[Creating Studies](example.md).
 If you're just working with the
 [Core study tables](core-study-details.md)
 related to the US Core FHIR profiles, you may not be interested in this.

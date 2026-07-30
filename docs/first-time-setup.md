@@ -29,7 +29,7 @@ Installing adds a `cumulus-library` command for interacting with Athena.
 It provides several actions for users:
 
 - `build` will create new study tables, replacing previously created versions
-(more information on this in [Creating studies](./creating-studies.md)).
+(more information on this in [Creating studies](./example.md)).
 - `clean` will remove studies from Athena, in case you no longer need them
 - `export` will output the data in the tables to both a `.csv` and
 `.parquet` file. The former is intended for human review, while the latter is
@@ -79,7 +79,7 @@ and their associated CLI args:
 ## Example usage: building and exporting the core study
 
 Let's walk through configuring and creating the core study in Athena. With
-this completed, you'll be ready to move on to [Creating studies](./creating-studies.md)).
+this completed, you'll be ready to move on to [Creating studies](./example.md)).
 
 - First, follow the instructions in the readme of the 
 [Sample Database](https://github.com/smart-on-fhir/cumulus-library-sample-database),
@@ -109,4 +109,4 @@ of what kind of output to expect.
 
 ## Next steps
 
-Now that you are all set up, you can learn how to [create studies](./creating-studies.md) of your own!
+Now that you are all set up, you can learn how to [create studies](./example.md) of your own!

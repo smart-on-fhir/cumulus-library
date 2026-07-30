@@ -151,7 +151,7 @@ your builder will be passed one of these via the CLI. We're only including metho
 that are relevant to clinical studies, rather than data prep/execution.
 
 See 
-[Creating studies](creating-studies.md) 
+[Creating studies](example.md) 
 for more info about what goes into a manifest and why.
 
 ### get_study_prefix
