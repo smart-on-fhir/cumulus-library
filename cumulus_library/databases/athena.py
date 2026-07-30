@@ -210,7 +210,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
                 # If the checksum exists and is equal to the local file's checksum, skip upload.
                 # Otherwise - overwrite if the files are different, or if the checksum doesn't
-                # exist. Metadata in S3 is immutable so the object needs to be copied or overwritten.
+                # exist. Metadata in S3 is immutable so the object needs to be overwritten.
                 if "ChecksumSHA256" in res:
                     res_hash = base64.b64decode(res["ChecksumSHA256"])
                     if res_hash == local_file_hash:
