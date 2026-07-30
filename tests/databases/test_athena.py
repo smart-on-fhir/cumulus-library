@@ -14,7 +14,7 @@ import pandas
 import pyathena
 import pytest
 
-from cumulus_library import base_utils, databases, study_manifest
+from cumulus_library import base_utils, databases, errors, study_manifest
 from tests import conftest
 
 
@@ -85,6 +85,32 @@ def test_upload_parquet_response_handling(mock_session):
     assert resp == (
         "s3://cumulus-athena-123456789012-us-east-1/results/cumulus_user_uploads/db_schema/test_study/count_patient"
     )
+
+
+@mock.patch("botocore.session.Session")
+def test_upload_file_does_not_exist(mock_session):
+    path = pathlib.Path(__file__).resolve().parents[1]
+    db = databases.AthenaDatabaseBackend(
+        region="us-east-1",
+        work_group="work_group",
+        profile="profile",
+        schema_name="db_schema",
+    )
+    db.connect()
+    client = mock.MagicMock()
+    with open(path / "test_data/aws/boto3.client.athena.get_work_group.json") as f:
+        client.get_work_group.return_value = json.load(f)
+    db.connection._client = client
+    s3_client = mock.MagicMock()
+
+    mock_session.return_value.create_client.return_value = s3_client
+    with pytest.raises(errors.FileUploadError):
+        db.upload_file(
+            file=path / "test_data/upload/missing_file.parquet",
+            study="test_study",
+            topic="missing_file",
+            remote_filename="missing_file.cube.parquet",
+        )
 
 
 @pytest.mark.parametrize(

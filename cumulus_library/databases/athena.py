@@ -172,6 +172,9 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         remote_filename: str | None = None,
         force_upload=False,
     ) -> str | None:
+        if not file.exists():
+            raise errors.FileUploadError(f"File {file} does not exist, cannot upload.")
+
         # We'll investigate the connection to get the relevant S3 upload path.
         wg_conf = self._get_result_config()
         s3_path = wg_conf["OutputLocation"]
