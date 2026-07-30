@@ -94,8 +94,8 @@ def test_upload_parquet_response_handling(mock_session):
         "list_objects_result",
         "head_object_result",
         "local_bytes",
-        "expected_put_object_call_count",
         "expected_head_object_call_count",
+        "expected_put_object_call_count",
     ),
     [
         pytest.param(
@@ -103,8 +103,8 @@ def test_upload_parquet_response_handling(mock_session):
             {"KeyCount": 1},
             {"ChecksumSHA256": hashlib.sha256(b"same-content", usedforsecurity=False).digest()},
             b"same-content",
-            0,
             1,
+            0,
             id="checksums-match-does-not-call-put-object",
         ),
         pytest.param(
@@ -130,8 +130,8 @@ def test_upload_parquet_response_handling(mock_session):
             {"KeyCount": 1},
             {"ChecksumSHA256": hashlib.sha256(b"same-content", usedforsecurity=False).digest()},
             b"same-content",
-            1,
             0,
+            1,
             id="force-upload-does-not-call-head-object",
         ),
     ],
@@ -144,8 +144,8 @@ def test_upload_file_behavior(
     list_objects_result,
     head_object_result,
     local_bytes,
-    expected_put_object_call_count,
     expected_head_object_call_count,
+    expected_put_object_call_count,
 ):
     path = pathlib.Path(__file__).resolve().parents[1]
     local_file = tmp_path / "upload_file_behavior.csv"
