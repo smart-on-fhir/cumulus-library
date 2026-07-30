@@ -193,8 +193,8 @@ def test_upload_file_behavior(
         "cumulus_user_uploads/db_schema/test_study/upload_file_behavior"
     )
 
-    s3_client.put_object.call_count = expected_put_object_call_count
     s3_client.put_object.call_count = expected_head_object_call_count
+    s3_client.put_object.call_count = expected_put_object_call_count
 
 
 @mock.patch("botocore.client")
