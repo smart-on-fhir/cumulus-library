@@ -1,6 +1,5 @@
 """Edge case testing for Athena database support"""
 
-import hashlib
 import io
 import json
 import pathlib
