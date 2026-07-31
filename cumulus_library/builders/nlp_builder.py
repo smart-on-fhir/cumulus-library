@@ -207,13 +207,14 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         for table_slug, task in self._workflow_config.tables.items():
             table_schema = driver.schema_for_task(task)
             location = str(
-                driver.output_path_for_task(self._nlp_config.target, table_slug, task, config.db)
+                driver.output_path_for_task(self._nlp_config, table_slug, task, config.db)
             )
+            table_name = driver.table_name_for_task(table_slug, self._nlp_config)
             remote_types = config.db.col_parquet_types_from_pyarrow(table_schema)
             self.queries.append(
                 base_templates.get_ctas_from_parquet_query(
                     schema_name=config.schema,
-                    table_name=driver.table_name_for_task(table_slug, self._nlp_config),
+                    table_name=table_name,
                     local_location=location,
                     remote_location=location,
                     table_cols=table_schema.names,
