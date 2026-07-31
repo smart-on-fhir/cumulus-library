@@ -17,6 +17,7 @@ import botocore
 import pandas
 import pyarrow
 import pyathena
+import requests
 from pyathena.async_cursor import AsyncCursor as AthenaAsyncCursor
 from pyathena.common import BaseCursor as AthenaCursor
 from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
@@ -26,12 +27,13 @@ from cumulus_library import base_utils, errors
 from cumulus_library.databases import base, utils
 
 AWS_ENV_VARS = ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"]
+IID_BASE_URL = "http://169.254.169.254/latest"
 
 
 class AthenaDatabaseBackend(base.DatabaseBackend):
     """Database backend that can talk to AWS Athena"""
 
-    connection: None | AthenaCursor
+    connection: AthenaCursor | None
 
     def __init__(
         self,
@@ -77,6 +79,25 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 # We'll remove the default profile arg, since it can interfere with
                 # boto lookups
                 self.connect_kwargs.pop("profile_name", None)
+
+                # Are we in a EC2? if so, we'll get the region from the instance id document,
+                # intentionally overriding any args passed/default behaviors
+                # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/retrieve-iid.html
+                try:
+                    token_res = requests.put(
+                        f"{IID_BASE_URL}/api/token",
+                        headers={"X-aws-ec2-metadata-token-ttl-seconds": "60"},
+                        timeout=10,
+                    )
+                    if token_res.status_code == 200:
+                        doc_res = requests.get(
+                            f"{IID_BASE_URL}/dynamic/instance-identity/document",
+                            headers={"X-aws-ec2-metadata-token": token_res.text},
+                            timeout=10,
+                        )
+                        self.region = doc_res.json()["region"]
+                except requests.exceptions.ConnectionError:  # pragma: no cover
+                    pass
 
         self.connection = pyathena.connect(
             region_name=self.region,
@@ -195,7 +216,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             remote_filename = file.name
 
         session = boto3.Session(profile_name=self.connection.profile_name)
-        s3_client = session.client("s3")
+        s3_client = session.client("s3", region_name=self.region)
 
         local_file_hash = hashlib.sha256(file.read_bytes(), usedforsecurity=False).digest()
         if not force_upload:
@@ -241,7 +262,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         session = boto3.session.Session(
             **self.connect_kwargs,
         )
-        s3_client = session.client("s3")
+        s3_client = session.client("s3", region_name=self.region)
         workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
         wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
         s3_path = wg_conf["OutputLocation"]
@@ -302,7 +323,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
     def create_schema(self, schema_name) -> None:
         """Creates a new schema object inside the database"""
-        glue_client = boto3.client("glue")
+        glue_client = boto3.client("glue", region_name=self.region)
         try:
             glue_client.get_database(Name=schema_name)
         except botocore.exceptions.ClientError:
