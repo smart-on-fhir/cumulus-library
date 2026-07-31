@@ -15,8 +15,10 @@ import botocore
 import pandas
 import pyathena
 import pytest
+import responses
 
 from cumulus_library import base_utils, databases, errors, study_manifest
+from cumulus_library.databases import athena
 from tests import conftest
 
 
@@ -393,3 +395,51 @@ def test_boto_fallback(mock_session):
         "aws_secret_access_key": "secret",
         "aws_session_token": "token",
     }
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@pytest.mark.parametrize("status,expected", [(200, "us-west-1"), (404, None)])
+@mock.patch("botocore.session")
+@responses.activate
+def test_iid_lookup(mock_session, status, expected):
+    responses.add(
+        responses.PUT,
+        f"{athena.IID_BASE_URL}/api/token",
+        body="token",
+        match=[responses.matchers.header_matcher({"X-aws-ec2-metadata-token-ttl-seconds": "60"})],
+        status=status,
+    )
+    responses.add(
+        responses.GET,
+        f"{athena.IID_BASE_URL}/dynamic/instance-identity/document",
+        json={
+            "accountId": "123456789012",
+            "architecture": "arm64",
+            "availabilityZone": "us-west-1b",
+            "billingProducts": ["ab-12345678"],
+            "devpayProductCodes": None,
+            "marketplaceProductCodes": None,
+            "imageId": "ami-12345667890abcdef",
+            "instanceId": "i-12345667890abcdef",
+            "instanceType": "t4g.micro",
+            "kernelId": None,
+            "pendingTime": "2026-01-01T00:00:00Z",
+            "privateIp": "1.1.1.1",
+            "ramdiskId": None,
+            "region": "us-west-1",
+            "version": "2017-09-30",
+        },
+        match=[responses.matchers.header_matcher({"X-aws-ec2-metadata-token": "token"})],
+        status=200,
+    )
+    db = databases.AthenaDatabaseBackend(
+        region=None,
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+    db.connect()
+    assert db.region == expected
