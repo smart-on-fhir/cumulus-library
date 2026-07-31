@@ -96,7 +96,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                             timeout=10,
                         )
                         self.region = doc_res.json()["region"]
-                except requests.exceptions.ConnectionError:
+                except requests.exceptions.ConnectionError:  # pragma: no cover
                     pass
 
         self.connection = pyathena.connect(
