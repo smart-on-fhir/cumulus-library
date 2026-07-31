@@ -1,5 +1,7 @@
 """Edge case testing for Athena database support"""
 
+import base64
+import hashlib
 import io
 import json
 import os
@@ -115,12 +117,12 @@ def test_upload_file_does_not_exist(mock_session):
 
 @pytest.mark.parametrize(
     (
-        "force_upload,"
-        "list_objects_result,"
-        "remote_body,"
-        "local_bytes,"
-        "expected_get_object_call_count,"
-        "expected_put_object_call_count"
+        "force_upload",
+        "list_objects_result",
+        "remote_bytes",
+        "local_bytes",
+        "expected_head_object_call_count",
+        "expected_put_object_call_count",
     ),
     [
         pytest.param(
@@ -130,16 +132,25 @@ def test_upload_file_does_not_exist(mock_session):
             b"same-content",
             1,
             0,
-            id="remote-file-and-local-same-content-does-not-call-put-object",
+            id="checksums-match-does-not-call-put-object",
         ),
         pytest.param(
             False,
             {"KeyCount": 1},
+            b"new-content",
             b"old-content",
+            1,
+            1,
+            id="checksums-do-not-match-calls-put-object",
+        ),
+        pytest.param(
+            False,
+            {"KeyCount": 1},
+            "",
             b"new-content",
             1,
             1,
-            id="remote-file-and-local-different-content-calls-put-object",
+            id="remote-checksum-missing-calls-put-object",
         ),
         pytest.param(
             True,
@@ -148,7 +159,7 @@ def test_upload_file_does_not_exist(mock_session):
             b"same-content",
             0,
             1,
-            id="force-upload-does-not-call-get-object",
+            id="force-upload-does-not-call-head-object",
         ),
     ],
 )
@@ -158,9 +169,9 @@ def test_upload_file_behavior(
     tmp_path,
     force_upload,
     list_objects_result,
-    remote_body,
+    remote_bytes,
     local_bytes,
-    expected_get_object_call_count,
+    expected_head_object_call_count,
     expected_put_object_call_count,
 ):
     path = pathlib.Path(__file__).resolve().parents[1]
@@ -182,7 +193,15 @@ def test_upload_file_behavior(
 
     s3_client = mock.MagicMock()
     s3_client.list_objects_v2.return_value = list_objects_result
-    s3_client.get_object.return_value = {"Body": io.BytesIO(remote_body)}
+
+    if remote_bytes:
+        s3_client.head_object.return_value = {
+            "ChecksumSHA256": base64.b64encode(
+                hashlib.sha256(remote_bytes, usedforsecurity=False).digest()
+            ).decode("utf-8")
+        }
+    else:
+        s3_client.head_object.return_value = {}
 
     mock_session.return_value.create_client.return_value = s3_client
 
@@ -199,7 +218,7 @@ def test_upload_file_behavior(
         "cumulus_user_uploads/db_schema/test_study/upload_file_behavior"
     )
 
-    s3_client.get_object.call_count = expected_get_object_call_count
+    s3_client.head_object.call_count = expected_head_object_call_count
     s3_client.put_object.call_count = expected_put_object_call_count
 
 
