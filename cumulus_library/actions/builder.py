@@ -89,6 +89,7 @@ def build_study(
         queries = []
         explicit_serial_queries = []
         for file in action["files"]:
+            nlp_prefix_allowed = False
             if file not in file_list:
                 continue
             if file.endswith(".py"):
@@ -112,7 +113,7 @@ def build_study(
                     # the total number of manually executed queries.
                     explicit_serial_queries += b_queries
             elif file.endswith(".toml") or file.endswith(".workflow"):
-                w_queries, parallel_allowed = _run_workflow(
+                w_queries, parallel_allowed, nlp_prefix_allowed = _run_workflow(
                     config=config,
                     manifest=manifest,
                     filename=file,
@@ -139,7 +140,7 @@ def build_study(
             else:
                 raise errors.StudyManifestParsingError(f"Unexpected filetype in manifest: {file}")
             for query in queries:
-                _check_query_for_errors(config, manifest, query, file)
+                _check_query_for_errors(config, manifest, query, file, nlp_prefix_allowed)
         if parallel:
             query_count += len(queries)
             if query_count > 0:
@@ -551,7 +552,7 @@ def _run_workflow(
     notes: note_utils.NoteSource | None = None,
     nlp_config: note_utils.NlpConfig | None = None,
     parallel: bool = False,
-) -> tuple[list[str], bool]:
+) -> tuple[list[str], bool, bool]:
     """Loads workflow config from toml definitions and executes workflow
 
     :param config: a StudyConfig object
@@ -564,8 +565,10 @@ def _run_workflow(
     :keyword query_count: if prepare is true, the number of queries already rendered
     :keyword stage_name: the stage in the build currently being processed
     :keyword parallel; If true, execute queries in parallel if workflow allows
-    :returns: a list of queries
+    :returns: a list of queries, a bool flag for parallel being allowed, a bool flag
+        for allowing use of the `nlp_` table prefix
     """
+    nlp_prefix_allowed = False
     toml_path = pathlib.Path(f"{manifest._study_path}/{filename}")
     if prepare:
         with open(toml_path, encoding="utf-8") as file:
@@ -579,7 +582,7 @@ def _run_workflow(
             query_count,
             is_toml=True,
         )
-        return ([], False)
+        return ([], False, False)
 
     # This open is a bit redundant with the open inside of the PSM builder,
     # but we're letting it slide so that builders function similarly
@@ -601,6 +604,7 @@ def _run_workflow(
                 toml_config_path=toml_path,
             )
         case "nlp":
+            nlp_prefix_allowed = True
             builder = nlp_builder.NlpBuilder(
                 manifest=manifest,
                 toml_config_path=toml_path,
@@ -619,7 +623,7 @@ def _run_workflow(
                     .fetchall()
                 )
             if (target_table,) in existing_stats and not config.stats_build:
-                return ([], False)
+                return ([], False, False)
             builder = psm_builder.PsmBuilder(
                 toml_config_path=toml_path,
                 config=config,
@@ -658,7 +662,7 @@ def _run_workflow(
                 table_name=f"{target_table}_{safe_timestamp}",
                 view_name=target_table,
             )
-    return builder.queries, bool(builder and builder.parallel_allowed)
+    return builder.queries, bool(builder and builder.parallel_allowed), nlp_prefix_allowed
 
 
 def log_ref_summary(
@@ -832,6 +836,7 @@ def _check_query_for_errors(
     manifest: study_manifest.StudyManifest,
     query: str,
     filename: str,
+    nlp_prefix_allowed: bool = False,
 ):
     try:
         table = str(sqlglot.parse_one(query, dialect=config.db.db_type).find(sqlglot.exp.Table))
@@ -856,9 +861,11 @@ def _check_query_for_errors(
             "This query does not contain the study prefix. All tables should "
             f"start with a string like `{manifest.get_schema_aware_prefix_with_seperator()}`.",
         )
+    protected_keywords = [x for x in enums.ProtectedTableKeywords]
+    if nlp_prefix_allowed:
+        protected_keywords.remove(enums.ProtectedTableKeywords.NLP)
     if any(
-        f"{manifest.get_study_prefix()}__{word.value}_" in table
-        for word in enums.ProtectedTableKeywords
+        f"{manifest.get_study_prefix()}__{word.value}_" in table for word in protected_keywords
     ) and isinstance(
         sqlglot.parse_one(query, dialect=config.db.db_type), sqlglot.expressions.Create
     ):
