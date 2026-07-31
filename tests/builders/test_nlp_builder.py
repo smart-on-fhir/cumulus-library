@@ -208,6 +208,111 @@ def test_filter(mock_client, tmp_path, mock_db_config):
     assert expected_stats in console_output.getvalue()
 
 
+@pytest.mark.parametrize(
+    "model_id,expected_table,expected_folder",
+    [
+        # Hyphens in a model ID get converted to underscores, since the model is part of a
+        # SQL table name (and this matches how the ETL names its own NLP tables).
+        ("gpt-oss-120b", "example_nlp__nlp_task_gpt_oss_120b", "nlp_task_gpt_oss_120b_v2"),
+        ("gpt4o", "example_nlp__nlp_task_gpt4o", "nlp_task_gpt4o_v2"),
+    ],
+)
+@mock.patch("openai.OpenAI")
+def test_naming_conventions(
+    mock_client, model_id, expected_table, expected_folder, tmp_path, mock_db_config
+):
+    """NLP tables & upload folders should look like the ETL's: nlp prefix, task, model, version"""
+    model = nlp_utils.MockModel(mock_client, model_id=model_id)
+    nlp_config = model.nlp_config()
+    task = workflow.NlpTask(version=2)
+
+    assert driver.table_name_for_task("task", nlp_config) == expected_table
+    assert driver.upload_slug_for_task("task", task, nlp_config) == expected_folder
+    # duckdb has no remote upload location, so results land in the local cache dir
+    path = driver.output_path_for_task(nlp_config, "task", task, mock_db_config.db)
+    assert str(path) == f"{tmp_path}/nlp/example_nlp/{expected_folder}"
+
+
+@mock.patch("openai.OpenAI")
+def test_naming_requires_a_model(mock_client):
+    """We can't name a table without knowing the model, so complain early"""
+    model = nlp_utils.MockModel(mock_client)
+    nlp_config = model.nlp_config()
+    nlp_config.model = None
+
+    with pytest.raises(errors.CumulusLibraryError, match="An NLP model ID must be provided"):
+        driver.table_name_for_task("task", nlp_config)
+
+    # The model factory guards against this too, with the same message
+    with pytest.raises(errors.CumulusLibraryError, match="An NLP model ID must be provided"):
+        models.create_model(nlp_config)
+
+
+@mock.patch("openai.OpenAI")
+def test_clean_only_removes_this_task_and_model(mock_client, tmp_path, mock_db_config, note_source):
+    """--clean-nlp should leave other tasks & models alone"""
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client)
+
+    root = cfs.FsPath(tmp_path, "nlp", "example_nlp")
+    old_version = root.joinpath("nlp_task_gpt_oss_120b_v9")  # same task & model - gets cleaned
+    other_model = root.joinpath("nlp_task_gpt4o_v0")
+    other_task = root.joinpath("nlp_other_gpt_oss_120b_v0")
+    for folder in [old_version, other_model, other_task]:
+        folder.makedirs()
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config(clean=True)
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    assert not old_version.exists()
+    assert other_model.exists()
+    assert other_task.exists()
+
+
+@mock.patch("openai.OpenAI")
+def test_new_task_version_repoints_table(mock_client, tmp_path, mock_db_config, note_source):
+    """Bumping a task version should point the (unversioned) table at the new results"""
+
+    def build(version: int, answer: int) -> None:
+        workflow_path = conftest.write_toml(
+            tmp_path,
+            {
+                "config_type": "nlp",
+                "tables": {
+                    "task": {
+                        "version": version,
+                        "response_schema": '{"title":"test", "type": "object", '
+                        '"properties": {"hello": {"type": "integer"}}}',
+                    },
+                },
+            },
+            "nlp.workflow",
+        )
+        model = nlp_utils.MockModel(mock_client)
+        model.mock_openai_response({"hello": answer})
+        builder = nlp_builder.NlpBuilder(
+            toml_config_path=workflow_path,
+            notes=note_source,
+            nlp_config=model.nlp_config(clean=False),
+        )
+        builder.execute_queries(mock_db_config, None)
+
+    build(version=0, answer=1)
+    rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt_oss_120b")
+    assert rows[0]["result"] == {"hello": 1}
+    assert rows[0]["task_version"] == 0
+
+    # The old version's results are still sitting on disk, but the table should now be
+    # backed by the new version's folder.
+    build(version=1, answer=2)
+    assert cfs.FsPath(tmp_path, "nlp", "example_nlp", "nlp_task_gpt_oss_120b_v0").exists()
+    rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt_oss_120b")
+    assert rows[0]["result"] == {"hello": 2}
+    assert rows[0]["task_version"] == 1
+
+
 @mock.patch("openai.OpenAI")
 def test_already_uploaded(mock_client, tmp_path, mock_db_config, note_source):
     """Verify that we skip notes that we've already uploaded before"""
