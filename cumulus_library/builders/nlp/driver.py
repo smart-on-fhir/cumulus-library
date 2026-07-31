@@ -47,15 +47,16 @@ def run_nlp(
             # We wanna clean out all previous uploads for this table.
             # Do this before making the pool because that looks at the files in the folder to
             # get the first batch number to use.
-            root = output_path_for_task(nlp_config.target, table_slug, task, db).parent
-            table_with_version = re.compile(rf"/{table_slug}_v[0-9]+(\.ids)?$")
+            root = output_path_for_task(nlp_config, table_slug, task, db).parent
+            slug = table_slug_for_task(table_slug, nlp_config)
+            table_with_version = re.compile(rf"/{re.escape(slug)}_v[0-9]+(\.ids)?$")
             for folder in root.ls():
                 if table_with_version.search(str(folder)):
                     folder.rm()
 
     # Read ID refs for any already-uploaded notes
     prev_upload_refs = [
-        read_upload_refs_for_task(nlp_config.target, table_slug, task, db)
+        read_upload_refs_for_task(nlp_config, table_slug, task, db)
         for table_slug, task in tables.items()
     ]
 
@@ -97,8 +98,39 @@ def run_nlp(
     return stats
 
 
+def model_slug(nlp_config: note_utils.NlpConfig) -> str:
+    """Converts an NLP model ID into a slug that is safe for SQL names and file paths"""
+    if not nlp_config.model:
+        # Same message that models.create_model() gives, but we need a model name earlier than
+        # that (when naming the tables we're going to create).
+        raise errors.CumulusLibraryError("An NLP model ID must be provided (using --nlp-model).")
+    return nlp_config.model.replace("-", "_")
+
+
+def table_slug_for_task(table_slug: str, nlp_config: note_utils.NlpConfig) -> str:
+    """Returns the study-relative name for a task, like 'nlp_age_gpt_oss_120b'
+
+    This mirrors how Cumulus ETL names its own NLP tables and upload folders, so that
+    downstream consumers can treat library-generated and ETL-generated NLP results the same:
+    an 'nlp' prefix, the task name, and the model used.
+    """
+    return f"nlp_{table_slug}_{model_slug(nlp_config)}"
+
+
 def table_name_for_task(table_slug: str, nlp_config: note_utils.NlpConfig) -> str:
-    return f"{nlp_config.target}__{table_slug}"
+    """Returns the full database table name for a task, like 'my_study__nlp_age_gpt_oss_120b'"""
+    return f"{nlp_config.target}__{table_slug_for_task(table_slug, nlp_config)}"
+
+
+def upload_slug_for_task(
+    table_slug: str, task: workflow.NlpTask, nlp_config: note_utils.NlpConfig
+) -> str:
+    """Returns the upload folder name for a task, like 'nlp_age_gpt_oss_120b_v1'
+
+    Unlike the table name, the upload folder is version-specific, so that results from
+    different task versions don't get mixed together.
+    """
+    return f"{table_slug_for_task(table_slug, nlp_config)}_v{task.version}"
 
 
 def schema_for_task(task: workflow.NlpTask) -> pyarrow.Schema:
@@ -118,9 +150,13 @@ def schema_for_task(task: workflow.NlpTask) -> pyarrow.Schema:
 
 
 def output_path_for_task(
-    prefix: str, table_slug: str, task: workflow.NlpTask, db: databases.DatabaseBackend
+    nlp_config: note_utils.NlpConfig,
+    table_slug: str,
+    task: workflow.NlpTask,
+    db: databases.DatabaseBackend,
 ) -> cfs.FsPath:
-    upload_slug = table_slug + f"_v{task.version}"
+    prefix = nlp_config.target
+    upload_slug = upload_slug_for_task(table_slug, task, nlp_config)
     if base_path := db.get_remote_upload_path(prefix, upload_slug):
         return cfs.FsPath(base_path)
 
@@ -214,14 +250,14 @@ class NlpNotePool:
                 if self._next_parquet_path(table_slug, task).name == "nlp.0.parquet":
                     self._write_single_parquet(table_slug, task, [])
 
-    def _table_name(self, table_slug: str) -> str:
-        return table_name_for_task(table_slug, self._config)
-
     def _cache_dir(self) -> cfs.FsPath:
         return cfs.FsPath(self._config.phi_dir)
 
     def _cache_namespace(self, table_slug: str, task: workflow.NlpTask) -> str:
-        return f"{self._table_name(table_slug)}_v{task.version}_{self._model.MODEL_ID}"
+        # Note that this intentionally does not use table_name_for_task(). This namespace names
+        # a folder of cached NLP responses in the user's PHI dir - if we renamed it, every
+        # existing cached response would be orphaned (and re-running would cost real money).
+        return f"{self._config.target}__{table_slug}_v{task.version}_{self._model.MODEL_ID}"
 
     def _make_prompt(self, table_slug: str, task: workflow.NlpTask, text: str) -> models.Prompt:
         schema = task.response_schema.model_json_schema()
@@ -417,10 +453,10 @@ class NlpNotePool:
             if table_slug in notes:
                 rows = notes[table_slug]
                 self._write_single_parquet(table_slug, task, rows)
-                add_upload_refs_for_task(self._config.target, table_slug, task, self._db, rows)
+                add_upload_refs_for_task(self._config, table_slug, task, self._db, rows)
 
     def _next_parquet_path(self, table_slug: str, task: workflow.NlpShared) -> cfs.FsPath:
-        folder = output_path_for_task(self._config.target, table_slug, task, self._db)
+        folder = output_path_for_task(self._config, table_slug, task, self._db)
 
         # First, determine what the next upload number should be
         basenames = [path.name for path in folder.ls()]
@@ -442,29 +478,35 @@ class NlpNotePool:
 
 
 def upload_refs_path(
-    prefix: str, table_slug: str, task: workflow.NlpTask, db: databases.DatabaseBackend
+    nlp_config: note_utils.NlpConfig,
+    table_slug: str,
+    task: workflow.NlpTask,
+    db: databases.DatabaseBackend,
 ) -> cfs.FsPath:
-    path = output_path_for_task(prefix, table_slug, task, db)
+    path = output_path_for_task(nlp_config, table_slug, task, db)
     return cfs.FsPath(str(path) + ".ids")
 
 
 def read_upload_refs_for_task(
-    prefix: str, table_slug: str, task: workflow.NlpTask, db: databases.DatabaseBackend
+    nlp_config: note_utils.NlpConfig,
+    table_slug: str,
+    task: workflow.NlpTask,
+    db: databases.DatabaseBackend,
 ) -> set[str]:
-    path = upload_refs_path(prefix, table_slug, task, db)
+    path = upload_refs_path(nlp_config, table_slug, task, db)
     refs = path.read_text(default="")
     return set(refs.splitlines())
 
 
 def add_upload_refs_for_task(
-    prefix: str,
+    nlp_config: note_utils.NlpConfig,
     table_slug: str,
     task: workflow.NlpTask,
     db: databases.DatabaseBackend,
     rows: list[dict],
 ) -> set[str]:
     refs = sorted(f"{row['note_ref']}" for row in rows)  # sort for tests
-    path = upload_refs_path(prefix, table_slug, task, db)
+    path = upload_refs_path(nlp_config, table_slug, task, db)
     path.parent.makedirs()
     mode = "a" if path.exists() else "w"  # work around memory:// fs having bad "a" semantics
     with path.open(mode) as f:
