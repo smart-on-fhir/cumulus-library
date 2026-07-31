@@ -8,6 +8,7 @@ import os
 import pathlib
 import time
 from concurrent import futures
+from contextlib import nullcontext as does_not_raise
 from unittest import mock
 
 import awswrangler
@@ -443,3 +444,19 @@ def test_iid_lookup(mock_session, status, expected):
     )
     db.connect()
     assert db.region == expected
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("botocore.session")
+def test_iid_lookup_handles_http_error(mock_session):
+    with does_not_raise():
+        db = databases.AthenaDatabaseBackend(
+            region=None,
+            work_group="test",
+            profile="test",
+            schema_name="test",
+        )
+        db.connect()
