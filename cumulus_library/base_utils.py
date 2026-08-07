@@ -70,15 +70,29 @@ def load_text(path: str) -> str:
 
 
 def parse_sql(sql_text: str) -> list[str]:
-    commands = []
+    tokens = sqlglot.tokenize(sql_text)
 
-    for statement in sql_text.split(";"):
-        parsed = []
-        for line in statement.splitlines():
+    indices = [t.start for t in tokens if t.token_type == sqlglot.TokenType.SEMICOLON]
+
+    commands = []
+    last_idx = 0
+    for idx in indices:
+        commands.append(sql_text[last_idx:idx])
+        last_idx = idx + 1
+    commands.append(sql_text[last_idx:])
+
+    final_commands = []
+    for cmd in commands:
+        parsed_lines = []
+        for line in cmd.splitlines():
             if not line.strip().startswith("--"):
-                parsed.append(line)
-        commands.append("\n".join(parsed))
-    return filter_strip(commands)
+                parsed_lines.append(line)
+
+        cleaned = "\n".join(parsed_lines).strip()
+        if cleaned:
+            final_commands.append(cleaned)
+
+    return final_commands
 
 
 def filter_strip(commands) -> list[str]:
