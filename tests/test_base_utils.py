@@ -86,6 +86,28 @@ def test_pandas_from_hive_error():
 
 
 @pytest.mark.parametrize(
+    "sql_text,expected",
+    [
+        (
+            "SELECT * FROM bar; SELECT foo FROM bar WHERE foo = x;",
+            ["SELECT * FROM bar", "SELECT foo FROM bar WHERE foo = x"],
+        ),
+        (
+            "-- This is a comment\nSELECT * FROM foo WHERE foo = bar;",
+            ["SELECT * FROM foo WHERE foo = bar"],
+        ),
+        (
+            "-- This is a comment; with a semicolon\nSELECT * FROM foo WHERE foo = bar;",
+            ["SELECT * FROM foo WHERE foo = bar"],
+        ),
+        ("-- Empty statement", []),
+    ],
+)
+def test_parse_sql(sql_text, expected):
+    assert base_utils.parse_sql(sql_text) == expected
+
+
+@pytest.mark.parametrize(
     "subdirs,csv,archive_path,expected",
     [
         (True, False, "data/data.zip", ["a.parquet", "subdir/b.parquet"]),
