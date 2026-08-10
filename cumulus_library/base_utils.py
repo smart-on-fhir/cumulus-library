@@ -95,10 +95,6 @@ def parse_sql(sql_text: str) -> list[str]:
     return final_commands
 
 
-def filter_strip(commands) -> list[str]:
-    return list(filter(None, [c.strip() for c in commands]))
-
-
 @contextmanager
 def query_console_output(
     verbose: bool, query: str, progress_bar: progress.Progress, task: progress.Task
