@@ -12,7 +12,7 @@ from tests.conftest import duckdb_args
 
 @pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
-def test_full_build(mock_client, tmp_path):
+def test_full_build(mock_client, tmp_path, mock_cache_dir):
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         nlp_utils.add_dxr("1", "Three year old white female", f)
 

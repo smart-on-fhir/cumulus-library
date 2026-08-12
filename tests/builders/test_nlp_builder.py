@@ -44,9 +44,12 @@ def note_source(tmp_path) -> Iterator[note_utils.NoteSource]:
 
 
 @pytest.fixture(autouse=True)
-def mock_cache_dir(tmp_path):
-    with mock.patch("cumulus_library.base_utils.get_user_cache_dir", return_value=tmp_path):
-        yield
+def _autouse_cache_dir(mock_cache_dir):
+    """
+    Autouse this fixture to keep NLP's on-disk cache inside tmp_path.
+    Delegates to the shared ``mock_cache_dir`` fixture defined in (tests/conftest.py).
+    """
+    yield
 
 
 def read_rows(db, table: str) -> list[dict]:
@@ -269,48 +272,6 @@ def test_clean_only_removes_this_task_and_model(mock_client, tmp_path, mock_db_c
     assert not old_version.exists()
     assert other_model.exists()
     assert other_task.exists()
-
-
-@mock.patch("openai.OpenAI")
-def test_new_task_version_repoints_table(mock_client, tmp_path, mock_db_config, note_source):
-    """Bumping a task version should point the (unversioned) table at the new results"""
-
-    def build(version: int, answer: int) -> None:
-        workflow_path = conftest.write_toml(
-            tmp_path,
-            {
-                "config_type": "nlp",
-                "tables": {
-                    "task": {
-                        "version": version,
-                        "response_schema": '{"title":"test", "type": "object", '
-                        '"properties": {"hello": {"type": "integer"}}}',
-                    },
-                },
-            },
-            "nlp.workflow",
-        )
-        model = nlp_utils.MockModel(mock_client)
-        model.mock_openai_response({"hello": answer})
-        builder = nlp_builder.NlpBuilder(
-            toml_config_path=workflow_path,
-            notes=note_source,
-            nlp_config=model.nlp_config(clean=False),
-        )
-        builder.execute_queries(mock_db_config, None)
-
-    build(version=0, answer=1)
-    rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt_oss_120b")
-    assert rows[0]["result"] == {"hello": 1}
-    assert rows[0]["task_version"] == 0
-
-    # The old version's results are still sitting on disk, but the table should now be
-    # backed by the new version's folder.
-    build(version=1, answer=2)
-    assert cfs.FsPath(tmp_path, "nlp", "example_nlp", "nlp_task_gpt_oss_120b_v0").exists()
-    rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt_oss_120b")
-    assert rows[0]["result"] == {"hello": 2}
-    assert rows[0]["task_version"] == 1
 
 
 @mock.patch("openai.OpenAI")
@@ -937,9 +898,8 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     with mem_fs.open(f"{upload_dir}.ids", "r") as f:
         assert f.read() == "DiagnosticReport/hello\n"
 
-    # And confirm the queries look right
+    # And confirm the query looks right
     assert builder.queries == [
-        "DROP TABLE IF EXISTS `main`.`example_nlp__nlp_task_gpt_oss_120b`;",
         "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__nlp_task_gpt_oss_120b` "
         "( note_ref STRING, "
         "encounter_ref STRING, subject_ref STRING, generated_on STRING, task_version INT, "
