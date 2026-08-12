@@ -1,3 +1,6 @@
+-- NLP result tables are named `{study}__nlp_{task}_{model}`, so the model you run NLP with
+-- is part of the table name (this study assumes the gpt-oss-120b model). If you run this study
+-- with a different model, update the table referenced below to match.
 CREATE TABLE example_nlp__range_labels AS
 SELECT
     src.note_ref,
@@ -16,4 +19,4 @@ SELECT
         WHEN src.result.age < 65 THEN 'middle aged (45-64)'
         ELSE 'aged (65+)'
     END AS label
-FROM example_nlp__age AS src
+FROM example_nlp__nlp_age_gpt_oss_120b AS src

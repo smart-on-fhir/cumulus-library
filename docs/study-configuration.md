@@ -339,6 +339,9 @@ styling.
   These are fine to use elsewhere in the table name, just not at the beginning.
   For example, `my_study__nlp_counts` would cause an error, 
   but `my_study__counts_nlp` would be fine.
+  Tables in this reserved space are not dropped when a study is cleaned or rebuilt, which is why
+  [NLP workflows](workflows/nlp.md) create tables like `my_study__nlp_my_table_gpt_oss_120b`.
+  You can read from those tables in your own queries, you just can't create them yourself.
 
 
 #### Requirements for accepting PRs

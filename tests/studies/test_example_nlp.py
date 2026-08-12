@@ -12,7 +12,7 @@ from tests.conftest import duckdb_args
 
 @pytest.mark.xdist_group(name="nlp_builder")
 @mock.patch("openai.OpenAI")
-def test_full_build(mock_client, tmp_path):
+def test_full_build(mock_client, tmp_path, mock_cache_dir):
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         nlp_utils.add_dxr("1", "Three year old white female", f)
 
@@ -53,8 +53,13 @@ def test_full_build(mock_client, tmp_path):
     cli.main(cli_args=build_args)
 
     db = duckdb.connect(f"{tmp_path}/duck.db")
-    age_rows = db.cursor().execute("select result from example_nlp__age").fetchall()
-    race_rows = db.cursor().execute("select result from example_nlp__race").fetchall()
+    # NLP result tables are named after the nlp prefix, the task, and the model used
+    age_rows = (
+        db.cursor().execute("select result from example_nlp__nlp_age_gpt_oss_120b").fetchall()
+    )
+    race_rows = (
+        db.cursor().execute("select result from example_nlp__nlp_race_gpt_oss_120b").fetchall()
+    )
     label_rows = db.cursor().execute("select label from example_nlp__range_labels").fetchall()
 
     assert age_rows[0][0] == {"age": 3, "has_mention": True, "spans": [[0, 5]]}
