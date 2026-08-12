@@ -508,11 +508,11 @@ def main(cli_args=None):
         sys.exit(exit_msg)
 
     if args["action"] == "version":
-        table = report_version_info(args, console)
+        report_version_info(args, console)
         sys.exit(0)
 
     if args.get("info"):
-        table = report_version_info(args, console, True)
+        report_version_info(args, console, True)
 
     if len(read_env_vars) > 0:
         table = rich.table.Table(title="Values read from environment variables")
