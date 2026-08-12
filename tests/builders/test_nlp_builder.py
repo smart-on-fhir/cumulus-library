@@ -438,9 +438,11 @@ def test_select_tables_builds_subset(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
 
     tables = _table_names(mock_db_config)
-    assert "example_nlp__kept_table" in tables
-    assert "example_nlp__dropped_table" not in tables
-    assert read_rows(mock_db_config, "example_nlp__kept_table")[0]["result"] == {"hello": 1}
+    assert "example_nlp__nlp_kept_table_gpt_oss_120b" in tables
+    assert "example_nlp__nlp_dropped_table_gpt_oss_120b" not in tables
+    assert read_rows(mock_db_config, "example_nlp__nlp_kept_table_gpt_oss_120b")[0]["result"] == {
+        "hello": 1
+    }
 
 
 @mock.patch("openai.OpenAI")
@@ -462,9 +464,9 @@ def test_select_multiple_tables(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
 
     tables = _table_names(mock_db_config)
-    assert "example_nlp__one" in tables
-    assert "example_nlp__three" in tables
-    assert "example_nlp__two" not in tables
+    assert "example_nlp__nlp_one_gpt_oss_120b" in tables
+    assert "example_nlp__nlp_three_gpt_oss_120b" in tables
+    assert "example_nlp__nlp_two_gpt_oss_120b" not in tables
 
 
 @mock.patch("openai.OpenAI")
