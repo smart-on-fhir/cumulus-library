@@ -225,6 +225,16 @@ def add_verbose_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def add_info_argument(parser: argparse.ArgumentParser) -> None:
+    """Adds --info arg to a subparser"""
+    parser.add_argument(
+        "-i",
+        "--info",
+        action="store_true",
+        help=("Gets the versions of the CLI and targeted study"),
+    )
+
+
 # Parser construction
 
 
@@ -297,6 +307,7 @@ AWS Athena, the following order of preference is used to select credentials:
     add_table_builder_argument(build)
     add_target_argument(build)
     add_verbose_argument(build)
+    add_info_argument(build)
 
     build.add_argument(
         "--continue",
@@ -344,6 +355,7 @@ AWS Athena, the following order of preference is used to select credentials:
     add_study_dir_argument(export)
     add_data_path_argument(export)
     add_verbose_argument(export)
+    add_info_argument(export)
     add_db_config(export)
     export.add_argument(
         "--archive",
@@ -366,6 +378,7 @@ AWS Athena, the following order of preference is used to select credentials:
 
     upload = actions.add_parser("upload", help="Bulk uploads data to Cumulus aggregator")
     add_data_path_argument(upload)
+    add_info_argument(upload)
     add_target_argument(upload)
 
     upload.add_argument("--id", help="Site ID. Default is value of CUMULUS_AGGREGATOR_ID")

@@ -423,6 +423,30 @@ def _get_args(args):
     pass
 
 
+def report_version_info(args, console: rich.Console, filter_by_target: bool = False):
+    table = rich.table.Table(title=f"cumulus-library version: {__version__}")
+    table.add_column("Study Name", style="green")
+    table.add_column("Version", style="blue")
+    studies = get_study_dict(args.get("study_dir"))
+
+    sorted_studies = sorted(studies.keys())
+    if filter_by_target:
+        sorted_studies = sorted(keys for keys in studies.keys() if args.get("target") in keys)
+
+    for study in sorted_studies:
+        try:
+            spec = importlib.util.spec_from_file_location(
+                "study_init", studies[study] / "__init__.py"
+            )
+            study_init = importlib.util.module_from_spec(spec)
+            sys.modules["study_init"] = study_init
+            spec.loader.exec_module(study_init)
+            table.add_row(study, study_init.__version__)
+        except Exception:
+            table.add_row(study, "No version defined")
+    console.print(table)
+
+
 def main(cli_args=None):
     """Reads CLI input/environment variables and invokes library calls"""
 
@@ -484,23 +508,11 @@ def main(cli_args=None):
         sys.exit(exit_msg)
 
     if args["action"] == "version":
-        table = rich.table.Table(title=f"cumulus-library version: {__version__}")
-        table.add_column("Study Name", style="green")
-        table.add_column("Version", style="blue")
-        studies = get_study_dict(args.get("study_dir"))
-        for study in sorted(studies.keys()):
-            try:
-                spec = importlib.util.spec_from_file_location(
-                    "study_init", studies[study] / "__init__.py"
-                )
-                study_init = importlib.util.module_from_spec(spec)
-                sys.modules["study_init"] = study_init
-                spec.loader.exec_module(study_init)
-                table.add_row(study, study_init.__version__)
-            except Exception:
-                table.add_row(study, "No version defined")
-        console.print(table)
+        table = report_version_info(args, console)
         sys.exit(0)
+
+    if args.get("info"):
+        table = report_version_info(args, console, True)
 
     if len(read_env_vars) > 0:
         table = rich.table.Table(title="Values read from environment variables")
