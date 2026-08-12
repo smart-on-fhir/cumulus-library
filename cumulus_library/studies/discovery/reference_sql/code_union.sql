@@ -198,7 +198,119 @@ SELECT
     code,
     display,
     system
+FROM discovery__tmp_medicationrequest_statusreason
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_category
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
 FROM discovery__tmp_medicationrequest_medicationcodeableconcept
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_performertype
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_reasoncode
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_courseoftherapytype
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_dosageinstruction_additionalinstruction
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_dosageinstruction_timing_code
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_dosageinstruction_asneededcodeableconcept
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_dosageinstruction_site
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_dosageinstruction_route
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_dosageinstruction_method
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_dosageinstruction_doseandrate_type
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_substitution_allowedcodeableconcept
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationrequest_substitution_reason
 UNION ALL
 SELECT
     table_name,

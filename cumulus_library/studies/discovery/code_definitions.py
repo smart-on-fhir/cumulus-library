@@ -112,7 +112,94 @@ code_list = [
     # MedicationRequest
     {
         "table_name": "medicationrequest",
+        "column_hierarchy": [("statusreason", dict), ("coding", list)],
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [("category", list), ("coding", list)],
+    },
+    {
+        "table_name": "medicationrequest",
         "column_hierarchy": [("medicationcodeableconcept", dict), ("coding", list)],
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [("performertype", dict), ("coding", list)],
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [("reasoncode", list), ("coding", list)],
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [("courseoftherapytype", dict), ("coding", list)],
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [
+            ("dosageinstruction", list),
+            ("additionalinstruction", list),
+            ("coding", list),
+        ],
+        "expected": {"additionalinstruction": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [
+            ("dosageinstruction", list),
+            ("timing", dict),
+            ("code", dict),
+            ("coding", list),
+        ],
+        "expected": {"timing": {"code": sql_utils.CODEABLE_CONCEPT}},
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [
+            ("dosageinstruction", list),
+            ("asneededcodeableconcept", dict),
+            ("coding", list),
+        ],
+        "expected": {"asneededcodeableconcept": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [("dosageinstruction", list), ("site", dict), ("coding", list)],
+        "expected": {"site": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [("dosageinstruction", list), ("route", dict), ("coding", list)],
+        "expected": {"route": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [("dosageinstruction", list), ("method", dict), ("coding", list)],
+        "expected": {"method": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [
+            ("dosageinstruction", list),
+            ("doseandrate", list),
+            ("type", dict),
+            ("coding", list),
+        ],
+        "expected": {"doseandrate": {"type": sql_utils.CODEABLE_CONCEPT}},
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [
+            ("substitution", dict),
+            ("allowedcodeableconcept", dict),
+            ("coding", list),
+        ],
+        "expected": {"allowedcodeableconcept": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationrequest",
+        "column_hierarchy": [("substitution", dict), ("reason", dict), ("coding", list)],
+        "expected": {"reason": sql_utils.CODEABLE_CONCEPT},
     },
     # Observation
     {

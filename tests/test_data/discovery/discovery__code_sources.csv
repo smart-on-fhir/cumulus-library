@@ -91,6 +91,16 @@ episodeofcare,type,hacc,Home and Community Care,http://terminology.hl7.org/CodeS
 location,type,,,
 medication,codecodeableconcept,,,
 medication,medicationcode,,,
+medicationrequest,category,community,Community,http://terminology.hl7.org/CodeSystem/medicationrequest-category
+medicationrequest,courseoftherapytype,,,
+medicationrequest,dosageinstruction.additionalinstruction,1831000175103,Every twelve hours as required (qualifier value),http://snomed.info/sct
+medicationrequest,dosageinstruction.additionalinstruction,396143001,Every seventy two hours (qualifier value),http://snomed.info/sct
+medicationrequest,dosageinstruction.asneededcodeableconcept,,,
+medicationrequest,dosageinstruction.doseandrate.type,ordered,Ordered,http://terminology.hl7.org/CodeSystem/dose-rate-type
+medicationrequest,dosageinstruction.method,,,
+medicationrequest,dosageinstruction.route,,,
+medicationrequest,dosageinstruction.site,,,
+medicationrequest,dosageinstruction.timing.code,,,
 medicationrequest,medicationcodeableconcept,1000126,1 ML medroxyPROGESTERone acetate 150 MG/ML Injection,http://www.nlm.nih.gov/research/umls/rxnorm
 medicationrequest,medicationcodeableconcept,106892,"insulin isophane, human 70 UNT/ML / insulin, regular, human 30 UNT/ML Injectable Suspension [Humulin]",http://www.nlm.nih.gov/research/umls/rxnorm
 medicationrequest,medicationcodeableconcept,108515,1 ML tacrolimus 5 MG/ML Injection,http://www.nlm.nih.gov/research/umls/rxnorm
@@ -113,6 +123,11 @@ medicationrequest,medicationcodeableconcept,749762,Seasonique 91 Day Pack,http:/
 medicationrequest,medicationcodeableconcept,855332,Warfarin Sodium 5 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
 medicationrequest,medicationcodeableconcept,860975,24 HR Metformin hydrochloride 500 MG Extended Release Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
 medicationrequest,medicationcodeableconcept,866412,24 HR metoprolol succinate 100 MG Extended Release Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,performertype,,,
+medicationrequest,reasoncode,,,
+medicationrequest,statusreason,,,
+medicationrequest,substitution.allowedcodeableconcept,,,
+medicationrequest,substitution.reason,,,
 observation,category,laboratory,Laboratory,http://terminology.hl7.org/CodeSystem/observation-category
 observation,category,vital-signs,Vital signs,http://terminology.hl7.org/CodeSystem/observation-category
 observation,code,34533-0,Odor of Urine,http://loinc.org
