@@ -423,7 +423,7 @@ def _get_args(args):
     pass
 
 
-def report_version_info(args, console: rich.Console, filter_by_target: bool = False):
+def report_version_info(args, console: rich.console.Console, filter_by_target: bool = False):
     table = rich.table.Table(title=f"cumulus-library version: {__version__}")
     table.add_column("Study Name", style="green")
     table.add_column("Version", style="blue")
