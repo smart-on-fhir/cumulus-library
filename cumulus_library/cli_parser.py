@@ -190,6 +190,16 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
         action="store_false",
         help="Disable printing of NLP note and token statistics",
     )
+    group.add_argument(
+        "--nlp-table",
+        action="append",
+        dest="nlp_tables",
+        metavar="TABLE",
+        help=(
+            "Only build this table from the NLP workflow, instead of all of them. "
+            "May be passed more than once to build a subset of tables."
+        ),
+    )
 
 
 def add_stage_argument(parser: argparse.ArgumentParser) -> None:

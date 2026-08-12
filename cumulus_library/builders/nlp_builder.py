@@ -40,6 +40,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         except Exception as e:
             sys.exit(f"The NLP workflow at {toml_config_path!s} is invalid: \n{e}")
 
+        self._select_tables()
         self._flatten_config(toml_config_path.parent)
 
         self._notes = notes
@@ -50,6 +51,31 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
                 "provide a folder with FHIR resources like DiagnosticReport "
                 "or DocumentReference with inlined clinical notes."
             )
+
+    def _select_tables(self) -> None:
+        """Optionally restrict the build to a subset of the workflow's tables.
+
+        Driven by the --nlp-table CLI argument, this lets a study's NLP tables be built in
+        isolation without editing the workflow toml. We run this before _flatten_config so that
+        a table we aren't building can't block the build (for example, if it has a broken schema).
+        """
+        requested = self._nlp_config.tables
+        if not requested:
+            return
+        available = self._workflow_config.tables
+        if missing := [name for name in requested if name not in available]:
+            sys.exit(
+                "These --nlp-table values were not found in the workflow: "
+                f"{', '.join(missing)}\n"
+                f"Available tables: {', '.join(available)}"
+            )
+        # Delete the tables that were not requested
+        # NOTE: may have weird side effects if we iterate over self._workflow_config.tables later,
+        # e.g. if we expect to be able to use this builder multiple times over instead of
+        # in a single CLI run context like we have now
+        for name in list(available):
+            if name not in requested:
+                del available[name]
 
     def _flatten_config(self, config_dir: pathlib.Path) -> None:
         """Takes any non-specified task values from the [shared] table"""

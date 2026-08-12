@@ -122,6 +122,8 @@ class NlpConfig:
         self.clean = args.get("clean_nlp", False)
         self.phi_dir = args.get("etl_phi_dir")
         self.target = args.get("target")
+        # An optional subset of workflow tables to build (--nlp-table). None means "all tables".
+        self.tables = args.get("nlp_tables")
         self.show_stats = args.get("nlp_stats")
 
         self.salt = None
