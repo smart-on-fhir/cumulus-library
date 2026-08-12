@@ -28,7 +28,9 @@ from cumulus_library import (
     databases,
     errors,
 )
+from tests import conftest, nlp_utils
 from tests.conftest import create_protected_tables, duckdb_args
+from tests.nlp_utils import add_dxr
 
 FHIR_RESOURCE_TABLE_COUNT = 22
 
@@ -1258,3 +1260,99 @@ def test_cohorts_protected():
         cli.main(cli_args=["build", "-t", "cohorts"])
     with pytest.raises(SystemExit, match="no way to undo"):
         cli.main(cli_args=["clean", "-t", "cohorts"])
+
+
+# Adding a test for the CLI version bump behavior to ensure that when a task version is bumped,
+# the NLP endpoint is re-hit and the cache is bypassed.
+@mock.patch("openai.OpenAI")
+def test_cli_version_bump_skips_nlp_cache(mock_client, tmp_path, mock_cache_dir):
+    """Through the CLI, bumping a task version should re-hit the NLP endpoint."""
+    study_dir = tmp_path / "nlp_versions"
+    study_dir.mkdir()
+    conftest.write_toml(
+        study_dir,
+        {
+            "study_prefix": "nlp_versions",
+            "stages": {"nlp": [{"label": "NLP", "files": ["nlp.workflow"]}]},
+        },
+        "manifest.toml",
+    )
+
+    note_dir = tmp_path / "notes"
+    note_dir.mkdir()
+    with open(note_dir / "dxr.ndjson", "w", encoding="utf8") as f:
+        add_dxr("1", "say hello to the world", f)
+
+    model = nlp_utils.MockModel(mock_client)
+    parse = model.openai.chat.completions.parse
+
+    def build(version: int, answer: int) -> None:
+        conftest.write_toml(
+            study_dir,
+            {
+                "config_type": "nlp",
+                "tables": {
+                    "task": {
+                        "version": version,
+                        "response_schema": '{"title":"test", "type": "object", '
+                        '"properties": {"hello": {"type": "integer"}}}',
+                    },
+                },
+            },
+            "nlp.workflow",
+        )
+        model.mock_openai_response({"hello": answer})
+        cli.main(
+            cli_args=duckdb_args(
+                [
+                    "build",
+                    "-t",
+                    "nlp_versions",
+                    "-s",
+                    str(tmp_path),
+                    "--note-dir",
+                    str(note_dir),
+                    # clean=False so we exercise the caching, not a forced re-upload
+                    *model.cli_args(clean=False),
+                ],
+                tmp_path,
+            )
+        )
+
+    def table_row() -> tuple:
+        # Read in a fresh, read-only connection so we don't hold the db lock between builds
+        con = duckdb.connect(f"{tmp_path}/duck.db", read_only=True)
+        try:
+            return con.execute(
+                "select result, task_version from nlp_versions__nlp_task_gpt_oss_120b"
+            ).fetchall()[0]
+        finally:
+            con.close()
+
+    def upload_result(version: int) -> list[tuple]:
+        # The NLP results the builder wrote to disk for this task version (mock_cache_dir points
+        # the local upload folder at tmp_path)
+        folder = tmp_path / "nlp" / "nlp_versions" / f"nlp_task_gpt_oss_120b_v{version}"
+        con = duckdb.connect()
+        try:
+            return con.execute(f"select result from read_parquet('{folder}/*.parquet')").fetchall()
+        finally:
+            con.close()
+
+    # First run: NLP is hit once and the ETL-style table is created from the v0 results
+    build(version=0, answer=1)
+    assert parse.call_count == 1
+    assert table_row() == ({"hello": 1}, 0)
+    assert upload_result(0) == [({"hello": 1},)]
+
+    # Re-running the same version reuses the cached result - the endpoint is not hit again,
+    # even though a fresh call would now return something different
+    build(version=0, answer=999)
+    assert parse.call_count == 1
+    assert upload_result(0) == [({"hello": 1},)]
+
+    # Bumping the version busts the cache: the endpoint is hit a second time and fresh results
+    # land in the new version's upload folder
+    build(version=1, answer=2)
+    assert parse.call_count == 2
+    assert upload_result(1) == [({"hello": 2},)]

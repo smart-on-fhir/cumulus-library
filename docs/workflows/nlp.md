@@ -48,9 +48,11 @@ contains details on the expectations of each value.
 config_type="nlp"
 
 # You define NLP tasks/tables with the 'tables' dictionary.
-# The keys in the table dictionary define your table names, and the study name will
-# automatically be prepended from the prefix in your manifest.
-# So an entry like [tables.my_table] results in a table like `my_study__my_table`.
+# The keys in the table dictionary define your table names, but the final table name also
+# includes the study prefix from your manifest, an `nlp` marker, and the model you ran with.
+# So an entry like [tables.my_table], run against the gpt-oss-120b model, results in a table
+# like `my_study__nlp_my_table_gpt_oss_120b`.
+# See "Result Table Names" below for more details.
 [tables.table_1]
 
 # `version` will be a number that you will increment every time you change the table definition
@@ -128,6 +130,30 @@ reject_by_word: ["default", "words"]
 reject_by_regex: ["default", regex"]
 ```
 
+### Result Table Names
+
+NLP results are named the same way that [Cumulus ETL](https://docs.smarthealthit.org/cumulus/etl/)
+names the NLP tables it creates, so that all NLP results in your database look alike:
+
+`{study_prefix}__nlp_{table_name}_{model}`
+
+For example, a `[tables.treatment]` entry in the `ibd` study, run with `--nlp-model=gpt-oss-120b`,
+creates the table `ibd__nlp_treatment_gpt_oss_120b`.
+(Hyphens in a model name become underscores, since the model name is part of a SQL table name.)
+
+A few consequences worth knowing about:
+
+- The model is part of the table name, so results from two different models don't overwrite
+  each other, and any study SQL that reads NLP results needs to name the model it expects.
+- The task `version` is **not** part of the table name (it is available as the `task_version`
+  column). Bumping a task version writes results to a new folder and re-points the table at it.
+- `nlp_` is a reserved table prefix, which means these tables are not dropped when a study is
+  cleaned or rebuilt. That's deliberate - NLP results are expensive to regenerate.
+
+The parquet files behind these tables get uploaded to your Athena results bucket, in a folder
+named like the table plus the task version:
+`cumulus_user_uploads/{database}/{study_prefix}/nlp_{table_name}_{model}_v{version}/`
+
 ### Result Table Format
 
 Tables created by the NLP workflow will have the following fields:
@@ -190,7 +216,8 @@ And then once satisfied, upload to Athena.
 1. Start by passing arguments like `--db-type duckdb --database ./testing.db` instead of the usual
    AWS/Athena arguments.
    - NLP parquet files will be written to a user cache folder.
-     On Linux, this will be somewhere like `~/.cache/cumulus-library/nlp/{my_study}/{table}_v0/`
+     On Linux, this will be somewhere like
+     `~/.cache/cumulus-library/nlp/{my_study}/nlp_{table}_{model}_v0/`
    - The tables themselves (that point to those parquet files) will be in the database path you
      gave Cumulus Library (i.e. `./testing.db`).
 1. You can inspect the parquet files with a tool like

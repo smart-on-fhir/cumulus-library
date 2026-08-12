@@ -285,6 +285,13 @@ def mock_env():
 
 
 @pytest.fixture
+def mock_cache_dir(tmp_path):
+    """Redirects the on-disk user cache (NLP upload folders & .ids dedupe files) to tmp_path."""
+    with mock.patch("cumulus_library.base_utils.get_user_cache_dir", return_value=tmp_path):
+        yield tmp_path
+
+
+@pytest.fixture
 def mock_db(tmp_path):
     """Provides a DuckDatabaseBackend for local testing"""
     db, _ = databases.create_db_backend(

@@ -11,6 +11,7 @@ import hashlib
 import io
 import json
 import os
+from collections.abc import Iterator
 from types import SimpleNamespace
 from unittest import mock
 
@@ -24,6 +25,7 @@ import pytest
 import cumulus_library
 from cumulus_library import cli, databases, errors, note_utils
 from cumulus_library.builders import nlp_builder
+from cumulus_library.builders.nlp import driver, models, workflow
 from cumulus_library.builders.nlp.models import OpenAIProvider
 from tests import conftest, nlp_utils
 from tests.conftest import duckdb_args
@@ -34,7 +36,7 @@ SALT_BYTES = binascii.unhexlify(SALT_STR)
 
 
 @pytest.fixture
-def note_source(tmp_path) -> note_utils.NoteSource:
+def note_source(tmp_path) -> Iterator[note_utils.NoteSource]:
     """Just make a sample note source with a row - contents not important"""
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         add_dxr("hello", "hello world", f)
@@ -42,9 +44,12 @@ def note_source(tmp_path) -> note_utils.NoteSource:
 
 
 @pytest.fixture(autouse=True)
-def mock_cache_dir(tmp_path):
-    with mock.patch("cumulus_library.base_utils.get_user_cache_dir", return_value=tmp_path):
-        yield
+def _autouse_cache_dir(mock_cache_dir):
+    """
+    Autouse this fixture to keep NLP's on-disk cache inside tmp_path.
+    Delegates to the shared ``mock_cache_dir`` fixture defined in (tests/conftest.py).
+    """
+    yield
 
 
 def read_rows(db, table: str) -> list[dict]:
@@ -204,6 +209,69 @@ def test_filter(mock_client, tmp_path, mock_db_config):
     with contextlib.redirect_stdout(console_output):
         builder.execute_queries(mock_db_config, None)
     assert expected_stats in console_output.getvalue()
+
+
+@pytest.mark.parametrize(
+    "model_id,expected_table,expected_folder",
+    [
+        # Hyphens in a model ID get converted to underscores, since the model is part of a
+        # SQL table name (and this matches how the ETL names its own NLP tables).
+        ("gpt-oss-120b", "example_nlp__nlp_task_gpt_oss_120b", "nlp_task_gpt_oss_120b_v2"),
+        ("gpt4o", "example_nlp__nlp_task_gpt4o", "nlp_task_gpt4o_v2"),
+    ],
+)
+@mock.patch("openai.OpenAI")
+def test_naming_conventions(
+    mock_client, model_id, expected_table, expected_folder, tmp_path, mock_db_config
+):
+    """NLP tables & upload folders should look like the ETL's: nlp prefix, task, model, version"""
+    model = nlp_utils.MockModel(mock_client, model_id=model_id)
+    nlp_config = model.nlp_config()
+    task = workflow.NlpTask(version=2)
+
+    assert driver.table_name_for_task("task", nlp_config) == expected_table
+    assert driver.upload_slug_for_task("task", task, nlp_config) == expected_folder
+    # duckdb has no remote upload location, so results land in the local cache dir
+    path = driver.output_path_for_task(nlp_config, "task", task, mock_db_config.db)
+    assert str(path) == f"{tmp_path}/nlp/example_nlp/{expected_folder}"
+
+
+@mock.patch("openai.OpenAI")
+def test_naming_requires_a_model(mock_client):
+    """We can't name a table without knowing the model, so complain early"""
+    model = nlp_utils.MockModel(mock_client)
+    nlp_config = model.nlp_config()
+    nlp_config.model = None
+
+    with pytest.raises(errors.CumulusLibraryError, match="An NLP model ID must be provided"):
+        driver.table_name_for_task("task", nlp_config)
+
+    # The model factory guards against this too, with the same message
+    with pytest.raises(errors.CumulusLibraryError, match="An NLP model ID must be provided"):
+        models.create_model(nlp_config)
+
+
+@mock.patch("openai.OpenAI")
+def test_clean_only_removes_this_task_and_model(mock_client, tmp_path, mock_db_config, note_source):
+    """--clean-nlp should leave other tasks & models alone"""
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client)
+
+    root = cfs.FsPath(tmp_path, "nlp", "example_nlp")
+    old_version = root.joinpath("nlp_task_gpt_oss_120b_v9")  # same task & model - gets cleaned
+    other_model = root.joinpath("nlp_task_gpt4o_v0")
+    other_task = root.joinpath("nlp_other_gpt_oss_120b_v0")
+    for folder in [old_version, other_model, other_task]:
+        folder.makedirs()
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config(clean=True)
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    assert not old_version.exists()
+    assert other_model.exists()
+    assert other_task.exists()
 
 
 @mock.patch("openai.OpenAI")
@@ -384,7 +452,7 @@ def test_span_correction(mock_client, tmp_path, mock_db_config):
     with contextlib.redirect_stdout(console_output):
         builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "example_nlp__hello_world")
+    rows = read_rows(mock_db_config, "example_nlp__nlp_hello_world_gpt_oss_120b")
     assert rows[0]["result"] == {"parent_list": [{"parent_dict": {"spans": [[0, 5], [7, 21]]}}]}
 
     failure_msg = "Could not match span received from NLP server for DiagnosticReport/dxr: forth"
@@ -454,7 +522,7 @@ def test_various_value_types(mock_client, tmp_path, mock_db_config, note_source)
     )
     builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "example_nlp__task")
+    rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt_oss_120b")
     assert rows[0]["result"] == results
 
 
@@ -716,7 +784,7 @@ def test_bedrock_skips_wrapper_in_response(mock_client, tmp_path, mock_db_config
     )
     builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "example_nlp__hello_world")
+    rows = read_rows(mock_db_config, "example_nlp__nlp_hello_world_gpt_oss_120b")
     assert rows[0]["result"] == {"hello": "world"}
 
 
@@ -757,7 +825,7 @@ Summary.
 
     builder.execute_queries(mock_db_config, None)
 
-    rows = read_rows(mock_db_config, "example_nlp__hello_world")
+    rows = read_rows(mock_db_config, "example_nlp__nlp_hello_world_gpt_oss_120b")
     assert rows[0]["result"] == {"hello": 0.5}
 
 
@@ -814,9 +882,12 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
 
     assert builder.stats.got_response[0] == 1
 
-    # Confirm we wrote the parquet file out correctly
-    path = "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/task_v0/nlp.0.parquet"
-    with mem_fs.open(path, "rb") as f:
+    # Confirm we wrote the parquet file out correctly, into an ETL-style upload folder
+    # (nlp prefix, task name, model, and task version)
+    upload_dir = (
+        "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/nlp_task_gpt_oss_120b_v0"
+    )
+    with mem_fs.open(f"{upload_dir}/nlp.0.parquet", "rb") as f:
         df = pandas.read_parquet(f)
         rows = json.loads(df.to_json(orient="records"))
 
@@ -824,19 +895,18 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     assert rows[0]["note_ref"] == "DiagnosticReport/hello"
 
     # And the id file
-    id_path = "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/task_v0.ids"
-    with mem_fs.open(id_path, "r") as f:
+    with mem_fs.open(f"{upload_dir}.ids", "r") as f:
         assert f.read() == "DiagnosticReport/hello\n"
 
     # And confirm the query looks right
     assert builder.queries == [
-        "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__task` ( note_ref STRING, "
+        "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__nlp_task_gpt_oss_120b` "
+        "( note_ref STRING, "
         "encounter_ref STRING, subject_ref STRING, generated_on STRING, task_version INT, "
         "model STRING, system_fingerprint STRING, result STRUCT<ignored: STRING>\n)\n"
         "STORED AS PARQUET\n"
-        "LOCATION 'memory://s3://testbucket/athena/cumulus_user_uploads/"
-        "testdb/example_nlp/task_v0'\n"
-        'tblproperties ("parquet.compression"="SNAPPY");'
+        f"LOCATION 'memory://{upload_dir}'\n"
+        'tblproperties ("parquet.compression"="SNAPPY");',
     ]
 
 
@@ -914,7 +984,7 @@ def test_azure_batching_happy_path(mock_client, tmp_path, mock_db_config, note_s
     builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
-    rows = read_rows(mock_db_config, "example_nlp__task")
+    rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt4o")
     assert rows[0]["result"] == {"ignored": "answer"}
 
     assert model.openai.batches.create.call_args_list[0][1] == {
@@ -933,6 +1003,8 @@ def test_azure_resume_batching(mock_client, tmp_path, mock_db_config, note_sourc
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="azure", model_id="gpt4o")
 
+    # Note that the cache namespace does not include the nlp prefix/model naming that the
+    # result tables use - renaming it would orphan every previously cached NLP response.
     path_dir = f"{model.phi}/nlp-cache/example_nlp__task_v0_gpt4o"
     os.makedirs(path_dir)
     with open(f"{path_dir}/metadata.json", "w", encoding="utf8") as f:
@@ -954,7 +1026,7 @@ def test_azure_resume_batching(mock_client, tmp_path, mock_db_config, note_sourc
     builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
-    rows = read_rows(mock_db_config, "example_nlp__task")
+    rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt4o")
     assert rows[0]["result"] == {"ignored": "answer"}
 
 
@@ -1092,7 +1164,7 @@ def test_azure_splitting_batch(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 4
 
-    rows = read_rows(mock_db_config, "example_nlp__task")
+    rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt4o")
     assert [row["result"] for row in rows] == [
         {"ignored": "w1"},
         {"ignored": "w2"},
