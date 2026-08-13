@@ -87,6 +87,11 @@ def test_cli_early_exit(args):
             "core__condition",
         ),
         (
+            ["build", "-t", "core", "-i"],
+            does_not_raise(),
+            "core__condition",
+        ),
+        (
             ["build", "-t", "study_python_valid"],
             does_not_raise(),
             "study_python_valid__table",
@@ -255,6 +260,11 @@ def test_generate_md(tmp_path):
             ],
             "core__",
             does_not_raise(),
+        ),
+        (
+            ["clean", "-t", "core", "-i"],
+            "core__",
+            pytest.raises(SystemExit),
         ),
         (
             [
@@ -601,6 +611,7 @@ def test_cli_executes_queries(
     "args,input_txt, raises",
     [
         (["export", "-t", "core", "--archive"], "Y", does_not_raise()),
+        (["export", "-t", "core", "--archive", "-i"], "Y", does_not_raise()),
         (["export", "-t", "core", "--archive"], "N", pytest.raises(SystemExit)),
     ],
 )
@@ -745,6 +756,22 @@ def test_cli_stats_rebuild(tmp_path):
                 "id",
                 "--target",
                 "upload",
+                str(pathlib.Path(__file__).resolve().parent / "test_data"),
+            ],
+            204,
+            False,
+            does_not_raise(),
+        ),
+        (
+            [
+                "upload",
+                "--user",
+                "user",
+                "--id",
+                "id",
+                "--target",
+                "upload",
+                "-i",
                 str(pathlib.Path(__file__).resolve().parent / "test_data"),
             ],
             204,
