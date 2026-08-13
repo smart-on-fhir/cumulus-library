@@ -63,11 +63,11 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
 
         # If no tables were requested, we build all of them.
         if not requested:
-            self.tables_to_build = self._workflow_config.tables
+            self._tables_to_build = self._workflow_config.tables
             return
         # Otherwise, we want to filter to the tables requested.
         # Start with a blank slate, and we'll fill it with the tables we want to build.
-        self.tables_to_build = dict()
+        self._tables_to_build = dict()
         available = self._workflow_config.tables
 
         # If any requested tables are missing, we exit with an error.
@@ -80,7 +80,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         # Add the tables that were requested from the available list
         for name in list(available):
             if name in requested:
-                self.tables_to_build[name] = available[name]
+                self._tables_to_build[name] = available[name]
 
     def _flatten_config(self, config_dir: pathlib.Path) -> None:
         """Takes any non-specified task values from the [shared] table"""
