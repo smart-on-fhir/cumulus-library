@@ -60,27 +60,32 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         a table we aren't building can't block the build (for example, if it has a broken schema).
         """
         requested = self._nlp_config.tables
+
+        # If no tables were requested, we build all of them.
         if not requested:
+            self.tables_to_build = self._workflow_config.tables
             return
+        # Otherwise, we want to filter to the tables requested.
+        # Start with a blank slate, and we'll fill it with the tables we want to build.
+        self.tables_to_build = dict()
         available = self._workflow_config.tables
+
+        # If any requested tables are missing, we exit with an error.
         if missing := [name for name in requested if name not in available]:
             sys.exit(
                 "These --nlp-table values were not found in the workflow: "
                 f"{', '.join(missing)}\n"
                 f"Available tables: {', '.join(available)}"
             )
-        # Delete the tables that were not requested
-        # NOTE: may have weird side effects if we iterate over self._workflow_config.tables later,
-        # e.g. if we expect to be able to use this builder multiple times over instead of
-        # in a single CLI run context like we have now
+        # Add the tables that were requested from the available list
         for name in list(available):
-            if name not in requested:
-                del available[name]
+            if name in requested:
+                self.tables_to_build[name] = available[name]
 
     def _flatten_config(self, config_dir: pathlib.Path) -> None:
         """Takes any non-specified task values from the [shared] table"""
         fields = [x.name for x in msgspec.inspect.type_info(workflow.NlpShared).fields]
-        for table_slug, task in self._workflow_config.tables.items():
+        for table_slug, task in self._tables_to_build.items():
             # Grab values from [shared] if not specified
             for field in fields:
                 if getattr(task, field) is None:
@@ -165,9 +170,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         # Gather note filters together
         cursor = config.db.cursor()
         select_by_tables = {
-            task.select_by_table
-            for task in self._workflow_config.tables.values()
-            if task.select_by_table
+            task.select_by_table for task in self._tables_to_build.values() if task.select_by_table
         }
 
         # Add some extra checks if we are writing to a database like Athena that does not hold PHI
@@ -192,15 +195,14 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
 
         table_refs = {table: note_utils.get_table_refs(cursor, table) for table in select_by_tables}
         note_filters = [
-            self._make_note_filter(table_refs, task)
-            for task in self._workflow_config.tables.values()
+            self._make_note_filter(table_refs, task) for task in self._tables_to_build.values()
         ]
 
         # Go through notes one by one and run NLP on them (save it to class, so we can examine them
         # in tests)
         self.stats = driver.run_nlp(
             self._notes,
-            tables=self._workflow_config.tables,
+            tables=self._tables_to_build,
             filters=note_filters,
             nlp_config=self._nlp_config,
             db=config.db,
@@ -208,7 +210,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
 
         # Print stat block, because that's interesting feedback
         if self._nlp_config.show_stats:
-            task_slugs = list(self._workflow_config.tables)
+            task_slugs = list(self._tables_to_build.keys())
             self._print_note_stats(names=task_slugs, stats=self.stats)
             self._print_token_stats(self.stats)
 
@@ -230,7 +232,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         if not self._table_is_view(config):
             self._run_nlp(config)
 
-        for table_slug, task in self._workflow_config.tables.items():
+        for table_slug, task in self._tables_to_build.items():
             table_schema = driver.schema_for_task(task)
             location = str(
                 driver.output_path_for_task(self._nlp_config, table_slug, task, config.db)
