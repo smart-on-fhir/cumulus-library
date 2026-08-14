@@ -14,7 +14,7 @@ import rich
 
 from cumulus_library import base_utils, databases, errors, note_utils
 
-from . import caching, models, workflow
+from . import caching, dispatch, models, workflow
 
 ESCAPED_WHITESPACE = re.compile(r"(\\\s)+")
 PARQUET_PATTERN = re.compile(r"nlp\.([0-9]+)\.parquet")
@@ -26,6 +26,9 @@ class NlpStats:
         self.had_text = 0
         self.considered = [0] * size
         self.got_response = [0] * size
+        # Notes we abandoned because we kept getting rate limited. Tracked separately from
+        # other failures so a run that was merely going too fast says so out loud.
+        self.throttle_dropped = 0
         self.token_stats = models.TokenStats()
         self.token_prices = None
 
@@ -82,7 +85,7 @@ def run_nlp(
             stats.considered[idx] += 1
 
             try:
-                stats.got_response[idx] += pool.add_note(table_slug, note_res, text)
+                pool.add_note(table_slug, note_res, text)
             except Exception as exc:
                 rich.print("Failed to process note:", exc)
 
@@ -92,6 +95,11 @@ def run_nlp(
     except Exception as exc:
         rich.print("Failed to finalize notes:", exc)
 
+    # Responses arrive on worker threads, so the per-task tallies live on the pool and get
+    # copied over once everything has drained.
+    for idx, table_slug in enumerate(tables):
+        stats.got_response[idx] = pool.got_response.get(table_slug, 0)
+    stats.throttle_dropped = pool.throttle_dropped
     stats.token_stats = pool.token_stats
     stats.token_prices = pool.token_prices
 
@@ -191,29 +199,53 @@ class NlpNotePool:
         tables: dict[str, workflow.NlpTask],
     ):
         self._config = nlp_config
-        self._model = models.create_model(nlp_config)
-        self._provider = self._model.provider
         self._db = db
         self._tables = tables
 
         self._notes = {}  # table_slug -> list[output row]
+        self.got_response = {}  # table_slug -> count of successful responses
 
-        if self._config.use_batching and not self._provider.supports_batches:
+        if nlp_config.use_batching and len(nlp_config.azure_deployments) > 1:
+            # Batch IDs are cached under a single per-provider key, so several deployments
+            # would overwrite each other's resume state. Batching is already the cheap path;
+            # spreading it across deployments buys nothing worth that risk.
             raise errors.CumulusLibraryError(
-                f"Model {self._provider.model_name} does not support batching."
+                "Batch mode (--batch-nlp) does not support multiple --azure-deployment values. "
+                "Use a single deployment, or drop --batch-nlp to run concurrently."
             )
-        if not self._config.phi_dir:
-            raise errors.CumulusLibraryError(
-                "NLP requires the --etl-phi-dir argument. Please provide a PHI dir and try again."
-            )
+
+        self._dispatcher = dispatch.PromptDispatcher(nlp_config)
+        # A representative model, for the fields that are identical across endpoints (model ID,
+        # batching support). Actual prompting always goes through the pool.
+        self._model = self._dispatcher.endpoints[0].model
+        self._provider = self._model.provider
+
+        try:
+            if self._config.use_batching and not self._provider.supports_batches:
+                raise errors.CumulusLibraryError(
+                    f"Model {self._provider.model_name} does not support batching."
+                )
+            if not self._config.phi_dir:
+                raise errors.CumulusLibraryError(
+                    "NLP requires the --etl-phi-dir argument. "
+                    "Please provide a PHI dir and try again."
+                )
+        except Exception:
+            # The pool has live worker threads by now, so don't strand them on the way out.
+            self._dispatcher.finish()
+            raise
 
     @property
     def token_stats(self) -> models.TokenStats:
-        return self._model.stats
+        return self._dispatcher.token_stats
 
     @property
     def token_prices(self) -> models.TokenStats:
-        return self._model.prices
+        return self._dispatcher.token_prices
+
+    @property
+    def throttle_dropped(self) -> int:
+        return self._dispatcher.throttle_dropped
 
     def prepare(self, notes: note_utils.NoteSource) -> None:
         # In batching mode, we need to do some preparations.
@@ -230,18 +262,42 @@ class NlpNotePool:
             self._resume_existing_batches()
             self._create_new_batches(notes)
 
-    def add_note(self, table_slug: str, note_res: dict, text: str) -> int:
-        """Returns number of successfully processed notes. Might raise an exception."""
+    def add_note(self, table_slug: str, note_res: dict, text: str) -> None:
+        """Queues a note for NLP.
+
+        The request happens on a worker thread, so results are handled later - whenever this
+        note's turn comes up in the drain order. Blocks once enough work is outstanding.
+        """
         task = self._tables[table_slug]
 
         prompt = self._make_prompt(table_slug, task, text)
-        response = self._model.prompt(prompt)
-        self._add_response(table_slug, task, note_res, text, response)
-        return 1
+        self._handle_results(self._dispatcher.submit(prompt, (table_slug, note_res, text)))
+
+    def _handle_results(self, results: list[dispatch.Result]) -> None:
+        """Folds finished responses into our pending output, on the main thread.
+
+        Workers only make the network call. Everything with side effects - span fixing, row
+        accumulation, parquet writes, upload refs - happens here, single-threaded, so
+        concurrency can't reorder or interleave any of it.
+        """
+        for result in results:
+            table_slug, note_res, text = result.context
+            try:
+                if result.error is not None:
+                    raise result.error
+                task = self._tables[table_slug]
+                self._add_response(table_slug, task, note_res, text, result.response)
+            except Exception as exc:
+                # Covers both a failed request and a failed write of the chunk this note
+                # happened to complete. One bad note never stops the rest of the run.
+                rich.print("Failed to process note:", exc)
+                continue
+            self.got_response[table_slug] = self.got_response.get(table_slug, 0) + 1
 
     def finalize(self) -> None:
-        """Returns number of successfully processed notes. Might raise an exception."""
+        """Waits for every outstanding note, then writes out whatever we have."""
         try:
+            self._handle_results(self._dispatcher.finish())
             self._write_notes_to_output()
         finally:
             # If any of our tasks wrote no rows, let's write out a zero-row parquet so that we can
@@ -469,12 +525,15 @@ class NlpNotePool:
     def _write_single_parquet(
         self, table_slug: str, task: workflow.NlpTask, rows: list[dict]
     ) -> int:
-        path = self._next_parquet_path(table_slug, task)
-        path.parent.makedirs()
+        # Same story as add_upload_refs_for_task: main thread, but concurrent with worker
+        # cache writes through the same shared fsspec filesystem.
+        with caching.FS_WRITE_LOCK:
+            path = self._next_parquet_path(table_slug, task)
+            path.parent.makedirs()
 
-        # Build the pyarrow table (with schema) and write it out
-        table = pyarrow.Table.from_pylist(rows, schema=schema_for_task(task))
-        pyarrow.parquet.write_table(table, str(path), compression="snappy", filesystem=path.fs)
+            # Build the pyarrow table (with schema) and write it out
+            table = pyarrow.Table.from_pylist(rows, schema=schema_for_task(task))
+            pyarrow.parquet.write_table(table, str(path), compression="snappy", filesystem=path.fs)
 
 
 def upload_refs_path(
@@ -507,12 +566,15 @@ def add_upload_refs_for_task(
 ) -> set[str]:
     refs = sorted(f"{row['note_ref']}" for row in rows)  # sort for tests
     path = upload_refs_path(nlp_config, table_slug, task, db)
-    path.parent.makedirs()
-    mode = "a" if path.exists() else "w"  # work around memory:// fs having bad "a" semantics
-    with path.open(mode) as f:
-        for ref in refs:
-            f.write(ref)
-            f.write("\n")
+    # Runs on the main thread, but NLP workers may be writing cache entries at the same time,
+    # and fsspec's write transactions are shared per-filesystem. See caching.FS_WRITE_LOCK.
+    with caching.FS_WRITE_LOCK:
+        path.parent.makedirs()
+        mode = "a" if path.exists() else "w"  # work around memory:// fs having bad "a" semantics
+        with path.open(mode) as f:
+            for ref in refs:
+                f.write(ref)
+                f.write("\n")
 
 
 def convert_pydantic_fields_to_pyarrow(

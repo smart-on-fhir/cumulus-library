@@ -116,15 +116,25 @@ class NlpConfig:
         args = args or {}
         self.model = args.get("nlp_model")
         self.provider = args.get("nlp_provider", "local")
-        self.azure_deployment = args.get("azure_deployment")
+        # One or more Azure deployments to spread requests across (--azure-deployment, which
+        # may be repeated). Empty means "use the model name", which is what Azure defaults to.
+        self.azure_deployments = args.get("azure_deployments") or []
         self.use_batching = args.get("batch_nlp", False)
-        self.chunksize = args.get("chunk_size", 100000)
+        self.chunksize = args.get("chunksize") or 100000
         self.clean = args.get("clean_nlp", False)
         self.phi_dir = args.get("etl_phi_dir")
         self.target = args.get("target")
         # An optional subset of workflow tables to build (--nlp-table). None means "all tables".
         self.tables = args.get("nlp_tables")
         self.show_stats = args.get("nlp_stats")
+
+        # How many requests to keep in flight at once. Defaults to one worker per deployment,
+        # so passing several deployments parallelizes without any extra flags, while a single
+        # endpoint (local vLLM, Bedrock) stays serial until you explicitly ask for more.
+        concurrency = args.get("nlp_concurrency")
+        if concurrency is None:
+            concurrency = len(self.azure_deployments) or 1
+        self.concurrency = max(1, concurrency)
 
         self.salt = None
         if self.phi_dir:

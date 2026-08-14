@@ -7,11 +7,13 @@ import json
 import os
 import pathlib
 import tempfile
+import threading
 import time
 from collections.abc import Iterable
 from typing import NoReturn, Self
 
 import boto3
+import botocore.config
 import cumulus_fhir_support as cfs
 import openai
 import rich
@@ -21,6 +23,9 @@ from pydantic import BaseModel
 from cumulus_library import errors, note_utils
 
 from . import caching
+
+# How many times a client library will transparently retry a request before giving up
+MAX_RETRIES = 5
 
 
 class UnreachableModel(errors.CumulusLibraryError):
@@ -77,6 +82,60 @@ class TokenStats:
     cache_written_input_tokens: int = 0
     output_tokens: int = 0
 
+    def __add__(self, other: "TokenStats") -> "TokenStats":
+        return TokenStats(
+            new_input_tokens=self.new_input_tokens + other.new_input_tokens,
+            cache_read_input_tokens=self.cache_read_input_tokens + other.cache_read_input_tokens,
+            cache_written_input_tokens=(
+                self.cache_written_input_tokens + other.cache_written_input_tokens
+            ),
+            output_tokens=self.output_tokens + other.output_tokens,
+        )
+
+
+def sum_token_stats(all_stats: Iterable[TokenStats]) -> TokenStats:
+    """Combines the token stats of several models (e.g. one per endpoint) into one."""
+    total = TokenStats()
+    for stats in all_stats:
+        total = total + stats
+    return total
+
+
+def is_rate_limit_error(exc: BaseException) -> bool:
+    """
+    Rate limiting is expected when running with concurrency, and is worth retrying against a
+    cooled-down endpoint. Other errors mean the note itself (or our config) is the problem, and
+    retrying would just waste money.
+    """
+    # Openai gives us a RateLimitError for throttling
+    if isinstance(exc, openai.RateLimitError):
+        return True
+
+    # Bedrock signals throttling with a ClientError carrying one of these error codes.
+    error = getattr(exc, "response", None)
+    if isinstance(error, dict):
+        code = error.get("Error", {}).get("Code")
+        if code in {"ThrottlingException", "TooManyRequestsException"}:
+            return True
+
+    # Otherwise we're not sure
+    return False
+
+
+def retry_after_seconds(exc: BaseException) -> float | None:
+    """
+    Pulls a server-suggested wait out of a rate-limit error, if it offered one.
+    """
+    headers = getattr(getattr(exc, "response", None), "headers", None)
+    if not headers:
+        return None
+    if (value := headers.get("retry-after")) is not None:
+        try:
+            return float(value)
+        except ValueError:  # could be an HTTP-date, which we don't bother parsing
+            pass
+    return None
+
 
 @dataclasses.dataclass(kw_only=True)
 class TokenPrices:
@@ -93,6 +152,23 @@ class Provider(abc.ABC):
     def __init__(self):
         self.stats = TokenStats()
         self.supports_batches = False
+        # Several worker threads can share one provider, and "+=" on an int attribute is a
+        # read-modify-write that can silently lose updates. Guard every stats mutation with this.
+        self._stats_lock = threading.Lock()
+
+    def record_usage(
+        self,
+        *,
+        new_input_tokens: int = 0,
+        cache_read_input_tokens: int = 0,
+        cache_written_input_tokens: int = 0,
+        output_tokens: int = 0,
+    ) -> None:
+        with self._stats_lock:
+            self.stats.new_input_tokens += new_input_tokens
+            self.stats.cache_read_input_tokens += cache_read_input_tokens
+            self.stats.cache_written_input_tokens += cache_written_input_tokens
+            self.stats.output_tokens += output_tokens
 
     def post_init_check(self) -> None:
         pass  # pragma: no cover
@@ -118,7 +194,14 @@ class BedrockProvider(Provider):
         self.model_name = model_name
         self.supports_cache = supports_cache
         self.supports_schema = supports_schema
-        self.client = boto3.client("bedrock-runtime")
+        # Adaptive mode adds client-side rate limiting on top of retries, so a throttled
+        # endpoint slows us down instead of us hammering it harder.
+        self.client = boto3.client(
+            "bedrock-runtime",
+            config=botocore.config.Config(
+                retries={"max_attempts": MAX_RETRIES, "mode": "adaptive"}
+            ),
+        )
 
     def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
         # Bedrock does not make it easy to define a JSON schema.
@@ -163,10 +246,12 @@ class BedrockProvider(Provider):
         )
 
         usage = response.get("usage", {})
-        self.stats.cache_read_input_tokens += usage.get("cacheReadInputTokens", 0)
-        self.stats.cache_written_input_tokens += usage.get("cacheWriteInputTokens", 0)
-        self.stats.new_input_tokens += usage.get("inputTokens", 0)
-        self.stats.output_tokens += usage.get("outputTokens", 0)
+        self.record_usage(
+            cache_read_input_tokens=usage.get("cacheReadInputTokens", 0),
+            cache_written_input_tokens=usage.get("cacheWriteInputTokens", 0),
+            new_input_tokens=usage.get("inputTokens", 0),
+            output_tokens=usage.get("outputTokens", 0),
+        )
 
         stop_reason = response.get("stopReason")
         if stop_reason not in {"end_turn", "tool_use"}:
@@ -294,9 +379,11 @@ class OpenAIProvider(Provider):
             cached_tokens = 0
             if response.usage.prompt_tokens_details:
                 cached_tokens = response.usage.prompt_tokens_details.cached_tokens or 0
-            self.stats.cache_read_input_tokens += cached_tokens
-            self.stats.new_input_tokens += response.usage.prompt_tokens - cached_tokens
-            self.stats.output_tokens += response.usage.completion_tokens
+            self.record_usage(
+                cache_read_input_tokens=cached_tokens,
+                new_input_tokens=response.usage.prompt_tokens - cached_tokens,
+                output_tokens=response.usage.completion_tokens,
+            )
 
         choice = response.choices[0]
         parsed = schema.model_validate_json(choice.message.content)
@@ -458,7 +545,7 @@ class AzureProvider(OpenAIProvider):
         super().__init__(
             "azure",
             model_name,
-            openai.AzureOpenAI(api_version="2024-10-21"),
+            openai.AzureOpenAI(api_version="2024-10-21", max_retries=MAX_RETRIES),
             **kwargs,
         )
 
@@ -470,7 +557,7 @@ class VllmProvider(OpenAIProvider):
         super().__init__(
             "local",
             model_name,
-            openai.OpenAI(base_url=url, api_key="EMPTY"),
+            openai.OpenAI(base_url=url, api_key="EMPTY", max_retries=MAX_RETRIES),
             supports_schema=True,
             max_batch_count=None,
         )
@@ -521,9 +608,12 @@ class Model:
             f"{self.__class__.__name__} does not support the '{provider}' provider."
         )
 
-    def __init__(self, config: note_utils.NlpConfig):
+    def __init__(self, config: note_utils.NlpConfig, *, deployment: str | None = None):
         self.prices = None
         self.max_batch_count = config.chunksize
+        # Which endpoint this instance talks to. The worker pool builds one Model per
+        # deployment and passes it in explicitly; direct callers get the first configured one.
+        self.deployment = deployment or next(iter(config.azure_deployments or []), None)
 
         if config.provider == "azure":
             if not self.AZURE_ID:
@@ -537,7 +627,7 @@ class Model:
                 self.AZURE_ID,
                 max_batch_count=self.max_batch_count if self.AZURE_BATCHES else None,
                 supports_schema=self.AZURE_SCHEMA,
-                deployment=config.azure_deployment,
+                deployment=self.deployment,
             )
             self.prices = self.AZURE_PRICES
 
@@ -780,14 +870,23 @@ _MODELS = [
 ]
 
 
-def create_model(config: note_utils.NlpConfig) -> Model:
+def create_model(
+    config: note_utils.NlpConfig, *, deployment: str | None = None, check: bool = True
+) -> Model:
+    """Builds a model bound to a single endpoint.
+
+    :keyword deployment: which Azure deployment to talk to (defaults to the first configured)
+    :keyword check: whether to validate the endpoint with a live request - the worker pool
+        checks each deployment once, rather than once per worker sharing it
+    """
     if not config.model:
         raise errors.CumulusLibraryError("An NLP model ID must be provided (using --nlp-model).")
 
     for model in _MODELS:
         if config.model == model.MODEL_ID:
-            instance = model(config)
-            instance.post_init_check()
+            instance = model(config, deployment=deployment)
+            if check:
+                instance.post_init_check()
             return instance
 
     raise errors.CumulusLibraryError(f"Unknown NLP model ID '{config.model}'")
