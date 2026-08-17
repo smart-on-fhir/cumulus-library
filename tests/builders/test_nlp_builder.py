@@ -1437,7 +1437,7 @@ def test_never_exceeds_configured_concurrency(mock_client, tmp_path, mock_db_con
     builder = _run(tmp_path, config, source, mock_db_config)
 
     assert builder.stats.got_response[0] == 20
-    # Confirm that we never exceeded the configured concurrency, which is the whole point of this test.
+    # Confirm that we never exceeded the configured concurrency limit.
     assert max_inflight <= config.concurrency
     # And confirm we really did run in parallel, otherwise the cap check proves nothing.
     assert max_inflight > 1
