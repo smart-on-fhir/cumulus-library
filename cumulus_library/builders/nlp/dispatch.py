@@ -20,7 +20,6 @@ import time
 from cumulus_library import note_utils
 from cumulus_library.builders.nlp import models
 
-
 # How long to hold an endpoint back after it rate-limits us, when the server doesn't tell us.
 DEFAULT_COOLDOWN_SECONDS = 5
 # Ceiling on a server-provided Retry-After of 5m, so runs don't stall for hours.
