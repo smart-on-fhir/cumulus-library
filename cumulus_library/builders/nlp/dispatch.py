@@ -22,13 +22,13 @@ from cumulus_library import note_utils
 from . import models
 
 # How long to hold an endpoint back after it rate-limits us, when the server doesn't tell us.
-DEFAULT_COOLDOWN_SECONDS = 30
-# Ceiling on a server-provided Retry-After, so runs don't stall for hours.
+DEFAULT_COOLDOWN_SECONDS = 5
+# Ceiling on a server-provided Retry-After of 5m, so runs don't stall for hours.
 MAX_COOLDOWN_SECONDS = 300
 # How many times to re-issue a single note that keeps getting rate limited. This is on top of
 # the retries the client SDKs already do internally (see models.MAX_RETRIES).
 MAX_THROTTLE_RETRIES = 3
-# sanity check on user input, to avoid OOMing the machine
+# Sanity check on user input, to avoid OOMing the machine
 MAX_CONCURRENCY = 16
 
 

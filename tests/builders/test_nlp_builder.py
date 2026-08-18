@@ -18,6 +18,7 @@ from collections.abc import Iterator
 from types import SimpleNamespace
 from unittest import mock
 
+import botocore.exceptions
 import cumulus_fhir_support as cfs
 import fsspec.implementations.memory
 import httpx
@@ -1603,7 +1604,6 @@ def test_batching_rejects_multiple_deployments(mock_client, tmp_path, mock_db_co
         builder.execute_queries(mock_db_config, None)
 
 
-@nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_token_stats_summed_across_deployments(mock_client, tmp_path, mock_db_config):
     """Usage from every endpoint has to roll up, or cost estimates read low."""
@@ -1619,3 +1619,112 @@ def test_token_stats_summed_across_deployments(mock_client, tmp_path, mock_db_co
     assert builder.stats.token_stats.output_tokens == 60
     assert builder.stats.token_stats.cache_read_input_tokens == 30
     assert builder.stats.token_stats.new_input_tokens == 6 * (19 - 5)
+
+
+@mock.patch("boto3.client")
+def test_bedrock_throttling_is_recognized_and_retried(mock_client, tmp_path, mock_db_config):
+    """Bedrock signals rate limits with a botocore ClientError, not an openai exception.
+
+    Worth an end-to-end test rather than just a unit test of the predicate, because the whole
+    point is that the dispatcher's cooldown path triggers for a completely different error
+    shape than the Azure/local one.
+    """
+    source = _write_notes(tmp_path, 3)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock")
+
+    throttled = set()
+    lock = threading.Lock()
+    ok_response = model._boto.converse.return_value
+
+    def converse(**kwargs):
+        # The note text is the only per-request thing we can key on here.
+        note = kwargs["messages"][0]["content"][0]["text"]
+        with lock:
+            first_time = note not in throttled
+            throttled.add(note)
+        if first_time:
+            raise botocore.exceptions.ClientError(
+                {"Error": {"Code": "ThrottlingException", "Message": "slow down"}}, "Converse"
+            )
+        return ok_response
+
+    model._boto.converse.side_effect = converse
+
+    config = model.nlp_config(concurrency=2)
+    with mock.patch.object(nlp_dispatch, "DEFAULT_COOLDOWN_SECONDS", 0.01):
+        builder = _run(tmp_path, config, source, mock_db_config)
+
+    # Each note was throttled once, backed off, and then succeeded.
+    assert builder.stats.got_response[0] == 3
+    assert builder.stats.throttle_dropped == 0
+
+
+def test_bedrock_non_throttle_errors_are_not_treated_as_rate_limits():
+    """Only the throttling codes earn a retry - everything else is a real failure."""
+
+    def client_error(code):
+        return botocore.exceptions.ClientError({"Error": {"Code": code}}, "Converse")
+
+    assert models.is_rate_limit_error(client_error("ThrottlingException"))
+    assert models.is_rate_limit_error(client_error("TooManyRequestsException"))
+    assert not models.is_rate_limit_error(client_error("AccessDeniedException"))
+    assert not models.is_rate_limit_error(ValueError("something else entirely"))
+
+
+def test_retry_after_header_drives_cooldown():
+    """A server-suggested wait should win over our default cooldown."""
+
+    def rate_limit(headers: dict | None = None):
+        return openai.RateLimitError(
+            "slow down plz and thx",
+            response=httpx.Response(429, headers=headers or {}, request=httpx.Request("POST", "/")),
+            body=None,
+        )
+
+    assert models.retry_after_seconds(rate_limit({"Retry-After": "0.25"})) == 0.25
+    # An HTTP-date is legal in Retry-After, but we don't parse those - fall back to the default.
+    http_date = rate_limit({"Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT"})
+    assert models.retry_after_seconds(http_date) is None
+    # And a response that made no suggestion at all leaves us to pick - whether it carried no
+    # headers whatsoever, or headers that simply didn't include one.
+    assert models.retry_after_seconds(rate_limit()) is None
+    assert models.retry_after_seconds(rate_limit({"x-request-id": "abc"})) is None
+
+    # Confirm the suggestion actually reaches the endpoint, rather than the default. The bound
+    # is loose on purpose - what matters is that we waited ~0.25s and not DEFAULT_COOLDOWN's 5.
+    endpoint = nlp_dispatch.Endpoint(model=mock.MagicMock(), name="dep-a")
+    before = time.monotonic()
+    endpoint.start_cooldown(models.retry_after_seconds(rate_limit({"Retry-After": "0.25"})))
+    assert 0 < endpoint.cooldown_until - before < 1
+
+    # A server asking for longer than we're willing to wait gets clamped.
+    endpoint.start_cooldown(nlp_dispatch.MAX_COOLDOWN_SECONDS * 10)
+    assert endpoint.cooldown_until - time.monotonic() <= nlp_dispatch.MAX_COOLDOWN_SECONDS
+
+
+@nlp_utils.mock_env("azure")
+@mock.patch("openai.AzureOpenAI")
+def test_note_that_cannot_be_prompted_is_skipped(mock_client, tmp_path, mock_db_config):
+    """A note that fails before it is ever queued shouldn't take the run down with it."""
+    source = _write_notes(tmp_path, 3)
+    model = nlp_utils.MockModel(mock_client, provider="azure")
+    model.mock_openai_handler(lambda **kwargs: {})
+
+    real_make_prompt = driver.NlpNotePool._make_prompt
+    seen = []
+
+    def flaky_make_prompt(self, table_slug, task, text):
+        seen.append(text)
+        if len(seen) == 2:  # blow up on the second note only
+            raise RuntimeError("bad prompt")
+        return real_make_prompt(self, table_slug, task, text)
+
+    # Capture the console output so we can confirm the error was logged, but not fatal.
+    console_output = io.StringIO()
+    with mock.patch.object(driver.NlpNotePool, "_make_prompt", flaky_make_prompt):
+        with contextlib.redirect_stdout(console_output):
+            builder = _run(tmp_path, model.nlp_config(), source, mock_db_config)
+
+    # The other two notes still made it through.
+    assert builder.stats.got_response[0] == 2
+    assert "Failed to process note: bad prompt" in console_output.getvalue()
