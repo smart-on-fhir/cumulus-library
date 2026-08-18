@@ -21,8 +21,7 @@ from openai.types.chat import ParsedChatCompletion
 from pydantic import BaseModel
 
 from cumulus_library import errors, note_utils
-
-from . import caching
+from cumulus_library.builders.nlp import caching
 
 # How many times a client library will transparently retry a request before giving up
 MAX_RETRIES = 5

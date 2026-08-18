@@ -13,8 +13,7 @@ import pydantic
 import rich
 
 from cumulus_library import base_utils, databases, errors, note_utils
-
-from . import caching, dispatch, models, workflow
+from cumulus_library.builders.nlp import caching, dispatch, models, workflow
 
 ESCAPED_WHITESPACE = re.compile(r"(\\\s)+")
 PARQUET_PATTERN = re.compile(r"nlp\.([0-9]+)\.parquet")

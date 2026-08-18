@@ -18,8 +18,8 @@ import threading
 import time
 
 from cumulus_library import note_utils
+from cumulus_library.builders.nlp import models
 
-from . import models
 
 # How long to hold an endpoint back after it rate-limits us, when the server doesn't tell us.
 DEFAULT_COOLDOWN_SECONDS = 5
