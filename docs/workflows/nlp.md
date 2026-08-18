@@ -189,7 +189,8 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
   name (defaults to model name). Pass it more than once to spread requests across several
   deployments, which multiplies the quota available to a run (see below)
 - `--nlp-concurrency=N`: how many NLP requests to keep in flight at once (defaults to one per
-  deployment, so a single endpoint runs serially unless you ask for more)
+  deployment, so a single endpoint runs serially unless you ask for more). Workers are spread
+  across your deployments as evenly as possible.
 - `--batch-nlp`: if set, NLP will be done in batch mode, which can take up to a day to finish, but
   will be much cheaper
 - `--clean-nlp`: if set, previous NLP results for the workflow will be deleted first

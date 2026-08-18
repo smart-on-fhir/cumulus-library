@@ -1604,6 +1604,7 @@ def test_batching_rejects_multiple_deployments(mock_client, tmp_path, mock_db_co
         builder.execute_queries(mock_db_config, None)
 
 
+@nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_token_stats_summed_across_deployments(mock_client, tmp_path, mock_db_config):
     """Usage from every endpoint has to roll up, or cost estimates read low."""
