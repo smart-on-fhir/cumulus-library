@@ -870,14 +870,10 @@ _MODELS = [
 ]
 
 
-def create_model(
-    config: note_utils.NlpConfig, *, deployment: str | None = None, check: bool = True
-) -> Model:
-    """Builds a model bound to a single endpoint.
+def create_model(config: note_utils.NlpConfig, *, deployment: str | None = None) -> Model:
+    """Builds a model bound to a single endpoint, validating it with a live request.
 
     :keyword deployment: which Azure deployment to talk to (defaults to the first configured)
-    :keyword check: whether to validate the endpoint with a live request - the worker pool
-        checks each deployment once, rather than once per worker sharing it
     """
     if not config.model:
         raise errors.CumulusLibraryError("An NLP model ID must be provided (using --nlp-model).")
@@ -885,8 +881,7 @@ def create_model(
     for model in _MODELS:
         if config.model == model.MODEL_ID:
             instance = model(config, deployment=deployment)
-            if check:
-                instance.post_init_check()
+            instance.post_init_check()
             return instance
 
     raise errors.CumulusLibraryError(f"Unknown NLP model ID '{config.model}'")
