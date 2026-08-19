@@ -204,8 +204,8 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
         "--select-by-table",
         type=str,
         dest="select_by_table",
-        help="Override workflow\'s \"select_by_table\" values.",
-        default=None
+        help='Override workflow\'s "select_by_table" values.',
+        default=None,
     )
 
 

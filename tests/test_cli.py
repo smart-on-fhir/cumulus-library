@@ -59,11 +59,7 @@ def test_cli_invalid_study(tmp_path):
 )
 @pytest.mark.parametrize(
     "args",
-    [
-        ([]),
-        (["-t", "all"]),
-        (["--select-by-table", "test1"])
-    ],
+    [([]), (["-t", "all"]), (["--select-by-table", "test1"])],
 )
 def test_cli_early_exit(args):
     with pytest.raises(SystemExit):

@@ -443,8 +443,8 @@ def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     assert read_rows(mock_db_config, driver.table_name_for_task("kept_table", nlp_config))[0][
         "result"
     ] == {"hello": 1}
-    
-    
+
+
 @mock.patch("openai.OpenAI")
 def test_select_subtasks_builds_subset_with_select_tables(mock_client, tmp_path, mock_db_config):
     """
@@ -455,20 +455,20 @@ def test_select_subtasks_builds_subset_with_select_tables(mock_client, tmp_path,
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         add_dxr("1", "say hello to the world", f)
     source = note_utils.NoteSource([tmp_path])
-    
+
     model = nlp_utils.MockModel(mock_client)
-    
+
     nlp_config = model.nlp_config()
     nlp_config.subtasks = ["kept_table"]
     nlp_config.select_by_table = "test1"
-    
+
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=source, nlp_config=nlp_config
     )
-    
+
     for key, task in builder._workflow_config.tables.items():
         assert task.select_by_table == "test1"
-        
+
 
 @mock.patch("openai.OpenAI")
 def test_select_multiple_tables(mock_client, tmp_path, mock_db_config):

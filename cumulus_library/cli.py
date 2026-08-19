@@ -513,7 +513,7 @@ def main(cli_args=None):
 
     if args.get("info"):
         report_version_info(args, console, True)
-        
+
     if args.get("select_by_table") is not None and args.get("nlp_subtask") is None:
         sys.exit("--select-by-table can only be used together with --nlp-subtask.")
 
