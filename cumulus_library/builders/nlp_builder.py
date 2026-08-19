@@ -36,11 +36,14 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             with open(toml_config_path, "rb") as file:
                 file_bytes = file.read()
                 self._workflow_config = msgspec.toml.decode(file_bytes, type=workflow.NlpWorkflow)
+                if self._nlp_config.select_by_table is not None:
+                    for key, task in self._workflow_config.tables.items():
+                        task.select_by_table = self._nlp_config.select_by_table
 
         except Exception as e:
             sys.exit(f"The NLP workflow at {toml_config_path!s} is invalid: \n{e}")
 
-        self._select_tables()
+        self._select_subtasks()
         self._flatten_config(toml_config_path.parent)
 
         self._notes = notes
@@ -52,14 +55,14 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
                 "or DocumentReference with inlined clinical notes."
             )
 
-    def _select_tables(self) -> None:
-        """Optionally restrict the build to a subset of the workflow's tables.
+    def _select_subtasks(self) -> None:
+        """Optionally restrict the build to a subset of the workflow's subtasks.
 
-        Driven by the --nlp-table CLI argument, this lets a study's NLP tables be built in
+        Driven by the --nlp-subtask CLI argument, this lets a study's NLP subtasks be built in
         isolation without editing the workflow toml. We run this before _flatten_config so that
         a table we aren't building can't block the build (for example, if it has a broken schema).
         """
-        requested = self._nlp_config.tables
+        requested = self._nlp_config.subtasks
 
         # If no tables were requested, we build all of them.
         if not requested:

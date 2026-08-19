@@ -191,14 +191,21 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
         help="Disable printing of NLP note and token statistics",
     )
     group.add_argument(
-        "--nlp-table",
+        "--nlp-subtask",
         action="append",
-        dest="nlp_tables",
-        metavar="TABLE",
+        dest="nlp_subtasks",
+        metavar="SUBTASKS",
         help=(
-            "Only build this table from the NLP workflow, instead of all of them. "
-            "May be passed more than once to build a subset of tables."
+            "Only build this subtasks from the NLP workflow, instead of all of them. "
+            "May be passed more than once to build a subset of subtasks."
         ),
+    )
+    group.add_argument(
+        "--select-by-table",
+        type=str,
+        dest="select_by_table",
+        help="Override workflow\'s \"select_by_table\" values.",
+        default=None
     )
 
 

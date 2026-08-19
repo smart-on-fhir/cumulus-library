@@ -62,6 +62,7 @@ def test_cli_invalid_study(tmp_path):
     [
         ([]),
         (["-t", "all"]),
+        (["--select-by-table", "test1"])
     ],
 )
 def test_cli_early_exit(args):
