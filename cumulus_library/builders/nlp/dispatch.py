@@ -20,9 +20,12 @@ import time
 from cumulus_library import note_utils
 from cumulus_library.builders.nlp import models
 
-# How long to hold an endpoint back after it rate-limits us, when the server doesn't tell us.
+# Base wait when a server rate-limits us without saying for how long. This doubles with each
+# attempt (5s, 10s, 20s, 40s), so an endpoint that keeps throttling us keeps easing off rather
+# than us retrying at a fixed interval that was evidently already too aggressive.
 DEFAULT_COOLDOWN_SECONDS = 5
-# Ceiling on a server-provided Retry-After of 5m, so runs don't stall for hours.
+# Ceiling of 5m on any single wait, so runs don't stall for hours. With the constants above our
+# own backoff stays well under this, so in practice only a server request can reach it.
 MAX_COOLDOWN_SECONDS = 300
 # How many times to re-issue a single note that keeps getting rate limited. This is on top of
 # the retries the client SDKs already do internally (see models.MAX_RETRIES).
@@ -52,6 +55,9 @@ class Endpoint:
         # endpoint, so the whole dispatcher eases off rather than each worker finding out alone.
         self.cooldown_until = 0.0
         self.lock = threading.Lock()
+        # Whether we've already told the user we're capping this endpoint's requested waits.
+        # Once is enough to explain the behavior; repeating it per note would just be noise.
+        self.warned_about_cap = False
 
     def wait_for_cooldown(self) -> None:
         with self.lock:
@@ -59,9 +65,30 @@ class Endpoint:
         if remaining > 0:
             time.sleep(remaining)
 
-    def start_cooldown(self, seconds: float | None) -> None:
-        seconds = DEFAULT_COOLDOWN_SECONDS if seconds is None else seconds
-        seconds = min(seconds, MAX_COOLDOWN_SECONDS)
+    def start_cooldown(self, seconds: float | None, *, attempt: int = 0) -> None:
+        """Holds this endpoint back, for as long as the server asked or else our own guess.
+
+        A server-provided Retry-After is trusted as given - it knows its own quota window
+        better than we do. With no guidance we back off exponentially in the attempt number,
+        so an endpoint that keeps throttling us keeps easing off, rather than us re-trying at
+        a fixed interval that was evidently already too aggressive.
+        """
+        from_server = seconds is not None
+        if not from_server:
+            seconds = DEFAULT_COOLDOWN_SECONDS * (2**attempt)
+
+        if seconds > MAX_COOLDOWN_SECONDS:
+            # Only worth explaining when it was the server's number we ignored - our own
+            # backoff is ours to cap, and saying so would just be confusing.
+            if from_server and not self.warned_about_cap:
+                self.warned_about_cap = True
+                models.print_error(
+                    f"NLP server '{self.name}' asked us to wait {seconds:,.0f}s before "
+                    f"retrying, which is longer than this run will wait. Capping at "
+                    f"{MAX_COOLDOWN_SECONDS}s - expect more rate limiting as a result."
+                )
+            seconds = MAX_COOLDOWN_SECONDS
+
         with self.lock:
             self.cooldown_until = max(self.cooldown_until, time.monotonic() + seconds)
 
@@ -217,7 +244,7 @@ class PromptDispatcher:
                 # Hold the whole endpoint back, not just this worker, then retry in place.
                 # Stalling here *is* the back pressure, and it leaves ordering untouched
                 # because the future stays pending the entire time.
-                endpoint.start_cooldown(models.retry_after_seconds(exc))
+                endpoint.start_cooldown(models.retry_after_seconds(exc), attempt=attempt)
                 if attempt == MAX_THROTTLE_RETRIES:
                     with self._throttle_lock:
                         self.throttle_dropped += 1

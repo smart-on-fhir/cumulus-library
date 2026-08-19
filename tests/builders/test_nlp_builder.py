@@ -1729,3 +1729,52 @@ def test_note_that_cannot_be_prompted_is_skipped(mock_client, tmp_path, mock_db_
     # The other two notes still made it through.
     assert builder.stats.got_response[0] == 2
     assert "Failed to process note: bad prompt" in console_output.getvalue()
+
+
+def test_default_cooldown_backs_off_exponentially():
+    """With no Retry-After to go on, each attempt should wait longer than the last.
+
+    Retrying at a flat interval against an endpoint that already said "too fast" tends to just
+    earn another rate limit, so the fallback doubles per attempt.
+    """
+    waits = []
+    for attempt in range(nlp_dispatch.MAX_THROTTLE_RETRIES + 1):
+        endpoint = nlp_dispatch.Endpoint(model=mock.MagicMock(), name="dep-a")
+        before = time.monotonic()
+        endpoint.start_cooldown(None, attempt=attempt)  # None = server gave no guidance
+        waits.append(endpoint.cooldown_until - before)
+
+    base = nlp_dispatch.DEFAULT_COOLDOWN_SECONDS
+    assert [round(w) for w in waits] == [base * 2**n for n in range(len(waits))]
+    assert waits == sorted(waits), "each attempt should back off further than the last"
+
+    # A server-provided wait is trusted as-is, not multiplied by the attempt number.
+    endpoint = nlp_dispatch.Endpoint(model=mock.MagicMock(), name="dep-a")
+    before = time.monotonic()
+    endpoint.start_cooldown(1.5, attempt=3)
+    assert round(endpoint.cooldown_until - before, 1) == 1.5
+
+
+def test_capped_cooldown_is_explained():
+    """Ignoring the server's requested wait shouldn't be silent."""
+    endpoint = nlp_dispatch.Endpoint(model=mock.MagicMock(), name="dep-a")
+
+    console_output = io.StringIO()
+    with contextlib.redirect_stdout(console_output):
+        endpoint.start_cooldown(nlp_dispatch.MAX_COOLDOWN_SECONDS * 4)
+        # Only said once per endpoint - repeating it per throttled note would be noise.
+        endpoint.start_cooldown(nlp_dispatch.MAX_COOLDOWN_SECONDS * 4)
+
+    output = console_output.getvalue()
+    assert output.count("asked us to wait") == 1
+    assert "dep-a" in output
+    assert f"Capping at {nlp_dispatch.MAX_COOLDOWN_SECONDS}s" in output
+    assert endpoint.cooldown_until - time.monotonic() <= nlp_dispatch.MAX_COOLDOWN_SECONDS
+
+    # Our own backoff is ours to cap, so hitting the ceiling that way says nothing.
+    quiet = nlp_dispatch.Endpoint(model=mock.MagicMock(), name="dep-b")
+    console_output = io.StringIO()
+    with contextlib.redirect_stdout(console_output):
+        quiet.start_cooldown(None, attempt=99)
+    assert console_output.getvalue() == ""
+    assert quiet.cooldown_until - time.monotonic() <= nlp_dispatch.MAX_COOLDOWN_SECONDS

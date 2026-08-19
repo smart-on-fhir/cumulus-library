@@ -149,7 +149,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             return
         plural = "" if stats.throttle_dropped == 1 else "s"
         rich.get_console().print(
-            f"\n [bold red]WARNING:[/] {stats.throttle_dropped:,} note{plural} dropped after "
+            f"\n 🚨[bold red] WARNING:[/] {stats.throttle_dropped:,} note{plural} dropped after "
             "repeated rate limiting, and are missing from the results.\n"
             " Re-run to pick them up (cached notes are free), and consider lowering "
             "--nlp-concurrency or adding another --azure-deployment.",

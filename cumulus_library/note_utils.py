@@ -120,7 +120,7 @@ class NlpConfig:
         # may be repeated). Empty means "use the model name", which is what Azure defaults to.
         self.azure_deployments = args.get("azure_deployments") or []
         self.use_batching = args.get("batch_nlp", False)
-        self.chunksize = args.get("chunksize", 100000)
+        self.chunksize = args.get("chunksize") or 100000
         self.clean = args.get("clean_nlp", False)
         self.phi_dir = args.get("etl_phi_dir")
         self.target = args.get("target")
