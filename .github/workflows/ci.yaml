@@ -53,6 +53,7 @@ jobs:
             thresholdAll: 1
             thresholdNew: 1
             thresholdModified: 1
+            title: "Python Coverage: for details and failures, see the Log Missing Coverage CI step"
 
 
   lint:
