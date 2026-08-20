@@ -86,8 +86,8 @@ def test_nlp_args_reach_the_config():
                 "--batch-nlp",
                 "--clean-nlp",
                 "--no-nlp-stats",
-                "--nlp-table=age",
-                "--nlp-table=race",
+                "--nlp-subtask=age",
+                "--nlp-subtask=race",
                 "--etl-phi-dir=/tmp/phi",
             ]
         )
@@ -105,7 +105,7 @@ def test_nlp_args_reach_the_config():
         "use_batching": True,
         "clean": True,
         "show_stats": False,
-        "tables": ["age", "race"],
+        "subtasks": ["age", "race"],
         "phi_dir": "/tmp/phi",
         "target": "my_study",
     }
@@ -142,7 +142,7 @@ def test_nlp_config_defaults():
         "etl_phi_dir",
         "nlp_concurrency",
         "nlp_model",
-        "nlp_tables",
+        "nlp_subtasks",
         "target",
     ]
     # All NLP specific keys
@@ -163,7 +163,7 @@ def test_nlp_config_defaults():
         "phi_dir": None,
         "provider": "local",
         "salt": None,
-        "tables": None,
+        "subtasks": None,
         "target": None,
         "use_batching": False,
     }

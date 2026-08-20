@@ -124,9 +124,10 @@ class NlpConfig:
         self.clean = args.get("clean_nlp", False)
         self.phi_dir = args.get("etl_phi_dir")
         self.target = args.get("target")
-        # An optional subset of workflow tables to build (--nlp-table). None means "all tables".
-        self.tables = args.get("nlp_tables")
+        # An optional subset of workflow tasks to build (--nlp-subtask). None means "all tasks".
+        self.subtasks = args.get("nlp_subtasks")
         self.show_stats = args.get("nlp_stats")
+        self.select_by_table = args.get("select_by_table")
 
         # How many requests to keep in flight at once. Defaults to one worker per deployment,
         # so passing several deployments parallelizes without any extra flags, while a single

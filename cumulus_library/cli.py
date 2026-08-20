@@ -514,6 +514,9 @@ def main(cli_args=None):
     if args.get("info"):
         report_version_info(args, console, True)
 
+    if args.get("select_by_table") is not None and args.get("nlp_subtasks") is None:
+        sys.exit("--select-by-table can only be used together with --nlp-subtask.")
+
     if len(read_env_vars) > 0:
         table = rich.table.Table(title="Values read from environment variables")
         table.add_column("Environment Variable", style="green")

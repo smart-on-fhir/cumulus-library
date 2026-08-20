@@ -59,14 +59,22 @@ def test_cli_invalid_study(tmp_path):
 )
 @pytest.mark.parametrize(
     "args",
-    [
-        ([]),
-        (["-t", "all"]),
-    ],
+    [([]), (["-t", "all"])],
 )
 def test_cli_early_exit(args):
     with pytest.raises(SystemExit):
         cli.main(cli_args=args)
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+def test_select_by_table_fails_without_nlp_subtask():
+    with pytest.raises(
+        SystemExit, match=r"--select-by-table can only be used together with --nlp-subtask."
+    ):
+        cli.main(cli_args=["build", "-t", "core", "--select-by-table", "test1"])
 
 
 @mock.patch.dict(
