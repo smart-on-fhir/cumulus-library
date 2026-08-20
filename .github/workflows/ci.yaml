@@ -46,13 +46,14 @@ jobs:
           coverage report -m --skip-covered
       - name: Generate coverage report
         if: github.ref != 'refs/heads/main'
-        uses: orgoro/coverage@v3.2
+        uses: orgoro/coverage@v3.3
         with:
             coverageFile: coverage.xml
             token: ${{ secrets.GITHUB_TOKEN }}
             thresholdAll: 1
             thresholdNew: 1
             thresholdModified: 1
+            title: "Python Coverage: for details and failures, see the Log Missing Coverage CI step"
 
 
   lint:
