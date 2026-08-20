@@ -196,7 +196,7 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
         dest="nlp_subtasks",
         metavar="SUBTASKS",
         help=(
-            "Only build this subtasks from the NLP workflow, instead of all of them. "
+            "Only build this subtask from the NLP workflow, instead of all of them. "
             "May be passed more than once to build a subset of subtasks."
         ),
     )

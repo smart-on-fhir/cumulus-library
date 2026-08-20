@@ -190,13 +190,13 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
 - `--batch-nlp`: if set, NLP will be done in batch mode, which can take up to a day to finish, but
   will be much cheaper
 - `--clean-nlp`: if set, previous NLP results for the workflow will be deleted first
-- `--nlp-task=TABLE`: only build this task from the workflow, instead of all of them. Pass it
-  more than once to build a subset of tasks (e.g. `--nlp-task=age --nlp-task=race`). This lets
+- `--nlp-subtask=TABLE`: only build this task from the workflow, instead of all of them. Pass it
+  more than once to build a subset of tasks (e.g. `--nlp-subtask=age --nlp-subtask=race`). This lets
   you build individual NLP tasks in isolation without editing the workflow file. If a name isn't
   found in the workflow, the build stops and lists the available tasks.
 - `--no-nlp-stats`: if set, note and token stats will not be printed to the console
 - `--select-by-table`: overrides the workflow's `select_by_table` for testing. 
-  Can only be used together with `--nlp-task`
+  Can only be used together with `--nlp-subtask`
 
 ### What Data Gets Sent Where
 
