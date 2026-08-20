@@ -71,7 +71,10 @@ def test_cli_early_exit(args):
     clear=True,
 )
 def test_select_by_table_fails_without_nlp_subtask():
-    with pytest.raises(SystemExit, match="--select-by-table can only be used together with --nlp-subtask."):
+    with pytest.raises(
+            SystemExit,
+            match=r"--select-by-table can only be used together with --nlp-subtask."
+    ):
         cli.main(cli_args=['build', '-t', 'core', '--select-by-table', 'test1'])
 
 
