@@ -88,7 +88,10 @@ class MockModel:
             f"--nlp-provider={config.provider}",
             f"--etl-phi-dir={config.phi_dir}",
             f"--nlp-chunksize={config.chunksize}",
+            f"--nlp-concurrency={config.concurrency}",
         ]
+        for deployment in config.azure_deployments:
+            args.append(f"--azure-deployment={deployment}")
         if config.clean:
             args.append("--clean-nlp")
         if config.use_batching:
@@ -98,7 +101,12 @@ class MockModel:
         return args
 
     def nlp_config(
-        self, batching: bool = False, clean: bool = True, stats: bool = True
+        self,
+        batching: bool = False,
+        clean: bool = True,
+        stats: bool = True,
+        deployments: list[str] | None = None,
+        concurrency: int | None = None,
     ) -> note_utils.NlpConfig:
         args = {
             "nlp_model": self.model_id,
@@ -108,6 +116,8 @@ class MockModel:
             "batch_nlp": batching,
             "clean_nlp": clean,
             "nlp_stats": stats,
+            "azure_deployments": deployments,
+            "nlp_concurrency": concurrency,
         }
         return note_utils.NlpConfig(args)
 
@@ -187,6 +197,30 @@ class MockModel:
             object="chat.completion",
             system_fingerprint="test-fp",
         )
+
+    def mock_openai_handler(self, handler) -> None:
+        """Responds based on the content of each request, rather than on call order.
+
+        The usual ``mock_openai_response`` list form keys responses to call order, which only
+        works when requests are issued serially. With concurrency, the order that workers pick
+        requests up is not deterministic, so concurrent tests need to key off the request.
+
+        ``handler`` is called with the keyword args of the underlying ``parse()`` call - most
+        usefully ``messages`` (whose second entry holds the note text) and ``model`` (which
+        holds the deployment name). It returns the dict to answer with, or raises to simulate
+        a server-side failure.
+        """
+
+        def side_effect(**kwargs):
+            value = handler(**kwargs)
+            return self._completion_for_value(value)
+
+        self.openai.chat.completions.parse.side_effect = side_effect
+
+    @staticmethod
+    def note_text_of(kwargs: dict) -> str:
+        """Pulls the clinical note out of a recorded ``parse()`` call."""
+        return kwargs["messages"][1]["content"]
 
     def mock_openai_response(
         self, values: dict | list[dict], finish_reason: str = "stop", fail: bool = False

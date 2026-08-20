@@ -186,7 +186,11 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
     by setting the `AWS_PROFILE` environment variable).
   - If using `local`, see below for instructions on using Docker to run local LLMs
 - `--azure-deployment=NAME`: when using the Azure provider, you may need to provide a deployment
-  name (defaults to model name)
+  name (defaults to model name). Pass it more than once to spread requests across several
+  deployments, which multiplies the quota available to a run (see below)
+- `--nlp-concurrency=N`: how many NLP requests to keep in flight at once (defaults to one per
+  deployment, so a single endpoint runs serially unless you ask for more). Workers are spread
+  across your deployments as evenly as possible.
 - `--batch-nlp`: if set, NLP will be done in batch mode, which can take up to a day to finish, but
   will be much cheaper
 - `--clean-nlp`: if set, previous NLP results for the workflow will be deleted first
@@ -195,6 +199,51 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
   you build individual NLP tables in isolation without editing the workflow file. If a name isn't
   found in the workflow, the build stops and lists the available tables.
 - `--no-nlp-stats`: if set, note and token stats will not be printed to the console
+
+### Going Faster
+
+By default, one note is processed at a time. Since the run spends almost all of its time waiting
+on the model to answer, things go slow. Here's how we can move a bit faster!
+
+`--nlp-concurrency` sets how many requests are in flight at once. It is a hard ceiling, not a
+target: the run never has more requests outstanding than you allow, so raising it cannot turn
+into a stampede against your server.
+
+Which number is safe depends on where you're sending the requests:
+
+- **Local** (`--nlp-provider=local`): concurrency is close to a pure win. One deployment, but
+  try the concurrency knob. 
+- **Azure**: quotas are per-deployment, so concurrency is bounded by deployment.
+  If you have several deployments, pass `--azure-deployment` once
+  per deployment and the run will spread its workers across all of them - which raises total
+  throughput without raising the pressure on any one endpoint. 
+- **Bedrock**: throttling is account- and region-wide. Start small and watch for warnings.
+
+A reasonable way to tune: start at 2, and if a run reports no rate limiting, go higher. If you can,
+add another deployment. 
+
+For example, three Azure deployments with two workers each:
+
+```sh
+cumulus-library build --target my_study \
+  --nlp-model gpt-oss-120b --nlp-provider azure \
+  --azure-deployment deploy-east \
+  --azure-deployment deploy-west \
+  --azure-deployment deploy-central \
+  --nlp-concurrency 6
+```
+
+#### When You Do Get Rate Limited
+
+Requests that come back rate limited are retried automatically, and the endpoint that throttled
+you is put in a brief cooldown that every worker respects.
+
+If a note is still being rate limited after several attempts, it's dropped and the run keeps
+going. Re-running picks them up: every note that did succeed is cached in your PHI dir,
+so a second pass only pays for what's missing.
+
+Note that concurrency does not apply to `--batch-nlp`, which is already a bulk API. Batch mode
+also only supports a single `--azure-deployment`.
 
 ### What Data Gets Sent Where
 

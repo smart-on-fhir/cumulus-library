@@ -166,7 +166,25 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
     )
     group.add_argument(
         "--azure-deployment",
-        help="What Azure deployment name to use for NLP (default is model name)",
+        action="append",
+        dest="azure_deployments",
+        metavar="NAME",
+        help=(
+            "What Azure deployment name to use for NLP (default is model name). "
+            "May be passed more than once to spread requests across several deployments, "
+            "which splits requests across all deployments."
+        ),
+    )
+    group.add_argument(
+        "--nlp-concurrency",
+        type=int,
+        dest="nlp_concurrency",
+        metavar="N",
+        help=(
+            "How many NLP requests to keep in flight at once (default is one per deployment). "
+            "Workers are spread across the deployments you provide. "
+            "If the counts don't divide evenly, some deployments more workers than others. "
+        ),
     )
     group.add_argument(
         "--batch-nlp",
