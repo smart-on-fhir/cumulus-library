@@ -338,22 +338,32 @@ class StudyManifest:
         """
         files = []
         found_continue_point = False
+
+        def get_file_stem(filename: str) -> str:
+            path = pathlib.Path(filename)
+            if path.suffix in (".py", ".sql", ".toml", ".workflow"):
+                return path.stem  # Final path component without suffix
+
+            return path.name  # Final path component with suffix
+
+        continue_stem = get_file_stem(continue_from) if continue_from else None
+
         stage = self.get_stage(stage_name)
         for action in stage:
             if not action.get("type", "").startswith("build:"):
                 continue
             if continue_from and not found_continue_point:
-                file_stems = [x.split(".", 1)[0] for x in action["files"]]
-                if continue_from.split(".", 1)[0] in file_stems:
+                file_stems = [get_file_stem(file) for file in action["files"]]
+                if continue_stem in file_stems:
                     found_continue_point = True
                     if action.get("type") == enums.ManifestActions.PARALLEL.value:
                         files = files + action["files"]
                     else:
-                        pos = file_stems.index(continue_from.split(".", 1)[0])
+                        pos = file_stems.index(continue_stem)
                         files = files + action["files"][pos:]
             else:
                 files = files + action["files"]
-        if continue_from and len(files) == 0:
+        if continue_from and not found_continue_point:
             raise errors.StudyManifestParsingError(f"No files matching '{continue_from}' found")
         return files
 

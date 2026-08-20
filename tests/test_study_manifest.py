@@ -567,3 +567,32 @@ def test_skippable_actions(tmp_path):
         {"type": "build:serial", "files": ["baz"], "skip_by_default": True},
         {"type": "build:serial", "files": ["foobar"]},
     ]
+
+
+@pytest.mark.parametrize(
+    "continue_from,expected",
+    [
+        ("second", ["second.sql", "third.part.sql", "fourth.sql"]),
+        ("third.part", ["third.part.sql", "fourth.sql"]),
+        ("third.part.sql", ["third.part.sql", "fourth.sql"]),
+        ("fourth", ["fourth.sql"]),
+    ],
+)
+def test_continue_current_manifest(tmp_path, continue_from, expected):
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "test",
+            "stages": {
+                "stage_one": [{"type": "build:serial", "files": ["first.sql", "second.sql"]}],
+                "stage_two": [
+                    {"type": "build:parallel", "files": ["third.part.sql"]},
+                    {"type": "build:serial", "files": ["fourth.sql"]},
+                ],
+            },
+        },
+    )
+
+    manifest = study_manifest.StudyManifest(tmp_path)
+
+    assert manifest.get_file_list(continue_from=continue_from) == expected
