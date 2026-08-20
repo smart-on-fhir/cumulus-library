@@ -1,12 +1,17 @@
 """Local caching of NLP results, to avoid future calls"""
 
 import hashlib
+import threading
 from collections.abc import Callable
 from typing import TypeVar
 
 import cumulus_fhir_support as cfs
 
 Obj = TypeVar("Obj")
+
+# Writes have to be serialized. Every FsPath write made while NLP workers are running must
+# take this lock - see the writers in driver.py as well.
+FS_WRITE_LOCK = threading.Lock()
 
 
 def _cache_metadata_path(cache_dir: cfs.FsPath, namespace: str, filename: str) -> cfs.FsPath:
@@ -15,8 +20,9 @@ def _cache_metadata_path(cache_dir: cfs.FsPath, namespace: str, filename: str) -
 
 def cache_metadata_write(cache_dir: cfs.FsPath, namespace: str, content: dict) -> None:
     path = _cache_metadata_path(cache_dir, namespace, "metadata.json")
-    path.parent.makedirs()
-    path.write_json(content, indent=2)
+    with FS_WRITE_LOCK:
+        path.parent.makedirs()
+        path.write_json(content, indent=2)
 
 
 def cache_metadata_read(cache_dir: cfs.FsPath, namespace: str) -> dict:
@@ -34,8 +40,9 @@ def cache_checksum(note_text: str) -> str:
 
 def cache_write(cache_dir: cfs.FsPath, namespace: str, checksum: str, content: str) -> None:
     path = _cache_path(cache_dir, namespace, checksum)
-    path.parent.makedirs()
-    path.write_text(content)
+    with FS_WRITE_LOCK:
+        path.parent.makedirs()
+        path.write_text(content)
 
 
 def cache_read(cache_dir: cfs.FsPath, namespace: str, checksum: str) -> str | None:

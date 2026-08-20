@@ -140,6 +140,24 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             table.add_row(f" Considered{suffix}:", f"{stats.considered[idx]:,}")
             table.add_row(f" Got response{suffix}:", f"{stats.got_response[idx]:,}")
         rich.get_console().print(table)
+        self._print_throttle_warning(stats)
+
+    def _print_throttle_warning(self, stats: driver.NlpStats) -> None:
+        """Calls out notes we abandoned to rate limiting, which otherwise leave a silent gap.
+
+        A throttled run still produces a table, just an incomplete one, so this needs to be
+        hard to miss. Re-running is cheap because every note that did succeed is cached.
+        """
+        if not stats.throttle_dropped:
+            return
+        plural = "" if stats.throttle_dropped == 1 else "s"
+        rich.get_console().print(
+            f"\n 🚨[bold red] WARNING:[/] {stats.throttle_dropped:,} note{plural} dropped after "
+            "repeated rate limiting, and are missing from the results.\n"
+            " Re-run to pick them up (cached notes are free), and consider lowering "
+            "--nlp-concurrency or adding another --azure-deployment.",
+            highlight=False,
+        )
 
     def _print_token_stats(self, stats: driver.NlpStats) -> None:
         tokens = stats.token_stats
