@@ -330,6 +330,7 @@ def test_args_passed_down(mock_builder, mock_client, tmp_path):
             str(tmp_path),
             "--target=example_nlp",
             f"--note-dir={tmp_path}",
+            "--dev",
             "--nlp-subtask=age",
             "--nlp-subtask=race",
             *mock_model.cli_args(),

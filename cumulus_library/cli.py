@@ -450,7 +450,9 @@ def report_version_info(args, console: rich.console.Console, filter_by_target: b
 def main(cli_args=None):
     """Reads CLI input/environment variables and invokes library calls"""
 
-    parser, defaults = cli_parser.get_parser()
+    # Dev mode has to be resolved before the parser exists, since it decides which arguments
+    # the parser will accept at all.
+    parser, defaults = cli_parser.get_parser(dev=cli_parser.wants_dev_mode(cli_args))
     args = vars(parser.parse_args(cli_args))
     console = rich.get_console()
     arg_env_pairs = (

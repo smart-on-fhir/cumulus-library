@@ -71,7 +71,8 @@ def test_get_table_refs_bad_table():
 
 def test_nlp_args_reach_the_config():
     """Every NLP flag should actually land on NlpConfig."""
-    parser, _defaults = cli_parser.get_parser()
+    # Dev mode, so that the study-development arguments below are registered at all.
+    parser, _defaults = cli_parser.get_parser(dev=True)
     args = vars(
         parser.parse_args(
             [
@@ -87,6 +88,7 @@ def test_nlp_args_reach_the_config():
                 "--clean-nlp",
                 "--no-nlp-stats",
                 "--nlp-subtask=age",
+                "--dev",
                 "--nlp-subtask=race",
                 "--etl-phi-dir=/tmp/phi",
             ]
@@ -185,3 +187,10 @@ def test_nlp_config_defaults():
     assert shapes["no keys at all"].show_stats is None
     assert shapes["nullable keys present but None"].show_stats is None
     assert shapes["a real parse with no NLP flags"].show_stats is True
+
+
+def test_dev_mode_is_detected_before_parsing():
+    """--dev has to be found by a raw scan, since it decides what the parser will accept."""
+    assert cli_parser.wants_dev_mode(["build", "--dev", "--nlp-table=age"]) is True
+    assert cli_parser.wants_dev_mode(["build", "--nlp-table=age"]) is False
+    assert cli_parser.wants_dev_mode([]) is False

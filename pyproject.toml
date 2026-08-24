@@ -38,6 +38,11 @@ classifiers = [
 ]
 dynamic=["version"]
 [project.optional-dependencies]
+# Experiment tracking for NLP study development (see --mlflow). Optional because it is a
+# study-development tool, and a heavy dependency for anyone who just wants to build a study.
+mlflow = [
+    "mlflow >= 3",
+]
 dev = [
     # if you update the ruff version, also update .pre-commit-config.yaml
     "ruff < 0.15",
@@ -46,6 +51,7 @@ dev = [
 ]
 test = [
     "httpx",
+    "mlflow >= 3",
     "time-machine",
     "pytest",
     "pytest-cov",

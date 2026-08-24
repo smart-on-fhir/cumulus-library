@@ -202,6 +202,9 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
 - `--select-by-table`: overrides the workflow's `select_by_table` for testing. 
   Can only be used together with `--nlp-subtask`
 
+Some further arguments are only useful while you are *writing* a study, and are hidden behind
+dev mode. See [Study Development Mode](#study-development-mode) below.
+
 ### Going Faster
 
 By default, one note is processed at a time. Since the run spends almost all of its time waiting
@@ -246,6 +249,30 @@ so a second pass only pays for what's missing.
 
 Note that concurrency does not apply to `--batch-nlp`, which is already a bulk API. Batch mode
 also only supports a single `--azure-deployment`.
+
+### Study Development Mode
+
+Some NLP arguments only make sense while you are iterating on a study - choosing a prompt,
+tuning a schema, comparing two models. They are not part of the normal "build this study"
+workflow, so they are kept behind a `--dev` flag.
+
+To see everything dev mode adds, ask for help while in it:
+
+```sh
+cumulus-library build --dev --help
+```
+
+The arguments dev mode unlocks:
+
+- `--nlp-subtask=TABLE`: only build this table from the workflow, instead of all of them. Pass it
+  more than once to build a subset of tables (e.g. `--nlp-subtask=age --nlp-subtask=race`). This lets
+  you build individual NLP tables in isolation without editing the workflow file. If a name isn't
+  found in the workflow, the build stops and lists the available tables.
+- The MLflow arguments described below.
+
+#### Tracking Experiments With MLflow
+
+TBD
 
 ### What Data Gets Sent Where
 
