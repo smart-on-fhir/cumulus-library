@@ -18,6 +18,11 @@ def add_aws_config(parser: argparse.ArgumentParser) -> None:
         "--region",
         help="AWS region data of Athena instance (default: us-east-1)",
     )
+    aws.add_argument(
+        "--athena-s3-staging-dir",
+        dest="athena_s3_staging_dir",
+        help="Athena Result Override Location",
+    )
 
 
 def add_custom_option(parser: argparse.ArgumentParser) -> None:

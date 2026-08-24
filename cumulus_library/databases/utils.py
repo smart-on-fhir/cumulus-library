@@ -204,6 +204,7 @@ def create_db_backend(
             args["profile"],
             schema_name,
             args.get("max_concurrent"),
+            args.get("athena_s3_staging_dir"),
         )
     else:
         raise errors.CumulusLibraryError(f"'{db_config.db_type}' is not a supported database.")

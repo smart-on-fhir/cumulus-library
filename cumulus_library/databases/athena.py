@@ -42,6 +42,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         profile: str,
         schema_name: str,
         max_concurrent: int | None = None,
+        athena_s3_staging_dir: str | None = None,
     ):
         super().__init__(schema_name)
 
@@ -53,6 +54,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.connection = None
         self.connect_kwargs = {}
         self.max_concurrent = max_concurrent or 20
+        self.athena_s3_staging_dir = athena_s3_staging_dir or ""
 
     def init_errors(self):  # pragma: no cover
         return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
@@ -103,6 +105,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             region_name=self.region,
             work_group=self.work_group,
             schema_name=self.schema_name,
+            s3_staging_dir=self.athena_s3_staging_dir,
             **self.connect_kwargs,
         )
 
@@ -177,6 +180,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
     def get_remote_path(self) -> str | None:
         """Retreives the base S3 path we use for file uploads from the S3 client"""
+        if self.athena_s3_staging_dir:
+            return self.athena_s3_staging_dir
         return self._get_result_config()["OutputLocation"]
 
     def get_remote_upload_path(self, study: str, topic: str) -> str | None:
@@ -198,6 +203,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             raise errors.FileUploadError(f"File {file} does not exist, cannot upload.")
 
         # We'll investigate the connection to get the relevant S3 upload path.
+        # TODO: Add checks for get_result_config to get s3 upload path
         wg_conf = self._get_result_config()
         s3_path = wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
@@ -265,7 +271,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         s3_client = session.client("s3", region_name=self.region)
         workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
         wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
-        s3_path = wg_conf["OutputLocation"]
+        s3_path = self.athena_s3_staging_dir or wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
         output_path = location / f"{file_name}"
         s3_path = f"s3://{bucket}/export/{file_name}"

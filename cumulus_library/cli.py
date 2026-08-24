@@ -472,6 +472,7 @@ def main(cli_args=None):
         ("user", "CUMULUS_AGGREGATOR_USER"),
         ("network", "CUMULUS_AGGREGATOR_NETWORK"),
         ("work_group", "CUMULUS_LIBRARY_WORKGROUP"),
+        ("athena_s3_staging_dir", "AWS_ATHENA_S3_STAGING_DIR"),
     )
     read_env_vars = []
     # Check if the arg is not supplied, or if the var is using the default value
