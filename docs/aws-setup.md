@@ -58,7 +58,7 @@ By default, Cumulus writes Athena query results (and derives the S3 location it
 uses for exports and file uploads) from the storage location configured on your
 Athena workgroup. If your workgroup does not enforce a results location, or you
 want to send results somewhere else, you can specify one explicitly:
-- `--athena-s3-staging-dir` (or the `AWS_ATHENA_S3_STAGING_DIR` environment
+- `--s3-staging-dir` (or the `CUMULUS_S3_STAGING_DIR` environment
 variable) : an `s3://` path used as the staging location for query results. When
 set, this takes precedence over the workgroup's configured output location.
 
