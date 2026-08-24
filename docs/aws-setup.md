@@ -52,6 +52,20 @@ to specify where your database information lives:
 - `CUMULUS_LIBRARY_DATABASE` : The name of the database Athena will use (`cumulus_library_sample_db` if using the sample DB)
 - `CUMULUS_LIBRARY_WORKGROUP` : the Athena workgroup to execute queries in (`cumulus_library_sample_db` if using the sample DB)
 
+### Overriding the query results location
+
+By default, Cumulus writes Athena query results (and derives the S3 location it
+uses for exports and file uploads) from the storage location configured on your
+Athena workgroup. If your workgroup does not enforce a results location, or you
+want to send results somewhere else, you can specify one explicitly:
+- `--athena-s3-staging-dir` (or the `AWS_ATHENA_S3_STAGING_DIR` environment
+variable) : an `s3://` path used as the staging location for query results. When
+set, this takes precedence over the workgroup's configured output location.
+
+Note that file uploads still read their encryption configuration from the
+workgroup, so uploading to Athena continues to require a workgroup that reports
+an encryption configuration, even when this override is set.
+
 Configuring environment variables on your system is out of scope of this document,
 but several guides are available elsewhere.
 [This guide](https://www.twilio.com/blog/how-to-set-environment-variables-html),
