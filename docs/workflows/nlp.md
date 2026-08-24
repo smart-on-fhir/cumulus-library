@@ -194,13 +194,7 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
 - `--batch-nlp`: if set, NLP will be done in batch mode, which can take up to a day to finish, but
   will be much cheaper
 - `--clean-nlp`: if set, previous NLP results for the workflow will be deleted first
-- `--nlp-subtask=TABLE`: only build this task from the workflow, instead of all of them. Pass it
-  more than once to build a subset of tasks (e.g. `--nlp-subtask=age --nlp-subtask=race`). This lets
-  you build individual NLP tasks in isolation without editing the workflow file. If a name isn't
-  found in the workflow, the build stops and lists the available tasks.
 - `--no-nlp-stats`: if set, note and token stats will not be printed to the console
-- `--select-by-table`: overrides the workflow's `select_by_table` for testing. 
-  Can only be used together with `--nlp-subtask`
 
 Some further arguments are only useful while you are *writing* a study, and are hidden behind
 dev mode. See [Study Development Mode](#study-development-mode) below.
@@ -256,6 +250,13 @@ Some NLP arguments only make sense while you are iterating on a study - choosing
 tuning a schema, comparing two models. They are not part of the normal "build this study"
 workflow, so they are kept behind a `--dev` flag.
 
+Pass `--dev` to unlock them. Without it, they aren't merely hidden, they aren't accepted at all,
+so a typo fails loudly instead of being quietly ignored:
+
+```sh
+cumulus-library build --target my_study --dev --nlp-subtask=age ...
+```
+
 To see everything dev mode adds, ask for help while in it:
 
 ```sh
@@ -268,11 +269,69 @@ The arguments dev mode unlocks:
   more than once to build a subset of tables (e.g. `--nlp-subtask=age --nlp-subtask=race`). This lets
   you build individual NLP tables in isolation without editing the workflow file. If a name isn't
   found in the workflow, the build stops and lists the available tables.
+- `--select-by-table=TABLE`: override the workflow's `select_by_table` value, for testing. 
+  Can only be used together with `--nlp-subtask`.
 - The MLflow arguments described below.
 
 #### Tracking Experiments With MLflow
 
-TBD
+When you are iterating on a prompt, the question is usually "was that change an improvement?"
+Cumulus Library can record each NLP run to [MLflow](https://mlflow.org/) so you can answer that
+by comparing runs instead of by memory.
+
+MLflow is an optional dependency, since it is only useful for study development:
+
+```sh
+pip install 'cumulus-library[mlflow]'
+```
+
+Then point a build at your tracking server:
+
+```sh
+cumulus-library build --target my_study --dev \
+  --mlflow --mlflow-uri http://localhost:5000 \
+  --mlflow-experiment my-prompt-tuning \
+  --mlflow-tag phase=pilot \
+  --nlp-model gpt-oss-120b --nlp-provider azure \
+  --note-dir /path/to/notes --etl-phi-dir /path/to/phi
+```
+
+- `--mlflow`: turn on tracking. Nothing MLflow-related happens without it.
+- `--mlflow-uri=URI`: your tracking server. Defaults to the `MLFLOW_TRACKING_URI` environment
+  variable. The connection is checked *before* any notes are processed, so a bad URI fails
+  immediately rather than after you have paid for a full pass.
+- `--mlflow-experiment=NAME`: which experiment to log to. Defaults to the study name, so
+  runs for a study land together without you having to pass anything.
+- `--mlflow-run-name=NAME`: a base name for the runs. The table name is appended so each run
+  stays distinguishable. Defaults to the table name, version, and model.
+- `--mlflow-tag=KEY=VALUE`: tag every run. Pass it more than once for several tags.
+- `--mlflow-log-traces`: 🚨 also record the full text of every model request and response.
+  **This sends clinical note text (PHI) to your tracking server** - see below.
+
+**One run per table.** Each table in your workflow gets its own MLflow run, because that is the
+unit you actually compare - a prompt change to `age` shouldn't move `race`'s numbers.
+
+Each run records:
+
+- **Params**: the study, table, task version, model, provider, concurrency, batch mode, and the
+  note selection rules. Prompts and the response schema are stored as SHA-256 digests, so you
+  can group runs by "same prompt" without diffing the text.
+- **Metrics**: `notes.*` counts and yield rate, `tokens.*` usage and cache hit rate,
+  `cost.estimated_usd`, and `runtime.*`.
+- **Artifacts**: the full system prompt, user prompt, and response schema.
+
+The metric names deliberately match the ones Cumulus ETL logs, so runs from both projects can
+sit in one experiment and be compared directly.
+
+A few numbers are workflow-wide rather than per-table, and are logged with the same value on
+every run. Cumulus Library makes a single pass over your notes and serves every table from it,
+so `notes.seen` and `notes.with_text` are the same for each table by construction, `runtime.*`
+covers the whole interleaved pass rather than one table's share of it, and
+`workflow.throttle_dropped` is counted before a note is attributed to a table. Token counts and
+cost *are* genuinely per-table.
+
+Because results are cached in your PHI dir, re-running a workflow you have already run will show
+a run with results but zero tokens and zero cost. That is accurate: cached notes are free.
 
 ### What Data Gets Sent Where
 
@@ -287,6 +346,14 @@ Let's look at how the data flows through the system.
    (this is the same S3 bucket that Athena query results get stored and the same bucket that
    `file_upload` workflows use).
 1. An Athena table is created that points at those parquet files in S3.
+
+If you are using MLflow experiment tracking, there is one more destination to account for.
+By default, tracking sends only counts, costs, timings, your prompts, and your response schema -
+no note text. But `--mlflow-log-traces` additionally sends **the full text of every model request
+and response, which includes clinical notes, to your MLflow tracking server**. Only use that flag
+against a server that is approved to hold PHI, and treat that server with the same care as the
+rest of your PHI storage. (Traces cover the `azure` and `local` providers; `bedrock` requests are
+not traced.)
 
 #### Examining Results Before Sending to the Cloud
 

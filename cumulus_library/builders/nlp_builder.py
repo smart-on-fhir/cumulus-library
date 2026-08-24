@@ -10,8 +10,8 @@ import msgspec
 import rich
 
 import cumulus_library
-from cumulus_library import base_utils, note_utils
-from cumulus_library.builders.nlp import driver, workflow
+from cumulus_library import base_utils, errors, note_utils
+from cumulus_library.builders.nlp import driver, tracking, workflow
 from cumulus_library.template_sql import base_templates
 
 # NLP is driven by a workflow config. See docs/workflows/nlp.md for more details
@@ -219,21 +219,50 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             self._make_note_filter(table_refs, task) for task in self._tables_to_build.values()
         ]
 
+        # Set up experiment tracking before any notes are processed, tests connection early
+        tracker = self._make_tracker()
+        if tracker:
+            tracker.start()
+
         # Go through notes one by one and run NLP on them (save it to class, so we can examine them
         # in tests)
-        self.stats = driver.run_nlp(
-            self._notes,
-            tables=self._tables_to_build,
-            filters=note_filters,
-            nlp_config=self._nlp_config,
-            db=config.db,
-        )
+        try:
+            self.stats = driver.run_nlp(
+                self._notes,
+                tables=self._tables_to_build,
+                filters=note_filters,
+                nlp_config=self._nlp_config,
+                db=config.db,
+                tracker=tracker,
+            )
+        except Exception:
+            if tracker:
+                tracker.fail()
+            raise
+
+        if tracker:
+            tracker.finish(self.stats)
 
         # Print stat block, because that's interesting feedback
         if self._nlp_config.show_stats:
             task_slugs = list(self._tables_to_build.keys())
             self._print_note_stats(names=task_slugs, stats=self.stats)
             self._print_token_stats(self.stats)
+
+    def _make_tracker(self) -> tracking.MlflowTracker | None:
+        """Builds an MLflow tracker, if this run asked for one."""
+        if not self._nlp_config.mlflow:
+            return None
+        if not self._nlp_config.mlflow_uri:
+            raise errors.CumulusLibraryError(
+                "--mlflow needs a tracking server. Pass --mlflow-uri, or set the "
+                "MLFLOW_TRACKING_URI environment variable."
+            )
+        return tracking.MlflowTracker(
+            self._nlp_config,
+            tables=self._tables_to_build,
+            model_id=self._nlp_config.model,
+        )
 
     def _table_is_view(self, study_config: cumulus_library.StudyConfig) -> bool:
         # When we create a table from parquet with duckdb, we are injecting the data and it

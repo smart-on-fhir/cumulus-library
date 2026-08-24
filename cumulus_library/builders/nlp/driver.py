@@ -29,6 +29,9 @@ class NlpStats:
         # other failures so a run that was merely going too fast says so out loud.
         self.throttle_dropped = 0
         self.token_stats = models.TokenStats()
+        # Same numbers as token_stats, but split by table. The pooled total is what we print;
+        # this is what lets experiment tracking say which table spent what.
+        self.token_stats_by_table: dict[str, models.TokenStats] = {}
         self.token_prices = None
 
 
@@ -39,8 +42,12 @@ def run_nlp(
     tables: dict[str, workflow.NlpTask],
     filters: list[cfs.NoteFilter],
     db: databases.DatabaseBackend,
+    tracker=None,
 ) -> NlpStats:
-    """Iterates through the notes, filtering as it goes, and passes notes to NLP"""
+    """Iterates through the notes, filtering as it goes, and passes notes to NLP
+
+    :keyword tracker: optional MlflowTracker, used to attribute traces to the right run
+    """
     stats = NlpStats(len(tables))
 
     # If asked to clean, do it
@@ -63,7 +70,7 @@ def run_nlp(
     ]
 
     # Loop through every note and add to the note pool for NLP processing
-    pool = NlpNotePool(nlp_config, db=db, tables=tables)
+    pool = NlpNotePool(nlp_config, db=db, tables=tables, tracker=tracker)
     pool.prepare(notes)
     for note_res in notes.progress_iter("Running NLP..."):
         stats.available += 1
@@ -100,6 +107,12 @@ def run_nlp(
         stats.got_response[idx] = pool.got_response.get(table_slug, 0)
     stats.throttle_dropped = pool.throttle_dropped
     stats.token_stats = pool.token_stats
+    # Give every table an entry, zeroed if it never spent anything, so consumers don't each
+    # have to invent a fallback for "this table was entirely served from cache".
+    stats.token_stats_by_table = {
+        table_slug: pool.token_stats_by_table.get(table_slug, models.TokenStats())
+        for table_slug in tables
+    }
     stats.token_prices = pool.token_prices
 
     return stats
@@ -196,13 +209,18 @@ class NlpNotePool:
         *,
         db: databases.DatabaseBackend,
         tables: dict[str, workflow.NlpTask],
+        tracker=None,
     ):
         self._config = nlp_config
         self._db = db
         self._tables = tables
+        self._tracker = tracker
 
         self._notes = {}  # table_slug -> list[output row]
         self.got_response = {}  # table_slug -> count of successful responses
+        # table_slug -> tokens spent serving that table. Accumulated here on the main thread,
+        # from the per-call usage each response carries back.
+        self.token_stats_by_table = {}
 
         if nlp_config.use_batching and len(nlp_config.azure_deployments) > 1:
             # Batch IDs are cached under a single per-provider key, so several deployments
@@ -286,6 +304,11 @@ class NlpNotePool:
                     raise result.error
                 task = self._tables[table_slug]
                 self._add_response(table_slug, task, note_res, text, result.response)
+                # Attribute this call's spend to the table that asked for it. Cache hits carry
+                # no usage, which is right - they cost nothing.
+                if usage := result.response.usage:
+                    previous = self.token_stats_by_table.get(table_slug, models.TokenStats())
+                    self.token_stats_by_table[table_slug] = previous + usage
             except Exception as exc:
                 # Covers both a failed request and a failed write of the chunk this note
                 # happened to complete. One bad note never stops the rest of the run.
@@ -329,6 +352,9 @@ class NlpNotePool:
             cache_dir=self._cache_dir(),
             cache_namespace=self._cache_namespace(table_slug, task),
             cache_checksum=caching.cache_checksum(text),
+            # Carried on the prompt because the worker that runs it can't tell which table it
+            # came from - several tables are in flight at once.
+            trace=self._tracker.trace_for(table_slug) if self._tracker else None,
         )
 
     def _add_response(

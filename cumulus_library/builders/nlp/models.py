@@ -21,7 +21,7 @@ from openai.types.chat import ParsedChatCompletion
 from pydantic import BaseModel
 
 from cumulus_library import errors, note_utils
-from cumulus_library.builders.nlp import caching
+from cumulus_library.builders.nlp import caching, tracking
 
 # How many times a client library will transparently retry a request before giving up
 MAX_RETRIES = 5
@@ -48,30 +48,11 @@ class Prompt:
     cache_dir: cfs.FsPath
     cache_namespace: str
     cache_checksum: str
-
-
-@dataclasses.dataclass
-class PromptResponse:
-    """
-    The response from an NLP model.
-
-    Be cautious if removing or renaming fields, as it will likely break serialization.
-    """
-
-    answer: BaseModel
-    fingerprint: str | None = None
-
-    def to_dict(self) -> dict:
-        serialized = dataclasses.asdict(self)
-        serialized["answer"] = self.answer.model_dump(
-            round_trip=True, exclude_unset=True, by_alias=True, mode="json"
-        )
-        return serialized
-
-    @classmethod
-    def from_dict(cls, serialized: dict, schema: type[BaseModel]) -> Self:
-        answer = schema.model_validate(serialized.pop("answer"))
-        return PromptResponse(answer, **serialized)
+    # Which MLflow run this prompt's traces belong to, when experiment tracking is on.
+    # Prompts for different tables are in flight on different threads at the same time, so the
+    # owning run has to travel with the prompt - there is no single "current" run to infer it
+    # from. None (the normal case) means "don't trace".
+    trace: tracking.TraceInfo | None = None
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -90,6 +71,36 @@ class TokenStats:
             ),
             output_tokens=self.output_tokens + other.output_tokens,
         )
+
+
+@dataclasses.dataclass
+class PromptResponse:
+    """
+    The response from an NLP model.
+
+    Be cautious if removing or renaming fields, as it will likely break serialization.
+    """
+
+    answer: BaseModel
+    fingerprint: str | None = None
+    # Tokens spent on this one call, so usage can be attributed to the table that asked for it
+    # (the provider totals are pooled across every table sharing the endpoint).
+    # Deliberately left out of the cache format: a cache hit spends nothing, so a response
+    # replayed from cache correctly reports no usage at all.
+    usage: TokenStats | None = None
+
+    def to_dict(self) -> dict:
+        serialized = dataclasses.asdict(self)
+        serialized["answer"] = self.answer.model_dump(
+            round_trip=True, exclude_unset=True, by_alias=True, mode="json"
+        )
+        serialized.pop("usage", None)  # see the note on the field
+        return serialized
+
+    @classmethod
+    def from_dict(cls, serialized: dict, schema: type[BaseModel]) -> Self:
+        answer = schema.model_validate(serialized.pop("answer"))
+        return PromptResponse(answer, **serialized)
 
 
 def sum_token_stats(all_stats: Iterable[TokenStats]) -> TokenStats:
@@ -162,12 +173,25 @@ class Provider(abc.ABC):
         cache_read_input_tokens: int = 0,
         cache_written_input_tokens: int = 0,
         output_tokens: int = 0,
-    ) -> None:
+    ) -> TokenStats:
+        """Adds a call's tokens to the running totals, and hands back that call's own share.
+
+        The returned value rides along on the PromptResponse so the driver can attribute spend
+        to the table that asked for it - self.stats is pooled across everything this endpoint
+        served, so it can't answer that question after the fact.
+        """
+        usage = TokenStats(
+            new_input_tokens=new_input_tokens,
+            cache_read_input_tokens=cache_read_input_tokens,
+            cache_written_input_tokens=cache_written_input_tokens,
+            output_tokens=output_tokens,
+        )
         with self._stats_lock:
             self.stats.new_input_tokens += new_input_tokens
             self.stats.cache_read_input_tokens += cache_read_input_tokens
             self.stats.cache_written_input_tokens += cache_written_input_tokens
             self.stats.output_tokens += output_tokens
+        return usage
 
     def post_init_check(self) -> None:
         pass  # pragma: no cover
@@ -245,7 +269,7 @@ class BedrockProvider(Provider):
         )
 
         usage = response.get("usage", {})
-        self.record_usage(
+        call_usage = self.record_usage(
             cache_read_input_tokens=usage.get("cacheReadInputTokens", 0),
             cache_written_input_tokens=usage.get("cacheWriteInputTokens", 0),
             new_input_tokens=usage.get("inputTokens", 0),
@@ -282,7 +306,7 @@ class BedrockProvider(Provider):
         else:
             raise ValueError("no response content found")
 
-        return PromptResponse(answer)
+        return PromptResponse(answer, usage=call_usage)
 
 
 class OpenAIProvider(Provider):
@@ -374,11 +398,12 @@ class OpenAIProvider(Provider):
     def _process_completion_result(
         self, response: ParsedChatCompletion, schema: type[BaseModel], batched: bool = False
     ) -> PromptResponse:
+        call_usage = None
         if response.usage:
             cached_tokens = 0
             if response.usage.prompt_tokens_details:
                 cached_tokens = response.usage.prompt_tokens_details.cached_tokens or 0
-            self.record_usage(
+            call_usage = self.record_usage(
                 cache_read_input_tokens=cached_tokens,
                 new_input_tokens=response.usage.prompt_tokens - cached_tokens,
                 output_tokens=response.usage.completion_tokens,
@@ -393,6 +418,7 @@ class OpenAIProvider(Provider):
         return PromptResponse(
             answer=parsed,
             fingerprint=response.system_fingerprint,
+            usage=call_usage,
         )
 
     def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
@@ -663,13 +689,17 @@ class Model:
         self.provider.post_init_check()
 
     def prompt(self, prompt: Prompt) -> PromptResponse:
+        # Wrap the provider call, not the cache lookup: cache_wrapper only invokes this on a
+        # miss, so cache hits don't litter the experiment with empty traces. Without tracing
+        # on, traced() hands the method straight back.
+        method = tracking.traced(self.provider.prompt, prompt.trace)
         return caching.cache_wrapper(
             prompt.cache_dir,
             prompt.cache_namespace,
             prompt.cache_checksum,
             lambda x: PromptResponse.from_dict(json.loads(x), prompt.schema),  # from file
             lambda x: json.dumps(x.to_dict()),  # to file
-            self.provider.prompt,
+            method,
             prompt.system,
             prompt.user,
             prompt.schema,

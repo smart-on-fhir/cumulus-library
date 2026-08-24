@@ -87,8 +87,8 @@ def test_nlp_args_reach_the_config():
                 "--batch-nlp",
                 "--clean-nlp",
                 "--no-nlp-stats",
-                "--nlp-subtask=age",
                 "--dev",
+                "--nlp-subtask=age",
                 "--nlp-subtask=race",
                 "--etl-phi-dir=/tmp/phi",
             ]
@@ -189,8 +189,47 @@ def test_nlp_config_defaults():
     assert shapes["a real parse with no NLP flags"].show_stats is True
 
 
+def test_dev_arguments_are_unregistered_without_dev_mode():
+    """Study-development flags should be a parse error, not a silently ignored no-op."""
+    parser, _ = cli_parser.get_parser(dev=False)
+    dev_only = [
+        "--nlp-subtask=age",
+        "--mlflow",
+        "--mlflow-uri=sqlite:///x.db",
+        "--mlflow-experiment=exp",
+        "--mlflow-run-name=name",
+        "--mlflow-tag=k=v",
+        "--mlflow-log-traces",
+    ]
+    for flag in dev_only:
+        with pytest.raises(SystemExit):
+            parser.parse_args(["build", flag])
+
+    # And in dev mode, the same flags parse and reach the config.
+    dev_parser, _ = cli_parser.get_parser(dev=True)
+    args = vars(dev_parser.parse_args(["build", "--dev", *dev_only]))
+    config = note_utils.NlpConfig(args)
+    assert config.dev is True
+    assert config.mlflow is True
+    assert config.mlflow_uri == "sqlite:///x.db"
+    assert config.mlflow_experiment == "exp"
+    assert config.mlflow_run_name == "name"
+    assert config.mlflow_log_traces is True
+    assert config.mlflow_tags == {"k": "v"}
+
+
 def test_dev_mode_is_detected_before_parsing():
     """--dev has to be found by a raw scan, since it decides what the parser will accept."""
-    assert cli_parser.wants_dev_mode(["build", "--dev", "--nlp-table=age"]) is True
-    assert cli_parser.wants_dev_mode(["build", "--nlp-table=age"]) is False
+    assert cli_parser.wants_dev_mode(["build", "--dev", "--nlp-subtask=age"]) is True
+    assert cli_parser.wants_dev_mode(["build", "--nlp-subtask=age"]) is False
     assert cli_parser.wants_dev_mode([]) is False
+
+
+def test_mlflow_uri_falls_back_to_the_environment(monkeypatch):
+    """The flag wins, but MLFLOW_TRACKING_URI is honored so a usual mlflow setup just works."""
+    monkeypatch.setenv("MLFLOW_TRACKING_URI", "http://from-env:5000")
+    assert note_utils.NlpConfig({}).mlflow_uri == "http://from-env:5000"
+    assert note_utils.NlpConfig({"mlflow_uri": "http://flag:5000"}).mlflow_uri == "http://flag:5000"
+
+    monkeypatch.delenv("MLFLOW_TRACKING_URI")
+    assert note_utils.NlpConfig({}).mlflow_uri is None

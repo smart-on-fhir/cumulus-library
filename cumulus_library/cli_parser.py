@@ -276,10 +276,7 @@ def add_nlp_dev_config(parser: argparse.ArgumentParser) -> None:
     group.add_argument(
         "--mlflow-experiment",
         metavar="NAME",
-        help=(
-            "MLflow experiment to log to (default: the workflow's mlflow_experiment, "
-            "falling back to the study name)"
-        ),
+        help=("MLflow experiment to log to (default: the study name)"),
     )
     group.add_argument(
         "--mlflow-run-name",
