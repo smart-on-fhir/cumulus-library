@@ -1214,9 +1214,37 @@ def test_max_concurrent(mock_backend, mock_session, mock_threadpool, tmp_path):
     cli.main(cli_args=[*build_args, "-c", "10"])
     assert mock_threadpool.call_args == mock.call(max_workers=10)
     cli.main(cli_args=study_args)
-    assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, None)
+    assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, None, None)
     cli.main(cli_args=[*study_args, "-c", "10"])
-    assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, 10)
+    assert mock_backend.call_args == mock.call("us-east-1", "cumulus", "default", None, 10, None)
+
+
+@pytest.mark.parametrize("mode", ["cli", "env"])
+@mock.patch("botocore.session.Session")
+@mock.patch("cumulus_library.databases.athena.AthenaDatabaseBackend")
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+def test_s3_staging_dir(mock_backend, mock_session, mode, tmp_path):
+    mock_backend.return_value.db_type = "athena"
+    study_args = [
+        "build",
+        "-t",
+        "study_valid_parallel",
+        str(tmp_path),
+        "-s",
+        "tests/test_data/",
+    ]
+    match mode:
+        case "cli":
+            cli.main(cli_args=[*study_args, "--s3-staging-dir=s3://staging/dir"])
+        case "env":
+            with mock.patch.dict(os.environ, {"CUMULUS_S3_STAGING_DIR": "s3://staging/dir"}):
+                cli.main(cli_args=study_args)
+    assert mock_backend.call_args == mock.call(
+        "us-east-1", "cumulus", "default", None, None, "s3://staging/dir"
+    )
 
 
 @mock.patch("cumulus_library.cli._get_args")
