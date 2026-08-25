@@ -19,19 +19,6 @@ ESCAPED_WHITESPACE = re.compile(r"(\\\s)+")
 PARQUET_PATTERN = re.compile(r"nlp\.([0-9]+)\.parquet")
 
 
-class NlpStats:
-    def __init__(self, size: int):
-        self.available = 0
-        self.had_text = 0
-        self.considered = [0] * size
-        self.got_response = [0] * size
-        # Notes we abandoned because we kept getting rate limited. Tracked separately from
-        # other failures so a run that was merely going too fast says so out loud.
-        self.throttle_dropped = 0
-        self.token_stats = models.TokenStats()
-        self.token_prices = None
-
-
 def run_nlp(
     notes: note_utils.NoteSource,
     *,
@@ -39,9 +26,9 @@ def run_nlp(
     tables: dict[str, workflow.NlpTask],
     filters: list[cfs.NoteFilter],
     db: databases.DatabaseBackend,
-) -> NlpStats:
+) -> models.NlpStats:
     """Iterates through the notes, filtering as it goes, and passes notes to NLP"""
-    stats = NlpStats(len(tables))
+    stats = models.NlpStats(len(tables))
 
     # If asked to clean, do it
     if nlp_config.clean:
@@ -98,8 +85,19 @@ def run_nlp(
     # copied over once everything has drained.
     for idx, table_slug in enumerate(tables):
         stats.got_response[idx] = pool.got_response.get(table_slug, 0)
+        # Cap at got_response: a batch can fetch a note that later fails to parse, and a run
+        # that reports more fresh calls than responses would just be confusing.
+        fresh = min(pool.fresh_calls.get(table_slug, 0), stats.got_response[idx])
+        stats.from_model[idx] = fresh
+        stats.from_cache[idx] = stats.got_response[idx] - fresh
     stats.throttle_dropped = pool.throttle_dropped
     stats.token_stats = pool.token_stats
+    # Give every table an entry, zeroed if it never spent anything, so consumers don't each
+    # have to invent a fallback for "this table was entirely served from cache".
+    stats.token_stats_by_table = {
+        table_slug: pool.token_stats_by_table.get(table_slug, models.TokenStats())
+        for table_slug in tables
+    }
     stats.token_prices = pool.token_prices
 
     return stats
@@ -201,8 +199,15 @@ class NlpNotePool:
         self._db = db
         self._tables = tables
 
-        self._notes = {}  # table_slug -> list[output row]
-        self.got_response = {}  # table_slug -> count of successful responses
+        self._notes: dict[str, list[dict]] = {}  # table_slug -> list of output rows
+        self.got_response: dict[str, int] = {}  # table_slug -> count of successful responses
+        # table_slug -> tokens spent serving that table. Accumulated here on the main thread,
+        # from the per-call usage each response carries back.
+        self.token_stats_by_table: dict[str, models.TokenStats] = {}
+        # table_slug -> notes that cost a model call during THIS run. Fed by the streaming path
+        # (a cache miss) and by the batch path (responses the batch fetched), so it is accurate
+        # either way. Cached notes are whatever is left over from got_response.
+        self.fresh_calls: dict[str, int] = {}
 
         if nlp_config.use_batching and len(nlp_config.azure_deployments) > 1:
             # Batch IDs are cached under a single per-provider key, so several deployments
@@ -239,7 +244,7 @@ class NlpNotePool:
         return self._dispatcher.token_stats
 
     @property
-    def token_prices(self) -> models.TokenStats:
+    def token_prices(self) -> models.TokenPrices | None:
         return self._dispatcher.token_prices
 
     @property
@@ -286,6 +291,13 @@ class NlpNotePool:
                     raise result.error
                 task = self._tables[table_slug]
                 self._add_response(table_slug, task, note_res, text, result.response)
+                if not result.response.from_cache:
+                    self.fresh_calls[table_slug] = self.fresh_calls.get(table_slug, 0) + 1
+                # Attribute this call's spend to the table that asked for it.
+                # Cache hits carry no usage, which is right - they cost nothing.
+                if usage := result.response.usage:
+                    previous = self.token_stats_by_table.get(table_slug, models.TokenStats())
+                    self.token_stats_by_table[table_slug] = previous + usage
             except Exception as exc:
                 # Covers both a failed request and a failed write of the chunk this note
                 # happened to complete. One bad note never stops the rest of the run.
@@ -386,10 +398,13 @@ class NlpNotePool:
             batch_ids = metadata.get(f"batches-{self._config.provider}")
             if batch_ids:
                 rich.print(f" Resuming previously created batches for '{table_slug}'.")
-                self._wait_for_batches(
-                    batch_ids,
-                    schema=task.response_schema,
-                    cache_namespace=cache_namespace,
+                self._record_batch_spend(
+                    table_slug,
+                    *self._wait_for_batches(
+                        batch_ids,
+                        schema=task.response_schema,
+                        cache_namespace=cache_namespace,
+                    ),
                 )
 
     def _create_new_batches(self, notes: note_utils.NoteSource) -> None:
@@ -421,11 +436,25 @@ class NlpNotePool:
                     f" Waiting for batches for '{table_slug}' to finish "
                     "(can be resumed if interrupted)."
                 )
-                self._wait_for_batches(
-                    batch_ids,
-                    cache_namespace=self._cache_namespace(table_slug, task),
-                    schema=task.response_schema,
+                self._record_batch_spend(
+                    table_slug,
+                    *self._wait_for_batches(
+                        batch_ids,
+                        cache_namespace=self._cache_namespace(table_slug, task),
+                        schema=task.response_schema,
+                    ),
                 )
+
+    def _record_batch_spend(self, table_slug: str, usage: models.TokenStats, written: int) -> None:
+        """Books a batch's tokens against the table that ordered it.
+
+        The batch phase writes its responses to the cache and the note pass then replays them,
+        so by the time a note reaches _handle_results it looks like a cache hit. Without this,
+        a batch run would report the right pooled total and zero for every individual table.
+        """
+        previous = self.token_stats_by_table.get(table_slug, models.TokenStats())
+        self.token_stats_by_table[table_slug] = previous + usage
+        self.fresh_calls[table_slug] = self.fresh_calls.get(table_slug, 0) + written
 
     def _wait_for_batches(
         self,
@@ -433,10 +462,13 @@ class NlpNotePool:
         *,
         schema: type[pydantic.BaseModel],
         cache_namespace: str,
-    ) -> None:
+    ) -> tuple[models.TokenStats, int]:
+        """Waits out a table's batches, returning what they spent and how many they wrote."""
         status_box = rich.text.Text()
         count = len(batch_ids)
         cache_dir = self._cache_dir()
+        batch_usage = models.TokenStats()
+        batch_written = 0
 
         with rich.get_console().status(status_box):
             for batch_id in batch_ids:
@@ -445,18 +477,22 @@ class NlpNotePool:
                     f"Waiting for {count} batch{plural} to finish… (may take up to a day)"
                 )
 
-                self._provider.wait_for_batch(
+                usage, written = self._provider.wait_for_batch(
                     batch_id,
                     schema=schema,
                     cache_dir=cache_dir,
                     cache_namespace=cache_namespace,
                 )
+                batch_usage = batch_usage + usage
+                batch_written += written
 
                 count -= 1
 
         count = len(batch_ids)
         batch_plural = "" if count == 1 else "es"
         rich.print(f" Waited for {count} batch{batch_plural}.")
+
+        return batch_usage, batch_written
 
     def _fix_spans(self, note_ref: str, text: str, parsed: dict) -> bool:
         """Converts string spans into integer spans."""
@@ -509,7 +545,7 @@ class NlpNotePool:
                 rows = notes[table_slug]
                 self._write_single_parquet(table_slug, task, rows)
                 add_upload_refs_for_task(self._config, table_slug, task, self._db, rows)
-                rich.print(f"Wrote {len(rows)} for {task} in {table_slug}")
+                rich.print(f"Wrote {len(rows)} to table {table_slug}")
 
     def _next_parquet_path(self, table_slug: str, task: workflow.NlpShared) -> cfs.FsPath:
         folder = output_path_for_task(self._config, table_slug, task, self._db)

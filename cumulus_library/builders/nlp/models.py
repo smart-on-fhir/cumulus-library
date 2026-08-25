@@ -1,4 +1,7 @@
-"""Abstraction layer for inference APIs"""
+"""
+Abstraction layer for inference APIs and their common features
+(e.g. prompting, caching, usage tracking, etc).
+"""
 
 import abc
 import dataclasses
@@ -50,30 +53,6 @@ class Prompt:
     cache_checksum: str
 
 
-@dataclasses.dataclass
-class PromptResponse:
-    """
-    The response from an NLP model.
-
-    Be cautious if removing or renaming fields, as it will likely break serialization.
-    """
-
-    answer: BaseModel
-    fingerprint: str | None = None
-
-    def to_dict(self) -> dict:
-        serialized = dataclasses.asdict(self)
-        serialized["answer"] = self.answer.model_dump(
-            round_trip=True, exclude_unset=True, by_alias=True, mode="json"
-        )
-        return serialized
-
-    @classmethod
-    def from_dict(cls, serialized: dict, schema: type[BaseModel]) -> Self:
-        answer = schema.model_validate(serialized.pop("answer"))
-        return PromptResponse(answer, **serialized)
-
-
 @dataclasses.dataclass(kw_only=True)
 class TokenStats:
     new_input_tokens: int = 0
@@ -90,6 +69,42 @@ class TokenStats:
             ),
             output_tokens=self.output_tokens + other.output_tokens,
         )
+
+
+@dataclasses.dataclass
+class PromptResponse:
+    """
+    The response from an NLP model.
+
+    Be cautious if removing or renaming fields, as it will likely break serialization.
+    """
+
+    answer: BaseModel
+    fingerprint: str | None = None
+    # Tokens spent on this one call, so usage can be attributed to the table that asked for it
+    # (the provider totals are pooled across every table sharing the endpoint).
+    # Deliberately left out of the cache format: a cache hit spends nothing, so a response
+    # replayed from cache correctly reports no usage at all.
+    usage: TokenStats | None = None
+    # Whether this came back from the on-disk cache rather than a fresh model call. Like usage,
+    # it describes *this run*, so it is deliberately not serialized - a response replayed later
+    # is a cache hit then, whatever it was when first fetched.
+    from_cache: bool = False
+
+    def to_dict(self) -> dict:
+        serialized = dataclasses.asdict(self)
+        serialized["answer"] = self.answer.model_dump(
+            round_trip=True, exclude_unset=True, by_alias=True, mode="json"
+        )
+        # Both describe this run rather than the answer - see the notes on the fields.
+        serialized.pop("usage", None)
+        serialized.pop("from_cache", None)
+        return serialized
+
+    @classmethod
+    def from_dict(cls, serialized: dict, schema: type[BaseModel]) -> Self:
+        answer = schema.model_validate(serialized.pop("answer"))
+        return PromptResponse(answer, **serialized)
 
 
 def sum_token_stats(all_stats: Iterable[TokenStats]) -> TokenStats:
@@ -147,6 +162,26 @@ class TokenPrices:
     multiplier: float = 1
 
 
+class NlpStats:
+    def __init__(self, size: int):
+        self.available = 0
+        self.had_text = 0
+        self.considered = [0] * size
+        self.got_response = [0] * size
+        # Of those responses, how many cost a model call this run versus came back from the
+        # on-disk cache for free. These always sum to got_response.
+        self.from_model = [0] * size
+        self.from_cache = [0] * size
+        # Notes we abandoned because we kept getting rate limited. Tracked separately from
+        # other failures so a run that was merely going too fast says so out loud.
+        self.throttle_dropped = 0
+        self.token_stats = TokenStats()
+        # Same numbers as token_stats, but split by table. The pooled total is what we print;
+        # this is what lets experiment tracking say which table spent what.
+        self.token_stats_by_table: dict[str, TokenStats] = {}
+        self.token_prices: TokenPrices | None = None
+
+
 class Provider(abc.ABC):
     def __init__(self):
         self.stats = TokenStats()
@@ -162,12 +197,25 @@ class Provider(abc.ABC):
         cache_read_input_tokens: int = 0,
         cache_written_input_tokens: int = 0,
         output_tokens: int = 0,
-    ) -> None:
+    ) -> TokenStats:
+        """Adds a call's tokens to the running totals, and hands back that call's own share.
+
+        The returned value rides along on the PromptResponse so the driver can attribute spend
+        to the table that asked for it - self.stats is pooled across everything this endpoint
+        served, so it can't answer that question after the fact.
+        """
+        usage = TokenStats(
+            new_input_tokens=new_input_tokens,
+            cache_read_input_tokens=cache_read_input_tokens,
+            cache_written_input_tokens=cache_written_input_tokens,
+            output_tokens=output_tokens,
+        )
         with self._stats_lock:
             self.stats.new_input_tokens += new_input_tokens
             self.stats.cache_read_input_tokens += cache_read_input_tokens
             self.stats.cache_written_input_tokens += cache_written_input_tokens
             self.stats.output_tokens += output_tokens
+        return usage
 
     def post_init_check(self) -> None:
         pass  # pragma: no cover
@@ -245,7 +293,7 @@ class BedrockProvider(Provider):
         )
 
         usage = response.get("usage", {})
-        self.record_usage(
+        call_usage = self.record_usage(
             cache_read_input_tokens=usage.get("cacheReadInputTokens", 0),
             cache_written_input_tokens=usage.get("cacheWriteInputTokens", 0),
             new_input_tokens=usage.get("inputTokens", 0),
@@ -282,7 +330,7 @@ class BedrockProvider(Provider):
         else:
             raise ValueError("no response content found")
 
-        return PromptResponse(answer)
+        return PromptResponse(answer, usage=call_usage)
 
 
 class OpenAIProvider(Provider):
@@ -374,11 +422,12 @@ class OpenAIProvider(Provider):
     def _process_completion_result(
         self, response: ParsedChatCompletion, schema: type[BaseModel], batched: bool = False
     ) -> PromptResponse:
+        call_usage = None
         if response.usage:
             cached_tokens = 0
             if response.usage.prompt_tokens_details:
                 cached_tokens = response.usage.prompt_tokens_details.cached_tokens or 0
-            self.record_usage(
+            call_usage = self.record_usage(
                 cache_read_input_tokens=cached_tokens,
                 new_input_tokens=response.usage.prompt_tokens - cached_tokens,
                 output_tokens=response.usage.completion_tokens,
@@ -393,6 +442,7 @@ class OpenAIProvider(Provider):
         return PromptResponse(
             answer=parsed,
             fingerprint=response.system_fingerprint,
+            usage=call_usage,
         )
 
     def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
@@ -470,7 +520,17 @@ class OpenAIProvider(Provider):
 
     def wait_for_batch(
         self, batch_id: str, *, schema: type[BaseModel], cache_dir: cfs.FsPath, cache_namespace: str
-    ) -> None:
+    ) -> tuple[TokenStats, int]:
+        """Fetches a finished batch into the cache.
+
+        Returns the tokens this batch spent and how many responses it wrote. The caller knows
+        which table the batch belongs to; we don't, and the responses are about to be replayed
+        from cache (where usage is intentionally not stored), so this is the only chance to
+        attribute the spend.
+        """
+        batch_usage = TokenStats()
+        written = 0
+
         # Poll the batches until completion
         batch = self.client.batches.retrieve(batch_id=batch_id)
         # You can see the list of valid statuses here:
@@ -521,6 +581,9 @@ class OpenAIProvider(Provider):
                 # Write each valid response to cache
                 result = ParsedChatCompletion.model_validate(body)
                 response = self._process_completion_result(result, schema)
+                if response.usage:
+                    batch_usage = batch_usage + response.usage
+                written += 1
                 caching.cache_write(
                     cache_dir, cache_namespace, checksum, json.dumps(response.to_dict())
                 )
@@ -537,6 +600,8 @@ class OpenAIProvider(Provider):
             batch_ids.remove(batch.id)
         metadata[batch_key] = batch_ids
         caching.cache_metadata_write(cache_dir, cache_namespace, metadata)
+
+        return batch_usage, written
 
 
 class AzureProvider(OpenAIProvider):
@@ -663,7 +728,7 @@ class Model:
         self.provider.post_init_check()
 
     def prompt(self, prompt: Prompt) -> PromptResponse:
-        return caching.cache_wrapper(
+        response, from_cache = caching.cache_wrapper(
             prompt.cache_dir,
             prompt.cache_namespace,
             prompt.cache_checksum,
@@ -674,6 +739,8 @@ class Model:
             prompt.user,
             prompt.schema,
         )
+        response.from_cache = from_cache
+        return response
 
 
 class Gpt35Model(Model):

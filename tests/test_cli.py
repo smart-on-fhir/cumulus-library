@@ -74,7 +74,11 @@ def test_select_by_table_fails_without_nlp_subtask():
     with pytest.raises(
         SystemExit, match=r"--select-by-table can only be used together with --nlp-subtask."
     ):
-        cli.main(cli_args=["build", "-t", "core", "--select-by-table", "test1"])
+        cli.main(
+            # --select-by-table is a study-development argument, so it needs dev mode
+            # to be registered at all before the validation below can be reached.
+            cli_args=["build", "-t", "core", "--dev", "--select-by-table", "test1"]
+        )
 
 
 @mock.patch.dict(

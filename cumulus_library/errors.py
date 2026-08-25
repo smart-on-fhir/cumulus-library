@@ -37,3 +37,12 @@ class StudyManifestParsingError(CumulusLibraryError):
 
 class StudyManifestQueryError(CumulusLibraryError):
     """Errors related to data queries from StudyManifestParser"""
+
+
+class NlpExecutionError(CumulusLibraryError):
+    """Errors related to NLP runs"""
+
+
+# More specific than NLP errors are mlflow errors
+class MlflowExecutionError(NlpExecutionError):
+    """Errors related to NLP runs"""

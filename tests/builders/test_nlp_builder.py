@@ -189,8 +189,12 @@ def test_filter(mock_client, tmp_path, mock_db_config):
   Had text:                 4 
   Considered (filtered):    1 
   Got response (filtered):  1 
+    from cache:             0 
+    fresh LLM calls:        1 
   Considered (all):         4 
-  Got response (all):       4 """
+  Got response (all):       4 
+    from cache:             1 
+    fresh LLM calls:        3 """
 
     mock_db_config.db.cursor().execute(f"""
         CREATE TABLE prev_table AS SELECT * FROM (
@@ -330,6 +334,7 @@ def test_args_passed_down(mock_builder, mock_client, tmp_path):
             str(tmp_path),
             "--target=example_nlp",
             f"--note-dir={tmp_path}",
+            "--dev",
             "--nlp-subtask=age",
             "--nlp-subtask=race",
             *mock_model.cli_args(),
@@ -1024,7 +1029,7 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     ]
 
 
-def batch_line(contents: str, answer: str = "answer") -> str:
+def batch_line(contents: str, answer: str = "answer", usage: bool = True) -> str:
     checksum = hashlib.sha256(contents.encode("utf8"), usedforsecurity=False).hexdigest()
     return json.dumps(
         {
@@ -1045,6 +1050,20 @@ def batch_line(contents: str, answer: str = "answer") -> str:
                     "created": 1000000,
                     "model": "gpt-4o",
                     "object": "chat.completion",
+                    # Real batch responses report usage, and leaving it out meant batch token
+                    # accounting went untested entirely. Some servers omit it, though, hence
+                    # the toggle.
+                    **(
+                        {
+                            "usage": {
+                                "prompt_tokens": 19,
+                                "completion_tokens": 10,
+                                "total_tokens": 29,
+                            }
+                        }
+                        if usage
+                        else {}
+                    ),
                 },
             },
         },
@@ -1059,6 +1078,74 @@ def mock_files_content(model: nlp_utils.MockModel, contents: list | None = None)
     model.openai.files.content.return_value = openai.HttpxBinaryResponseContent(
         httpx.Response(status_code=200, text="\n".join(contents)),
     )
+
+
+@nlp_utils.mock_env("azure")
+@mock.patch("openai.AzureOpenAI")
+def test_batch_without_usage_still_counts_as_fresh(
+    mock_client, tmp_path, mock_db_config, note_source
+):
+    """A server that doesn't report usage should cost us the count, not the note."""
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="azure", model_id="gpt4o")
+    model.openai.files.create = lambda **kwargs: SimpleNamespace(id="input")
+    model.openai.batches.create.return_value = SimpleNamespace(id="batch")
+    model.openai.batches.retrieve.return_value = SimpleNamespace(
+        id="batch", status="completed", error_file_id=None, output_file_id="output"
+    )
+    mock_files_content(model, [batch_line("hello world", usage=False)])
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    stats = builder.stats
+    # We still know the note cost a call, even though we can't say what it cost.
+    assert stats.from_model[0] == 1
+    assert stats.from_cache[0] == 0
+    assert stats.token_stats.new_input_tokens == 0
+
+
+@nlp_utils.mock_env("azure")
+@mock.patch("openai.AzureOpenAI")
+def test_batch_tokens_are_attributed_to_their_table(
+    mock_client, tmp_path, mock_db_config, note_source
+):
+    """Batch spend has to reach the per-table totals, not just the pooled one.
+
+    In batch mode the responses are fetched into the cache before the note pass runs, so every
+    note then looks like a cache hit. Attribution has to happen while the batch is being
+    fetched, or a batch run reports real pooled totals against zeroed-out tables.
+    """
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="azure", model_id="gpt4o")
+    model.openai.files.create = lambda **kwargs: SimpleNamespace(id="input")
+    model.openai.batches.create.return_value = SimpleNamespace(id="batch")
+    model.openai.batches.retrieve.return_value = SimpleNamespace(
+        id="batch", status="completed", error_file_id=None, output_file_id="output"
+    )
+    mock_files_content(model)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    stats = builder.stats
+    assert stats.got_response[0] == 1
+    # The batch paid for this note during this run, so it is not a cache hit.
+    assert stats.from_model[0] == 1
+    assert stats.from_cache[0] == 0
+
+    # The invariant that catches attribution drift: the parts equal the whole.
+    assert stats.token_stats.new_input_tokens == 19
+    per_table = models.sum_token_stats(stats.token_stats_by_table.values())
+    assert per_table == stats.token_stats
 
 
 @nlp_utils.mock_env("azure")

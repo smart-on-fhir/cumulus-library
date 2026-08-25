@@ -156,3 +156,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# MLflow local tracking stores (see --mlflow, in dev mode)
+mlruns/
+mlflow.db
+mlartifacts/

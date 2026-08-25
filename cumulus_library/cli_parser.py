@@ -1,6 +1,7 @@
 """Manages configuration for argparse"""
 
 import argparse
+import sys
 
 # Functions for arguments used by more than one sub-command
 
@@ -146,8 +147,28 @@ def add_etl_phi_dir_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def add_nlp_config(parser: argparse.ArgumentParser) -> None:
-    group = parser.add_argument_group("Database config")
+def add_dev_argument(parser: argparse.ArgumentParser) -> None:
+    """Adds the hidden --dev flag, which unlocks study-development arguments.
+
+    This is checked before the parser is built (see cli.main), so that dev-only arguments are
+    not merely hidden but genuinely unregistered on a normal run - passing one without --dev is
+    an error rather than a silent no-op. Running `build --dev -h` lists them.
+    """
+    parser.add_argument(
+        "--dev",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
+
+
+def requests_dev_mode(cli_args: list[str] | None = None) -> bool:
+    """Pre-scans the raw arguments for --dev, before argparse gets involved."""
+    args = sys.argv[1:] if cli_args is None else cli_args
+    return "--dev" in args
+
+
+def add_nlp_config(parser: argparse.ArgumentParser, dev: bool = False) -> None:
+    group = parser.add_argument_group("NLP config")
     group.add_argument(
         "--nlp-model",
         choices=[
@@ -216,6 +237,17 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
         action="store_false",
         help="Disable printing of NLP note and token statistics",
     )
+    if dev:
+        add_nlp_dev_config(parser)
+
+
+def add_nlp_dev_config(parser: argparse.ArgumentParser) -> None:
+    """Adds NLP arguments that only make sense while developing a study.
+
+    These are registered only in dev mode (--dev). They're for iterating on prompts and
+    schemas, not for building a study you already trust.
+    """
+    group = parser.add_argument_group("NLP study-development config (--dev)")
     group.add_argument(
         "--nlp-subtask",
         action="append",
@@ -232,6 +264,42 @@ def add_nlp_config(parser: argparse.ArgumentParser) -> None:
         dest="select_by_table",
         help='Override workflow\'s "select_by_table" values.',
         default=None,
+    )
+    group.add_argument(
+        "--mlflow",
+        action="store_true",
+        help=(
+            "Track this NLP run as an MLflow experiment, with one run per workflow table. "
+            "Requires the optional 'mlflow' dependency: pip install 'cumulus-library[mlflow]'"
+        ),
+    )
+    group.add_argument(
+        "--mlflow-uri",
+        metavar="URI",
+        help=(
+            "MLflow tracking server URI (default: the MLFLOW_TRACKING_URI environment "
+            "variable). The connection is checked before any notes are processed."
+        ),
+    )
+    group.add_argument(
+        "--mlflow-experiment",
+        metavar="NAME",
+        help=("MLflow experiment to log to (default: the study name)"),
+    )
+    group.add_argument(
+        "--mlflow-run-name",
+        metavar="NAME",
+        help=(
+            "Base name for the MLflow runs. The table name is appended, so each table's run "
+            "stays distinguishable (default: the table name, version, and model)"
+        ),
+    )
+    group.add_argument(
+        "--mlflow-tag",
+        action="append",
+        dest="mlflow_tags",
+        metavar="KEY=VALUE",
+        help="Add a tag to every MLflow run. May be passed more than once.",
     )
 
 
@@ -281,8 +349,11 @@ def add_info_argument(parser: argparse.ArgumentParser) -> None:
 # Parser construction
 
 
-def get_parser() -> argparse.ArgumentParser:
-    """Provides parser for handling CLI arguments"""
+def get_parser(dev: bool = False) -> tuple[argparse.ArgumentParser, dict[str, str]]:
+    """Provides parser for handling CLI arguments
+
+    :keyword dev: whether to register the hidden study-development arguments (see --dev)
+    """
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="""Generates study tables and views from post-Cumulus ETL data.
@@ -346,7 +417,8 @@ AWS Athena, the following order of preference is used to select credentials:
     add_study_dir_argument(build)
     add_note_dir_argument(build)
     add_etl_phi_dir_argument(build)
-    add_nlp_config(build)
+    add_nlp_config(build, dev=dev)
+    add_dev_argument(build)
     add_table_builder_argument(build)
     add_target_argument(build)
     add_verbose_argument(build)

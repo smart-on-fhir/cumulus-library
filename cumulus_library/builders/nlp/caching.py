@@ -59,14 +59,17 @@ def cache_wrapper(
     method: Callable,
     *args,
     **kwargs,
-) -> Obj:
-    """Looks up an NLP result in the cache first, falling back to calling the NLP method."""
+) -> tuple[Obj, bool]:
+    """Looks up an NLP result in the cache first, falling back to calling the NLP method.
+
+    Returns the result along with whether it came from the cache, so callers can tell a note
+    that cost money from one that was free.
+    """
     result = cache_read(cache_dir, namespace, checksum)
 
     if result is None:
         result = method(*args, **kwargs)
         cache_write(cache_dir, namespace, checksum, to_file(result))
-    else:
-        result = from_file(result)
+        return result, False
 
-    return result
+    return from_file(result), True
