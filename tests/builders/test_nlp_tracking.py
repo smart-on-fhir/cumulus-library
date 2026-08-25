@@ -9,15 +9,17 @@ Like the other NLP builder tests, these share an xdist group - they mutate MLflo
 tracking URI, so they must not run beside each other.
 """
 
+import datetime
 import pathlib
 from unittest import mock
 
+import jambo
 import mlflow
 import pytest
 
 from cumulus_library import errors, note_utils
 from cumulus_library.builders import nlp_builder
-from cumulus_library.builders.nlp import driver, models, tracking
+from cumulus_library.builders.nlp import driver, models, tracking, workflow
 from tests import conftest, nlp_utils
 from tests.nlp_utils import add_dxr
 
@@ -279,3 +281,136 @@ def test_tags_parse_as_explicit_pairs():
 def test_bad_tags_are_rejected(bad):
     with pytest.raises(errors.CumulusLibraryError, match="KEY=VALUE"):
         note_utils.NlpConfig({"mlflow_tags": [bad]})
+
+
+def make_task(**overrides) -> workflow.NlpTask:
+    """A task shaped the way the builder hands them over, for tracker-level tests."""
+    task = workflow.NlpTask(version=3)
+    task.system_prompt = "you are a helpful assistant"
+    task.response_schema = jambo.SchemaConverter.build(
+        {"title": "test", "type": "object", "properties": {"hello": {"type": "integer"}}}
+    )
+    for key, value in overrides.items():
+        setattr(task, key, value)
+    return task
+
+
+def make_tracker(tracking_uri, tables=None, **overrides) -> tracking.MlflowTracker:
+    """Builds a tracker directly, skipping the note pass.
+
+    The tests above drive the tracker through a real build, which is the important coverage.
+    These are for the corners a full build can't reach on demand - an unreachable server, a
+    priced model, a tracker that never started.
+    """
+    config = note_utils.NlpConfig({"target": "my_study", "nlp_model": "gpt-oss-120b"})
+    config.mlflow = True
+    config.mlflow_uri = tracking_uri
+    config.mlflow_experiment = "test-experiment"
+    for key, value in overrides.items():
+        setattr(config, key, value)
+    return tracking.MlflowTracker(
+        config, tables=tables or {"age": make_task()}, model_id="gpt-oss-120b"
+    )
+
+
+def make_stats(tokens: models.TokenStats, prices: models.TokenPrices | None = None):
+    stats = models.NlpStats(1)
+    stats.available = 2
+    stats.had_text = 2
+    stats.considered = [2]
+    stats.got_response = [2]
+    stats.token_stats_by_table = {"age": tokens}
+    stats.token_prices = prices
+    return stats
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (None, ""),
+        ("short", "short"),
+        ("x" * tracking.MAX_PARAM_LEN, "x" * tracking.MAX_PARAM_LEN),
+        ("y" * (tracking.MAX_PARAM_LEN + 50), "y" * (tracking.MAX_PARAM_LEN - 1) + "\u2026"),
+    ],
+)
+def test_clip_bounds_param_values(value, expected):
+    """MLflow rejects over-long params, so anything past the cap has to be trimmed."""
+    assert tracking._clip(value) == expected
+
+
+def test_unreachable_server_fails_before_any_work(tracking_uri):
+    """A bad server is raised at start(), not discovered after a pass has been paid for."""
+    tracker = make_tracker(tracking_uri)
+    with mock.patch.object(mlflow, "set_experiment", side_effect=OSError("no route to host")):
+        with pytest.raises(errors.CumulusLibraryError, match="Could not reach the MLflow"):
+            tracker.start()
+    # Nothing was opened, so there is nothing to close.
+    assert tracker.run_ids == {}
+
+
+def test_fail_before_start_is_a_no_op(tracking_uri):
+    """fail() can land before start() if setup itself raised - it must not raise in turn."""
+    tracker = make_tracker(tracking_uri)
+    tracker.fail()  # no mlflow module resolved yet
+    assert tracker.run_ids == {}
+
+
+def test_trace_for_is_none_before_runs_exist(tracking_uri):
+    """Asking for a trace target before start() has opened runs yields nothing to attach to."""
+    tracker = make_tracker(tracking_uri, mlflow_log_traces=True)
+    assert tracker.trace_for("age") is None
+
+
+def test_run_ids_are_exposed_as_a_copy(tracking_uri):
+    """Callers get the run ids without being able to reach in and edit the tracker's copy."""
+    tracker = make_tracker(tracking_uri)
+    tracker.start()
+    try:
+        ids = tracker.run_ids
+        assert set(ids) == {"age"}
+        ids["age"] = "tampered"
+        assert tracker.run_ids["age"] != "tampered"
+    finally:
+        tracker.fail()
+
+
+def test_configured_run_name_is_used_as_a_base(tracking_uri):
+    """--mlflow-run-name replaces the default, with the table appended to keep runs distinct."""
+    tracker = make_tracker(tracking_uri, mlflow_run_name="pilot")
+    tracker.start()
+    tracker.finish(make_stats(models.TokenStats(new_input_tokens=1)))
+    assert runs_by_table()["age"].info.run_name == "pilot_age"
+
+
+def test_cost_is_logged_when_the_model_has_prices(tracking_uri):
+    """Cost is the per-table number people actually compare, so pin the arithmetic."""
+    tracker = make_tracker(tracking_uri)
+    tracker.start()
+    tokens = models.TokenStats(
+        new_input_tokens=1000,
+        cache_read_input_tokens=500,
+        cache_written_input_tokens=200,
+        output_tokens=300,
+    )
+    prices = models.TokenPrices(
+        date=datetime.date(2026, 1, 1),
+        new_input_tokens=0.001,
+        cache_read_input_tokens=0.0005,
+        cache_written_input_tokens=0.002,
+        output_tokens=0.004,
+        multiplier=0.5,  # batch mode discount
+    )
+    tracker.finish(make_stats(tokens, prices))
+
+    # (1000*.001 + 500*.0005 + 200*.002 + 300*.004) / 1000 * 0.5
+    assert runs_by_table()["age"].data.metrics["cost.estimated_usd"] == 0.001425
+
+
+def test_no_cost_metric_without_prices(tracking_uri):
+    """A model with no published pricing should report usage but not invent a dollar figure."""
+    tracker = make_tracker(tracking_uri)
+    tracker.start()
+    tracker.finish(make_stats(models.TokenStats(new_input_tokens=1000)))
+    metrics = runs_by_table()["age"].data.metrics
+    assert metrics["tokens.new_input"] == 1000
+    assert "cost.estimated_usd" not in metrics
