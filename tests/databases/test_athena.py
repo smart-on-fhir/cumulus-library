@@ -305,6 +305,38 @@ def test_export_table(mock_wrangler, mock_client, tmp_path):
     assert res is False
 
 
+@mock.patch("botocore.client")
+@mock.patch("awswrangler.s3")
+def test_export_table_uses_staging_dir(mock_wrangler, mock_client, tmp_path):
+    # With a staging dir set, the export bucket should be derived from it rather
+    # than the workgroup's OutputLocation.
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+        s3_staging_dir="s3://override-bucket/staging",
+    )
+    db.connection = mock.MagicMock()
+    bucket_info = {
+        "WorkGroup": {
+            "Configuration": {"ResultConfiguration": {"OutputLocation": "s3://testbucket/athena"}}
+        }
+    }
+    db.connection._client.get_work_group.side_effect = [bucket_info, bucket_info]
+    mock_clientobj = mock_client.ClientCreator.return_value.create_client.return_value
+    mock_clientobj.list_objects_v2.side_effect = [
+        # pre-UNLOAD cleanup, then post-UNLOAD cleanup
+        {"Contents": [{"Key": "export/table.flat.parquet"}]},
+        {"Contents": [{"Key": "export/table.flat.parquet"}]},
+    ]
+    mock_wrangler.read_parquet.return_value = pandas.DataFrame({"A": [1, 2], "B": ["x", "y"]})
+    res = db.export_table_as_parquet("table", "flat", tmp_path)
+    assert res is True
+    # The export bucket should be derived from the override, not the workgroup bucket.
+    assert mock_clientobj.list_objects_v2.call_args.kwargs["Bucket"] == "override-bucket"
+
+
 @mock.patch("cumulus_library.databases.base.ParallelResult")
 @mock.patch("cumulus_library.databases.athena.AthenaDatabaseBackend.async_cursor")
 def test_parallel_execute(mock_cursor_getter, mock_result):
@@ -356,13 +388,23 @@ def test_get_async_cursor(mock_client):
     assert isinstance(cursor, pyathena.async_cursor.AsyncCursor)
 
 
+@pytest.mark.parametrize(
+    "s3_staging_dir,expected,expect_get_workgroup_called",
+    [
+        # With no staging dir, the path comes from the workgroup's result configuration.
+        (None, "s3://testbucket/athena", True),
+        # With an explicit staging dir, we return it directly and never inspect the workgroup.
+        ("s3://override-bucket/staging", "s3://override-bucket/staging", False),
+    ],
+)
 @mock.patch("botocore.client")
-def test_get_remote_path(mock_client):
+def test_get_remote_path(mock_client, s3_staging_dir, expected, expect_get_workgroup_called):
     db = databases.AthenaDatabaseBackend(
         region="test",
         work_group="test",
         profile="test",
         schema_name="test",
+        s3_staging_dir=s3_staging_dir,
     )
     db.connection = mock.MagicMock()
     bucket_info = {
@@ -371,7 +413,8 @@ def test_get_remote_path(mock_client):
         }
     }
     db.connection._client.get_work_group.side_effect = [bucket_info, bucket_info]
-    assert db.get_remote_path() == "s3://testbucket/athena"
+    assert db.get_remote_path() == expected
+    assert db.connection._client.get_work_group.called == expect_get_workgroup_called
 
 
 @mock.patch.dict(

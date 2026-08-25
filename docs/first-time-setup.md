@@ -75,6 +75,7 @@ and their associated CLI args:
 | --user | CUMULUS_AGGREGATOR_USER |
 | --network | CUMULUS_AGGREGATOR_NETWORK |
 | --work_group | CUMULUS_LIBRARY_WORKGROUP |
+| --s3_staging_dir | CUMULUS_S3_STAGING_DIR |
 
 ## Example usage: building and exporting the core study
 

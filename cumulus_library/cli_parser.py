@@ -18,6 +18,14 @@ def add_aws_config(parser: argparse.ArgumentParser) -> None:
         "--region",
         help="AWS region data of Athena instance (default: us-east-1)",
     )
+    aws.add_argument(
+        "--s3-staging-dir",
+        dest="s3_staging_dir",
+        help=(
+            "S3 location to write Athena query results to. "
+            + "By default, the staging dir is taken from the workgroup's configuration."
+        ),
+    )
 
 
 def add_custom_option(parser: argparse.ArgumentParser) -> None:
