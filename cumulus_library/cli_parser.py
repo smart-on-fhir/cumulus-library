@@ -351,7 +351,7 @@ def add_info_argument(parser: argparse.ArgumentParser) -> None:
 # Parser construction
 
 
-def get_parser(dev: bool = False) -> argparse.ArgumentParser:
+def get_parser(dev: bool = False) -> tuple[argparse.ArgumentParser, dict[str, str]]:
     """Provides parser for handling CLI arguments
 
     :keyword dev: whether to register the hidden study-development arguments (see --dev)

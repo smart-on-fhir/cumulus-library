@@ -13,7 +13,7 @@ import pydantic
 import rich
 
 from cumulus_library import base_utils, databases, errors, note_utils
-from cumulus_library.builders.nlp import caching, dispatch, models, workflow
+from cumulus_library.builders.nlp import caching, dispatch, models, tracking, workflow
 
 ESCAPED_WHITESPACE = re.compile(r"(\\\s)+")
 PARQUET_PATTERN = re.compile(r"nlp\.([0-9]+)\.parquet")
@@ -32,7 +32,7 @@ class NlpStats:
         # Same numbers as token_stats, but split by table. The pooled total is what we print;
         # this is what lets experiment tracking say which table spent what.
         self.token_stats_by_table: dict[str, models.TokenStats] = {}
-        self.token_prices = None
+        self.token_prices: models.TokenPrices | None = None
 
 
 def run_nlp(
@@ -42,7 +42,7 @@ def run_nlp(
     tables: dict[str, workflow.NlpTask],
     filters: list[cfs.NoteFilter],
     db: databases.DatabaseBackend,
-    tracker=None,
+    tracker: tracking.MlflowTracker | None = None,
 ) -> NlpStats:
     """Iterates through the notes, filtering as it goes, and passes notes to NLP
 
@@ -209,18 +209,18 @@ class NlpNotePool:
         *,
         db: databases.DatabaseBackend,
         tables: dict[str, workflow.NlpTask],
-        tracker=None,
+        tracker: tracking.MlflowTracker | None = None,
     ):
         self._config = nlp_config
         self._db = db
         self._tables = tables
         self._tracker = tracker
 
-        self._notes = {}  # table_slug -> list[output row]
-        self.got_response = {}  # table_slug -> count of successful responses
+        self._notes: dict[str, list[dict]] = {}  # table_slug -> list of output rows
+        self.got_response: dict[str, int] = {}  # table_slug -> count of successful responses
         # table_slug -> tokens spent serving that table. Accumulated here on the main thread,
         # from the per-call usage each response carries back.
-        self.token_stats_by_table = {}
+        self.token_stats_by_table: dict[str, models.TokenStats] = {}
 
         if nlp_config.use_batching and len(nlp_config.azure_deployments) > 1:
             # Batch IDs are cached under a single per-provider key, so several deployments
@@ -257,7 +257,7 @@ class NlpNotePool:
         return self._dispatcher.token_stats
 
     @property
-    def token_prices(self) -> models.TokenStats:
+    def token_prices(self) -> models.TokenPrices | None:
         return self._dispatcher.token_prices
 
     @property
