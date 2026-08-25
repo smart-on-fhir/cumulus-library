@@ -277,7 +277,9 @@ The arguments dev mode unlocks:
 
 When you are iterating on a prompt, the question is usually "was that change an improvement?"
 Cumulus Library can record each NLP run to [MLflow](https://mlflow.org/) so you can answer that
-by comparing runs instead of by memory.
+by comparing runs.
+
+##### Setting Up a Tracking Server
 
 MLflow is an optional dependency, since it is only useful for study development:
 
@@ -285,7 +287,44 @@ MLflow is an optional dependency, since it is only useful for study development:
 pip install 'cumulus-library[mlflow]'
 ```
 
-Then point a build at your tracking server:
+That gives you the `mlflow` command, which includes a tracking server with a web UI. Start one:
+
+```sh
+mlflow server
+```
+
+It listens on `http://127.0.0.1:5000` by default. Open that in a browser and you'll get the
+MLflow UI, which is empty until your first tracked build. (`mlflow ui` is an alias for the same
+command.) Leave it running in its own terminal - Cumulus Library checks the connection before it
+processes any notes, so the server needs to be up before you start a build.
+
+By default the server keeps its data in a SQLite file named `mlflow.db`, created in whatever
+directory you launched it from. That's convenient but easy to litter with, so either run it from
+a scratch directory or point it somewhere deliberate:
+
+```sh
+mkdir -p /path/to/cumulus-mlflow
+mlflow server --backend-store-uri sqlite:////path/to/cumulus-mlflow/mlflow.db
+```
+
+If a `./mlruns` directory already exists where you start the server, MLflow uses that instead of
+SQLite.
+
+Then tell Cumulus Library where the server is, either with `--mlflow-uri` on each build or once
+in your environment:
+
+```sh
+export MLFLOW_TRACKING_URI=http://localhost:5000
+```
+
+A server started this way runs on your machine and writes to your local disk, so tracking a run
+keeps everything local. If you point `--mlflow-uri` at a *shared* server, everything described
+below - including note text, if you pass `--mlflow-log-traces` - leaves your machine. See
+[What Data Gets Sent Where](#what-data-gets-sent-where).
+
+##### Tracking a Build
+
+With a server running, point a build at it:
 
 ```sh
 cumulus-library build --target my_study --dev \

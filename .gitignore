@@ -160,3 +160,4 @@ dmypy.json
 # MLflow local tracking stores (see --mlflow, in dev mode)
 mlruns/
 mlflow.db
+mlartifacts/
