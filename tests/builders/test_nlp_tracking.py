@@ -402,6 +402,8 @@ def test_cost_is_logged_when_the_model_has_prices(tracking_uri):
     )
     tracker.finish(make_stats(tokens, prices))
 
+    # 1000 new input tokens, 500 cache reads, 200 cache write, 300 output tokens.
+    # All multiplied by their respective prices, then the whole sum multiplied by the batch discount
     # (1000*.001 + 500*.0005 + 200*.002 + 300*.004) / 1000 * 0.5
     assert runs_by_table()["age"].data.metrics["cost.estimated_usd"] == 0.001425
 
