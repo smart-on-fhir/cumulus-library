@@ -100,7 +100,7 @@ class MlflowTracker:
             self._mlflow.set_tracking_uri(self._config.mlflow_uri)
             self._mlflow.set_experiment(self._experiment)
         except Exception as exc:
-            raise errors.CumulusLibraryError(
+            raise errors.MlflowExecutionError(
                 f"Could not reach the MLflow tracking server at '{self._config.mlflow_uri}':\n{exc}"
             ) from exc
 
