@@ -26,6 +26,7 @@ from rich import progress
 from cumulus_library import base_utils, errors
 from cumulus_library.databases import base, utils
 
+PYATHENA_AWS_ATHENA_S3_STAGING_DIR = "AWS_ATHENA_S3_STAGING_DIR"
 AWS_ENV_VARS = ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"]
 IID_BASE_URL = "http://169.254.169.254/latest"
 
@@ -54,7 +55,26 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.connection = None
         self.connect_kwargs = {}
         self.max_concurrent = max_concurrent or 20
-        self.s3_staging_dir = s3_staging_dir or ""
+        self.s3_staging_dir = self._get_s3_staging_dir(s3_staging_dir)
+
+    def _get_s3_staging_dir(self, s3_staging_dir: str | None) -> str:
+        """Resolves the S3 staging directory for Athena query results.
+
+        Precedence:
+        1. An explicitly provided value (from the --s3-staging-dir CLI arg or the
+           CUMULUS_S3_STAGING_DIR environment variable).
+        2. PyAthena's native AWS_ATHENA_S3_STAGING_DIR environment variable.
+        3. An empty string, in which case the workgroup's configured output
+           location is used instead.
+
+        :param s3_staging_dir: An explicit staging dir, or None to fall back to env/workgroup
+        :returns: The resolved staging dir, or an empty string if none is set
+        """
+        if s3_staging_dir:
+            return s3_staging_dir
+
+        s3_staging_dir_env_val = os.environ.get(PYATHENA_AWS_ATHENA_S3_STAGING_DIR)
+        return s3_staging_dir_env_val or ""
 
     def init_errors(self):  # pragma: no cover
         return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]

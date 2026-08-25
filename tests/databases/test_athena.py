@@ -417,6 +417,30 @@ def test_get_remote_path(mock_client, s3_staging_dir, expected, expect_get_workg
     assert db.connection._client.get_work_group.called == expect_get_workgroup_called
 
 
+@pytest.mark.parametrize(
+    "s3_staging_dir,env_val,expected",
+    [
+        # explicit value wins over the pyathena env var
+        ("s3://explicit/dir", "s3://env/dir", "s3://explicit/dir"),
+        # fall back to the pyathena env var when no explicit value is given
+        (None, "s3://env/dir", "s3://env/dir"),
+        # empty string when neither is set (workgroup config is used instead)
+        (None, None, ""),
+    ],
+)
+def test_get_s3_staging_dir(s3_staging_dir, env_val, expected):
+    env = {athena.PYATHENA_AWS_ATHENA_S3_STAGING_DIR: env_val} if env_val else {}
+    with mock.patch.dict(os.environ, env, clear=True):
+        db = databases.AthenaDatabaseBackend(
+            region="test",
+            work_group="test",
+            profile="test",
+            schema_name="test",
+            s3_staging_dir=s3_staging_dir,
+        )
+    assert db.s3_staging_dir == expected
+
+
 @mock.patch.dict(
     os.environ,
     clear=True,
