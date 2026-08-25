@@ -519,7 +519,7 @@ class NlpNotePool:
                 rows = notes[table_slug]
                 self._write_single_parquet(table_slug, task, rows)
                 add_upload_refs_for_task(self._config, table_slug, task, self._db, rows)
-                rich.print(f"Wrote {len(rows)} for {task} in {table_slug}")
+                rich.print(f"Wrote {len(rows)} to table {table_slug}")
 
     def _next_parquet_path(self, table_slug: str, task: workflow.NlpShared) -> cfs.FsPath:
         folder = output_path_for_task(self._config, table_slug, task, self._db)
