@@ -1,4 +1,7 @@
-"""Abstraction layer for inference APIs"""
+"""
+Abstraction layer for inference APIs and their common features
+(e.g. prompting, caching, usage tracking, etc).
+"""
 
 import abc
 import dataclasses
@@ -21,7 +24,7 @@ from openai.types.chat import ParsedChatCompletion
 from pydantic import BaseModel
 
 from cumulus_library import errors, note_utils
-from cumulus_library.builders.nlp import caching, tracking
+from cumulus_library.builders.nlp import caching, tracing
 
 # How many times a client library will transparently retry a request before giving up
 MAX_RETRIES = 5
@@ -52,7 +55,7 @@ class Prompt:
     # Prompts for different tables are in flight on different threads at the same time, so the
     # owning run has to travel with the prompt - there is no single "current" run to infer it
     # from. None (the normal case) means "don't trace".
-    trace: tracking.TraceInfo | None = None
+    trace: tracing.TraceInfo | None = None
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -156,6 +159,22 @@ class TokenPrices:
     cache_written_input_tokens: float = 0
     output_tokens: float
     multiplier: float = 1
+
+
+class NlpStats:
+    def __init__(self, size: int):
+        self.available = 0
+        self.had_text = 0
+        self.considered = [0] * size
+        self.got_response = [0] * size
+        # Notes we abandoned because we kept getting rate limited. Tracked separately from
+        # other failures so a run that was merely going too fast says so out loud.
+        self.throttle_dropped = 0
+        self.token_stats = TokenStats()
+        # Same numbers as token_stats, but split by table. The pooled total is what we print;
+        # this is what lets experiment tracking say which table spent what.
+        self.token_stats_by_table: dict[str, TokenStats] = {}
+        self.token_prices: TokenPrices | None = None
 
 
 class Provider(abc.ABC):
@@ -692,7 +711,7 @@ class Model:
         # Wrap the provider call, not the cache lookup: cache_wrapper only invokes this on a
         # miss, so cache hits don't litter the experiment with empty traces. Without tracing
         # on, traced() hands the method straight back.
-        method = tracking.traced(self.provider.prompt, prompt.trace)
+        method = tracing.traced(self.provider.prompt, prompt.trace)
         return caching.cache_wrapper(
             prompt.cache_dir,
             prompt.cache_namespace,

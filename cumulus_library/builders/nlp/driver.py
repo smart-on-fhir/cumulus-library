@@ -19,22 +19,6 @@ ESCAPED_WHITESPACE = re.compile(r"(\\\s)+")
 PARQUET_PATTERN = re.compile(r"nlp\.([0-9]+)\.parquet")
 
 
-class NlpStats:
-    def __init__(self, size: int):
-        self.available = 0
-        self.had_text = 0
-        self.considered = [0] * size
-        self.got_response = [0] * size
-        # Notes we abandoned because we kept getting rate limited. Tracked separately from
-        # other failures so a run that was merely going too fast says so out loud.
-        self.throttle_dropped = 0
-        self.token_stats = models.TokenStats()
-        # Same numbers as token_stats, but split by table. The pooled total is what we print;
-        # this is what lets experiment tracking say which table spent what.
-        self.token_stats_by_table: dict[str, models.TokenStats] = {}
-        self.token_prices: models.TokenPrices | None = None
-
-
 def run_nlp(
     notes: note_utils.NoteSource,
     *,
@@ -43,12 +27,12 @@ def run_nlp(
     filters: list[cfs.NoteFilter],
     db: databases.DatabaseBackend,
     tracker: tracking.MlflowTracker | None = None,
-) -> NlpStats:
+) -> models.NlpStats:
     """Iterates through the notes, filtering as it goes, and passes notes to NLP
 
     :keyword tracker: optional MlflowTracker, used to attribute traces to the right run
     """
-    stats = NlpStats(len(tables))
+    stats = models.NlpStats(len(tables))
 
     # If asked to clean, do it
     if nlp_config.clean:

@@ -5,83 +5,22 @@ on with --mlflow, and importing mlflow itself is deferred until then.
 """
 
 import contextlib
-import dataclasses
 import datetime
 import hashlib
 import json
 import logging
 import types
-import typing
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 
 from cumulus_library import base_utils, errors
-from cumulus_library.builders.nlp import workflow
+from cumulus_library.builders.nlp import models, tracing, workflow
 from cumulus_library.note_utils import NlpConfig
 
-if typing.TYPE_CHECKING:  # pragma: no cover
-    # Import-time only. models imports this module for traced(), and driver imports models, so
-    # importing driver for real here would close that loop. NlpStats is needed purely as a type.
-    from cumulus_library.builders.nlp import driver
-
-INSTALL_HINT = (
-    "MLflow experiment tracking requires the optional 'mlflow' dependency.\n"
-    "Install it with: pip install 'cumulus-library[mlflow]'"
-)
 EXPERIMENT_DEFAULT = "cumulus-library-nlp-dev"
 
 # MLflow rejects param values past a certain length, and prompts routinely blow past it.
 # We log the full text as an artifact and keep a short digest as the filterable param.
 MAX_PARAM_LEN = 500
-
-# Trace metadata key MLflow uses to associate a trace with a run. Setting it explicitly is the
-# only reliable way to attribute traces here: MLflow's active-run state is thread-local, but
-# trace-to-run association is not derived from it, so concurrent prompts for different tables
-# would otherwise all land on whichever run was started last.
-SOURCE_RUN_KEY = "mlflow.sourceRun"
-
-
-def import_mlflow() -> types.ModuleType:
-    """Imports mlflow, turning the ImportError into an actionable message."""
-    try:
-        import mlflow
-
-        return mlflow
-    except ImportError as exc:  # pragma: no cover - depends on install state
-        raise errors.CumulusLibraryError(INSTALL_HINT) from exc
-
-
-@dataclasses.dataclass
-class TraceInfo:
-    """Says which MLflow run a given prompt's traces belong to.
-
-    This travels with the prompt rather than living in ambient state, because prompts for
-    several tables are in flight on different threads at once.
-    """
-
-    run_id: str
-    tags: dict[str, str] = dataclasses.field(default_factory=dict)
-
-
-def traced(method: Callable, trace: TraceInfo | None) -> Callable:
-    """Wraps a provider call so its auto-logged spans land on the right run.
-
-    Returns the method untouched when tracing is off, so the non-tracking path stays free of
-    both the wrapper and the mlflow import. The wrapper is applied around the *provider* call
-    rather than the cache lookup, so cache hits don't generate empty traces.
-    """
-    if trace is None:
-        return method
-
-    mlflow = import_mlflow()
-
-    def wrapper(*args, **kwargs) -> typing.Any:
-        with mlflow.start_span(name="nlp_prompt"):
-            # Spans auto-logged by mlflow.openai nest inside this one, so stamping the trace
-            # here covers the model call too.
-            mlflow.update_current_trace(metadata={SOURCE_RUN_KEY: trace.run_id}, tags=trace.tags)
-            return method(*args, **kwargs)
-
-    return wrapper
 
 
 def _digest(text: str | None) -> str:
@@ -154,7 +93,7 @@ class MlflowTracker:
 
         Raises if the tracking server can't be reached.
         """
-        self._mlflow = import_mlflow()
+        self._mlflow = tracing.import_mlflow()
         self._start = base_utils.get_utc_datetime()
 
         try:
@@ -184,16 +123,16 @@ class MlflowTracker:
             self._mlflow.end_run()
             self._log_setup(table_slug, task)
 
-    def trace_for(self, table_slug: str) -> TraceInfo | None:
+    def trace_for(self, table_slug: str) -> tracing.TraceInfo | None:
         """The trace target for prompts belonging to this table, if tracing is on."""
         if not self._config.mlflow_log_traces:
             return None
         run_id = self._run_ids.get(table_slug)
         if not run_id:
             return None
-        return TraceInfo(run_id=run_id, tags={"table": table_slug})
+        return tracing.TraceInfo(run_id=run_id, tags={"table": table_slug})
 
-    def finish(self, stats: "driver.NlpStats") -> None:
+    def finish(self, stats: models.NlpStats) -> None:
         """Logs the numbers from a completed pass and closes every run."""
         self._end = base_utils.get_utc_datetime()
         for table_slug in self._tables:
@@ -267,7 +206,7 @@ class MlflowTracker:
             client.log_text(run_id, user_prompt, "prompts/user_prompt.txt")
             client.log_text(run_id, json.dumps(schema, indent=2), "prompts/response_schema.json")
 
-    def _log_results(self, table_slug: str, stats: "driver.NlpStats") -> None:
+    def _log_results(self, table_slug: str, stats: models.NlpStats) -> None:
         client = self._mlflow.MlflowClient()
         run_id = self._run_ids[table_slug]
         index = list(self._tables).index(table_slug)

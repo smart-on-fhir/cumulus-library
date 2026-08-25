@@ -11,7 +11,7 @@ import rich
 
 import cumulus_library
 from cumulus_library import base_utils, errors, note_utils
-from cumulus_library.builders.nlp import driver, tracking, workflow
+from cumulus_library.builders.nlp import driver, models, tracking, workflow
 from cumulus_library.template_sql import base_templates
 
 # NLP is driven by a workflow config. See docs/workflows/nlp.md for more details
@@ -130,7 +130,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             **extra,
         )
 
-    def _print_note_stats(self, *, names: list[str], stats: driver.NlpStats) -> None:
+    def _print_note_stats(self, *, names: list[str], stats: models.NlpStats) -> None:
         rich.print(" Notes processed:")
         table = rich.table.Table("", "", box=None, show_header=False)
         table.add_row(" Available:", f"{stats.available:,}")
@@ -142,7 +142,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         rich.get_console().print(table)
         self._print_throttle_warning(stats)
 
-    def _print_throttle_warning(self, stats: driver.NlpStats) -> None:
+    def _print_throttle_warning(self, stats: models.NlpStats) -> None:
         """Calls out notes we abandoned to rate limiting, which otherwise leave a silent gap.
 
         A throttled run still produces a table, just an incomplete one, so this needs to be
@@ -159,7 +159,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             highlight=False,
         )
 
-    def _print_token_stats(self, stats: driver.NlpStats) -> None:
+    def _print_token_stats(self, stats: models.NlpStats) -> None:
         tokens = stats.token_stats
         rich.print("\n Token usage:")
         table = rich.table.Table("", "", box=None, show_header=False)
