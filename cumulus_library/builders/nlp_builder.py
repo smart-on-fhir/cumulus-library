@@ -254,7 +254,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         if not self._nlp_config.mlflow:
             return None
         if not self._nlp_config.mlflow_uri:
-            raise errors.CumulusLibraryError(
+            raise errors.MlflowExecutionError(
                 "--mlflow needs a tracking server. Pass --mlflow-uri, or set the "
                 "MLFLOW_TRACKING_URI environment variable."
             )
