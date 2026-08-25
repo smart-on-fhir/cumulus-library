@@ -288,8 +288,8 @@ class NlpNotePool:
                     raise result.error
                 task = self._tables[table_slug]
                 self._add_response(table_slug, task, note_res, text, result.response)
-                # Attribute this call's spend to the table that asked for it. Cache hits carry
-                # no usage, which is right - they cost nothing.
+                # Attribute this call's spend to the table that asked for it.
+                # Cache hits carry no usage, which is right - they cost nothing.
                 if usage := result.response.usage:
                     previous = self.token_stats_by_table.get(table_slug, models.TokenStats())
                     self.token_stats_by_table[table_slug] = previous + usage

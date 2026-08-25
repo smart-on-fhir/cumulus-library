@@ -197,8 +197,7 @@ class MlflowTracker:
                 "reject_by_word": _clip(_join(task.reject_by_word)),
                 "reject_by_regex": _clip(_join(task.reject_by_regex)),
             }
-            for key, value in params.items():
-                client.log_param(run_id, key, value)
+            _log_batch(client, run_id, params=params)
 
             # Full text as artifacts - easier to diff across runs than a truncated param.
             client.log_text(run_id, task.system_prompt or "", "prompts/system_prompt.txt")
@@ -260,9 +259,21 @@ class MlflowTracker:
             cost = cost / 1_000 * prices.multiplier  # prices are per 1,000 tokens
             metrics["cost.estimated_usd"] = round(cost, 6)
 
-        for key, value in metrics.items():
-            client.log_metric(run_id, key, value)
-        client.log_param(run_id, "run_ended", _iso(self._end))
+        _log_batch(client, run_id, metrics=metrics, params={"run_ended": _iso(self._end)})
+
+
+def _log_batch(client, run_id: str, *, metrics: dict | None = None, params: dict | None = None):
+    """Writes params and metrics in one request instead of one request each."""
+    # Local import to keep mlflow optional at module load; by the time we have a client to
+    # batch against, mlflow is already imported anyway.
+    from mlflow.entities import Metric, Param
+
+    stamp = int(base_utils.get_utc_datetime().timestamp() * 1000)
+    client.log_batch(
+        run_id,
+        params=[Param(key, str(value)) for key, value in (params or {}).items()],
+        metrics=[Metric(key, value, stamp, 0) for key, value in (metrics or {}).items()],
+    )
 
 
 def _join(values: list[str] | None) -> str:
