@@ -215,6 +215,10 @@ class MlflowTracker:
             "notes.with_text": stats.had_text,
             "notes.considered": considered,
             "notes.with_results": with_results,
+            # Splits with_results by what it cost, so a run's token count can be read against
+            # how much of it was actually served from cache.
+            "notes.from_cache": stats.from_cache[index],
+            "notes.from_model": stats.from_model[index],
             "notes.yield_rate": round(yield_rate, 4),
             "workflow.throttle_dropped": stats.throttle_dropped,
         }

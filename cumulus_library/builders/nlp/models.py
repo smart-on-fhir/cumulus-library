@@ -86,13 +86,19 @@ class PromptResponse:
     # Deliberately left out of the cache format: a cache hit spends nothing, so a response
     # replayed from cache correctly reports no usage at all.
     usage: TokenStats | None = None
+    # Whether this came back from the on-disk cache rather than a fresh model call. Like usage,
+    # it describes *this run*, so it is deliberately not serialized - a response replayed later
+    # is a cache hit then, whatever it was when first fetched.
+    from_cache: bool = False
 
     def to_dict(self) -> dict:
         serialized = dataclasses.asdict(self)
         serialized["answer"] = self.answer.model_dump(
             round_trip=True, exclude_unset=True, by_alias=True, mode="json"
         )
-        serialized.pop("usage", None)  # see the note on the field
+        # Both describe this run rather than the answer - see the notes on the fields.
+        serialized.pop("usage", None)
+        serialized.pop("from_cache", None)
         return serialized
 
     @classmethod
@@ -162,6 +168,10 @@ class NlpStats:
         self.had_text = 0
         self.considered = [0] * size
         self.got_response = [0] * size
+        # Of those responses, how many cost a model call this run versus came back from the
+        # on-disk cache for free. These always sum to got_response.
+        self.from_model = [0] * size
+        self.from_cache = [0] * size
         # Notes we abandoned because we kept getting rate limited. Tracked separately from
         # other failures so a run that was merely going too fast says so out loud.
         self.throttle_dropped = 0
@@ -510,7 +520,17 @@ class OpenAIProvider(Provider):
 
     def wait_for_batch(
         self, batch_id: str, *, schema: type[BaseModel], cache_dir: cfs.FsPath, cache_namespace: str
-    ) -> None:
+    ) -> tuple[TokenStats, int]:
+        """Fetches a finished batch into the cache.
+
+        Returns the tokens this batch spent and how many responses it wrote. The caller knows
+        which table the batch belongs to; we don't, and the responses are about to be replayed
+        from cache (where usage is intentionally not stored), so this is the only chance to
+        attribute the spend.
+        """
+        batch_usage = TokenStats()
+        written = 0
+
         # Poll the batches until completion
         batch = self.client.batches.retrieve(batch_id=batch_id)
         # You can see the list of valid statuses here:
@@ -561,6 +581,9 @@ class OpenAIProvider(Provider):
                 # Write each valid response to cache
                 result = ParsedChatCompletion.model_validate(body)
                 response = self._process_completion_result(result, schema)
+                if response.usage:
+                    batch_usage = batch_usage + response.usage
+                written += 1
                 caching.cache_write(
                     cache_dir, cache_namespace, checksum, json.dumps(response.to_dict())
                 )
@@ -577,6 +600,8 @@ class OpenAIProvider(Provider):
             batch_ids.remove(batch.id)
         metadata[batch_key] = batch_ids
         caching.cache_metadata_write(cache_dir, cache_namespace, metadata)
+
+        return batch_usage, written
 
 
 class AzureProvider(OpenAIProvider):
@@ -703,7 +728,7 @@ class Model:
         self.provider.post_init_check()
 
     def prompt(self, prompt: Prompt) -> PromptResponse:
-        return caching.cache_wrapper(
+        response, from_cache = caching.cache_wrapper(
             prompt.cache_dir,
             prompt.cache_namespace,
             prompt.cache_checksum,
@@ -714,6 +739,8 @@ class Model:
             prompt.user,
             prompt.schema,
         )
+        response.from_cache = from_cache
+        return response
 
 
 class Gpt35Model(Model):

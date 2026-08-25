@@ -139,6 +139,10 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             suffix = f" ({name})" if name else ""
             table.add_row(f" Considered{suffix}:", f"{stats.considered[idx]:,}")
             table.add_row(f" Got response{suffix}:", f"{stats.got_response[idx]:,}")
+            # Split the responses by what they cost, so a nearly-free re-run is obvious rather
+            # than something you infer from the token block being small.
+            table.add_row("   from cache:", f"{stats.from_cache[idx]:,}")
+            table.add_row("   fresh LLM calls:", f"{stats.from_model[idx]:,}")
         rich.get_console().print(table)
         self._print_throttle_warning(stats)
 

@@ -152,6 +152,9 @@ def test_tokens_are_attributed_per_table(mock_client, tmp_path, mock_db_config, 
         assert run.data.metrics["tokens.new_input"] == TOKENS_PER_CALL.new_input_tokens * per_table
         assert run.data.metrics["tokens.output"] == TOKENS_PER_CALL.output_tokens * per_table
         assert run.data.metrics["notes.with_results"] == per_table
+        # Nothing was cached on a first pass, so every note cost a call.
+        assert run.data.metrics["notes.from_model"] == per_table
+        assert run.data.metrics["notes.from_cache"] == 0
 
     # The invariant that makes per-table attribution trustworthy: nothing is double counted
     # and nothing is lost relative to the number we print to the console.
@@ -181,6 +184,9 @@ def test_cached_notes_report_no_spend(mock_client, tmp_path, mock_db_config, tra
     second = runs_by_table("second-pass")["age"]
     assert second.data.metrics["notes.with_results"] == 1
     assert second.data.metrics["tokens.total"] == 0
+    # And the run says *why* it was free, rather than leaving you to infer it from the zero.
+    assert second.data.metrics["notes.from_cache"] == 1
+    assert second.data.metrics["notes.from_model"] == 0
     assert "cost.estimated_usd" not in second.data.metrics or (
         second.data.metrics["cost.estimated_usd"] == 0
     )
