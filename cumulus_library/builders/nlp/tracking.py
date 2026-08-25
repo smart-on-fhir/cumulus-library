@@ -13,7 +13,7 @@ import types
 from collections.abc import Iterator
 
 from cumulus_library import base_utils, errors
-from cumulus_library.builders.nlp import models, tracing, workflow
+from cumulus_library.builders.nlp import models, workflow
 from cumulus_library.note_utils import NlpConfig
 
 EXPERIMENT_DEFAULT = "cumulus-library-nlp-dev"
@@ -21,6 +21,22 @@ EXPERIMENT_DEFAULT = "cumulus-library-nlp-dev"
 # MLflow rejects param values past a certain length, and prompts routinely blow past it.
 # We log the full text as an artifact and keep a short digest as the filterable param.
 MAX_PARAM_LEN = 500
+
+INSTALL_HINT = (
+    "MLflow experiment tracking requires the optional 'mlflow' dependency.\n"
+    "Install it with: pip install 'cumulus-library[mlflow]'"
+)
+
+
+# MLflow is an optional dependency, so it is imported only once tracking is actually on.
+def import_mlflow() -> types.ModuleType:
+    """Imports mlflow, turning the ImportError into an actionable message."""
+    try:
+        import mlflow
+
+        return mlflow
+    except ImportError as exc:  # pragma: no cover - depends on install state
+        raise errors.MlflowExecutionError(INSTALL_HINT) from exc
 
 
 def _digest(text: str | None) -> str:
@@ -93,7 +109,7 @@ class MlflowTracker:
 
         Raises if the tracking server can't be reached.
         """
-        self._mlflow = tracing.import_mlflow()
+        self._mlflow = import_mlflow()
         self._start = base_utils.get_utc_datetime()
 
         try:
@@ -103,14 +119,6 @@ class MlflowTracker:
             raise errors.MlflowExecutionError(
                 f"Could not reach the MLflow tracking server at '{self._config.mlflow_uri}':\n{exc}"
             ) from exc
-
-        # Patches the OpenAI client so model calls are captured as spans. Only meaningful
-        # for the azure/local providers - Bedrock goes through boto3, which this doesn't
-        # touch. See the PHI warning on the --mlflow-log-traces flag.
-        if self._config.mlflow_log_traces:
-            import mlflow.openai
-
-            mlflow.openai.autolog()
 
         for table_slug, task in self._tables.items():
             run = self._mlflow.start_run(
@@ -122,15 +130,6 @@ class MlflowTracker:
             # nothing depends on which thread happens to be active.
             self._mlflow.end_run()
             self._log_setup(table_slug, task)
-
-    def trace_for(self, table_slug: str) -> tracing.TraceInfo | None:
-        """The trace target for prompts belonging to this table, if tracing is on."""
-        if not self._config.mlflow_log_traces:
-            return None
-        run_id = self._run_ids.get(table_slug)
-        if not run_id:
-            return None
-        return tracing.TraceInfo(run_id=run_id, tags={"table": table_slug})
 
     def finish(self, stats: models.NlpStats) -> None:
         """Logs the numbers from a completed pass and closes every run."""
@@ -146,16 +145,13 @@ class MlflowTracker:
         self._terminate("FAILED")
 
     def _terminate(self, status: str) -> None:
-        """Closes every run with the given status, flushing traces if needed."""
+        """Closes every run with the given status."""
         if not self._mlflow:
             return
         client = self._mlflow.MlflowClient()
         for run_id in self._run_ids.values():
             with self._soft_fail(f"closing run {run_id}"):
                 client.set_terminated(run_id, status=status)
-        if self._config.mlflow_log_traces:
-            with self._soft_fail("flushing traces"):
-                self._mlflow.flush_trace_async_logging()
 
     @contextlib.contextmanager
     def _soft_fail(self, msg: str) -> Iterator[None]:

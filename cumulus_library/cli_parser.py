@@ -293,16 +293,6 @@ def add_nlp_dev_config(parser: argparse.ArgumentParser) -> None:
         metavar="KEY=VALUE",
         help="Add a tag to every MLflow run. May be passed more than once.",
     )
-    group.add_argument(
-        "--mlflow-log-traces",
-        action="store_true",
-        help=(
-            "Also log the full text of every model request and response as MLflow traces. "
-            "🚨 This sends clinical note text (PHI) to your MLflow tracking server. "
-            "Only use it against a server approved to hold PHI. "
-            "Traces cover the azure and local providers; bedrock is not traced."
-        ),
-    )
 
 
 def add_stage_argument(parser: argparse.ArgumentParser) -> None:

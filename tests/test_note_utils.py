@@ -199,7 +199,6 @@ def test_dev_arguments_are_unregistered_without_dev_mode():
         "--mlflow-experiment=exp",
         "--mlflow-run-name=name",
         "--mlflow-tag=k=v",
-        "--mlflow-log-traces",
     ]
     for flag in dev_only:
         with pytest.raises(SystemExit):
@@ -214,7 +213,6 @@ def test_dev_arguments_are_unregistered_without_dev_mode():
     assert config.mlflow_uri == "sqlite:///x.db"
     assert config.mlflow_experiment == "exp"
     assert config.mlflow_run_name == "name"
-    assert config.mlflow_log_traces is True
     assert config.mlflow_tags == {"k": "v"}
 
 

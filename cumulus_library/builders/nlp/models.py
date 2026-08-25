@@ -24,7 +24,7 @@ from openai.types.chat import ParsedChatCompletion
 from pydantic import BaseModel
 
 from cumulus_library import errors, note_utils
-from cumulus_library.builders.nlp import caching, tracing
+from cumulus_library.builders.nlp import caching
 
 # How many times a client library will transparently retry a request before giving up
 MAX_RETRIES = 5
@@ -51,11 +51,6 @@ class Prompt:
     cache_dir: cfs.FsPath
     cache_namespace: str
     cache_checksum: str
-    # Which MLflow run this prompt's traces belong to, when experiment tracking is on.
-    # Prompts for different tables are in flight on different threads at the same time, so the
-    # owning run has to travel with the prompt - there is no single "current" run to infer it
-    # from. None (the normal case) means "don't trace".
-    trace: tracing.TraceInfo | None = None
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -708,17 +703,13 @@ class Model:
         self.provider.post_init_check()
 
     def prompt(self, prompt: Prompt) -> PromptResponse:
-        # Wrap the provider call, not the cache lookup: cache_wrapper only invokes this on a
-        # miss, so cache hits don't litter the experiment with empty traces. Without tracing
-        # on, traced() hands the method straight back.
-        method = tracing.traced(self.provider.prompt, prompt.trace)
         return caching.cache_wrapper(
             prompt.cache_dir,
             prompt.cache_namespace,
             prompt.cache_checksum,
             lambda x: PromptResponse.from_dict(json.loads(x), prompt.schema),  # from file
             lambda x: json.dumps(x.to_dict()),  # to file
-            method,
+            self.provider.prompt,
             prompt.system,
             prompt.user,
             prompt.schema,

@@ -13,7 +13,7 @@ import pydantic
 import rich
 
 from cumulus_library import base_utils, databases, errors, note_utils
-from cumulus_library.builders.nlp import caching, dispatch, models, tracking, workflow
+from cumulus_library.builders.nlp import caching, dispatch, models, workflow
 
 ESCAPED_WHITESPACE = re.compile(r"(\\\s)+")
 PARQUET_PATTERN = re.compile(r"nlp\.([0-9]+)\.parquet")
@@ -26,12 +26,8 @@ def run_nlp(
     tables: dict[str, workflow.NlpTask],
     filters: list[cfs.NoteFilter],
     db: databases.DatabaseBackend,
-    tracker: tracking.MlflowTracker | None = None,
 ) -> models.NlpStats:
-    """Iterates through the notes, filtering as it goes, and passes notes to NLP
-
-    :keyword tracker: optional MlflowTracker, used to attribute traces to the right run
-    """
+    """Iterates through the notes, filtering as it goes, and passes notes to NLP"""
     stats = models.NlpStats(len(tables))
 
     # If asked to clean, do it
@@ -54,7 +50,7 @@ def run_nlp(
     ]
 
     # Loop through every note and add to the note pool for NLP processing
-    pool = NlpNotePool(nlp_config, db=db, tables=tables, tracker=tracker)
+    pool = NlpNotePool(nlp_config, db=db, tables=tables)
     pool.prepare(notes)
     for note_res in notes.progress_iter("Running NLP..."):
         stats.available += 1
@@ -193,12 +189,10 @@ class NlpNotePool:
         *,
         db: databases.DatabaseBackend,
         tables: dict[str, workflow.NlpTask],
-        tracker: tracking.MlflowTracker | None = None,
     ):
         self._config = nlp_config
         self._db = db
         self._tables = tables
-        self._tracker = tracker
 
         self._notes: dict[str, list[dict]] = {}  # table_slug -> list of output rows
         self.got_response: dict[str, int] = {}  # table_slug -> count of successful responses
@@ -336,9 +330,6 @@ class NlpNotePool:
             cache_dir=self._cache_dir(),
             cache_namespace=self._cache_namespace(table_slug, task),
             cache_checksum=caching.cache_checksum(text),
-            # Carried on the prompt because the worker that runs it can't tell which table it
-            # came from - several tables are in flight at once.
-            trace=self._tracker.trace_for(table_slug) if self._tracker else None,
         )
 
     def _add_response(

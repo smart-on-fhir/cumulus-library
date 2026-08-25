@@ -233,7 +233,6 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
                 filters=note_filters,
                 nlp_config=self._nlp_config,
                 db=config.db,
-                tracker=tracker,
             )
         except Exception:
             if tracker:

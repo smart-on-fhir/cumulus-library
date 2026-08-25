@@ -161,7 +161,6 @@ class NlpConfig:
         self.mlflow_uri = args.get("mlflow_uri") or os.environ.get("MLFLOW_TRACKING_URI")
         self.mlflow_experiment = args.get("mlflow_experiment")
         self.mlflow_run_name = args.get("mlflow_run_name")
-        self.mlflow_log_traces = args.get("mlflow_log_traces", False)
         self.mlflow_tags = _parse_mlflow_tags(args.get("mlflow_tags"))
         # </DevModeFlags>
 

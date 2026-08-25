@@ -319,8 +319,7 @@ export MLFLOW_TRACKING_URI=http://localhost:5000
 
 A server started this way runs on your machine and writes to your local disk, so tracking a run
 keeps everything local. If you point `--mlflow-uri` at a *shared* server, everything described
-below - including note text, if you pass `--mlflow-log-traces` - leaves your machine. See
-[What Data Gets Sent Where](#what-data-gets-sent-where).
+below leaves your machine. See [What Data Gets Sent Where](#what-data-gets-sent-where).
 
 ##### Tracking a Build
 
@@ -344,8 +343,6 @@ cumulus-library build --target my_study --dev \
 - `--mlflow-run-name=NAME`: a base name for the runs. The table name is appended so each run
   stays distinguishable. Defaults to the table name, version, and model.
 - `--mlflow-tag=KEY=VALUE`: tag every run. Pass it more than once for several tags.
-- `--mlflow-log-traces`: 🚨 also record the full text of every model request and response.
-  **This sends clinical note text (PHI) to your tracking server** - see below.
 
 **One run per table.** Each table in your workflow gets its own MLflow run, because that is the
 unit you actually compare - a prompt change to `age` shouldn't move `race`'s numbers.
@@ -388,11 +385,8 @@ Let's look at how the data flows through the system.
 
 If you are using MLflow experiment tracking, there is one more destination to account for.
 By default, tracking sends only counts, costs, timings, your prompts, and your response schema -
-no note text. But `--mlflow-log-traces` additionally sends **the full text of every model request
-and response, which includes clinical notes, to your MLflow tracking server**. Only use that flag
-against a server that is approved to hold PHI, and treat that server with the same care as the
-rest of your PHI storage. (Traces cover the `azure` and `local` providers; `bedrock` requests are
-not traced.)
+no note text. This should not include PHI, but configurations of MLflow _could_ reasonably send
+PHI over the wire to that server. 
 
 #### Examining Results Before Sending to the Cloud
 

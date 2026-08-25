@@ -5,8 +5,9 @@ These run against a real MLflow instance backed by a local sqlite file, rather t
 mlflow API. Tracking is almost entirely about whether numbers land on the right run, and a mock
 would happily accept a call that a real server would reject or file somewhere else.
 
-Like the other NLP builder tests, these share an xdist group - they mutate MLflow's global
-tracking URI, so they must not run beside each other.
+Each test gets its own tracking backend and its own NLP cache dir, so they're safe to run in
+parallel. The cache dir matters: NLP output paths are derived from the study, table, model, and
+version, so without redirecting it these tests would all read and clean the same parquet file.
 """
 
 import datetime
@@ -23,14 +24,20 @@ from cumulus_library.builders.nlp import driver, models, tracking, workflow
 from tests import conftest, nlp_utils
 from tests.nlp_utils import add_dxr
 
-pytestmark = pytest.mark.xdist_group("nlp_tracking")
-
 # Every mocked OpenAI completion reports these, see nlp_utils._completion_for_value
 TOKENS_PER_CALL = models.TokenStats(
     new_input_tokens=14,  # prompt_tokens 19 - cached 5
     cache_read_input_tokens=5,
     output_tokens=10,
 )
+
+
+@pytest.fixture(autouse=True)
+def _autouse_cache_dir(mock_cache_dir):
+    """
+    Autouse this fixture to keep NLP's on-disk cache inside tmp_path.
+    Delegates to the shared ``mock_cache_dir`` fixture defined in (tests/conftest.py).
+    """
 
 
 @pytest.fixture
@@ -177,30 +184,6 @@ def test_cached_notes_report_no_spend(mock_client, tmp_path, mock_db_config, tra
     assert "cost.estimated_usd" not in second.data.metrics or (
         second.data.metrics["cost.estimated_usd"] == 0
     )
-
-
-@mock.patch("openai.OpenAI")
-def test_traces_land_on_their_own_table_run(mock_client, tmp_path, mock_db_config, tracking_uri):
-    """Traces follow the table that asked for them, not whichever run started last.
-
-    MLflow's active-run state is thread-local while trace association is not, so without an
-    explicit link every trace would pile onto one run. This is the regression test for that.
-    """
-    model = nlp_utils.MockModel(mock_client)
-    model.mock_openai_response({"hello": 1})
-    # Concurrency matters here: the bug this guards against only shows up once prompts for
-    # different tables are running on different threads.
-    config = tracked_config(model, tracking_uri, mlflow_log_traces=True, concurrency=2)
-
-    build(tmp_path, mock_db_config, config, make_notes(tmp_path, count=2), "age", "race")
-    mlflow.flush_trace_async_logging()
-
-    runs = runs_by_table()
-    for table in ("age", "race"):
-        traces = mlflow.search_traces(run_id=runs[table].info.run_id, return_type="list")
-        assert len(traces) == 2, f"{table} should own exactly its own 2 traces"
-        for trace in traces:
-            assert trace.info.tags.get("table") == table
 
 
 @mock.patch("openai.OpenAI")
@@ -353,12 +336,6 @@ def test_fail_before_start_is_a_no_op(tracking_uri):
     tracker = make_tracker(tracking_uri)
     tracker.fail()  # no mlflow module resolved yet
     assert tracker.run_ids == {}
-
-
-def test_trace_for_is_none_before_runs_exist(tracking_uri):
-    """Asking for a trace target before start() has opened runs yields nothing to attach to."""
-    tracker = make_tracker(tracking_uri, mlflow_log_traces=True)
-    assert tracker.trace_for("age") is None
 
 
 def test_run_ids_are_exposed_as_a_copy(tracking_uri):
