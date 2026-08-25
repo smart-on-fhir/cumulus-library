@@ -215,13 +215,11 @@ class MlflowTracker:
         yield_rate = with_results / stats.had_text if stats.had_text else 0.0
 
         metrics = {
-            # ETL's metric names, so runs from both projects sit side by side in one experiment.
             "notes.seen": stats.available,
             "notes.with_text": stats.had_text,
             "notes.considered": considered,
             "notes.with_results": with_results,
             "notes.yield_rate": round(yield_rate, 4),
-            # Workflow-wide, not per-table - see the module docstring.
             "workflow.throttle_dropped": stats.throttle_dropped,
         }
 
