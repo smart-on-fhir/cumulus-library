@@ -153,7 +153,7 @@ def add_dev_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def wants_dev_mode(cli_args: list[str] | None = None) -> bool:
+def requests_dev_mode(cli_args: list[str] | None = None) -> bool:
     """Pre-scans the raw arguments for --dev, before argparse gets involved."""
     args = sys.argv[1:] if cli_args is None else cli_args
     return "--dev" in args

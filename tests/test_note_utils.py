@@ -220,9 +220,9 @@ def test_dev_arguments_are_unregistered_without_dev_mode():
 
 def test_dev_mode_is_detected_before_parsing():
     """--dev has to be found by a raw scan, since it decides what the parser will accept."""
-    assert cli_parser.wants_dev_mode(["build", "--dev", "--nlp-subtask=age"]) is True
-    assert cli_parser.wants_dev_mode(["build", "--nlp-subtask=age"]) is False
-    assert cli_parser.wants_dev_mode([]) is False
+    assert cli_parser.requests_dev_mode(["build", "--dev", "--nlp-subtask=age"]) is True
+    assert cli_parser.requests_dev_mode(["build", "--nlp-subtask=age"]) is False
+    assert cli_parser.requests_dev_mode([]) is False
 
 
 def test_mlflow_uri_falls_back_to_the_environment(monkeypatch):
