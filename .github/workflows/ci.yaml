@@ -45,7 +45,7 @@ jobs:
         run: |
           coverage report -m --skip-covered
       - name: Generate coverage report
-        if: github.ref != 'refs/heads/main'
+        if: ${{ github.ref != 'refs/heads/main' && github.event.pull_request.head.repo.full_name  == 'smart-on-fhir/cumulus-library' }}
         uses: orgoro/coverage@v3.3
         with:
             coverageFile: coverage.xml
@@ -54,7 +54,11 @@ jobs:
             thresholdNew: 1
             thresholdModified: 1
             title: "Python Coverage: for details and failures, see the Log Missing Coverage CI step"
-
+      - name: Check coverage threshold (external only)
+        if: ${{ github.ref != 'refs/heads/main' && github.event.pull_request.head.repo.full_name  != 'smart-on-fhir/cumulus-library' }}
+        run: |
+          echo "[report]\nfail_under = 100" >> .coveragerc
+          coverage report -m --skip-covered
 
   lint:
     runs-on: ubuntu-24.04-arm
@@ -82,6 +86,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     permissions:
       id-token: write # This is required for requesting the JWT
+    if: ${{ github.event.pull_request.head.repo.full_name  == 'smart-on-fhir/cumulus-library' }}
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python 
