@@ -44,6 +44,9 @@ jobs:
       - name: Log missing coverage
         run: |
           coverage report -m --skip-covered
+      - name: debug via github event
+        run: |
+          echo "${{github.event}}"
       - name: Generate coverage report
         if: ${{ github.ref != 'refs/heads/main' && github.event.pull_request.head.repo.full_name  == 'smart-on-fhir/cumulus-library' }}
         uses: orgoro/coverage@v3.3
@@ -55,7 +58,7 @@ jobs:
             thresholdModified: 1
             title: "Python Coverage: for details and failures, see the Log Missing Coverage CI step"
       - name: Check coverage threshold (external only)
-        if: ${{ github.ref != 'refs/heads/main' && github.event.pull_request.head.repo.full_name  != 'smart-on-fhir/cumulus-library' }}
+        if: ${{github.event.pull_request.head.repo.full_name  != 'smart-on-fhir/cumulus-library' }}
         run: |
           echo "[report]\nfail_under = 100" >> .coveragerc
           coverage report -m --skip-covered
