@@ -55,10 +55,9 @@ jobs:
             thresholdModified: 1
             title: "Python Coverage: for details and failures, see the Log Missing Coverage CI step"
       - name: Check coverage threshold (external only)
-        if: ${{ github.ref != 'refs/heads/main' && github.event.pull_request.head.repo.full_name  != 'smart-on-fhir/cumulus-library' }}
+        if: ${{github.event.pull_request.head.repo.full_name  != 'smart-on-fhir/cumulus-library' }}
         run: |
-          echo "[report]\nfail_under = 100" >> .coveragerc
-          coverage report -m --skip-covered
+          coverage report -m --skip-covered --fail-under=100
 
   lint:
     runs-on: ubuntu-24.04-arm
