@@ -9,6 +9,7 @@ from cumulus_library import (
     cli_parser,
     note_utils,
 )
+from cumulus_library.builders.nlp import models
 
 # Some convenience salt values to use
 SALT_STR = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
@@ -231,3 +232,33 @@ def test_mlflow_uri_falls_back_to_the_environment(monkeypatch):
 
     monkeypatch.delenv("MLFLOW_TRACKING_URI")
     assert note_utils.NlpConfig({}).mlflow_uri is None
+
+
+@pytest.mark.parametrize("model_class", models._MODELS, ids=lambda cls: cls.MODEL_ID)
+def test_every_model_is_offered_by_the_cli(model_class):
+    """A new model class is unreachable until --nlp-model lists it, which is easy to forget."""
+    parser, _defaults = cli_parser.get_parser()
+    # argparse exits the process if the ID isn't one of the registered choices
+    args = parser.parse_args(["build", "--target=my_study", f"--nlp-model={model_class.MODEL_ID}"])
+    assert note_utils.NlpConfig(vars(args)).model == model_class.MODEL_ID
+
+
+@pytest.mark.parametrize("model_class", models._MODELS, ids=lambda cls: cls.MODEL_ID)
+def test_capability_flags_match_their_provider(model_class):
+    """Per-provider flags should only be tuned on models that offer that provider.
+
+    Turning off (say) AZURE_TEMPERATURE on a Bedrock-only model reads like a fix but does
+    nothing, so catch that mismatch here rather than at the next fatal API error.
+    """
+    flags_by_provider = {
+        "AZURE_ID": ["AZURE_BATCHES", "AZURE_SCHEMA", "AZURE_TEMPERATURE"],
+        "BEDROCK_ID": ["BEDROCK_CACHE", "BEDROCK_SCHEMA", "BEDROCK_TEMPERATURE"],
+    }
+
+    for id_field, flags in flags_by_provider.items():
+        if getattr(model_class, id_field):  # model does offer this provider, tune away
+            continue
+        for flag in flags:
+            assert getattr(model_class, flag) is True, (
+                f"{model_class.__name__} customizes {flag} but has no {id_field}"
+            )
