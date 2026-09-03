@@ -17,7 +17,8 @@ class LoadFromFile(argparse.Action):
             file_args = tomllib.load(f)
             for k, v in file_args.items():
                 k = k.replace("-", "_")
-                if getattr(namespace, k, None) is None:
+                attribute = getattr(namespace, k, None)
+                if attribute is None or attribute is False:
                     setattr(namespace, k, v)
 
 
@@ -179,6 +180,12 @@ def add_dev_argument(parser: argparse.ArgumentParser) -> None:
 def requests_dev_mode(cli_args: list[str] | None = None) -> bool:
     """Pre-scans the raw arguments for --dev, before argparse gets involved."""
     args = sys.argv[1:] if cli_args is None else cli_args
+    if "--file" in args:
+        i = args.index("--file")
+        with open(args[i + 1], "rb") as f:
+            arg_data = tomllib.load(f)
+            if arg_data.get("dev") is True:
+                return True
     return "--dev" in args
 
 
