@@ -16,6 +16,7 @@ class LoadFromFile(argparse.Action):
         with values as f:
             file_args = tomllib.load(f)
             for k, v in file_args.items():
+                k = k.replace("-", "_")
                 if getattr(namespace, k, None) is None:
                     setattr(namespace, k, v)
 
@@ -370,7 +371,9 @@ def add_config_file_argument(parser: argparse.ArgumentParser) -> None:
         "--file",
         type=_toml_open,
         action=LoadFromFile,
-        help="Reads CLI args from a toml config file",
+        help=(
+            "Reads CLI args from a toml config file. Explicit CLI args override args from a file."
+        ),
     )
 
 

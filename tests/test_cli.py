@@ -1411,3 +1411,13 @@ def test_load_args_from_file(mock_cli):
     assert mock_cli.call_args[0][0]["schema_name"] == "foo"
     cli.main(["build", "--file", config_path, "--schema", "bar"])
     assert mock_cli.call_args[0][0]["schema_name"] == "bar"
+    cli.main(
+        [
+            "build",
+            "--schema",
+            "bar",
+            "--file",
+            config_path,
+        ]
+    )
+    assert mock_cli.call_args[0][0]["schema_name"] == "bar"
