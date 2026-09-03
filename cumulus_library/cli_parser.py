@@ -15,7 +15,6 @@ class LoadFromFile(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         with values as f:
             file_args = tomllib.load(f)
-            # print(file_args)
             for k, v in file_args.items():
                 if getattr(namespace, k, None) is None:
                     setattr(namespace, k, v)
