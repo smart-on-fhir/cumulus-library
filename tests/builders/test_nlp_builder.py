@@ -834,6 +834,66 @@ def test_azure_no_schema_support(mock_client, tmp_path, mock_db_config, note_sou
     assert last_kwargs["response_format"] == {"type": "json_object"}
 
 
+@pytest.mark.parametrize(
+    "model_id,sends_temperature",
+    [
+        ("gpt4o", True),
+        # The reasoning models only accept their default temperature, and hard-error on ours.
+        ("gpt54", False),
+    ],
+)
+@nlp_utils.mock_env("azure")
+@mock.patch("openai.AzureOpenAI")
+def test_azure_temperature_support(
+    mock_client, model_id, sends_temperature, tmp_path, mock_db_config, note_source
+):
+    """Only models that still accept a temperature should be sent one"""
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="azure", model_id=model_id)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+    builder.execute_queries(mock_db_config, None)
+    assert builder.stats.got_response[0] == 1
+
+    last_kwargs = model.openai.chat.completions.parse.call_args[1]
+    assert ("temperature" in last_kwargs) is sends_temperature
+    # Seed is honored everywhere, and is the only reproducibility lever left on the models that
+    # dropped temperature - so it should go out with every request, whatever the model.
+    assert last_kwargs["seed"] == 12345
+
+
+@pytest.mark.parametrize(
+    "model_id,inference_config",
+    [
+        ("claude-sonnet45", {"temperature": 0}),
+        # Opus 4.7 and up hard-error on a temperature, and that was the only field we set,
+        # so the whole inferenceConfig should be gone.
+        ("claude-opus48", None),
+    ],
+)
+@mock.patch("boto3.client")
+def test_bedrock_temperature_support(
+    mock_client, model_id, inference_config, tmp_path, mock_db_config, note_source
+):
+    """Only models that still accept a temperature should be sent one"""
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id=model_id)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+    builder.execute_queries(mock_db_config, None)
+    assert builder.stats.got_response[0] == 1
+
+    last_kwargs = model._boto.converse.call_args[1]
+    assert last_kwargs.get("inferenceConfig") == inference_config
+    # Dropping the temperature shouldn't have disturbed the rest of the request
+    assert last_kwargs["modelId"].startswith("us.anthropic.")
+    assert "toolConfig" in last_kwargs
+
+
 @mock.patch("boto3.client")
 def test_bedrock_happy_path(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -1167,6 +1227,10 @@ def test_azure_batching_happy_path(mock_client, tmp_path, mock_db_config, note_s
         assert lines[0]["url"] == "/v1/chat/completions"
         assert lines[0]["body"]["model"] == "gpt-4o"
         assert lines[0]["body"]["messages"][1]["content"] == "hello world"
+        # The batch body is built by the same code that builds a live request, so the
+        # sampling args should match what we'd have sent one note at a time.
+        assert lines[0]["body"]["temperature"] == 0
+        assert lines[0]["body"]["seed"] == 12345
         return SimpleNamespace(id="input")
 
     model.openai.files.create = upload_file

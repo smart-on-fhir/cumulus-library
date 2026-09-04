@@ -236,11 +236,13 @@ class BedrockProvider(Provider):
         *,
         supports_cache: bool = True,
         supports_schema: bool = True,
+        supports_temperature: bool = True,
     ):
         super().__init__()
         self.model_name = model_name
         self.supports_cache = supports_cache
         self.supports_schema = supports_schema
+        self.supports_temperature = supports_temperature
         # Adaptive mode adds client-side rate limiting on top of retries, so a throttled
         # endpoint slows us down instead of us hammering it harder.
         self.client = boto3.client(
@@ -280,6 +282,11 @@ class BedrockProvider(Provider):
             if self.supports_cache:
                 extra_args["toolConfig"]["tools"].append({"cachePoint": {"type": "default"}})
 
+        # Newer reasoning models (e.g. Claude Opus 4.7 and up) have dropped the sampling knobs
+        # entirely, and hard-error with "`temperature` is deprecated for this model"
+        if self.supports_temperature:
+            extra_args["inferenceConfig"] = {"temperature": 0}
+
         system_prompts = [{"text": system}]
         if self.supports_cache:
             system_prompts.append({"cachePoint": {"type": "default"}})
@@ -288,7 +295,6 @@ class BedrockProvider(Provider):
             modelId=self.model_name,
             system=system_prompts,
             messages=[{"role": "user", "content": [{"text": user}]}],
-            inferenceConfig={"temperature": 0},
             **extra_args,
         )
 
@@ -346,6 +352,7 @@ class OpenAIProvider(Provider):
         *,
         max_batch_count: int | None,
         supports_schema: bool,
+        supports_temperature: bool = True,
         deployment: str | None = None,
     ):
         super().__init__()
@@ -357,6 +364,7 @@ class OpenAIProvider(Provider):
         if self.supports_batches:
             self.max_batch_count = min(self.max_batch_count, max_batch_count)
         self.supports_schema = supports_schema
+        self.supports_temperature = supports_temperature
         self.deployment = deployment or model_name
         self.batch_filename = None
         self.batch_rows = 0
@@ -407,17 +415,23 @@ class OpenAIProvider(Provider):
         else:
             response_format = {"type": "json_object"}
 
-        return {
+        args = {
             "model": self.deployment,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
             "seed": 12345,  # arbitrary, just specifying it for reproducibility
-            "temperature": 0,  # minimize temp, also for reproducibility
             "timeout": 120,  # in seconds
             "response_format": response_format,
         }
+
+        # The reasoning models (the GPT-5 family and up) reject any temperature but their
+        # default of 1, with "Unsupported value: 'temperature' does not support 0 with this model."
+        if self.supports_temperature:
+            args["temperature"] = 0  # minimize temp, also for reproducibility
+
+        return args
 
     def _process_completion_result(
         self, response: ParsedChatCompletion, schema: type[BaseModel], batched: bool = False
@@ -648,11 +662,13 @@ class Model:
     AZURE_PRICES: TokenPrices | None = None
     AZURE_BATCHES = True  # turns on batch support
     AZURE_SCHEMA = True  # turns on JSON schema support
+    AZURE_TEMPERATURE = True  # False for models that reject the temperature parameter
 
     BEDROCK_ID = None  # model name in AWS Bedrock
     BEDROCK_PRICES: TokenPrices | None = None
     BEDROCK_CACHE = True  # turns on caching
     BEDROCK_SCHEMA = True  # turns on JSON schema support
+    BEDROCK_TEMPERATURE = True  # False for models that reject the temperature parameter
 
     COMPOSE_ID = None  # docker service name in compose-nlp.yaml
     VLLM_INFO = None  # tuple of vLLM model name, env var stem use for URL, plus default port
@@ -691,6 +707,7 @@ class Model:
                 self.AZURE_ID,
                 max_batch_count=self.max_batch_count if self.AZURE_BATCHES else None,
                 supports_schema=self.AZURE_SCHEMA,
+                supports_temperature=self.AZURE_TEMPERATURE,
                 deployment=self.deployment,
             )
             self.prices = self.AZURE_PRICES
@@ -702,6 +719,7 @@ class Model:
                 self.BEDROCK_ID,
                 supports_cache=self.BEDROCK_CACHE,
                 supports_schema=self.BEDROCK_SCHEMA,
+                supports_temperature=self.BEDROCK_TEMPERATURE,
             )
             self.prices = self.BEDROCK_PRICES
 
@@ -795,6 +813,7 @@ class Gpt5Model(Model):
         output_tokens=0.01,
     )
     AZURE_BATCHES = False
+    AZURE_TEMPERATURE = False  # reasoning models only accept their default temperature
 
 
 class Gpt54Model(Model):
@@ -810,6 +829,7 @@ class Gpt54Model(Model):
         output_tokens=0.02250,
     )
     AZURE_BATCHES = False
+    AZURE_TEMPERATURE = False  # reasoning models only accept their default temperature
 
 
 class Gpt54MiniModel(Model):
@@ -824,6 +844,7 @@ class Gpt54MiniModel(Model):
         output_tokens=0.00450,
     )
     AZURE_BATCHES = False
+    AZURE_TEMPERATURE = False  # reasoning models only accept their default temperature
 
 
 class Gpt54NanoModel(Model):
@@ -838,6 +859,7 @@ class Gpt54NanoModel(Model):
         output_tokens=0.00125,
     )
     AZURE_BATCHES = False
+    AZURE_TEMPERATURE = False  # reasoning models only accept their default temperature
 
 
 class GptOss120bModel(Model):
@@ -910,13 +932,15 @@ class ClaudeSonnet46Model(Model):
 class ClaudeOpus48Model(Model):
     MODEL_ID = "claude-opus48"
     BEDROCK_ID = "us.anthropic.claude-opus-4-8"
+    # Opus 4.7 and later dropped temperature/top_p entirely - sending one is a hard error
+    BEDROCK_TEMPERATURE = False
     BEDROCK_PRICES = TokenPrices(
         # https://aws.amazon.com/bedrock/pricing/ for us-east-1
-        date=datetime.date(2025, 10, 15),
-        new_input_tokens=0.0033,
-        cache_read_input_tokens=0.00033,
-        cache_written_input_tokens=0.004125,
-        output_tokens=0.0165,
+        date=datetime.date(2026, 9, 2),
+        new_input_tokens=0.005,
+        cache_read_input_tokens=0.0005,
+        cache_written_input_tokens=0.00625,
+        output_tokens=0.025,
     )
 
 
