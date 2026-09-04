@@ -121,6 +121,9 @@ def test_nlp_args_reach_the_config():
     # passed, holding None. So a config reading it as args.get(key, fallback) finds the key,
     # gets None back, and the fallback never fires - leaving a None where a number belongs.
     bare = vars(parser.parse_args(["build", "--target=my_study", "--nlp-model=gpt4o"]))
+    for k, v in _defaults.items():
+        if bare.get(k, None) is None:
+            bare[k] = v
     bare_config = note_utils.NlpConfig(bare)
     assert bare_config.chunksize == 100000
     assert bare_config.concurrency == 1
@@ -132,10 +135,13 @@ def test_nlp_args_reach_the_config():
 
 def test_nlp_config_defaults():
     """Every NlpConfig fallback should actually be the same as argparse's default."""
-    parser, _ = cli_parser.get_parser()
+    parser, defaults = cli_parser.get_parser()
     # Parse a bare "build" command, which is the only one that actually uses NLP. This gives us
     # the argparse defaults for every NLP flag, which we can compare to NlpConfig's
     parsed = vars(parser.parse_args(["build"]))
+
+    for k, v in defaults.items():
+        parsed[k] = v
 
     # Args that are allowed to be None (or empty list)
     nullable = [

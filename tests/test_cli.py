@@ -1396,3 +1396,28 @@ def test_cli_version_bump_skips_nlp_cache(mock_client, tmp_path, mock_cache_dir)
     build(version=1, answer=2)
     assert parse.call_count == 2
     assert upload_result(1) == [({"hello": 2},)]
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("cumulus_library.cli.run_cli")
+def test_load_args_from_file(mock_cli):
+    config_path = str(pathlib.Path(__file__).parent / "test_data/cli-args.toml")
+    cli.main(["build"])
+    assert mock_cli.call_args[0][0]["schema_name"] is None
+    cli.main(["build", "--file", config_path])
+    assert mock_cli.call_args[0][0]["schema_name"] == "foo"
+    cli.main(["build", "--file", config_path, "--schema", "bar"])
+    assert mock_cli.call_args[0][0]["schema_name"] == "bar"
+    cli.main(
+        [
+            "build",
+            "--schema",
+            "bar",
+            "--file",
+            config_path,
+        ]
+    )
+    assert mock_cli.call_args[0][0]["schema_name"] == "bar"

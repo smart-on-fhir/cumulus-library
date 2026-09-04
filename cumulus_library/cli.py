@@ -356,6 +356,7 @@ def run_cli(args: dict):
             elif args["action"] == "build":
                 notes = note_utils.NoteSource(args["note_dir"])
                 nlp_config = note_utils.NlpConfig(args)
+
                 if args["builder"]:
                     runner.build_matching_files(
                         study_dict[args["target"]],
@@ -550,6 +551,7 @@ def main(cli_args=None):
 
     if args.get("data_path"):
         args["data_path"] = get_abs_path(args["data_path"])
+
     return run_cli(args)
 
 
