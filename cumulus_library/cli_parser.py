@@ -212,7 +212,6 @@ def add_nlp_config(parser: argparse.ArgumentParser, dev: bool = False) -> None:
     group.add_argument(
         "--nlp-provider",
         choices=["azure", "bedrock", "local"],
-        default="local",
         help="Which model provider to use for NLP (default is local)",
     )
     group.add_argument(
@@ -285,7 +284,6 @@ def add_nlp_dev_config(parser: argparse.ArgumentParser) -> None:
         type=str,
         dest="select_by_table",
         help='Override workflow\'s "select_by_table" values.',
-        default=None,
     )
     group.add_argument(
         "--mlflow",
@@ -327,9 +325,7 @@ def add_nlp_dev_config(parser: argparse.ArgumentParser) -> None:
 
 def add_stage_argument(parser: argparse.ArgumentParser) -> None:
     """Adds --stage arg to a subparser"""
-    parser.add_argument(
-        "--stage", help="Selects which stage from the manifest to run", default="default"
-    )
+    parser.add_argument("--stage", help="Selects which stage from the manifest to run")
 
 
 def add_table_builder_argument(parser: argparse.ArgumentParser) -> None:
@@ -379,7 +375,8 @@ def add_config_file_argument(parser: argparse.ArgumentParser) -> None:
         type=_toml_open,
         action=LoadFromFile,
         help=(
-            "Reads CLI args from a toml config file. Explicit CLI args override args from a file."
+            "Reads CLI args from a toml config file. Explicit CLI args override args from a file. "
+            "Make sure you target destinations if an arg has append behavior."
         ),
     )
 
@@ -606,6 +603,8 @@ AWS Athena, the following order of preference is used to select credentials:
         "db_type": "athena",
         "build_type": "default",
         "url": "https://aggregator.smartcumulus.org/",
+        "nlp_provider": "local",
+        "stage": "default",
     }
 
     return parser, defaults
