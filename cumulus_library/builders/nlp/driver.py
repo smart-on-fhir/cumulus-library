@@ -56,7 +56,7 @@ def run_nlp(
         stats.available += 1
 
         note_ref = f"{note_res['resourceType']}/{note_res['id']}"
-
+        anon_note_ref = pool._convert_to_anon_ids([note_ref])[0]
         try:
             text = cfs.get_text_from_note_res(note_res)
         except Exception:  # noqa: S112
@@ -64,7 +64,7 @@ def run_nlp(
         stats.had_text += 1
 
         for idx, table_slug in enumerate(tables):
-            if note_ref in prev_upload_refs[idx]:
+            if anon_note_ref in prev_upload_refs[idx]:
                 continue
             if not filters[idx](note_res, text=text):
                 continue
@@ -251,6 +251,15 @@ class NlpNotePool:
     def throttle_dropped(self) -> int:
         return self._dispatcher.throttle_dropped
 
+    def _convert_to_anon_ids(self, refs: list[str]) -> list[str]:
+        for i, ref in enumerate(refs):
+            if ref is not None:
+                id_to_check = ref.split("/")[1]
+                # Ids are expected to be 64 char hex values
+                if len(id_to_check) != 64 or not all(x in string.hexdigits for x in id_to_check):
+                    refs[i] = cfs.anon_ref(ref, self._config.salt)
+        return refs
+
     def prepare(self, notes: note_utils.NoteSource) -> None:
         # In batching mode, we need to do some preparations.
         # Namely, we (a) have to resume any previous batches.
@@ -366,6 +375,12 @@ class NlpNotePool:
         # expected an Enum (all our enums are strings and default values are often strings)
         parsed = response.answer.model_dump(mode="json", serialize_as_any=True)
         self._fix_spans(note_ref, text, parsed)
+
+        # Did we get non-anonymized IDs? If so, let's hash our results
+
+        note_ref, subject_ref, encounter_ref = self._convert_to_anon_ids(
+            [note_ref, subject_ref, encounter_ref]
+        )
 
         # If you change these, change the schema definition in schema_for_task() as well as the
         # nlp.md documentation.
