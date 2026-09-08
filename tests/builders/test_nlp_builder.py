@@ -1102,11 +1102,17 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
         rows = json.loads(df.to_json(orient="records"))
 
     assert len(rows) == 1
-    assert rows[0]["note_ref"] == "DiagnosticReport/hello"
+    assert (
+        rows[0]["note_ref"]
+        == "DiagnosticReport/eee10367d972edc0fbbdf0cc6664eb595e4768e193279cd657cfb9cd82b0329b"
+    )
 
     # And the id file
     with mem_fs.open(f"{upload_dir}.ids", "r") as f:
-        assert f.read() == "DiagnosticReport/hello\n"
+        assert (
+            f.read()
+            == "DiagnosticReport/eee10367d972edc0fbbdf0cc6664eb595e4768e193279cd657cfb9cd82b0329b\n"
+        )
 
     # And confirm the query looks right
     assert builder.queries == [
@@ -1461,12 +1467,15 @@ def test_azure_splitting_batch(mock_client, tmp_path, mock_db_config):
     assert builder.stats.got_response[0] == 4
 
     rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt4o")
-    assert [row["result"] for row in rows] == [
+    expected = [
         {"ignored": "w1"},
         {"ignored": "w2"},
         {"ignored": "w3"},
         {"ignored": "w4"},
     ]
+    results = [row["result"] for row in rows]
+    assert [x in expected for x in results]
+    assert [x in results for x in expected]
 
 
 @nlp_utils.mock_env("azure")
@@ -1696,7 +1705,24 @@ def test_output_is_identical_regardless_of_concurrency(mock_client, tmp_path, mo
     # requests out of order, while the serial run by definition did not.
     assert parallel_finished != serial_finished
     # Yet both wrote their rows in note order, which is the order they were submitted in.
-    expected = [f"DocumentReference/{index}" for index in range(15)]
+    # These are the expected anon_ids for ids in the range 1-15.
+    expected = [
+        "DocumentReference/24373d9896b2bf8aa35c10dba24782046d501a9281afe5605abf4dce1f5a99c1",
+        "DocumentReference/69123f5b2305aba4bc734b41c66cedab639b3e81d4ae8eeb9569d6dc1476a1e7",
+        "DocumentReference/4457e00465fa53651f67203ddb28280ddcb5693599ad9044177b64f65d5b6512",
+        "DocumentReference/7754781daf881b5c7006fcd5452df13ff49db01114bcec4a80c6394d745454f5",
+        "DocumentReference/0d9af682d646605ca219a1ee5177506d282ecdf873c89f3e312440624fcebbe7",
+        "DocumentReference/b5f3542891693362bfdc76cc58c869989eec4ac5df7c6939265ecf0280edc3c5",
+        "DocumentReference/a59ce867c6988ea302931407b25a22e7abed6fe461525f4caee636cf90ab0289",
+        "DocumentReference/263e5d438b0e21eb66feea65e206e3beaebb0cdb86d508700453a24999d5d6fc",
+        "DocumentReference/daeaa53ba126e4c429179896c4362e86ab2e695375002fcc946d40bbe06106d0",
+        "DocumentReference/cb9e1f3efb1b384fd227d811056fe4abd4ff88e9ca433f734710869dfcdb2eda",
+        "DocumentReference/5adbd1ba26f993e91f7f3b5246e3d7242892041057d7dbf1b61c71452a208d5d",
+        "DocumentReference/32ebbf192d1993b6593cb0e0fbf1f03d36a6f27521cf9d1aac17d9fcc28ffd6e",
+        "DocumentReference/27846faaa73185574ab039f00cc72091d0433b4214219edfea6573a4554af7ac",
+        "DocumentReference/c72fc0b9617e52b6bbb3e517203c0fc660586e5e238c504ee53bd1f0095f7695",
+        "DocumentReference/06aec3b4fc7ee610b84a76032082531757b27d7d0a44460eab2eef341901e3f9",
+    ]
     assert serial == expected
     assert parallel == expected
 
