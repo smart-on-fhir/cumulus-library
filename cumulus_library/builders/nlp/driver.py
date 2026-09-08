@@ -361,6 +361,16 @@ class NlpNotePool:
         else:  # check for dxreport encounter field
             encounter_ref = note_res.get("encounter", {}).get("reference")
 
+        # Did we get non-anonymized IDs? If so, let's hash our results
+        refs = [note_ref, subject_ref, encounter_ref]
+        for i, ref in enumerate(refs):
+            if ref is not None:
+                id_to_check = ref.split("/")[1]
+                # Ids are expected to be 64 char hex values
+                if len(id_to_check) != 64 or not all(x in string.hexdigits for x in id_to_check):
+                    refs[i] = cfs.anon_ref(ref, self._config.salt)
+        note_ref, subject_ref, encounter_ref = refs
+
         # Convert pydantic model to JSON and fix up spans to be ints instead of strings.
         # Pass serialize_as_any=True so we don't get warnings about finding strings when it
         # expected an Enum (all our enums are strings and default values are often strings)

@@ -218,6 +218,37 @@ def test_filter(mock_client, tmp_path, mock_db_config):
     with contextlib.redirect_stdout(console_output):
         builder.execute_queries(mock_db_config, None)
     assert expected_stats in console_output.getvalue()
+    table = (
+        mock_db_config.db.cursor()
+        .execute(
+            """SELECT note_ref,encounter_ref,subject_ref 
+        FROM example_nlp__nlp_all_gpt_oss_120b
+        ORDER BY note_ref DESC """
+        )
+        .fetchall()
+    )
+    assert table == [
+        (
+            "DiagnosticReport/b5f3542891693362bfdc76cc58c869989eec4ac5df7c6939265ecf0280edc3c5",
+            "Encounter/99dc09ba05c815768052720a0004132a58fbe14801f6666f85baaad778de6341",
+            None,
+        ),
+        (
+            "DiagnosticReport/7754781daf881b5c7006fcd5452df13ff49db01114bcec4a80c6394d745454f5",
+            "Encounter/99dc09ba05c815768052720a0004132a58fbe14801f6666f85baaad778de6341",
+            None,
+        ),
+        (
+            "DiagnosticReport/4457e00465fa53651f67203ddb28280ddcb5693599ad9044177b64f65d5b6512",
+            "Encounter/99dc09ba05c815768052720a0004132a58fbe14801f6666f85baaad778de6341",
+            None,
+        ),
+        (
+            "DiagnosticReport/0d9af682d646605ca219a1ee5177506d282ecdf873c89f3e312440624fcebbe7",
+            "Encounter/99dc09ba05c815768052720a0004132a58fbe14801f6666f85baaad778de6341",
+            None,
+        ),
+    ]
 
 
 @pytest.mark.parametrize(
