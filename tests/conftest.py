@@ -279,8 +279,22 @@ def debug_diff_tables(cols, found, ref, pos=0):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def mock_env():
-    with mock.patch.dict(os.environ, clear=True):
+def mock_env(tmp_path_factory):
+    # Point botocore at a throwaway credentials file holding the profiles the
+    # tests use. Without it, building an Athena backend raises ProfileNotFound
+    # on any machine that has never run the AWS CLI.
+    credentials = tmp_path_factory.mktemp("aws") / "credentials"
+    credentials.write_text(
+        "\n".join(
+            f"[{name}]\naws_access_key_id = test\naws_secret_access_key = test\n"
+            for name in ("test", "profile")
+        )
+    )
+    env = {
+        "AWS_CONFIG_FILE": str(credentials),
+        "AWS_SHARED_CREDENTIALS_FILE": str(credentials),
+    }
+    with mock.patch.dict(os.environ, env, clear=True):
         yield
 
 
