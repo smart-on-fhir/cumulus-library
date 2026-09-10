@@ -175,6 +175,8 @@ class NlpStats:
         # Notes we abandoned because we kept getting rate limited. Tracked separately from
         # other failures so a run that was merely going too fast says so out loud.
         self.throttle_dropped = 0
+        # Notes we abandoned because their worker stopped responding.
+        self.stuck_dropped = 0
         self.token_stats = TokenStats()
         # Same numbers as token_stats, but split by table. The pooled total is what we print;
         # this is what lets experiment tracking say which table spent what.

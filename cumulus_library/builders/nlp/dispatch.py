@@ -21,22 +21,40 @@ from cumulus_library import note_utils
 from cumulus_library.builders.nlp import models
 
 # Base wait when a server rate-limits us without saying for how long. This doubles with each
-# attempt (5s, 10s, 20s, 40s), so an endpoint that keeps throttling us keeps easing off rather
+# attempt (2s, 4s, 8s, 16s), so an endpoint that keeps throttling us keeps easing off rather
 # than us retrying at a fixed interval that was evidently already too aggressive.
-DEFAULT_COOLDOWN_SECONDS = 5
-# Ceiling of 5m on any single wait, so runs don't stall for hours. With the constants above our
+DEFAULT_COOLDOWN_SECONDS = 2
+# Ceiling of 1m on any single wait, so runs don't stall for hours. With the constants above our
 # own backoff stays well under this, so in practice only a server request can reach it.
-MAX_COOLDOWN_SECONDS = 300
+MAX_COOLDOWN_SECONDS = 60
 # How many times to re-issue a single note that keeps getting rate limited. This is on top of
 # the retries the client SDKs already do internally (see models.MAX_RETRIES).
 MAX_THROTTLE_RETRIES = 3
 # Sanity check on user input, to avoid OOMing the machine
 MAX_CONCURRENCY = 16
 
+# How long to wait on a single note's result before treating its worker as stuck.
+# Results are drained in submission order, so a worker that never returns takes down the whole run
+#
+# This is deliberately generous. A note that is merely being rate limited waits far less than
+# this, and the extension below covers the case where it doesn't.
+STUCK_NOTE_SECONDS = 120
+# Ceiling on those extensions, so a permanently-cooling endpoint can't stall us indefinitely
+MAX_STUCK_EXTENSIONS = 5
+# How long to wait for workers to exit at shutdown.
+WORKER_JOIN_SECONDS = 10
+
 
 class ThrottledError(Exception):
     """
     Raised when a note kept getting rate limited and we gave up on it.
+    Deliberately not a CumulusLibraryError: this never escapes the NLP driver.
+    """
+
+
+class StuckError(Exception):
+    """
+    Raised when a note's worker stopped responding and we abandoned the note to keep going.
     Deliberately not a CumulusLibraryError: this never escapes the NLP driver.
     """
 
@@ -133,6 +151,8 @@ class PromptDispatcher:
         # Notes rate limited to the point of giving up. Surfaced to the user at the end of a
         # run, because otherwise a throttled run quietly produces a partial table.
         self.throttle_dropped = 0
+        # Notes abandoned because their worker stopped responding.
+        self.stuck_dropped = 0
 
         # Bound how far the note reader may run ahead of the workers. This is the memory
         # ceiling for in-flight work, and keeps the progress bar honest.
@@ -209,10 +229,22 @@ class PromptDispatcher:
         for _ in self._workers:
             self._queue.put(None)
         for worker in self._workers:
-            worker.join()
+            # Bounded, because a worker wedged in a socket read will never see its shutdown
+            # sentinel. They're daemon threads, so leaving one behind can't outlive the process,
+            # and hanging shutdown on it would undo the point of the timeout in _finish_one.
+            worker.join(timeout=WORKER_JOIN_SECONDS)
         self._workers = []
 
         return results
+
+    def _any_endpoint_cooling_down(self) -> bool:
+        """Whether any endpoint is deliberately holding requests back right now."""
+        now = time.monotonic()
+        for endpoint in self.endpoints:
+            with endpoint.lock:
+                if endpoint.cooldown_until > now:
+                    return True
+        return False
 
     def _finish_one(self) -> Result:
         """Pops the oldest outstanding item and blocks until it resolves.
@@ -221,10 +253,30 @@ class PromptDispatcher:
         costs some head-of-line blocking, but under throttling that stall is desirable anyway.
         """
         item = self._pending.popleft()
-        try:
-            return Result(context=item.context, response=item.future.result())
-        except Exception as exc:
-            return Result(context=item.context, error=exc)
+        for extension in range(MAX_STUCK_EXTENSIONS + 1):
+            try:
+                return Result(
+                    context=item.context, response=item.future.result(timeout=STUCK_NOTE_SECONDS)
+                )
+            except TimeoutError as exc:
+                # If the timeout is for reasons the future knows about, just finish
+                if item.future.done():
+                    return Result(context=item.context, error=exc)
+
+                # Waiting out a cooldown is the system working as intended, not a wedge, so
+                # don't count it against the note.
+                if extension < MAX_STUCK_EXTENSIONS and self._any_endpoint_cooling_down():
+                    continue
+
+                # Otherwise, the note is stuck and we have to abandon it to keep the run going.
+                self.stuck_dropped += 1
+                waited = STUCK_NOTE_SECONDS * (extension + 1)
+                return Result(
+                    context=item.context,
+                    error=StuckError(f"no response after {waited:,}s; abandoning this note"),
+                )
+            except Exception as exc:
+                return Result(context=item.context, error=exc)
 
     def _worker_loop(self, endpoint: Endpoint) -> None:
         while (item := self._queue.get()) is not None:

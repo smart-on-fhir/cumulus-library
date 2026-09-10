@@ -244,6 +244,15 @@ so a second pass only pays for what's missing.
 Note that concurrency does not apply to `--batch-nlp`, which is already a bulk API. Batch mode
 also only supports a single `--azure-deployment`.
 
+#### When a Request Stops Answering
+
+Separately from rate limiting, a request can go out and simply never come back. This shows up as
+a run that looks dead: no new rows for hours, barely any CPU in use, nothing obviously wrong.
+
+A note whose request stops answering is eventually abandoned, and the run keeps going. The
+end-of-run summary reports how many notes that cost, and re-running picks them up - every note
+that did succeed is cached in your PHI dir, so a second pass only pays for what's missing.
+
 ### Study Development Mode
 
 Some NLP arguments only make sense while you are iterating on a study - choosing a prompt,

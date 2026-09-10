@@ -6,12 +6,15 @@ test failures. We weren't able to debug why, so we grouped these tests up. TODO:
 """
 
 import binascii
+import collections
+import concurrent.futures
 import contextlib
 import hashlib
 import io
 import json
 import os
 import pathlib
+import queue
 import threading
 import time
 from collections.abc import Iterator
@@ -607,6 +610,59 @@ def test_span_correction(mock_client, tmp_path, mock_db_config):
 
     failure_msg = "Could not match span received from NLP server for DiagnosticReport/dxr: forth"
     assert failure_msg in console_output.getvalue()
+
+
+@mock.patch("openai.OpenAI")
+def test_degenerate_spans_do_not_match_everywhere(mock_client, tmp_path, mock_db_config):
+    """A span of only punctuation/whitespace must contribute no spans, not one per character.
+
+    Such a span strips to "", which as a regex matches at every offset in the note. Before the
+    guard in _fix_spans, a single one of these emitted len(text)+1 span pairs -- held in memory
+    until the chunk flushed, then written to parquet -- and reported itself as found.
+    """
+    workflow_path = conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "nlp",
+            "tables": {
+                "hello_world": {
+                    "response_schema": """{
+                        "title":"test", "type": "object", "properties": {
+                            "spans": {"type": "array", "items": {"type": "string"}}
+                        }
+                    }""",
+                },
+            },
+        },
+        "nlp.workflow",
+    )
+
+    note_text = "First, second third fourth."
+    with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
+        add_dxr("dxr", note_text, f)
+
+    source = note_utils.NoteSource([tmp_path])
+
+    model = nlp_utils.MockModel(mock_client)
+    # "second" is real and must still be found; the rest all strip to empty.
+    model.mock_openai_response({"spans": ["second", "...", "   ", "", " -- "]})
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
+    )
+
+    console_output = io.StringIO()
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+
+    rows = read_rows(mock_db_config, "example_nlp__nlp_hello_world_gpt_oss_120b")
+    # Only the real span survives. Without the guard this would hold 4 * (len(note_text) + 1)
+    # extra pairs on top of it.
+    assert rows[0]["result"] == {"spans": [[7, 13]]}
+
+    # Each degenerate span is reported as unmatched rather than silently counted as found.
+    output = console_output.getvalue()
+    assert output.count("Could not match span received from NLP server") == 4
 
 
 @mock.patch("openai.OpenAI")
@@ -2011,3 +2067,88 @@ def test_capped_cooldown_is_explained():
         quiet.start_cooldown(None, attempt=99)
     assert console_output.getvalue() == ""
     assert quiet.cooldown_until - time.monotonic() <= nlp_dispatch.MAX_COOLDOWN_SECONDS
+
+
+def test_stuck_worker_does_not_freeze_the_run(monkeypatch):
+    """A worker that never returns must cost us one note, not the whole run."""
+    monkeypatch.setattr(nlp_dispatch, "STUCK_NOTE_SECONDS", 0.1)
+    monkeypatch.setattr(nlp_dispatch, "MAX_STUCK_EXTENSIONS", 0)
+
+    release = threading.Event()
+
+    def prompt(prompt_obj):
+        if prompt_obj.user == "stuck":
+            release.wait()  # never set until teardown: this worker is gone for the run
+            return "unreachable"
+        return f"ok:{prompt_obj.user}"
+
+    model = mock.MagicMock()
+    model.prompt.side_effect = prompt
+    model.MODEL_ID = "gpt-oss-120b"
+    endpoint = nlp_dispatch.Endpoint(model=model, name="dep-a")
+
+    dispatcher = nlp_dispatch.PromptDispatcher.__new__(nlp_dispatch.PromptDispatcher)
+    dispatcher.endpoints = [endpoint]
+    dispatcher.concurrency = 2
+    dispatcher.throttle_dropped = 0
+    dispatcher.stuck_dropped = 0
+    dispatcher._max_pending = 4
+    dispatcher._pending = collections.deque()
+    dispatcher._throttle_lock = threading.Lock()
+    dispatcher._queue = queue.Queue()
+    dispatcher._workers = []
+    for index in range(dispatcher.concurrency):
+        worker = threading.Thread(
+            target=dispatcher._worker_loop, args=(endpoint,), daemon=True, name=f"w{index}"
+        )
+        worker.start()
+        dispatcher._workers.append(worker)
+
+    try:
+        for user in ["stuck", "second", "third"]:
+            dispatcher.submit(SimpleNamespace(user=user), user)
+        results = dispatcher.finish()
+
+        # The stuck note comes back as a failure rather than never coming back at all...
+        assert [result.context for result in results] == ["stuck", "second", "third"]
+        assert isinstance(results[0].error, nlp_dispatch.StuckError)
+        assert dispatcher.stuck_dropped == 1
+
+        # ...and crucially, the notes queued behind it still completed.
+        assert [result.response for result in results[1:]] == ["ok:second", "ok:third"]
+        assert [result.error for result in results[1:]] == [None, None]
+    finally:
+        release.set()
+
+
+def test_cooldown_extends_the_stuck_deadline(monkeypatch):
+    """A note waiting out a rate limit is patient, not wedged, and must not be dropped."""
+    monkeypatch.setattr(nlp_dispatch, "STUCK_NOTE_SECONDS", 0.05)
+
+    endpoint = nlp_dispatch.Endpoint(model=mock.MagicMock(), name="dep-a")
+    dispatcher = nlp_dispatch.PromptDispatcher.__new__(nlp_dispatch.PromptDispatcher)
+    dispatcher.endpoints = [endpoint]
+    dispatcher.stuck_dropped = 0
+    dispatcher._pending = collections.deque()
+
+    item = nlp_dispatch._WorkItem(
+        future=concurrent.futures.Future(), prompt=mock.MagicMock(), context="slow"
+    )
+    dispatcher._pending.append(item)
+
+    # Hold the endpoint back, then resolve the note while it is still cooling down.
+    endpoint.start_cooldown(2)
+
+    def resolve_later():
+        time.sleep(0.3)  # several STUCK_NOTE_SECONDS worth of extensions
+        item.future.set_result("late but fine")
+
+    finisher = threading.Thread(target=resolve_later, daemon=True)
+    finisher.start()
+
+    result = dispatcher._finish_one()
+    finisher.join(timeout=5)
+
+    assert result.response == "late but fine"
+    assert result.error is None
+    assert dispatcher.stuck_dropped == 0
