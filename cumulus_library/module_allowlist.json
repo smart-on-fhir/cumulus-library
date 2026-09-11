@@ -12,6 +12,7 @@
         "irae": "cumulus_library_kidney_transplant",
         "loinc": "cumulus_library_loinc",
         "opioid": "cumulus_library_opioid",
+        "pcx": "cumulus_library_pcx",
         "rxnorm": "cumulus_library_rxnorm",
         "suicide_los": "cumulus_library_suicidality_los",
         "umls": "cumulus_library_umls"
