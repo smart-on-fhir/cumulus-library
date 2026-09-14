@@ -2,6 +2,7 @@
     "desc":
         "this dict lists which modules are allowed to be Python-imported (and their study_prefix)",
     "allowlist": {
+        "cancer_mtx": "cumulus_library_pcx",
         "catalog": "cumulus_library_catalog",
         "covid_symptom": "cumulus_library_covid",
         "data_metrics": "cumulus_library_data_metrics",
@@ -12,7 +13,6 @@
         "irae": "cumulus_library_kidney_transplant",
         "loinc": "cumulus_library_loinc",
         "opioid": "cumulus_library_opioid",
-        "pcx": "cumulus_library_pcx",
         "rxnorm": "cumulus_library_rxnorm",
         "suicide_los": "cumulus_library_suicidality_los",
         "umls": "cumulus_library_umls"
