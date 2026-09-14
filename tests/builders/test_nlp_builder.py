@@ -2152,3 +2152,87 @@ def test_cooldown_extends_the_stuck_deadline(monkeypatch):
     assert result.response == "late but fine"
     assert result.error is None
     assert dispatcher.stuck_dropped == 0
+
+
+@nlp_utils.mock_env("azure")
+@mock.patch("openai.AzureOpenAI")
+def test_stuck_notes_are_reported(mock_client, tmp_path, mock_db_config):
+    """Abandoning a stuck note has to be loud, for the same reason throttling is."""
+    source = _write_notes(tmp_path, 1)
+    model = nlp_utils.MockModel(mock_client, provider="azure")
+
+    STUCK_NOTE_SECONDS = 0.05
+    MAX_STUCK_EXTENSIONS = 0
+
+    def handler(**kwargs):
+        # Outlast the patched wait, but still return, so the worker can shut down.
+        time.sleep(STUCK_NOTE_SECONDS * 6)
+        return {}
+
+    model.mock_openai_handler(handler)
+
+    config = model.nlp_config(concurrency=1)
+    console_output = io.StringIO()
+    with mock.patch.object(nlp_dispatch, "STUCK_NOTE_SECONDS", STUCK_NOTE_SECONDS):
+        with mock.patch.object(nlp_dispatch, "MAX_STUCK_EXTENSIONS", MAX_STUCK_EXTENSIONS):
+            with contextlib.redirect_stdout(console_output):
+                builder = _run(tmp_path, config, source, mock_db_config)
+
+    assert builder.stats.got_response[0] == 0
+    assert builder.stats.stuck_dropped == 1
+    output = console_output.getvalue()
+    assert "1 note abandoned after the request stopped responding" in output
+    assert "dropped connection" in output
+
+
+def test_stuck_note_is_dropped_when_nothing_is_cooling_down(monkeypatch):
+    """Extensions exist to wait out cooldowns, so an idle endpoint buys a stuck note nothing."""
+    monkeypatch.setattr(nlp_dispatch, "STUCK_NOTE_SECONDS", 0.01)
+    monkeypatch.setattr(nlp_dispatch, "MAX_STUCK_EXTENSIONS", 2)
+
+    # The note is waiting on a worker that is not cooling down, so it is stuck rather than patient.
+    endpoint = nlp_dispatch.Endpoint(model=mock.MagicMock(), name="dep-a")
+    dispatcher = nlp_dispatch.PromptDispatcher.__new__(nlp_dispatch.PromptDispatcher)
+    dispatcher.endpoints = [endpoint]
+    dispatcher.stuck_dropped = 0
+    dispatcher._pending = collections.deque()
+    dispatcher._pending.append(
+        nlp_dispatch._WorkItem(
+            future=concurrent.futures.Future(), prompt=mock.MagicMock(), context="stuck"
+        )
+    )
+
+    # Nothing is holding the endpoint back, so the note is stuck rather than merely patient.
+    assert dispatcher._any_endpoint_cooling_down() is False
+
+    result = dispatcher._finish_one()
+    assert result.context == "stuck"
+    assert isinstance(result.error, nlp_dispatch.StuckError)
+    assert dispatcher.stuck_dropped == 1
+
+
+def test_request_timeout_is_not_counted_as_stuck(monkeypatch):
+    """A request that timed out on its own answered us - the worker isn't stuck."""
+    monkeypatch.setattr(nlp_dispatch, "STUCK_NOTE_SECONDS", 5)
+
+    dispatcher = nlp_dispatch.PromptDispatcher.__new__(nlp_dispatch.PromptDispatcher)
+    dispatcher.endpoints = [nlp_dispatch.Endpoint(model=mock.MagicMock(), name="dep-a")]
+    dispatcher.stuck_dropped = 0
+    dispatcher._pending = collections.deque()
+
+    item = nlp_dispatch._WorkItem(
+        future=concurrent.futures.Future(), prompt=mock.MagicMock(), context="slow"
+    )
+
+    # Test what happens if a model raises a TimeoutError; reaches us through the future
+    # so it comes back as that error instead of costing an extension on stuck/waiting.
+    error = TimeoutError("request timed out")
+    item.future.set_exception(error)
+    dispatcher._pending.append(item)
+
+    result = dispatcher._finish_one()
+
+    assert result.context == "slow"
+    assert result.error is error
+    assert result.response is None
+    assert dispatcher.stuck_dropped == 0
