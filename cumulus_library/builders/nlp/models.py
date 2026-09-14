@@ -649,7 +649,7 @@ class VllmProvider(OpenAIProvider):
         except UnreachableModel as exc:
             raise UnreachableModel(  # add a little suggestion
                 f"Try running 'docker compose up {self.compose_id} --wait'.\n"
-                "Or pass --provider to specify a cloud NLP provider."
+                "Or pass --nlp-provider to specify a cloud NLP provider."
             ) from exc
 
 
