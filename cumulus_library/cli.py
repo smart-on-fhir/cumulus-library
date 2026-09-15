@@ -197,7 +197,7 @@ class StudyRunner:
     def export_study(
         self,
         target: pathlib.Path,
-        data_path: pathlib.Path,
+        data_path: cfs.FsPath,
         archive: bool,
         *,
         options: dict[str, str],
@@ -209,7 +209,7 @@ class StudyRunner:
         :param archive: If true, will export all tables, otherwise uses manifest list
         :param options: The dictionary of study-specific options
         """
-        manifest = study_manifest.StudyManifest(target, data_path, options=options)
+        manifest = study_manifest.StudyManifest(target, str(data_path), options=options)
         exporter.export_study(
             config=self.get_config(manifest),
             manifest=manifest,
@@ -396,7 +396,7 @@ def run_cli(args: dict):
                         sys.exit()
                 runner.export_study(
                     study_dict[args["target"]],
-                    args["data_path"],
+                    cfs.FsPath(args["data_path"]),
                     args["archive"],
                     options=args["options"],
                 )
@@ -550,7 +550,13 @@ def main(cli_args=None):
     cfs.FsPath.register_options(region=args.get("region"))
 
     if args.get("data_path"):
-        args["data_path"] = get_abs_path(args["data_path"])
+        data_path_as_cfs = cfs.FsPath(args["data_path"])
+        if args["action"] not in {"export", "upload"} and not data_path_as_cfs.is_local:
+            sys.exit("Remote data paths are only supported for export and upload commands.")
+
+        if data_path_as_cfs.is_local:
+            # don't need absolute path for S3 paths
+            args["data_path"] = get_abs_path(args["data_path"])
 
     return run_cli(args)
 
