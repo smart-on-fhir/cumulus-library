@@ -145,6 +145,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             table.add_row("   fresh LLM calls:", f"{stats.from_model[idx]:,}")
         rich.get_console().print(table)
         self._print_throttle_warning(stats)
+        self._print_stuck_warning(stats)
 
     def _print_throttle_warning(self, stats: models.NlpStats) -> None:
         """Calls out notes we abandoned to rate limiting, which otherwise leave a silent gap.
@@ -160,6 +161,18 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             "repeated rate limiting, and are missing from the results.\n"
             " Re-run to pick them up (cached notes are free), and consider lowering "
             "--nlp-concurrency or adding another --azure-deployment.",
+            highlight=False,
+        )
+
+    def _print_stuck_warning(self, stats: models.NlpStats) -> None:
+        """Calls out notes abandoned because their worker stopped responding."""
+        if not stats.stuck_dropped:
+            return
+        plural = "" if stats.stuck_dropped == 1 else "s"
+        rich.get_console().print(
+            f"\n 🚨[bold red] WARNING:[/] {stats.stuck_dropped:,} note{plural} abandoned after "
+            "the request stopped responding, and are missing from the results.\n"
+            " This usually means a dropped connection rather than a busy endpoint.",
             highlight=False,
         )
 

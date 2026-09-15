@@ -221,6 +221,7 @@ class MlflowTracker:
             "notes.from_model": stats.from_model[index],
             "notes.yield_rate": round(yield_rate, 4),
             "workflow.throttle_dropped": stats.throttle_dropped,
+            "workflow.stuck_dropped": stats.stuck_dropped,
         }
 
         tokens = stats.token_stats_by_table[table_slug]

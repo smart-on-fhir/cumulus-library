@@ -91,6 +91,7 @@ def run_nlp(
         stats.from_model[idx] = fresh
         stats.from_cache[idx] = stats.got_response[idx] - fresh
     stats.throttle_dropped = pool.throttle_dropped
+    stats.stuck_dropped = pool.stuck_dropped
     stats.token_stats = pool.token_stats
     # Give every table an entry, zeroed if it never spent anything, so consumers don't each
     # have to invent a fallback for "this table was entirely served from cache".
@@ -250,6 +251,10 @@ class NlpNotePool:
     @property
     def throttle_dropped(self) -> int:
         return self._dispatcher.throttle_dropped
+
+    @property
+    def stuck_dropped(self) -> int:
+        return self._dispatcher.stuck_dropped
 
     def _convert_to_anon_ids(self, refs: list[str]) -> list[str]:
         for i, ref in enumerate(refs):
@@ -531,6 +536,14 @@ class NlpNotePool:
                 # So be a little fuzzy.
                 orig_span = span
                 span = span.strip(string.punctuation + string.whitespace)
+                if not span:
+                    # A span the model returns as empty, or as nothing but punctuation and
+                    # whitespace, strips down to "". Treat it as unmatched to avoid tons of matches
+                    all_found = False
+                    rich.print(
+                        f"Could not match span received from NLP server for {note_ref}: {orig_span}"
+                    )
+                    continue
                 span = re.escape(span)
                 # Replace sequences of whitespace with a whitespace regex, to allow the span
                 # returned by the LLM to match regardless of what the LLM does with whitespace and
