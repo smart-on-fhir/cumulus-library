@@ -551,8 +551,16 @@ def main(cli_args=None):
 
     if args.get("data_path"):
         data_path_as_cfs = cfs.FsPath(args["data_path"])
-        if args["action"] not in {"export", "upload"} and not data_path_as_cfs.is_local:
-            sys.exit("Remote data paths are only supported for export and upload commands.")
+        if not data_path_as_cfs.is_local:
+            if args["action"] == "build":
+                default_data_path = defaults["data_path"]
+                rich.print(
+                    (
+                        "WARNING: An S3 location was specified for build "
+                        f"which does not support S3 paths. Defaulting to {default_data_path}"
+                    )
+                )
+                args["data_path"] = default_data_path
 
         if data_path_as_cfs.is_local:
             # don't need absolute path for S3 paths
