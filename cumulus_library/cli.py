@@ -555,10 +555,8 @@ def main(cli_args=None):
             if args["action"] == "build":
                 default_data_path = defaults["data_path"]
                 rich.print(
-                    (
-                        "WARNING: An S3 location was specified for build "
-                        f"which does not support S3 paths. Defaulting to {default_data_path}"
-                    )
+                    "WARNING: An S3 location was specified for build "
+                    f"which does not support S3 paths. Defaulting to {default_data_path}"
                 )
                 args["data_path"] = default_data_path
 
