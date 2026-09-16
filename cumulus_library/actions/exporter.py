@@ -15,16 +15,17 @@ from cumulus_library.template_sql import base_templates
 
 def reset_counts_exports(
     manifest: study_manifest.StudyManifest,
+    data_path: cfs.FsPath,
 ) -> None:
     """
     Removes exports associated with this study from the ../data_export directory.
     """
-    path = pathlib.Path(f"{manifest.data_path}/{manifest.get_study_prefix()}")
+    path = data_path.joinpath(manifest.get_study_prefix())
     if path.exists():
         # we're just going to remove the count exports - stats exports in
         # subdirectories are left alone by this call
-        for file in path.glob("*.*"):
-            file.unlink()
+        for file in path.ls(include_dirs=False):
+            file.rm()
 
 
 def export_study(
@@ -43,8 +44,7 @@ def export_study(
     :keyword chunksize: number of rows to export in a single transaction
     """
     skipped_tables = []
-    if data_path.is_local:
-        reset_counts_exports(manifest)
+    reset_counts_exports(manifest, data_path)
     manifest.materialize_counts_builder_exports()
     if manifest.get_dedicated_schema():
         prefix = f"{manifest.get_dedicated_schema()}."
@@ -60,6 +60,9 @@ def export_study(
     else:
         table_list = manifest.get_export_table_list(config.stage)
 
+    # If the data_path is a local directory, we can just leave the
+    # files. Otherwise, if the final goal is upload to S3, we should use
+    # a temporary directory.
     if data_path.is_local:
         export_directory = contextlib.nullcontext(str(data_path))
     else:
@@ -102,7 +105,5 @@ def export_study(
         )
 
         if not data_path.is_local:
-            for zip_file in working_path.rglob("*.zip"):
-                cfs.FsPath(zip_file).copy(
-                    data_path.joinpath(zip_file.relative_to(working_path)))
-
+            cfs.FsPath(work_directory).copy(data_path)
+            rich.print(f"Exported files to {data_path}")
