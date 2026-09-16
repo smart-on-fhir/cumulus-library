@@ -32,10 +32,10 @@ def do_upload(
     study: str = "upload",
     transaction=None,
     transaction_mismatch: bool = False,
-    is_remote_upload: bool = False,
+    is_remote_path: bool = False,
 ):
     remote_root = None
-    if is_remote_upload:
+    if is_remote_path:
         remote_root = cfs.FsPath(f"memory://{uuid.uuid4().hex}")
         data_path.copy(remote_root.joinpath(data_path.name))
         data_path = remote_root
@@ -81,7 +81,7 @@ def do_upload(
 
 
 @pytest.mark.parametrize(
-    "user,id_token,status,network,login_error,preview,call_count,raises,is_remote_upload",
+    "user,id_token,status,network,login_error,preview,call_count,raises,is_remote_path",
     [
         (None, None, 204, None, False, False, None, pytest.raises(SystemExit), False),
         ("user", "id", 204, None, False, False, 1, does_not_raise(), False),
@@ -132,7 +132,7 @@ def test_upload_data(
     login_error,
     call_count,
     raises,
-    is_remote_upload,
+    is_remote_path,
     transaction=None,
     transaction_mismatch=None,
 ):
@@ -147,7 +147,7 @@ def test_upload_data(
         raises=raises,
         transaction=transaction,
         transaction_mismatch=transaction_mismatch,
-        is_remote_upload=is_remote_upload,
+        is_remote_path=is_remote_path,
     )
 
 
