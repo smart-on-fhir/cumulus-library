@@ -145,8 +145,13 @@ class StaticBuilder(BaseTableBuilder):
 
         self.tables = self.get_keywords_table_configs(config, manifest, table_prefix)
 
-        # For each VSAC dataset, we'll get the topics defined by that dataset
+        # issue #312: skip table creation if the VSAC data source isn't defined
+        # if valueset_config.vsac_stewards:
+        #   For each VSAC dataset, we'll get the topics defined by that
+        # dataset
         vsac_df = pandas.DataFrame(columns=["sab", "rxcui", "display", "steward", "oid"])
+
+        # When vsac_stewards is empty, the following loop is skipped
         for key in valueset_config.vsac_stewards:
             vsac.download_oid_data(
                 steward=key,
@@ -166,7 +171,11 @@ class StaticBuilder(BaseTableBuilder):
             steward_df["oid"] = valueset_config.vsac_stewards[key]
             vsac_df = pandas.concat([vsac_df, steward_df])
             vsac_df["rxcui"] = vsac_df["rxcui"].astype("str")
+
         vsac_df.to_csv(self.data_path / "valueset_cache/all_vsac.tsv", sep="\t", index=False)
+
+        #   Even if vsac_valuesets is empty, the following table is still
+        # going to be created
 
         # And now we'll add the VSAC static table to the list of tables to upload
         self.tables.append(

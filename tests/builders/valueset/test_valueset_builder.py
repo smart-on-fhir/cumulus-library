@@ -12,13 +12,16 @@ from cumulus_library.builders import valueset_builder
 data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
 
 
+# This is going to fail when skipping the creation of VSAC valuesets…
 @pytest.mark.parametrize(
     ("config_path,tables,raises"),
     [
         (data_path / "valueset.toml", 21, does_not_raise()),
-        (data_path / "valueset_vsac_only.toml", 20, does_not_raise()),
+        # UMLS valueset table is not created anymore, 20 becomes 19
+        (data_path / "valueset_vsac_only.toml", 19, does_not_raise()),
         (data_path / "valueset_umls_only.toml", 21, does_not_raise()),
-        (data_path / "valueset_keyword_only.toml", 20, does_not_raise()),
+        # UMLS valueset table is not created anymore, 20 becomes 19
+        (data_path / "valueset_keyword_only.toml", 19, does_not_raise()),
         (data_path / "invalid.toml", 0, pytest.raises(SystemExit)),
     ],
 )
@@ -31,7 +34,7 @@ def test_valueset_builder(mock_api, mock_db_config_rxnorm, config_path, tables, 
         manifest = study_manifest.StudyManifest(data_path)
         cursor = mock_db_config_rxnorm.db.cursor()
         query = (
-            f"""CREATE TABLE umls.tty_description AS SELECT * FROM 
+            f"""CREATE TABLE umls.tty_description AS SELECT * FROM
     read_csv('{data_path}/tty.tsv',"""
             """    columns ={'tty': 'VARCHAR', 'tty_str': 'varchar'},
         delim = '\t',
@@ -57,7 +60,7 @@ def test_prefix_handling(mock_api, mock_db_config_rxnorm, tmp_path):
     manifest = study_manifest.StudyManifest(data_path)
     cursor = mock_db_config_rxnorm.db.cursor()
     query = (
-        f"""CREATE TABLE umls.tty_description AS SELECT * FROM 
+        f"""CREATE TABLE umls.tty_description AS SELECT * FROM
     read_csv('{data_path}/tty.tsv',"""
         """    columns ={'tty': 'VARCHAR', 'tty_str': 'varchar'},
         delim = '\t',
