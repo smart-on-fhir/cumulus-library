@@ -25,6 +25,7 @@ from cumulus_library import (
     StudyManifest,
     __version__,
     cli,
+    cli_parser,
     databases,
     errors,
 )
@@ -661,6 +662,42 @@ def test_cli_export_archive(tmp_path, args, input_txt, raises):
                 ]:
                     assert file in archive.namelist()
                 assert "stats/test.txt" not in archive.namelist()
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@pytest.mark.parametrize(
+    "action,is_remote_data_path,should_data_path_default",
+    [
+        ("build", True, True),
+        ("build", False, False),
+        ("export", True, False),
+        ("upload", False, False),
+    ],
+)
+@mock.patch("cumulus_library.cli.run_cli")
+def test_cli_sets_default_data_path_for_build_when_remote(
+    mock_run_cli, tmp_path, action, is_remote_data_path, should_data_path_default
+):
+    data_path = "test/data/path"
+    if is_remote_data_path:
+        data_path = f"memory://{data_path}"
+    print(data_path)
+    cli_args = [action, "-t", "core", data_path]
+    if action != "upload":
+        cli_args += ["--db-type", "duckdb"]
+    cli.main(cli_args=cli_args)
+    args = mock_run_cli.call_args[0][0]
+    if should_data_path_default:
+        # for the build --prepare case
+        _, defaults = cli_parser.get_parser()
+        assert args["data_path"] == defaults["data_path"]
+    elif is_remote_data_path:
+        assert args["data_path"] == data_path
+    else:
+        assert args["data_path"] == cli.get_abs_path(data_path)
 
 
 @mock.patch.dict(

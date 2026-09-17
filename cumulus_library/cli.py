@@ -559,8 +559,7 @@ def main(cli_args=None):
                     f"which does not support S3 paths. Defaulting to {default_data_path}"
                 )
                 args["data_path"] = default_data_path
-
-        if data_path_as_cfs.is_local:
+        else:
             # don't need absolute path for S3 paths
             args["data_path"] = get_abs_path(args["data_path"])
 
