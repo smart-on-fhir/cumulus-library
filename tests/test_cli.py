@@ -684,7 +684,6 @@ def test_cli_sets_default_data_path_for_build_when_remote(
     data_path = "test/data/path"
     if is_remote_data_path:
         data_path = f"memory://{data_path}"
-    print(data_path)
     cli_args = [action, "-t", "core", data_path]
     if action != "upload":
         cli_args += ["--db-type", "duckdb"]
