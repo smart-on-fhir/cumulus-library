@@ -67,7 +67,7 @@ def export_study(
         export_directory = contextlib.nullcontext(str(data_path))
     else:
         export_directory = tempfile.TemporaryDirectory(
-            prefix=f"cumulus-export-{manifest.get_study_prefix()}-"
+            prefix=f"cumulus-export-{manifest.get_study_prefix()}"
         )
 
     with export_directory as work_directory:
