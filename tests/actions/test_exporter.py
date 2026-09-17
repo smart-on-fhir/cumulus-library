@@ -29,6 +29,7 @@ def test_export_study(tmp_path, mock_db, is_remote_path):
 
     with contextlib.ExitStack() as stack:
         if is_remote_path:
+            # memory:// is essentially a test mock for s3:// in cfs
             data_path = cfs.FsPath(f"memory://{tmp_path.name}/export")
             stack.callback(data_path.rm)
         else:

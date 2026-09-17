@@ -2,7 +2,6 @@ import contextlib
 import json
 import pathlib
 import shutil
-import uuid
 import zipfile
 from contextlib import nullcontext as does_not_raise
 
@@ -36,7 +35,8 @@ def do_upload(
 ):
     remote_root = None
     if is_remote_path:
-        remote_root = cfs.FsPath(f"memory://{uuid.uuid4().hex}")
+        # memory:// is essentially a test mock for s3:// in cfs
+        remote_root = cfs.FsPath("memory://test_bucket")
         data_path.copy(remote_root.joinpath(data_path.name))
         data_path = remote_root
     url = "https://upload.url.test/"

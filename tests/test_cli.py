@@ -683,6 +683,7 @@ def test_cli_sets_default_data_path_for_build_when_remote(
 ):
     data_path = "test/data/path"
     if is_remote_data_path:
+        # memory:// is essentially a test mock for s3:// in cfs
         data_path = f"memory://{data_path}"
     cli_args = [action, "-t", "core", data_path]
     if action != "upload":
