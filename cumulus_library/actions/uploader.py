@@ -74,9 +74,9 @@ def upload_files(args: dict):
     if args["data_path"] is None:
         sys.exit("No data directory provided - please provide a path to your study export folder.")
     data_path = cfs.FsPath(args["data_path"])
-    file_paths = sorted(
+    file_paths = [
         path for path in data_path.ls(recursive=True, include_dirs=False) if path.suffix == ".zip"
-    )
+    ]
     filtered_paths = []
     if not args["user"] or not args["id"]:
         sys.exit("user/id not provided, please pass --user and --id")
