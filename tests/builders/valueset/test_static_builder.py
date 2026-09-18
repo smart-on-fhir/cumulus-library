@@ -137,3 +137,52 @@ def test_custom_rules(mock_api, mock_cache_dir, tmp_path, mock_db_config):
     )
     assert len(result) == 3
     assert ("BN", "reformulated_to", "BN", "Yes", True) in result
+
+
+@mock.patch("cumulus_library.base_utils.get_user_cache_dir")
+@mock.patch("cumulus_library.apis.umls.UmlsApi")
+def test_no_vsac_valuesets_table_when_vsac_empty(
+    mock_api, mock_cache_dir, mock_db_config, tmp_path
+):
+    mock_cache_dir.return_value = tmp_path
+
+    with open(pathlib.Path(__file__).parents[2] / "test_data/valueset/vsac_resp.json") as vsac_resp:
+        resp = json.load(vsac_resp)
+        mock_api.return_value.get_vsac_valuesets.return_value = resp
+
+    test_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
+    shutil.copy(test_path / "static/static_table.csv", tmp_path / "static_table.csv")
+
+    shutil.copy(test_path / "static/filtered.csv", tmp_path / "filtered.csv")
+
+    valueset_config = valueset_utils.ValuesetConfig(
+        umls_stewards={"medrt": {"sab": "MED-RT", "search_terms": ["Opioid"]}},
+        vsac_stewards={},
+        rules_file="rules_file.tsv",
+        table_prefix="prefix",
+    )
+
+    manifest = study_manifest.StudyManifest(test_path)
+    build_action.run_protected_table_builder(config=mock_db_config, manifest=manifest)
+
+    builder = static_builder.StaticBuilder()
+    builder.execute_queries(
+        config=mock_db_config,
+        manifest=manifest,
+        valueset_config=valueset_config,
+        toml_path=test_path,
+    )
+
+    result = (
+        mock_db_config.db.cursor()
+        .execute(
+            "SELECT EXISTS ( "
+            "   SELECT tablename "
+            "   FROM pg_tables "
+            "   WHERE tablename = 'test__prefix_vsac_valuesets' "
+            ");"
+        )
+        .fetchone()
+    )
+
+    assert result == (False,)
