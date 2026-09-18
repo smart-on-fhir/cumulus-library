@@ -170,6 +170,14 @@ def test_core_tiny_database(tmp_path):
     testbed.add_condition("ConA")
     testbed.add_encounter("EncA")
     testbed.add_medication_request("MedReqA")
+    testbed.add_medication_dispense(
+        "MultiRx",
+        authorizingPrescription=[
+            {"reference": "MedicationRequest/MedReqA"},
+        ],
+        quantity={"value": 30, "unit": "tablet"},
+        daysSupply={"value": 30, "unit": "d"},
+    )
     db = testbed.build()
     patients = db.connection.sql("SELECT id FROM core__patient").fetchall()
     assert {e[0] for e in patients} == {"A"}
@@ -181,6 +189,10 @@ def test_core_tiny_database(tmp_path):
     assert {e[0] for e in encounters} == {"EncA"}
     rows = db.connection.sql("SELECT id FROM core__medicationrequest").fetchall()
     assert {r[0] for r in rows} == {"MedReqA"}
+    rows = db.connection.sql("SELECT id FROM core_medicationdispense").fetchall()
+    assert {r[0] for r in rows}  == {"MultiRx"}
+    rows = db.connection.sql("SELECT id, medicationrequest_ref FROM core_medicationdispense_authorizingprescription").fetchall()
+    assert rows == [("MultiRx", "MedicationRequest/MedReqA")]
 
 
 def test_core_multiple_doc_encounters(tmp_path):

@@ -39,5 +39,6 @@ class MedicationDispenseBuilder(cumulus_library.BaseTableBuilder):
         self.queries += [
             core_templates.get_core_template("medicationdispense", validated_schema),
             core_templates.get_core_template(
-                "medicationdispense_authorizingprescription", validated_schema)
+                "medicationdispense_authorizingprescription", validated_schema
+            ),
         ]
