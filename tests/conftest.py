@@ -31,6 +31,12 @@ ID_PATHS = {
         ["context", "encounter", "reference"],
     ],
     "encounter": [["id"], ["subject", "reference"]],
+    "medicationdispense": [
+        ["id"],
+        ["context", "reference"],
+        ["subject", "reference"],
+        ["authorizingPrescription", "reference"]
+    ],
     "medicationrequest": [
         ["id"],
         ["encounter", "reference"],

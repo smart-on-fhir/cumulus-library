@@ -12,7 +12,7 @@ expected_table_cols = {
         # MedicationDispense uses 'context' rather than 'encounter' in R4
         "context": sql_utils.REFERENCE,
         "medicationReference": sql_utils.REFERENCE,
-        # 0..*, so a dispense may cite several orders, or none at all
+        # 0..*, there may be multiple orders, or none
         "authorizingPrescription": sql_utils.REFERENCE,
         "whenPrepared": [],
         "whenHandedOver": [],
@@ -38,4 +38,6 @@ class MedicationDispenseBuilder(cumulus_library.BaseTableBuilder):
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries += [
             core_templates.get_core_template("medicationdispense", validated_schema),
+            core_templates.get_core_template(
+                "medicationdispense_authorizingprescription", validated_schema)
         ]

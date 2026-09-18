@@ -127,6 +127,7 @@ class LocalTestbed:
                 "diagnosticreport",
                 "documentreference",
                 "episodeofcare",
+                "medicationdispense",
                 "medicationrequest",
                 "observation",
                 "procedure",
@@ -167,6 +168,8 @@ class LocalTestbed:
                     "export_time": time,
                 },
             )
+
+    def add_medication_dispense(self, row_id: str, mode: str = "inline", codings: list[dict] | None = None, **kwargs) -> None:
 
     def add_medication_request(
         self,
