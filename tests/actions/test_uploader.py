@@ -5,6 +5,7 @@ import shutil
 import zipfile
 from contextlib import nullcontext as does_not_raise
 
+import cumulus_fhir_support as cfs
 import pytest
 import requests
 import responses
@@ -26,11 +27,18 @@ def do_upload(
     status: int = 204,
     version: str | None = "12345.0",
     call_count: int = 2,
-    data_path: pathlib.Path | None = pathlib.Path.cwd() / "tests/test_data/upload/",
+    data_path: cfs.FsPath | None = cfs.FsPath(pathlib.Path.cwd(), "tests/test_data/upload"),
     study: str = "upload",
     transaction=None,
     transaction_mismatch: bool = False,
+    is_remote_path: bool = False,
 ):
+    remote_root = None
+    if is_remote_path:
+        # memory:// is essentially a test mock for s3:// in cfs
+        remote_root = cfs.FsPath("memory://test_bucket")
+        data_path.copy(remote_root.joinpath(data_path.name))
+        data_path = remote_root
     url = "https://upload.url.test/"
     if network:
         url += network
@@ -68,14 +76,17 @@ def do_upload(
         responses.add(responses.POST, "https://presigned.url.test/", status=status)
         uploader.upload_files(args)
         responses.assert_call_count(url, call_count)
+    if remote_root is not None and remote_root.exists():
+        remote_root.rm()
 
 
 @pytest.mark.parametrize(
-    "user,id_token,status,network,login_error,preview,call_count,raises",
+    "user,id_token,status,network,login_error,preview,call_count,raises,is_remote_path",
     [
-        (None, None, 204, None, False, False, None, pytest.raises(SystemExit)),
-        ("user", "id", 204, None, False, False, 1, does_not_raise()),
-        ("user", "id", 204, "network", False, False, 1, does_not_raise()),
+        (None, None, 204, None, False, False, None, pytest.raises(SystemExit), False),
+        ("user", "id", 204, None, False, False, 1, does_not_raise(), False),
+        ("user", "id", 204, "network", False, False, 1, does_not_raise(), False),
+        ("user", "id", 204, None, False, False, 1, does_not_raise(), True),
         (
             "user",
             "id",
@@ -85,6 +96,7 @@ def do_upload(
             False,
             None,
             pytest.raises(requests.exceptions.HTTPError),
+            False,
         ),
         (
             "baduser",
@@ -95,6 +107,7 @@ def do_upload(
             False,
             None,
             pytest.raises(requests.exceptions.HTTPError),
+            False,
         ),
         (
             "user",
@@ -105,6 +118,7 @@ def do_upload(
             True,
             1,
             does_not_raise(),
+            False,
         ),
     ],
 )
@@ -118,6 +132,7 @@ def test_upload_data(
     login_error,
     call_count,
     raises,
+    is_remote_path,
     transaction=None,
     transaction_mismatch=None,
 ):
@@ -132,6 +147,7 @@ def test_upload_data(
         raises=raises,
         transaction=transaction,
         transaction_mismatch=transaction_mismatch,
+        is_remote_path=is_remote_path,
     )
 
 
@@ -158,7 +174,7 @@ def test_upload_data_no_version(tmp_path):
     remove_from_zip(
         dest / "upload_tmp.zip", dest / "upload.zip", "upload__meta_version.meta.parquet"
     )
-    do_upload(data_path=dest, version="0", call_count=1)
+    do_upload(data_path=cfs.FsPath(dest), version="0", call_count=1)
 
 
 @responses.activate
@@ -171,7 +187,7 @@ def test_upload_data_no_meta_date(tmp_path):
         remove_from_zip(
             dest / "upload_tmp.zip", dest / "upload.zip", "upload__meta_date.meta.parquet"
         )
-        do_upload(data_path=dest, version="12345", call_count=1)
+        do_upload(data_path=cfs.FsPath(dest), version="12345", call_count=1)
 
 
 @responses.activate
@@ -183,7 +199,7 @@ def test_upload_data_unexpected_data(tmp_path):
         shutil.copy(src, dest / "upload.zip")
         with zipfile.ZipFile(dest / "upload.zip", "a") as f:
             f.writestr("foo", "test.txt")
-        do_upload(data_path=dest, version="12345", call_count=1)
+        do_upload(data_path=cfs.FsPath(dest), version="12345", call_count=1)
 
 
 @responses.activate
@@ -192,7 +208,7 @@ def test_upload_discovery(tmp_path):
     dest = pathlib.Path(tmp_path) / "discovery/discovery.zip"
     dest.parent.mkdir()
     shutil.copyfile(src, dest)
-    do_upload(data_path=dest.parent, call_count=1, study="discovery")
+    do_upload(data_path=cfs.FsPath(dest.parent), call_count=1, study="discovery")
 
 
 @responses.activate
@@ -203,7 +219,7 @@ def test_upload_transaction_in_progress(tmp_path):
     shutil.copy(src, dest)
     with pytest.raises(SystemExit):
         do_upload(
-            data_path=dest,
+            data_path=cfs.FsPath(dest),
             version="0",
             call_count=1,
             preview=False,
