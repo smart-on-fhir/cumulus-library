@@ -17,11 +17,14 @@ data_path = pathlib.Path(__file__).parents[2] / "test_data/valueset/"
     ("config_path,tables,raises"),
     [
         (data_path / "valueset.toml", 21, does_not_raise()),
-        # UMLS valueset table is not created anymore, 20 becomes 19
+        # umls_valuesets table is not created anymore, 20 becomes 19
         (data_path / "valueset_vsac_only.toml", 19, does_not_raise()),
-        (data_path / "valueset_umls_only.toml", 21, does_not_raise()),
-        # UMLS valueset table is not created anymore, 20 becomes 19
-        (data_path / "valueset_keyword_only.toml", 19, does_not_raise()),
+        #   vsac_valuesets table and vsac_valuesets_hydrated, both included in
+        # the count below, are not created anymore, so 21 becomes 19
+        (data_path / "valueset_umls_only.toml", 19, does_not_raise()),
+        #   umls_valueset and vsac_valuesets tables, together with the
+        # vsac_valuesets_hydrated view, are not created anymore, 20 becomes 17
+        (data_path / "valueset_keyword_only.toml", 17, does_not_raise()),
         (data_path / "invalid.toml", 0, pytest.raises(SystemExit)),
     ],
 )
