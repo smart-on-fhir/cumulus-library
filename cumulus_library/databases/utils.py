@@ -80,6 +80,7 @@ def get_ndjson_files(path: str) -> dict[dict[str]]:
         "Location",
         "Medication",
         "MedicationRequest",
+        "MedicationDispense",
         "Observation",
         "Organization",
         "Patient",
