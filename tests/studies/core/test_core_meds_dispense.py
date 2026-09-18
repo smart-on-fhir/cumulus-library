@@ -70,7 +70,6 @@ def test_core_med_dispense_all_types(tmp_path):
         "whenPrepared_month": conftest.date_to_epoch(2021, 10, 1),
         "whenHandedOver": conftest.timestamp_to_epoch(2021, 10, 16, 12, 0, 0, 0),
         "whenHandedOver_day": conftest.date_to_epoch(2021, 10, 16),
-        # 2021-10-16 is a Saturday; date_trunc('week') lands on the Monday
         "whenHandedOver_week": conftest.date_to_epoch(2021, 10, 11),
         "whenHandedOver_month": conftest.date_to_epoch(2021, 10, 1),
         "whenHandedOver_year": conftest.date_to_epoch(2021, 1, 1),
@@ -95,8 +94,8 @@ def test_core_med_dispense_all_types(tmp_path):
 def test_core_med_dispense_multiple_categories(tmp_path):
     """Verify that we report all category codings for a dispense
 
-    Note that unlike MedicationRequest, MedicationDispense.category is 0..1 in
-    R4, so the several codings all live inside one CodeableConcept.
+    MedicationDispense.category is 0..1 in R4,
+    so the codings are all in one CodeableConcept.
     """
     testbed = testbed_utils.LocalTestbed(tmp_path)
     testbed.add_medication_dispense(

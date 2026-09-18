@@ -23,6 +23,7 @@ from tests import conftest, testbed_utils
         ("core__episodeofcare", True),
         ("core__incomplete_encounter", True),
         ("core__medicationrequest", True),
+        ("core__medicationdispense", True),
         ("core__observation", True),
         ("core__observation_lab", True),
         ("core__observation_vital_signs", True),
@@ -189,9 +190,11 @@ def test_core_tiny_database(tmp_path):
     assert {e[0] for e in encounters} == {"EncA"}
     rows = db.connection.sql("SELECT id FROM core__medicationrequest").fetchall()
     assert {r[0] for r in rows} == {"MedReqA"}
-    rows = db.connection.sql("SELECT id FROM core_medicationdispense").fetchall()
-    assert {r[0] for r in rows}  == {"MultiRx"}
-    rows = db.connection.sql("SELECT id, medicationrequest_ref FROM core_medicationdispense_authorizingprescription").fetchall()
+    rows = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
+    assert {r[0] for r in rows} == {"MultiRx"}
+    rows = db.connection.sql(
+        "SELECT id, medicationrequest_ref FROM core__medicationdispense_authorizingprescription"
+    ).fetchall()
     assert rows == [("MultiRx", "MedicationRequest/MedReqA")]
 
 
@@ -341,6 +344,12 @@ def test_core_build_source(tmp_path):
         ("default", "core__incomplete_encounter", "TABLE"),
         ("default", "core__episodeofcare", "TABLE"),
         ("default", "core__location", "TABLE"),
+        ("default", "core__medicationdispense", "TABLE"),
+        ("default", "core__medicationdispense_dn_inline_code", "TABLE"),
+        ("default", "core__medicationdispense_dn_contained_code", "TABLE"),
+        ("default", "core__medicationdispense_dn_category", "TABLE"),
+        ("default", "core__medicationdispense_dn_type", "TABLE"),
+        ("default", "core__medicationdispense_authorizingprescription", "TABLE"),
         ("default", "core__medicationrequest", "TABLE"),
         ("default", "core__observation", "TABLE"),
         ("default", "core__observation_component_valuequantity", "TABLE"),
