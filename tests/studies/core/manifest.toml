@@ -21,8 +21,8 @@ files = [
     "builder_encounter_prereq.py",
     "builder_episodeofcare_prereq.py",
     "builder_location_prereq.py",
-    "builder_medicationdispense_prereq.py",
     "builder_medicationrequest_prereq.py",
+    "builder_medicationdispense_prereq.py",
     "builder_observation_prereq.py",
     "builder_organization_prereq.py",
     "builder_patient_prereq.py",
@@ -51,8 +51,8 @@ files = [
     "builder_encounter.py",
     "builder_episodeofcare.py",
     "builder_location.py",
-    "builder_medicationdispense.py",
     "builder_medicationrequest.py",
+    "builder_medicationdispense.py",
     "builder_observation.py",
     "builder_organization.py",
     "builder_practitioner.py",
@@ -130,6 +130,14 @@ description = """A general count of medication dispense types by month.\n\nThis 
 [[stages.build_core.tables]]
 name = "count_medicationrequest_month"
 description = "A general count of patients with medication requests by month.\n\nThis table provides a summary snapshot of all the medication requests for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by medication name,\nrequest status, intent of medication, and the date of the request authoring. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "count_medicationdispense_month"
+description = "A general count of patients with medication dispenses by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by medication name,\ndispense status, and the month the medication was handed over. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "count_medicationdispense_type_month"
+description = "A general count of medication dispense types by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by dispense status,\ndispense type, dispense category, and the month the medication was handed over. It is primarily\nintended as a validation tool to ensure that data has been successfully extracted from a source\nsystem via the FHIR data format.\n"
 
 [[stages.build_core.tables]]
 name = "count_observation_lab_month"
