@@ -1,0 +1,33 @@
+{% import 'unnest_utils.jinja' as unnest_utils %}
+
+-- This table includes authorizing MedicationRequests so we do not drastically
+-- increase core__medicationdispense. A single dispense may have multiple authorizing
+-- requests. Skip this table if there is no authorizingPrescription.
+
+CREATE TABLE core__medicationdispense_authorizingprescription AS (
+    {%- if schema["medicationdispense"]["authorizingPrescription"]["reference"] %}
+    WITH
+
+    flattened_rows AS (
+        {{ unnest_utils.flatten(
+            'medicationdispense',
+            'reference',
+            parent_field='authorizingPrescription'
+        ) }}
+    )
+
+    SELECT
+        f.id,
+        f.row,
+        f.reference AS medicationrequest_ref
+    FROM flattened_rows AS f
+    WHERE f.reference IS NOT NULL
+
+    {%- else %}
+    SELECT
+        'x' AS id,
+        cast(NULL AS bigint) AS row,
+        'x' AS medicationrequest_ref
+    WHERE 1 = 0 -- empty table
+    {%- endif %}
+);

@@ -1,0 +1,8 @@
+(12, 'completed', '2018-08-01', 'lisinopril 10 MG Oral Tablet')
+(12, 'completed', None, 'lisinopril 10 MG Oral Tablet')
+(12, None, '2018-08-01', 'lisinopril 10 MG Oral Tablet')
+(12, None, None, 'lisinopril 10 MG Oral Tablet')
+(15, 'completed', '2018-08-01', None)
+(15, None, '2018-08-01', None)
+(16, 'completed', None, None)
+(17, None, None, None)

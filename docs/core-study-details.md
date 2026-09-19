@@ -88,6 +88,7 @@ for each of the following encounter-linked resources:
 - DocumentReference
 - EpisodeOfCare
 - MedicationRequest
+- MedicationDispense
 - Observation
 - Procedure
 - ServiceRequest
@@ -275,6 +276,17 @@ vital signs) instead.
 
 
 ### core__count_medicationrequest_month
+
+|      Column      | Type  |Description|
+|------------------|-------|-----------|
+|cnt               |bigint |Count      |
+|status            |varchar|Perscribing event state|
+|intent            |varchar|Medication order kind|
+|authoredon_month  |varchar|Month medication request issued|
+|medication_display|varchar|Medication Name|
+
+
+### core__count_medicationdispense_month
 
 |      Column      | Type  |Description|
 |------------------|-------|-----------|
@@ -922,6 +934,54 @@ vital signs) instead.
 |system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
+
+
+### core__medicationdispense
+
+|       Column        | Type  |Description|
+|---------------------|-------|-----------|
+|id                   |varchar|           |
+|status               |varchar|           |
+|intent               |varchar|           |
+|category_code        |varchar|           |
+|category_system      |varchar|           |
+|category_display     |varchar|           |
+|reportedboolean      |boolean|           |
+|reported_ref         |varchar|           |
+|medication_code      |varchar|           |
+|medication_system    |varchar|           |
+|medication_display   |varchar|           |
+|authoredon           |date   |           |
+|authoredon_month     |date   |           |
+|medicationrequest_ref|varchar|           |
+|subject_ref          |varchar|           |
+|encounter_ref        |varchar|           |
+|requester_ref        |varchar|           |
+
+### core__medicationdispense_dn_contained_code
+
+|   Column    | Type  |Description|
+|-------------|-------|-----------|
+|id           |varchar|           |
+|row          |bigint |           |
+|code         |varchar|           |
+|system       |varchar|           |
+|display      |varchar|           |
+|userselected |boolean|           |
+|contained_id |varchar|           |
+|resource_type|varchar|           |
+
+
+### core__medicationdispense_dn_inline_code
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
 
 
 ### core__meta_date

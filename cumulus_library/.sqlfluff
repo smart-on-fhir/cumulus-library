@@ -212,6 +212,42 @@ schema =
             'managingOrganization': True,
             'partOf': True,
         },
+        'medicationdispense': {
+            'id': True,
+            'status': True,
+            'subject': {
+                'reference': True
+            },
+            'context': {
+                'reference': True
+            },
+            'authorizingPrescription': {
+                'reference': True
+            },
+            'medicationReference': {
+                'reference': True
+            },
+            'medicationCodeableConcept': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'category': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'type': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'dosageInstruction': {
+                'text': True,
+            },
+            'quantity': {
+                'value': True, 'unit': True
+            },
+            'daysSupply': {
+                'value': True, 'unit': True
+            },
+            'whenPrepared': True,
+            'whenHandedOver': True
+        },
         'medicationrequest': {
             'id': True, 
             'status': True, 

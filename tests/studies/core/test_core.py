@@ -23,6 +23,7 @@ from tests import conftest, testbed_utils
         ("core__episodeofcare", True),
         ("core__incomplete_encounter", True),
         ("core__medicationrequest", True),
+        ("core__medicationdispense", True),
         ("core__observation", True),
         ("core__observation_lab", True),
         ("core__observation_vital_signs", True),
@@ -37,6 +38,8 @@ from tests import conftest, testbed_utils
         ("core__count_encounter_month", False),
         ("core__count_encounter_all_types_month", False),
         ("core__count_observation_lab_month", False),
+        ("core__count_medicationdispense_month", False),
+        ("core__count_medicationdispense_type_month", False),
         ("core__count_medicationrequest_month", False),
         ("core__count_patient", False),
         ("core__count_procedure_month", False),
@@ -168,6 +171,14 @@ def test_core_tiny_database(tmp_path):
     testbed.add_condition("ConA")
     testbed.add_encounter("EncA")
     testbed.add_medication_request("MedReqA")
+    testbed.add_medication_dispense(
+        "MultiRx",
+        authorizingPrescription=[
+            {"reference": "MedicationRequest/MedReqA"},
+        ],
+        quantity={"value": 30, "unit": "tablet"},
+        daysSupply={"value": 30, "unit": "d"},
+    )
     db = testbed.build()
     patients = db.connection.sql("SELECT id FROM core__patient").fetchall()
     assert {e[0] for e in patients} == {"A"}
@@ -179,6 +190,12 @@ def test_core_tiny_database(tmp_path):
     assert {e[0] for e in encounters} == {"EncA"}
     rows = db.connection.sql("SELECT id FROM core__medicationrequest").fetchall()
     assert {r[0] for r in rows} == {"MedReqA"}
+    rows = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
+    assert {r[0] for r in rows} == {"MultiRx"}
+    rows = db.connection.sql(
+        "SELECT id, medicationrequest_ref FROM core__medicationdispense_authorizingprescription"
+    ).fetchall()
+    assert rows == [("MultiRx", "MedicationRequest/MedReqA")]
 
 
 def test_core_multiple_doc_encounters(tmp_path):
@@ -327,6 +344,12 @@ def test_core_build_source(tmp_path):
         ("default", "core__incomplete_encounter", "TABLE"),
         ("default", "core__episodeofcare", "TABLE"),
         ("default", "core__location", "TABLE"),
+        ("default", "core__medicationdispense", "TABLE"),
+        ("default", "core__medicationdispense_dn_inline_code", "TABLE"),
+        ("default", "core__medicationdispense_dn_contained_code", "TABLE"),
+        ("default", "core__medicationdispense_dn_category", "TABLE"),
+        ("default", "core__medicationdispense_dn_type", "TABLE"),
+        ("default", "core__medicationdispense_authorizingprescription", "TABLE"),
         ("default", "core__medicationrequest", "TABLE"),
         ("default", "core__observation", "TABLE"),
         ("default", "core__observation_component_valuequantity", "TABLE"),
@@ -349,6 +372,8 @@ def test_core_build_source(tmp_path):
         ("default", "core__count_encounter_type_month", "TABLE"),
         ("default", "core__count_encounter_priority_month", "TABLE"),
         ("default", "core__count_encounter_service_month", "TABLE"),
+        ("default", "core__count_medicationdispense_month", "TABLE"),
+        ("default", "core__count_medicationdispense_type_month", "TABLE"),
         ("default", "core__count_medicationrequest_month", "TABLE"),
         ("default", "core__count_observation_lab_month", "TABLE"),
         ("default", "core__count_patient", "TABLE"),
