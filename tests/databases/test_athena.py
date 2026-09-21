@@ -385,7 +385,7 @@ def test_get_async_cursor(mock_client):
     )
     db.connect()
     cursor = db.async_cursor()
-    assert isinstance(cursor, pyathena.async_cursor.AsyncCursor)
+    assert isinstance(cursor.cursor, pyathena.async_cursor.AsyncCursor)
 
 
 @pytest.mark.parametrize(
@@ -462,6 +462,36 @@ def test_boto_fallback(mock_session):
         "aws_secret_access_key": "secret",
         "aws_session_token": "token",
     }
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("botocore.session")
+@mock.patch("pyathena.cursor.Cursor")
+def test_refetch_creds(mock_cursor, mock_session):
+    mock_cursor.execute.side_effect = [pyathena.error.DatabaseError, "foo"]
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+
+    db.connect()
+    cursor = db.cursor()
+    cursor.cursor = mock_cursor
+    res = cursor.execute("SELECT * FROM information_schema.tables")
+    assert res == "foo"
+    with pytest.raises(pyathena.error.DatabaseError):
+        mock_cursor.execute.side_effect = [
+            pyathena.error.DatabaseError,
+            pyathena.error.DatabaseError,
+        ]
+        cursor = db.cursor()
+        cursor.cursor = mock_cursor
+        res = cursor.execute("SELECT * FROM information_schema.tables")
 
 
 @mock.patch.dict(
