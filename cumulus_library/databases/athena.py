@@ -18,6 +18,7 @@ import pandas
 import pyarrow
 import pyathena
 import requests
+import rich
 from pyathena.async_cursor import AsyncCursor as AthenaAsyncCursor
 from pyathena.common import BaseCursor as AthenaCursor
 from pyathena.pandas.cursor import PandasCursor as AthenaPandasCursor
@@ -50,6 +51,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             try:
                 res = self.cursor.execute(*args, *kwargs)
             except pyathena.error.DatabaseError:
+                rich.print("Credentials/connectivity error, trying to refresh credentials...")
                 self.outer._refresh_credentials()
                 res = self.cursor.execute(*args, *kwargs)
             return res
