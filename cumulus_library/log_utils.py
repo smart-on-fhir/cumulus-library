@@ -3,7 +3,6 @@
 from cumulus_library import (
     __version__,
     base_utils,
-    databases,
     enums,
     errors,
     study_manifest,
@@ -99,21 +98,5 @@ def _log_table(
                 f"AND table_schema ='{db_schema}'"
             ).fetchall()
             cols = [col[0] for col in cols]
-            # Table schema pre-v3 library release
-            if sorted(cols) == [
-                "event_time",
-                "library_version",
-                "status",
-                "study_name",
-            ]:
-                alter_query = ""
-                if isinstance(config.db, databases.AthenaDatabaseBackend):
-                    alter_query = (
-                        f"ALTER TABLE {db_schema}.{table_name} ADD COLUMNS(message string)"
-                    )
-                elif isinstance(config.db, databases.DuckDatabaseBackend):
-                    alter_query = f"ALTER TABLE {db_schema}.{table_name} ADD COLUMN message varchar"
-                cursor.execute(alter_query)
-                cursor.execute(query)
         else:
             raise e

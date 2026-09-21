@@ -34,6 +34,30 @@ IID_BASE_URL = "http://169.254.169.254/latest"
 class AthenaDatabaseBackend(base.DatabaseBackend):
     """Database backend that can talk to AWS Athena"""
 
+    class AthenaCursorWrapper:
+        """A wrapper for athena cursors
+
+        This is primarily meant to handle cases when AWS credentials have expired
+        during a run, in which case it will try to re-fetch credentials if they are
+        bound to something like an IAM role.
+        """
+
+        def __init__(self, cursor: AthenaCursor, outer: base.DatabaseBackend):
+            self.outer = outer
+            self.cursor = cursor
+
+        def execute(self, *args, **kwargs):
+            try:
+                res = self.cursor.execute(*args, *kwargs)
+            except pyathena.error.DatabaseError:
+                self.outer._refresh_credentials()
+                res = self.cursor.execute(*args, *kwargs)
+            return res
+
+        # If the requested function is not overridden, we'll pass directly to the wrapped cursor
+        def __getattr__(self, attr):
+            return getattr(self.cursor, attr)
+
     connection: AthenaCursor | None
 
     def __init__(
@@ -76,18 +100,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         s3_staging_dir_env_val = os.environ.get(PYATHENA_AWS_ATHENA_S3_STAGING_DIR)
         return s3_staging_dir_env_val or ""
 
-    def init_errors(self):  # pragma: no cover
-        return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
-
-    def connect(self):
-        # the profile may not be required, provided the above three AWS env vars
-        # are set. If both are present, the env vars take precedence
-        if self.profile is not None:
-            self.connect_kwargs["profile_name"] = self.profile
-        for aws_env_name in AWS_ENV_VARS:
-            if aws_env_val := os.environ.get(aws_env_name):
-                self.connect_kwargs[aws_env_name.lower()] = aws_env_val
-
+    def _refresh_credentials(self):
         # if we don't have connection info, we'll try to get it from boto defaults
         if self.connect_kwargs == {} or not any(
             [self.connect_kwargs.get(x.lower()) is not None for x in AWS_ENV_VARS]
@@ -129,14 +142,29 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             **self.connect_kwargs,
         )
 
+    def init_errors(self):  # pragma: no cover
+        return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
+
+    def connect(self):
+        # the profile may not be required, provided the three AWS env vars
+        # are set. If both are present, the env vars take precedence
+        if self.profile is not None:
+            self.connect_kwargs["profile_name"] = self.profile
+        for aws_env_name in AWS_ENV_VARS:
+            if aws_env_val := os.environ.get(aws_env_name):
+                self.connect_kwargs[aws_env_name.lower()] = aws_env_val
+        self._refresh_credentials()
+
     def cursor(self) -> AthenaCursor:
-        return self.connection.cursor()
+        return self.AthenaCursorWrapper(self.connection.cursor(), self)
 
     def async_cursor(self) -> AthenaAsyncCursor:
-        return self.connection.cursor(cursor=AthenaAsyncCursor, max_workers=self.max_concurrent)
+        return self.AthenaCursorWrapper(
+            self.connection.cursor(cursor=AthenaAsyncCursor, max_workers=self.max_concurrent), self
+        )
 
     def pandas_cursor(self) -> AthenaPandasCursor:
-        return self.connection.cursor(cursor=AthenaPandasCursor)
+        return self.AthenaCursorWrapper(self.connection.cursor(cursor=AthenaPandasCursor), self)
 
     def execute_as_pandas(
         self, sql: str, chunksize: int | None = None
