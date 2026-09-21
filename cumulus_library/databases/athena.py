@@ -57,7 +57,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             return res
 
         # If the requested function is not overridden, we'll pass directly to the wrapped cursor
-        def __getattr__(self, attr):
+        # In practice, we're only using execute, but just in case.
+        def __getattr__(self, attr):  # pragma: no cover
             return getattr(self.cursor, attr)
 
     connection: AthenaCursor | None

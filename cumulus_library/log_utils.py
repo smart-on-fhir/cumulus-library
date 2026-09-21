@@ -87,16 +87,4 @@ def _log_table(
         type_casts=table.type_casts,
     )
     cursor = config.db.cursor()
-    try:
-        cursor.execute(query)
-    except config.db.operational_errors() as e:
-        # Migrating logging tables
-        if "lib_transactions" in table_name:
-            cols = cursor.execute(
-                "SELECT column_name FROM information_schema.columns "  # noqa: S608
-                f"WHERE table_name ='{table_name}' "
-                f"AND table_schema ='{db_schema}'"
-            ).fetchall()
-            cols = [col[0] for col in cols]
-        else:
-            raise e
+    cursor.execute(query)
