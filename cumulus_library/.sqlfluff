@@ -240,10 +240,10 @@ schema =
                 'text': True,
             },
             'quantity': {
-                'value': True, 'unit': True
+                'value': True, 'unit': True, 'system': True, 'code': True
             },
             'daysSupply': {
-                'value': True, 'unit': True
+                'value': True, 'unit': True, 'system': True, 'code': True
             },
             'whenPrepared': True,
             'whenHandedOver': True

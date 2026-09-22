@@ -26,8 +26,12 @@ CREATE TABLE core__medicationdispense AS (
                         ('medicationReference', 'reference', 'med_ref'),
                         ('quantity', 'value', 'quantity_value'),
                         ('quantity', 'unit', 'quantity_unit'),
+                        ('quantity', 'system', 'quantity_system'),
+                        ('quantity', 'code', 'quantity_code'),
                         ('daysSupply', 'value', 'days_supply_value'),
                         ('daysSupply', 'unit', 'days_supply_unit'),
+                        ('daysSupply', 'system', 'days_supply_system'),
+                        ('daysSupply', 'code', 'days_supply_code'),
                     ],
                     schema
                 )
@@ -136,8 +140,12 @@ CREATE TABLE core__medicationdispense AS (
         -- them as varchar if they aren't in the schema.
         cast(md.quantity_value AS double) AS quantity_value,
         md.quantity_unit,
+        md.quantity_system,
+        md.quantity_code,
         cast(md.days_supply_value AS double) AS days_supply_value,
         md.days_supply_unit,
+        md.days_supply_system,
+        md.days_supply_code,
 
         md.whenPrepared,
         md.whenPrepared_month,

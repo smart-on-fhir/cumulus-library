@@ -227,20 +227,35 @@ table_cols = [
     "medication_display"
 ]
 
+[tables.count_medicationdispense_category_month]
+description = """A general count of medication dispense categories by month.
+
+This table provides a summary snapshot of all the medication dispenses for the entire patient population
+that have been loaded into a database for use by the Cumulus ecosystem. It bins by dispense status,
+dispense category, and the month the medication was handed over. It is primarily intended as a
+validation tool to ensure that data has been successfully extracted from a source system via the
+FHIR data format.
+"""
+source_table = "core__medicationdispense"
+table_cols = [
+    "status",
+    "category_display",
+    "whenhandedover_month"
+]
+
 [tables.count_medicationdispense_type_month]
 description = """A general count of medication dispense types by month.
 
 This table provides a summary snapshot of all the medication dispenses for the entire patient population
 that have been loaded into a database for use by the Cumulus ecosystem. It bins by dispense status,
-dispense type, dispense category, and the month the medication was handed over. It is primarily
-intended as a validation tool to ensure that data has been successfully extracted from a source
-system via the FHIR data format.
+dispense type, and the month the medication was handed over. It is primarily intended as a
+validation tool to ensure that data has been successfully extracted from a source system via the
+FHIR data format.
 """
 source_table = "core__medicationdispense"
 table_cols = [
     "status",
     "type_display",
-    "category_display",
     "whenhandedover_month"
 ]
 

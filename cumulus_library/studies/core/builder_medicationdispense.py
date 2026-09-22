@@ -16,8 +16,8 @@ expected_table_cols = {
         "authorizingPrescription": sql_utils.REFERENCE,
         "whenPrepared": [],
         "whenHandedOver": [],
-        "quantity": ["value", "unit"],
-        "daysSupply": ["value", "unit"],
+        "quantity": ["value", "unit", "system", "code"],
+        "daysSupply": ["value", "unit", "system", "code"],
     }
 }
 
