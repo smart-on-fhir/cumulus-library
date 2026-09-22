@@ -30,6 +30,8 @@ def test_run_protected_table_builder(mock_db_config, study_path, stats):
         .fetchall()
     )
     assert (f"{manifest.get_study_prefix()}__{enums.ProtectedTables.TRANSACTIONS.value}",) in tables
+    assert (f"{manifest.get_study_prefix()}__{enums.ProtectedTables.BUILD_SOURCE.value}",) in tables
+    assert (f"{manifest.get_study_prefix()}__{enums.ProtectedTables.TRANSACTIONS.value}",) in tables
     if stats:
         assert (
             f"{manifest.get_study_prefix()}__{enums.ProtectedTables.STATISTICS.value}",

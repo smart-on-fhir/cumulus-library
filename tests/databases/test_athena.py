@@ -17,7 +17,8 @@ import pyathena
 import pytest
 import responses
 
-from cumulus_library import base_utils, databases, errors, study_manifest
+from cumulus_library import base_utils, databases, db_config, errors, study_manifest
+from cumulus_library.builders import protected_table_builder
 from cumulus_library.databases import athena
 from tests import conftest
 
@@ -540,3 +541,42 @@ def test_iid_lookup(mock_session, status, expected):
     )
     db.connect()
     assert db.region == expected
+
+
+@mock.patch("cumulus_library.databases.athena.AthenaDatabaseBackend.AthenaCursorWrapper.execute")
+@mock.patch("botocore.session")
+def test_iceberg_location(mock_session, mock_execute, tmp_path):
+    db_config.db_type = "athena"
+    manifest_dict = {
+        "study_prefix": "study",
+        "stages": {
+            "stage_1": [
+                {
+                    "type": "build:serial",
+                    "label": "action 1",
+                    "files": ["foo", "bar"],
+                },
+            ]
+        },
+    }
+    conftest.write_toml(tmp_path, manifest_dict)
+    manifest = study_manifest.StudyManifest(tmp_path)
+    with mock.patch.dict(os.environ, {}, clear=True):
+        db = databases.AthenaDatabaseBackend(
+            region="test", work_group="test", profile="test", schema_name="test"
+        )
+    db.connect()
+    db.get_remote_path = mock.MagicMock()
+    db.get_remote_path.return_value = "s3://bucket/"
+    config = base_utils.StudyConfig(schema="schema", db=db)
+    ptb = protected_table_builder.ProtectedTableBuilder()
+    ptb.execute_queries(config, manifest)
+    assert mock_execute.call_args_list[-1][0][0] == (
+        """CREATE TABLE IF NOT EXISTS `schema`.`study__lib_build_source` (
+    stage string,
+    name string,
+    type string
+)
+LOCATION 's3://bucket/iceberg/schema/study/build_source'
+TBLPROPERTIES ('table_type' = 'ICEBERG');"""
+    )
