@@ -51,7 +51,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             try:
                 res = self.cursor.execute(*args, *kwargs)
             except pyathena.error.DatabaseError:
-                rich.print("Credentials/connectivity error, trying to refresh credentials...")
+                rich.print("SQL error, checking if refreshing credentials helps...")
                 self.outer._refresh_credentials()
                 res = self.cursor.execute(*args, *kwargs)
             return res
