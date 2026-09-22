@@ -91,6 +91,26 @@ episodeofcare,type,hacc,Home and Community Care,http://terminology.hl7.org/CodeS
 location,type,,,
 medication,codecodeableconcept,,,
 medication,medicationcode,,,
+medicationdispense,category,inpatient,Inpatient,http://terminology.hl7.org/CodeSystem/medicationdispense-category
+medicationdispense,category,outpatient,Outpatient,http://terminology.hl7.org/CodeSystem/medicationdispense-category
+medicationdispense,dosageinstruction.additionalinstruction,,,
+medicationdispense,dosageinstruction.asneededcodeableconcept,,,
+medicationdispense,dosageinstruction.doseandrate.type,,,
+medicationdispense,dosageinstruction.method,,,
+medicationdispense,dosageinstruction.route,,,
+medicationdispense,dosageinstruction.site,,,
+medicationdispense,dosageinstruction.timing.code,,,
+medicationdispense,medicationcodeableconcept,205923,1 ML Epoetin Alfa 4000 UNT/ML Injection [Epogen],http://www.nlm.nih.gov/research/umls/rxnorm
+medicationdispense,medicationcodeableconcept,310798,Hydrochlorothiazide 25 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationdispense,medicationcodeableconcept,310965,Ibuprofen 200 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationdispense,medicationcodeableconcept,314076,lisinopril 10 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationdispense,medicationcodeableconcept,748879,Levora 0.15/30 28 Day Pack,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationdispense,performer.function,,,
+medicationdispense,statusreasoncodeableconcept,,,
+medicationdispense,substitution.reason,,,
+medicationdispense,substitution.type,,,
+medicationdispense,type,FF,First Fill,http://terminology.hl7.org/CodeSystem/v3-ActPharmacySupplyType
+medicationdispense,type,RF,Refill,http://terminology.hl7.org/CodeSystem/v3-ActPharmacySupplyType
 medicationrequest,category,community,Community,http://terminology.hl7.org/CodeSystem/medicationrequest-category
 medicationrequest,courseoftherapytype,,,
 medicationrequest,dosageinstruction.additionalinstruction,1831000175103,Every twelve hours as required (qualifier value),http://snomed.info/sct

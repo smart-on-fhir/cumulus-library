@@ -351,6 +351,219 @@ FROM (
 
 -- ###########################################################
 
+CREATE TABLE discovery__tmp_medicationdispense_statusreasoncodeableconcept AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+ 
+CREATE TABLE discovery__tmp_medicationdispense_category AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+ 
+CREATE TABLE discovery__tmp_medicationdispense_medicationcodeableconcept AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_performer_function AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_type AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_dosageinstruction_additionalinstruction AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_dosageinstruction_timing_code AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_dosageinstruction_asneededcodeableconcept AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_dosageinstruction_site AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_dosageinstruction_route AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_dosageinstruction_method AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+    
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_dosageinstruction_doseandrate_type AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_substitution_type AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
+
+CREATE TABLE discovery__tmp_medicationdispense_substitution_reason AS
+SELECT *
+FROM (
+    VALUES (
+        'medicationrequest',
+        'medicationcode',
+        '',
+        '',
+        ''
+    )
+)
+    AS t (table_name, column_name, code, display, system)
+
+-- ###########################################################
 
 CREATE TABLE discovery__tmp_medicationrequest_statusreason AS
 SELECT *
