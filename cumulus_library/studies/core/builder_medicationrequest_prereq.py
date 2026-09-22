@@ -47,6 +47,21 @@ class MedicationRequestBuilder(cumulus_library.BaseTableBuilder):
                 column_hierarchy=[("category", list)],
                 target_table="core__medicationrequest_dn_category",
             ),
+            sql_utils.CodeableConceptConfig(
+                source_table="medicationrequest",
+                column_hierarchy=[("courseOfTherapyType", dict)],
+                target_table="core__medicationrequest_dn_course_of_therapy",
+            ),
+            sql_utils.CodeableConceptConfig(
+                source_table="medicationrequest",
+                column_hierarchy=[("statusReason", dict)],
+                target_table="core__medicationrequest_dn_status_reason",
+            ),
+            sql_utils.CodeableConceptConfig(
+                source_table="medicationrequest",
+                column_hierarchy=[("dosageInstruction", list), ("route", dict)],
+                target_table="core__medicationrequest_dn_dosage_route",
+            ),
         ]
         self.queries += sql_utils.denormalize_complex_objects(
             config.db, code_sources, "MedicationRequest"

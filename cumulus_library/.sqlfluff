@@ -262,6 +262,39 @@ schema =
             },
             'dosageInstruction': {
                 'text': True,
+                'sequence': True,
+                'patientInstruction': True,
+                'asNeededBoolean': True,
+                'route': {
+                    'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+                },
+                'timing': {
+                    'code': {'text': True},
+                    'repeat': {
+                        'frequency': True,
+                        'period': True,
+                        'periodUnit': True,
+                        'boundsPeriod': {'start': True, 'end': True}
+                    }
+                },
+                'doseAndRate': {
+                    'doseQuantity': {'value': True, 'unit': True}
+                }
+            },
+            'courseOfTherapyType': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'statusReason': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'priorPrescription': {
+                'reference': True
+            },
+            'dispenseRequest': {
+                'numberOfRepeatsAllowed': True,
+                'quantity': {'value': True, 'unit': True},
+                'expectedSupplyDuration': {'value': True, 'unit': True},
+                'validityPeriod': {'start': True, 'end': True}
             },
             'medicationReference': {
                 'reference': True
@@ -271,11 +304,11 @@ schema =
             },
             'subject': {
                 'reference': True
-            }, 
+            },
             'encounter': {
                 'reference': True
             }
-        }, 
+        },
         'observation': {
             'id': True, 
             'category': {
