@@ -64,8 +64,12 @@ def test_core_med_dispense_all_types(tmp_path):
         "medication_display": "C",
         "quantity_value": 90,
         "quantity_unit": "tablet",
+        "quantity_system": None,
+        "quantity_code": None,
         "days_supply_value": 30,
         "days_supply_unit": "d",
+        "days_supply_system": None,
+        "days_supply_code": None,
         "whenPrepared": conftest.timestamp_to_epoch(2021, 10, 15, 8, 0, 0, 0),
         "whenPrepared_month": conftest.date_to_epoch(2021, 10, 1),
         "whenHandedOver": conftest.timestamp_to_epoch(2021, 10, 16, 12, 0, 0, 0),
@@ -188,9 +192,7 @@ def test_core_med_dispense_performers(tmp_path):
 
     db = testbed.build()
     df = db.connection.sql(
-        "SELECT id, row, performer_ref "
-        "FROM core__medicationdispense_performer "
-        "ORDER BY id, row"
+        "SELECT id, row, performer_ref FROM core__medicationdispense_performer ORDER BY id, row"
     ).df()
     rows = json.loads(df.to_json(orient="records"))
     assert [
