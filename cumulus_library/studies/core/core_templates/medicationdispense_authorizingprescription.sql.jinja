@@ -1,9 +1,5 @@
 {% import 'unnest_utils.jinja' as unnest_utils %}
 
--- This table includes authorizing MedicationRequests so we do not drastically
--- increase core__medicationdispense. A single dispense may have multiple authorizing
--- requests. Skip this table if there is no authorizingPrescription.
-
 CREATE TABLE core__medicationdispense_authorizingprescription AS (
     {%- if schema["medicationdispense"]["authorizingPrescription"]["reference"] %}
     WITH

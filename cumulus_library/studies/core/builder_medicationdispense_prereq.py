@@ -13,10 +13,6 @@ class MedicationDispenseBuilder(cumulus_library.BaseTableBuilder):
         config: cumulus_library.StudyConfig,
         **kwargs,
     ) -> None:
-        """Constructs queries related to medication dispenses
-
-        :param config: A study config object
-        """
         # MedicationDispense can have a reference to core__medication_dn_code from
         # builder_medicationrequest_prereq. Do not duplicate the creation.
         code_sources = [

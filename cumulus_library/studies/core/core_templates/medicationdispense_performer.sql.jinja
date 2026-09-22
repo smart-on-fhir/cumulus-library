@@ -1,10 +1,5 @@
 {% import 'unnest_utils.jinja' as unnest_utils %}
 
--- US Core marks MedicationDispense.performer.actor as must support. performer is
--- 0..*, so - as with authorizing prescriptions - it gets its own table rather than
--- fanning out core__medicationdispense. 'row' is the performer's position in the
--- source array. performer.function is deliberately absent: it is not must support.
-
 CREATE TABLE core__medicationdispense_performer AS (
     {%- if schema["medicationdispense"]["performer"]["actor"]["reference"] %}
     WITH

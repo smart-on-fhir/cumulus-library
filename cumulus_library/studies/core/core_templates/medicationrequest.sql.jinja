@@ -91,9 +91,6 @@ CREATE TABLE core__medicationrequest AS (
         WHERE (mr.status IS NULL OR mr.status <> 'entered-in-error')
     ),
 
-    {#- The coverage interval is derived, not a FHIR element: it is the window we
-        believe this prescription covers. dosageInstruction is 0..*, so the bounds
-        are aggregated across every instruction on the request. #}
     {%- if has_bounds %}
 
     dosage_rows AS (
@@ -142,7 +139,7 @@ CREATE TABLE core__medicationrequest AS (
                 db.bounds_start,
                 cast(mr.authoredOn AS date)
             ) AS coverage_start_date,
-            {#- expectedSupplyDuration is a UCUM Duration, so normalize to days. #}
+            {#- expectedSupplyDuration is a UCUM Duration, so normalize it. #}
             CASE lower(mr.expected_supply_duration_unit)
                 WHEN 'h' THEN cast(mr.expected_supply_duration_value AS double) / 24
                 WHEN 'hour' THEN cast(mr.expected_supply_duration_value AS double) / 24

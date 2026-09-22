@@ -80,9 +80,9 @@ CREATE TABLE core__medicationdispense AS (
     ),
 
     unified_codes AS (
-        {# Inline: medication data from inline ETL extraction.
-        As with MedicationRequest, this is the usual Cerner shape, and may not
-        be present in EPIC datasets. #}
+        {# Internal: medication data from inline ETL extraction.
+        95% of the time, this dataset is the 'correct' dataset for Cerner.
+        It may not be present in EPIC datasets. #}
         SELECT
             md.id,
             mdic.code AS medication_code,
@@ -91,7 +91,9 @@ CREATE TABLE core__medicationdispense AS (
         FROM md_basics AS md
         INNER JOIN core__medicationdispense_dn_inline_code AS mdic ON md.id = mdic.id
 
-        {# Contained: medication reference into contained resources. #}
+        {# Contained: medication dispense into contained resources, see MedicationRequest.
+        We've also seen this in Cerner. Though in the cases we've seen this, it's usually
+        a very lightly fleshed out resource, with only code.text and no codings. #}
         UNION
         SELECT
             md.id,

@@ -39,8 +39,6 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
     {%- if has_dosage %}
     WITH
 
-    {#- core__medicationdispense fans out on medication codings, so collapse it
-        before joining the dispense-level context back onto each dosage row. #}
     parent AS (
         SELECT DISTINCT
             md.id,
@@ -110,7 +108,6 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
         FROM dosage_rows AS d
     ),
 
-    {#- doseAndRate is itself 0..*, so it needs a second level of unnesting. #}
     dose_rows AS (
         {%- if has_dose %}
         SELECT DISTINCT

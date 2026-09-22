@@ -38,10 +38,6 @@ class MedicationDispenseDosageInstructionBuilder(cumulus_library.BaseTableBuilde
         config: cumulus_library.StudyConfig,
         **kwargs,
     ) -> None:
-        """Constructs queries related to medication dispense dosage instructions
-
-        :param config: A study config object
-        """
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries += [
             core_templates.get_core_template(
