@@ -315,6 +315,25 @@ table_cols = [
     "whenhandedover_month"
 ]
 
+[tables.count_medicationdispense_dosage_month]
+description = """A general count of medication dispense dosage instructions by month.
+
+This table provides a summary snapshot of all the dosage instruction steps attached to
+medication dispenses for the entire patient population that have been loaded into a database
+for use by the Cumulus ecosystem. A single dispense may contribute several steps, since a
+taper is recorded as one step per dose level. It bins by route of administration, the timing
+the dose was dispensed on, the unit the dose was recorded in, and the month the medication was
+handed over. It is primarily intended as a validation tool to ensure that data has been
+successfully extracted from a source system via the FHIR data format.
+"""
+source_table = "core__medicationdispense_dosageinstruction"
+table_cols = [
+    ["dosage_route_display", "varchar"],
+    ["dosage_timing_text", "varchar"],
+    ["dosage_dose_unit", "varchar"],
+    ["whenhandedover_month", "date"],
+]
+
 [tables.count_observation_lab_month]
 source_table = "core__observation_lab"
 description = """A general count of patient's lab observations by month.

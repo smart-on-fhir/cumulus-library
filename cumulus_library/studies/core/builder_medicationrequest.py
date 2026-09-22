@@ -26,21 +26,7 @@ expected_table_cols = {
             "validityPeriod": sql_utils.PERIOD,
         },
         "dosageInstruction": {
-            "sequence": {},
-            "text": {},
-            "patientInstruction": {},
-            "asNeededBoolean": {},
-            "route": ["text"],
-            "timing": {
-                "code": ["text"],
-                "repeat": {
-                    "frequency": {},
-                    "period": {},
-                    "periodUnit": {},
-                    "boundsPeriod": sql_utils.PERIOD,
-                },
-            },
-            "doseAndRate": {"doseQuantity": ["value", "unit"]},
+            "timing": {"repeat": {"boundsPeriod": sql_utils.PERIOD}},
         },
     }
 }
@@ -62,7 +48,4 @@ class MedicationRequestBuilder(cumulus_library.BaseTableBuilder):
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries += [
             core_templates.get_core_template("medicationrequest", validated_schema),
-            core_templates.get_core_template(
-                "medicationrequest_dosageinstruction", validated_schema
-            ),
         ]

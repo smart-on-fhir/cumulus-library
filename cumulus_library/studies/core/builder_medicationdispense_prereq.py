@@ -49,6 +49,14 @@ class MedicationDispenseBuilder(cumulus_library.BaseTableBuilder):
                 column_hierarchy=[("type", dict)],
                 target_table="core__medicationdispense_dn_type",
             ),
+            sql_utils.CodeableConceptConfig(
+                source_table="medicationdispense",
+                column_hierarchy=[("dosageInstruction", list), ("route", dict)],
+                target_table="core__medicationdispense_dn_dosage_route",
+                # dosageInstruction is a Dosage, not a CodeableConcept, so the
+                # default expected shape would never match.
+                expected={"route": sql_utils.CODEABLE_CONCEPT},
+            ),
         ]
         self.queries += sql_utils.denormalize_complex_objects(
             config.db, code_sources, "MedicationDispense"

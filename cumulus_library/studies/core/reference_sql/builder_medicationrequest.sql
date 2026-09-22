@@ -6,6 +6,8 @@
 
 -- ###########################################################
 
+
+
 CREATE TABLE core__medicationrequest AS (
     WITH
 
@@ -20,11 +22,76 @@ CREATE TABLE core__medicationrequest AS (
         mr.subject.reference AS subject_ref,
         mr.medicationReference.reference AS med_ref,
         mr.requester.reference AS requester_ref,
+        mr.priorPrescription.reference AS prior_prescription_ref,
+        mr.courseOfTherapyType.text AS course_of_therapy_text,
+        mr.statusReason.text AS status_reason_text,
+        mr.dispenseRequest.numberOfRepeatsAllowed AS dispense_refills_allowed,
+        cast(NULL as varchar) AS dispense_quantity_value,
+        cast(NULL as varchar) AS dispense_quantity_unit,
+        cast(NULL as varchar) AS expected_supply_duration_value,
+        cast(NULL as varchar) AS expected_supply_duration_unit,
         cast(from_iso8601_timestamp(mr."authoredOn") AS timestamp) AS authoredOn,
+        cast(NULL AS date) AS validity_period_start,
+        cast(NULL AS date) AS validity_period_end,
         date_trunc('month', cast(from_iso8601_timestamp(mr."authoredOn") AS date))
             AS authoredOn_month
         FROM medicationrequest AS mr
         WHERE (mr.status IS NULL OR mr.status <> 'entered-in-error')
+    ),
+
+    dosage_bounds AS (
+        SELECT
+            'x' AS id,
+            cast(NULL AS date) AS bounds_start,
+            cast(NULL AS date) AS bounds_end
+        WHERE 1 = 0 -- no dosage bounds in this dataset
+    ),
+
+    coverage_parts AS (
+        SELECT
+            mr.id,
+            db.bounds_end,
+            coalesce(
+                mr.validity_period_start,
+                db.bounds_start,
+                cast(mr.authoredOn AS date)
+            ) AS coverage_start_date,
+            CASE lower(mr.expected_supply_duration_unit)
+                WHEN 'h' THEN cast(mr.expected_supply_duration_value AS double) / 24
+                WHEN 'hour' THEN cast(mr.expected_supply_duration_value AS double) / 24
+                WHEN 'hours' THEN cast(mr.expected_supply_duration_value AS double) / 24
+                WHEN 'd' THEN cast(mr.expected_supply_duration_value AS double)
+                WHEN 'day' THEN cast(mr.expected_supply_duration_value AS double)
+                WHEN 'days' THEN cast(mr.expected_supply_duration_value AS double)
+                WHEN 'wk' THEN cast(mr.expected_supply_duration_value AS double) * 7
+                WHEN 'week' THEN cast(mr.expected_supply_duration_value AS double) * 7
+                WHEN 'weeks' THEN cast(mr.expected_supply_duration_value AS double) * 7
+                WHEN 'mo' THEN cast(mr.expected_supply_duration_value AS double) * 30
+                WHEN 'month' THEN cast(mr.expected_supply_duration_value AS double) * 30
+                WHEN 'months' THEN cast(mr.expected_supply_duration_value AS double) * 30
+                WHEN 'a' THEN cast(mr.expected_supply_duration_value AS double) * 365
+                WHEN 'year' THEN cast(mr.expected_supply_duration_value AS double) * 365
+                WHEN 'years' THEN cast(mr.expected_supply_duration_value AS double) * 365
+            END AS supply_days
+        FROM mr_basics AS mr
+        LEFT JOIN dosage_bounds AS db ON mr.id = db.id
+    ),
+
+    coverage AS (
+        SELECT
+            cp.id,
+            cp.coverage_start_date,
+            CASE
+                WHEN cp.supply_days IS NOT NULL AND cp.coverage_start_date IS NOT NULL
+                    THEN cast(cp.coverage_start_date + to_days(cast(cp.supply_days AS integer)) AS date)
+                ELSE cp.bounds_end
+            END AS coverage_end_date,
+            CASE
+                WHEN cp.supply_days IS NOT NULL AND cp.coverage_start_date IS NOT NULL
+                    THEN 'expected_supply_duration'
+                WHEN cp.bounds_end IS NOT NULL THEN 'dosage_bounds_period'
+            END AS coverage_end_date_type
+        FROM coverage_parts AS cp
     ),
 
     contained_refs AS (
@@ -87,6 +154,16 @@ CREATE TABLE core__medicationrequest AS (
         mrc.system AS category_system,
         mrc.display AS category_display,
 
+        mrsr.code AS status_reason_code,
+        mrsr.system AS status_reason_system,
+        mrsr.display AS status_reason_display,
+        mr.status_reason_text,
+
+        mrct.code AS course_of_therapy_code,
+        mrct.system AS course_of_therapy_system,
+        mrct.display AS course_of_therapy_display,
+        mr.course_of_therapy_text,
+
         mr.reportedBoolean,
         mr.reported_ref,
 
@@ -94,14 +171,30 @@ CREATE TABLE core__medicationrequest AS (
         uc.medication_system,
         uc.medication_display,
 
+        cast(mr.dispense_refills_allowed AS bigint) AS dispense_refills_allowed,
+        cast(mr.dispense_quantity_value AS double) AS dispense_quantity_value,
+        mr.dispense_quantity_unit,
+        cast(mr.expected_supply_duration_value AS double) AS expected_supply_duration_value,
+        mr.expected_supply_duration_unit,
+        mr.validity_period_start,
+        mr.validity_period_end,
+
+        cov.coverage_start_date,
+        cov.coverage_end_date,
+        cov.coverage_end_date_type,
+
         mr.authoredOn,
         mr.authoredOn_month,
 
         concat('MedicationRequest/', mr.id) AS medicationrequest_ref,
         mr.subject_ref,
         mr.encounter_ref,
-        mr.requester_ref
+        mr.requester_ref,
+        mr.prior_prescription_ref
     FROM mr_basics AS mr
     LEFT JOIN unified_codes AS uc ON mr.id = uc.id
+    LEFT JOIN coverage AS cov ON mr.id = cov.id
     LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
+    LEFT JOIN core__medicationrequest_dn_status_reason AS mrsr ON mr.id = mrsr.id
+    LEFT JOIN core__medicationrequest_dn_course_of_therapy AS mrct ON mr.id = mrct.id
 );

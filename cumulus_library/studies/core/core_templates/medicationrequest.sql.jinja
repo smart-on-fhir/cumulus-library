@@ -1,5 +1,9 @@
 {% import 'core_utils.jinja' as utils -%}
 {% import 'syntax.sql.jinja' as syntax -%}
+{% import 'unnest_utils.jinja' as unnest_utils -%}
+
+{%- set bounds = schema["medicationrequest"]["dosageInstruction"]["timing"]["repeat"]["boundsPeriod"] %}
+{%- set has_bounds = bounds["start"] or bounds["end"] %}
 
 CREATE TABLE core__medicationrequest AS (
     WITH
@@ -26,6 +30,28 @@ CREATE TABLE core__medicationrequest AS (
                         ('subject', 'reference', 'subject_ref'),
                         ('medicationReference', 'reference', 'med_ref'),
                         ('requester', 'reference', 'requester_ref'),
+                        ('priorPrescription', 'reference', 'prior_prescription_ref'),
+                        ('courseOfTherapyType', 'text', 'course_of_therapy_text'),
+                        ('statusReason', 'text', 'status_reason_text'),
+                        (
+                            'dispenseRequest',
+                            'numberOfRepeatsAllowed',
+                            'dispense_refills_allowed'
+                        ),
+                        ('dispenseRequest', 'quantity', 'value', 'dispense_quantity_value'),
+                        ('dispenseRequest', 'quantity', 'unit', 'dispense_quantity_unit'),
+                        (
+                            'dispenseRequest',
+                            'expectedSupplyDuration',
+                            'value',
+                            'expected_supply_duration_value'
+                        ),
+                        (
+                            'dispenseRequest',
+                            'expectedSupplyDuration',
+                            'unit',
+                            'expected_supply_duration_unit'
+                        ),
                     ],
                     schema
                 )
@@ -34,6 +60,21 @@ CREATE TABLE core__medicationrequest AS (
                     'medicationrequest',
                     'mr',
                     ['authoredOn'],
+                    schema
+                )
+            }},
+            {{- utils.date_cols_from_str(
+                    'medicationrequest',
+                    'mr',
+                    [
+                        (
+                            'dispenseRequest',
+                            'validityPeriod',
+                            'start',
+                            'validity_period_start'
+                        ),
+                        ('dispenseRequest', 'validityPeriod', 'end', 'validity_period_end'),
+                    ],
                     schema
                 )
             }},
@@ -48,6 +89,96 @@ CREATE TABLE core__medicationrequest AS (
             }}
         FROM medicationrequest AS mr
         WHERE (mr.status IS NULL OR mr.status <> 'entered-in-error')
+    ),
+
+    {#- The coverage interval is derived, not a FHIR element: it is the window we
+        believe this prescription covers. dosageInstruction is 0..*, so the bounds
+        are aggregated across every instruction on the request. #}
+    {%- if has_bounds %}
+
+    dosage_rows AS (
+        {{ unnest_utils.flatten('medicationrequest', 'dosageInstruction') }}
+    ),
+
+    dosage_bounds AS (
+        SELECT
+            d.id,
+            {% if bounds["start"] -%}
+            min(cast(
+                from_iso8601_timestamp(d.dosageInstruction.timing.repeat.boundsPeriod.start)
+                AS date
+            )) AS bounds_start,
+            {%- else -%}
+            cast(NULL AS date) AS bounds_start,
+            {%- endif %}
+            {% if bounds["end"] -%}
+            max(cast(
+                from_iso8601_timestamp(d.dosageInstruction.timing.repeat.boundsPeriod."end")
+                AS date
+            )) AS bounds_end
+            {%- else -%}
+            cast(NULL AS date) AS bounds_end
+            {%- endif %}
+        FROM dosage_rows AS d
+        GROUP BY d.id
+    ),
+    {%- else %}
+
+    dosage_bounds AS (
+        SELECT
+            'x' AS id,
+            cast(NULL AS date) AS bounds_start,
+            cast(NULL AS date) AS bounds_end
+        WHERE 1 = 0 -- no dosage bounds in this dataset
+    ),
+    {%- endif %}
+
+    coverage_parts AS (
+        SELECT
+            mr.id,
+            db.bounds_end,
+            coalesce(
+                mr.validity_period_start,
+                db.bounds_start,
+                cast(mr.authoredOn AS date)
+            ) AS coverage_start_date,
+            {#- expectedSupplyDuration is a UCUM Duration, so normalize to days. #}
+            CASE lower(mr.expected_supply_duration_unit)
+                WHEN 'h' THEN cast(mr.expected_supply_duration_value AS double) / 24
+                WHEN 'hour' THEN cast(mr.expected_supply_duration_value AS double) / 24
+                WHEN 'hours' THEN cast(mr.expected_supply_duration_value AS double) / 24
+                WHEN 'd' THEN cast(mr.expected_supply_duration_value AS double)
+                WHEN 'day' THEN cast(mr.expected_supply_duration_value AS double)
+                WHEN 'days' THEN cast(mr.expected_supply_duration_value AS double)
+                WHEN 'wk' THEN cast(mr.expected_supply_duration_value AS double) * 7
+                WHEN 'week' THEN cast(mr.expected_supply_duration_value AS double) * 7
+                WHEN 'weeks' THEN cast(mr.expected_supply_duration_value AS double) * 7
+                WHEN 'mo' THEN cast(mr.expected_supply_duration_value AS double) * 30
+                WHEN 'month' THEN cast(mr.expected_supply_duration_value AS double) * 30
+                WHEN 'months' THEN cast(mr.expected_supply_duration_value AS double) * 30
+                WHEN 'a' THEN cast(mr.expected_supply_duration_value AS double) * 365
+                WHEN 'year' THEN cast(mr.expected_supply_duration_value AS double) * 365
+                WHEN 'years' THEN cast(mr.expected_supply_duration_value AS double) * 365
+            END AS supply_days
+        FROM mr_basics AS mr
+        LEFT JOIN dosage_bounds AS db ON mr.id = db.id
+    ),
+
+    coverage AS (
+        SELECT
+            cp.id,
+            cp.coverage_start_date,
+            CASE
+                WHEN cp.supply_days IS NOT NULL AND cp.coverage_start_date IS NOT NULL
+                    THEN {{ syntax.date_add_days('cp.supply_days', 'cp.coverage_start_date') }}
+                ELSE cp.bounds_end
+            END AS coverage_end_date,
+            CASE
+                WHEN cp.supply_days IS NOT NULL AND cp.coverage_start_date IS NOT NULL
+                    THEN 'expected_supply_duration'
+                WHEN cp.bounds_end IS NOT NULL THEN 'dosage_bounds_period'
+            END AS coverage_end_date_type
+        FROM coverage_parts AS cp
     ),
 
     contained_refs AS (
@@ -115,6 +246,16 @@ CREATE TABLE core__medicationrequest AS (
         mrc.system AS category_system,
         mrc.display AS category_display,
 
+        mrsr.code AS status_reason_code,
+        mrsr.system AS status_reason_system,
+        mrsr.display AS status_reason_display,
+        mr.status_reason_text,
+
+        mrct.code AS course_of_therapy_code,
+        mrct.system AS course_of_therapy_system,
+        mrct.display AS course_of_therapy_display,
+        mr.course_of_therapy_text,
+
         mr.reportedBoolean,
         mr.reported_ref,
 
@@ -122,14 +263,30 @@ CREATE TABLE core__medicationrequest AS (
         uc.medication_system,
         uc.medication_display,
 
+        cast(mr.dispense_refills_allowed AS bigint) AS dispense_refills_allowed,
+        cast(mr.dispense_quantity_value AS double) AS dispense_quantity_value,
+        mr.dispense_quantity_unit,
+        cast(mr.expected_supply_duration_value AS double) AS expected_supply_duration_value,
+        mr.expected_supply_duration_unit,
+        mr.validity_period_start,
+        mr.validity_period_end,
+
+        cov.coverage_start_date,
+        cov.coverage_end_date,
+        cov.coverage_end_date_type,
+
         mr.authoredOn,
         mr.authoredOn_month,
 
         concat('MedicationRequest/', mr.id) AS medicationrequest_ref,
         mr.subject_ref,
         mr.encounter_ref,
-        mr.requester_ref
+        mr.requester_ref,
+        mr.prior_prescription_ref
     FROM mr_basics AS mr
     LEFT JOIN unified_codes AS uc ON mr.id = uc.id
+    LEFT JOIN coverage AS cov ON mr.id = cov.id
     LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
+    LEFT JOIN core__medicationrequest_dn_status_reason AS mrsr ON mr.id = mrsr.id
+    LEFT JOIN core__medicationrequest_dn_course_of_therapy AS mrct ON mr.id = mrct.id
 );

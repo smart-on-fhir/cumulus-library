@@ -65,6 +65,8 @@ type = "build:parallel"
 [[stages.build_core]]
 label = "Tables derived from FHIR resource tables"
 files = [
+    "builder_medicationdispense_dosageinstruction.py",
+    "builder_medicationrequest_dosageinstruction.py",
     "observation_type.sql",
     "meta_date.sql"
 ]

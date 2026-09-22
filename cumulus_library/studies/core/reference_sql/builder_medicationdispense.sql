@@ -18,8 +18,12 @@ CREATE TABLE core__medicationdispense AS (
         md.medicationReference.reference AS med_ref,
         md.quantity.value AS quantity_value,
         md.quantity.unit AS quantity_unit,
+        md.quantity.system AS quantity_system,
+        md.quantity.code AS quantity_code,
         md.daysSupply.value AS days_supply_value,
         md.daysSupply.unit AS days_supply_unit,
+        md.daysSupply.system AS days_supply_system,
+        md.daysSupply.code AS days_supply_code,
         cast(from_iso8601_timestamp(md."whenPrepared") AS timestamp) AS whenPrepared,
         cast(from_iso8601_timestamp(md."whenHandedOver") AS timestamp) AS whenHandedOver,
         date_trunc('month', cast(from_iso8601_timestamp(md."whenPrepared") AS date))
@@ -107,8 +111,12 @@ CREATE TABLE core__medicationdispense AS (
         -- them as varchar if they aren't in the schema.
         cast(md.quantity_value AS double) AS quantity_value,
         md.quantity_unit,
+        md.quantity_system,
+        md.quantity_code,
         cast(md.days_supply_value AS double) AS days_supply_value,
         md.days_supply_unit,
+        md.days_supply_system,
+        md.days_supply_code,
 
         md.whenPrepared,
         md.whenPrepared_month,
@@ -160,4 +168,21 @@ CREATE TABLE core__medicationdispense_authorizingprescription AS (
         f.reference AS medicationrequest_ref
     FROM flattened_rows AS f
     WHERE f.reference IS NOT NULL
+);
+
+-- ###########################################################
+
+
+
+-- US Core marks MedicationDispense.performer.actor as must support. performer is
+-- 0..*, so - as with authorizing prescriptions - it gets its own table rather than
+-- fanning out core__medicationdispense. 'row' is the performer's position in the
+-- source array. performer.function is deliberately absent: it is not must support.
+
+CREATE TABLE core__medicationdispense_performer AS (
+    SELECT
+        'x' AS id,
+        cast(NULL AS bigint) AS row,
+        'x' AS performer_ref
+    WHERE 1 = 0 -- empty table
 );

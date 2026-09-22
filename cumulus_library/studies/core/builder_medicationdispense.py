@@ -14,6 +14,7 @@ expected_table_cols = {
         "medicationReference": sql_utils.REFERENCE,
         # 0..*, there may be multiple orders, or none
         "authorizingPrescription": sql_utils.REFERENCE,
+        "performer": {"actor": sql_utils.REFERENCE},
         "whenPrepared": [],
         "whenHandedOver": [],
         "quantity": ["value", "unit", "system", "code"],
@@ -41,4 +42,5 @@ class MedicationDispenseBuilder(cumulus_library.BaseTableBuilder):
             core_templates.get_core_template(
                 "medicationdispense_authorizingprescription", validated_schema
             ),
+            core_templates.get_core_template("medicationdispense_performer", validated_schema),
         ]

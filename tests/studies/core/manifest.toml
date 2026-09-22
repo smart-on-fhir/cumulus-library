@@ -21,8 +21,8 @@ files = [
     "builder_encounter_prereq.py",
     "builder_episodeofcare_prereq.py",
     "builder_location_prereq.py",
-    "builder_medicationrequest_prereq.py",
     "builder_medicationdispense_prereq.py",
+    "builder_medicationrequest_prereq.py",
     "builder_observation_prereq.py",
     "builder_organization_prereq.py",
     "builder_patient_prereq.py",
@@ -66,6 +66,8 @@ files = [
 type = "build:parallel"
 label = "Tables derived from FHIR resource tables"
 files = [
+    "builder_medicationdispense_dosageinstruction.py",
+    "builder_medicationrequest_dosageinstruction.py",
     "observation_type.sql",
     "meta_date.sql",
 ]
@@ -121,23 +123,36 @@ name = "count_encounter_service_month"
 description = "A general count of encounter service types by month.\n\nThis table provides a summary snapshot of all the enounters for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by value,\nobservation code, and the date of the lab. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
 
 [[stages.build_core.tables]]
-name = "count_medicationdispense_month"
-description = "A general count of patients with medication dispenses by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by medication name,\nrequest status, intent of medication, and the date of the request authoring. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
-
-[tables.count_medicationdispense_type_month]
-description = """A general count of medication dispense types by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population that have been loaded into a database for us by the Cumulus ecosystem.\n\nIt bins by dispense type,dispense category, and the month the medication was dispensed.It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"""
-
-[[stages.build_core.tables]]
 name = "count_medicationrequest_month"
 description = "A general count of patients with medication requests by month.\n\nThis table provides a summary snapshot of all the medication requests for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by medication name,\nrequest status, intent of medication, and the date of the request authoring. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "count_medicationrequest_coverage_month"
+description = "A general count of medication request coverage intervals by month.\n\nThis table provides a summary snapshot of the derived coverage interval on every medication\nrequest for the entire patient population that have been loaded into a database for use by\nthe Cumulus ecosystem. It bins by request status, intent of medication, which element supplied\nthe end of the coverage interval, and the month the request was authored. Rows where that\nelement is cumulus__none had neither an expected supply duration nor dosage bounds to derive\nan interval from. It is primarily intended as a validation tool to ensure that data has been\nsuccessfully extracted from a source system via the FHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "count_medicationrequest_dispense_month"
+description = "A general count of medication request dispense parameters by month.\n\nThis table provides a summary snapshot of the dispense request on every medication request for\nthe entire patient population that have been loaded into a database for use by the Cumulus\necosystem. It bins by intent of medication, the number of refills allowed, the unit the\nexpected supply duration was recorded in, and the month the request was authored. It is\nprimarily intended as a validation tool to ensure that data has been successfully extracted\nfrom a source system via the FHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "count_medicationrequest_dosage_month"
+description = "A general count of medication request dosage instructions by month.\n\nThis table provides a summary snapshot of all the dosage instruction steps for the entire\npatient population that have been loaded into a database for use by the Cumulus ecosystem.\nA single request may contribute several steps, since a taper is recorded as one step per\ndose level. It bins by route of administration, the timing the dose was ordered on, whether\nthe dose is as-needed, and the month the request was authored. It is primarily intended as a\nvalidation tool to ensure that data has been successfully extracted from a source system via\nthe FHIR data format.\n"
 
 [[stages.build_core.tables]]
 name = "count_medicationdispense_month"
 description = "A general count of patients with medication dispenses by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by medication name,\ndispense status, and the month the medication was handed over. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
 
 [[stages.build_core.tables]]
+name = "count_medicationdispense_category_month"
+description = "A general count of medication dispense categories by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by dispense status,\ndispense category, and the month the medication was handed over. It is primarily intended as a\nvalidation tool to ensure that data has been successfully extracted from a source system via the\nFHIR data format.\n"
+
+[[stages.build_core.tables]]
 name = "count_medicationdispense_type_month"
-description = "A general count of medication dispense types by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by dispense status,\ndispense type, dispense category, and the month the medication was handed over. It is primarily\nintended as a validation tool to ensure that data has been successfully extracted from a source\nsystem via the FHIR data format.\n"
+description = "A general count of medication dispense types by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by dispense status,\ndispense type, and the month the medication was handed over. It is primarily intended as a\nvalidation tool to ensure that data has been successfully extracted from a source system via the\nFHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "count_medicationdispense_dosage_month"
+description = "A general count of medication dispense dosage instructions by month.\n\nThis table provides a summary snapshot of all the dosage instruction steps attached to\nmedication dispenses for the entire patient population that have been loaded into a database\nfor use by the Cumulus ecosystem. A single dispense may contribute several steps, since a\ntaper is recorded as one step per dose level. It bins by route of administration, the timing\nthe dose was dispensed on, the unit the dose was recorded in, and the month the medication was\nhanded over. It is primarily intended as a validation tool to ensure that data has been\nsuccessfully extracted from a source system via the FHIR data format.\n"
 
 [[stages.build_core.tables]]
 name = "count_observation_lab_month"

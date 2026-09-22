@@ -1,0 +1,122 @@
+{#- Shared macros for Dosage.doseAndRate, which MedicationRequest and
+    MedicationDispense both carry in the same shape. -#}
+
+{%- macro _coalesce_or_null(parts) -%}
+{%- if parts | length == 0 -%}
+cast(NULL AS varchar)
+{%- elif parts | length == 1 -%}
+{{ parts[0] }}
+{%- else -%}
+coalesce({{ parts | join(', ') }})
+{%- endif -%}
+{%- endmacro -%}
+
+{#- Emits the dose[x] columns for an unnested doseAndRate element.
+
+    dose[x] is a choice type: a given doseAndRate carries either a doseQuantity or
+    a doseRange, never both, so dosage_dose_type says which one this row used.
+    unit/system/code are shared across both representations - a Range's bounds are
+    expressed in one unit in any data we have seen - so they are coalesced into a
+    single set of columns that is usable no matter which form the source chose. The
+    low/high bounds themselves stay in their own columns.
+
+    alias: the SQL alias of the unnested doseAndRate element
+    dose: the validated schema fragment for doseAndRate
+-#}
+{% macro dose_cols(alias, dose) %}
+{%- set quantity = dose["doseQuantity"] %}
+{%- set low = dose["doseRange"]["low"] %}
+{%- set high = dose["doseRange"]["high"] %}
+{%- set has_quantity = (
+    quantity["value"] or quantity["unit"] or quantity["system"] or quantity["code"]
+) %}
+{%- set has_range = (
+    low["value"] or low["unit"] or low["system"] or low["code"]
+    or high["value"] or high["unit"] or high["system"] or high["code"]
+) %}
+{%- set unit_parts = [
+    (alias ~ '.doseQuantity.unit') if quantity["unit"] else none,
+    (alias ~ '.doseRange.low.unit') if low["unit"] else none,
+    (alias ~ '.doseRange.high.unit') if high["unit"] else none,
+] | select('string') | list %}
+{%- set system_parts = [
+    (alias ~ '.doseQuantity.system') if quantity["system"] else none,
+    (alias ~ '.doseRange.low.system') if low["system"] else none,
+    (alias ~ '.doseRange.high.system') if high["system"] else none,
+] | select('string') | list %}
+{%- set code_parts = [
+    (alias ~ '.doseQuantity.code') if quantity["code"] else none,
+    (alias ~ '.doseRange.low.code') if low["code"] else none,
+    (alias ~ '.doseRange.high.code') if high["code"] else none,
+] | select('string') | list %}
+{%- set quantity_leaves = [
+    (alias ~ '.doseQuantity.value') if quantity["value"] else none,
+    (alias ~ '.doseQuantity.unit') if quantity["unit"] else none,
+    (alias ~ '.doseQuantity.system') if quantity["system"] else none,
+    (alias ~ '.doseQuantity.code') if quantity["code"] else none,
+] | select('string') | list %}
+{%- set range_leaves = [
+    (alias ~ '.doseRange.low.value') if low["value"] else none,
+    (alias ~ '.doseRange.low.unit') if low["unit"] else none,
+    (alias ~ '.doseRange.low.system') if low["system"] else none,
+    (alias ~ '.doseRange.low.code') if low["code"] else none,
+    (alias ~ '.doseRange.high.value') if high["value"] else none,
+    (alias ~ '.doseRange.high.unit') if high["unit"] else none,
+    (alias ~ '.doseRange.high.system') if high["system"] else none,
+    (alias ~ '.doseRange.high.code') if high["code"] else none,
+] | select('string') | list %}
+            {% if has_quantity or has_range -%}
+            CASE
+                {%- if has_quantity %}
+                WHEN {{ quantity_leaves | join(' IS NOT NULL OR ') }} IS NOT NULL
+                    THEN 'quantity'
+                {%- endif %}
+                {%- if has_range %}
+                WHEN {{ range_leaves | join(' IS NOT NULL OR ') }} IS NOT NULL
+                    THEN 'range'
+                {%- endif %}
+            END AS dosage_dose_type,
+            {%- else -%}
+            cast(NULL AS varchar) AS dosage_dose_type,
+            {%- endif %}
+            {% if quantity["value"] -%}
+            cast({{ alias }}.doseQuantity.value AS double) AS dosage_dose_value,
+            {%- else -%}
+            cast(NULL AS double) AS dosage_dose_value,
+            {%- endif %}
+            {% if low["value"] -%}
+            cast({{ alias }}.doseRange.low.value AS double) AS dosage_dose_low_value,
+            {%- else -%}
+            cast(NULL AS double) AS dosage_dose_low_value,
+            {%- endif %}
+            {% if high["value"] -%}
+            cast({{ alias }}.doseRange.high.value AS double) AS dosage_dose_high_value,
+            {%- else -%}
+            cast(NULL AS double) AS dosage_dose_high_value,
+            {%- endif %}
+            {{ _coalesce_or_null(unit_parts) }} AS dosage_dose_unit,
+            {{ _coalesce_or_null(system_parts) }} AS dosage_dose_system,
+            {{ _coalesce_or_null(code_parts) }} AS dosage_dose_code
+{%- endmacro %}
+
+{#- The dose[x] columns for the empty-table case, in the same order as dose_cols. -#}
+{% macro empty_dose_cols() %}
+            cast(NULL AS varchar) AS dosage_dose_type,
+            cast(NULL AS double) AS dosage_dose_value,
+            cast(NULL AS double) AS dosage_dose_low_value,
+            cast(NULL AS double) AS dosage_dose_high_value,
+            cast(NULL AS varchar) AS dosage_dose_unit,
+            cast(NULL AS varchar) AS dosage_dose_system,
+            cast(NULL AS varchar) AS dosage_dose_code
+{%- endmacro %}
+
+{#- The dose[x] columns as selected out of the dose table. -#}
+{% macro select_dose_cols(alias) %}
+        {{ alias }}.dosage_dose_type,
+        {{ alias }}.dosage_dose_value,
+        {{ alias }}.dosage_dose_low_value,
+        {{ alias }}.dosage_dose_high_value,
+        {{ alias }}.dosage_dose_unit,
+        {{ alias }}.dosage_dose_system,
+        {{ alias }}.dosage_dose_code
+{%- endmacro %}

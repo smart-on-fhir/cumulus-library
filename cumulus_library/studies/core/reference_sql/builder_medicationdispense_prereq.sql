@@ -184,3 +184,15 @@ CREATE TABLE core__medicationdispense_dn_type AS (
     FROM union_table
 );
 
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_dosage_route"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);

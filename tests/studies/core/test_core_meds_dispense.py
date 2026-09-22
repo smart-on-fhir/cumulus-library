@@ -168,3 +168,135 @@ def test_core_med_dispense_entered_in_error(tmp_path):
     db = testbed.build()
     dispenses = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
     assert {d[0] for d in dispenses} == {"Good"}
+
+
+def test_core_med_dispense_performers(tmp_path):
+    """Verify that performers land in their own table
+
+    US Core marks performer.actor must support. performer is 0..*, so it is kept
+    out of the main table to avoid fanning it out.
+    """
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    testbed.add_medication_dispense(
+        "MultiPerformer",
+        performer=[
+            {"actor": {"reference": "Practitioner/PracA"}},
+            {"actor": {"reference": "Organization/OrgB"}},
+        ],
+    )
+    testbed.add_medication_dispense("NoPerformer")
+
+    db = testbed.build()
+    df = db.connection.sql(
+        "SELECT id, row, performer_ref "
+        "FROM core__medicationdispense_performer "
+        "ORDER BY id, row"
+    ).df()
+    rows = json.loads(df.to_json(orient="records"))
+    assert [
+        {"id": "MultiPerformer", "row": 1, "performer_ref": "Practitioner/PracA"},
+        {"id": "MultiPerformer", "row": 2, "performer_ref": "Organization/OrgB"},
+    ] == rows
+
+    # The dispense itself should not be duplicated by its performers
+    dispenses = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
+    assert {d[0] for d in dispenses} == {"MultiPerformer", "NoPerformer"}
+
+
+def test_core_med_dispense_dosage_instructions(tmp_path):
+    """Verify dosage instructions, in both dose[x] representations
+
+    dose[x] is a choice of Quantity or Range, and US Core supports both.
+    """
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    testbed.add_medication_dispense(
+        "Taper",
+        dosageInstruction=[
+            {
+                "text": "2 tablets daily",
+                "route": {
+                    "coding": [
+                        {
+                            "code": "26643006",
+                            "system": "http://snomed.info/sct",
+                            "display": "Oral route",
+                        },
+                    ],
+                },
+                "timing": {
+                    "code": {"text": "QD"},
+                    "repeat": {"frequency": 1, "period": 1, "periodUnit": "d"},
+                },
+                "doseAndRate": [
+                    {
+                        "doseQuantity": {
+                            "value": 2,
+                            "unit": "tablet",
+                            "system": "http://unitsofmeasure.org",
+                            "code": "{tbl}",
+                        },
+                    },
+                ],
+            },
+            {
+                "text": "1 to 2 tablets as needed",
+                "doseAndRate": [
+                    {
+                        "doseRange": {
+                            "low": {"value": 1, "unit": "tablet"},
+                            "high": {"value": 2, "unit": "tablet"},
+                        },
+                    },
+                ],
+            },
+        ],
+    )
+    testbed.add_medication_dispense("NoDosage")
+
+    db = testbed.build()
+    df = db.connection.sql(
+        "SELECT "
+        "  id, row, dosage_text, dosage_route_display, dosage_timing_text, "
+        "  dosage_timing_frequency, dosage_timing_period_unit, dosage_dose_type, "
+        "  dosage_dose_value, dosage_dose_low_value, dosage_dose_high_value, "
+        "  dosage_dose_unit, subject_ref "
+        "FROM core__medicationdispense_dosageinstruction "
+        "ORDER BY id, row"
+    ).df()
+    rows = json.loads(df.to_json(orient="records"))
+    assert [
+        {
+            "id": "Taper",
+            "row": 1,
+            "dosage_text": "2 tablets daily",
+            "dosage_route_display": "Oral route",
+            "dosage_timing_text": "QD",
+            "dosage_timing_frequency": 1,
+            "dosage_timing_period_unit": "d",
+            "dosage_dose_type": "quantity",
+            "dosage_dose_value": 2.0,
+            "dosage_dose_low_value": None,
+            "dosage_dose_high_value": None,
+            "dosage_dose_unit": "tablet",
+            "subject_ref": "Patient/A",
+        },
+        {
+            "id": "Taper",
+            "row": 2,
+            "dosage_text": "1 to 2 tablets as needed",
+            "dosage_route_display": None,
+            "dosage_timing_text": None,
+            "dosage_timing_frequency": None,
+            "dosage_timing_period_unit": None,
+            "dosage_dose_type": "range",
+            "dosage_dose_value": None,
+            "dosage_dose_low_value": 1.0,
+            "dosage_dose_high_value": 2.0,
+            "dosage_dose_unit": "tablet",
+            "subject_ref": "Patient/A",
+        },
+    ] == rows
+
+    # The dispense itself should not be duplicated by its dosage instructions
+    dispenses = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
+    assert {d[0] for d in dispenses} == {"Taper", "NoDosage"}
