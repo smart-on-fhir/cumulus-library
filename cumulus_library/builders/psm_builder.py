@@ -1,5 +1,10 @@
 # Module for generating Propensity Score matching cohorts
 
+# Note: this is a v1 proof of concept implementation. We intend at some point
+# to reimplement this from scratch. The randomness controls in psmpy_lite are
+# not as configurable as we'd like, and so it makes repeatable runs harder to
+# configure. Use caution if you use this as part of a study.
+
 import json
 import os
 import pathlib

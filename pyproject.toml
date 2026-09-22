@@ -74,7 +74,8 @@ build-backend = "flit_core.buildapi"
 
 [tool.coverage.run]
 omit = [
-    "cumulus_library/builders/psmpy_lite.py"
+    "cumulus_library/builders/psmpy_lite.py",
+    "cumulus_library/builders/psm_builder.py",
 ]
 
 [tool.flit.sdist]
