@@ -54,11 +54,12 @@ class ProtectedTableBuilder(BaseTableBuilder):
                 const.REF_SUMMARY_COLS_TYPES,
             )
         )
+        iceberg_path = f"iceberg/{db_schema}/{manifest.get_study_prefix()}/build_source"
         self.queries.append(
             base_templates.get_ctas_crud_query(
                 schema_name=db_schema,
                 table_name=build_source,
-                remote_location=f"{config.db.get_remote_path()}/iceberg/build_source/",
+                remote_location=f"{config.db.get_remote_path()}{iceberg_path}",
                 table_cols=const.BUILD_SOURCE_COLS,
                 sql_col_types=const.BUILD_SOURCE_COLS_SQL_TYPE,
                 athena_col_types=const.BUILD_SOURCE_COLS_ATHENA_TYPE,

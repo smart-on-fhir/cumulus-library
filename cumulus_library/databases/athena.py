@@ -51,7 +51,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             try:
                 res = self.cursor.execute(*args, *kwargs)
             except pyathena.error.DatabaseError:
-                rich.print("Credentials/connectivity error, trying to refresh credentials...")
+                rich.print("SQL error, checking if refreshing credentials helps...")
                 self.outer._refresh_credentials()
                 res = self.cursor.execute(*args, *kwargs)
             return res
@@ -158,15 +158,15 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 self.connect_kwargs[aws_env_name.lower()] = aws_env_val
         self._refresh_credentials()
 
-    def cursor(self) -> AthenaCursor:
+    def cursor(self) -> AthenaCursorWrapper:
         return self.AthenaCursorWrapper(self.connection.cursor(), self)
 
-    def async_cursor(self) -> AthenaAsyncCursor:
+    def async_cursor(self) -> AthenaCursorWrapper:
         return self.AthenaCursorWrapper(
             self.connection.cursor(cursor=AthenaAsyncCursor, max_workers=self.max_concurrent), self
         )
 
-    def pandas_cursor(self) -> AthenaPandasCursor:
+    def pandas_cursor(self) -> AthenaCursorWrapper:
         return self.AthenaCursorWrapper(self.connection.cursor(cursor=AthenaPandasCursor), self)
 
     def execute_as_pandas(
