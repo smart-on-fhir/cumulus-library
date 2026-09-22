@@ -28,7 +28,9 @@ When exporting/uploading data, you need to provide a path to a data directory fo
 local reading and writing. Optionally, you can specify a path value to use for this
 in a `CUMULUS_LIBRARY_DATA_PATH` variable. The library will create subfolders in
 this directory based on the names studies you are exporting. These will be emptied
-before each export run.
+before each export run. This directory can be local, or it can be a location in S3.
+If a location in S3, your runner will need appropriate permissions to read and write
+to the specified bucket.
 
 If you are exporting data from Amazon Athena, it is assumed that you will have permissions
 to get/put/list/delete files in a folder called export at the root level of the

@@ -16,7 +16,7 @@ from cumulus_library.builders import psm_builder
 @pytest.mark.parametrize(
     (
         "toml_def,pos_set,neg_set,expected_first_record,expected_last_record,"
-        "expected_first_hist,expected_last_hist,expected_first_effect,expected_last_effect"
+        "expected_first_hist,expected_last_hist,expected_first_effect"
     ),
     [
         (
@@ -59,11 +59,6 @@ from cumulus_library.builders import psm_builder
                 "matched": False,
             },
             "category A,before,0.2724389343925956",
-            [
-                "white,after,0.39327683210006986",
-                "white,after,0.5285673369330032",
-                "white,after,0.6952217871538068",
-            ],
         ),
         (
             "psm_config_no_optional.toml",
@@ -99,15 +94,6 @@ from cumulus_library.builders import psm_builder
                 "matched": False,
             },
             "category A,before,0.2724389343925956",
-            [
-                "category C,after,0.0",
-                "category C,after,0.21984843263788195",
-                "category C,after,0.37161167647860316",
-                "category C,after,0.37161167647860327",
-                "category C,after,0.5453768398418632",
-                "category C,after,0.5453768398418634",
-                "category C,after,0.6952217871538069",
-            ],
         ),
     ],
 )
@@ -124,7 +110,6 @@ def test_psm_create(
     expected_first_hist,
     expected_last_hist,
     expected_first_effect,
-    expected_last_effect,
 ):
     mock_doc_dir.return_value = tmp_path
     builder = cli.StudyRunner(mock_db_stats_config, data_path=pathlib.Path(tmp_path))
@@ -187,9 +172,10 @@ def test_psm_create(
     with open(tmp_path / "cumulus-library/psm_test/psm_effect_size.csv") as f:
         lines = f.readlines()
         assert lines[1].rstrip() == expected_first_effect
-        # We get a series of semi-repeatable values here, so we'll just see if we get
-        # a known one
-        assert lines[-1].rstrip() in expected_last_effect
+        # We attempted to get a last expected value here, but we have had issues with random
+        # results, so we no longer attempt to do this. Revisit this decision if we decide to
+        # use the existing PSM workflow prior to reimplementation.
+        # assert lines[-1].rstrip() in expected_last_effect
 
 
 @pytest.mark.parametrize("error", [("value"), ("zero")])

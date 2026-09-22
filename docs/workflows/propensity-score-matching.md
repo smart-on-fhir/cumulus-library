@@ -12,6 +12,9 @@ nav_order: 4
 This document aims to provide help in configuring/running PSM analysis as part of a
 Cumulus Library study.
 
+{: .note }
+The current implementation is a proof of concept and will be replaced in the future.
+
 ## What is propensity score matching?
 
 Propensity score matching is a statistical technique for generating an experimental

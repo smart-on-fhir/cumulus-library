@@ -580,7 +580,6 @@ AWS Athena, the following order of preference is used to select credentials:
     markdown = actions.add_parser(
         "generate-md", help="Generates markdown tables for study documentation"
     )
-    add_data_path_argument(markdown)
     add_db_config(markdown)
     add_study_dir_argument(markdown)
     add_target_argument(markdown)
