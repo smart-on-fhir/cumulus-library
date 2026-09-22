@@ -180,89 +180,85 @@ vital signs) instead.
 
 ### core__count_condition_month
 
-|      Column      | Type  |Description|
-|------------------|-------|-----------|
-|cnt               |bigint |           |
-|category_code     |varchar|           |
-|recordeddate_month|varchar|           |
-|code_display      |varchar|           |
-|code              |varchar|           |
+|cnt               |bigint |count      |
+|category_code     |varchar|Encounter Code (Healthcare Setting)|
+|recordeddate_month|varchar|Month condition recorded|
+|code_display      |varchar|Condition code display|
+|code              |varchar|Condition code|
 
 
 ### core__count_diagnosticreport_month
 
-|     Column     | Type  |Description|
-|----------------|-------|-----------|
-|cnt             |bigint |           |
-|category_display|varchar|           |
-|code_display    |varchar|           |
-|issued_month    |varchar|           |
+| Column           | Type  | Description                     |
+|------------------|-------|---------------------------------|
+| cnt              |bigint | Count                           |
+| category_display |varchar| Service category                |
+| code_display     |varchar| Code for this diagnostic report |
+| issued_month     |varchar| When this version was made      |
 
 
 ### core__count_documentreference_month
 
-|   Column    | Type  |Description|
-|-------------|-------|-----------|
-|cnt          |bigint |           |
-|type_display |varchar|           |
-|author_month |varchar|           |
-|class_display|varchar|           |
+|     Column      | Type  |Description|
+|-----------------|-------|-----------|
+|cnt              |bigint |Count      |
+|type_display |varchar|Type of Document (display)|
+|author_month|varchar|Month document was authored|
+|class_display|varchar|Encounter Code (Healthcare Setting)|
 
 
 ### core__count_encounter_all_types
 
-|      Column       | Type  |Description|
-|-------------------|-------|-----------|
-|cnt                |bigint |           |
-|class_display      |varchar|           |
-|type_display       |varchar|           |
-|serviceType_display|varchar|           |
-|priority_display   |varchar|           |
+|       Column       | Type  |Description|
+|--------------------|-------|-----------|
+|cnt                 |bigint |Count      |
+|class_display       |varchar|Encounter Code (Healthcare Setting)|
+|type_display        |varchar|Encounter Type|
+|servicetype_display |varchar|Encounter Service|
+|priority_display    |varchar|Encounter Priority|
 
 
 ### core__count_encounter_all_types_month
 
-|      Column       | Type  |Description|
-|-------------------|-------|-----------|
-|cnt                |bigint |           |
-|class_display      |varchar|           |
-|type_display       |varchar|           |
-|serviceType_display|varchar|           |
-|priority_display   |varchar|           |
-|period_start_month |varchar|           |
+|       Column       | Type  |Description|
+|--------------------|-------|-----------|
+|cnt                 |bigint |Count      |
+|class_display       |varchar|Encounter Code (Healthcare Setting)|
+|type_display        |varchar|Encounter Type|
+|servicetype_display |varchar|Encounter Service|
+|priority_display    |varchar|Encounter Priority|
+|period_start_month  |varchar|Month encounter recorded|
 
 
 ### core__count_encounter_month
 
 |      Column      | Type  |Description|
 |------------------|-------|-----------|
-|cnt               |bigint |           |
-|period_start_month|varchar|           |
-|class_display     |varchar|           |
-|age_at_visit      |varchar|           |
-|gender            |varchar|           |
-|race_display      |varchar|           |
-|ethnicity_display |varchar|           |
+|cnt               |bigint |Count      |
+|period_start_month|varchar|Month encounter recorded|
+|class_display     |varchar|Encounter Code (Healthcare Setting)|
+|age_at_visit      |varchar|Patient Age at Encounter|
+|gender            |varchar|Biological sex at birth|
+|race_display      |varchar|Patient reported race|
+|ethnicity_display |varchar|Patient reported ethnicity|
 
 
 ### core__count_encounter_priority_month
 
-|      Column      | Type  |Description|
-|------------------|-------|-----------|
-|cnt               |bigint |           |
-|class_display     |varchar|           |
-|priority_display  |varchar|           |
-|period_start_month|varchar|           |
+|       Column       | Type  |Description|
+|--------------------|-------|-----------|
+|cnt                 |bigint |Count      |
+|class_display       |varchar|Encounter Code (Healthcare Setting)|
+|priority_display    |varchar|Encounter Priority|
+|period_start_month  |varchar|Month encounter recorded|
 
 
 ### core__count_encounter_service_month
 
-|      Column       | Type  |Description|
-|-------------------|-------|-----------|
-|cnt                |bigint |           |
-|class_display      |varchar|           |
-|serviceType_display|varchar|           |
-|period_start_month |varchar|           |
+|cnt                |bigint |Count      |
+|class_display      |varchar|Encounter Code (Healthcare Setting)|
+|servicetype_display|varchar|Encounter Service|
+|period_start_month |varchar|Month encounter recorded|
 
 
 ### core__count_encounter_type_month
@@ -340,34 +336,34 @@ vital signs) instead.
 
 ### core__count_medicationrequest_month
 
-|      Column      | Type  |Description|
+|     Column      | Type  |Description|
 |------------------|-------|-----------|
-|cnt               |bigint |           |
-|status            |varchar|           |
-|intent            |varchar|           |
-|authoredon_month  |varchar|           |
-|medication_display|varchar|           |
+|cnt               |bigint |Count      |
+|status            |varchar|Perscribing event state|
+|intent            |varchar|Medication order kind|
+|authoredon_month  |varchar|Month medication request issued|
+|medication_display|varchar|Medication Name|
 
 
 ### core__count_observation_lab_month
 
 |           Column           | Type  |Description|
 |----------------------------|-------|-----------|
-|cnt                         |bigint |           |
-|effectivedateTime_month     |varchar|           |
-|observation_code            |varchar|           |
-|valueCodeableConcept_display|varchar|           |
-|class_display               |varchar|           |
+|cnt                         |bigint |Count      |
+|effectivedatetime_month     |varchar|Month of lab result|
+|observation_code            |varchar|Lab result coding|
+|valuecodeableconcept_display|varchar|Lab result display text|
+|class_display               |varchar|Encounter Code (Healthcare Setting)|
 
 
 ### core__count_patient
 
 |     Column      | Type  |Description|
 |-----------------|-------|-----------|
-|cnt              |bigint |           |
-|gender           |varchar|           |
-|race_display     |varchar|           |
-|ethnicity_display|varchar|           |
+|cnt              |bigint |Count      |
+|gender           |varchar|Biological sex at birth|
+|race_display     |varchar|Patient reported race|
+|ethnicity_display|varchar|Patient reported ethnicity|
 
 
 ### core__count_procedure_month
@@ -377,7 +373,7 @@ vital signs) instead.
 |cnt                    |bigint |           |
 |category_display       |varchar|           |
 |code_display           |varchar|           |
-|performeddateTime_month|varchar|           |
+|performeddatetime_month|varchar|           |
 
 
 ### core__count_servicerequest_month
@@ -387,7 +383,7 @@ vital signs) instead.
 |cnt             |bigint |           |
 |category_display|varchar|           |
 |code_display    |varchar|           |
-|authoredOn_month|varchar|           |
+|authoredon_month|varchar|           |
 
 
 ### core__count_specimen_month
@@ -438,7 +434,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__allergyintolerance_dn_code
@@ -449,7 +445,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__allergyintolerance_dn_reaction_manifestation
@@ -461,7 +457,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__allergyintolerance_dn_reaction_substance
@@ -473,7 +469,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__allergyintolerance_dn_verification_status
@@ -484,7 +480,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__condition
@@ -519,7 +515,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__condition_codable_concepts_display
@@ -530,7 +526,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__condition_dn_category
@@ -542,7 +538,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__condition_dn_clinical_status
@@ -553,7 +549,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__condition_dn_verification_status
@@ -564,7 +560,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__diagnosticreport
@@ -620,7 +616,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__diagnosticreport_dn_code
@@ -631,7 +627,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__diagnosticreport_dn_conclusioncode
@@ -643,7 +639,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__documentreference
@@ -679,7 +675,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__documentreference_dn_format
@@ -700,7 +696,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__encounter
@@ -751,7 +747,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__encounter_dn_priority
@@ -763,7 +759,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__encounter_dn_reasoncode
@@ -775,7 +771,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__encounter_dn_servicetype
@@ -787,7 +783,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__encounter_dn_type
@@ -799,7 +795,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__episodeofcare
@@ -834,7 +830,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__fhir_act_encounter_code_v3
@@ -847,10 +843,10 @@ vital signs) instead.
 
 ### core__fhir_mapping_code_system_uri
 
-|  Column   | Type  |Description|
-|-----------|-------|-----------|
-|code_system|varchar|           |
-|uri        |varchar|           |
+| Column |   Type    |Description|
+|--------|-----------|-----------|
+|resource|varchar(25)|           |
+|uri     |varchar(73)|           |
 
 
 ### core__fhir_mapping_expected_act_encounter_code_v3
@@ -899,13 +895,13 @@ vital signs) instead.
 
 ### core__lib_transactions
 
-|    Column     |  Type   |Description|
-|---------------|---------|-----------|
-|study_name     |varchar|           |
-|library_version|varchar|           |
-|status         |varchar|           |
-|event_time     |timestamp|           |
-|message        |varchar|           |
+|    Column     |    Type    |Description|
+|---------------|------------|-----------|
+|study_name     |varchar     |           |
+|library_version|varchar     |           |
+|status         |varchar     |           |
+|event_time     |timestamp(3)|           |
+|message        |varchar     |           |
 
 
 ### core__location
@@ -935,7 +931,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medication_dn_code
@@ -947,7 +943,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationdispense
@@ -1002,7 +998,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationdispense_dn_contained_code
@@ -1016,7 +1012,7 @@ vital signs) instead.
 |code         |varchar|           |
 |system       |varchar|           |
 |display      |varchar|           |
-|userSelected |boolean|           |
+|userselected |boolean|           |
 
 
 ### core__medicationdispense_dn_dosage_route
@@ -1028,7 +1024,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationdispense_dn_inline_code
@@ -1039,7 +1035,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationdispense_dn_type
@@ -1050,7 +1046,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationdispense_dosageinstruction
@@ -1141,7 +1137,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationrequest_dn_contained_code
@@ -1153,7 +1149,7 @@ vital signs) instead.
 |code         |varchar|           |
 |system       |varchar|           |
 |display      |varchar|           |
-|userSelected |boolean|           |
+|userselected |boolean|           |
 |contained_id |varchar|           |
 |resource_type|varchar|           |
 
@@ -1167,7 +1163,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationrequest_dn_dosage_route
@@ -1179,7 +1175,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationrequest_dn_inline_code
@@ -1190,7 +1186,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationrequest_dn_status_reason
@@ -1202,7 +1198,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__medicationrequest_dosageinstruction
@@ -1296,7 +1292,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__observation_component_dataabsentreason
@@ -1308,7 +1304,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__observation_component_interpretation
@@ -1320,7 +1316,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__observation_component_valuecodeableconcept
@@ -1332,7 +1328,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__observation_component_valuequantity
@@ -1357,7 +1353,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__observation_dn_code
@@ -1368,7 +1364,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__observation_dn_dataabsentreason
@@ -1380,7 +1376,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__observation_dn_interpretation
@@ -1392,7 +1388,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__observation_dn_valuecodeableconcept
@@ -1403,7 +1399,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__observation_lab
@@ -1485,7 +1481,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__patient
@@ -1544,7 +1540,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__practitionerrole
@@ -1576,7 +1572,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__practitionerrole_dn_specialty
@@ -1588,7 +1584,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__procedure
@@ -1632,7 +1628,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__procedure_dn_code
@@ -1643,7 +1639,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__servicerequest
@@ -1695,7 +1691,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__servicerequest_dn_code
@@ -1706,7 +1702,7 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
 
 
 ### core__specimen
@@ -1730,4 +1726,4 @@ vital signs) instead.
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
-|userSelected|boolean|           |
+|userselected|boolean|           |
