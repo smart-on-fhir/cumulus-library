@@ -33,8 +33,5 @@ class MedicationDispenseBuilder(cumulus_library.BaseTableBuilder):
         validated_schema = sql_utils.validate_schema(config.db, expected_table_cols)
         self.queries += [
             core_templates.get_core_template("medicationdispense", validated_schema),
-            core_templates.get_core_template(
-                "medicationdispense_authorizingprescription", validated_schema
-            ),
             core_templates.get_core_template("medicationdispense_performer", validated_schema),
         ]

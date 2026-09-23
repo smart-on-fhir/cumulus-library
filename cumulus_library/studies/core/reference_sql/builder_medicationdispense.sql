@@ -35,6 +35,12 @@ CREATE TABLE core__medicationdispense AS (
         WHERE (md.status IS NULL OR md.status <> 'entered-in-error')
     ),
 
+    authorizing_prescriptions AS (
+        SELECT
+            'x' AS id, cast(NULL AS varchar) AS reference
+        WHERE 1 = 0 -- no authorizingPrescription
+    ),
+
     contained_refs AS (
         SELECT DISTINCT
             md.id,
@@ -123,23 +129,13 @@ CREATE TABLE core__medicationdispense AS (
 
         concat('MedicationDispense/', md.id) AS medicationdispense_ref,
         md.subject_ref,
-        md.encounter_ref
+        md.encounter_ref,
+        ap.reference AS medicationrequest_ref
     FROM md_basics AS md
+    LEFT JOIN authorizing_prescriptions AS ap ON md.id = ap.id
     LEFT JOIN unified_codes AS uc ON md.id = uc.id
     LEFT JOIN core__medicationdispense_dn_category AS mdc ON md.id = mdc.id
     LEFT JOIN core__medicationdispense_dn_type AS mdt ON md.id = mdt.id
-);
-
--- ###########################################################
-
-
-
-CREATE TABLE core__medicationdispense_authorizingprescription AS (
-    SELECT
-        'x' AS id,
-        cast(NULL AS bigint) AS row,
-        'x' AS medicationrequest_ref
-    WHERE 1 = 0 -- empty table
 );
 
 -- ###########################################################

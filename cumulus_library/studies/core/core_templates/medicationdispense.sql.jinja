@@ -1,5 +1,6 @@
 {% import 'core_utils.jinja' as utils -%}
 {% import 'syntax.sql.jinja' as syntax -%}
+{% import 'unnest_utils.jinja' as unnest_utils -%}
 
 CREATE TABLE core__medicationdispense AS (
     WITH
@@ -61,6 +62,20 @@ CREATE TABLE core__medicationdispense AS (
             }}
         FROM medicationdispense AS md
         WHERE (md.status IS NULL OR md.status <> 'entered-in-error')
+    ),
+
+    authorizing_prescriptions AS (
+        {%- if schema["medicationdispense"]["authorizingPrescription"]["reference"] %}
+        {{ unnest_utils.flatten(
+            'medicationdispense',
+            'reference',
+            parent_field='authorizingPrescription'
+        ) }}
+        {%- else %}
+        SELECT
+            'x' AS id, cast(NULL AS varchar) AS reference
+        WHERE 1 = 0 -- no authorizingPrescription
+        {%- endif %}
     ),
 
     contained_refs AS (
@@ -159,8 +174,10 @@ CREATE TABLE core__medicationdispense AS (
 
         concat('MedicationDispense/', md.id) AS medicationdispense_ref,
         md.subject_ref,
-        md.encounter_ref
+        md.encounter_ref,
+        ap.reference AS medicationrequest_ref
     FROM md_basics AS md
+    LEFT JOIN authorizing_prescriptions AS ap ON md.id = ap.id
     LEFT JOIN unified_codes AS uc ON md.id = uc.id
     LEFT JOIN core__medicationdispense_dn_category AS mdc ON md.id = mdc.id
     LEFT JOIN core__medicationdispense_dn_type AS mdt ON md.id = mdt.id

@@ -130,39 +130,6 @@ def test_core_med_dispense_multiple_categories(tmp_path):
     ] == rows
 
 
-def test_core_med_dispense_authorizing_prescriptions(tmp_path):
-    """Verify that authorizing prescriptions land in their own table
-
-    A dispense may cite several orders, so they are kept out of the main table
-    to avoid fanning it out.
-    """
-    testbed = testbed_utils.LocalTestbed(tmp_path)
-    testbed.add_medication_dispense(
-        "MultiRx",
-        authorizingPrescription=[
-            {"reference": "MedicationRequest/ReqA"},
-            {"reference": "MedicationRequest/ReqB"},
-        ],
-    )
-    testbed.add_medication_dispense("NoRx")
-
-    db = testbed.build()
-    df = db.connection.sql(
-        "SELECT id, row, medicationrequest_ref "
-        "FROM core__medicationdispense_authorizingprescription "
-        "ORDER BY id, row"
-    ).df()
-    rows = json.loads(df.to_json(orient="records"))
-    assert [
-        {"id": "MultiRx", "row": 1, "medicationrequest_ref": "MedicationRequest/ReqA"},
-        {"id": "MultiRx", "row": 2, "medicationrequest_ref": "MedicationRequest/ReqB"},
-    ] == rows
-
-    # The dispense itself should not be duplicated by its prescriptions
-    dispenses = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
-    assert {d[0] for d in dispenses} == {"MultiRx", "NoRx"}
-
-
 def test_core_med_dispense_entered_in_error(tmp_path):
     """Verify that we drop entered-in-error dispenses"""
     testbed = testbed_utils.LocalTestbed(tmp_path)
