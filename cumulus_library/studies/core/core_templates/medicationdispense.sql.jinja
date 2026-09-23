@@ -79,6 +79,7 @@ CREATE TABLE core__medicationdispense AS (
     ),
 
     {%- if schema["medicationdispense"]["performer"]["actor"]["reference"] %}
+
     performer_rows AS (
         {{ unnest_utils.flatten(
             'medicationdispense',
@@ -93,12 +94,11 @@ CREATE TABLE core__medicationdispense AS (
             f.actor.reference AS performer_ref
         FROM performer_rows AS f
         WHERE f.actor.reference IS NOT NULL
-    )
+    ),
     {%- else %}
     performers AS (
         SELECT
             'x' AS id,
-            cast(NULL AS bigint) AS row,
             'x' AS performer_ref
         WHERE 1 = 0 -- no performer
     ),
