@@ -2,7 +2,8 @@
 {% import 'syntax.sql.jinja' as syntax -%}
 {% import 'unnest_utils.jinja' as unnest_utils -%}
 
-{%- set bounds = schema["medicationrequest"]["dosageInstruction"]["timing"]["repeat"]["boundsPeriod"] %}
+{%- set bounds = schema["medicationrequest"]["dosageInstruction"]
+    ["timing"]["repeat"]["boundsPeriod"] %}
 {%- set has_bounds = bounds["start"] or bounds["end"] %}
 
 CREATE TABLE core__medicationrequest AS (
@@ -102,20 +103,25 @@ CREATE TABLE core__medicationrequest AS (
             d.id,
             {% if bounds["start"] -%}
             min(cast(
-                from_iso8601_timestamp(d.dosageInstruction.timing.repeat.boundsPeriod.start)
+                from_iso8601_timestamp(
+                    d.dosageInstruction.timing.repeat.boundsPeriod."start"
+                )
                 AS date
             )) AS bounds_start,
             {%- else -%}
             cast(NULL AS date) AS bounds_start,
             {%- endif %}
-            {% if bounds["end"] -%}
-            max(cast(
-                from_iso8601_timestamp(d.dosageInstruction.timing.repeat.boundsPeriod."end")
-                AS date
-            )) AS bounds_end
-            {%- else -%}
-            cast(NULL AS date) AS bounds_end
-            {%- endif %}
+        {% if bounds["end"] -%}
+        max(
+            cast(
+                from_iso8601_timestamp(
+                    d.dosageInstruction.timing.repeat.boundsPeriod."end"
+                ) AS date
+            )
+        ) AS bounds_end
+        {%- else -%}
+        cast(NULL AS date) AS bounds_end
+        {%- endif %}
         FROM dosage_rows AS d
         GROUP BY d.id
     ),
@@ -167,7 +173,8 @@ CREATE TABLE core__medicationrequest AS (
             cp.coverage_start_date,
             CASE
                 WHEN cp.supply_days IS NOT NULL AND cp.coverage_start_date IS NOT NULL
-                    THEN {{ syntax.date_add_days('cp.supply_days', 'cp.coverage_start_date') }}
+                    THEN {{ syntax.date_add_days(
+                        'cp.supply_days', 'cp.coverage_start_date') }}
                 ELSE cp.bounds_end
             END AS coverage_end_date,
             CASE
@@ -263,7 +270,8 @@ CREATE TABLE core__medicationrequest AS (
         cast(mr.dispense_refills_allowed AS bigint) AS dispense_refills_allowed,
         cast(mr.dispense_quantity_value AS double) AS dispense_quantity_value,
         mr.dispense_quantity_unit,
-        cast(mr.expected_supply_duration_value AS double) AS expected_supply_duration_value,
+        cast(mr.expected_supply_duration_value AS double)
+            AS expected_supply_duration_value,
         mr.expected_supply_duration_unit,
         mr.validity_period_start,
         mr.validity_period_end,
@@ -281,9 +289,14 @@ CREATE TABLE core__medicationrequest AS (
         mr.requester_ref,
         mr.prior_prescription_ref
     FROM mr_basics AS mr
-    LEFT JOIN unified_codes AS uc ON mr.id = uc.id
-    LEFT JOIN coverage AS cov ON mr.id = cov.id
-    LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
-    LEFT JOIN core__medicationrequest_dn_status_reason AS mrsr ON mr.id = mrsr.id
-    LEFT JOIN core__medicationrequest_dn_course_of_therapy AS mrct ON mr.id = mrct.id
+    LEFT JOIN unified_codes AS uc
+        ON mr.id = uc.id
+    LEFT JOIN coverage AS cov
+        ON mr.id = cov.id
+    LEFT JOIN core__medicationrequest_dn_category AS mrc
+        ON mr.id = mrc.id
+    LEFT JOIN core__medicationrequest_dn_status_reason AS mrsr
+        ON mr.id = mrsr.id
+    LEFT JOIN core__medicationrequest_dn_course_of_therapy AS mrct
+        ON mr.id = mrct.id
 );

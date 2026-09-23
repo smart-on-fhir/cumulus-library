@@ -238,6 +238,30 @@ schema =
             },
             'dosageInstruction': {
                 'text': True,
+                'route': {
+                    'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+                },
+                'timing': {
+                    'code': {'text': True},
+                    'repeat': {
+                        'frequency': True,
+                        'period': True,
+                        'periodUnit': True,
+                        'boundsPeriod': {'start': True, 'end': True}
+                    }
+                },
+                'doseAndRate': {
+                    'doseQuantity': {
+                        'value': True, 'unit': True, 'system': True, 'code': True
+                    },
+                    'doseRange': {
+                        'low': {'value': True, 'unit': True, 'system': True, 'code': True},
+                        'high': {'value': True, 'unit': True, 'system': True, 'code': True}
+                    }
+                }
+            },
+            'performer': {
+                'actor': {'reference': True}
             },
             'quantity': {
                 'value': True, 'unit': True, 'system': True, 'code': True
@@ -278,7 +302,13 @@ schema =
                     }
                 },
                 'doseAndRate': {
-                    'doseQuantity': {'value': True, 'unit': True}
+                    'doseQuantity': {
+                        'value': True, 'unit': True, 'system': True, 'code': True
+                    },
+                    'doseRange': {
+                        'low': {'value': True, 'unit': True, 'system': True, 'code': True},
+                        'high': {'value': True, 'unit': True, 'system': True, 'code': True}
+                    }
                 }
             },
             'courseOfTherapyType': {

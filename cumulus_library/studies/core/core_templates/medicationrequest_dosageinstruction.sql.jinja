@@ -103,7 +103,8 @@ CREATE TABLE core__medicationrequest_dosageinstruction AS (
             cast(NULL AS bigint) AS dosage_timing_frequency,
             {%- endif %}
             {% if repeat["period"] -%}
-            cast(d.dosageInstruction.timing.repeat.period AS double) AS dosage_timing_period,
+            cast(d.dosageInstruction.timing.repeat.period AS double)
+                AS dosage_timing_period,
             {%- else -%}
             cast(NULL AS double) AS dosage_timing_period,
             {%- endif %}
@@ -114,24 +115,27 @@ CREATE TABLE core__medicationrequest_dosageinstruction AS (
             {%- endif %}
             {% if repeat["boundsPeriod"]["start"] -%}
             cast(
-                from_iso8601_timestamp(d.dosageInstruction.timing.repeat.boundsPeriod.start)
-                AS date
+                from_iso8601_timestamp(
+                    d.dosageInstruction.timing.repeat.boundsPeriod."start"
+                ) AS date
             ) AS dosage_timing_bounds_start,
             {%- else -%}
             cast(NULL AS date) AS dosage_timing_bounds_start,
             {%- endif %}
-            {% if repeat["boundsPeriod"]["end"] -%}
-            cast(
-                from_iso8601_timestamp(d.dosageInstruction.timing.repeat.boundsPeriod."end")
-                AS date
-            ) AS dosage_timing_bounds_end
-            {%- else -%}
-            cast(NULL AS date) AS dosage_timing_bounds_end
-            {%- endif %}
+        {% if repeat["boundsPeriod"]["end"] -%}
+        cast(
+            from_iso8601_timestamp(
+                d.dosageInstruction.timing.repeat.boundsPeriod."end"
+            ) AS date
+        ) AS dosage_timing_bounds_end
+        {%- else -%}
+        cast(NULL AS date) AS dosage_timing_bounds_end
+        {%- endif %}
         FROM dosage_rows AS d
     ),
 
     {#- doseAndRate is itself 0..*, so it needs a second level of unnesting. #}
+
     dose_rows AS (
         {%- if has_dose %}
         SELECT DISTINCT
