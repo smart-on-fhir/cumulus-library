@@ -71,6 +71,8 @@ def test_core_med_all_types(tmp_path):
         "dispense_refills_allowed": None,
         "dispense_quantity_value": None,
         "dispense_quantity_unit": None,
+        "dispense_quantity_system": None,
+        "dispense_quantity_code": None,
         "expected_supply_duration_value": None,
         "expected_supply_duration_unit": None,
         "validity_period_start": None,
