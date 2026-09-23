@@ -180,6 +180,8 @@ vital signs) instead.
 
 ### core__count_condition_month
 
+|            Column            | Type  |Description|
+|------------------------------|-------|-----------|
 |cnt               |bigint |count      |
 |category_code     |varchar|Encounter Code (Healthcare Setting)|
 |recordeddate_month|varchar|Month condition recorded|
@@ -254,7 +256,8 @@ vital signs) instead.
 
 
 ### core__count_encounter_service_month
-
+|       Column      | Type  |Description|
+|-------------------|-------|-----------|
 |cnt                |bigint |Count      |
 |class_display      |varchar|Encounter Code (Healthcare Setting)|
 |servicetype_display|varchar|Encounter Service|
@@ -336,7 +339,7 @@ vital signs) instead.
 
 ### core__count_medicationrequest_month
 
-|     Column      | Type  |Description|
+|      Column      | Type  |Description|
 |------------------|-------|-----------|
 |cnt               |bigint |Count      |
 |status            |varchar|Perscribing event state|
@@ -835,35 +838,35 @@ vital signs) instead.
 
 ### core__fhir_act_encounter_code_v3
 
-|Column | Type  |Description|
-|-------|-------|-----------|
-|code   |varchar|           |
-|display|varchar|           |
+|Column |   Type    |Description|
+|-------|-----------|-----------|
+|code   |varchar(6) |           |
+|display|varchar(21)|           |
 
 
 ### core__fhir_mapping_code_system_uri
+
+|  Column   |   Type    |Description|
+|-----------|-----------|-----------|
+|code_system|varchar(6) |           |
+|uri        |varchar(37)|           |
+
+
+### core__fhir_mapping_expected_act_encounter_code_v3
+
+|   Column   |   Type    |Description|
+|------------|-----------|-----------|
+|expected    |varchar(6) |           |
+|found       |varchar(6) |           |
+|found_system|varchar(48)|           |
+
+
+### core__fhir_mapping_resource_uri
 
 | Column |   Type    |Description|
 |--------|-----------|-----------|
 |resource|varchar(25)|           |
 |uri     |varchar(73)|           |
-
-
-### core__fhir_mapping_expected_act_encounter_code_v3
-
-|   Column   | Type  |Description|
-|------------|-------|-----------|
-|expected    |varchar|           |
-|found       |varchar|           |
-|found_system|varchar|           |
-
-
-### core__fhir_mapping_resource_uri
-
-| Column | Type  |Description|
-|--------|-------|-----------|
-|resource|varchar|           |
-|uri     |varchar|           |
 
 
 ### core__incomplete_encounter
