@@ -10,104 +10,39 @@
 
 
 CREATE TABLE core__medicationdispense_dosageinstruction AS (
-    WITH
-    parent AS (
-        SELECT DISTINCT
-            md.id,
-            md.medicationdispense_ref,
-            md.subject_ref,
-            md.encounter_ref,
-            md.whenHandedOver,
-            md.whenHandedOver_month
-        FROM core__medicationdispense AS md
-    ),
-
-    dosage_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."dosageInstruction", 1) AS row,
-                UNNEST(t."dosageInstruction") AS "dosageInstruction" -- must unnest in SELECT here
-            FROM medicationdispense AS t
-        )
-        SELECT
-            id,
-            row,
-            "dosageInstruction"
-        FROM data_and_row_num
-    ),
-
-    dosage_cols AS (
-        SELECT
-            d.id,
-            d.row,
-            d.dosageInstruction.text AS dosage_text,
-            cast(NULL AS varchar) AS dosage_route_text,
-            cast(NULL AS varchar) AS dosage_timing_text,
-            cast(NULL AS double) AS dosage_timing_duration,
-            cast(NULL AS double) AS dosage_timing_duration_max,
-            cast(NULL AS varchar) AS dosage_timing_duration_unit,
-            cast(NULL AS bigint) AS dosage_timing_count,
-            cast(NULL AS bigint) AS dosage_timing_count_max,
-            cast(NULL AS bigint) AS dosage_timing_frequency,
-            cast(NULL AS bigint) AS dosage_timing_frequency_max,
-            cast(NULL AS double) AS dosage_timing_period,
-            cast(NULL AS double) AS dosage_timing_period_max,
-            cast(NULL AS varchar) AS dosage_timing_period_unit,
-            cast(NULL AS bigint) AS dosage_timing_offset,
-            cast(NULL AS date) AS dosage_timing_bounds_start,
-            cast(NULL AS date) AS dosage_timing_bounds_end
-        FROM dosage_rows AS d
-    ),
-    dose_rows AS (
-        SELECT
-            'x' AS id,
-            cast(NULL AS bigint) AS row,
+    SELECT
+        'x' AS id,
+        cast(NULL AS bigint) AS row,
+        'x' AS dosage_text,
+        'x' AS dosage_route_code,
+        'x' AS dosage_route_system,
+        'x' AS dosage_route_display,
+        'x' AS dosage_route_text,
+        'x' AS dosage_timing_text,
+        cast(NULL AS bigint) AS dosage_timing_count,
+        cast(NULL AS bigint) AS dosage_timing_count_max,
+        cast(NULL AS double) AS dosage_timing_duration,
+        cast(NULL AS double) AS dosage_timing_duration_max,
+        cast(NULL AS varchar) AS dosage_timing_duration_unit,
+        cast(NULL AS bigint) AS dosage_timing_frequency,
+        cast(NULL AS bigint) AS dosage_timing_frequency_max,
+        cast(NULL AS double) AS dosage_timing_period,
+        cast(NULL AS double) AS dosage_timing_period_max,
+        'x' AS dosage_timing_period_unit,
+        cast(NULL AS bigint) AS dosage_timing_offset,
+        cast(NULL AS date) AS dosage_timing_bounds_start,
+        cast(NULL AS date) AS dosage_timing_bounds_end,
             cast(NULL AS varchar) AS dosage_dose_type,
             cast(NULL AS double) AS dosage_dose_value,
             cast(NULL AS double) AS dosage_dose_low_value,
             cast(NULL AS double) AS dosage_dose_high_value,
             cast(NULL AS varchar) AS dosage_dose_unit,
             cast(NULL AS varchar) AS dosage_dose_system,
-            cast(NULL AS varchar) AS dosage_dose_code
-        WHERE 1 = 0 -- no dose data in this dataset
-    )
-
-    SELECT
-        dc.id,
-        dc.row,
-
-        dc.dosage_text,
-
-        dr.code AS dosage_route_code,
-        dr.system AS dosage_route_system,
-        dr.display AS dosage_route_display,
-        dc.dosage_route_text,
-
-        dc.dosage_timing_text,
-        dc.dosage_timing_frequency,
-        dc.dosage_timing_period,
-        dc.dosage_timing_period_unit,
-        dc.dosage_timing_bounds_start,
-        dc.dosage_timing_bounds_end,
-        dq.dosage_dose_type,
-        dq.dosage_dose_value,
-        dq.dosage_dose_low_value,
-        dq.dosage_dose_high_value,
-        dq.dosage_dose_unit,
-        dq.dosage_dose_system,
-        dq.dosage_dose_code,
-
-        p.whenHandedOver,
-        p.whenHandedOver_month,
-
-        p.medicationdispense_ref,
-        p.subject_ref,
-        p.encounter_ref
-    FROM dosage_cols AS dc
-    INNER JOIN parent AS p ON dc.id = p.id
-    LEFT JOIN dose_rows AS dq ON dc.id = dq.id AND dc.row = dq.row
-    LEFT JOIN core__medicationdispense_dn_dosage_route AS dr
-        ON dc.id = dr.id AND dc.row = dr.row
+            cast(NULL AS varchar) AS dosage_dose_code,
+        cast(NULL AS timestamp) AS whenHandedOver,
+        cast(NULL AS date) AS whenHandedOver_month,
+        'x' AS medicationdispense_ref,
+        'x' AS subject_ref,
+        'x' AS encounter_ref
+    WHERE 1 = 0 -- empty table
 );

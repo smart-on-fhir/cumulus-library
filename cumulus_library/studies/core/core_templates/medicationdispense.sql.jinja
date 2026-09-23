@@ -107,7 +107,7 @@ CREATE TABLE core__medicationdispense AS (
         WHERE mdcc.resource_type = 'Medication'
 
         {# External: medication by reference from the external medications table.
-        This table is built by builder_medicationrequest_prereq, since it is
+        This table is built by builder_medicationdispense_prereq, since it is
         keyed on the standalone medication table rather than on any one
         requesting resource. This is generally how we expect EPIC to provide
         medication data. #}

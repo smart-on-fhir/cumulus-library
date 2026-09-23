@@ -13,29 +13,24 @@ CREATE TABLE core__medicationdispense AS (
         SELECT DISTINCT
         md.id,
         md.status,
-        md.context.reference AS encounter_ref,
-        md.subject.reference AS subject_ref,
-        md.medicationReference.reference AS med_ref,
-        md.quantity.value AS quantity_value,
-        md.quantity.unit AS quantity_unit,
-        md.quantity.system AS quantity_system,
-        md.quantity.code AS quantity_code,
-        md.daysSupply.value AS days_supply_value,
-        md.daysSupply.unit AS days_supply_unit,
-        md.daysSupply.system AS days_supply_system,
-        md.daysSupply.code AS days_supply_code,
-        cast(from_iso8601_timestamp(md."whenPrepared") AS timestamp) AS whenPrepared,
-        cast(from_iso8601_timestamp(md."whenHandedOver") AS timestamp) AS whenHandedOver,
-        date_trunc('month', cast(from_iso8601_timestamp(md."whenPrepared") AS date))
-            AS whenPrepared_month,
-        date_trunc('day', cast(from_iso8601_timestamp(md."whenHandedOver") AS date))
-            AS whenHandedOver_day,
-        date_trunc('week', cast(from_iso8601_timestamp(md."whenHandedOver") AS date))
-            AS whenHandedOver_week,
-        date_trunc('month', cast(from_iso8601_timestamp(md."whenHandedOver") AS date))
-            AS whenHandedOver_month,
-        date_trunc('year', cast(from_iso8601_timestamp(md."whenHandedOver") AS date))
-            AS whenHandedOver_year
+        cast(NULL as varchar) AS encounter_ref,
+        cast(NULL as varchar) AS subject_ref,
+        cast(NULL as varchar) AS med_ref,
+        cast(NULL as varchar) AS quantity_value,
+        cast(NULL as varchar) AS quantity_unit,
+        cast(NULL as varchar) AS quantity_system,
+        cast(NULL as varchar) AS quantity_code,
+        cast(NULL as varchar) AS days_supply_value,
+        cast(NULL as varchar) AS days_supply_unit,
+        cast(NULL as varchar) AS days_supply_system,
+        cast(NULL as varchar) AS days_supply_code,
+        cast(NULL AS timestamp) AS whenPrepared,
+        cast(NULL AS timestamp) AS whenHandedOver,
+        cast(NULL AS date) AS whenPrepared_month,
+        cast(NULL AS date) AS whenHandedOver_day,
+        cast(NULL AS date) AS whenHandedOver_week,
+        cast(NULL AS date) AS whenHandedOver_month,
+        cast(NULL AS date) AS whenHandedOver_year
         FROM medicationdispense AS md
         WHERE (md.status IS NULL OR md.status <> 'entered-in-error')
     ),
@@ -139,45 +134,17 @@ CREATE TABLE core__medicationdispense AS (
 
 
 
--- This table includes authorizing MedicationRequests so we do not drastically
--- increase core__medicationdispense. A single dispense may have multiple authorizing
--- requests. Skip this table if there is no authorizingPrescription.
-
 CREATE TABLE core__medicationdispense_authorizingprescription AS (
-    WITH
-
-    flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."authorizingPrescription", 1) AS row,
-                UNNEST(t."authorizingPrescription") AS data -- must unnest in SELECT here
-            FROM medicationdispense AS t
-        )
-        SELECT
-            id,
-            row,
-            data."reference"
-        FROM data_and_row_num
-    )
-
     SELECT
-        f.id,
-        f.row,
-        f.reference AS medicationrequest_ref
-    FROM flattened_rows AS f
-    WHERE f.reference IS NOT NULL
+        'x' AS id,
+        cast(NULL AS bigint) AS row,
+        'x' AS medicationrequest_ref
+    WHERE 1 = 0 -- empty table
 );
 
 -- ###########################################################
 
 
-
--- US Core marks MedicationDispense.performer.actor as must support. performer is
--- 0..*, so - as with authorizing prescriptions - it gets its own table rather than
--- fanning out core__medicationdispense. 'row' is the performer's position in the
--- source array. performer.function is deliberately absent: it is not must support.
 
 CREATE TABLE core__medicationdispense_performer AS (
     SELECT

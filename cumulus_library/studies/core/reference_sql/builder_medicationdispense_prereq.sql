@@ -6,184 +6,51 @@
 
 -- ###########################################################
 
-CREATE TABLE core__medicationdispense_dn_inline_code AS (
-    WITH
-
-    system_medicationCodeableConcept_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            0 AS row,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system,
-            u.coding.userSelected
-        FROM
-            medicationdispense AS s,
-            UNNEST(s.medicationCodeableConcept.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_medicationCodeableConcept_0
-        
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_inline_code"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-    SELECT
-        id,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
 );
-
 
 -- ###########################################################
 
-CREATE TABLE core__medicationdispense_dn_contained_code AS (
-    WITH
-
-    flattened_rows AS (
-        WITH
-        data_and_row_num AS (
-            SELECT
-                t.id AS id,
-                generate_subscripts(t."contained", 1) AS row,
-                UNNEST(t."contained") AS data -- must unnest in SELECT here
-            FROM medicationdispense AS t
-        )
-        SELECT
-            id,
-            row,
-            data."id" AS "contained_id",
-            data."resourceType" AS "resource_type",
-            data."code"
-        FROM data_and_row_num
-    ),
-
-    system_code_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            s.row,
-            contained_id,
-            resource_type,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system,
-            u.coding.userSelected
-        FROM
-            flattened_rows AS s,
-            UNNEST(s.code.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            contained_id,
-            resource_type,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_code_0
-        
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_contained_code"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean),cast(NULL AS varchar),cast(NULL AS varchar))
     )
-    SELECT
-        id,
-        row,
-        contained_id,
-        resource_type,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected","contained_id","resource_type")
+    WHERE 1 = 0 -- ensure empty table
 );
-
 
 -- ###########################################################
 
-CREATE TABLE core__medicationdispense_dn_category AS (
-    WITH
-
-    system_category_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            0 AS row,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system,
-            u.coding.userSelected
-        FROM
-            medicationdispense AS s,
-            UNNEST(s.category.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_category_0
-        
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_category"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-    SELECT
-        id,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
 );
-
 
 -- ###########################################################
 
-CREATE TABLE core__medicationdispense_dn_type AS (
-    WITH
-
-    system_type_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            0 AS row,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system,
-            u.coding.userSelected
-        FROM
-            medicationdispense AS s,
-            UNNEST(s.type.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_type_0
-        
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_type"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-    SELECT
-        id,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
 );
-
 
 -- ###########################################################
 
