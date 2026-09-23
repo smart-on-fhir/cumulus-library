@@ -983,6 +983,7 @@ vital signs) instead.
 |subject_ref           |varchar|           |
 |encounter_ref         |varchar|           |
 |medicationrequest_ref |varchar|           |
+|performer_ref         |varchar|           |
 
 
 ### core__medicationdispense_dn_category
@@ -1070,15 +1071,6 @@ vital signs) instead.
 |medicationdispense_ref    |varchar|           |
 |subject_ref               |varchar|           |
 |encounter_ref             |varchar|           |
-
-
-### core__medicationdispense_performer
-
-|   Column    | Type  |Description|
-|-------------|-------|-----------|
-|id           |varchar|           |
-|row          |bigint |           |
-|performer_ref|varchar|           |
 
 
 ### core__medicationrequest

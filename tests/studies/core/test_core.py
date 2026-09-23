@@ -26,7 +26,6 @@ from tests import conftest, testbed_utils
         ("core__medicationrequest_dosageinstruction", True),
         ("core__medicationdispense", True),
         ("core__medicationdispense_dosageinstruction", True),
-        ("core__medicationdispense_performer", True),
         ("core__observation", True),
         ("core__observation_lab", True),
         ("core__observation_vital_signs", True),
@@ -76,7 +75,7 @@ def test_core_tables(tmp_path, mock_db, table, minimum):
     # these files, mostly for making git history simpler in case of minor changes
     table_rows, cols = conftest.get_sorted_table_data(cursor, table)
     # For regenerating data if needed
-    # with open(f"./tests/test_data/core/{table}.txt", "wt", encoding="UTF-8") as f:
+    # with open(f"./tests/test_data/core/{table}.txt", "w", encoding="UTF-8") as f:
     #     for row in table_rows:
     #         f.write(str(f"{row}\n"))
     with open(f"./tests/test_data/core/{table}.txt", encoding="UTF-8") as f:
@@ -200,10 +199,6 @@ def test_core_tiny_database(tmp_path):
     assert {r[0] for r in rows} == {"MedReqA"}
     rows = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
     assert {r[0] for r in rows} == {"MultiRx"}
-    rows = db.connection.sql(
-        "SELECT id, medicationrequest_ref FROM core__medicationdispense_authorizingprescription"
-    ).fetchall()
-    assert rows == [("MultiRx", "MedicationRequest/MedReqA")]
 
 
 def test_core_multiple_doc_encounters(tmp_path):
@@ -361,8 +356,6 @@ def test_core_build_source(tmp_path):
         ("default", "core__medicationdispense_dn_category", "TABLE"),
         ("default", "core__medicationdispense_dn_type", "TABLE"),
         ("default", "core__medicationdispense_dn_dosage_route", "TABLE"),
-        ("default", "core__medicationdispense_authorizingprescription", "TABLE"),
-        ("default", "core__medicationdispense_performer", "TABLE"),
         ("default", "core__medicationdispense_dosageinstruction", "TABLE"),
         ("default", "core__medicationrequest", "TABLE"),
         ("default", "core__medicationrequest_dosageinstruction", "TABLE"),

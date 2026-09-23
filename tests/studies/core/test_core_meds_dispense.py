@@ -63,6 +63,7 @@ def test_core_med_dispense_all_types(tmp_path):
         "medication_system": "letters",
         "medication_display": "C",
         "medicationrequest_ref": None,
+        "performer_ref": None,
         "quantity_value": 90.0,
         "quantity_unit": "tablet",
         "quantity_system": None,
@@ -140,37 +141,6 @@ def test_core_med_dispense_entered_in_error(tmp_path):
     db = testbed.build()
     dispenses = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
     assert {d[0] for d in dispenses} == {"Good"}
-
-
-def test_core_med_dispense_performers(tmp_path):
-    """Verify that performers land in their own table
-
-    US Core marks performer.actor must support. performer is 0..*, so it is kept
-    out of the main table to avoid fanning it out.
-    """
-    testbed = testbed_utils.LocalTestbed(tmp_path)
-    testbed.add_medication_dispense(
-        "MultiPerformer",
-        performer=[
-            {"actor": {"reference": "Practitioner/PracA"}},
-            {"actor": {"reference": "Organization/OrgB"}},
-        ],
-    )
-    testbed.add_medication_dispense("NoPerformer")
-
-    db = testbed.build()
-    df = db.connection.sql(
-        "SELECT id, row, performer_ref FROM core__medicationdispense_performer ORDER BY id, row"
-    ).df()
-    rows = json.loads(df.to_json(orient="records"))
-    assert [
-        {"id": "MultiPerformer", "row": 1, "performer_ref": "Practitioner/PracA"},
-        {"id": "MultiPerformer", "row": 2, "performer_ref": "Organization/OrgB"},
-    ] == rows
-
-    # The dispense itself should not be duplicated by its performers
-    dispenses = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
-    assert {d[0] for d in dispenses} == {"MultiPerformer", "NoPerformer"}
 
 
 def test_core_med_dispense_dosage_instructions(tmp_path):
