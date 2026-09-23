@@ -338,7 +338,7 @@ schema =
             },
             'dispenseRequest': {
                 'numberOfRepeatsAllowed': True,
-                'quantity': {'value': True, 'unit': True},
+                'quantity': {'value': True, 'unit': True, 'system': True, 'code': True},
                 'expectedSupplyDuration': {'value': True, 'unit': True},
                 'validityPeriod': {'start': True, 'end': True}
             },

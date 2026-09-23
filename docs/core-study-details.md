@@ -982,15 +982,7 @@ vital signs) instead.
 |medicationdispense_ref|varchar|           |
 |subject_ref           |varchar|           |
 |encounter_ref         |varchar|           |
-
-
-### core__medicationdispense_authorizingprescription
-
-|       Column        | Type  |Description|
-|---------------------|-------|-----------|
-|id                   |varchar|           |
-|row                  |bigint |           |
-|medicationrequest_ref|varchar|           |
+|medicationrequest_ref |varchar|           |
 
 
 ### core__medicationdispense_dn_category
@@ -1114,7 +1106,9 @@ vital signs) instead.
 |medication_display            |varchar|           |
 |dispense_refills_allowed      |bigint   |           |
 |dispense_quantity_value       |DOUBLE   |           |
-|dispense_quantity_unit        |varchar|           |
+|dispense_quantity_unit        |VARCHAR  |           |
+|dispense_quantity_system      |VARCHAR  |           |
+|dispense_quantity_code        |VARCHAR  |           |
 |expected_supply_duration_value|DOUBLE   |           |
 |expected_supply_duration_unit |varchar|           |
 |validity_period_start         |date     |           |

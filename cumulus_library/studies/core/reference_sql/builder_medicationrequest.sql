@@ -28,6 +28,8 @@ CREATE TABLE core__medicationrequest AS (
         cast(NULL as varchar) AS dispense_refills_allowed,
         cast(NULL as varchar) AS dispense_quantity_value,
         cast(NULL as varchar) AS dispense_quantity_unit,
+        cast(NULL as varchar) AS dispense_quantity_system,
+        cast(NULL as varchar) AS dispense_quantity_code,
         cast(NULL as varchar) AS expected_supply_duration_value,
         cast(NULL as varchar) AS expected_supply_duration_unit,
         cast(NULL AS timestamp) AS authoredOn,
@@ -186,6 +188,8 @@ CREATE TABLE core__medicationrequest AS (
         cast(mr.dispense_refills_allowed AS bigint) AS dispense_refills_allowed,
         cast(mr.dispense_quantity_value AS double) AS dispense_quantity_value,
         mr.dispense_quantity_unit,
+        mr.dispense_quantity_system,
+        mr.dispense_quantity_code,
         cast(mr.expected_supply_duration_value AS double)
             AS expected_supply_duration_value,
         mr.expected_supply_duration_unit,

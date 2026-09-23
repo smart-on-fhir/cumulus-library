@@ -21,7 +21,7 @@ expected_table_cols = {
         "priorPrescription": sql_utils.REFERENCE,
         "dispenseRequest": {
             "numberOfRepeatsAllowed": {},
-            "quantity": ["value", "unit"],
+            "quantity": ["value", "unit", "system", "code"],
             "expectedSupplyDuration": ["value", "unit"],
             "validityPeriod": sql_utils.PERIOD,
         },
