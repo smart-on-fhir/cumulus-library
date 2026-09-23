@@ -45,9 +45,17 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
             d.dosageInstruction.text AS dosage_text,
             cast(NULL AS varchar) AS dosage_route_text,
             cast(NULL AS varchar) AS dosage_timing_text,
+            cast(NULL AS double) AS dosage_timing_duration,
+            cast(NULL AS double) AS dosage_timing_duration_max,
+            cast(NULL AS varchar) AS dosage_timing_duration_unit,
+            cast(NULL AS bigint) AS dosage_timing_count,
+            cast(NULL AS bigint) AS dosage_timing_count_max,
             cast(NULL AS bigint) AS dosage_timing_frequency,
+            cast(NULL AS bigint) AS dosage_timing_frequency_max,
             cast(NULL AS double) AS dosage_timing_period,
+            cast(NULL AS double) AS dosage_timing_period_max,
             cast(NULL AS varchar) AS dosage_timing_period_unit,
+            cast(NULL AS bigint) AS dosage_timing_offset,
             cast(NULL AS date) AS dosage_timing_bounds_start,
             cast(NULL AS date) AS dosage_timing_bounds_end
         FROM dosage_rows AS d

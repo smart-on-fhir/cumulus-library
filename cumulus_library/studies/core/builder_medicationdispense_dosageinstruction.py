@@ -11,9 +11,17 @@ expected_table_cols = {
             "timing": {
                 "code": ["text"],
                 "repeat": {
+                    "count": {},
+                    "countMax": {},
+                    "duration": {},
+                    "durationMax": {},
+                    "durationUnit": {},
                     "frequency": {},
+                    "frequencyMax": {},
                     "period": {},
+                    "periodMax": {},
                     "periodUnit": {},
+                    "offset": {},
                     "boundsPeriod": sql_utils.PERIOD,
                 },
             },

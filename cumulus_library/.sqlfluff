@@ -244,9 +244,17 @@ schema =
                 'timing': {
                     'code': {'text': True},
                     'repeat': {
+                        'count': True,
+                        'countMax': True,
+                        'duration': True,
+                        'durationMax': True,
+                        'durationUnit': True,
                         'frequency': True,
+                        'frequencyMax': True,
                         'period': True,
+                        'periodMax': True,
                         'periodUnit': True,
+                        'offset': True,
                         'boundsPeriod': {'start': True, 'end': True}
                     }
                 },
