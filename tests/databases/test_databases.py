@@ -330,9 +330,9 @@ def test_duckdb_pandas(mock_db):
     # chunksize param, but does return an iterable object for compatibility
     query = "SELECT * FROM condition"
     df, all_cols = mock_db.execute_as_pandas(query, chunksize=None)
-    assert len(df.index) == 20
+    assert len(df.index) == 23
     df_iter, chunk_cols = mock_db.execute_as_pandas(query, chunksize=10)
-    assert len(next(df_iter).index) == 20
+    assert len(next(df_iter).index) == 23
     assert all_cols == chunk_cols
 
 
