@@ -190,17 +190,20 @@ CREATE TABLE core__medicationrequest_dosageinstruction AS (
 
     dose_rows AS (
         {%- if has_dose %}
-        SELECT DISTINCT
+        SELECT
             d.id,
             d.row,
+            u.dose_row,
             {{- dosage_utils.dose_cols('u.dose_and_rate', dose) }}
         FROM
             dosage_rows AS d,
-            unnest(d.dosageInstruction.doseAndRate) AS u (dose_and_rate) --noqa
+            unnest(d.dosageInstruction.doseAndRate)
+                WITH ORDINALITY AS u (dose_and_rate, dose_row) --noqa
         {%- else %}
         SELECT
             'x' AS id,
             cast(NULL AS bigint) AS row,
+            cast(NULL AS bigint) AS dose_row,
             {{- dosage_utils.empty_dose_cols() }}
         WHERE 1 = 0 -- no dose data in this dataset
         {%- endif %}
@@ -209,15 +212,13 @@ CREATE TABLE core__medicationrequest_dosageinstruction AS (
     SELECT
         dc.id,
         dc.row,
+        dq.dose_row,
 
         dc.dosage_sequence,
         dc.dosage_text,
         dc.dosage_patient_instruction,
         dc.dosage_as_needed_bool,
 
-        dr.code AS dosage_route_code,
-        dr.system AS dosage_route_system,
-        dr.display AS dosage_route_display,
         dc.dosage_route_text,
 
         dc.dosage_timing_text,
@@ -246,20 +247,16 @@ CREATE TABLE core__medicationrequest_dosageinstruction AS (
     FROM dosage_cols AS dc
     INNER JOIN parent AS p ON dc.id = p.id
     LEFT JOIN dose_rows AS dq ON dc.id = dq.id AND dc.row = dq.row
-    LEFT JOIN core__medicationrequest_dn_dosage_route AS dr
-        ON dc.id = dr.id AND dc.row = dr.row
 
     {%- else %}
     SELECT
         'x' AS id,
         cast(NULL AS bigint) AS row,
+        cast(NULL AS bigint) AS dose_row,
         cast(NULL AS bigint) AS dosage_sequence,
         'x' AS dosage_text,
         'x' AS dosage_patient_instruction,
         cast(NULL AS boolean) AS dosage_as_needed_bool,
-        'x' AS dosage_route_code,
-        'x' AS dosage_route_system,
-        'x' AS dosage_route_display,
         'x' AS dosage_route_text,
         'x' AS dosage_timing_text,
         cast(NULL AS bigint) AS dosage_timing_count,

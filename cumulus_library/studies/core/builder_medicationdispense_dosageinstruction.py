@@ -26,6 +26,7 @@ expected_table_cols = {
                 },
             },
             "doseAndRate": {
+                "type": sql_utils.CODEABLE_CONCEPT,
                 "doseQuantity": ["value", "unit", "system", "code"],
                 "doseRange": {
                     "low": ["value", "unit", "system", "code"],
@@ -50,5 +51,10 @@ class MedicationDispenseDosageInstructionBuilder(cumulus_library.BaseTableBuilde
         self.queries += [
             core_templates.get_core_template(
                 "medicationdispense_dosageinstruction", validated_schema
+            ),
+            core_templates.get_core_template(
+                "dose_rate_type",
+                validated_schema,
+                config={"resource": "medicationdispense"},
             ),
         ]

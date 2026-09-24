@@ -96,7 +96,12 @@ coalesce({{ parts | join(', ') }})
             {%- endif %}
             {{ _coalesce_or_null(unit_parts) }} AS dosage_dose_unit,
             {{ _coalesce_or_null(system_parts) }} AS dosage_dose_system,
-            {{ _coalesce_or_null(code_parts) }} AS dosage_dose_code
+            {{ _coalesce_or_null(code_parts) }} AS dosage_dose_code,
+            {% if dose["type"]["text"] -%}
+            {{ alias }}.type.text AS dosage_dose_rate_type_text
+            {%- else -%}
+            cast(NULL AS varchar) AS dosage_dose_rate_type_text
+            {%- endif %}
 {%- endmacro %}
 
 {#- The dose[x] columns for the empty-table case, in the same order as dose_cols. -#}
@@ -107,7 +112,8 @@ coalesce({{ parts | join(', ') }})
             cast(NULL AS double) AS dosage_dose_high_value,
             cast(NULL AS varchar) AS dosage_dose_unit,
             cast(NULL AS varchar) AS dosage_dose_system,
-            cast(NULL AS varchar) AS dosage_dose_code
+            cast(NULL AS varchar) AS dosage_dose_code,
+            cast(NULL AS varchar) AS dosage_dose_rate_type_text
 {%- endmacro %}
 
 {#- The dose[x] columns as selected out of the dose table. -#}
@@ -118,5 +124,6 @@ coalesce({{ parts | join(', ') }})
         {{ alias }}.dosage_dose_high_value,
         {{ alias }}.dosage_dose_unit,
         {{ alias }}.dosage_dose_system,
-        {{ alias }}.dosage_dose_code
+        {{ alias }}.dosage_dose_code,
+        {{ alias }}.dosage_dose_rate_type_text
 {%- endmacro %}

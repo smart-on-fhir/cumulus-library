@@ -1,0 +1,68 @@
+{% import 'unnest_utils.jinja' as unnest_utils %}
+
+{#- Denormalizes Dosage.doseAndRate.type codings. #}
+
+{%- set resource = config["resource"] %}
+{%- set type = schema[resource]["dosageInstruction"]["doseAndRate"]["type"] %}
+{%- set coding = type["coding"] %}
+{%- set has_coding = coding.values() | select | list | length > 0 %}
+
+CREATE TABLE core__{{ resource }}_dn_dose_rate_type AS (
+    {%- if has_coding %}
+    WITH
+
+    dosage_rows AS (
+        {{ unnest_utils.flatten(resource, 'dosageInstruction') }}
+    ),
+
+    dose_rows AS (
+        SELECT
+            d.id,
+            d.row,
+            u.dose_row,
+            u.dose_and_rate
+        FROM
+            dosage_rows AS d,
+            unnest(d.dosageInstruction.doseAndRate)
+                WITH ORDINALITY AS u (dose_and_rate, dose_row) --noqa
+    )
+
+    SELECT DISTINCT
+        d.id,
+        d.row,
+        d.dose_row,
+        {% if coding["code"] -%}
+        c.coding.code,
+        {%- else -%}
+        cast(NULL AS varchar) AS code,
+        {%- endif %}
+        {% if coding["system"] -%}
+        c.coding.system,
+        {%- else -%}
+        cast(NULL AS varchar) AS system,
+        {%- endif %}
+        {% if coding["display"] -%}
+        c.coding.display,
+        {%- else -%}
+        cast(NULL AS varchar) AS display,
+        {%- endif %}
+        {% if coding["userSelected"] -%}
+        c.coding.userSelected
+        {%- else -%}
+        cast(NULL AS boolean) AS userSelected
+        {%- endif %}
+    FROM
+        dose_rows AS d,
+        unnest(d.dose_and_rate.type.coding) AS c (coding) --noqa
+    {%- else %}
+    SELECT
+        'x' AS id,
+        cast(NULL AS bigint) AS row,
+        cast(NULL AS bigint) AS dose_row,
+        'x' AS code,
+        'x' AS system,
+        'x' AS display,
+        cast(NULL AS boolean) AS userSelected
+    WHERE 1 = 0 -- empty table
+    {%- endif %}
+);
