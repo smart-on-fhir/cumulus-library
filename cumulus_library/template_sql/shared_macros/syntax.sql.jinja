@@ -87,17 +87,3 @@ REGEXP_LIKE({{ field }}, '^(?i:{{ wildcard_to_regex(match_string) }})$')
 {% macro sql_safe_string(field) -%}
 {{ field|lower|replace('.', '_') }}
 {%- endmacro%}
-
-{#- Adds a (possibly fractional, possibly column-valued) number of days to a date.
-
-Trino spells this date_add('day', n, d), while DuckDB wants interval arithmetic,
-and neither accepts the other's form with a non-literal count. Fractional days are
-truncated, since the result is a date either way.
--#}
-{% macro date_add_days(count, date) -%}
-{%- if db_type == 'duckdb' -%}
-cast({{ date }} + to_days(cast({{ count }} AS integer)) AS date)
-{%- else -%}
-cast(date_add('day', cast({{ count }} AS bigint), {{ date }}) AS date)
-{%- endif -%}
-{%- endmacro %}

@@ -215,7 +215,7 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
         dc.dosage_sequence,
         dc.dosage_text,
         dc.dosage_patient_instruction,
-        dc.dosage_as_needed_boolean,
+        dc.dosage_as_needed_bool,
 
         dc.dosage_route_text,
 
@@ -254,7 +254,7 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
         cast(NULL AS bigint) AS dosage_sequence,
         'x' AS dosage_text,
         'x' AS dosage_patient_instruction,
-        cast(NULL AS boolean) AS dosage_as_needed_boolean,
+        cast(NULL AS boolean) AS dosage_as_needed_bool,
         'x' AS dosage_route_text,
         'x' AS dosage_timing_text,
         cast(NULL AS bigint) AS dosage_timing_count,

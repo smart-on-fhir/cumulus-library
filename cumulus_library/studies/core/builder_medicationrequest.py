@@ -25,9 +25,6 @@ expected_table_cols = {
             "expectedSupplyDuration": ["value", "unit"],
             "validityPeriod": sql_utils.PERIOD,
         },
-        "dosageInstruction": {
-            "timing": {"repeat": {"boundsPeriod": sql_utils.PERIOD}},
-        },
     }
 }
 

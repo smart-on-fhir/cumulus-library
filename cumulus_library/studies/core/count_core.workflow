@@ -211,25 +211,6 @@ table_cols = [
     "medication_display"
 ]
 
-[tables.count_medicationrequest_coverage_month]
-description = """A general count of medication request coverage intervals by month.
-
-This table provides a summary snapshot of the derived coverage interval on every medication
-request for the entire patient population that have been loaded into a database for use by
-the Cumulus ecosystem. It bins by request status, intent of medication, which element supplied
-the end of the coverage interval, and the month the request was authored. Rows where that
-element is cumulus__none had neither an expected supply duration nor dosage bounds to derive
-an interval from. It is primarily intended as a validation tool to ensure that data has been
-successfully extracted from a source system via the FHIR data format.
-"""
-source_table = "core__medicationrequest"
-table_cols = [
-    ["status", "varchar"],
-    ["intent", "varchar"],
-    ["coverage_end_date_type", "varchar"],
-    ["authoredon_month", "date"],
-]
-
 [tables.count_medicationrequest_dispense_month]
 description = """A general count of medication request dispense parameters by month.
 

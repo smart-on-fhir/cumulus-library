@@ -40,14 +40,6 @@ CREATE TABLE core__medicationrequest AS (
         WHERE (mr.status IS NULL OR mr.status <> 'entered-in-error')
     ),
 
-    dosage_bounds AS (
-        SELECT
-            'x' AS id,
-            cast(NULL AS date) AS bounds_start,
-            cast(NULL AS date) AS bounds_end
-        WHERE 1 = 0 -- no dosage bounds in this dataset
-    ),
-
     coverage_parts AS (
         SELECT
             mr.id,
@@ -72,7 +64,6 @@ CREATE TABLE core__medicationrequest AS (
                     THEN 365.0
             END AS supply_days
         FROM mr_basics AS mr
-        LEFT JOIN dosage_bounds AS db ON mr.id = db.id
     ),
 
     coverage_supply AS (
