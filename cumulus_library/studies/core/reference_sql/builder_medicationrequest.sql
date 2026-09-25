@@ -6,8 +6,6 @@
 
 -- ###########################################################
 
-
-
 CREATE TABLE core__medicationrequest AS (
     WITH
 
@@ -38,65 +36,6 @@ CREATE TABLE core__medicationrequest AS (
         cast(NULL AS date) AS authoredOn_month
         FROM medicationrequest AS mr
         WHERE (mr.status IS NULL OR mr.status <> 'entered-in-error')
-    ),
-
-    coverage_parts AS (
-        SELECT
-            mr.id,
-            db.bounds_end,
-            coalesce(
-                mr.validity_period_start,
-                db.bounds_start,
-                cast(mr.authoredOn AS date)
-            ) AS coverage_start_date,
-            cast(mr.expected_supply_duration_value AS double)
-            *
-            CASE
-                WHEN lower(mr.expected_supply_duration_unit) IN ('h', 'hour', 'hours')
-                    THEN 1.0 / 24.0
-                WHEN lower(mr.expected_supply_duration_unit) IN ('d', 'day', 'days')
-                    THEN 1.0
-                WHEN lower(mr.expected_supply_duration_unit) IN ('wk', 'week', 'weeks')
-                    THEN 7.0
-                WHEN lower(mr.expected_supply_duration_unit) IN ('mo', 'month', 'months')
-                    THEN 30.0
-                WHEN lower(mr.expected_supply_duration_unit) IN ('a', 'year', 'years')
-                    THEN 365.0
-            END AS supply_days
-        FROM mr_basics AS mr
-    ),
-
-    coverage_supply AS (
-        SELECT
-            cp.id,
-            cp.bounds_end,
-            cp.coverage_start_date,
-            CASE
-                WHEN cp.supply_days IS NOT NULL AND cp.coverage_start_date IS NOT NULL
-                    THEN cast(cp.coverage_start_date + to_days(cast(cp.supply_days AS integer)) AS date)
-            END AS supply_end_date
-        FROM coverage_parts AS cp
-    ),
-
-    coverage AS (
-        SELECT
-            cs.id,
-            cs.coverage_start_date,
-            CASE
-                WHEN cs.bounds_end IS NULL THEN cs.supply_end_date
-                WHEN cs.supply_end_date IS NULL THEN cs.bounds_end
-                WHEN cs.bounds_end <= cs.supply_end_date THEN cs.bounds_end
-                ELSE cs.supply_end_date
-            END AS coverage_end_date,
-            CASE
-                WHEN cs.bounds_end IS NOT NULL AND (
-                    cs.supply_end_date IS NULL
-                    OR cs.bounds_end <= cs.supply_end_date
-                ) THEN 'dosage_bounds_period'
-                WHEN cs.supply_end_date IS NOT NULL
-                    THEN 'expected_supply_duration'
-            END AS coverage_end_date_type
-        FROM coverage_supply AS cs
     ),
 
     contained_refs AS (
@@ -187,10 +126,6 @@ CREATE TABLE core__medicationrequest AS (
         mr.validity_period_start,
         mr.validity_period_end,
 
-        cov.coverage_start_date,
-        cov.coverage_end_date,
-        cov.coverage_end_date_type,
-
         mr.authoredOn,
         mr.authoredOn_month,
 
@@ -202,8 +137,6 @@ CREATE TABLE core__medicationrequest AS (
     FROM mr_basics AS mr
     LEFT JOIN unified_codes AS uc
         ON mr.id = uc.id
-    LEFT JOIN coverage AS cov
-        ON mr.id = cov.id
     LEFT JOIN core__medicationrequest_dn_category AS mrc
         ON mr.id = mrc.id
     LEFT JOIN core__medicationrequest_dn_status_reason AS mrsr

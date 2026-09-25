@@ -43,7 +43,6 @@ CREATE TABLE core__medicationdispense AS (
     performers AS (
         SELECT
             'x' AS id,
-            cast(NULL AS bigint) AS row,
             'x' AS performer_ref
         WHERE 1 = 0 -- no performer
     ),

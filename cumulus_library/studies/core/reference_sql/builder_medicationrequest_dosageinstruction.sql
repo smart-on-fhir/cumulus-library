@@ -13,13 +13,11 @@ CREATE TABLE core__medicationrequest_dosageinstruction AS (
     SELECT
         'x' AS id,
         cast(NULL AS bigint) AS row,
+        cast(NULL AS bigint) AS dose_row,
         cast(NULL AS bigint) AS dosage_sequence,
         'x' AS dosage_text,
         'x' AS dosage_patient_instruction,
         cast(NULL AS boolean) AS dosage_as_needed_bool,
-        'x' AS dosage_route_code,
-        'x' AS dosage_route_system,
-        'x' AS dosage_route_display,
         'x' AS dosage_route_text,
         'x' AS dosage_timing_text,
         cast(NULL AS bigint) AS dosage_timing_count,
@@ -42,10 +40,27 @@ CREATE TABLE core__medicationrequest_dosageinstruction AS (
             cast(NULL AS varchar) AS dosage_dose_unit,
             cast(NULL AS varchar) AS dosage_dose_system,
             cast(NULL AS varchar) AS dosage_dose_code,
+            cast(NULL AS varchar) AS dosage_dose_rate_type_text,
         cast(NULL AS timestamp) AS authoredOn,
         cast(NULL AS date) AS authoredOn_month,
         'x' AS medicationrequest_ref,
         'x' AS subject_ref,
         'x' AS encounter_ref
+    WHERE 1 = 0 -- empty table
+);
+
+-- ###########################################################
+
+
+
+CREATE TABLE core__medicationrequest_dn_dose_rate_type AS (
+    SELECT
+        'x' AS id,
+        cast(NULL AS bigint) AS row,
+        cast(NULL AS bigint) AS dose_row,
+        'x' AS code,
+        'x' AS system,
+        'x' AS display,
+        cast(NULL AS boolean) AS userSelected
     WHERE 1 = 0 -- empty table
 );

@@ -1,8 +1,0 @@
-(41, 'active', 'order', 'cumulus__none', None)
-(41, 'active', 'order', None, None)
-(41, 'active', None, 'cumulus__none', None)
-(41, 'active', None, None, None)
-(50, None, 'order', 'cumulus__none', None)
-(50, None, 'order', None, None)
-(50, None, None, 'cumulus__none', None)
-(50, None, None, None, None)
