@@ -1,9 +1,0 @@
-cnt,status,intent,coverage_end_date_type,authoredon_month
-50,,,,
-50,,,cumulus__none,
-50,,order,,
-50,,order,cumulus__none,
-41,active,,,
-41,active,,cumulus__none,
-41,active,order,,
-41,active,order,cumulus__none,

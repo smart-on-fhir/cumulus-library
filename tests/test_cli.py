@@ -336,7 +336,7 @@ def test_clean(tmp_path, args, expected, raises):
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
-            110,
+            111,
             does_not_raise(),
             [],
         ),
