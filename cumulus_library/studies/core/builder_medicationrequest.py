@@ -16,6 +16,15 @@ expected_table_cols = {
         "subject": sql_utils.REFERENCE,
         "encounter": sql_utils.REFERENCE,
         "medicationReference": sql_utils.REFERENCE,
+        "courseOfTherapyType": ["text"],
+        "statusReason": ["text"],
+        "priorPrescription": sql_utils.REFERENCE,
+        "dispenseRequest": {
+            "numberOfRepeatsAllowed": {},
+            "quantity": ["value", "unit", "system", "code"],
+            "expectedSupplyDuration": ["value", "unit"],
+            "validityPeriod": sql_utils.PERIOD,
+        },
     }
 }
 

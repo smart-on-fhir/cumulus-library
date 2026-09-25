@@ -1,0 +1,9 @@
+cnt,intent,dispense_refills_allowed,expected_supply_duration_unit,authoredon_month
+50,,,,
+50,,,cumulus__none,
+50,,cumulus__none,,
+50,,cumulus__none,cumulus__none,
+50,order,,,
+50,order,,cumulus__none,
+50,order,cumulus__none,,
+50,order,cumulus__none,cumulus__none,

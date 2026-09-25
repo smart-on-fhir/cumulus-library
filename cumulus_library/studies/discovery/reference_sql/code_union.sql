@@ -198,6 +198,118 @@ SELECT
     code,
     display,
     system
+FROM discovery__tmp_medicationdispense_statusreasoncodeableconcept
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_category
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_medicationcodeableconcept
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_performer_function
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_type
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_dosageinstruction_additionalinstruction
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_dosageinstruction_timing_code
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_dosageinstruction_asneededcodeableconcept
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_dosageinstruction_site
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_dosageinstruction_route
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_dosageinstruction_method
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_dosageinstruction_doseandrate_type
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_substitution_type
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
+FROM discovery__tmp_medicationdispense_substitution_reason
+UNION ALL
+SELECT
+    table_name,
+    column_name,
+    code,
+    display,
+    system
 FROM discovery__tmp_medicationrequest_statusreason
 UNION ALL
 SELECT

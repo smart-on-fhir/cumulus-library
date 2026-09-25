@@ -18,42 +18,15 @@ AS (
 
 -- ###########################################################
 
-CREATE TABLE core__medicationrequest_dn_inline_code AS (
-    WITH
-
-    system_medicationCodeableConcept_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            0 AS row,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system,
-            u.coding.userSelected
-        FROM
-            medicationrequest AS s,
-            UNNEST(s.medicationCodeableConcept.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_medicationCodeableConcept_0
-        
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationrequest_dn_inline_code"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-    SELECT
-        id,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
 );
-
 
 -- ###########################################################
 
@@ -69,50 +42,48 @@ AS (
 
 -- ###########################################################
 
-CREATE TABLE core__medicationrequest_dn_category AS (
-    WITH
-
-    flattened_rows AS (
-        SELECT
-            t.id AS id,
-            row,
-            r."category"
-        FROM
-            medicationrequest AS t,
-            UNNEST(t."category") WITH ORDINALITY AS r ("category", row)
-    ),
-
-    system_category_0 AS (
-        SELECT DISTINCT
-            s.id AS id,
-            s.row,
-            u.coding.code,
-            u.coding.display,
-            u.coding.system,
-            u.coding.userSelected
-        FROM
-            flattened_rows AS s,
-            UNNEST(s.category.coding) AS u (coding)
-    ), --noqa: LT07
-
-    union_table AS (
-        SELECT
-            id,
-            row,
-            system,
-            code,
-            display,
-            userSelected
-        FROM system_category_0
-        
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationrequest_dn_category"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
     )
-    SELECT
-        id,
-        row,
-        code,
-        system,
-        display,
-        userSelected
-    FROM union_table
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
 );
 
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationrequest_dn_course_of_therapy"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationrequest_dn_status_reason"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);
+
+-- ###########################################################
+
+CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationrequest_dn_dosage_route"
+AS (
+    SELECT * FROM (
+        VALUES
+        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+    )
+        AS t ("id","row","code","system","display","userSelected")
+    WHERE 1 = 0 -- ensure empty table
+);

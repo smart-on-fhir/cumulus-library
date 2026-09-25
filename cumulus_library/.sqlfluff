@@ -111,6 +111,7 @@ pos_source_table = pos_source_table
 remote_location = s3://bucket/study/data/
 sab = 'MED-RT'
 schema_name = test_schema
+config = {'resource': 'medicationrequest'}
 schema = 
     {
         'allergyintolerance': {
@@ -212,6 +213,84 @@ schema =
             'managingOrganization': True,
             'partOf': True,
         },
+        'medicationdispense': {
+            'id': True,
+            'status': True,
+            'subject': {
+                'reference': True
+            },
+            'context': {
+                'reference': True
+            },
+            'authorizingPrescription': {
+                'reference': True
+            },
+            'medicationReference': {
+                'reference': True
+            },
+            'medicationCodeableConcept': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'category': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'type': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'dosageInstruction': {
+                'sequence': True,
+                'text': True,
+                'patientInstruction': True,
+                'asNeededBoolean': True,
+                'route': {
+                    'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+                },
+                'timing': {
+                    'code': {'text': True},
+                    'repeat': {
+                        'count': True,
+                        'countMax': True,
+                        'duration': True,
+                        'durationMax': True,
+                        'durationUnit': True,
+                        'frequency': True,
+                        'frequencyMax': True,
+                        'period': True,
+                        'periodMax': True,
+                        'periodUnit': True,
+                        'offset': True,
+                        'boundsPeriod': {'start': True, 'end': True}
+                    }
+                },
+                'doseAndRate': {
+                    'type': {
+                        'text': True,
+                        'coding': {
+                            'code': True, 'system': True, 'display': True,
+                            'userSelected': True
+                        }
+                    },
+                    'doseQuantity': {
+                        'value': True, 'unit': True, 'system': True, 'code': True
+                    },
+                    'doseRange': {
+                        'low': {'value': True, 'unit': True, 'system': True, 'code': True},
+                        'high': {'value': True, 'unit': True, 'system': True, 'code': True}
+                    }
+                }
+            },
+            'performer': {
+                'actor': {'reference': True}
+            },
+            'quantity': {
+                'value': True, 'unit': True, 'system': True, 'code': True
+            },
+            'daysSupply': {
+                'value': True, 'unit': True, 'system': True, 'code': True
+            },
+            'whenPrepared': True,
+            'whenHandedOver': True
+        },
         'medicationrequest': {
             'id': True, 
             'status': True, 
@@ -226,6 +305,60 @@ schema =
             },
             'dosageInstruction': {
                 'text': True,
+                'sequence': True,
+                'patientInstruction': True,
+                'asNeededBoolean': True,
+                'route': {
+                    'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+                },
+                'timing': {
+                    'code': {'text': True},
+                    'repeat': {
+                        'count': True,
+                        'countMax': True,
+                        'duration': True,
+                        'durationMax': True,
+                        'durationUnit': True,
+                        'frequency': True,
+                        'frequencyMax': True,
+                        'period': True,
+                        'periodMax': True,
+                        'periodUnit': True,
+                        'offset': True,
+                        'boundsPeriod': {'start': True, 'end': True}
+                    }
+                },
+                'doseAndRate': {
+                    'type': {
+                        'text': True,
+                        'coding': {
+                            'code': True, 'system': True, 'display': True,
+                            'userSelected': True
+                        }
+                    },
+                    'doseQuantity': {
+                        'value': True, 'unit': True, 'system': True, 'code': True
+                    },
+                    'doseRange': {
+                        'low': {'value': True, 'unit': True, 'system': True, 'code': True},
+                        'high': {'value': True, 'unit': True, 'system': True, 'code': True}
+                    }
+                }
+            },
+            'courseOfTherapyType': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'statusReason': {
+                'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
+            },
+            'priorPrescription': {
+                'reference': True
+            },
+            'dispenseRequest': {
+                'numberOfRepeatsAllowed': True,
+                'quantity': {'value': True, 'unit': True, 'system': True, 'code': True},
+                'expectedSupplyDuration': {'value': True, 'unit': True},
+                'validityPeriod': {'start': True, 'end': True}
             },
             'medicationReference': {
                 'reference': True
@@ -235,11 +368,11 @@ schema =
             },
             'subject': {
                 'reference': True
-            }, 
+            },
             'encounter': {
                 'reference': True
             }
-        }, 
+        },
         'observation': {
             'id': True, 
             'category': {

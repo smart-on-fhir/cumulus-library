@@ -33,7 +33,7 @@ from tests import conftest, nlp_utils
 from tests.conftest import create_protected_tables, duckdb_args
 from tests.nlp_utils import add_dxr
 
-FHIR_RESOURCE_TABLE_COUNT = 22
+FHIR_RESOURCE_TABLE_COUNT = 23
 
 
 @contextmanager
@@ -336,7 +336,7 @@ def test_clean(tmp_path, args, expected, raises):
         (
             ["build", "-t", "core"],
             ["export", "-t", "core"],
-            92,
+            111,
             does_not_raise(),
             [],
         ),

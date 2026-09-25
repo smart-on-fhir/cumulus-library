@@ -1,0 +1,212 @@
+{% import 'core_utils.jinja' as utils -%}
+{% import 'syntax.sql.jinja' as syntax -%}
+{% import 'unnest_utils.jinja' as unnest_utils -%}
+
+CREATE TABLE core__medicationdispense AS (
+    WITH
+
+    md_basics AS (
+        SELECT DISTINCT
+            {{- utils.basic_cols(
+                    'medicationdispense',
+                    'md',
+                    [
+                        'id',
+                        'status'
+                    ],
+                )
+            }},
+            {#- R4 links the Encounter via 'context'; R5 renamed that
+                field to 'encounter'. #}
+            {{- utils.nullable_cols(
+                    'medicationdispense',
+                    'md',
+                    [
+                        ('context', 'reference', 'encounter_ref'),
+                        ('subject', 'reference', 'subject_ref'),
+                        ('medicationReference', 'reference', 'med_ref'),
+                        ('quantity', 'value', 'quantity_value'),
+                        ('quantity', 'unit', 'quantity_unit'),
+                        ('quantity', 'system', 'quantity_system'),
+                        ('quantity', 'code', 'quantity_code'),
+                        ('daysSupply', 'value', 'days_supply_value'),
+                        ('daysSupply', 'unit', 'days_supply_unit'),
+                        ('daysSupply', 'system', 'days_supply_system'),
+                        ('daysSupply', 'code', 'days_supply_code'),
+                    ],
+                    schema
+                )
+            }},
+            {{- utils.timestamp_cols_from_str(
+                    'medicationdispense',
+                    'md',
+                    [
+                        'whenPrepared',
+                        'whenHandedOver'
+                    ],
+                    schema
+                )
+            }},
+            {{- utils.truncate_date_cols(
+                    'medicationdispense',
+                    'md',
+                    [
+                        ('whenPrepared', 'month'),
+                        ('whenHandedOver', 'day'),
+                        ('whenHandedOver', 'week'),
+                        ('whenHandedOver', 'month'),
+                        ('whenHandedOver', 'year'),
+                    ],
+                    schema
+                )
+            }}
+        FROM medicationdispense AS md
+        WHERE (md.status IS NULL OR md.status <> 'entered-in-error')
+    ),
+
+    authorizing_prescriptions AS (
+        {%- if schema["medicationdispense"]["authorizingPrescription"]["reference"] %}
+        {{ unnest_utils.flatten(
+            'medicationdispense',
+            'reference',
+            parent_field='authorizingPrescription'
+        ) }}
+        {%- else %}
+        SELECT
+            'x' AS id, cast(NULL AS varchar) AS reference
+        WHERE 1 = 0 -- no authorizingPrescription
+        {%- endif %}
+    ),
+
+    {%- if schema["medicationdispense"]["performer"]["actor"]["reference"] %}
+
+    performer_rows AS (
+        {{ unnest_utils.flatten(
+            'medicationdispense',
+            'actor',
+            parent_field='performer'
+        ) }}
+    ),
+
+    performers AS (
+        SELECT
+            f.id,
+            f.actor.reference AS performer_ref
+        FROM performer_rows AS f
+        WHERE f.actor.reference IS NOT NULL
+    ),
+    {%- else %}
+    performers AS (
+        SELECT
+            'x' AS id,
+            'x' AS performer_ref
+        WHERE 1 = 0 -- no performer
+    ),
+    {%- endif %}
+
+    contained_refs AS (
+        SELECT DISTINCT
+            md.id,
+            substring(md.med_ref, 2) AS medication_id
+        FROM md_basics AS md
+        WHERE md.med_ref IS NOT NULL AND {{ syntax.like('md.med_ref', '#%') }}
+    ),
+
+    external_refs AS (
+        SELECT DISTINCT
+            md.id,
+            substring(md.med_ref, 12) AS medication_id
+        FROM md_basics AS md
+        WHERE md.med_ref IS NOT NULL AND {{ syntax.like('md.med_ref', 'Medication/%') }}
+    ),
+
+    unified_codes AS (
+        {# Internal: medication data from inline ETL extraction.
+        95% of the time, this dataset is the 'correct' dataset for Cerner.
+        It may not be present in EPIC datasets. #}
+        SELECT
+            md.id,
+            mdic.code AS medication_code,
+            mdic.system AS medication_system,
+            mdic.display AS medication_display
+        FROM md_basics AS md
+        INNER JOIN core__medicationdispense_dn_inline_code AS mdic ON md.id = mdic.id
+
+        {# Contained: medication dispense into contained resources, see MedicationRequest.
+        We've also seen this in Cerner. Though in the cases we've seen this, it's usually
+        a very lightly fleshed out resource, with only code.text and no codings. #}
+        UNION
+        SELECT
+            md.id,
+            mdcc.code AS medication_code,
+            mdcc.system AS medication_system,
+            mdcc.display AS medication_display
+        FROM md_basics AS md
+        INNER JOIN contained_refs AS cr ON md.id = cr.id
+        INNER JOIN core__medicationdispense_dn_contained_code AS mdcc
+            ON cr.id = mdcc.id AND cr.medication_id = mdcc.contained_id
+        WHERE mdcc.resource_type = 'Medication'
+
+        {# External: medication by reference from the external medications table.
+        This table is built by builder_medicationdispense_prereq, since it is
+        keyed on the standalone medication table rather than on any one
+        requesting resource. This is generally how we expect EPIC to provide
+        medication data. #}
+        UNION
+        SELECT
+            md.id,
+            mc.code AS medication_code,
+            mc.system AS medication_system,
+            mc.display AS medication_display
+        FROM md_basics AS md
+        INNER JOIN external_refs AS er ON md.id = er.id
+        INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
+    )
+
+    SELECT
+        md.id,
+        md.status,
+
+        mdc.code AS category_code,
+        mdc.system AS category_system,
+        mdc.display AS category_display,
+
+        mdt.code AS type_code,
+        mdt.system AS type_system,
+        mdt.display AS type_display,
+
+        uc.medication_code,
+        uc.medication_system,
+        uc.medication_display,
+
+        -- We ensure these are doubles, because nullable_cols() above will cast
+        -- them as varchar if they aren't in the schema.
+        cast(md.quantity_value AS double) AS quantity_value,
+        md.quantity_unit,
+        md.quantity_system,
+        md.quantity_code,
+        cast(md.days_supply_value AS double) AS days_supply_value,
+        md.days_supply_unit,
+        md.days_supply_system,
+        md.days_supply_code,
+
+        md.whenPrepared,
+        md.whenPrepared_month,
+        md.whenHandedOver,
+        md.whenHandedOver_day,
+        md.whenHandedOver_week,
+        md.whenHandedOver_month,
+        md.whenHandedOver_year,
+
+        concat('MedicationDispense/', md.id) AS medicationdispense_ref,
+        md.subject_ref,
+        md.encounter_ref,
+        ap.reference AS medicationrequest_ref,
+        pf.performer_ref
+    FROM md_basics AS md
+    LEFT JOIN authorizing_prescriptions AS ap ON md.id = ap.id
+    LEFT JOIN performers AS pf ON md.id = pf.id
+    LEFT JOIN unified_codes AS uc ON md.id = uc.id
+    LEFT JOIN core__medicationdispense_dn_category AS mdc ON md.id = mdc.id
+    LEFT JOIN core__medicationdispense_dn_type AS mdt ON md.id = mdt.id
+);

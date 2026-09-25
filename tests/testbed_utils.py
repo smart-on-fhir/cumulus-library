@@ -128,6 +128,7 @@ class LocalTestbed:
                 "documentreference",
                 "episodeofcare",
                 "medicationrequest",
+                "medicationdispense",
                 "observation",
                 "procedure",
                 "servicerequest",
@@ -167,6 +168,65 @@ class LocalTestbed:
                     "export_time": time,
                 },
             )
+
+    def add_medication_dispense(
+        self,
+        row_id: str,
+        mode: str = "inline",
+        codings: list[dict] | None = None,
+        patient: str = "A",
+        when_handed_over: str = "2020",
+        status: str = "completed",
+        **kwargs,
+    ) -> None:
+        """Adds a MedicationDispense with all the SQL-required fields filled out"""
+        if codings is None:
+            codings = [
+                {
+                    "code": "2623378",
+                    "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                }
+            ]
+        concept = {"coding": codings}
+
+        match mode:
+            case "inline":
+                kwargs["medicationCodeableConcept"] = concept
+            case "contained":
+                kwargs["medicationReference"] = {"reference": "#contained"}
+                kwargs["contained"] = [
+                    {
+                        "resourceType": "Medication",
+                        "id": "contained",
+                        "code": concept,
+                    }
+                ]
+            case "external":
+                kwargs["medicationReference"] = {"reference": f"Medication/med-{row_id}"}
+                self.add(
+                    "medication",
+                    {
+                        "resourceType": "Medication",
+                        "id": f"med-{row_id}",
+                        "code": concept,
+                    },
+                )
+            case "custom":
+                pass  # caller knows what they want
+            case _:
+                raise ValueError(f"Bad mode '{mode}'")
+
+        self.add(
+            "medicationdispense",
+            {
+                "resourceType": "MedicationDispense",
+                "id": row_id,
+                "status": status,
+                "subject": {"reference": f"Patient/{patient}"},
+                "whenHandedOver": when_handed_over,
+                **kwargs,
+            },
+        )
 
     def add_medication_request(
         self,

@@ -23,6 +23,7 @@ files =[
     "builder_encounter_prereq.py",
     "builder_episodeofcare_prereq.py",
     "builder_location_prereq.py",
+    "builder_medicationdispense_prereq.py",
     "builder_medicationrequest_prereq.py",
     "builder_observation_prereq.py",
     "builder_organization_prereq.py",
@@ -51,6 +52,7 @@ files=[
     "builder_episodeofcare.py",
     "builder_location.py",
     "builder_medicationrequest.py",
+    "builder_medicationdispense.py",
     "builder_observation.py",
     "builder_organization.py",
     "builder_practitioner.py",
@@ -63,6 +65,8 @@ type = "build:parallel"
 [[stages.build_core]]
 label = "Tables derived from FHIR resource tables"
 files = [
+    "builder_medicationdispense_dosageinstruction.py",
+    "builder_medicationrequest_dosageinstruction.py",
     "observation_type.sql",
     "meta_date.sql"
 ]

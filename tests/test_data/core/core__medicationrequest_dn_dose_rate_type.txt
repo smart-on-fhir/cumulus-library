@@ -1,0 +1,2 @@
+('681275da-223b-4c51-9b51-0e3cb4a2f5cc', 1, 1, 'ordered', 'http://terminology.hl7.org/CodeSystem/dose-rate-type', 'Ordered', None)
+('88d05d81-66ea-2252-9440-d19100f8b7ed', 1, 1, 'ordered', 'http://terminology.hl7.org/CodeSystem/dose-rate-type', 'Ordered', None)

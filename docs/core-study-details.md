@@ -88,6 +88,7 @@ for each of the following encounter-linked resources:
 - DocumentReference
 - EpisodeOfCare
 - MedicationRequest
+- MedicationDispense
 - Observation
 - Procedure
 - ServiceRequest
@@ -179,8 +180,8 @@ vital signs) instead.
 
 ### core__count_condition_month
 
-|      Column      | Type  |Description|
-|------------------|-------|-----------|
+|            Column            | Type  |Description|
+|------------------------------|-------|-----------|
 |cnt               |bigint |count      |
 |category_code     |varchar|Encounter Code (Healthcare Setting)|
 |recordeddate_month|varchar|Month condition recorded|
@@ -237,7 +238,7 @@ vital signs) instead.
 |------------------|-------|-----------|
 |cnt               |bigint |Count      |
 |period_start_month|varchar|Month encounter recorded|
-|class_display     |varchar|Encounter Code (Healthcare Setting|
+|class_display     |varchar|Encounter Code (Healthcare Setting)|
 |age_at_visit      |varchar|Patient Age at Encounter|
 |gender            |varchar|Biological sex at birth|
 |race_display      |varchar|Patient reported race|
@@ -255,8 +256,7 @@ vital signs) instead.
 
 
 ### core__count_encounter_service_month
-
-|      Column       | Type  |Description|
+|       Column      | Type  |Description|
 |-------------------|-------|-----------|
 |cnt                |bigint |Count      |
 |class_display      |varchar|Encounter Code (Healthcare Setting)|
@@ -272,6 +272,69 @@ vital signs) instead.
 |class_display     |varchar|           |
 |type_display      |varchar|           |
 |period_start_month|varchar|           |
+
+
+### core__count_medicationdispense_category_month
+
+|       Column       | Type  |Description|
+|--------------------|-------|-----------|
+|cnt                 |bigint |           |
+|status              |varchar|           |
+|category_display    |varchar|           |
+|whenhandedover_month|varchar|           |
+
+
+### core__count_medicationdispense_dosage_month
+
+|       Column       | Type  |Description|
+|--------------------|-------|-----------|
+|cnt                 |BIGINT |           |
+|dosage_route_text   |VARCHAR|           |
+|dosage_timing_text  |VARCHAR|           |
+|dosage_dose_unit    |VARCHAR|           |
+|whenhandedover_month|VARCHAR|           |
+
+
+### core__count_medicationdispense_month
+
+|       Column       | Type  |Description|
+|--------------------|-------|-----------|
+|cnt                 |bigint |           |
+|status              |varchar|           |
+|whenhandedover_month|varchar|           |
+|medication_display  |varchar|           |
+
+
+### core__count_medicationdispense_type_month
+
+|       Column       | Type  |Description|
+|--------------------|-------|-----------|
+|cnt                 |bigint |           |
+|status              |varchar|           |
+|type_display        |varchar|           |
+|whenhandedover_month|varchar|           |
+
+
+### core__count_medicationrequest_dispense_month
+
+|           Column            | Type  |Description|
+|-----------------------------|-------|-----------|
+|cnt                          |BIGINT |           |
+|intent                       |VARCHAR|           |
+|dispense_refills_allowed     |VARCHAR|           |
+|expected_supply_duration_unit|VARCHAR|           |
+|authoredon_month             |VARCHAR|           |
+
+
+### core__count_medicationrequest_dosage_month
+
+|       Column        | Type  |Description|
+|---------------------|-------|-----------|
+|cnt                  |bigint |           |
+|dosage_route_text    |varchar|           |
+|dosage_timing_text   |varchar|           |
+|dosage_as_needed_bool|varchar|           |
+|authoredon_month     |varchar|           |
 
 
 ### core__count_medicationrequest_month
@@ -338,22 +401,22 @@ vital signs) instead.
 
 ### core__allergyintolerance
 
-|            Column            | Type  |Description|
-|------------------------------|-------|-----------|
+|            Column            |  Type   |Description|
+|------------------------------|---------|-----------|
 |id                            |varchar|           |
-|clinicalstatus_code           |varchar|           |
-|verificationstatus_code       |varchar|           |
+|clinicalStatus_code           |varchar|           |
+|verificationStatus_code       |varchar|           |
 |type                          |varchar|           |
 |category                      |varchar|           |
 |criticality                   |varchar|           |
 |code_code                     |varchar|           |
 |code_system                   |varchar|           |
 |code_display                  |varchar|           |
-|recordeddate                  |date   |           |
-|recordeddate_week             |date   |           |
-|recordeddate_month            |date   |           |
-|recordeddate_year             |date   |           |
-|reaction_row                  |bigint |           |
+|recordeddate                  |timestamp|           |
+|recordeddate_week             |date     |           |
+|recordeddate_month            |date     |           |
+|recordeddate_year             |date     |           |
+|reaction_row                  |bigint   |           |
 |reaction_substance_code       |varchar|           |
 |reaction_substance_system     |varchar|           |
 |reaction_substance_display    |varchar|           |
@@ -425,8 +488,8 @@ vital signs) instead.
 
 ### core__condition
 
-|        Column         | Type  |Description|
-|-----------------------|-------|-----------|
+|        Column         |  Type   |Description|
+|-----------------------|---------|-----------|
 |id                     |varchar|           |
 |category_code          |varchar|           |
 |category_system        |varchar|           |
@@ -437,12 +500,14 @@ vital signs) instead.
 |subject_ref            |varchar|           |
 |encounter_ref          |varchar|           |
 |condition_ref          |varchar|           |
-|recordeddate           |date   |           |
-|recordeddate_week      |date   |           |
-|recordeddate_month     |date   |           |
-|recordeddate_year      |date   |           |
-|clinicalstatus_code    |varchar|           |
-|verificationstatus_code|varchar|           |
+|recordeddate           |timestamp|           |
+|recordeddate_week      |date     |           |
+|recordeddate_month     |date     |           |
+|recordeddate_year      |date     |           |
+|onsetdateTime          |timestamp|           |
+|abatementdateTime      |timestamp|           |
+|clinicalStatus_code    |varchar|           |
+|verificationStatus_code|varchar|           |
 
 
 ### core__condition_codable_concepts_all
@@ -503,8 +568,8 @@ vital signs) instead.
 
 ### core__diagnosticreport
 
-|          Column           | Type  |Description|
-|---------------------------|-------|-----------|
+|          Column           |  Type   |Description|
+|---------------------------|---------|-----------|
 |id                         |varchar|           |
 |status                     |varchar|           |
 |category_code              |varchar|           |
@@ -513,26 +578,30 @@ vital signs) instead.
 |code_code                  |varchar|           |
 |code_system                |varchar|           |
 |code_display               |varchar|           |
-|effectivedatetime_day      |date   |           |
-|effectivedatetime_week     |date   |           |
-|effectivedatetime_month    |date   |           |
-|effectivedatetime_year     |date   |           |
-|effectiveperiod_start_day  |date   |           |
-|effectiveperiod_start_week |date   |           |
-|effectiveperiod_start_month|date   |           |
-|effectiveperiod_start_year |date   |           |
-|effectiveperiod_end_day    |date   |           |
-|effectiveperiod_end_week   |date   |           |
-|effectiveperiod_end_month  |date   |           |
-|effectiveperiod_end_year   |date   |           |
-|issued_day                 |date   |           |
-|issued_week                |date   |           |
-|issued_month               |date   |           |
-|issued_year                |date   |           |
-|conclusioncode_code        |varchar|           |
-|conclusioncode_system      |varchar|           |
-|conclusioncode_display     |varchar|           |
-|aux_has_text               |boolean|           |
+|effectivedateTime          |timestamp|           |
+|effectivedateTime_day      |date     |           |
+|effectivedateTime_week     |date     |           |
+|effectivedateTime_month    |date     |           |
+|effectivedateTime_year     |date     |           |
+|effectivePeriod_start      |timestamp|           |
+|effectivePeriod_start_day  |date     |           |
+|effectivePeriod_start_week |date     |           |
+|effectivePeriod_start_month|date     |           |
+|effectivePeriod_start_year |date     |           |
+|effectivePeriod_end        |timestamp|           |
+|effectivePeriod_end_day    |date     |           |
+|effectivePeriod_end_week   |date     |           |
+|effectivePeriod_end_month  |date     |           |
+|effectivePeriod_end_year   |date     |           |
+|issued                     |timestamp|           |
+|issued_day                 |date     |           |
+|issued_week                |date     |           |
+|issued_month               |date     |           |
+|issued_year                |date     |           |
+|conclusionCode_code        |varchar|           |
+|conclusionCode_system      |varchar|           |
+|conclusionCode_display     |varchar|           |
+|aux_has_text               |boolean  |           |
 |diagnosticreport_ref       |varchar|           |
 |subject_ref                |varchar|           |
 |encounter_ref              |varchar|           |
@@ -578,22 +647,22 @@ vital signs) instead.
 
 ### core__documentreference
 
-|       Column        | Type  |Description|
-|---------------------|-------|-----------|
+|       Column        |  Type   |Description|
+|---------------------|---------|-----------|
 |id                   |varchar|           |
 |status               |varchar|           |
 |type_code            |varchar|           |
 |type_system          |varchar|           |
 |type_display         |varchar|           |
 |category_code        |varchar|           |
-|docstatus            |varchar|           |
-|date                 |date   |           |
-|author_day           |date   |           |
-|author_week          |date   |           |
-|author_month         |date   |           |
-|author_year          |date   |           |
+|docStatus            |varchar|           |
+|date                 |timestamp|           |
+|author_day           |date     |           |
+|author_week          |date     |           |
+|author_month         |date     |           |
+|author_year          |date     |           |
 |format_code          |varchar|           |
-|aux_has_text         |boolean|           |
+|aux_has_text         |boolean  |           |
 |subject_ref          |varchar|           |
 |encounter_ref        |varchar|           |
 |author_ref           |varchar|           |
@@ -644,32 +713,32 @@ vital signs) instead.
 |type_code                   |varchar|           |
 |type_system                 |varchar|           |
 |type_display                |varchar|           |
-|servicetype_code            |varchar|           |
-|servicetype_system          |varchar|           |
-|servicetype_display         |varchar|           |
+|serviceType_code            |varchar|           |
+|serviceType_system          |varchar|           |
+|serviceType_display         |varchar|           |
 |priority_code               |varchar|           |
 |priority_system             |varchar|           |
 |priority_display            |varchar|           |
-|reasoncode_code             |varchar|           |
-|reasoncode_system           |varchar|           |
-|reasoncode_display          |varchar|           |
-|dischargedisposition_code   |varchar|           |
-|dischargedisposition_system |varchar|           |
-|dischargedisposition_display|varchar|           |
+|reasonCode_code             |varchar|           |
+|reasonCode_system           |varchar|           |
+|reasonCode_display          |varchar|           |
+|dischargeDisposition_code   |varchar|           |
+|dischargeDisposition_system |varchar|           |
+|dischargeDisposition_display|varchar|           |
 |age_at_visit                |bigint |           |
 |gender                      |varchar|           |
 |race_display                |varchar|           |
 |ethnicity_display           |varchar|           |
-|postalcode_3                |varchar|           |
+|postalCode_3                |varchar|           |
 |period_start_day            |date   |           |
 |period_end_day              |date   |           |
 |period_start_week           |date   |           |
 |period_start_month          |date   |           |
 |period_start_year           |date   |           |
 |subject_ref                 |varchar|           |
-|episodeofcare_ref           |varchar|           |
+|episodeOfCare_ref           |varchar|           |
 |participant_ref             |varchar|           |
-|serviceprovider_ref         |varchar|           |
+|serviceProvider_ref         |varchar|           |
 |encounter_ref               |varchar|           |
 
 
@@ -689,6 +758,7 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
@@ -712,6 +782,7 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
@@ -732,21 +803,23 @@ vital signs) instead.
 
 ### core__episodeofcare
 
-|      Column      | Type  |Description|
-|------------------|-------|-----------|
+|      Column      |  Type   |Description|
+|------------------|---------|-----------|
 |id                |varchar|           |
 |status            |varchar|           |
 |type_code         |varchar|           |
 |type_system       |varchar|           |
 |type_display      |varchar|           |
-|period_start_day  |date   |           |
-|period_start_week |date   |           |
-|period_start_month|date   |           |
-|period_start_year |date   |           |
-|period_end_day    |date   |           |
-|period_end_week   |date   |           |
-|period_end_month  |date   |           |
-|period_end_year   |date   |           |
+|period_start      |timestamp|           |
+|period_start_day  |date     |           |
+|period_start_week |date     |           |
+|period_start_month|date     |           |
+|period_start_year |date     |           |
+|period_end        |timestamp|           |
+|period_end_day    |date     |           |
+|period_end_week   |date     |           |
+|period_end_month  |date     |           |
+|period_end_year   |date     |           |
 |episodeofcare_ref |varchar|           |
 |patient_ref       |varchar|           |
 
@@ -812,6 +885,17 @@ vital signs) instead.
 |type  |varchar|           |
 
 
+### core__lib_ref_summary
+
+|   Column    |  Type   |Description|
+|-------------|---------|-----------|
+|table_name   |varchar|           |
+|ref_type     |varchar|           |
+|ref_count    |INTEGER  |           |
+|delta_percent|DOUBLE   |           |
+|event_time   |timestamp|           |
+
+
 ### core__lib_transactions
 
 |    Column     |    Type    |Description|
@@ -858,33 +942,202 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
 
 
+### core__medicationdispense
+
+|        Column        |  Type   |Description|
+|----------------------|---------|-----------|
+|id                    |VARCHAR  |           |
+|status                |VARCHAR  |           |
+|category_code         |VARCHAR  |           |
+|category_system       |VARCHAR  |           |
+|category_display      |VARCHAR  |           |
+|type_code             |VARCHAR  |           |
+|type_system           |VARCHAR  |           |
+|type_display          |VARCHAR  |           |
+|medication_code       |VARCHAR  |           |
+|medication_system     |VARCHAR  |           |
+|medication_display    |VARCHAR  |           |
+|quantity_value        |DOUBLE   |           |
+|quantity_unit         |VARCHAR  |           |
+|quantity_system       |VARCHAR  |           |
+|quantity_code         |VARCHAR  |           |
+|days_supply_value     |DOUBLE   |           |
+|days_supply_unit      |VARCHAR  |           |
+|days_supply_system    |VARCHAR  |           |
+|days_supply_code      |VARCHAR  |           |
+|whenPrepared          |TIMESTAMP|           |
+|whenPrepared_month    |DATE     |           |
+|whenHandedOver        |TIMESTAMP|           |
+|whenHandedOver_day    |DATE     |           |
+|whenHandedOver_week   |DATE     |           |
+|whenHandedOver_month  |DATE     |           |
+|whenHandedOver_year   |DATE     |           |
+|medicationdispense_ref|VARCHAR  |           |
+|subject_ref           |VARCHAR  |           |
+|encounter_ref         |VARCHAR  |           |
+|medicationrequest_ref |VARCHAR  |           |
+|performer_ref         |VARCHAR  |           |
+
+
+### core__medicationdispense_dn_category
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__medicationdispense_dn_contained_code
+
+|   Column    | Type  |Description|
+|-------------|-------|-----------|
+|id           |varchar|           |
+|row          |bigint |           |
+|contained_id |varchar|           |
+|resource_type|varchar|           |
+|code         |varchar|           |
+|system       |varchar|           |
+|display      |varchar|           |
+|userselected |boolean|           |
+
+
+### core__medicationdispense_dn_dosage_route
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__medicationdispense_dn_dose_rate_type
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |VARCHAR|           |
+|row         |BIGINT |           |
+|dose_row    |BIGINT |           |
+|code        |VARCHAR|           |
+|system      |VARCHAR|           |
+|display     |VARCHAR|           |
+|userSelected|BOOLEAN|           |
+
+
+### core__medicationdispense_dn_inline_code
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__medicationdispense_dn_type
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__medicationdispense_dosageinstruction
+
+|          Column           |  Type   |Description|
+|---------------------------|---------|-----------|
+|id                         |VARCHAR  |           |
+|row                        |BIGINT   |           |
+|dose_row                   |BIGINT   |           |
+|dosage_sequence            |BIGINT   |           |
+|dosage_text                |VARCHAR  |           |
+|dosage_patient_instruction |VARCHAR  |           |
+|dosage_as_needed_bool      |BOOLEAN  |           |
+|dosage_route_text          |VARCHAR  |           |
+|dosage_timing_text         |VARCHAR  |           |
+|dosage_timing_count        |BIGINT   |           |
+|dosage_timing_count_max    |BIGINT   |           |
+|dosage_timing_duration     |DOUBLE   |           |
+|dosage_timing_duration_max |DOUBLE   |           |
+|dosage_timing_duration_unit|VARCHAR  |           |
+|dosage_timing_frequency    |BIGINT   |           |
+|dosage_timing_frequency_max|BIGINT   |           |
+|dosage_timing_period       |DOUBLE   |           |
+|dosage_timing_period_max   |DOUBLE   |           |
+|dosage_timing_period_unit  |VARCHAR  |           |
+|dosage_timing_offset       |BIGINT   |           |
+|dosage_timing_bounds_start |DATE     |           |
+|dosage_timing_bounds_end   |DATE     |           |
+|dosage_dose_type           |VARCHAR  |           |
+|dosage_dose_value          |DOUBLE   |           |
+|dosage_dose_low_value      |DOUBLE   |           |
+|dosage_dose_high_value     |DOUBLE   |           |
+|dosage_dose_unit           |VARCHAR  |           |
+|dosage_dose_system         |VARCHAR  |           |
+|dosage_dose_code           |VARCHAR  |           |
+|dosage_dose_rate_type_text |VARCHAR  |           |
+|whenHandedOver             |TIMESTAMP|           |
+|whenHandedOver_month       |DATE     |           |
+|medicationdispense_ref     |VARCHAR  |           |
+|subject_ref                |VARCHAR  |           |
+|encounter_ref              |VARCHAR  |           |
+
+
 ### core__medicationrequest
 
-|       Column        | Type  |Description|
-|---------------------|-------|-----------|
-|id                   |varchar|           |
-|status               |varchar|           |
-|intent               |varchar|           |
-|category_code        |varchar|           |
-|category_system      |varchar|           |
-|category_display     |varchar|           |
-|reportedboolean      |boolean|           |
-|reported_ref         |varchar|           |
-|medication_code      |varchar|           |
-|medication_system    |varchar|           |
-|medication_display   |varchar|           |
-|authoredon           |date   |           |
-|authoredon_month     |date   |           |
-|medicationrequest_ref|varchar|           |
-|subject_ref          |varchar|           |
-|encounter_ref        |varchar|           |
-|requester_ref        |varchar|           |
+|            Column            |  Type   |Description|
+|------------------------------|---------|-----------|
+|id                            |VARCHAR  |           |
+|status                        |VARCHAR  |           |
+|intent                        |VARCHAR  |           |
+|category_code                 |VARCHAR  |           |
+|category_system               |VARCHAR  |           |
+|category_display              |VARCHAR  |           |
+|status_reason_code            |VARCHAR  |           |
+|status_reason_system          |VARCHAR  |           |
+|status_reason_display         |VARCHAR  |           |
+|status_reason_text            |VARCHAR  |           |
+|course_of_therapy_code        |VARCHAR  |           |
+|course_of_therapy_system      |VARCHAR  |           |
+|course_of_therapy_display     |VARCHAR  |           |
+|course_of_therapy_text        |VARCHAR  |           |
+|reportedBoolean               |BOOLEAN  |           |
+|reported_ref                  |VARCHAR  |           |
+|medication_code               |VARCHAR  |           |
+|medication_system             |VARCHAR  |           |
+|medication_display            |VARCHAR  |           |
+|dispense_refills_allowed      |BIGINT   |           |
+|dispense_quantity_value       |DOUBLE   |           |
+|dispense_quantity_unit        |VARCHAR  |           |
+|dispense_quantity_system      |VARCHAR  |           |
+|dispense_quantity_code        |VARCHAR  |           |
+|expected_supply_duration_value|DOUBLE   |           |
+|expected_supply_duration_unit |VARCHAR  |           |
+|validity_period_start         |DATE     |           |
+|validity_period_end           |DATE     |           |
+|authoredOn                    |TIMESTAMP|           |
+|authoredOn_month              |DATE     |           |
+|medicationrequest_ref         |VARCHAR  |           |
+|subject_ref                   |VARCHAR  |           |
+|encounter_ref                 |VARCHAR  |           |
+|requester_ref                 |VARCHAR  |           |
+|prior_prescription_ref        |VARCHAR  |           |
 
 
 ### core__medicationrequest_dn_category
@@ -913,6 +1166,43 @@ vital signs) instead.
 |resource_type|varchar|           |
 
 
+### core__medicationrequest_dn_course_of_therapy
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__medicationrequest_dn_dosage_route
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__medicationrequest_dn_dose_rate_type
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |VARCHAR|           |
+|row         |BIGINT |           |
+|dose_row    |BIGINT |           |
+|code        |VARCHAR|           |
+|system      |VARCHAR|           |
+|display     |VARCHAR|           |
+|userSelected|BOOLEAN|           |
+
+
 ### core__medicationrequest_dn_inline_code
 
 |   Column   | Type  |Description|
@@ -922,6 +1212,59 @@ vital signs) instead.
 |system      |varchar|           |
 |display     |varchar|           |
 |userselected|boolean|           |
+
+
+### core__medicationrequest_dn_status_reason
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|row         |bigint |           |
+|code        |varchar|           |
+|system      |varchar|           |
+|display     |varchar|           |
+|userselected|boolean|           |
+
+
+### core__medicationrequest_dosageinstruction
+
+|          Column           |  Type   |Description|
+|---------------------------|---------|-----------|
+|id                         |VARCHAR  |           |
+|row                        |BIGINT   |           |
+|dose_row                   |BIGINT   |           |
+|dosage_sequence            |BIGINT   |           |
+|dosage_text                |VARCHAR  |           |
+|dosage_patient_instruction |VARCHAR  |           |
+|dosage_as_needed_bool      |BOOLEAN  |           |
+|dosage_route_text          |VARCHAR  |           |
+|dosage_timing_text         |VARCHAR  |           |
+|dosage_timing_count        |BIGINT   |           |
+|dosage_timing_count_max    |BIGINT   |           |
+|dosage_timing_duration     |DOUBLE   |           |
+|dosage_timing_duration_max |DOUBLE   |           |
+|dosage_timing_duration_unit|VARCHAR  |           |
+|dosage_timing_frequency    |BIGINT   |           |
+|dosage_timing_frequency_max|BIGINT   |           |
+|dosage_timing_period       |DOUBLE   |           |
+|dosage_timing_period_max   |DOUBLE   |           |
+|dosage_timing_period_unit  |VARCHAR  |           |
+|dosage_timing_offset       |BIGINT   |           |
+|dosage_timing_bounds_start |DATE     |           |
+|dosage_timing_bounds_end   |DATE     |           |
+|dosage_dose_type           |VARCHAR  |           |
+|dosage_dose_value          |DOUBLE   |           |
+|dosage_dose_low_value      |DOUBLE   |           |
+|dosage_dose_high_value     |DOUBLE   |           |
+|dosage_dose_unit           |VARCHAR  |           |
+|dosage_dose_system         |VARCHAR  |           |
+|dosage_dose_code           |VARCHAR  |           |
+|dosage_dose_rate_type_text |VARCHAR  |           |
+|authoredOn                 |TIMESTAMP|           |
+|authoredOn_month           |DATE     |           |
+|medicationrequest_ref      |VARCHAR  |           |
+|subject_ref                |VARCHAR  |           |
+|encounter_ref              |VARCHAR  |           |
 
 
 ### core__meta_date
@@ -936,13 +1279,13 @@ vital signs) instead.
 
 |       Column       | Type  |Description|
 |--------------------|-------|-----------|
-|data_package_version|integer|           |
+|data_package_version|INTEGER|           |
 
 
 ### core__observation
 
-|           Column           | Type  |Description|
-|----------------------------|-------|-----------|
+|           Column           |  Type   |Description|
+|----------------------------|---------|-----------|
 |id                          |varchar|           |
 |category_code               |varchar|           |
 |category_system             |varchar|           |
@@ -952,22 +1295,23 @@ vital signs) instead.
 |interpretation_code         |varchar|           |
 |interpretation_system       |varchar|           |
 |interpretation_display      |varchar|           |
-|effectivedatetime_day       |date   |           |
-|effectivedatetime_week      |date   |           |
-|effectivedatetime_month     |date   |           |
-|effectivedatetime_year      |date   |           |
-|valuecodeableconcept_code   |varchar|           |
-|valuecodeableconcept_system |varchar|           |
-|valuecodeableconcept_display|varchar|           |
-|valuequantity_value         |double |           |
-|valuequantity_comparator    |varchar|           |
-|valuequantity_unit          |varchar|           |
-|valuequantity_system        |varchar|           |
-|valuequantity_code          |varchar|           |
-|valuestring                 |varchar|           |
-|dataabsentreason_code       |varchar|           |
-|dataabsentreason_system     |varchar|           |
-|dataabsentreason_display    |varchar|           |
+|effectivedateTime           |timestamp|           |
+|effectivedateTime_day       |date     |           |
+|effectivedateTime_week      |date     |           |
+|effectivedateTime_month     |date     |           |
+|effectivedateTime_year      |date     |           |
+|valueCodeableConcept_code   |varchar|           |
+|valueCodeableConcept_system |varchar|           |
+|valueCodeableConcept_display|varchar|           |
+|valueQuantity_value         |DOUBLE   |           |
+|valueQuantity_comparator    |varchar|           |
+|valueQuantity_unit          |varchar|           |
+|valueQuantity_system        |varchar|           |
+|valueQuantity_code          |varchar|           |
+|valueString                 |varchar|           |
+|dataAbsentReason_code       |varchar|           |
+|dataAbsentReason_system     |varchar|           |
+|dataAbsentReason_display    |varchar|           |
 |subject_ref                 |varchar|           |
 |encounter_ref               |varchar|           |
 |specimen_ref                |varchar|           |
@@ -1028,7 +1372,7 @@ vital signs) instead.
 |----------|-------|-----------|
 |id        |varchar|           |
 |row       |bigint |           |
-|value     |double |           |
+|value     |DOUBLE |           |
 |comparator|varchar|           |
 |unit      |varchar|           |
 |system    |varchar|           |
@@ -1063,6 +1407,7 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
@@ -1101,13 +1446,13 @@ vital signs) instead.
 |observation_system          |varchar|           |
 |category_code               |varchar|           |
 |category_system             |varchar|           |
-|valuecodeableconcept_code   |varchar|           |
-|valuecodeableconcept_system |varchar|           |
-|valuecodeableconcept_display|varchar|           |
-|effectivedatetime_day       |date   |           |
-|effectivedatetime_week      |date   |           |
-|effectivedatetime_month     |date   |           |
-|effectivedatetime_year      |date   |           |
+|valueCodeableConcept_code   |varchar|           |
+|valueCodeableConcept_system |varchar|           |
+|valueCodeableConcept_display|varchar|           |
+|effectivedateTime_day       |date   |           |
+|effectivedateTime_week      |date   |           |
+|effectivedateTime_month     |date   |           |
+|effectivedateTime_year      |date   |           |
 |status                      |varchar|           |
 |subject_ref                 |varchar|           |
 |encounter_ref               |varchar|           |
@@ -1124,22 +1469,22 @@ vital signs) instead.
 |observation_system          |varchar|           |
 |category_code               |varchar|           |
 |category_system             |varchar|           |
-|valuecodeableconcept_code   |varchar|           |
-|valuecodeableconcept_system |varchar|           |
-|valuecodeableconcept_display|varchar|           |
-|valuequantity_value         |double |           |
-|valuequantity_comparator    |varchar|           |
-|valuequantity_unit          |varchar|           |
-|valuequantity_system        |varchar|           |
-|valuequantity_code          |varchar|           |
+|valueCodeableConcept_code   |varchar|           |
+|valueCodeableConcept_system |varchar|           |
+|valueCodeableConcept_display|varchar|           |
+|valueQuantity_value         |DOUBLE |           |
+|valueQuantity_comparator    |varchar|           |
+|valueQuantity_unit          |varchar|           |
+|valueQuantity_system        |varchar|           |
+|valueQuantity_code          |varchar|           |
 |status                      |varchar|           |
 |interpretation_code         |varchar|           |
 |interpretation_system       |varchar|           |
 |interpretation_display      |varchar|           |
-|effectivedatetime_day       |date   |           |
-|effectivedatetime_week      |date   |           |
-|effectivedatetime_month     |date   |           |
-|effectivedatetime_year      |date   |           |
+|effectivedateTime_day       |date   |           |
+|effectivedateTime_week      |date   |           |
+|effectivedateTime_month     |date   |           |
+|effectivedateTime_year      |date   |           |
 |subject_ref                 |varchar|           |
 |encounter_ref               |varchar|           |
 |observation_ref             |varchar|           |
@@ -1181,7 +1526,7 @@ vital signs) instead.
 |id               |varchar|           |
 |gender           |varchar|           |
 |birthdate        |date   |           |
-|postalcode_3     |varchar|           |
+|postalCode_3     |varchar|           |
 |subject_ref      |varchar|           |
 |race_display     |varchar|           |
 |ethnicity_display|varchar|           |
@@ -1189,22 +1534,22 @@ vital signs) instead.
 
 ### core__patient_ext_ethnicity
 
-|     Column      |   Type    |Description|
-|-----------------|-----------|-----------|
-|id               |varchar    |           |
-|system           |varchar(11)|           |
-|ethnicity_code   |varchar    |           |
-|ethnicity_display|varchar    |           |
+|     Column      | Type  |Description|
+|-----------------|-------|-----------|
+|id               |varchar|           |
+|system           |varchar|           |
+|ethnicity_code   |varchar|           |
+|ethnicity_display|varchar|           |
 
 
 ### core__patient_ext_race
 
-|   Column   |   Type    |Description|
-|------------|-----------|-----------|
-|id          |varchar    |           |
-|system      |varchar(11)|           |
-|race_code   |varchar    |           |
-|race_display|varchar    |           |
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |varchar|           |
+|system      |varchar|           |
+|race_code   |varchar|           |
+|race_display|varchar|           |
 
 
 ### core__practitioner
@@ -1279,8 +1624,8 @@ vital signs) instead.
 
 ### core__procedure
 
-|          Column           | Type  |Description|
-|---------------------------|-------|-----------|
+|          Column           |  Type   |Description|
+|---------------------------|---------|-----------|
 |id                         |varchar|           |
 |status                     |varchar|           |
 |category_code              |varchar|           |
@@ -1289,18 +1634,21 @@ vital signs) instead.
 |code_code                  |varchar|           |
 |code_system                |varchar|           |
 |code_display               |varchar|           |
-|performeddatetime_day      |date   |           |
-|performeddatetime_week     |date   |           |
-|performeddatetime_month    |date   |           |
-|performeddatetime_year     |date   |           |
-|performedperiod_start_day  |date   |           |
-|performedperiod_start_week |date   |           |
-|performedperiod_start_month|date   |           |
-|performedperiod_start_year |date   |           |
-|performedperiod_end_day    |date   |           |
-|performedperiod_end_week   |date   |           |
-|performedperiod_end_month  |date   |           |
-|performedperiod_end_year   |date   |           |
+|performeddateTime          |timestamp|           |
+|performeddateTime_day      |date     |           |
+|performeddateTime_week     |date     |           |
+|performeddateTime_month    |date     |           |
+|performeddateTime_year     |date     |           |
+|performedPeriod_start      |timestamp|           |
+|performedPeriod_start_day  |date     |           |
+|performedPeriod_start_week |date     |           |
+|performedPeriod_start_month|date     |           |
+|performedPeriod_start_year |date     |           |
+|performedPeriod_end        |timestamp|           |
+|performedPeriod_end_day    |date     |           |
+|performedPeriod_end_week   |date     |           |
+|performedPeriod_end_month  |date     |           |
+|performedPeriod_end_year   |date     |           |
 |procedure_ref              |varchar|           |
 |subject_ref                |varchar|           |
 |encounter_ref              |varchar|           |
@@ -1311,6 +1659,7 @@ vital signs) instead.
 |   Column   | Type  |Description|
 |------------|-------|-----------|
 |id          |varchar|           |
+|row         |bigint |           |
 |code        |varchar|           |
 |system      |varchar|           |
 |display     |varchar|           |
@@ -1330,8 +1679,8 @@ vital signs) instead.
 
 ### core__servicerequest
 
-|           Column           | Type  |Description|
-|----------------------------|-------|-----------|
+|           Column           |  Type   |Description|
+|----------------------------|---------|-----------|
 |id                          |varchar|           |
 |status                      |varchar|           |
 |intent                      |varchar|           |
@@ -1341,22 +1690,26 @@ vital signs) instead.
 |code_code                   |varchar|           |
 |code_system                 |varchar|           |
 |code_display                |varchar|           |
-|occurrencedatetime_day      |date   |           |
-|occurrencedatetime_week     |date   |           |
-|occurrencedatetime_month    |date   |           |
-|occurrencedatetime_year     |date   |           |
-|occurrenceperiod_start_day  |date   |           |
-|occurrenceperiod_start_week |date   |           |
-|occurrenceperiod_start_month|date   |           |
-|occurrenceperiod_start_year |date   |           |
-|occurrenceperiod_end_day    |date   |           |
-|occurrenceperiod_end_week   |date   |           |
-|occurrenceperiod_end_month  |date   |           |
-|occurrenceperiod_end_year   |date   |           |
-|authoredon_day              |date   |           |
-|authoredon_week             |date   |           |
-|authoredon_month            |date   |           |
-|authoredon_year             |date   |           |
+|occurrencedateTime          |timestamp|           |
+|occurrencedateTime_day      |date     |           |
+|occurrencedateTime_week     |date     |           |
+|occurrencedateTime_month    |date     |           |
+|occurrencedateTime_year     |date     |           |
+|occurrencePeriod_start      |timestamp|           |
+|occurrencePeriod_start_day  |date     |           |
+|occurrencePeriod_start_week |date     |           |
+|occurrencePeriod_start_month|date     |           |
+|occurrencePeriod_start_year |date     |           |
+|occurrencePeriod_end        |timestamp|           |
+|occurrencePeriod_end_day    |date     |           |
+|occurrencePeriod_end_week   |date     |           |
+|occurrencePeriod_end_month  |date     |           |
+|occurrencePeriod_end_year   |date     |           |
+|authoredOn                  |timestamp|           |
+|authoredOn_day              |date     |           |
+|authoredOn_week             |date     |           |
+|authoredOn_month            |date     |           |
+|authoredOn_year             |date     |           |
 |servicerequest_ref          |varchar|           |
 |subject_ref                 |varchar|           |
 |encounter_ref               |varchar|           |

@@ -1,0 +1,274 @@
+{% import 'unnest_utils.jinja' as unnest_utils %}
+{% import 'dosage_utils.jinja' as dosage_utils %}
+
+{#- MedicationRequest.dosageInstruction is 0..*, so it gets its own table rather
+    than fanning out core__medicationrequest. US Core marks dosageInstruction and
+    its text, timing, route and doseAndRate.dose[x] children must support;
+    sequence, patientInstruction and asNeeded[x] are extras we carry because they
+    are what distinguishes the steps of a taper.
+
+    dose[x] is a choice type, and both doseQuantity and doseRange are read. #}
+
+{%- set di = schema["medicationrequest"]["dosageInstruction"] %}
+{%- set repeat = di["timing"]["repeat"] %}
+{%- set dose = di["doseAndRate"] %}
+{%- set quantity = dose["doseQuantity"] %}
+{%- set low = dose["doseRange"]["low"] %}
+{%- set high = dose["doseRange"]["high"] %}
+{%- set has_dose = (
+        quantity["value"] or quantity["unit"] or quantity["system"] or quantity["code"]
+        or low["value"] or low["unit"] or low["system"] or low["code"]
+        or high["value"] or high["unit"] or high["system"] or high["code"]
+    )
+%}
+{%- set has_dosage = (
+        di["sequence"]
+        or di["text"]
+        or di["patientInstruction"]
+        or di["asNeededBoolean"]
+        or di["timing"]["code"]["text"]
+        or repeat["count"]
+        or repeat["countMax"]
+        or repeat["duration"]
+        or repeat["durationMax"]
+        or repeat["durationUnit"]
+        or repeat["frequency"]
+        or repeat["frequencyMax"]
+        or repeat["period"]
+        or repeat["periodMax"]
+        or repeat["periodUnit"]
+        or repeat["offset"]
+        or repeat["boundsPeriod"]["start"]
+        or repeat["boundsPeriod"]["end"]
+        or has_dose
+    )
+%}
+
+CREATE TABLE core__medicationrequest_dosageinstruction AS (
+    {%- if has_dosage %}
+    WITH
+
+    {#- core__medicationrequest fans out on medication codings, so collapse it
+        before joining the request-level context back onto each dosage row. #}
+    parent AS (
+        SELECT DISTINCT
+            mr.id,
+            mr.medicationrequest_ref,
+            mr.subject_ref,
+            mr.encounter_ref,
+            mr.authoredOn,
+            mr.authoredOn_month
+        FROM core__medicationrequest AS mr
+    ),
+
+    dosage_rows AS (
+        {{ unnest_utils.flatten('medicationrequest', 'dosageInstruction') }}
+    ),
+
+    dosage_cols AS (
+        SELECT
+            d.id,
+            d.row,
+            {% if di["sequence"] -%}
+            cast(d.dosageInstruction.sequence AS bigint) AS dosage_sequence,
+            {%- else -%}
+            cast(NULL AS bigint) AS dosage_sequence,
+            {%- endif %}
+            {% if di["text"] -%}
+            d.dosageInstruction.text AS dosage_text,
+            {%- else -%}
+            cast(NULL AS varchar) AS dosage_text,
+            {%- endif %}
+            {% if di["patientInstruction"] -%}
+            d.dosageInstruction.patientInstruction AS dosage_patient_instruction,
+            {%- else -%}
+            cast(NULL AS varchar) AS dosage_patient_instruction,
+            {%- endif %}
+            {% if di["asNeededBoolean"] -%}
+            cast(d.dosageInstruction.asNeededBoolean AS boolean) AS dosage_as_needed_bool,
+            {%- else -%}
+            cast(NULL AS boolean) AS dosage_as_needed_bool,
+            {%- endif %}
+            {% if di["timing"]["code"]["text"] -%}
+            d.dosageInstruction.timing.code.text AS dosage_timing_text,
+            {%- else -%}
+            cast(NULL AS varchar) AS dosage_timing_text,
+            {%- endif %}
+            {% if repeat["count"] -%}
+            cast(d.dosageInstruction.timing.repeat.count AS bigint)
+                AS dosage_timing_count,
+            {%- else -%}
+            cast(NULL AS bigint) AS dosage_timing_count,
+            {%- endif %}
+            {% if repeat["countMax"] -%}
+            cast(d.dosageInstruction.timing.repeat.countMax AS bigint)
+                AS dosage_timing_count_max,
+            {%- else -%}
+            cast(NULL AS bigint) AS dosage_timing_count_max,
+            {%- endif %}
+            {% if repeat["duration"] -%}
+            cast(d.dosageInstruction.timing.repeat.duration AS double)
+                AS dosage_timing_duration,
+            {%- else -%}
+            cast(NULL AS double) AS dosage_timing_duration,
+            {%- endif %}
+            {% if repeat["durationMax"] -%}
+            cast(d.dosageInstruction.timing.repeat.durationMax AS double)
+                AS dosage_timing_duration_max,
+            {%- else -%}
+            cast(NULL AS double) AS dosage_timing_duration_max,
+            {%- endif %}
+            {% if repeat["durationUnit"] -%}
+            cast(d.dosageInstruction.timing.repeat.durationUnit AS varchar)
+                AS dosage_timing_duration_unit,
+            {%- else -%}
+            cast(NULL AS varchar) AS dosage_timing_duration_unit,
+            {%- endif %}
+            {% if repeat["frequency"] -%}
+            cast(d.dosageInstruction.timing.repeat.frequency AS bigint)
+                AS dosage_timing_frequency,
+            {%- else -%}
+            cast(NULL AS bigint) AS dosage_timing_frequency,
+            {%- endif %}
+            {% if repeat["frequencyMax"] -%}
+            cast(d.dosageInstruction.timing.repeat.frequencyMax AS bigint)
+                AS dosage_timing_frequency_max,
+            {%- else -%}
+            cast(NULL AS bigint) AS dosage_timing_frequency_max,
+            {%- endif %}
+            {% if repeat["period"] -%}
+            cast(d.dosageInstruction.timing.repeat.period AS double)
+                AS dosage_timing_period,
+            {%- else -%}
+            cast(NULL AS double) AS dosage_timing_period,
+            {%- endif %}
+            {% if repeat["periodMax"] -%}
+            cast(d.dosageInstruction.timing.repeat.periodMax AS double)
+                AS dosage_timing_period_max,
+            {%- else -%}
+            cast(NULL AS double) AS dosage_timing_period_max,
+            {%- endif %}
+            {% if repeat["periodUnit"] -%}
+            d.dosageInstruction.timing.repeat.periodUnit AS dosage_timing_period_unit,
+            {%- else -%}
+            cast(NULL AS varchar) AS dosage_timing_period_unit,
+            {%- endif %}
+            {% if repeat["offset"] -%}
+            cast(d.dosageInstruction.timing.repeat.offset AS bigint)
+                AS dosage_timing_offset,
+            {%- else -%}
+            cast(NULL AS bigint) AS dosage_timing_offset,
+            {%- endif %}
+            {% if repeat["boundsPeriod"]["start"] -%}
+            cast(
+                from_iso8601_timestamp(
+                    d.dosageInstruction.timing.repeat.boundsPeriod."start"
+                ) AS date
+            ) AS dosage_timing_bounds_start,
+            {%- else -%}
+            cast(NULL AS date) AS dosage_timing_bounds_start,
+            {%- endif %}
+        {% if repeat["boundsPeriod"]["end"] -%}
+        cast(
+            from_iso8601_timestamp(
+                d.dosageInstruction.timing.repeat.boundsPeriod."end"
+            ) AS date
+        ) AS dosage_timing_bounds_end
+        {%- else -%}
+        cast(NULL AS date) AS dosage_timing_bounds_end
+        {%- endif %}
+        FROM dosage_rows AS d
+    ),
+
+    {#- doseAndRate is itself 0..*, so it needs a second level of unnesting. #}
+
+    dose_rows AS (
+        {%- if has_dose %}
+        SELECT
+            d.id,
+            d.row,
+            u.dose_row,
+            {{- dosage_utils.dose_cols('u.dose_and_rate', dose) }}
+        FROM
+            dosage_rows AS d,
+            unnest(d.dosageInstruction.doseAndRate)
+                WITH ORDINALITY AS u (dose_and_rate, dose_row) --noqa
+        {%- else %}
+        SELECT
+            'x' AS id,
+            cast(NULL AS bigint) AS row,
+            cast(NULL AS bigint) AS dose_row,
+            {{- dosage_utils.empty_dose_cols() }}
+        WHERE 1 = 0 -- no dose data in this dataset
+        {%- endif %}
+    )
+
+    SELECT
+        dc.id,
+        dc.row,
+        dq.dose_row,
+
+        dc.dosage_sequence,
+        dc.dosage_text,
+        dc.dosage_patient_instruction,
+        dc.dosage_as_needed_bool,
+
+        dc.dosage_timing_text,
+        dc.dosage_timing_count,
+        dc.dosage_timing_count_max,
+        dc.dosage_timing_duration,
+        dc.dosage_timing_duration_max,
+        dc.dosage_timing_duration_unit,
+        dc.dosage_timing_frequency,
+        dc.dosage_timing_frequency_max,
+        dc.dosage_timing_period,
+        dc.dosage_timing_period_max,
+        dc.dosage_timing_period_unit,
+        dc.dosage_timing_offset,
+        dc.dosage_timing_bounds_start,
+        dc.dosage_timing_bounds_end,
+
+        {{- dosage_utils.select_dose_cols('dq') }},
+
+        p.authoredOn,
+        p.authoredOn_month,
+
+        p.medicationrequest_ref,
+        p.subject_ref,
+        p.encounter_ref
+    FROM dosage_cols AS dc
+    INNER JOIN parent AS p ON dc.id = p.id
+    LEFT JOIN dose_rows AS dq ON dc.id = dq.id AND dc.row = dq.row
+
+    {%- else %}
+    SELECT
+        'x' AS id,
+        cast(NULL AS bigint) AS row,
+        cast(NULL AS bigint) AS dose_row,
+        cast(NULL AS bigint) AS dosage_sequence,
+        'x' AS dosage_text,
+        'x' AS dosage_patient_instruction,
+        cast(NULL AS boolean) AS dosage_as_needed_bool,
+        'x' AS dosage_timing_text,
+        cast(NULL AS bigint) AS dosage_timing_count,
+        cast(NULL AS bigint) AS dosage_timing_count_max,
+        cast(NULL AS double) AS dosage_timing_duration,
+        cast(NULL AS double) AS dosage_timing_duration_max,
+        cast(NULL AS varchar) AS dosage_timing_duration_unit,
+        cast(NULL AS bigint) AS dosage_timing_frequency,
+        cast(NULL AS bigint) AS dosage_timing_frequency_max,
+        cast(NULL AS double) AS dosage_timing_period,
+        cast(NULL AS double) AS dosage_timing_period_max,
+        'x' AS dosage_timing_period_unit,
+        cast(NULL AS bigint) AS dosage_timing_offset,
+        cast(NULL AS date) AS dosage_timing_bounds_start,
+        cast(NULL AS date) AS dosage_timing_bounds_end,
+        {{- dosage_utils.empty_dose_cols() }},
+        cast(NULL AS timestamp) AS authoredOn,
+        cast(NULL AS date) AS authoredOn_month,
+        'x' AS medicationrequest_ref,
+        'x' AS subject_ref,
+        'x' AS encounter_ref
+    WHERE 1 = 0 -- empty table
+    {%- endif %}
+);

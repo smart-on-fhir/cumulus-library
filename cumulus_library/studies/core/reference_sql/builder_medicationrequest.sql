@@ -14,15 +14,26 @@ CREATE TABLE core__medicationrequest AS (
         mr.id,
         mr.status,
         mr.intent,
-        mr.reportedBoolean,
-        mr.reportedReference.reference AS reported_ref,
-        mr.encounter.reference AS encounter_ref,
-        mr.subject.reference AS subject_ref,
-        mr.medicationReference.reference AS med_ref,
-        mr.requester.reference AS requester_ref,
-        cast(from_iso8601_timestamp(mr."authoredOn") AS timestamp) AS authoredOn,
-        date_trunc('month', cast(from_iso8601_timestamp(mr."authoredOn") AS date))
-            AS authoredOn_month
+        cast(NULL as varchar) AS reportedBoolean,
+        cast(NULL as varchar) AS reported_ref,
+        cast(NULL as varchar) AS encounter_ref,
+        cast(NULL as varchar) AS subject_ref,
+        cast(NULL as varchar) AS med_ref,
+        cast(NULL as varchar) AS requester_ref,
+        cast(NULL as varchar) AS prior_prescription_ref,
+        cast(NULL as varchar) AS course_of_therapy_text,
+        cast(NULL as varchar) AS status_reason_text,
+        cast(NULL as varchar) AS dispense_refills_allowed,
+        cast(NULL as varchar) AS dispense_quantity_value,
+        cast(NULL as varchar) AS dispense_quantity_unit,
+        cast(NULL as varchar) AS dispense_quantity_system,
+        cast(NULL as varchar) AS dispense_quantity_code,
+        cast(NULL as varchar) AS expected_supply_duration_value,
+        cast(NULL as varchar) AS expected_supply_duration_unit,
+        cast(NULL AS timestamp) AS authoredOn,
+        cast(NULL AS date) AS validity_period_start,
+        cast(NULL AS date) AS validity_period_end,
+        cast(NULL AS date) AS authoredOn_month
         FROM medicationrequest AS mr
         WHERE (mr.status IS NULL OR mr.status <> 'entered-in-error')
     ),
@@ -78,7 +89,7 @@ CREATE TABLE core__medicationrequest AS (
         INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
     )
 
-    SELECT
+    SELECT DISTINCT
         mr.id,
         mr.status,
         mr.intent,
@@ -87,6 +98,16 @@ CREATE TABLE core__medicationrequest AS (
         mrc.system AS category_system,
         mrc.display AS category_display,
 
+        mrsr.code AS status_reason_code,
+        mrsr.system AS status_reason_system,
+        mrsr.display AS status_reason_display,
+        mr.status_reason_text,
+
+        mrct.code AS course_of_therapy_code,
+        mrct.system AS course_of_therapy_system,
+        mrct.display AS course_of_therapy_display,
+        mr.course_of_therapy_text,
+
         mr.reportedBoolean,
         mr.reported_ref,
 
@@ -94,14 +115,32 @@ CREATE TABLE core__medicationrequest AS (
         uc.medication_system,
         uc.medication_display,
 
+        cast(mr.dispense_refills_allowed AS bigint) AS dispense_refills_allowed,
+        cast(mr.dispense_quantity_value AS double) AS dispense_quantity_value,
+        mr.dispense_quantity_unit,
+        mr.dispense_quantity_system,
+        mr.dispense_quantity_code,
+        cast(mr.expected_supply_duration_value AS double)
+            AS expected_supply_duration_value,
+        mr.expected_supply_duration_unit,
+        mr.validity_period_start,
+        mr.validity_period_end,
+
         mr.authoredOn,
         mr.authoredOn_month,
 
         concat('MedicationRequest/', mr.id) AS medicationrequest_ref,
         mr.subject_ref,
         mr.encounter_ref,
-        mr.requester_ref
+        mr.requester_ref,
+        mr.prior_prescription_ref
     FROM mr_basics AS mr
-    LEFT JOIN unified_codes AS uc ON mr.id = uc.id
-    LEFT JOIN core__medicationrequest_dn_category AS mrc ON mr.id = mrc.id
+    LEFT JOIN unified_codes AS uc
+        ON mr.id = uc.id
+    LEFT JOIN core__medicationrequest_dn_category AS mrc
+        ON mr.id = mrc.id
+    LEFT JOIN core__medicationrequest_dn_status_reason AS mrsr
+        ON mr.id = mrsr.id
+    LEFT JOIN core__medicationrequest_dn_course_of_therapy AS mrct
+        ON mr.id = mrct.id
 );

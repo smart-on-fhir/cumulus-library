@@ -91,40 +91,49 @@ episodeofcare,type,hacc,Home and Community Care,http://terminology.hl7.org/CodeS
 location,type,,,
 medication,codecodeableconcept,,,
 medication,medicationcode,,,
+medicationdispense,category,community,Community,http://terminology.hl7.org/CodeSystem/medicationdispense-category
+medicationdispense,dosageinstruction.additionalinstruction,,,
+medicationdispense,dosageinstruction.asneededcodeableconcept,,,
+medicationdispense,dosageinstruction.doseandrate.type,,,
+medicationdispense,dosageinstruction.method,,,
+medicationdispense,dosageinstruction.route,,,
+medicationdispense,dosageinstruction.site,,,
+medicationdispense,dosageinstruction.timing.code,,,
+medicationdispense,medicationcodeableconcept,1736854,Cisplatin 50 MG Injection,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationdispense,medicationcodeableconcept,197591,Diazepam 5 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationdispense,medicationcodeableconcept,243670,Aspirin 81 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationdispense,medicationcodeableconcept,243670,aspirin 81 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationdispense,performer.function,,,
+medicationdispense,statusreasoncodeableconcept,,,
+medicationdispense,substitution.reason,,,
+medicationdispense,substitution.type,,,
+medicationdispense,type,FF,First Fill,http://terminology.hl7.org/CodeSystem/v3-ActCode
 medicationrequest,category,community,Community,http://terminology.hl7.org/CodeSystem/medicationrequest-category
 medicationrequest,courseoftherapytype,,,
-medicationrequest,dosageinstruction.additionalinstruction,1831000175103,Every twelve hours as required (qualifier value),http://snomed.info/sct
-medicationrequest,dosageinstruction.additionalinstruction,396143001,Every seventy two hours (qualifier value),http://snomed.info/sct
+medicationrequest,dosageinstruction.additionalinstruction,225757006,Every four to six hours (qualifier value),http://snomed.info/sct
 medicationrequest,dosageinstruction.asneededcodeableconcept,,,
 medicationrequest,dosageinstruction.doseandrate.type,ordered,Ordered,http://terminology.hl7.org/CodeSystem/dose-rate-type
 medicationrequest,dosageinstruction.method,,,
 medicationrequest,dosageinstruction.route,,,
 medicationrequest,dosageinstruction.site,,,
 medicationrequest,dosageinstruction.timing.code,,,
-medicationrequest,medicationcodeableconcept,1000126,1 ML medroxyPROGESTERone acetate 150 MG/ML Injection,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,106892,"insulin isophane, human 70 UNT/ML / insulin, regular, human 30 UNT/ML Injectable Suspension [Humulin]",http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,108515,1 ML tacrolimus 5 MG/ML Injection,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,1664463,24 HR tacrolimus 1 MG Extended Release Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,1860491,12 HR Hydrocodone Bitartrate 10 MG Extended Release Oral Capsule,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,205923,1 ML Epoetin Alfa 4000 UNT/ML Injection [Epogen],http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,245134,72 HR Fentanyl 0.025 MG/HR Transdermal System,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,2563431,aspirin 81 MG Oral Capsule,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,308136,amLODIPine 2.5 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,310798,Hydrochlorothiazide 25 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,310965,Ibuprofen 200 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,313782,Acetaminophen 325 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,313820,Acetaminophen 160 MG Chewable Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,314076,lisinopril 10 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,349094,budesonide 0.125 MG/ML Inhalation Suspension,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,630208,albuterol 0.83 MG/ML Inhalation Solution,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,705129,Nitroglycerin 0.4 MG/ACTUAT Mucosal Spray,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,106258,Hydrocortisone 10 MG/ML Topical Cream,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,1116635,ticagrelor 90 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,1665060,cefazolin 2000 MG Injection,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,1729584,remifentanil 2 MG Injection,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,1804799,Alteplase 100 MG Injection,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,1804799,alteplase 100 MG Injection,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,197591,Diazepam 5 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,206905,Ibuprofen 400 MG Oral Tablet [Ibu],http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,212033,aspirin 325 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,243670,aspirin 81 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,309362,Clopidogrel 75 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,312961,Simvastatin 20 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
 medicationrequest,medicationcodeableconcept,748879,Levora 0.15/30 28 Day Pack,http://www.nlm.nih.gov/research/umls/rxnorm
 medicationrequest,medicationcodeableconcept,749762,Seasonique 91 Day Pack,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,855332,Warfarin Sodium 5 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,860975,24 HR Metformin hydrochloride 500 MG Extended Release Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
-medicationrequest,medicationcodeableconcept,866412,24 HR metoprolol succinate 100 MG Extended Release Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
+medicationrequest,medicationcodeableconcept,855812,prasugrel 10 MG Oral Tablet,http://www.nlm.nih.gov/research/umls/rxnorm
 medicationrequest,performertype,,,
-medicationrequest,reasoncode,,,
+medicationrequest,reasoncode,40275004,Contact dermatitis (disorder),http://snomed.info/sct
 medicationrequest,statusreason,,,
 medicationrequest,substitution.allowedcodeableconcept,,,
 medicationrequest,substitution.reason,,,

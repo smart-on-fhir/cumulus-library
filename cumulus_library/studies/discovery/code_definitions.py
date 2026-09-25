@@ -109,6 +109,91 @@ code_list = [
         "table_name": "medication",
         "column_hierarchy": [("medicationcode", dict), ("coding", list)],
     },
+    # MedicationDispense
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("statusreasoncodeableconcept", dict), ("coding", list)],
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("category", dict), ("coding", list)],
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("medicationcodeableconcept", dict), ("coding", list)],
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("performer", list), ("function", dict), ("coding", list)],
+        "expected": {"function": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("type", dict), ("coding", list)],
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [
+            ("dosageinstruction", list),
+            ("additionalinstruction", list),
+            ("coding", list),
+        ],
+        "expected": {"additionalinstruction": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [
+            ("dosageinstruction", list),
+            ("timing", dict),
+            ("code", dict),
+            ("coding", list),
+        ],
+        "expected": {"timing": {"code": sql_utils.CODEABLE_CONCEPT}},
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [
+            ("dosageinstruction", list),
+            ("asneededcodeableconcept", dict),
+            ("coding", list),
+        ],
+        "expected": {"asneededcodeableconcept": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("dosageinstruction", list), ("site", dict), ("coding", list)],
+        "expected": {"site": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("dosageinstruction", list), ("route", dict), ("coding", list)],
+        "expected": {"route": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("dosageinstruction", list), ("method", dict), ("coding", list)],
+        "expected": {"method": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [
+            ("dosageinstruction", list),
+            ("doseandrate", list),
+            ("type", dict),
+            ("coding", list),
+        ],
+        "expected": {"doseandrate": {"type": sql_utils.CODEABLE_CONCEPT}},
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("substitution", dict), ("type", dict), ("coding", list)],
+        "expected": {"type": sql_utils.CODEABLE_CONCEPT},
+    },
+    {
+        "table_name": "medicationdispense",
+        "column_hierarchy": [("substitution", dict), ("reason", list), ("coding", list)],
+        "expected": {"reason": sql_utils.CODEABLE_CONCEPT},
+    },
     # MedicationRequest
     {
         "table_name": "medicationrequest",
