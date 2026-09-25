@@ -111,6 +111,7 @@ pos_source_table = pos_source_table
 remote_location = s3://bucket/study/data/
 sab = 'MED-RT'
 schema_name = test_schema
+config = {'resource': 'medicationrequest'}
 schema = 
     {
         'allergyintolerance': {
@@ -237,7 +238,10 @@ schema =
                 'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
             },
             'dosageInstruction': {
+                'sequence': True,
                 'text': True,
+                'patientInstruction': True,
+                'asNeededBoolean': True,
                 'route': {
                     'coding': True, 'code': True, 'display': True, 'system': True, 'text': True
                 },
@@ -259,6 +263,13 @@ schema =
                     }
                 },
                 'doseAndRate': {
+                    'type': {
+                        'text': True,
+                        'coding': {
+                            'code': True, 'system': True, 'display': True,
+                            'userSelected': True
+                        }
+                    },
                     'doseQuantity': {
                         'value': True, 'unit': True, 'system': True, 'code': True
                     },
@@ -318,6 +329,13 @@ schema =
                     }
                 },
                 'doseAndRate': {
+                    'type': {
+                        'text': True,
+                        'coding': {
+                            'code': True, 'system': True, 'display': True,
+                            'userSelected': True
+                        }
+                    },
                     'doseQuantity': {
                         'value': True, 'unit': True, 'system': True, 'code': True
                     },

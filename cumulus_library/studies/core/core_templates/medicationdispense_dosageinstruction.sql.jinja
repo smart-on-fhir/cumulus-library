@@ -23,7 +23,11 @@
     )
 %}
 {%- set has_dosage = (
-        di["text"]
+        di["sequence"]
+        or di["text"]
+        or di ["patientInstruction"]
+        or di ["asNeededBoolean"]
+        or di["route"]["text"]
         or di["route"]["text"]
         or di["timing"]["code"]["text"]
         or repeat["count"]
@@ -66,10 +70,25 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
         SELECT
             d.id,
             d.row,
+            {% if di["sequence"] -%}
+            cast(d.dosageInstruction.sequence AS bigint) AS dosage_sequence,
+            {%- else -%}
+            cast(NULL AS bigint) AS dosage_sequence,
+            {%- endif %}
             {% if di["text"] -%}
             d.dosageInstruction.text AS dosage_text,
             {%- else -%}
             cast(NULL AS varchar) AS dosage_text,
+            {%- endif %}
+            {% if di["patientInstruction"] -%}
+            d.dosageInstruction.patientInstruction AS dosage_patient_instruction,
+            {%- else -%}
+            cast(NULL AS varchar) AS dosage_patient_instruction,
+            {%- endif %}
+            {% if di["asNeededBoolean"] -%}
+            cast(d.dosageInstruction.asNeededBoolean AS boolean) AS dosage_as_needed_bool,
+            {%- else -%}
+            cast(NULL AS boolean) AS dosage_as_needed_bool,
             {%- endif %}
             {% if di["route"]["text"] -%}
             d.dosageInstruction.route.text AS dosage_route_text,
@@ -193,7 +212,10 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
         dc.row,
         dq.dose_row,
 
+        dc.dosage_sequence,
         dc.dosage_text,
+        dc.dosage_patient_instruction,
+        dc.dosage_as_needed_boolean,
 
         dc.dosage_route_text,
 
@@ -229,7 +251,10 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
         'x' AS id,
         cast(NULL AS bigint) AS row,
         cast(NULL AS bigint) AS dose_row,
+        cast(NULL AS bigint) AS dosage_sequence,
         'x' AS dosage_text,
+        'x' AS dosage_patient_instruction,
+        cast(NULL AS boolean) AS dosage_as_needed_boolean,
         'x' AS dosage_route_text,
         'x' AS dosage_timing_text,
         cast(NULL AS bigint) AS dosage_timing_count,

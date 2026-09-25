@@ -33,6 +33,11 @@ expected_table_cols = {
                     "high": ["value", "unit", "system", "code"],
                 },
             },
+            "sequence": {},
+            "text": {},
+            "patientInstruction": {},
+            "asNeededBoolean": {},
+            "route": ["text"],
         },
     }
 }
