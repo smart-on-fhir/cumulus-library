@@ -1,4 +1,4 @@
-cnt,dosage_route_display,dosage_timing_text,dosage_dose_unit,whenhandedover_month
+cnt,dosage_route_text,dosage_timing_text,dosage_dose_unit,whenhandedover_month
 44,,,,
 44,,,cumulus__none,
 44,,cumulus__none,,
