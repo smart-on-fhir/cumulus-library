@@ -34,10 +34,8 @@ expected_table_cols = {
                 },
             },
             "sequence": {},
-            "text": {},
             "patientInstruction": {},
             "asNeededBoolean": {},
-            "route": ["text"],
         },
     }
 }
