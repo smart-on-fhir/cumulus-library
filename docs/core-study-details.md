@@ -331,7 +331,7 @@ vital signs) instead.
 |       Column        | Type  |Description|
 |---------------------|-------|-----------|
 |cnt                  |bigint |           |
-|dosage_route_display |varchar|           |
+|dosage_route_text    |varchar|           |
 |dosage_timing_text   |varchar|           |
 |dosage_as_needed_bool|varchar|           |
 |authoredon_month     |varchar|           |

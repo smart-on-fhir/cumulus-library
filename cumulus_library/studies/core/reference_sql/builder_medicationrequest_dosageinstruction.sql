@@ -18,7 +18,6 @@ CREATE TABLE core__medicationrequest_dosageinstruction AS (
         'x' AS dosage_text,
         'x' AS dosage_patient_instruction,
         cast(NULL AS boolean) AS dosage_as_needed_bool,
-        'x' AS dosage_route_text,
         'x' AS dosage_timing_text,
         cast(NULL AS bigint) AS dosage_timing_count,
         cast(NULL AS bigint) AS dosage_timing_count_max,

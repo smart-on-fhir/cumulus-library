@@ -146,12 +146,11 @@ def test_core_med_dosage_route_codings(tmp_path):
 
     db = testbed.build()
     dosage = db.connection.sql(
-        "SELECT id, row, dose_row, dosage_route_text "
-        "FROM core__medicationrequest_dosageinstruction ORDER BY id, row"
+        "SELECT id, row, dose_rowFROM core__medicationrequest_dosageinstruction ORDER BY id, row"
     ).fetchall()
     assert dosage == [
-        ("TextOnly", 1, None, "By mouth"),
-        ("TwoSystems", 1, None, "Oral"),
+        ("TextOnly", 1, None),
+        ("TwoSystems", 1, None),
     ]
 
     routes = db.connection.sql(

@@ -27,8 +27,6 @@
         or di["text"]
         or di ["patientInstruction"]
         or di ["asNeededBoolean"]
-        or di["route"]["text"]
-        or di["route"]["text"]
         or di["timing"]["code"]["text"]
         or repeat["count"]
         or repeat["countMax"]
@@ -89,11 +87,6 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
             cast(d.dosageInstruction.asNeededBoolean AS boolean) AS dosage_as_needed_bool,
             {%- else -%}
             cast(NULL AS boolean) AS dosage_as_needed_bool,
-            {%- endif %}
-            {% if di["route"]["text"] -%}
-            d.dosageInstruction.route.text AS dosage_route_text,
-            {%- else -%}
-            cast(NULL AS varchar) AS dosage_route_text,
             {%- endif %}
             {% if di["timing"]["code"]["text"] -%}
             d.dosageInstruction.timing.code.text AS dosage_timing_text,
@@ -217,8 +210,6 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
         dc.dosage_patient_instruction,
         dc.dosage_as_needed_bool,
 
-        dc.dosage_route_text,
-
         dc.dosage_timing_text,
         dc.dosage_timing_count,
         dc.dosage_timing_count_max,
@@ -255,7 +246,6 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
         'x' AS dosage_text,
         'x' AS dosage_patient_instruction,
         cast(NULL AS boolean) AS dosage_as_needed_bool,
-        'x' AS dosage_route_text,
         'x' AS dosage_timing_text,
         cast(NULL AS bigint) AS dosage_timing_count,
         cast(NULL AS bigint) AS dosage_timing_count_max,

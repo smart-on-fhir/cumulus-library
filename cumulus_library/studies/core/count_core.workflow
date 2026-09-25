@@ -242,7 +242,6 @@ the FHIR data format.
 """
 source_table = "core__medicationrequest_dosageinstruction"
 table_cols = [
-    ["dosage_route_text", "varchar"],
     ["dosage_timing_text", "varchar"],
     ["dosage_as_needed_bool", "varchar"],
     ["authoredon_month", "date"],
@@ -309,7 +308,6 @@ successfully extracted from a source system via the FHIR data format.
 """
 source_table = "core__medicationdispense_dosageinstruction"
 table_cols = [
-    ["dosage_route_text", "varchar"],
     ["dosage_timing_text", "varchar"],
     ["dosage_dose_unit", "varchar"],
     ["whenhandedover_month", "date"],

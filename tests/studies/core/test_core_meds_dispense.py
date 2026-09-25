@@ -197,7 +197,7 @@ def test_core_med_dispense_dosage_instructions(tmp_path):
     db = testbed.build()
     df = db.connection.sql(
         "SELECT "
-        "  id, row, dose_row, dosage_text, dosage_route_text, dosage_timing_text, "
+        "  id, row, dose_row, dosage_text, dosage_timing_text, "
         "  dosage_timing_frequency, dosage_timing_period_unit, dosage_dose_type, "
         "  dosage_dose_value, dosage_dose_low_value, dosage_dose_high_value, "
         "  dosage_dose_unit, subject_ref "
@@ -211,7 +211,6 @@ def test_core_med_dispense_dosage_instructions(tmp_path):
             "row": 1,
             "dose_row": 1,
             "dosage_text": "2 tablets daily",
-            "dosage_route_text": "Oral",
             "dosage_timing_text": "QD",
             "dosage_timing_frequency": 1,
             "dosage_timing_period_unit": "d",
@@ -227,7 +226,6 @@ def test_core_med_dispense_dosage_instructions(tmp_path):
             "row": 2,
             "dose_row": 1,
             "dosage_text": "1 to 2 tablets as needed",
-            "dosage_route_text": None,
             "dosage_timing_text": None,
             "dosage_timing_frequency": None,
             "dosage_timing_period_unit": None,
@@ -249,7 +247,7 @@ def test_core_med_dispense_dosage_route_codings(tmp_path):
     """Verify that route codings don't fan out the dosage table
 
     Coded routes live in the dn table with every system kept, while a route
-    with only text (as some vendors send) just fills dosage_route_text.
+    with only text fills in nothing.
     """
     testbed = testbed_utils.LocalTestbed(tmp_path)
     testbed.add_medication_dispense(
@@ -281,12 +279,11 @@ def test_core_med_dispense_dosage_route_codings(tmp_path):
 
     db = testbed.build()
     dosage = db.connection.sql(
-        "SELECT id, row, dose_row, dosage_route_text "
-        "FROM core__medicationdispense_dosageinstruction ORDER BY id, row"
+        "SELECT id, row, dose_row FROM core__medicationdispense_dosageinstruction ORDER BY id, row"
     ).fetchall()
     assert dosage == [
-        ("TextOnly", 1, None, "By mouth"),
-        ("TwoSystems", 1, None, "Oral"),
+        ("TextOnly", 1, None),
+        ("TwoSystems", 1, None),
     ]
 
     routes = db.connection.sql(
