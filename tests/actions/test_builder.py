@@ -233,12 +233,15 @@ def test_builder_init_error(mock_db_config):
     )
     builder.run_protected_table_builder(config=mock_db_config, manifest=manifest)
     console_output = io.StringIO()
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc_info:
         with contextlib.redirect_stdout(console_output):
             builder._query_error(
                 mock_db_config, manifest, "mock query", "mock_file.txt", "Catalog Error"
             )
     assert "https://docs.smarthealthit.org/" in console_output.getvalue()
+    assert exc_info.value.code, (
+        f"a failed query must exit with a nonzero status, got {exc_info.value.code!r}"
+    )
 
 
 def test_invalid_file_in_manifest(mock_db_config, tmp_path):

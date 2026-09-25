@@ -203,7 +203,7 @@ def build_matching_files(
                 matches.append(file)
     if len(matches) == 0:
         rich.print(f"No builders matching {builder} found - is it in your study manifest?")
-        sys.exit()
+        sys.exit(1)
     build_study(
         config,
         manifest,
@@ -828,7 +828,7 @@ def _query_error(
             "Have you initialized your database?\n"
             "https://docs.smarthealthit.org/cumulus/etl/setup/initialization.html"
         )
-    sys.exit()
+    sys.exit(1)
 
 
 def _check_query_for_errors(
