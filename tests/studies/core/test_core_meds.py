@@ -117,3 +117,119 @@ def test_core_med_multiple_categories(tmp_path):
         {"id": "TestMed", "category_code": "inpatient"},
         {"id": "TestMed", "category_code": "outpatient"},
     ] == rows
+
+
+def test_core_med_dosage_route_codings(tmp_path):
+    """Verify that route codings don't fan out the dosage table"""
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    testbed.add_medication_request(
+        "TwoSystems",
+        dosageInstruction=[
+            {
+                "route": {
+                    "text": "Oral",
+                    "coding": [
+                        {"code": "26643006", "system": "http://snomed.info/sct"},
+                        {
+                            "code": "15",
+                            "system": "urn:oid:1.2.840.114350.1.13.100.2.7.4.798268.7025",
+                        },
+                    ],
+                },
+            },
+        ],
+    )
+    testbed.add_medication_request(
+        "TextOnly",
+        dosageInstruction=[{"route": {"text": "By mouth"}}],
+    )
+
+    db = testbed.build()
+    dosage = db.connection.sql(
+        "SELECT id, row, dose_row, dosage_route_text "
+        "FROM core__medicationrequest_dosageinstruction ORDER BY id, row"
+    ).fetchall()
+    assert dosage == [
+        ("TextOnly", 1, None, "By mouth"),
+        ("TwoSystems", 1, None, "Oral"),
+    ]
+
+    routes = db.connection.sql(
+        "SELECT id, row, system, code FROM core__medicationrequest_dn_dosage_route "
+        "ORDER BY id, row, system"
+    ).fetchall()
+    assert routes == [
+        ("TwoSystems", 1, "http://snomed.info/sct", "26643006"),
+        (
+            "TwoSystems",
+            1,
+            "urn:oid:1.2.840.114350.1.13.100.2.7.4.798268.7025",
+            "15",
+        ),
+    ]
+
+
+def test_core_med_dose_and_rate_entries(tmp_path):
+    """Verify that multiple doseAndRate entries get their own dose_row"""
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    dose_type = "http://terminology.hl7.org/CodeSystem/dose-rate-type"
+    testbed.add_medication_request(
+        "TwoDoses",
+        dosageInstruction=[
+            {
+                "sequence": 2,
+                "route": {
+                    "coding": [
+                        {"code": "a", "system": "sys1"},
+                        {"code": "b", "system": "sys2"},
+                    ],
+                },
+                "doseAndRate": [
+                    {
+                        "type": {
+                            "text": "Ordered",
+                            "coding": [
+                                {"code": "ordered", "system": dose_type},
+                                {"code": "ORD", "system": "other"},
+                            ],
+                        },
+                        "doseQuantity": {"value": 2, "unit": "tablet"},
+                    },
+                    {
+                        "type": {
+                            "text": "Calculated",
+                            "coding": [{"code": "calculated", "system": dose_type}],
+                        },
+                        "doseQuantity": {"value": 4, "unit": "tablet"},
+                    },
+                ],
+            },
+        ],
+    )
+
+    db = testbed.build()
+    rows = db.connection.sql(
+        "SELECT id, row, dose_row, dosage_sequence, dosage_dose_rate_type_text, "
+        "  dosage_dose_value "
+        "FROM core__medicationrequest_dosageinstruction ORDER BY id, row, dose_row"
+    ).fetchall()
+    assert rows == [
+        ("TwoDoses", 1, 1, 2, "Ordered", 2.0),
+        ("TwoDoses", 1, 2, 2, "Calculated", 4.0),
+    ]
+
+    types = db.connection.sql(
+        "SELECT id, row, dose_row, system, code "
+        "FROM core__medicationrequest_dn_dose_rate_type ORDER BY dose_row, code"
+    ).fetchall()
+    assert types == [
+        ("TwoDoses", 1, 1, "other", "ORD"),
+        ("TwoDoses", 1, 1, dose_type, "ordered"),
+        ("TwoDoses", 1, 2, dose_type, "calculated"),
+    ]
+
+    duplicate_entries = db.connection.sql(
+        "SELECT id, row, dose_row FROM core__medicationrequest_dosageinstruction "
+        "GROUP BY id, row, dose_row HAVING count(*) > 1"
+    ).fetchall()
+    assert duplicate_entries == []

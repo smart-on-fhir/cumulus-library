@@ -284,6 +284,17 @@ vital signs) instead.
 |whenhandedover_month|varchar|           |
 
 
+### core__count_medicationdispense_dosage_month
+
+|       Column       | Type  |Description|
+|--------------------|-------|-----------|
+|cnt                 |BIGINT |           |
+|dosage_route_text   |VARCHAR|           |
+|dosage_timing_text  |VARCHAR|           |
+|dosage_dose_unit    |VARCHAR|           |
+|whenhandedover_month|VARCHAR|           |
+
+
 ### core__count_medicationdispense_month
 
 |       Column       | Type  |Description|
@@ -304,26 +315,15 @@ vital signs) instead.
 |whenhandedover_month|varchar|           |
 
 
-### core__count_medicationrequest_coverage_month
-
-|        Column        | Type  |Description|
-|----------------------|-------|-----------|
-|cnt                   |bigint |           |
-|status                |varchar|           |
-|intent                |varchar|           |
-|coverage_end_date_type|varchar|           |
-|authoredon_month      |varchar|           |
-
-
 ### core__count_medicationrequest_dispense_month
 
 |           Column            | Type  |Description|
 |-----------------------------|-------|-----------|
-|cnt                          |bigint |           |
-|intent                       |varchar|           |
-|dispense_refills_allowed     |varchar|           |
-|expected_supply_duration_unit|varchar|           |
-|authoredon_month             |varchar|           |
+|cnt                          |BIGINT |           |
+|intent                       |VARCHAR|           |
+|dispense_refills_allowed     |VARCHAR|           |
+|expected_supply_duration_unit|VARCHAR|           |
+|authoredon_month             |VARCHAR|           |
 
 
 ### core__count_medicationrequest_dosage_month
@@ -953,37 +953,37 @@ vital signs) instead.
 
 |        Column        |  Type   |Description|
 |----------------------|---------|-----------|
-|id                    |varchar|           |
-|status                |varchar|           |
-|category_code         |varchar|           |
-|category_system       |varchar|           |
-|category_display      |varchar|           |
-|type_code             |varchar|           |
-|type_system           |varchar|           |
-|type_display          |varchar|           |
-|medication_code       |varchar|           |
-|medication_system     |varchar|           |
-|medication_display    |varchar|           |
+|id                    |VARCHAR  |           |
+|status                |VARCHAR  |           |
+|category_code         |VARCHAR  |           |
+|category_system       |VARCHAR  |           |
+|category_display      |VARCHAR  |           |
+|type_code             |VARCHAR  |           |
+|type_system           |VARCHAR  |           |
+|type_display          |VARCHAR  |           |
+|medication_code       |VARCHAR  |           |
+|medication_system     |VARCHAR  |           |
+|medication_display    |VARCHAR  |           |
 |quantity_value        |DOUBLE   |           |
-|quantity_unit         |varchar|           |
-|quantity_system       |varchar|           |
-|quantity_code         |varchar|           |
+|quantity_unit         |VARCHAR  |           |
+|quantity_system       |VARCHAR  |           |
+|quantity_code         |VARCHAR  |           |
 |days_supply_value     |DOUBLE   |           |
-|days_supply_unit      |varchar|           |
-|days_supply_system    |varchar|           |
-|days_supply_code      |varchar|           |
-|whenPrepared          |timestamp|           |
-|whenPrepared_month    |date     |           |
-|whenHandedOver        |timestamp|           |
-|whenHandedOver_day    |date     |           |
-|whenHandedOver_week   |date     |           |
-|whenHandedOver_month  |date     |           |
-|whenHandedOver_year   |date     |           |
-|medicationdispense_ref|varchar|           |
-|subject_ref           |varchar|           |
-|encounter_ref         |varchar|           |
-|medicationrequest_ref |varchar|           |
-|performer_ref         |varchar|           |
+|days_supply_unit      |VARCHAR  |           |
+|days_supply_system    |VARCHAR  |           |
+|days_supply_code      |VARCHAR  |           |
+|whenPrepared          |TIMESTAMP|           |
+|whenPrepared_month    |DATE     |           |
+|whenHandedOver        |TIMESTAMP|           |
+|whenHandedOver_day    |DATE     |           |
+|whenHandedOver_week   |DATE     |           |
+|whenHandedOver_month  |DATE     |           |
+|whenHandedOver_year   |DATE     |           |
+|medicationdispense_ref|VARCHAR  |           |
+|subject_ref           |VARCHAR  |           |
+|encounter_ref         |VARCHAR  |           |
+|medicationrequest_ref |VARCHAR  |           |
+|performer_ref         |VARCHAR  |           |
 
 
 ### core__medicationdispense_dn_category
@@ -1023,6 +1023,19 @@ vital signs) instead.
 |userselected|boolean|           |
 
 
+### core__medicationdispense_dn_dose_rate_type
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |VARCHAR|           |
+|row         |BIGINT |           |
+|dose_row    |BIGINT |           |
+|code        |VARCHAR|           |
+|system      |VARCHAR|           |
+|display     |VARCHAR|           |
+|userSelected|BOOLEAN|           |
+
+
 ### core__medicationdispense_dn_inline_code
 
 |   Column   | Type  |Description|
@@ -1047,74 +1060,84 @@ vital signs) instead.
 
 ### core__medicationdispense_dosageinstruction
 
-|          Column          |  Type   |Description|
-|--------------------------|---------|-----------|
-|id                        |varchar|           |
-|row                       |bigint   |           |
-|dosage_text               |varchar|           |
-|dosage_route_code         |varchar|           |
-|dosage_route_system       |varchar|           |
-|dosage_route_display      |varchar|           |
-|dosage_route_text         |varchar|           |
-|dosage_timing_text        |varchar|           |
-|dosage_timing_frequency   |bigint   |           |
-|dosage_timing_period      |DOUBLE   |           |
-|dosage_timing_period_unit |varchar|           |
-|dosage_timing_bounds_start|date     |           |
-|dosage_timing_bounds_end  |date     |           |
-|dosage_dose_value         |DOUBLE   |           |
-|dosage_dose_unit          |varchar|           |
-|dosage_dose_system        |varchar|           |
-|dosage_dose_code          |varchar|           |
-|whenHandedOver            |timestamp|           |
-|whenHandedOver_month      |date     |           |
-|medicationdispense_ref    |varchar|           |
-|subject_ref               |varchar|           |
-|encounter_ref             |varchar|           |
+|          Column           |  Type   |Description|
+|---------------------------|---------|-----------|
+|id                         |VARCHAR  |           |
+|row                        |BIGINT   |           |
+|dose_row                   |BIGINT   |           |
+|dosage_sequence            |BIGINT   |           |
+|dosage_text                |VARCHAR  |           |
+|dosage_patient_instruction |VARCHAR  |           |
+|dosage_as_needed_bool      |BOOLEAN  |           |
+|dosage_route_text          |VARCHAR  |           |
+|dosage_timing_text         |VARCHAR  |           |
+|dosage_timing_count        |BIGINT   |           |
+|dosage_timing_count_max    |BIGINT   |           |
+|dosage_timing_duration     |DOUBLE   |           |
+|dosage_timing_duration_max |DOUBLE   |           |
+|dosage_timing_duration_unit|VARCHAR  |           |
+|dosage_timing_frequency    |BIGINT   |           |
+|dosage_timing_frequency_max|BIGINT   |           |
+|dosage_timing_period       |DOUBLE   |           |
+|dosage_timing_period_max   |DOUBLE   |           |
+|dosage_timing_period_unit  |VARCHAR  |           |
+|dosage_timing_offset       |BIGINT   |           |
+|dosage_timing_bounds_start |DATE     |           |
+|dosage_timing_bounds_end   |DATE     |           |
+|dosage_dose_type           |VARCHAR  |           |
+|dosage_dose_value          |DOUBLE   |           |
+|dosage_dose_low_value      |DOUBLE   |           |
+|dosage_dose_high_value     |DOUBLE   |           |
+|dosage_dose_unit           |VARCHAR  |           |
+|dosage_dose_system         |VARCHAR  |           |
+|dosage_dose_code           |VARCHAR  |           |
+|dosage_dose_rate_type_text |VARCHAR  |           |
+|whenHandedOver             |TIMESTAMP|           |
+|whenHandedOver_month       |DATE     |           |
+|medicationdispense_ref     |VARCHAR  |           |
+|subject_ref                |VARCHAR  |           |
+|encounter_ref              |VARCHAR  |           |
 
 
 ### core__medicationrequest
 
 |            Column            |  Type   |Description|
 |------------------------------|---------|-----------|
-|id                            |varchar|           |
-|status                        |varchar|           |
-|intent                        |varchar|           |
-|category_code                 |varchar|           |
-|category_system               |varchar|           |
-|category_display              |varchar|           |
-|status_reason_code            |varchar|           |
-|status_reason_system          |varchar|           |
-|status_reason_display         |varchar|           |
-|status_reason_text            |varchar|           |
-|course_of_therapy_code        |varchar|           |
-|course_of_therapy_system      |varchar|           |
-|course_of_therapy_display     |varchar|           |
-|course_of_therapy_text        |varchar|           |
-|reportedboolean               |boolean  |           |
-|reported_ref                  |varchar|           |
-|medication_code               |varchar|           |
-|medication_system             |varchar|           |
-|medication_display            |varchar|           |
-|dispense_refills_allowed      |bigint   |           |
+|id                            |VARCHAR  |           |
+|status                        |VARCHAR  |           |
+|intent                        |VARCHAR  |           |
+|category_code                 |VARCHAR  |           |
+|category_system               |VARCHAR  |           |
+|category_display              |VARCHAR  |           |
+|status_reason_code            |VARCHAR  |           |
+|status_reason_system          |VARCHAR  |           |
+|status_reason_display         |VARCHAR  |           |
+|status_reason_text            |VARCHAR  |           |
+|course_of_therapy_code        |VARCHAR  |           |
+|course_of_therapy_system      |VARCHAR  |           |
+|course_of_therapy_display     |VARCHAR  |           |
+|course_of_therapy_text        |VARCHAR  |           |
+|reportedBoolean               |BOOLEAN  |           |
+|reported_ref                  |VARCHAR  |           |
+|medication_code               |VARCHAR  |           |
+|medication_system             |VARCHAR  |           |
+|medication_display            |VARCHAR  |           |
+|dispense_refills_allowed      |BIGINT   |           |
 |dispense_quantity_value       |DOUBLE   |           |
 |dispense_quantity_unit        |VARCHAR  |           |
 |dispense_quantity_system      |VARCHAR  |           |
 |dispense_quantity_code        |VARCHAR  |           |
 |expected_supply_duration_value|DOUBLE   |           |
-|expected_supply_duration_unit |varchar|           |
-|validity_period_start         |date     |           |
-|validity_period_end           |date     |           |
-|coverage_start_date           |date     |           |
-|coverage_end_date             |date     |           |
-|coverage_end_date_type        |varchar|           |
-|authoredOn                    |timestamp|           |
-|authoredOn_month              |date     |           |
-|medicationrequest_ref         |varchar|           |
-|subject_ref                   |varchar|           |
-|encounter_ref                 |varchar|           |
-|requester_ref                 |varchar|           |
-|prior_prescription_ref        |varchar|           |
+|expected_supply_duration_unit |VARCHAR  |           |
+|validity_period_start         |DATE     |           |
+|validity_period_end           |DATE     |           |
+|authoredOn                    |TIMESTAMP|           |
+|authoredOn_month              |DATE     |           |
+|medicationrequest_ref         |VARCHAR  |           |
+|subject_ref                   |VARCHAR  |           |
+|encounter_ref                 |VARCHAR  |           |
+|requester_ref                 |VARCHAR  |           |
+|prior_prescription_ref        |VARCHAR  |           |
 
 
 ### core__medicationrequest_dn_category
@@ -1167,6 +1190,19 @@ vital signs) instead.
 |userselected|boolean|           |
 
 
+### core__medicationrequest_dn_dose_rate_type
+
+|   Column   | Type  |Description|
+|------------|-------|-----------|
+|id          |VARCHAR|           |
+|row         |BIGINT |           |
+|dose_row    |BIGINT |           |
+|code        |VARCHAR|           |
+|system      |VARCHAR|           |
+|display     |VARCHAR|           |
+|userSelected|BOOLEAN|           |
+
+
 ### core__medicationrequest_dn_inline_code
 
 |   Column   | Type  |Description|
@@ -1192,33 +1228,43 @@ vital signs) instead.
 
 ### core__medicationrequest_dosageinstruction
 
-|          Column          |  Type   |Description|
-|--------------------------|---------|-----------|
-|id                        |varchar|           |
-|row                       |bigint   |           |
-|dosage_sequence           |bigint   |           |
-|dosage_text               |varchar|           |
-|dosage_patient_instruction|varchar|           |
-|dosage_as_needed_bool     |boolean  |           |
-|dosage_route_code         |varchar|           |
-|dosage_route_system       |varchar|           |
-|dosage_route_display      |varchar|           |
-|dosage_route_text         |varchar|           |
-|dosage_timing_text        |varchar|           |
-|dosage_timing_frequency   |bigint   |           |
-|dosage_timing_period      |DOUBLE   |           |
-|dosage_timing_period_unit |varchar|           |
-|dosage_timing_bounds_start|date     |           |
-|dosage_timing_bounds_end  |date     |           |
-|dosage_dose_value         |DOUBLE   |           |
-|dosage_dose_unit          |varchar|           |
-|dosage_dose_system        |varchar|           |
-|dosage_dose_code          |varchar|           |
-|authoredOn                |timestamp|           |
-|authoredOn_month          |date     |           |
-|medicationrequest_ref     |varchar|           |
-|subject_ref               |varchar|           |
-|encounter_ref             |varchar|           |
+|          Column           |  Type   |Description|
+|---------------------------|---------|-----------|
+|id                         |VARCHAR  |           |
+|row                        |BIGINT   |           |
+|dose_row                   |BIGINT   |           |
+|dosage_sequence            |BIGINT   |           |
+|dosage_text                |VARCHAR  |           |
+|dosage_patient_instruction |VARCHAR  |           |
+|dosage_as_needed_bool      |BOOLEAN  |           |
+|dosage_route_text          |VARCHAR  |           |
+|dosage_timing_text         |VARCHAR  |           |
+|dosage_timing_count        |BIGINT   |           |
+|dosage_timing_count_max    |BIGINT   |           |
+|dosage_timing_duration     |DOUBLE   |           |
+|dosage_timing_duration_max |DOUBLE   |           |
+|dosage_timing_duration_unit|VARCHAR  |           |
+|dosage_timing_frequency    |BIGINT   |           |
+|dosage_timing_frequency_max|BIGINT   |           |
+|dosage_timing_period       |DOUBLE   |           |
+|dosage_timing_period_max   |DOUBLE   |           |
+|dosage_timing_period_unit  |VARCHAR  |           |
+|dosage_timing_offset       |BIGINT   |           |
+|dosage_timing_bounds_start |DATE     |           |
+|dosage_timing_bounds_end   |DATE     |           |
+|dosage_dose_type           |VARCHAR  |           |
+|dosage_dose_value          |DOUBLE   |           |
+|dosage_dose_low_value      |DOUBLE   |           |
+|dosage_dose_high_value     |DOUBLE   |           |
+|dosage_dose_unit           |VARCHAR  |           |
+|dosage_dose_system         |VARCHAR  |           |
+|dosage_dose_code           |VARCHAR  |           |
+|dosage_dose_rate_type_text |VARCHAR  |           |
+|authoredOn                 |TIMESTAMP|           |
+|authoredOn_month           |DATE     |           |
+|medicationrequest_ref      |VARCHAR  |           |
+|subject_ref                |VARCHAR  |           |
+|encounter_ref              |VARCHAR  |           |
 
 
 ### core__meta_date

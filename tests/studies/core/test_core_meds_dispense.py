@@ -155,6 +155,7 @@ def test_core_med_dispense_dosage_instructions(tmp_path):
             {
                 "text": "2 tablets daily",
                 "route": {
+                    "text": "Oral",
                     "coding": [
                         {
                             "code": "26643006",
@@ -196,7 +197,7 @@ def test_core_med_dispense_dosage_instructions(tmp_path):
     db = testbed.build()
     df = db.connection.sql(
         "SELECT "
-        "  id, row, dosage_text, dosage_route_display, dosage_timing_text, "
+        "  id, row, dose_row, dosage_text, dosage_route_text, dosage_timing_text, "
         "  dosage_timing_frequency, dosage_timing_period_unit, dosage_dose_type, "
         "  dosage_dose_value, dosage_dose_low_value, dosage_dose_high_value, "
         "  dosage_dose_unit, subject_ref "
@@ -208,8 +209,9 @@ def test_core_med_dispense_dosage_instructions(tmp_path):
         {
             "id": "Taper",
             "row": 1,
+            "dose_row": 1,
             "dosage_text": "2 tablets daily",
-            "dosage_route_display": "Oral route",
+            "dosage_route_text": "Oral",
             "dosage_timing_text": "QD",
             "dosage_timing_frequency": 1,
             "dosage_timing_period_unit": "d",
@@ -223,8 +225,9 @@ def test_core_med_dispense_dosage_instructions(tmp_path):
         {
             "id": "Taper",
             "row": 2,
+            "dose_row": 1,
             "dosage_text": "1 to 2 tablets as needed",
-            "dosage_route_display": None,
+            "dosage_route_text": None,
             "dosage_timing_text": None,
             "dosage_timing_frequency": None,
             "dosage_timing_period_unit": None,
@@ -240,3 +243,166 @@ def test_core_med_dispense_dosage_instructions(tmp_path):
     # The dispense itself should not be duplicated by its dosage instructions
     dispenses = db.connection.sql("SELECT id FROM core__medicationdispense").fetchall()
     assert {d[0] for d in dispenses} == {"Taper", "NoDosage"}
+
+
+def test_core_med_dispense_dosage_route_codings(tmp_path):
+    """Verify that route codings don't fan out the dosage table
+
+    Coded routes live in the dn table with every system kept, while a route
+    with only text (as some vendors send) just fills dosage_route_text.
+    """
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    testbed.add_medication_dispense(
+        "TwoSystems",
+        dosageInstruction=[
+            {
+                "route": {
+                    "text": "Oral",
+                    "coding": [
+                        {
+                            "code": "26643006",
+                            "system": "http://snomed.info/sct",
+                            "display": "Oral route",
+                        },
+                        {
+                            "code": "15",
+                            "system": "urn:oid:1.2.840.114350.1.13.100.2.7.4.798268.7025",
+                            "display": "Oral",
+                        },
+                    ],
+                },
+            },
+        ],
+    )
+    testbed.add_medication_dispense(
+        "TextOnly",
+        dosageInstruction=[{"route": {"text": "By mouth"}}],
+    )
+
+    db = testbed.build()
+    dosage = db.connection.sql(
+        "SELECT id, row, dose_row, dosage_route_text "
+        "FROM core__medicationdispense_dosageinstruction ORDER BY id, row"
+    ).fetchall()
+    assert dosage == [
+        ("TextOnly", 1, None, "By mouth"),
+        ("TwoSystems", 1, None, "Oral"),
+    ]
+
+    routes = db.connection.sql(
+        "SELECT id, row, system, code FROM core__medicationdispense_dn_dosage_route "
+        "ORDER BY id, row, system"
+    ).fetchall()
+    assert routes == [
+        (
+            "TwoSystems",
+            1,
+            "http://snomed.info/sct",
+            "26643006",
+        ),
+        (
+            "TwoSystems",
+            1,
+            "urn:oid:1.2.840.114350.1.13.100.2.7.4.798268.7025",
+            "15",
+        ),
+    ]
+
+
+def test_core_med_dispense_dose_and_rate_entries(tmp_path):
+    """Verify that multiple doseAndRate entries get their own dose_row
+
+    Each entry can carry a type (e.g. ordered vs calculated), which is kept as
+    text on the dosage table and as codings in the dose_rate_type table.
+    """
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    dose_type = "http://terminology.hl7.org/CodeSystem/dose-rate-type"
+    testbed.add_medication_dispense(
+        "TwoDoses",
+        dosageInstruction=[
+            {
+                "route": {
+                    "coding": [
+                        {"code": "a", "system": "sys1"},
+                        {"code": "b", "system": "sys2"},
+                    ],
+                },
+                "doseAndRate": [
+                    {
+                        "type": {
+                            "text": "Ordered",
+                            "coding": [
+                                {"code": "ordered", "system": dose_type},
+                                {"code": "ORD", "system": "other"},
+                            ],
+                        },
+                        "doseQuantity": {"value": 2, "unit": "tablet"},
+                    },
+                    {
+                        "type": {
+                            "text": "Calculated",
+                            "coding": [{"code": "calculated", "system": dose_type}],
+                        },
+                        "doseQuantity": {"value": 4, "unit": "tablet"},
+                    },
+                ],
+            },
+        ],
+    )
+    testbed.add_medication_dispense(
+        "OneDose",
+        dosageInstruction=[
+            {"doseAndRate": [{"doseQuantity": {"value": 1, "unit": "tablet"}}]},
+            {"text": "no dose"},
+        ],
+    )
+
+    db = testbed.build()
+    rows = db.connection.sql(
+        "SELECT id, row, dose_row, dosage_dose_rate_type_text, dosage_dose_value "
+        "FROM core__medicationdispense_dosageinstruction ORDER BY id, row, dose_row"
+    ).fetchall()
+    assert rows == [
+        ("OneDose", 1, 1, None, 1.0),
+        ("OneDose", 2, None, None, None),
+        ("TwoDoses", 1, 1, "Ordered", 2.0),
+        ("TwoDoses", 1, 2, "Calculated", 4.0),
+    ]
+
+    types = db.connection.sql(
+        "SELECT id, row, dose_row, system, code "
+        "FROM core__medicationdispense_dn_dose_rate_type ORDER BY dose_row, code"
+    ).fetchall()
+    assert types == [
+        ("TwoDoses", 1, 1, "other", "ORD"),
+        ("TwoDoses", 1, 1, dose_type, "ordered"),
+        ("TwoDoses", 1, 2, dose_type, "calculated"),
+    ]
+
+    duplicate_entries = db.connection.sql(
+        "SELECT id, row, dose_row FROM core__medicationdispense_dosageinstruction "
+        "GROUP BY id, row, dose_row HAVING count(*) > 1"
+    ).fetchall()
+    assert duplicate_entries == []
+
+
+def test_core_med_dispense_dosage_parity_columns(tmp_path):
+    """Verify sequence, patient instruction and as needed propagate"""
+    testbed = testbed_utils.LocalTestbed(tmp_path)
+    testbed.add_medication_dispense(
+        "Parity",
+        dosageInstruction=[
+            {
+                "sequence": 3,
+                "patientInstruction": "Take with food",
+                "asNeededBoolean": True,
+            },
+        ],
+    )
+
+    db = testbed.build()
+    rows = db.connection.sql(
+        "SELECT dosage_sequence, dosage_patient_instruction, dosage_as_needed_bool "
+        "FROM core__medicationdispense_dosageinstruction"
+    ).fetchall()
+    assert rows == [(3, "Take with food", True)]
