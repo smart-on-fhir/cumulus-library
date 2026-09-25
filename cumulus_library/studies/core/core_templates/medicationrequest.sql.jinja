@@ -145,7 +145,7 @@ CREATE TABLE core__medicationrequest AS (
         INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
     )
 
-    SELECT
+    SELECT DISTINCT
         mr.id,
         mr.status,
         mr.intent,

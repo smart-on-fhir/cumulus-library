@@ -77,9 +77,6 @@ def test_core_med_all_types(tmp_path):
         "expected_supply_duration_unit": None,
         "validity_period_start": None,
         "validity_period_end": None,
-        "coverage_start_date": conftest.date_to_epoch(2021, 10, 16),
-        "coverage_end_date": None,
-        "coverage_end_date_type": None,
         "prior_prescription_ref": None,
     }
     assert [

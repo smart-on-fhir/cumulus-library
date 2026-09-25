@@ -69,11 +69,11 @@ coalesce({{ parts | join(', ') }})
             CASE
                 {%- if has_quantity %}
                 WHEN {{ quantity_leaves | join(' IS NOT NULL OR ') }} IS NOT NULL
-                    THEN 'quantity'
+                    THEN cast('quantity' AS varchar)
                 {%- endif %}
                 {%- if has_range %}
                 WHEN {{ range_leaves | join(' IS NOT NULL OR ') }} IS NOT NULL
-                    THEN 'range'
+                    THEN cast('range' AS varchar)
                 {%- endif %}
             END AS dosage_dose_type,
             {%- else -%}
