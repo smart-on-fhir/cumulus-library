@@ -242,7 +242,17 @@ def test_empty_stage(mock_db_config, tmp_path):
 
 
 def test_list_created_valueset_tables(mock_db_config, tmp_path):
-    conftest.write_toml(tmp_path, {"study_prefix": "test", "stages": {}}, "manifest.toml")
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "test",
+            "stages": {
+                "default": [{"files": ["foo"], "type": "build:serial"}],
+                "two": [{"files": ["bar"], "type": "build:serial"}],
+            },
+        },
+        "manifest.toml",
+    )
     manifest = study_manifest.StudyManifest(tmp_path)
     mock_db_config.db.cursor().execute("CREATE TABLE test__valuesets_foo (rxcui varchar)")
     mock_db_config.db.cursor().execute("CREATE TABLE test__unrelated_bar (bar varchar)")
@@ -253,7 +263,17 @@ def test_list_created_valueset_tables(mock_db_config, tmp_path):
 
 
 def test_list_created_valueset_tables_none_found(mock_db_config, tmp_path):
-    conftest.write_toml(tmp_path, {"study_prefix": "test", "stages": {}}, "manifest.toml")
+    conftest.write_toml(
+        tmp_path,
+        {
+            "study_prefix": "test",
+            "stages": {
+                "default": [{"files": ["foo"], "type": "build:serial"}],
+                "two": [{"files": ["bar"], "type": "build:serial"}],
+            },
+        },
+        "manifest.toml",
+    )
     manifest = study_manifest.StudyManifest(tmp_path)
 
     manifest.list_created_valueset_tables(mock_db_config.db, mock_db_config.schema)
