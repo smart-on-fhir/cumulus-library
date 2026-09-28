@@ -2,16 +2,6 @@
 {% import 'syntax.sql.jinja' as syntax -%}
 {% import 'unnest_utils.jinja' as unnest_utils -%}
 
-{#- whenHandedOver is not guaranteed to have the same level of precision
-    that other time fields do. #}
-{%- macro safe_iso_timestamp(expr) -%}
-CASE
-    WHEN length({{ expr }}) = 4 THEN cast({{ expr }} || '-01-01' AS timestamp)
-    WHEN length({{ expr }}) = 7 THEN cast({{ expr }} || '-01' AS timestamp)
-    ELSE cast(from_iso8601_timestamp({{ expr }}) AS timestamp)
-END
-{%- endmacro -%}
-
 CREATE TABLE core__medicationdispense AS (
     WITH
 
@@ -47,36 +37,29 @@ CREATE TABLE core__medicationdispense AS (
                     schema
                 )
             }},
-            {%- if schema["medicationdispense"]["whenPrepared"] %}
-            {{ safe_iso_timestamp('md."whenPrepared"') }} AS whenPrepared,
-            date_trunc(
-                'month', cast({{ safe_iso_timestamp('md."whenPrepared"') }} AS date))
-                AS whenPrepared_month,
-            {%- else %}
-            cast(NULL AS timestamp) AS whenPrepared,
-            cast(NULL AS date) AS whenPrepared_month,
-            {%- endif %}
-        {%- if schema["medicationdispense"]["whenHandedOver"] %}
-        {{ safe_iso_timestamp('md."whenHandedOver"') }} AS whenHandedOver,
-        date_trunc(
-            'day', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
-            AS whenHandedOver_day,
-        date_trunc(
-            'week', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
-            AS whenHandedOver_week,
-        date_trunc(
-            'month', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
-            AS whenHandedOver_month,
-        date_trunc(
-            'year', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
-            AS whenHandedOver_year
-        {%- else %}
-            cast(NULL AS timestamp) AS whenHandedOver,
-            cast(NULL AS date) AS whenHandedOver_day,
-            cast(NULL AS date) AS whenHandedOver_week,
-            cast(NULL AS date) AS whenHandedOver_month,
-            cast(NULL AS date) AS whenHandedOver_year
-            {%- endif %}
+            {{- utils.timestamp_cols_from_str(
+                    'medicationdispense',
+                    'md',
+                    [
+                        'whenPrepared',
+                        'whenHandedOver'
+                    ],
+                    schema
+                )
+            }},
+            {{- utils.truncate_date_cols(
+                    'medicationdispense',
+                    'md',
+                    [
+                        ('whenPrepared', 'month'),
+                        ('whenHandedOver', 'day'),
+                        ('whenHandedOver', 'week'),
+                        ('whenHandedOver', 'month'),
+                        ('whenHandedOver', 'year'),
+                    ],
+                    schema
+                )
+            }}
         FROM medicationdispense AS md
         WHERE (md.status IS NULL OR md.status <> 'entered-in-error')
     ),
