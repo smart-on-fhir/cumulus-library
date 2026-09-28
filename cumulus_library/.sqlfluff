@@ -216,6 +216,7 @@ schema =
         'medicationdispense': {
             'id': True,
             'status': True,
+            'safe_iso_timestamp': True,
             'subject': {
                 'reference': True
             },
