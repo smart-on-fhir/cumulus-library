@@ -60,6 +60,8 @@ def export_study(
     else:
         table_list = manifest.get_export_table_list(config.stage)
 
+    manifest.list_created_valueset_tables(config.db, config.schema)
+
     # If the data_path is a local directory, we can just leave the
     # files. Otherwise, if the final goal is upload to S3, we should use
     # a temporary directory.

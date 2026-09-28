@@ -15,6 +15,7 @@ import msgspec
 
 from cumulus_library import enums, errors
 from cumulus_library.builders import counts_utils
+from cumulus_library.template_sql import base_templates
 
 DASHBOARD_TYPES = [
     "string",
@@ -75,6 +76,7 @@ class ManifestConfig(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=T
     data_dictionary: str | DataDictionary | None = None
     stages: dict[str, list[ManifestAction]] | None = None
     advanced_options: ManifestAdvancedOptions | None = None
+    valuesets: list[str] | None = None
 
 
 class SubmanifestConfig(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
@@ -443,6 +445,19 @@ class StudyManifest:
             else:
                 found_name.add(export.name)
         return export_table_list
+
+    def list_created_valueset_tables(self, db, schema: str) -> None:
+        """Gets all of the tables that are prefixed {study_prefix}__valueset.
+        If any valuesets are retrieved, set the valuesets entry in _study_config.
+
+        :param db: a DatabaseBackend to query for existing tables
+        :param schema: the schema to search for tables in
+        """
+        valueset_prefix = f"{self.get_schema_aware_prefix_with_seperator()}valueset"
+        table_query = base_templates.get_show_tables(schema, valueset_prefix)
+        valueset_tables = db.cursor().execute(table_query).fetchall()
+        if valueset_tables:
+            self._study_config["valuesets"] = [row[0] for row in valueset_tables]
 
     def has_stats(self):
         return self._has_stats
