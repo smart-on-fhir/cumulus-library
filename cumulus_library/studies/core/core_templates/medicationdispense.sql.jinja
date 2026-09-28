@@ -164,6 +164,7 @@ CREATE TABLE core__medicationdispense AS (
             ON cr.id = mdcc.id AND cr.medication_id = mdcc.contained_id
         WHERE mdcc.resource_type = 'Medication'
 
+        {%- if schema["medication"]["code"] %}
         {# External: medication by reference from the external medications table.
         This table is built by builder_medicationdispense_prereq, since it is
         keyed on the standalone medication table rather than on any one
@@ -178,6 +179,7 @@ CREATE TABLE core__medicationdispense AS (
         FROM md_basics AS md
         INNER JOIN external_refs AS er ON md.id = er.id
         INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
+        {%- endif %}
     )
 
     SELECT

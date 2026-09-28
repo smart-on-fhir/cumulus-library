@@ -132,6 +132,7 @@ CREATE TABLE core__medicationrequest AS (
             ON cr.id = mrcc.id AND cr.medication_id = mrcc.contained_id
         WHERE mrcc.resource_type = 'Medication'
 
+        {%- if schema["medication"]["code"] %}
         {# External: medication by reference from external medications table.
         This is generally how we expect EPIC to provide medication data. #}
         UNION
@@ -143,6 +144,7 @@ CREATE TABLE core__medicationrequest AS (
         FROM mr_basics AS mr
         INNER JOIN external_refs AS er ON mr.id = er.id
         INNER JOIN core__medication_dn_code AS mc ON er.medication_id = mc.id
+        {%- endif %}
     )
 
     SELECT DISTINCT
