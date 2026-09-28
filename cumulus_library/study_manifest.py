@@ -75,6 +75,8 @@ class ManifestConfig(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=T
     data_dictionary: str | DataDictionary | None = None
     stages: dict[str, list[ManifestAction]] | None = None
     advanced_options: ManifestAdvancedOptions | None = None
+    subject_grain_column: str | None = None
+    subject_grain_tables: list[str] | None = None
 
 
 class SubmanifestConfig(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
@@ -111,6 +113,8 @@ class StudyManifest:
         self.data_path = None
         self._study_config = {}
         self._has_stats = False
+        self.subject_grain_ref = None
+        self.subject_grain_tables = []
         if study_path is not None:
             self._load_study_manifest(pathlib.Path(study_path), options or {})
         if data_path is not None:
