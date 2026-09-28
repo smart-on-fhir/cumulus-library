@@ -20,7 +20,7 @@ expected_table_cols = {
         "whenHandedOver": [],
         "quantity": ["value", "unit", "system", "code"],
         "daysSupply": ["value", "unit", "system", "code"],
-    }
+    },
 }
 
 

@@ -213,6 +213,9 @@ schema =
             'managingOrganization': True,
             'partOf': True,
         },
+        'medication': {
+            'code': True
+        },
         'medicationdispense': {
             'id': True,
             'status': True,
