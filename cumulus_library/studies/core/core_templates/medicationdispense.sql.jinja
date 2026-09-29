@@ -56,27 +56,27 @@ CREATE TABLE core__medicationdispense AS (
             cast(NULL AS timestamp) AS whenPrepared,
             cast(NULL AS date) AS whenPrepared_month,
             {%- endif %}
-            {%- if schema["medicationdispense"]["whenHandedOver"] %}
-            {{ safe_iso_timestamp('md."whenHandedOver"') }} AS whenHandedOver,
-            date_trunc(
-                'day', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
-                AS whenHandedOver_day,
-            date_trunc(
-                'week', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
-                AS whenHandedOver_week,
-            date_trunc(
-                'month', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
-                AS whenHandedOver_month,
-            date_trunc(
-                'year', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
-                AS whenHandedOver_year
-            {%- else %}
-            cast(NULL AS timestamp) AS whenHandedOver,
-            cast(NULL AS date) AS whenHandedOver_day,
-            cast(NULL AS date) AS whenHandedOver_week,
-            cast(NULL AS date) AS whenHandedOver_month,
-            cast(NULL AS date) AS whenHandedOver_year
-            {%- endif %}
+        {%- if schema["medicationdispense"]["whenHandedOver"] %}
+        {{ safe_iso_timestamp('md."whenHandedOver"') }} AS whenHandedOver,
+        date_trunc(
+            'day', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
+            AS whenHandedOver_day,
+        date_trunc(
+            'week', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
+            AS whenHandedOver_week,
+        date_trunc(
+            'month', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
+            AS whenHandedOver_month,
+        date_trunc(
+            'year', cast({{ safe_iso_timestamp('md."whenHandedOver"') }} AS date))
+            AS whenHandedOver_year
+        {%- else %}
+        cast(NULL AS timestamp) AS whenHandedOver,
+        cast(NULL AS date) AS whenHandedOver_day,
+        cast(NULL AS date) AS whenHandedOver_week,
+        cast(NULL AS date) AS whenHandedOver_month,
+        cast(NULL AS date) AS whenHandedOver_year
+        {%- endif %}
         FROM medicationdispense AS md
         WHERE (md.status IS NULL OR md.status <> 'entered-in-error')
     ),

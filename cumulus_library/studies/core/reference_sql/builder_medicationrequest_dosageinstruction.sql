@@ -10,42 +10,119 @@
 
 
 CREATE TABLE core__medicationrequest_dosageinstruction AS (
-    SELECT
-        'x' AS id,
-        cast(NULL AS bigint) AS row,
-        cast(NULL AS bigint) AS dose_row,
-        cast(NULL AS bigint) AS dosage_sequence,
-        'x' AS dosage_text,
-        'x' AS dosage_patient_instruction,
-        cast(NULL AS boolean) AS dosage_as_needed_bool,
-        'x' AS dosage_timing_text,
-        cast(NULL AS bigint) AS dosage_timing_count,
-        cast(NULL AS bigint) AS dosage_timing_count_max,
-        cast(NULL AS double) AS dosage_timing_duration,
-        cast(NULL AS double) AS dosage_timing_duration_max,
-        cast(NULL AS varchar) AS dosage_timing_duration_unit,
-        cast(NULL AS bigint) AS dosage_timing_frequency,
-        cast(NULL AS bigint) AS dosage_timing_frequency_max,
-        cast(NULL AS double) AS dosage_timing_period,
-        cast(NULL AS double) AS dosage_timing_period_max,
-        'x' AS dosage_timing_period_unit,
-        cast(NULL AS bigint) AS dosage_timing_offset,
-        cast(NULL AS date) AS dosage_timing_bounds_start,
-        cast(NULL AS date) AS dosage_timing_bounds_end,
-            cast(NULL AS varchar) AS dosage_dose_type,
-            cast(NULL AS double) AS dosage_dose_value,
+    WITH
+    parent AS (
+        SELECT DISTINCT
+            mr.id,
+            mr.medicationrequest_ref,
+            mr.subject_ref,
+            mr.encounter_ref,
+            mr.authoredOn,
+            mr.authoredOn_month
+        FROM core__medicationrequest AS mr
+    ),
+
+    dosage_rows AS (
+        SELECT
+            t.id AS id,
+            row,
+            r."dosageInstruction"
+        FROM
+            medicationrequest AS t,
+            UNNEST(t."dosageInstruction") WITH ORDINALITY AS r ("dosageInstruction", row)
+    ),
+
+    dosage_cols AS (
+        SELECT
+            d.id,
+            d.row,
+            cast(d.dosageInstruction.sequence AS bigint) AS dosage_sequence,
+            d.dosageInstruction.text AS dosage_text,
+            d.dosageInstruction.patientInstruction AS dosage_patient_instruction,
+            cast(d.dosageInstruction.asNeededBoolean AS boolean) AS dosage_as_needed_bool,
+            cast(NULL AS varchar) AS dosage_timing_text,
+            cast(NULL AS bigint) AS dosage_timing_count,
+            cast(NULL AS bigint) AS dosage_timing_count_max,
+            cast(NULL AS double) AS dosage_timing_duration,
+            cast(NULL AS double) AS dosage_timing_duration_max,
+            cast(NULL AS varchar) AS dosage_timing_duration_unit,
+            cast(d.dosageInstruction.timing.repeat.frequency AS bigint)
+                AS dosage_timing_frequency,
+            cast(NULL AS bigint) AS dosage_timing_frequency_max,
+            cast(d.dosageInstruction.timing.repeat.period AS double)
+                AS dosage_timing_period,
+            cast(NULL AS double) AS dosage_timing_period_max,
+            d.dosageInstruction.timing.repeat.periodUnit AS dosage_timing_period_unit,
+            cast(NULL AS bigint) AS dosage_timing_offset,
+            cast(NULL AS date) AS dosage_timing_bounds_start,
+        cast(NULL AS date) AS dosage_timing_bounds_end
+        FROM dosage_rows AS d
+    ),
+
+    dose_rows AS (
+        SELECT
+            d.id,
+            d.row,
+            u.dose_row,
+            CASE
+                WHEN u.dose_and_rate.doseQuantity.value IS NOT NULL
+                    THEN cast('quantity' AS varchar)
+            END AS dosage_dose_type,
+            cast(u.dose_and_rate.doseQuantity.value AS double) AS dosage_dose_value,
             cast(NULL AS double) AS dosage_dose_low_value,
             cast(NULL AS double) AS dosage_dose_high_value,
             cast(NULL AS varchar) AS dosage_dose_unit,
             cast(NULL AS varchar) AS dosage_dose_system,
             cast(NULL AS varchar) AS dosage_dose_code,
-            cast(NULL AS varchar) AS dosage_dose_rate_type_text,
-        cast(NULL AS timestamp) AS authoredOn,
-        cast(NULL AS date) AS authoredOn_month,
-        'x' AS medicationrequest_ref,
-        'x' AS subject_ref,
-        'x' AS encounter_ref
-    WHERE 1 = 0 -- empty table
+            u.dose_and_rate.type.text AS dosage_dose_rate_type_text
+        FROM
+            dosage_rows AS d,
+            unnest(d.dosageInstruction.doseAndRate)
+                WITH ORDINALITY AS u (dose_and_rate, dose_row) --noqa
+    )
+
+    SELECT
+        dc.id,
+        dc.row,
+        dq.dose_row,
+
+        dc.dosage_sequence,
+        dc.dosage_text,
+        dc.dosage_patient_instruction,
+        dc.dosage_as_needed_bool,
+
+        dc.dosage_timing_text,
+        dc.dosage_timing_count,
+        dc.dosage_timing_count_max,
+        dc.dosage_timing_duration,
+        dc.dosage_timing_duration_max,
+        dc.dosage_timing_duration_unit,
+        dc.dosage_timing_frequency,
+        dc.dosage_timing_frequency_max,
+        dc.dosage_timing_period,
+        dc.dosage_timing_period_max,
+        dc.dosage_timing_period_unit,
+        dc.dosage_timing_offset,
+        dc.dosage_timing_bounds_start,
+        dc.dosage_timing_bounds_end,
+        dq.dosage_dose_type,
+        dq.dosage_dose_value,
+        dq.dosage_dose_low_value,
+        dq.dosage_dose_high_value,
+        dq.dosage_dose_unit,
+        dq.dosage_dose_system,
+        dq.dosage_dose_code,
+        dq.dosage_dose_rate_type_text,
+
+        p.authoredOn,
+        p.authoredOn_month,
+
+        p.medicationrequest_ref,
+        p.subject_ref,
+        p.encounter_ref
+    FROM dosage_cols AS dc
+    INNER JOIN parent AS p ON dc.id = p.id
+    LEFT JOIN dose_rows AS dq ON dc.id = dq.id AND dc.row = dq.row
 );
 
 -- ###########################################################
@@ -53,13 +130,39 @@ CREATE TABLE core__medicationrequest_dosageinstruction AS (
 
 
 CREATE TABLE core__medicationrequest_dn_dose_rate_type AS (
-    SELECT
-        'x' AS id,
-        cast(NULL AS bigint) AS row,
-        cast(NULL AS bigint) AS dose_row,
-        'x' AS code,
-        'x' AS system,
-        'x' AS display,
-        cast(NULL AS boolean) AS userSelected
-    WHERE 1 = 0 -- empty table
+    WITH
+
+    dosage_rows AS (
+        SELECT
+            t.id AS id,
+            row,
+            r."dosageInstruction"
+        FROM
+            medicationrequest AS t,
+            UNNEST(t."dosageInstruction") WITH ORDINALITY AS r ("dosageInstruction", row)
+    ),
+
+    dose_rows AS (
+        SELECT
+            d.id,
+            d.row,
+            u.dose_row,
+            u.dose_and_rate
+        FROM
+            dosage_rows AS d,
+            unnest(d.dosageInstruction.doseAndRate)
+                WITH ORDINALITY AS u (dose_and_rate, dose_row) --noqa
+    )
+
+    SELECT DISTINCT
+        d.id,
+        d.row,
+        d.dose_row,
+        c.coding.code,
+        c.coding.system,
+        c.coding.display,
+        c.coding.userSelected
+    FROM
+        dose_rows AS d,
+        unnest(d.dose_and_rate.type.coding) AS c (coding) --noqa
 );

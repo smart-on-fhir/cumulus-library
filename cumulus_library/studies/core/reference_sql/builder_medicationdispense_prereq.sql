@@ -6,19 +6,46 @@
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_inline_code"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+CREATE TABLE core__medicationdispense_dn_inline_code AS (
+    WITH
+
+    system_medicationCodeableConcept_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            medicationdispense AS s,
+            UNNEST(s.medicationCodeableConcept.coding) AS u (coding)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_medicationCodeableConcept_0
+        
     )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
+    SELECT
+        id,
+        code,
+        system,
+        display,
+        userSelected
+    FROM union_table
 );
+
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_contained_code"
+CREATE TABLE IF NOT EXISTS "cumulus-aggregator-dev-msa3"."core__medicationdispense_dn_contained_code"
 AS (
     SELECT * FROM (
         VALUES
@@ -30,31 +57,85 @@ AS (
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_category"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+CREATE TABLE core__medicationdispense_dn_category AS (
+    WITH
+
+    system_category_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            medicationdispense AS s,
+            UNNEST(s.category.coding) AS u (coding)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_category_0
+        
     )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
+    SELECT
+        id,
+        code,
+        system,
+        display,
+        userSelected
+    FROM union_table
 );
+
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_type"
-AS (
-    SELECT * FROM (
-        VALUES
-        (cast(NULL AS varchar),cast(NULL AS bigint),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS varchar),cast(NULL AS boolean))
+CREATE TABLE core__medicationdispense_dn_type AS (
+    WITH
+
+    system_type_0 AS (
+        SELECT DISTINCT
+            s.id AS id,
+            0 AS row,
+            u.coding.code,
+            u.coding.display,
+            u.coding.system,
+            u.coding.userSelected
+        FROM
+            medicationdispense AS s,
+            UNNEST(s.type.coding) AS u (coding)
+    ), --noqa: LT07
+
+    union_table AS (
+        SELECT
+            id,
+            row,
+            system,
+            code,
+            display,
+            userSelected
+        FROM system_type_0
+        
     )
-        AS t ("id","row","code","system","display","userSelected")
-    WHERE 1 = 0 -- ensure empty table
+    SELECT
+        id,
+        code,
+        system,
+        display,
+        userSelected
+    FROM union_table
 );
+
 
 -- ###########################################################
 
-CREATE TABLE IF NOT EXISTS "cumulus_library_regression_db"."core__medicationdispense_dn_dosage_route"
+CREATE TABLE IF NOT EXISTS "cumulus-aggregator-dev-msa3"."core__medicationdispense_dn_dosage_route"
 AS (
     SELECT * FROM (
         VALUES
