@@ -132,7 +132,7 @@ CREATE TABLE core__medicationrequest AS (
             ON cr.id = mrcc.id AND cr.medication_id = mrcc.contained_id
         WHERE mrcc.resource_type = 'Medication'
 
-        {%- if schema["medication"]["code"] %}
+        {%- if schema["medication"]["code"]["coding"]["code"] %}
         {# External: medication by reference from external medications table.
         This is generally how we expect EPIC to provide medication data. #}
         UNION

@@ -1,6 +1,16 @@
 {% import 'unnest_utils.jinja' as unnest_utils %}
 {% import 'dosage_utils.jinja' as dosage_utils %}
 
+{#- whenHandedOver is not guaranteed to have the same level of precision
+    that other time fields do. #}
+{%- macro safe_iso_timestamp(expr) -%}
+CASE
+    WHEN length({{ expr }}) = 4 THEN cast({{ expr }} || '-01-01' AS timestamp)
+    WHEN length({{ expr }}) = 7 THEN cast({{ expr }} || '-01' AS timestamp)
+    ELSE cast(from_iso8601_timestamp({{ expr }}) AS timestamp)
+END
+{%- endmacro -%}
+
 {#- US Core marks MedicationDispense.dosageInstruction must support, along with
     its text, timing, route and doseAndRate.dose[x] children. dosageInstruction is
     0..*, so it lives here rather than fanning out core__medicationdispense.
@@ -160,18 +170,18 @@ CREATE TABLE core__medicationdispense_dosageinstruction AS (
             {%- endif %}
             {% if repeat["boundsPeriod"]["start"] -%}
             cast(
-                from_iso8601_timestamp(
-                    d.dosageInstruction.timing.repeat.boundsPeriod."start"
-                ) AS date
+                {{ safe_iso_timestamp(
+                    'd.dosageInstruction.timing.repeat.boundsPeriod."start"'
+                ) }} AS date
             ) AS dosage_timing_bounds_start,
             {%- else -%}
             cast(NULL AS date) AS dosage_timing_bounds_start,
             {%- endif %}
         {% if repeat["boundsPeriod"]["end"] -%}
         cast(
-            from_iso8601_timestamp(
-                d.dosageInstruction.timing.repeat.boundsPeriod."end"
-            ) AS date
+            {{ safe_iso_timestamp(
+                'd.dosageInstruction.timing.repeat.boundsPeriod."end"'
+            ) }} AS date
         ) AS dosage_timing_bounds_end
         {%- else -%}
         cast(NULL AS date) AS dosage_timing_bounds_end
