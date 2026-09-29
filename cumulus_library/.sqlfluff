@@ -213,9 +213,16 @@ schema =
             'managingOrganization': True,
             'partOf': True,
         },
+        'medication': {
+            'code': {
+                'coding': {'code': True, 'system': True, 'display': True},
+                'text': True
+            }
+        },
         'medicationdispense': {
             'id': True,
             'status': True,
+            'safe_iso_timestamp': True,
             'subject': {
                 'reference': True
             },

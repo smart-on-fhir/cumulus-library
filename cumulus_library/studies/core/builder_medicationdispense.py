@@ -3,6 +3,9 @@ from cumulus_library.studies.core.core_templates import core_templates
 from cumulus_library.template_sql import sql_utils
 
 expected_table_cols = {
+    "medication": {
+        "code": sql_utils.CODEABLE_CONCEPT,
+    },
     "medicationdispense": {
         "id": [],
         "status": [],
@@ -17,7 +20,7 @@ expected_table_cols = {
         "whenHandedOver": [],
         "quantity": ["value", "unit", "system", "code"],
         "daysSupply": ["value", "unit", "system", "code"],
-    }
+    },
 }
 
 
