@@ -1,3 +1,4 @@
+import json
 import pathlib
 import shutil
 from contextlib import nullcontext as does_not_raise
@@ -57,3 +58,37 @@ def test_generate_md(mock_db_config, tmp_path):
 |------|-------|-------|-----------|-------|
 |test  |INTEGER|       |           |       |"""
         assert expected_table in generated_md
+
+
+def test_generate_md_with_data_dictionary(mock_db_config, tmp_path):
+    study_dir = tmp_path / "study_python_valid"
+    shutil.copytree(
+        f"{pathlib.Path(__file__).resolve().parents[1]}/test_data/study_python_valid",
+        study_dir,
+    )
+    (study_dir / "data_dictionary.json").write_text(
+        json.dumps(
+            {"fields": [{"name": "test", "display": "Test", "description": "A test column"}]}
+        )
+    )
+    manifest_path = study_dir / "manifest.toml"
+    manifest_path.write_text(
+        'data_dictionary = "data_dictionary.json"\n' + manifest_path.read_text()
+    )
+    manifest = study_manifest.StudyManifest(study_path=study_dir)
+    builder.run_protected_table_builder(config=mock_db_config, manifest=manifest)
+    builder.build_study(config=mock_db_config, manifest=manifest, prepare=False, data_path=None)
+
+    file_generator.run_generate_markdown(config=mock_db_config, manifest=manifest)
+
+    generated_md = (study_dir / "study_python_valid_generated.md").read_text()
+    rows = {}
+    for line in generated_md.splitlines():
+        if line.startswith("|") and not line.startswith("|-"):
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            rows.setdefault(cells[0], cells)
+    assert "Display" in rows["Column"]
+    assert "Description" in rows["Column"]
+    assert "Details" in rows["Column"]
+    assert rows["test"] == ["test", "INTEGER", "Test", "A test column", ""]
+    assert rows["stage"] == ["stage", "VARCHAR", "", "", ""]
