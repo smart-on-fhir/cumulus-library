@@ -97,6 +97,12 @@ def run_generate_markdown(
 
 def _write_md_table(name: str, df: pandas.DataFrame, file: typing.IO):
     table_df = df[df["Table"] == name].drop("Table", axis=1)
+    if "Display" not in table_df.columns:
+        table_df = table_df.assign(Display="")
+    if "Description" not in table_df.columns:
+        table_df = table_df.assign(Description="")
+    if "Details" not in table_df.columns:
+        table_df = table_df.assign(Details="")
     writer = pytablewriter.MarkdownTableWriter(dataframe=table_df)
     writer.table_name = f"{name}\n"
     writer.set_indent_level(2)
