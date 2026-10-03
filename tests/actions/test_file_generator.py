@@ -59,15 +59,28 @@ def test_generate_md(mock_db_config, tmp_path):
         assert expected_table in generated_md
 
 
-def test_generate_md_with_data_dictionary(mock_db_config, tmp_path):
+@pytest.mark.parametrize(
+    "data_dictionary,expected_output",
+    [
+        (
+            "name,display,description,details,type\ntest,Test,A test column,,integer",
+            ["test", "INTEGER", "Test", "A test column", ""],
+        ),
+        (
+            "name,description,details,type\ntest,A test column,,integer",
+            ["test", "INTEGER", "A test column", "", ""],
+        ),
+    ],
+)
+def test_generate_md_with_data_dictionary(
+    mock_db_config, tmp_path, data_dictionary, expected_output
+):
     study_dir = tmp_path / "study_python_valid"
     shutil.copytree(
         f"{pathlib.Path(__file__).resolve().parents[1]}/test_data/study_python_valid",
         study_dir,
     )
-    (study_dir / "data_dictionary.csv").write_text(
-        "name,display,description,details,type\ntest,Test,A test column,,INTEGER"
-    )
+    (study_dir / "data_dictionary.csv").write_text(data_dictionary)
     manifest_path = study_dir / "manifest.toml"
     manifest_path.write_text(
         'data_dictionary = "data_dictionary.csv"\n' + manifest_path.read_text()
@@ -87,5 +100,5 @@ def test_generate_md_with_data_dictionary(mock_db_config, tmp_path):
     assert "Display" in rows["Column"]
     assert "Description" in rows["Column"]
     assert "Details" in rows["Column"]
-    assert rows["test"] == ["test", "INTEGER", "Test", "A test column", ""]
+    assert rows["test"] == expected_output
     assert rows["stage"] == ["stage", "VARCHAR", "", "", ""]
