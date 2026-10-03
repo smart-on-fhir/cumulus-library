@@ -1,4 +1,3 @@
-import json
 import pathlib
 import shutil
 from contextlib import nullcontext as does_not_raise
@@ -66,14 +65,12 @@ def test_generate_md_with_data_dictionary(mock_db_config, tmp_path):
         f"{pathlib.Path(__file__).resolve().parents[1]}/test_data/study_python_valid",
         study_dir,
     )
-    (study_dir / "data_dictionary.json").write_text(
-        json.dumps(
-            {"fields": [{"name": "test", "display": "Test", "description": "A test column"}]}
-        )
+    (study_dir / "data_dictionary.csv").write_text(
+        "name,display,description,details,type\ntest,Test,A test column,,INTEGER"
     )
     manifest_path = study_dir / "manifest.toml"
     manifest_path.write_text(
-        'data_dictionary = "data_dictionary.json"\n' + manifest_path.read_text()
+        'data_dictionary = "data_dictionary.csv"\n' + manifest_path.read_text()
     )
     manifest = study_manifest.StudyManifest(study_path=study_dir)
     builder.run_protected_table_builder(config=mock_db_config, manifest=manifest)
