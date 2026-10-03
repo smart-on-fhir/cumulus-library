@@ -53,7 +53,7 @@ def test_generate_md(mock_db_config, tmp_path):
             generated_md = f.read()
         expected_table = """### study_python_valid__table
 
-|Column| Type  |Description|
-|------|-------|-----------|
-|test  |INTEGER|           |"""
+|Column| Type  |Display|Description|Details|
+|------|-------|-------|-----------|-------|
+|test  |INTEGER|       |           |       |"""
         assert expected_table in generated_md
