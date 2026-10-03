@@ -317,6 +317,16 @@ class StudyManifest:
         options = self._study_config.get("advanced_options", {})
         return options.get("dedicated_schema")
 
+    def get_data_dictionary(self) -> list[dict] | None:
+        """Reads the contents of the data dictionary in the manifest
+
+        :returns: A list of dictionaries, or None if not found
+        """
+        fields = self._study_config.get("data_dictionary", None)
+        if fields is None:
+            return None
+        return fields
+
     def get_stages(self) -> list:
         """Returns the names of all stages defined in the manifest"""
         return list(self._study_config.get("stages", {}).keys())

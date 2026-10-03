@@ -66,6 +66,18 @@ def run_generate_markdown(
     study_df = pandas.DataFrame(
         cursor.execute(query).fetchall(), columns=["Column", "Type", "Table"]
     )
+
+    data_dictionary = manifest.get_data_dictionary()
+    if data_dictionary is not None:
+        data_dict_df = pandas.DataFrame(data_dictionary)
+        study_df = study_df.merge(data_dict_df, how="left", left_on=["Column"], right_on=["name"])
+        study_df.drop(columns=["name", "type"], inplace=True, errors="ignore")
+        for col in ["display", "description", "details"]:
+            if col not in study_df.columns:
+                study_df[col] = ""
+            study_df[col] = study_df[col].fillna("")
+        study_df.columns = study_df.columns.str.capitalize()
+
     with open(
         manifest._study_path / f"{manifest.get_study_prefix()}_generated.md",
         "w",
@@ -85,7 +97,6 @@ def run_generate_markdown(
 
 def _write_md_table(name: str, df: pandas.DataFrame, file: typing.IO):
     table_df = df[df["Table"] == name].drop("Table", axis=1)
-    table_df = table_df.assign(Description="")
     writer = pytablewriter.MarkdownTableWriter(dataframe=table_df)
     writer.table_name = f"{name}\n"
     writer.set_indent_level(2)
