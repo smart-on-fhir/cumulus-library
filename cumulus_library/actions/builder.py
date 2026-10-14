@@ -642,6 +642,7 @@ def _run_workflow(
                 f"{toml_path} references an invalid workflow type {config_type}."
             )
 
+
     builder.prepare_queries(
         config=config,
         manifest=manifest,
