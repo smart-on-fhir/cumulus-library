@@ -126,6 +126,7 @@ def test_clean_no_build_source(mock_db_core_config):
 
 
 def test_clean_dedicated_schema(mock_db_config):
+    # First, we'll check a path that executes queries
     with mock.patch.object(builtins, "input", lambda _: False):
         mock_db_config.schema = "dedicated"
         manifest = study_manifest.StudyManifest("./tests/test_data/study_dedicated_schema/")
@@ -157,6 +158,18 @@ def test_clean_dedicated_schema(mock_db_config):
         assert (f"{enums.ProtectedTables.TRANSACTIONS.value}",) in remaining_tables
         assert ("table_1",) not in remaining_tables
         assert ("view_2",) not in remaining_tables
+    # Then for athena, we'll verify expected format of the outputs
+    mock_db_config.db.db_type = "athena"
+    table_names = cleaner._format_dedicated_table_name(
+        "dedicated", mock_db_config, [["dedicated.table", "TABLE"], ["dedicated.view", "VIEW"]]
+    )
+    assert table_names == [["`dedicated`.`table`", "TABLE"], ['"dedicated"."view"', "VIEW"]]
+    # and then we'll catch issues that will come up if we add a DB in the future
+    with pytest.raises(errors.CumulusLibraryError):
+        mock_db_config.db.db_type = "mysql"
+        table_names = cleaner._format_dedicated_table_name(
+            "dedicated", mock_db_config, [["dedicated.table", "TABLE"], ["dedicated.view", "VIEW"]]
+        )
 
 
 def test_clean_throws_error_on_missing_params(mock_db_config):
