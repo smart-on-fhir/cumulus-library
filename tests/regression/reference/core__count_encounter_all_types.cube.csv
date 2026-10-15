@@ -1,3136 +1,369 @@
 cnt,class_display,type_display,servicetype_display,priority_display
-21567103,,,,
-21452280,,,,cumulus__none
-21339551,,,cumulus__none,
-21339500,,,cumulus__none,cumulus__none
-17299392,Support OP Encounter,,,
-17299375,Support OP Encounter,,cumulus__none,
-17299346,Support OP Encounter,,,cumulus__none
-17299329,Support OP Encounter,,cumulus__none,cumulus__none
-10378244,,Outpatient,,
-10378241,,Outpatient,,cumulus__none
-10378024,,Outpatient,cumulus__none,
-10378024,,Outpatient,cumulus__none,cumulus__none
-9274980,Support OP Encounter,Outpatient,,
-9274980,Support OP Encounter,Outpatient,,cumulus__none
-9274979,Support OP Encounter,Outpatient,cumulus__none,
-9274979,Support OP Encounter,Outpatient,cumulus__none,cumulus__none
-2215506,Appointment,,,
-2215501,Appointment,,,cumulus__none
-2214948,Appointment,,cumulus__none,
-2214943,Appointment,,cumulus__none,cumulus__none
-2014279,,Travel,,
-2014279,,Travel,,cumulus__none
-2014279,,Travel,cumulus__none,
-2014279,,Travel,cumulus__none,cumulus__none
-2014279,Support OP Encounter,Travel,,
-2014279,Support OP Encounter,Travel,,cumulus__none
-2014279,Support OP Encounter,Travel,cumulus__none,
-2014279,Support OP Encounter,Travel,cumulus__none,cumulus__none
-1353715,,Wait List,,
-1353715,,Wait List,,cumulus__none
-1353715,Support OP Encounter,Wait List,,
-1353715,Support OP Encounter,Wait List,,cumulus__none
-1353706,,Wait List,cumulus__none,
-1353706,,Wait List,cumulus__none,cumulus__none
-1353706,Support OP Encounter,Wait List,cumulus__none,
-1353706,Support OP Encounter,Wait List,cumulus__none,cumulus__none
-1337161,Discharge,,,
-1222674,Discharge,,,cumulus__none
-1146475,Discharge,,cumulus__none,
-1146475,Discharge,,cumulus__none,cumulus__none
-867052,,Patient Message,,
-867052,,Patient Message,cumulus__none,
-867052,Support OP Encounter,Patient Message,,
-867052,Support OP Encounter,Patient Message,cumulus__none,
-867051,,Patient Message,,cumulus__none
-867051,,Patient Message,cumulus__none,cumulus__none
-867051,Support OP Encounter,Patient Message,,cumulus__none
-867051,Support OP Encounter,Patient Message,cumulus__none,cumulus__none
-852373,,Telephone,,
-852371,,Telephone,cumulus__none,
-852330,,Telephone,,cumulus__none
-852328,,Telephone,cumulus__none,cumulus__none
-852298,Support OP Encounter,Telephone,,
-852296,Support OP Encounter,Telephone,cumulus__none,
-852255,Support OP Encounter,Telephone,,cumulus__none
-852253,Support OP Encounter,Telephone,cumulus__none,cumulus__none
-636398,,Orders Only,,
-636398,,Orders Only,cumulus__none,
-636398,Support OP Encounter,Orders Only,,
-636398,Support OP Encounter,Orders Only,cumulus__none,
-636396,,Orders Only,,cumulus__none
-636396,,Orders Only,cumulus__none,cumulus__none
-636396,Support OP Encounter,Orders Only,,cumulus__none
-636396,Support OP Encounter,Orders Only,cumulus__none,cumulus__none
-625091,Appointment,Outpatient,,
-625091,Appointment,Outpatient,,cumulus__none
-625090,Appointment,Outpatient,cumulus__none,
-625090,Appointment,Outpatient,cumulus__none,cumulus__none
-610007,HOV,,,
-610007,HOV,,,cumulus__none
-609862,HOV,,cumulus__none,
-609862,HOV,,cumulus__none,cumulus__none
-580965,,Emergency,,
-579395,,Emergency,,cumulus__none
-575445,,Emergency,cumulus__none,
-575445,,Emergency,cumulus__none,cumulus__none
-502542,Discharge,Emergency,,
-501076,Discharge,Emergency,,cumulus__none
-498702,Discharge,Emergency,cumulus__none,
-498702,Discharge,Emergency,cumulus__none,cumulus__none
-461138,,Scanned Document,,
-461138,,Scanned Document,,cumulus__none
-461138,,Scanned Document,cumulus__none,
-461138,,Scanned Document,cumulus__none,cumulus__none
-461138,Support OP Encounter,Scanned Document,,
-461138,Support OP Encounter,Scanned Document,,cumulus__none
-461138,Support OP Encounter,Scanned Document,cumulus__none,
-461138,Support OP Encounter,Scanned Document,cumulus__none,cumulus__none
-432648,HOV,Outpatient,,
-432648,HOV,Outpatient,,cumulus__none
-432577,HOV,Outpatient,cumulus__none,
-432577,HOV,Outpatient,cumulus__none,cumulus__none
-405608,,Inpatient,,
-392752,,Inpatient,,cumulus__none
-379918,,Outpatient Surgery,,
-379762,,Outpatient Surgery,,cumulus__none
-378474,,Inpatient,cumulus__none,
-378474,,Inpatient,cumulus__none,cumulus__none
-350260,Discharge,Outpatient Surgery,,
-350104,Discharge,Outpatient Surgery,,cumulus__none
-346706,,Abstract,,
-346706,,Abstract,,cumulus__none
-346706,,Abstract,cumulus__none,
-346706,,Abstract,cumulus__none,cumulus__none
-346706,Support OP Encounter,Abstract,,
-346706,Support OP Encounter,Abstract,,cumulus__none
-346706,Support OP Encounter,Abstract,cumulus__none,
-346706,Support OP Encounter,Abstract,cumulus__none,cumulus__none
-310563,,Pharmacy Visit,,
-310563,,Pharmacy Visit,,cumulus__none
-310563,,Pharmacy Visit,cumulus__none,
-310563,,Pharmacy Visit,cumulus__none,cumulus__none
-310563,Support OP Encounter,Pharmacy Visit,,
-310563,Support OP Encounter,Pharmacy Visit,,cumulus__none
-310563,Support OP Encounter,Pharmacy Visit,cumulus__none,
-310563,Support OP Encounter,Pharmacy Visit,cumulus__none,cumulus__none
-310362,,Outpatient Surgery,cumulus__none,
-310362,,Outpatient Surgery,cumulus__none,cumulus__none
-303646,Discharge,Outpatient Surgery,cumulus__none,
-303646,Discharge,Outpatient Surgery,cumulus__none,cumulus__none
-267009,,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,,
-267009,,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,,cumulus__none
-267008,,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,cumulus__none,
-267008,,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,cumulus__none,cumulus__none
-256200,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,,
-256200,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,,cumulus__none
-256200,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,cumulus__none,
-256200,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,cumulus__none,cumulus__none
-251914,Discharge,Inpatient,,
-243320,,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,,
-243320,,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,cumulus__none,
-243318,,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,,cumulus__none
-243318,,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,cumulus__none,cumulus__none
-240684,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,,
-240684,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,cumulus__none,
-240682,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,,cumulus__none
-240682,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,cumulus__none,cumulus__none
-239207,Discharge,Inpatient,,cumulus__none
-226568,Discharge,Inpatient,cumulus__none,
-226568,Discharge,Inpatient,cumulus__none,cumulus__none
-211549,,Ancillary Orders,,
-211549,,Ancillary Orders,,cumulus__none
-211549,,Ancillary Orders,cumulus__none,
-211549,,Ancillary Orders,cumulus__none,cumulus__none
-211549,Support OP Encounter,Ancillary Orders,,
-211549,Support OP Encounter,Ancillary Orders,,cumulus__none
-211549,Support OP Encounter,Ancillary Orders,cumulus__none,
-211549,Support OP Encounter,Ancillary Orders,cumulus__none,cumulus__none
-204256,,Refill,,
-204256,,Refill,,cumulus__none
-204256,,Refill,cumulus__none,
-204256,,Refill,cumulus__none,cumulus__none
-204256,Support OP Encounter,Refill,,
-204256,Support OP Encounter,Refill,,cumulus__none
-204256,Support OP Encounter,Refill,cumulus__none,
-204256,Support OP Encounter,Refill,cumulus__none,cumulus__none
-175625,,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,,
-175625,,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,,cumulus__none
-175610,,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,cumulus__none,
-175610,,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,cumulus__none,cumulus__none
-166611,,Transcribe Orders,,
-166611,,Transcribe Orders,,cumulus__none
-166611,,Transcribe Orders,cumulus__none,
-166611,,Transcribe Orders,cumulus__none,cumulus__none
-166611,Support OP Encounter,Transcribe Orders,,
-166611,Support OP Encounter,Transcribe Orders,,cumulus__none
-166611,Support OP Encounter,Transcribe Orders,cumulus__none,
-166611,Support OP Encounter,Transcribe Orders,cumulus__none,cumulus__none
-156777,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,,
-156777,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,,cumulus__none
-156777,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,cumulus__none,
-156777,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,cumulus__none,cumulus__none
-150718,Appointment,Inpatient,,
-150718,Appointment,Inpatient,,cumulus__none
-150714,Appointment,Inpatient,cumulus__none,
-150714,Appointment,Inpatient,cumulus__none,cumulus__none
-138750,,Observation,,
-130280,,Observation,,cumulus__none
-128543,Discharge,Observation,,
-120080,Discharge,Observation,,cumulus__none
-117506,,Observation,cumulus__none,
-117506,,Observation,cumulus__none,cumulus__none
-110133,Discharge,Observation,cumulus__none,
-110133,Discharge,Observation,cumulus__none,cumulus__none
-104357,,Documentation,,
-104357,,Documentation,,cumulus__none
-104357,,Documentation,cumulus__none,
-104357,,Documentation,cumulus__none,cumulus__none
-104357,Support OP Encounter,Documentation,,
-104357,Support OP Encounter,Documentation,,cumulus__none
-104357,Support OP Encounter,Documentation,cumulus__none,
-104357,Support OP Encounter,Documentation,cumulus__none,cumulus__none
-99902,,Hospital Encounter,,
-99902,,Hospital Encounter,,cumulus__none
-99898,,Hospital Encounter,cumulus__none,
-99898,,Hospital Encounter,cumulus__none,cumulus__none
-99895,HOV,Hospital Encounter,,
-99895,HOV,Hospital Encounter,,cumulus__none
-99895,HOV,Hospital Encounter,cumulus__none,
-99895,HOV,Hospital Encounter,cumulus__none,cumulus__none
-98299,,,Emergency,
-96556,Discharge,,Emergency,
-84890,,Elective,,
-84890,,Elective,,cumulus__none
-84883,,Elective,cumulus__none,
-84883,,Elective,cumulus__none,cumulus__none
-83592,Appointment,Elective,,
-83592,Appointment,Elective,,cumulus__none
-83592,Appointment,Elective,cumulus__none,
-83592,Appointment,Elective,cumulus__none,cumulus__none
-76210,,Patient Self-Triage,,
-76210,,Patient Self-Triage,,cumulus__none
-76210,,Patient Self-Triage,cumulus__none,
-76210,,Patient Self-Triage,cumulus__none,cumulus__none
-76210,Support OP Encounter,Patient Self-Triage,,
-76210,Support OP Encounter,Patient Self-Triage,,cumulus__none
-76210,Support OP Encounter,Patient Self-Triage,cumulus__none,
-76210,Support OP Encounter,Patient Self-Triage,cumulus__none,cumulus__none
-74235,Appointment,Emergency,,
-74235,Appointment,Emergency,,cumulus__none
-73732,Appointment,Emergency,cumulus__none,
-73732,Appointment,Emergency,cumulus__none,cumulus__none
-69187,,Results Follow-Up,,
-69187,,Results Follow-Up,,cumulus__none
-69187,,Results Follow-Up,cumulus__none,
-69187,,Results Follow-Up,cumulus__none,cumulus__none
-69187,Support OP Encounter,Results Follow-Up,,
-69187,Support OP Encounter,Results Follow-Up,,cumulus__none
-69187,Support OP Encounter,Results Follow-Up,cumulus__none,
-69187,Support OP Encounter,Results Follow-Up,cumulus__none,cumulus__none
-68528,Requisition Encounter,,,
-68528,Requisition Encounter,,,cumulus__none
-68528,Requisition Encounter,,cumulus__none,
-68528,Requisition Encounter,,cumulus__none,cumulus__none
-68490,,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,,
-68490,,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,,cumulus__none
-68490,,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,cumulus__none,
-68490,,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,cumulus__none,cumulus__none
-64512,Appointment,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,,
-64512,Appointment,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,,cumulus__none
-64512,Appointment,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,cumulus__none,
-64512,Appointment,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,cumulus__none,cumulus__none
-62319,,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,,
-62319,,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,,cumulus__none
-62317,,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,cumulus__none,
-62317,,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,cumulus__none,cumulus__none
-59753,,Social Work,,
-59753,,Social Work,,cumulus__none
-59753,,Social Work,cumulus__none,
-59753,,Social Work,cumulus__none,cumulus__none
-58912,Appointment,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,,
-58912,Appointment,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,,cumulus__none
-58912,Appointment,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,cumulus__none,
-58912,Appointment,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,cumulus__none,cumulus__none
-58515,,Legacy Encounter,,
-58515,,Legacy Encounter,,cumulus__none
-58515,,Legacy Encounter,cumulus__none,
-58515,,Legacy Encounter,cumulus__none,cumulus__none
-58515,Support OP Encounter,Legacy Encounter,,
-58515,Support OP Encounter,Legacy Encounter,,cumulus__none
-58515,Support OP Encounter,Legacy Encounter,cumulus__none,
-58515,Support OP Encounter,Legacy Encounter,cumulus__none,cumulus__none
-58370,Support OP Encounter,Social Work,,
-58370,Support OP Encounter,Social Work,,cumulus__none
-58370,Support OP Encounter,Social Work,cumulus__none,
-58370,Support OP Encounter,Social Work,cumulus__none,cumulus__none
-55625,,,,Urgent
-55531,Discharge,,,Urgent
-54574,,Office Visit,,
-54574,,Office Visit,,cumulus__none
-54574,,Office Visit,cumulus__none,
-54574,,Office Visit,cumulus__none,cumulus__none
-54569,Appointment,Office Visit,,
-54569,Appointment,Office Visit,,cumulus__none
-54569,Appointment,Office Visit,cumulus__none,
-54569,Appointment,Office Visit,cumulus__none,cumulus__none
-51364,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,
-51357,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,
-51351,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,
-51345,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,
-48046,,,Emergency,Urgent
-48002,Discharge,,Emergency,Urgent
-39747,,Questionnaire Series Submission,,
-39747,,Questionnaire Series Submission,,cumulus__none
-39747,,Questionnaire Series Submission,cumulus__none,
-39747,,Questionnaire Series Submission,cumulus__none,cumulus__none
-39747,Support OP Encounter,Questionnaire Series Submission,,
-39747,Support OP Encounter,Questionnaire Series Submission,,cumulus__none
-39747,Support OP Encounter,Questionnaire Series Submission,cumulus__none,
-39747,Support OP Encounter,Questionnaire Series Submission,cumulus__none,cumulus__none
-39364,Requisition Encounter,Outpatient,,
-39364,Requisition Encounter,Outpatient,,cumulus__none
-39364,Requisition Encounter,Outpatient,cumulus__none,
-39364,Requisition Encounter,Outpatient,cumulus__none,cumulus__none
-35942,,Prep for Procedure,,
-35942,,Prep for Procedure,,cumulus__none
-35942,,Prep for Procedure,cumulus__none,
-35942,,Prep for Procedure,cumulus__none,cumulus__none
-35942,Support OP Encounter,Prep for Procedure,,
-35942,Support OP Encounter,Prep for Procedure,,cumulus__none
-35942,Support OP Encounter,Prep for Procedure,cumulus__none,
-35942,Support OP Encounter,Prep for Procedure,cumulus__none,cumulus__none
-35740,,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,,
-35740,,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,,cumulus__none
-35740,,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,cumulus__none,
-35740,,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,cumulus__none,cumulus__none
-35711,Appointment,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,,
-35711,Appointment,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,,cumulus__none
-35711,Appointment,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,cumulus__none,
-35711,Appointment,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,cumulus__none,cumulus__none
-35340,,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,,
-35340,,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,,cumulus__none
-35338,,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,cumulus__none,
-35338,,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,cumulus__none,cumulus__none
-35002,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,
-35001,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,
-35001,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,
-35001,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,
-33909,Preadmission,,,
-33864,Preadmission,,,cumulus__none
-33214,Appointment,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,,
-33214,Appointment,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,,cumulus__none
-33214,Appointment,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,cumulus__none,
-33214,Appointment,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,cumulus__none,cumulus__none
-32291,,Therapies Series,,
-32291,,Therapies Series,,cumulus__none
-32291,,Therapies Series,cumulus__none,
-32291,,Therapies Series,cumulus__none,cumulus__none
-32283,Appointment,Therapies Series,,
-32283,Appointment,Therapies Series,,cumulus__none
-32283,Appointment,Therapies Series,cumulus__none,
-32283,Appointment,Therapies Series,cumulus__none,cumulus__none
-31628,,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,,
-31628,,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,,cumulus__none
-31628,,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,cumulus__none,
-31628,,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,cumulus__none,cumulus__none
-31394,,,,Emergent
-31263,Discharge,,,Emergent
-30247,,Behavioral Health Series,,
-30247,,Behavioral Health Series,,cumulus__none
-30247,,Behavioral Health Series,cumulus__none,
-30247,,Behavioral Health Series,cumulus__none,cumulus__none
-30247,Appointment,Behavioral Health Series,,
-30247,Appointment,Behavioral Health Series,,cumulus__none
-30247,Appointment,Behavioral Health Series,cumulus__none,
-30247,Appointment,Behavioral Health Series,cumulus__none,cumulus__none
-29162,,Lab Requisition,,
-29162,,Lab Requisition,,cumulus__none
-29162,,Lab Requisition,cumulus__none,
-29162,,Lab Requisition,cumulus__none,cumulus__none
-29162,Requisition Encounter,Lab Requisition,,
-29162,Requisition Encounter,Lab Requisition,,cumulus__none
-29162,Requisition Encounter,Lab Requisition,cumulus__none,
-29162,Requisition Encounter,Lab Requisition,cumulus__none,cumulus__none
-28723,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Urgent
-28721,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Urgent
-28714,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Urgent
-28712,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Urgent
-28536,,Patient Outreach,,
-28536,,Patient Outreach,,cumulus__none
-28536,,Patient Outreach,cumulus__none,
-28536,,Patient Outreach,cumulus__none,cumulus__none
-28536,Support OP Encounter,Patient Outreach,,
-28536,Support OP Encounter,Patient Outreach,,cumulus__none
-28536,Support OP Encounter,Patient Outreach,cumulus__none,
-28536,Support OP Encounter,Patient Outreach,cumulus__none,cumulus__none
-28311,,PR OPH SVCS MEDICAL XM&EVAL COMPRE EST PT 1/>VST,,
-28311,,PR OPH SVCS MEDICAL XM&EVAL COMPRE EST PT 1/>VST,,cumulus__none
-28311,,PR OPH SVCS MEDICAL XM&EVAL COMPRE EST PT 1/>VST,cumulus__none,
-28311,,PR OPH SVCS MEDICAL XM&EVAL COMPRE EST PT 1/>VST,cumulus__none,cumulus__none
-28311,Appointment,PR OPH SVCS MEDICAL XM&EVAL COMPRE EST PT 1/>VST,,
-28311,Appointment,PR OPH SVCS MEDICAL XM&EVAL COMPRE EST PT 1/>VST,,cumulus__none
-28311,Appointment,PR OPH SVCS MEDICAL XM&EVAL COMPRE EST PT 1/>VST,cumulus__none,
-28311,Appointment,PR OPH SVCS MEDICAL XM&EVAL COMPRE EST PT 1/>VST,cumulus__none,cumulus__none
-27644,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,,
-27644,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,,cumulus__none
-27644,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,cumulus__none,
-27644,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,cumulus__none,cumulus__none
-27505,,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,,
-27505,,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,,cumulus__none
-27503,,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,cumulus__none,
-27503,,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,cumulus__none,cumulus__none
-25545,,Plan of Care Documentation,,
-25545,,Plan of Care Documentation,,cumulus__none
-25545,,Plan of Care Documentation,cumulus__none,
-25545,,Plan of Care Documentation,cumulus__none,cumulus__none
-25545,Support OP Encounter,Plan of Care Documentation,,
-25545,Support OP Encounter,Plan of Care Documentation,,cumulus__none
-25545,Support OP Encounter,Plan of Care Documentation,cumulus__none,
-25545,Support OP Encounter,Plan of Care Documentation,cumulus__none,cumulus__none
-25524,,Erroneous Encounter,,
-25524,,Erroneous Encounter,,cumulus__none
-25524,,Erroneous Encounter,cumulus__none,
-25524,,Erroneous Encounter,cumulus__none,cumulus__none
-25474,Support OP Encounter,Erroneous Encounter,,
-25474,Support OP Encounter,Erroneous Encounter,,cumulus__none
-25474,Support OP Encounter,Erroneous Encounter,cumulus__none,
-25474,Support OP Encounter,Erroneous Encounter,cumulus__none,cumulus__none
-24779,,,,Less Urgent
-24728,Discharge,,,Less Urgent
-24471,,,Emergency,Less Urgent
-24444,Discharge,,Emergency,Less Urgent
-22874,Preadmission,Outpatient Surgery,,
-22874,Preadmission,Outpatient Surgery,,cumulus__none
-22351,,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,,
-22351,,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,,cumulus__none
-22350,,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,cumulus__none,
-22350,,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,cumulus__none,cumulus__none
-21343,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,,
-21343,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,,cumulus__none
-21343,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,cumulus__none,
-21343,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,cumulus__none,cumulus__none
-20785,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,,
-20785,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,,cumulus__none
-20785,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,cumulus__none,
-20785,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,cumulus__none,cumulus__none
-18949,,,Emergency,Emergent
-18934,Discharge,,Emergency,Emergent
-18779,HOV,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,,
-18779,HOV,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,,cumulus__none
-18764,HOV,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,cumulus__none,
-18764,HOV,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,cumulus__none,cumulus__none
-17972,,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,,
-17972,,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,,cumulus__none
-17972,,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,cumulus__none,
-17972,,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,cumulus__none,cumulus__none
-17754,,,Otolaryngology,
-17754,,Clinical Support,,
-17754,,Clinical Support,,cumulus__none
-17754,,Clinical Support,cumulus__none,
-17754,,Clinical Support,cumulus__none,cumulus__none
-17636,Appointment,Clinical Support,,
-17636,Appointment,Clinical Support,,cumulus__none
-17636,Appointment,Clinical Support,cumulus__none,
-17636,Appointment,Clinical Support,cumulus__none,cumulus__none
-17610,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,,
-17610,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,,cumulus__none
-17610,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,cumulus__none,
-17610,Appointment,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,cumulus__none,cumulus__none
-17493,,PR OPH SVCS MEDICAL XM&EVAL COMPRE NEW PT 1/> VST,,
-17493,,PR OPH SVCS MEDICAL XM&EVAL COMPRE NEW PT 1/> VST,,cumulus__none
-17493,,PR OPH SVCS MEDICAL XM&EVAL COMPRE NEW PT 1/> VST,cumulus__none,
-17493,,PR OPH SVCS MEDICAL XM&EVAL COMPRE NEW PT 1/> VST,cumulus__none,cumulus__none
-17492,Appointment,PR OPH SVCS MEDICAL XM&EVAL COMPRE NEW PT 1/> VST,,
-17492,Appointment,PR OPH SVCS MEDICAL XM&EVAL COMPRE NEW PT 1/> VST,,cumulus__none
-17492,Appointment,PR OPH SVCS MEDICAL XM&EVAL COMPRE NEW PT 1/> VST,cumulus__none,
-17492,Appointment,PR OPH SVCS MEDICAL XM&EVAL COMPRE NEW PT 1/> VST,cumulus__none,cumulus__none
-17352,,,Otolaryngology,cumulus__none
-16225,,Pre-Admission Testing,,
-16225,,Pre-Admission Testing,,cumulus__none
-16225,,Pre-Admission Testing,cumulus__none,
-16225,,Pre-Admission Testing,cumulus__none,cumulus__none
-16225,Appointment,Pre-Admission Testing,,
-16225,Appointment,Pre-Admission Testing,,cumulus__none
-16225,Appointment,Pre-Admission Testing,cumulus__none,
-16225,Appointment,Pre-Admission Testing,cumulus__none,cumulus__none
-15718,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,Urgent
-15718,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,Urgent
-15718,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,Urgent
-15718,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,Urgent
-14936,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,Less Urgent
-14936,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,Less Urgent
-14936,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,Less Urgent
-14936,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,Less Urgent
-14781,,Surgery Admit to IP,,
-14781,,Surgery Admit to IP,,cumulus__none
-14628,,,Gastroenterology,
-14379,,,Orthopaedics,
-14322,,Prior Authorization,,
-14322,,Prior Authorization,,cumulus__none
-14322,,Prior Authorization,cumulus__none,
-14322,,Prior Authorization,cumulus__none,cumulus__none
-14322,Support OP Encounter,Prior Authorization,,
-14322,Support OP Encounter,Prior Authorization,,cumulus__none
-14322,Support OP Encounter,Prior Authorization,cumulus__none,
-14322,Support OP Encounter,Prior Authorization,cumulus__none,cumulus__none
-13689,,Ancillary Procedure,,
-13689,,Ancillary Procedure,,cumulus__none
-13689,,Ancillary Procedure,cumulus__none,
-13689,,Ancillary Procedure,cumulus__none,cumulus__none
-13689,Appointment,Ancillary Procedure,,
-13689,Appointment,Ancillary Procedure,,cumulus__none
-13689,Appointment,Ancillary Procedure,cumulus__none,
-13689,Appointment,Ancillary Procedure,cumulus__none,cumulus__none
-13661,,,Gastroenterology,cumulus__none
-13550,,Treatment Series,,
-13550,,Treatment Series,,cumulus__none
-13550,,Treatment Series,cumulus__none,
-13550,,Treatment Series,cumulus__none,cumulus__none
-13542,,,Orthopaedics,cumulus__none
-13450,Appointment,Treatment Series,,
-13450,Appointment,Treatment Series,,cumulus__none
-13450,Appointment,Treatment Series,cumulus__none,
-13450,Appointment,Treatment Series,cumulus__none,cumulus__none
-13282,,Enrollment,,
-13282,,Enrollment,,cumulus__none
-13282,,Enrollment,cumulus__none,
-13282,,Enrollment,cumulus__none,cumulus__none
-13282,Support OP Encounter,Enrollment,,
-13282,Support OP Encounter,Enrollment,,cumulus__none
-13282,Support OP Encounter,Enrollment,cumulus__none,
-13282,Support OP Encounter,Enrollment,cumulus__none,cumulus__none
-13142,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Emergent
-13139,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Emergent
-13139,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Emergent
-13136,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Emergent
-12781,,Outpatient Surgery,Otolaryngology,
-12781,,Outpatient Surgery,Otolaryngology,cumulus__none
-12468,Discharge,,Otolaryngology,
-12207,,Outpatient Surgery,Gastroenterology,
-12207,,Outpatient Surgery,Gastroenterology,cumulus__none
-12189,,Referral Triage,,
-12189,,Referral Triage,,cumulus__none
-12189,,Referral Triage,cumulus__none,
-12189,,Referral Triage,cumulus__none,cumulus__none
-12189,Support OP Encounter,Referral Triage,,
-12189,Support OP Encounter,Referral Triage,,cumulus__none
-12189,Support OP Encounter,Referral Triage,cumulus__none,
-12189,Support OP Encounter,Referral Triage,cumulus__none,cumulus__none
-12068,Discharge,,Otolaryngology,cumulus__none
-11715,,PR PERIODIC PREVENTIVE MED EST PATIENT 1-4YRS,,
-11715,,PR PERIODIC PREVENTIVE MED EST PATIENT 1-4YRS,,cumulus__none
-11715,,PR PERIODIC PREVENTIVE MED EST PATIENT 1-4YRS,cumulus__none,
-11715,,PR PERIODIC PREVENTIVE MED EST PATIENT 1-4YRS,cumulus__none,cumulus__none
-11713,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 1-4YRS,,
-11713,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 1-4YRS,,cumulus__none
-11713,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 1-4YRS,cumulus__none,
-11713,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 1-4YRS,cumulus__none,cumulus__none
-11609,,Appointment,,
-11609,,Appointment,,cumulus__none
-11609,,Appointment,cumulus__none,
-11609,,Appointment,cumulus__none,cumulus__none
-11609,Appointment,Appointment,,
-11609,Appointment,Appointment,,cumulus__none
-11609,Appointment,Appointment,cumulus__none,
-11609,Appointment,Appointment,cumulus__none,cumulus__none
-11019,,PR PERIODIC PREVENTIVE MED EST PATIENT 5-11YRS,,
-11019,,PR PERIODIC PREVENTIVE MED EST PATIENT 5-11YRS,,cumulus__none
-11019,,PR PERIODIC PREVENTIVE MED EST PATIENT 5-11YRS,cumulus__none,
-11019,,PR PERIODIC PREVENTIVE MED EST PATIENT 5-11YRS,cumulus__none,cumulus__none
-11016,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 5-11YRS,,
-11016,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 5-11YRS,,cumulus__none
-11016,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 5-11YRS,cumulus__none,
-11016,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 5-11YRS,cumulus__none,cumulus__none
-10967,,Procedural Series,,
-10967,,Procedural Series,,cumulus__none
-10967,,Procedural Series,cumulus__none,
-10967,,Procedural Series,cumulus__none,cumulus__none
-10957,HOV,Procedural Series,,
-10957,HOV,Procedural Series,,cumulus__none
-10957,HOV,Procedural Series,cumulus__none,
-10957,HOV,Procedural Series,cumulus__none,cumulus__none
-10409,Discharge,,Orthopaedics,
-10379,HOV,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,,
-10379,HOV,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,,cumulus__none
-10378,HOV,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,cumulus__none,
-10378,HOV,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,cumulus__none,cumulus__none
-10319,,,Dental,
-10319,,,Dental,cumulus__none
-10170,,PR PERIODIC PREVENTIVE MED ESTABLISHED PATIENT <1Y,,
-10170,,PR PERIODIC PREVENTIVE MED ESTABLISHED PATIENT <1Y,cumulus__none,
-10168,,PR PERIODIC PREVENTIVE MED ESTABLISHED PATIENT <1Y,,cumulus__none
-10168,,PR PERIODIC PREVENTIVE MED ESTABLISHED PATIENT <1Y,cumulus__none,cumulus__none
-10168,Appointment,PR PERIODIC PREVENTIVE MED ESTABLISHED PATIENT <1Y,,
-10168,Appointment,PR PERIODIC PREVENTIVE MED ESTABLISHED PATIENT <1Y,cumulus__none,
-10166,Appointment,PR PERIODIC PREVENTIVE MED ESTABLISHED PATIENT <1Y,,cumulus__none
-10166,Appointment,PR PERIODIC PREVENTIVE MED ESTABLISHED PATIENT <1Y,cumulus__none,cumulus__none
-10124,,Outpatient Surgery,Orthopaedics,
-10124,,Outpatient Surgery,Orthopaedics,cumulus__none
-10072,,Outpatient Surgery,Dental,
-10072,,Outpatient Surgery,Dental,cumulus__none
-10036,Discharge,,Gastroenterology,
-9573,Discharge,,Orthopaedics,cumulus__none
-9074,Discharge,,Gastroenterology,cumulus__none
-8977,,PR PERIODIC PREVENTIVE MED EST PATIENT 12-17YRS,,
-8977,,PR PERIODIC PREVENTIVE MED EST PATIENT 12-17YRS,,cumulus__none
-8977,,PR PERIODIC PREVENTIVE MED EST PATIENT 12-17YRS,cumulus__none,
-8977,,PR PERIODIC PREVENTIVE MED EST PATIENT 12-17YRS,cumulus__none,cumulus__none
-8975,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 12-17YRS,,
-8975,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 12-17YRS,,cumulus__none
-8975,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 12-17YRS,cumulus__none,
-8975,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 12-17YRS,cumulus__none,cumulus__none
-8942,Discharge,Outpatient Surgery,Otolaryngology,
-8942,Discharge,Outpatient Surgery,Otolaryngology,cumulus__none
-8823,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Less Urgent
-8823,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Less Urgent
-8822,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Less Urgent
-8822,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Less Urgent
-8234,,Inpatient,,Emergent
-8168,Discharge,Outpatient Surgery,Gastroenterology,
-8168,Discharge,Outpatient Surgery,Gastroenterology,cumulus__none
-8137,Discharge,Inpatient,,Emergent
-7957,,,Urology,
-7841,,,Urology,cumulus__none
-7718,,,Pediatric Hosp Medicine,
-7377,Discharge,,Pediatric Hosp Medicine,
-7355,Discharge,Outpatient Surgery,Orthopaedics,
-7355,Discharge,Outpatient Surgery,Orthopaedics,cumulus__none
-7093,,,General Surgery,
-6862,Appointment,Observation,,
-6862,Appointment,Observation,,cumulus__none
-6812,Appointment,Observation,cumulus__none,
-6812,Appointment,Observation,cumulus__none,cumulus__none
-6805,,,Plastic/Oral Surgery,
-6723,,,Plastic/Oral Surgery,cumulus__none
-6572,,Surgery Admit to IP,cumulus__none,
-6572,,Surgery Admit to IP,cumulus__none,cumulus__none
-6467,,Outpatient Surgery,Urology,
-6467,,Outpatient Surgery,Urology,cumulus__none
-6366,Discharge,,Dental,
-6366,Discharge,,Dental,cumulus__none
-6234,Discharge,Outpatient Surgery,Dental,
-6234,Discharge,Outpatient Surgery,Dental,cumulus__none
-6204,,Anticoagulation (CAMP) Warfarin Monitoring,,
-6204,,Anticoagulation (CAMP) Warfarin Monitoring,,cumulus__none
-6204,,Anticoagulation (CAMP) Warfarin Monitoring,cumulus__none,
-6204,,Anticoagulation (CAMP) Warfarin Monitoring,cumulus__none,cumulus__none
-6204,Support OP Encounter,Anticoagulation (CAMP) Warfarin Monitoring,,
-6204,Support OP Encounter,Anticoagulation (CAMP) Warfarin Monitoring,,cumulus__none
-6204,Support OP Encounter,Anticoagulation (CAMP) Warfarin Monitoring,cumulus__none,
-6204,Support OP Encounter,Anticoagulation (CAMP) Warfarin Monitoring,cumulus__none,cumulus__none
-6162,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,,
-6162,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,,cumulus__none
-6160,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,cumulus__none,
-6160,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT MOD MDM 40 MINUTES,cumulus__none,cumulus__none
-6127,Discharge,Outpatient,,
-6124,Discharge,Outpatient,,cumulus__none
-6013,Discharge,Outpatient,cumulus__none,
-6013,Discharge,Outpatient,cumulus__none,cumulus__none
-5872,,,Cardiology,
-5790,Discharge,,Urology,
-5700,Preadmission,Surgery Admit to IP,,
-5700,Preadmission,Surgery Admit to IP,,cumulus__none
-5674,Discharge,,Urology,cumulus__none
-5574,,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE EST PT,,
-5574,,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE EST PT,,cumulus__none
-5574,,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE EST PT,cumulus__none,
-5574,,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE EST PT,cumulus__none,cumulus__none
-5574,Appointment,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE EST PT,,
-5574,Appointment,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE EST PT,,cumulus__none
-5574,Appointment,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE EST PT,cumulus__none,
-5574,Appointment,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE EST PT,cumulus__none,cumulus__none
-5558,,Telemedicine,,
-5558,,Telemedicine,,cumulus__none
-5558,,Telemedicine,cumulus__none,
-5558,,Telemedicine,cumulus__none,cumulus__none
-5466,Discharge,,General Surgery,
-5457,,Emergency,Emergency,
-5237,Preadmission,,Otolaryngology,
-5237,Preadmission,,Otolaryngology,cumulus__none
-5223,,,General Surgery,cumulus__none
-5222,,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,,
-5222,,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,,cumulus__none
-5222,,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,cumulus__none,
-5222,,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,cumulus__none,cumulus__none
-5166,Appointment,Telemedicine,,
-5166,Appointment,Telemedicine,,cumulus__none
-5166,Appointment,Telemedicine,cumulus__none,
-5166,Appointment,Telemedicine,cumulus__none,cumulus__none
-5131,,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,,
-5131,,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,,cumulus__none
-5131,,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,cumulus__none,
-5131,,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,cumulus__none,cumulus__none
-5104,Appointment,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,,
-5104,Appointment,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,,cumulus__none
-5104,Appointment,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,cumulus__none,
-5104,Appointment,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,cumulus__none,cumulus__none
-5005,,,Cardiology,cumulus__none
-4881,,AristaMD eConsult,,
-4881,,AristaMD eConsult,,cumulus__none
-4881,,AristaMD eConsult,cumulus__none,
-4881,,AristaMD eConsult,cumulus__none,cumulus__none
-4881,Support OP Encounter,AristaMD eConsult,,
-4881,Support OP Encounter,AristaMD eConsult,,cumulus__none
-4881,Support OP Encounter,AristaMD eConsult,cumulus__none,
-4881,Support OP Encounter,AristaMD eConsult,cumulus__none,cumulus__none
-4793,Appointment,Outpatient Surgery,,
-4793,Appointment,Outpatient Surgery,,cumulus__none
-4793,Appointment,Outpatient Surgery,cumulus__none,
-4793,Appointment,Outpatient Surgery,cumulus__none,cumulus__none
-4786,Discharge,Outpatient Surgery,Urology,
-4786,Discharge,Outpatient Surgery,Urology,cumulus__none
-4734,Appointment,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,,
-4734,Appointment,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,,cumulus__none
-4734,Appointment,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,cumulus__none,
-4734,Appointment,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,cumulus__none,cumulus__none
-4587,,Outpatient Surgery,Plastic/Oral Surgery,
-4587,,Outpatient Surgery,Plastic/Oral Surgery,cumulus__none
-4581,,Ophth Exam,,
-4581,,Ophth Exam,,cumulus__none
-4581,,Ophth Exam,cumulus__none,
-4581,,Ophth Exam,cumulus__none,cumulus__none
-4581,Support OP Encounter,Ophth Exam,,
-4581,Support OP Encounter,Ophth Exam,,cumulus__none
-4581,Support OP Encounter,Ophth Exam,cumulus__none,
-4581,Support OP Encounter,Ophth Exam,cumulus__none,cumulus__none
-4568,,Observation,,Emergent
-4566,Discharge,Observation,,Emergent
-4512,Preadmission,,Gastroenterology,
-4511,Preadmission,,Gastroenterology,cumulus__none
-4500,Discharge,,Cardiology,
-4408,,Inpatient,Pediatric Hosp Medicine,
-4360,Appointment,Surgery Admit to IP,,
-4360,Appointment,Surgery Admit to IP,,cumulus__none
-4360,Appointment,Surgery Admit to IP,cumulus__none,
-4360,Appointment,Surgery Admit to IP,cumulus__none,cumulus__none
-4320,Discharge,Inpatient,Pediatric Hosp Medicine,
-4295,,Inpatient,,Urgent
-4253,Discharge,Inpatient,,Urgent
-4067,,,Emergency,cumulus__none
-4046,Discharge,,Plastic/Oral Surgery,
-4008,Preadmission,Outpatient Surgery,Gastroenterology,
-4008,Preadmission,Outpatient Surgery,Gastroenterology,cumulus__none
-3989,,,Ophthalmology,
-3989,,,Ophthalmology,cumulus__none
-3981,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,,
-3981,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,,cumulus__none
-3981,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,cumulus__none,
-3981,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT LOW MDM 30 MINUTES,cumulus__none,cumulus__none
-3970,HOV,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,,
-3970,HOV,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,,cumulus__none
-3970,HOV,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,cumulus__none,
-3970,HOV,PR OFFICE/OUTPATIENT NEW LOW MDM 30 MINUTES,cumulus__none,cumulus__none
-3965,Discharge,,Plastic/Oral Surgery,cumulus__none
-3940,Preadmission,,Dental,
-3940,Preadmission,,Dental,cumulus__none
-3904,Preadmission,,Orthopaedics,
-3904,Preadmission,,Orthopaedics,cumulus__none
-3900,,Emergency,Emergency,cumulus__none
-3879,,Outpatient Surgery,Ophthalmology,
-3879,,Outpatient Surgery,Ophthalmology,cumulus__none
-3829,Discharge,Surgery Admit to IP,,
-3829,Discharge,Surgery Admit to IP,,cumulus__none
-3825,Preadmission,Outpatient Surgery,Dental,
-3825,Preadmission,Outpatient Surgery,Dental,cumulus__none
-3817,Preadmission,Outpatient Surgery,Otolaryngology,
-3817,Preadmission,Outpatient Surgery,Otolaryngology,cumulus__none
-3801,Discharge,Emergency,Emergency,
-3800,,PR PERIODIC PREVENTIVE MED EST PATIENT 18-39 YRS,,
-3800,,PR PERIODIC PREVENTIVE MED EST PATIENT 18-39 YRS,,cumulus__none
-3800,,PR PERIODIC PREVENTIVE MED EST PATIENT 18-39 YRS,cumulus__none,
-3800,,PR PERIODIC PREVENTIVE MED EST PATIENT 18-39 YRS,cumulus__none,cumulus__none
-3798,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 18-39 YRS,,
-3798,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 18-39 YRS,,cumulus__none
-3798,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 18-39 YRS,cumulus__none,
-3798,Appointment,PR PERIODIC PREVENTIVE MED EST PATIENT 18-39 YRS,cumulus__none,cumulus__none
-3675,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,
-3674,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,
-3670,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,
-3669,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,
-3644,Discharge,,Cardiology,cumulus__none
-3635,,Observation,,Urgent
-3631,Discharge,Observation,,Urgent
-3603,Discharge,,General Surgery,cumulus__none
-3394,HOV,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,,
-3394,HOV,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,,cumulus__none
-3392,HOV,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,cumulus__none,
-3392,HOV,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,cumulus__none,cumulus__none
-3322,,Observation,Otolaryngology,
-3229,,,Pediatric Hosp Medicine,Urgent
-3212,Discharge,,Pediatric Hosp Medicine,Urgent
-3158,,Dialysis Series,,
-3158,,Dialysis Series,,cumulus__none
-3158,,Dialysis Series,cumulus__none,
-3158,,Dialysis Series,cumulus__none,cumulus__none
-3097,,Consult,,
-3097,,Consult,,cumulus__none
-3097,,Consult,cumulus__none,
-3097,,Consult,cumulus__none,cumulus__none
-3095,Appointment,Consult,,
-3095,Appointment,Consult,,cumulus__none
-3095,Appointment,Consult,cumulus__none,
-3095,Appointment,Consult,cumulus__none,cumulus__none
-3094,HOV,Dialysis Series,,
-3094,HOV,Dialysis Series,,cumulus__none
-3094,HOV,Dialysis Series,cumulus__none,
-3094,HOV,Dialysis Series,cumulus__none,cumulus__none
-2993,,Observation,Otolaryngology,cumulus__none
-2890,,Nutrition,,
-2890,,Nutrition,,cumulus__none
-2890,,Nutrition,cumulus__none,
-2890,,Nutrition,cumulus__none,cumulus__none
-2890,Support OP Encounter,Nutrition,,
-2890,Support OP Encounter,Nutrition,,cumulus__none
-2890,Support OP Encounter,Nutrition,cumulus__none,
-2890,Support OP Encounter,Nutrition,cumulus__none,cumulus__none
-2867,,Erroneous Telephone Encounter,,
-2867,,Erroneous Telephone Encounter,,cumulus__none
-2867,,Erroneous Telephone Encounter,cumulus__none,
-2867,,Erroneous Telephone Encounter,cumulus__none,cumulus__none
-2867,Support OP Encounter,Erroneous Telephone Encounter,,
-2867,Support OP Encounter,Erroneous Telephone Encounter,,cumulus__none
-2867,Support OP Encounter,Erroneous Telephone Encounter,cumulus__none,
-2867,Support OP Encounter,Erroneous Telephone Encounter,cumulus__none,cumulus__none
-2844,HOV,Emergency,,
-2844,HOV,Emergency,,cumulus__none
-2837,HOV,Emergency,cumulus__none,
-2837,HOV,Emergency,cumulus__none,cumulus__none
-2781,,,Pediatric Hosp Medicine,Emergent
-2766,Discharge,,Pediatric Hosp Medicine,Emergent
-2741,Preadmission,Outpatient Surgery,Orthopaedics,
-2741,Preadmission,Outpatient Surgery,Orthopaedics,cumulus__none
-2734,Discharge,Outpatient Surgery,Plastic/Oral Surgery,
-2734,Discharge,Outpatient Surgery,Plastic/Oral Surgery,cumulus__none
-2715,Preadmission,,Plastic/Oral Surgery,
-2715,Preadmission,,Plastic/Oral Surgery,cumulus__none
-2714,,Education,,
-2714,,Education,,cumulus__none
-2714,,Education,cumulus__none,
-2714,,Education,cumulus__none,cumulus__none
-2714,Preadmission,Observation,,
-2714,Preadmission,Observation,,cumulus__none
-2682,Discharge,Observation,Otolaryngology,
-2658,,Observation,Pediatric Hosp Medicine,
-2654,Discharge,,Ophthalmology,
-2654,Discharge,,Ophthalmology,cumulus__none
-2653,Discharge,Observation,Pediatric Hosp Medicine,
-2647,,,,Non-Urgent
-2641,,,Emergency,Non-Urgent
-2640,Discharge,,,Non-Urgent
-2637,Discharge,,Emergency,Non-Urgent
-2630,,Outpatient Surgery,General Surgery,
-2616,,Outpatient Surgery,General Surgery,cumulus__none
-2600,Admission,,,
-2594,Discharge,Outpatient Surgery,Ophthalmology,
-2594,Discharge,Outpatient Surgery,Ophthalmology,cumulus__none
-2507,HOV,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,,
-2507,HOV,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,,cumulus__none
-2507,HOV,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,cumulus__none,
-2507,HOV,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,cumulus__none,cumulus__none
-2437,Discharge,,Emergency,cumulus__none
-2426,,Inpatient Psych,,
-2401,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,Emergent
-2401,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,Emergent
-2401,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,Emergent
-2401,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,Emergent
-2390,,,Pulmonary,
-2360,Admission,,,cumulus__none
-2354,Discharge,Observation,Otolaryngology,cumulus__none
-2348,Discharge,Emergency,Emergency,cumulus__none
-2347,,PR PSYCHOTHERAPY W/PATIENT 60 MINUTES,,
-2347,,PR PSYCHOTHERAPY W/PATIENT 60 MINUTES,,cumulus__none
-2347,,PR PSYCHOTHERAPY W/PATIENT 60 MINUTES,cumulus__none,
-2347,,PR PSYCHOTHERAPY W/PATIENT 60 MINUTES,cumulus__none,cumulus__none
-2346,Appointment,PR PSYCHOTHERAPY W/PATIENT 60 MINUTES,,
-2346,Appointment,PR PSYCHOTHERAPY W/PATIENT 60 MINUTES,,cumulus__none
-2346,Appointment,PR PSYCHOTHERAPY W/PATIENT 60 MINUTES,cumulus__none,
-2346,Appointment,PR PSYCHOTHERAPY W/PATIENT 60 MINUTES,cumulus__none,cumulus__none
-2334,,Inpatient,General Surgery,
-2276,,Infusion,,
-2276,,Infusion,,cumulus__none
-2276,,Infusion,cumulus__none,
-2276,,Infusion,cumulus__none,cumulus__none
-2272,Appointment,Infusion,,
-2272,Appointment,Infusion,,cumulus__none
-2272,Appointment,Infusion,cumulus__none,
-2272,Appointment,Infusion,cumulus__none,cumulus__none
-2251,,,Neurosurgery,
-2251,Discharge,Inpatient,General Surgery,
-2185,,,Pediatric Intermediate Care,
-2156,,,Epilepsy,
-2139,Preadmission,,Urology,
-2139,Preadmission,,Urology,cumulus__none
-2137,,PR INITIAL PREVENTIVE MEDICINE NEW PATIENT <1YEAR,,
-2137,,PR INITIAL PREVENTIVE MEDICINE NEW PATIENT <1YEAR,,cumulus__none
-2137,,PR INITIAL PREVENTIVE MEDICINE NEW PATIENT <1YEAR,cumulus__none,
-2137,,PR INITIAL PREVENTIVE MEDICINE NEW PATIENT <1YEAR,cumulus__none,cumulus__none
-2137,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PATIENT <1YEAR,,
-2137,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PATIENT <1YEAR,,cumulus__none
-2137,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PATIENT <1YEAR,cumulus__none,
-2137,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PATIENT <1YEAR,cumulus__none,cumulus__none
-2136,,,Psychiatry,
-2134,,Community Orders,,
-2134,,Community Orders,,cumulus__none
-2134,,Community Orders,cumulus__none,
-2134,,Community Orders,cumulus__none,cumulus__none
-2134,Support OP Encounter,Community Orders,,
-2134,Support OP Encounter,Community Orders,,cumulus__none
-2134,Support OP Encounter,Community Orders,cumulus__none,
-2134,Support OP Encounter,Community Orders,cumulus__none,cumulus__none
-2133,Discharge,,Pediatric Intermediate Care,
-2127,,Inpatient Psych,Psychiatry,
-2125,HOV,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,,
-2125,HOV,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,,cumulus__none
-2123,,,Cardiovascular Surgery,
-2123,HOV,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,cumulus__none,
-2123,HOV,PR OFFICE/OUTPATIENT NEW HIGH MDM 60 MINUTES,cumulus__none,cumulus__none
-2098,,Lab,,
-2098,,Lab,,cumulus__none
-2098,,Lab,cumulus__none,
-2098,,Lab,cumulus__none,cumulus__none
-2092,Support OP Encounter,Lab,,
-2092,Support OP Encounter,Lab,,cumulus__none
-2092,Support OP Encounter,Lab,cumulus__none,
-2092,Support OP Encounter,Lab,cumulus__none,cumulus__none
-2055,,,Cardiovascular Surgery,cumulus__none
-2053,,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,,
-2053,,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,,cumulus__none
-2053,,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,cumulus__none,
-2053,,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,cumulus__none,cumulus__none
-2030,,,Neurology,
-2019,,Inpatient,Cardiology,
-1945,Support OP Encounter,Education,,
-1945,Support OP Encounter,Education,,cumulus__none
-1945,Support OP Encounter,Education,cumulus__none,
-1945,Support OP Encounter,Education,cumulus__none,cumulus__none
-1921,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,Non-Urgent
-1921,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,Non-Urgent
-1921,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,Non-Urgent
-1921,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,Non-Urgent
-1900,,Inpatient,Pediatric Hosp Medicine,Urgent
-1884,Discharge,Inpatient,Pediatric Hosp Medicine,Urgent
-1878,,,Epilepsy,cumulus__none
-1852,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,Urgent
-1851,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,Urgent
-1851,Discharge,Inpatient,Cardiology,
-1849,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,Urgent
-1848,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,Urgent
-1845,Discharge,Outpatient Surgery,General Surgery,
-1835,Discharge,,Neurology,
-1834,,Inpatient Psych,,cumulus__none
-1832,Preadmission,Outpatient Surgery,Plastic/Oral Surgery,
-1832,Preadmission,Outpatient Surgery,Plastic/Oral Surgery,cumulus__none
-1831,Discharge,Outpatient Surgery,General Surgery,cumulus__none
-1802,HOV,Outpatient Surgery,,
-1802,HOV,Outpatient Surgery,,cumulus__none
-1801,HOV,Outpatient Surgery,cumulus__none,
-1801,HOV,Outpatient Surgery,cumulus__none,cumulus__none
-1769,,,Pulmonary,cumulus__none
-1768,,Inpatient,Pediatric Hosp Medicine,Emergent
-1754,Discharge,Inpatient,Pediatric Hosp Medicine,Emergent
-1749,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,Emergent
-1749,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,Emergent
-1747,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,Emergent
-1747,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,Emergent
-1746,,,Neurosurgery,cumulus__none
-1742,Discharge,,Epilepsy,
-1722,,Inpatient,Pediatric Intermediate Care,
-1676,Discharge,Inpatient,Pediatric Intermediate Care,
-1674,,Multidisciplinary Visit,,
-1674,,Multidisciplinary Visit,,cumulus__none
-1674,,Multidisciplinary Visit,cumulus__none,
-1674,,Multidisciplinary Visit,cumulus__none,cumulus__none
-1672,,Research Encounter,,
-1672,,Research Encounter,,cumulus__none
-1672,,Research Encounter,cumulus__none,
-1672,,Research Encounter,cumulus__none,cumulus__none
-1671,Appointment,Multidisciplinary Visit,,
-1671,Appointment,Multidisciplinary Visit,,cumulus__none
-1671,Appointment,Multidisciplinary Visit,cumulus__none,
-1671,Appointment,Multidisciplinary Visit,cumulus__none,cumulus__none
-1670,,Surgery Admit to IP,Cardiology,
-1670,,Surgery Admit to IP,Cardiology,cumulus__none
-1667,,Observation,Cardiology,
-1664,Preadmission,Outpatient Surgery,Urology,
-1664,Preadmission,Outpatient Surgery,Urology,cumulus__none
-1650,,Observation,Orthopaedics,
-1632,Discharge,,Neurosurgery,
-1625,,Community Based Acute Treatment,,
-1620,,Community Based Acute Treatment,,cumulus__none
-1618,,,Pain Treatment Service,
-1618,,,Pain Treatment Service,cumulus__none
-1612,,Home Monitoring,,
-1612,,Home Monitoring,,cumulus__none
-1612,,Home Monitoring,cumulus__none,
-1612,,Home Monitoring,cumulus__none,cumulus__none
-1612,Support OP Encounter,Home Monitoring,,
-1612,Support OP Encounter,Home Monitoring,,cumulus__none
-1612,Support OP Encounter,Home Monitoring,cumulus__none,
-1612,Support OP Encounter,Home Monitoring,cumulus__none,cumulus__none
-1603,,,Comm Based Acute Treatment,
-1597,,Community Based Acute Treatment,Comm Based Acute Treatment,
-1594,,,Comm Based Acute Treatment,cumulus__none
-1592,,Community Based Acute Treatment,Comm Based Acute Treatment,cumulus__none
-1563,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,,
-1563,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,,cumulus__none
-1562,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,cumulus__none,
-1562,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT HIGH MDM 55 MINUTES,cumulus__none,cumulus__none
-1556,,,Med-Surg Intensive Care,
-1555,Support OP Encounter,Research Encounter,,
-1555,Support OP Encounter,Research Encounter,,cumulus__none
-1555,Support OP Encounter,Research Encounter,cumulus__none,
-1555,Support OP Encounter,Research Encounter,cumulus__none,cumulus__none
-1543,Preadmission,,General Surgery,
-1543,Preadmission,,General Surgery,cumulus__none
-1542,,,Psychiatry,cumulus__none
-1536,,Inpatient Psych,Psychiatry,cumulus__none
-1521,,Observation,Emergency,
-1517,,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 30 MIN,,
-1517,,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 30 MIN,,cumulus__none
-1517,,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 30 MIN,cumulus__none,
-1517,,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 30 MIN,cumulus__none,cumulus__none
-1517,Appointment,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 30 MIN,,
-1517,Appointment,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 30 MIN,,cumulus__none
-1517,Appointment,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 30 MIN,cumulus__none,
-1517,Appointment,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 30 MIN,cumulus__none,cumulus__none
-1511,,Observation,Epilepsy,
-1487,,,Pediatric Hosp Medicine,cumulus__none
-1470,Discharge,Observation,Emergency,
-1466,Discharge,,Epilepsy,cumulus__none
-1463,Discharge,,Pulmonary,
-1453,Discharge,Observation,Orthopaedics,
-1434,,Inpatient,Cardiology,cumulus__none
-1417,,Inpatient,Orthopaedics,
-1413,Discharge,Surgery Admit to IP,cumulus__none,
-1413,Discharge,Surgery Admit to IP,cumulus__none,cumulus__none
-1408,Discharge,Inpatient,Orthopaedics,
-1398,Discharge,,Med-Surg Intensive Care,
-1392,,Observation,Epilepsy,cumulus__none
-1385,,Observation,Cardiology,cumulus__none
-1383,Appointment,Social Work,,
-1383,Appointment,Social Work,,cumulus__none
-1383,Appointment,Social Work,cumulus__none,
-1383,Appointment,Social Work,cumulus__none,cumulus__none
-1358,,,Gynecology,
-1346,,Observation,General Surgery,
-1343,,,Gynecology,cumulus__none
-1333,Discharge,,Psychiatry,
-1328,Discharge,Inpatient Psych,,
-1327,,Observation,Pediatric Hosp Medicine,Urgent
-1327,Discharge,Inpatient Psych,Psychiatry,
-1326,Discharge,Observation,Pediatric Hosp Medicine,Urgent
-1310,Preadmission,,Ophthalmology,
-1310,Preadmission,,Ophthalmology,cumulus__none
-1306,,Inpatient,General Surgery,cumulus__none
-1289,HOV,Elective,,
-1289,HOV,Elective,,cumulus__none
-1289,Admission,Emergency,,
-1288,HOV,Elective,cumulus__none,
-1288,HOV,Elective,cumulus__none,cumulus__none
-1287,,Inpatient,Neurosurgery,
-1281,,Outpatient Surgery,Pain Treatment Service,
-1281,,Outpatient Surgery,Pain Treatment Service,cumulus__none
-1277,Discharge,Inpatient,Cardiology,cumulus__none
-1276,Discharge,Observation,General Surgery,
-1262,Preadmission,Outpatient Surgery,Ophthalmology,
-1262,Preadmission,Outpatient Surgery,Ophthalmology,cumulus__none
-1260,,Inpatient,Cardiovascular Surgery,
-1258,,PR PSYCHIATRIC DIAGNOSTIC EVAL W/MEDICAL SERVICES,,
-1258,,PR PSYCHIATRIC DIAGNOSTIC EVAL W/MEDICAL SERVICES,,cumulus__none
-1258,,PR PSYCHIATRIC DIAGNOSTIC EVAL W/MEDICAL SERVICES,cumulus__none,
-1258,,PR PSYCHIATRIC DIAGNOSTIC EVAL W/MEDICAL SERVICES,cumulus__none,cumulus__none
-1257,Appointment,PR PSYCHIATRIC DIAGNOSTIC EVAL W/MEDICAL SERVICES,,
-1257,Appointment,PR PSYCHIATRIC DIAGNOSTIC EVAL W/MEDICAL SERVICES,,cumulus__none
-1257,Appointment,PR PSYCHIATRIC DIAGNOSTIC EVAL W/MEDICAL SERVICES,cumulus__none,
-1257,Appointment,PR PSYCHIATRIC DIAGNOSTIC EVAL W/MEDICAL SERVICES,cumulus__none,cumulus__none
-1253,Discharge,,Cardiovascular Surgery,
-1251,Discharge,Inpatient,Neurosurgery,
-1241,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,,
-1241,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,,cumulus__none
-1241,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,cumulus__none,
-1241,Appointment,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,cumulus__none,cumulus__none
-1240,Preadmission,,Cardiology,
-1240,Preadmission,,Cardiology,cumulus__none
-1230,Discharge,Inpatient,General Surgery,cumulus__none
-1228,Admission,Emergency,,cumulus__none
-1220,Discharge,Inpatient,Cardiovascular Surgery,
-1217,Discharge,Observation,Epilepsy,
-1216,HOV,Inpatient,,
-1216,HOV,Inpatient,,cumulus__none
-1199,,,Med-Surg Intensive Care,cumulus__none
-1192,,Inpatient,Cardiovascular Surgery,cumulus__none
-1186,Discharge,,Cardiovascular Surgery,cumulus__none
-1185,HOV,Inpatient,cumulus__none,
-1185,HOV,Inpatient,cumulus__none,cumulus__none
-1182,Discharge,,Pediatric Hosp Medicine,cumulus__none
-1177,,Outpatient Surgery,Gynecology,
-1177,,Outpatient Surgery,Gynecology,cumulus__none
-1162,,,Dermatology,
-1162,Discharge,Surgery Admit to IP,Cardiology,
-1162,Discharge,Surgery Admit to IP,Cardiology,cumulus__none
-1161,,,Dermatology,cumulus__none
-1161,,Outpatient Surgery,Dermatology,
-1161,,Outpatient Surgery,Dermatology,cumulus__none
-1155,,,Pediatric Intermediate Care,Emergent
-1154,,Observation,Plastic/Oral Surgery,
-1153,Discharge,Inpatient,Cardiovascular Surgery,cumulus__none
-1144,Discharge,,Pediatric Intermediate Care,Emergent
-1144,Discharge,Observation,Cardiology,
-1138,,Surgery Admit to IP,Orthopaedics,
-1138,,Surgery Admit to IP,Orthopaedics,cumulus__none
-1127,,Inpatient,Orthopaedics,cumulus__none
-1127,Discharge,,Neurosurgery,cumulus__none
-1125,,Observation,Orthopaedics,cumulus__none
-1119,Discharge,Inpatient,Orthopaedics,cumulus__none
-1116,Admission,,Emergency,
-1107,,Observation,Plastic/Oral Surgery,cumulus__none
-1098,,Inpatient,Med-Surg Intensive Care,
-1098,Discharge,Observation,Epilepsy,cumulus__none
-1095,Admission,Emergency,Emergency,
-1093,,PR OFFICE/OUTPATIENT EST PT MAY NOT REQ PHYS/QHP,,
-1093,,PR OFFICE/OUTPATIENT EST PT MAY NOT REQ PHYS/QHP,,cumulus__none
-1093,,PR OFFICE/OUTPATIENT EST PT MAY NOT REQ PHYS/QHP,cumulus__none,
-1093,,PR OFFICE/OUTPATIENT EST PT MAY NOT REQ PHYS/QHP,cumulus__none,cumulus__none
-1090,,,Complex Care Service,
-1088,,Surgery Admit to IP,Otolaryngology,
-1088,,Surgery Admit to IP,Otolaryngology,cumulus__none
-1085,,Nurse Triage,,
-1085,,Nurse Triage,,cumulus__none
-1085,,Nurse Triage,cumulus__none,
-1085,,Nurse Triage,cumulus__none,cumulus__none
-1085,Support OP Encounter,Nurse Triage,,
-1085,Support OP Encounter,Nurse Triage,,cumulus__none
-1085,Support OP Encounter,Nurse Triage,cumulus__none,
-1085,Support OP Encounter,Nurse Triage,cumulus__none,cumulus__none
-1084,Appointment,PR OFFICE/OUTPATIENT EST PT MAY NOT REQ PHYS/QHP,,
-1084,Appointment,PR OFFICE/OUTPATIENT EST PT MAY NOT REQ PHYS/QHP,,cumulus__none
-1084,Appointment,PR OFFICE/OUTPATIENT EST PT MAY NOT REQ PHYS/QHP,cumulus__none,
-1084,Appointment,PR OFFICE/OUTPATIENT EST PT MAY NOT REQ PHYS/QHP,cumulus__none,cumulus__none
-1074,,Inpatient,Gastroenterology,
-1071,,Observation,Neurology,
-1060,,Procedure Visit,,
-1060,,Procedure Visit,,cumulus__none
-1060,,Procedure Visit,cumulus__none,
-1060,,Procedure Visit,cumulus__none,cumulus__none
-1060,Appointment,Procedure Visit,,
-1060,Appointment,Procedure Visit,,cumulus__none
-1060,Appointment,Procedure Visit,cumulus__none,
-1060,Appointment,Procedure Visit,cumulus__none,cumulus__none
-1053,Discharge,,Med-Surg Intensive Care,cumulus__none
-1053,Discharge,,Complex Care Service,
-1049,,,Medical Critical Care,
-1046,Admission,,Emergency,cumulus__none
-1036,,,Neurology,cumulus__none
-1034,Admission,Emergency,Emergency,cumulus__none
-1026,,Outpatient Surgery,Pulmonary,
-1025,,Outpatient Surgery,Pulmonary,cumulus__none
-1020,,,Hematology,
-1019,Discharge,Inpatient,Gastroenterology,
-1012,Discharge,,Pain Treatment Service,
-1012,Discharge,,Pain Treatment Service,cumulus__none
-1011,,Observation,Pediatric Hosp Medicine,Emergent
-1011,,Lactation Consult,,
-1011,,Lactation Consult,,cumulus__none
-1011,,Lactation Consult,cumulus__none,
-1011,,Lactation Consult,cumulus__none,cumulus__none
-1011,Support OP Encounter,Lactation Consult,,
-1011,Support OP Encounter,Lactation Consult,,cumulus__none
-1011,Support OP Encounter,Lactation Consult,cumulus__none,
-1011,Support OP Encounter,Lactation Consult,cumulus__none,cumulus__none
-1010,Discharge,Observation,Pediatric Hosp Medicine,Emergent
-1004,,Inpatient Rehab,,
-1004,,Inpatient Rehab,,cumulus__none
-996,Preadmission,Inpatient,,
-994,Preadmission,Inpatient,,cumulus__none
-984,Discharge,Observation,Neurology,
-974,,,Solid Tumor,
-973,,,General Surgery,Urgent
-972,Discharge,,Medical Critical Care,
-972,Discharge,,Hematology,
-972,Discharge,,General Surgery,Urgent
-968,Preadmission,Surgery Admit to IP,Orthopaedics,
-968,Preadmission,Surgery Admit to IP,Orthopaedics,cumulus__none
-966,,Inpatient,Neurosurgery,cumulus__none
-951,Discharge,Inpatient,Med-Surg Intensive Care,
-947,,Observation,Emergency,Emergent
-947,Discharge,Observation,Emergency,Emergent
-943,,Inpatient,Pediatric Intermediate Care,Emergent
-935,,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,,
-935,,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,,cumulus__none
-935,,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,cumulus__none,
-935,,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,cumulus__none,cumulus__none
-932,Discharge,Inpatient,Pediatric Intermediate Care,Emergent
-930,Discharge,Inpatient,Neurosurgery,cumulus__none
-928,Discharge,,Gynecology,
-928,Discharge,Observation,Orthopaedics,cumulus__none
-924,,,Hematology Malignancy,
-915,Appointment,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,,
-915,Appointment,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,,cumulus__none
-915,Appointment,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,cumulus__none,
-915,Appointment,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,cumulus__none,cumulus__none
-914,,Inpatient Rehab,cumulus__none,
-914,,Inpatient Rehab,cumulus__none,cumulus__none
-914,Appointment,Inpatient Rehab,,
-914,Appointment,Inpatient Rehab,,cumulus__none
-914,Appointment,Inpatient Rehab,cumulus__none,
-914,Appointment,Inpatient Rehab,cumulus__none,cumulus__none
-913,Discharge,,Gynecology,cumulus__none
-901,Discharge,,Comm Based Acute Treatment,
-897,Discharge,Community Based Acute Treatment,,
-897,Discharge,Community Based Acute Treatment,Comm Based Acute Treatment,
-892,Discharge,,Comm Based Acute Treatment,cumulus__none
-892,Discharge,Community Based Acute Treatment,,cumulus__none
-892,Discharge,Community Based Acute Treatment,Comm Based Acute Treatment,cumulus__none
-890,Preadmission,,Pulmonary,
-890,Preadmission,,Pulmonary,cumulus__none
-879,,Inpatient,Solid Tumor,
-876,,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,,
-876,,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,,cumulus__none
-876,,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,cumulus__none,
-876,,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,cumulus__none,cumulus__none
-874,,Inpatient,Complex Care Service,
-873,,Inpatient,Medical Critical Care,
-869,,PR FAMILY PSYCHOTHERAPY W/O PATIENT PRESENT 50 MINS,,
-869,,PR FAMILY PSYCHOTHERAPY W/O PATIENT PRESENT 50 MINS,,cumulus__none
-869,,PR FAMILY PSYCHOTHERAPY W/O PATIENT PRESENT 50 MINS,cumulus__none,
-869,,PR FAMILY PSYCHOTHERAPY W/O PATIENT PRESENT 50 MINS,cumulus__none,cumulus__none
-867,Appointment,PR FAMILY PSYCHOTHERAPY W/O PATIENT PRESENT 50 MINS,,
-867,Appointment,PR FAMILY PSYCHOTHERAPY W/O PATIENT PRESENT 50 MINS,,cumulus__none
-867,Appointment,PR FAMILY PSYCHOTHERAPY W/O PATIENT PRESENT 50 MINS,cumulus__none,
-867,Appointment,PR FAMILY PSYCHOTHERAPY W/O PATIENT PRESENT 50 MINS,cumulus__none,cumulus__none
-865,,Emergency,,Urgent
-862,Discharge,Observation,Cardiology,cumulus__none
-861,,,General Surgery,Emergent
-857,,Outside Procedure,,
-857,,Outside Procedure,,cumulus__none
-857,,Outside Procedure,cumulus__none,
-857,,Outside Procedure,cumulus__none,cumulus__none
-857,Support OP Encounter,Outside Procedure,,
-857,Support OP Encounter,Outside Procedure,,cumulus__none
-857,Support OP Encounter,Outside Procedure,cumulus__none,
-857,Support OP Encounter,Outside Procedure,cumulus__none,cumulus__none
-856,,Emergency,Emergency,Urgent
-855,Discharge,,General Surgery,Emergent
-853,,PR FAMILY PSYCHOTHERAPY W/PATIENT PRESENT 50 MINS,,
-853,,PR FAMILY PSYCHOTHERAPY W/PATIENT PRESENT 50 MINS,,cumulus__none
-853,,PR FAMILY PSYCHOTHERAPY W/PATIENT PRESENT 50 MINS,cumulus__none,
-853,,PR FAMILY PSYCHOTHERAPY W/PATIENT PRESENT 50 MINS,cumulus__none,cumulus__none
-852,Discharge,,Solid Tumor,
-851,Discharge,Inpatient,Complex Care Service,
-851,Appointment,PR FAMILY PSYCHOTHERAPY W/PATIENT PRESENT 50 MINS,,
-851,Appointment,PR FAMILY PSYCHOTHERAPY W/PATIENT PRESENT 50 MINS,,cumulus__none
-851,Appointment,PR FAMILY PSYCHOTHERAPY W/PATIENT PRESENT 50 MINS,cumulus__none,
-851,Appointment,PR FAMILY PSYCHOTHERAPY W/PATIENT PRESENT 50 MINS,cumulus__none,cumulus__none
-848,,Inpatient,Hematology Malignancy,
-846,Discharge,,Pulmonary,cumulus__none
-842,Discharge,,Neurology,cumulus__none
-826,Discharge,Emergency,,Urgent
-822,,Surgery Admit to IP,Cardiovascular Surgery,
-822,,Surgery Admit to IP,Cardiovascular Surgery,cumulus__none
-822,Preadmission,,Cardiovascular Surgery,
-822,Preadmission,,Cardiovascular Surgery,cumulus__none
-817,Discharge,Emergency,Emergency,Urgent
-814,Discharge,Inpatient,Medical Critical Care,
-812,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,,
-812,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,,cumulus__none
-812,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,cumulus__none,
-812,HOV,PR OFFICE/OP CONSLTJ NEW/EST PT SF MDM 20 MINUTES,cumulus__none,cumulus__none
-809,Discharge,Observation,Plastic/Oral Surgery,
-804,Discharge,Outpatient Surgery,Gynecology,
-804,Discharge,Outpatient Surgery,Gynecology,cumulus__none
-800,,Inpatient,Med-Surg Intensive Care,cumulus__none
-799,Discharge,,Hematology Malignancy,
-797,,Observation,Gastroenterology,
-787,Preadmission,Surgery Admit to IP,Cardiovascular Surgery,
-787,Preadmission,Surgery Admit to IP,Cardiovascular Surgery,cumulus__none
-785,Preadmission,Surgery Admit to IP,Otolaryngology,
-785,Preadmission,Surgery Admit to IP,Otolaryngology,cumulus__none
-779,,Surgery Admit to IP,Plastic/Oral Surgery,
-779,,Surgery Admit to IP,Plastic/Oral Surgery,cumulus__none
-778,,Inpatient,Pulmonary,
-776,Preadmission,Outpatient Surgery,General Surgery,
-776,Preadmission,Outpatient Surgery,General Surgery,cumulus__none
-769,Appointment,Education,,
-769,Appointment,Education,,cumulus__none
-769,Appointment,Education,cumulus__none,
-769,Appointment,Education,cumulus__none,cumulus__none
-767,Discharge,Inpatient,Solid Tumor,
-764,Admission,Inpatient,,
-762,,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,,
-762,,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,,cumulus__none
-762,,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,cumulus__none,
-762,,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,cumulus__none,cumulus__none
-762,Discharge,Observation,Plastic/Oral Surgery,cumulus__none
-759,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 5-11 YRS,,
-759,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 5-11 YRS,,cumulus__none
-759,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 5-11 YRS,cumulus__none,
-759,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 5-11 YRS,cumulus__none,cumulus__none
-759,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 5-11 YRS,,
-759,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 5-11 YRS,,cumulus__none
-759,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 5-11 YRS,cumulus__none,
-759,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 5-11 YRS,cumulus__none,cumulus__none
-756,Discharge,,Psychiatry,cumulus__none
-755,HOV,Surgery Admit to IP,,
-755,HOV,Surgery Admit to IP,,cumulus__none
-753,HOV,Surgery Admit to IP,cumulus__none,
-753,HOV,Surgery Admit to IP,cumulus__none,cumulus__none
-753,Discharge,Inpatient Psych,,cumulus__none
-753,Discharge,Inpatient Psych,Psychiatry,cumulus__none
-751,Preadmission,Inpatient Psych,,
-751,Preadmission,Inpatient Psych,,cumulus__none
-750,,,Cardiology,Emergent
-750,,Surgery Admit to IP,General Surgery,
-750,,Surgery Admit to IP,General Surgery,cumulus__none
-750,Appointment,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,,
-750,Appointment,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,,cumulus__none
-750,Appointment,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,cumulus__none,
-750,Appointment,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,cumulus__none,cumulus__none
-749,Preadmission,,Psychiatry,
-749,Preadmission,,Psychiatry,cumulus__none
-748,,Observation,Urology,
-748,Preadmission,Inpatient Psych,Psychiatry,
-748,Preadmission,Inpatient Psych,Psychiatry,cumulus__none
-748,Discharge,Outpatient Surgery,Pain Treatment Service,
-748,Discharge,Outpatient Surgery,Pain Treatment Service,cumulus__none
-741,Discharge,,Cardiology,Emergent
-734,,,Pediatric Intermediate Care,cumulus__none
-732,,,Neonatal Intensive Care,
-732,,Anticoagulation (CAMP) Other Monitoring,,
-732,,Anticoagulation (CAMP) Other Monitoring,,cumulus__none
-732,,Anticoagulation (CAMP) Other Monitoring,cumulus__none,
-732,,Anticoagulation (CAMP) Other Monitoring,cumulus__none,cumulus__none
-732,Support OP Encounter,Anticoagulation (CAMP) Other Monitoring,,
-732,Support OP Encounter,Anticoagulation (CAMP) Other Monitoring,,cumulus__none
-732,Support OP Encounter,Anticoagulation (CAMP) Other Monitoring,cumulus__none,
-732,Support OP Encounter,Anticoagulation (CAMP) Other Monitoring,cumulus__none,cumulus__none
-731,Discharge,Inpatient,Hematology Malignancy,
-730,Discharge,Inpatient,Pulmonary,
-708,,,Solid Tumor,cumulus__none
-698,Discharge,,Pediatric Intermediate Care,cumulus__none
-695,,Inpatient,Neurology,
-679,Discharge,Inpatient,Neurology,
-676,,Observation,Urology,cumulus__none
-675,,,Neonatal Intensive Care,cumulus__none
-673,Preadmission,Surgery Admit to IP,General Surgery,
-673,Preadmission,Surgery Admit to IP,General Surgery,cumulus__none
-666,,Inpatient,Neonatal Intensive Care,
-665,Preadmission,Outpatient Surgery,Pulmonary,
-665,Preadmission,Outpatient Surgery,Pulmonary,cumulus__none
-665,Discharge,Inpatient,Med-Surg Intensive Care,cumulus__none
-650,,Inpatient,Solid Tumor,cumulus__none
-648,,,Hematology,Emergent
-644,Preadmission,,Comm Based Acute Treatment,
-644,Preadmission,,Comm Based Acute Treatment,cumulus__none
-644,Preadmission,Community Based Acute Treatment,,
-644,Preadmission,Community Based Acute Treatment,,cumulus__none
-644,Discharge,Observation,Gastroenterology,
-643,Preadmission,Community Based Acute Treatment,Comm Based Acute Treatment,
-643,Preadmission,Community Based Acute Treatment,Comm Based Acute Treatment,cumulus__none
-643,Discharge,,Hematology,Emergent
-639,,Inpatient,Pediatric Hosp Medicine,cumulus__none
-637,,Inpatient,Hematology,
-633,Preadmission,Observation,Otolaryngology,
-633,Preadmission,Observation,Otolaryngology,cumulus__none
-632,,Inpatient,Epilepsy,
-622,,Outpatient Surgery,Pediatric Hosp Medicine,
-622,,Outpatient Surgery,Pediatric Hosp Medicine,cumulus__none
-620,Appointment,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,,
-620,Appointment,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,,cumulus__none
-620,Appointment,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,cumulus__none,
-620,Appointment,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,cumulus__none,cumulus__none
-618,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 12-17 YR,,
-618,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 12-17 YR,,cumulus__none
-618,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 12-17 YR,cumulus__none,
-618,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 12-17 YR,cumulus__none,cumulus__none
-618,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 12-17 YR,,
-618,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 12-17 YR,,cumulus__none
-618,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 12-17 YR,cumulus__none,
-618,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 12-17 YR,cumulus__none,cumulus__none
-617,Admission,Inpatient,,cumulus__none
-614,,Inpatient,Neonatal Intensive Care,cumulus__none
-613,,,Orthopaedics,Urgent
-613,Discharge,,Orthopaedics,Urgent
-612,Discharge,Inpatient,Hematology,
-610,Preadmission,,Dermatology,
-610,Preadmission,,Dermatology,cumulus__none
-610,Preadmission,Outpatient Surgery,Dermatology,
-610,Preadmission,Outpatient Surgery,Dermatology,cumulus__none
-604,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Non-Urgent
-604,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Non-Urgent
-604,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Non-Urgent
-604,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Non-Urgent
-596,,Post Mortem Documentation,,
-596,,Post Mortem Documentation,,cumulus__none
-596,,Post Mortem Documentation,cumulus__none,
-596,,Post Mortem Documentation,cumulus__none,cumulus__none
-596,Support OP Encounter,Post Mortem Documentation,,
-596,Support OP Encounter,Post Mortem Documentation,,cumulus__none
-596,Support OP Encounter,Post Mortem Documentation,cumulus__none,
-596,Support OP Encounter,Post Mortem Documentation,cumulus__none,cumulus__none
-592,,,Hematology Malignancy,cumulus__none
-591,Discharge,,Solid Tumor,cumulus__none
-584,Discharge,Inpatient,Pediatric Hosp Medicine,cumulus__none
-582,Preadmission,,Pain Treatment Service,
-582,Preadmission,,Pain Treatment Service,cumulus__none
-580,Discharge,Observation,Urology,
-576,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 1-4 YRS,,
-576,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 1-4 YRS,cumulus__none,
-576,,Inpatient,General Surgery,Emergent
-576,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 1-4 YRS,,
-576,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 1-4 YRS,cumulus__none,
-575,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 1-4 YRS,,cumulus__none
-575,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 1-4 YRS,cumulus__none,cumulus__none
-575,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 1-4 YRS,,cumulus__none
-575,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 1-4 YRS,cumulus__none,cumulus__none
-574,,,Gastroenterology,Urgent
-572,Discharge,,Gastroenterology,Urgent
-570,,,Psychiatry,Emergent
-570,Discharge,Inpatient,General Surgery,Emergent
-568,,Inpatient Psych,,Emergent
-567,,Inpatient Psych,Psychiatry,Emergent
-563,HOV,Observation,,
-563,HOV,Observation,,cumulus__none
-562,Preadmission,,Neurosurgery,
-562,Preadmission,,Neurosurgery,cumulus__none
-561,,Observation,Neurology,cumulus__none
-561,,Inpatient,Hematology Malignancy,cumulus__none
-559,,Observation,Gastroenterology,cumulus__none
-557,HOV,Observation,cumulus__none,
-557,HOV,Observation,cumulus__none,cumulus__none
-553,Discharge,,Psychiatry,Emergent
-552,Appointment,,Emergency,
-552,Appointment,,Emergency,cumulus__none
-551,Discharge,Inpatient Psych,,Emergent
-550,Discharge,Inpatient Psych,Psychiatry,Emergent
-547,,Inpatient,Pediatric Intermediate Care,cumulus__none
-547,Discharge,,Dermatology,
-546,Discharge,,Dermatology,cumulus__none
-546,Discharge,Outpatient Surgery,Dermatology,
-546,Discharge,Outpatient Surgery,Dermatology,cumulus__none
-544,,Surgery Admit to IP,Gastroenterology,
-544,,Surgery Admit to IP,Gastroenterology,cumulus__none
-543,Discharge,Inpatient,Solid Tumor,cumulus__none
-539,Preadmission,Surgery Admit to IP,Plastic/Oral Surgery,
-539,Preadmission,Surgery Admit to IP,Plastic/Oral Surgery,cumulus__none
-537,,,Stem Cell Transplant,
-530,,,Neurology,Emergent
-530,,Observation,General Surgery,cumulus__none
-529,Preadmission,Outpatient Surgery,Pain Treatment Service,
-529,Preadmission,Outpatient Surgery,Pain Treatment Service,cumulus__none
-529,Discharge,,Neurology,Emergent
-528,,Surgery Admit to IP,Neurosurgery,
-528,,Surgery Admit to IP,Neurosurgery,cumulus__none
-523,Discharge,,Neonatal Intensive Care,
-523,Discharge,Inpatient,Epilepsy,
-520,,Observation,General Surgery,Urgent
-520,Preadmission,Observation,Cardiology,
-520,Preadmission,Observation,Cardiology,cumulus__none
-520,Discharge,Observation,General Surgery,Urgent
-517,,Inpatient,Cardiology,Emergent
-517,Discharge,Inpatient,Pediatric Intermediate Care,cumulus__none
-510,,,Medical Critical Care,cumulus__none
-508,Discharge,Observation,Urology,cumulus__none
-508,Discharge,Inpatient,Cardiology,Emergent
-503,Appointment,Emergency,Emergency,
-503,Appointment,Emergency,Emergency,cumulus__none
-500,Preadmission,Surgery Admit to IP,Cardiology,
-500,Preadmission,Surgery Admit to IP,Cardiology,cumulus__none
-491,,PR PSYCHOTHERAPY W/PATIENT 30 MINUTES,,
-491,,PR PSYCHOTHERAPY W/PATIENT 30 MINUTES,,cumulus__none
-491,,PR PSYCHOTHERAPY W/PATIENT 30 MINUTES,cumulus__none,
-491,,PR PSYCHOTHERAPY W/PATIENT 30 MINUTES,cumulus__none,cumulus__none
-491,Preadmission,Surgery Admit to IP,Neurosurgery,
-491,Preadmission,Surgery Admit to IP,Neurosurgery,cumulus__none
-490,Appointment,PR PSYCHOTHERAPY W/PATIENT 30 MINUTES,,
-490,Appointment,PR PSYCHOTHERAPY W/PATIENT 30 MINUTES,,cumulus__none
-490,Appointment,PR PSYCHOTHERAPY W/PATIENT 30 MINUTES,cumulus__none,
-490,Appointment,PR PSYCHOTHERAPY W/PATIENT 30 MINUTES,cumulus__none,cumulus__none
-489,,Outpatient Surgery,Cardiology,
-489,,Outpatient Surgery,Cardiology,cumulus__none
-487,,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE NEW PT,,
-487,,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE NEW PT,,cumulus__none
-487,,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE NEW PT,cumulus__none,
-487,,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE NEW PT,cumulus__none,cumulus__none
-487,,Inpatient,Hematology,Emergent
-487,Appointment,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE NEW PT,,
-487,Appointment,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE NEW PT,,cumulus__none
-487,Appointment,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE NEW PT,cumulus__none,
-487,Appointment,PR OPH SVCS MEDICAL XM&EVAL INTERMEDIATE NEW PT,cumulus__none,cumulus__none
-482,HOV,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,,
-482,HOV,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,,cumulus__none
-482,HOV,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,cumulus__none,
-482,HOV,PR OFFICE/OUTPATIENT NEW SF MDM 15 MINUTES,cumulus__none,cumulus__none
-482,Discharge,Inpatient,Hematology,Emergent
-479,,,Complex Care Service,Emergent
-475,Discharge,,Hematology Malignancy,cumulus__none
-474,,Inpatient,Epilepsy,cumulus__none
-474,Discharge,,Complex Care Service,Emergent
-474,Discharge,Observation,Neurology,cumulus__none
-472,,,Medical Critical Care,Emergent
-466,Discharge,,Neonatal Intensive Care,cumulus__none
-466,Discharge,,Medical Critical Care,Emergent
-465,,,Endocrine,
-464,,,Medical,
-463,,,Medical,cumulus__none
-462,Discharge,Inpatient,Neonatal Intensive Care,
-461,,Observation,Pulmonary,
-460,Discharge,Observation,General Surgery,cumulus__none
-459,Discharge,,Endocrine,
-453,,Observation,Pediatric Intermediate Care,
-452,,,Pulmonary,Emergent
-452,Discharge,Inpatient,Hematology Malignancy,cumulus__none
-451,Discharge,Observation,Pediatric Intermediate Care,
-450,Discharge,,Pulmonary,Emergent
-440,Discharge,,Medical Critical Care,cumulus__none
-438,,,Neurology,Urgent
-438,Discharge,,Neurology,Urgent
-433,,Observation,Emergency,Urgent
-432,,Inpatient,Stem Cell Transplant,
-432,,Inpatient,General Surgery,Urgent
-432,Discharge,Observation,Emergency,Urgent
-431,Discharge,Inpatient,General Surgery,Urgent
-430,,Inpatient,Medical,
-430,,Inpatient,Medical,cumulus__none
-430,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,,
-430,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,,cumulus__none
-430,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,cumulus__none,
-430,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED MOD MDM 30 MIN,cumulus__none,cumulus__none
-424,Preadmission,,Gynecology,
-424,Preadmission,,Gynecology,cumulus__none
-422,,,Stem Cell Transplant,cumulus__none
-422,,Surgery Admit to IP,Urology,
-422,,Surgery Admit to IP,Urology,cumulus__none
-420,,,Complex Care Service,cumulus__none
-420,,Observation,Med-Surg Intensive Care,
-419,,,Neurosurgery,Emergent
-419,,Observation,Orthopaedics,Urgent
-419,,Inpatient,Medical Critical Care,Emergent
-419,,Inpatient,Gastroenterology,Urgent
-419,Discharge,,Neurosurgery,Emergent
-419,Discharge,Observation,Orthopaedics,Urgent
-418,,,End Stage Renal,
-417,,PR HOME/RES VISIT EST PATIENT HIGH MDM 60 MINUTES,,
-417,,PR HOME/RES VISIT EST PATIENT HIGH MDM 60 MINUTES,,cumulus__none
-417,,PR HOME/RES VISIT EST PATIENT HIGH MDM 60 MINUTES,cumulus__none,
-417,,PR HOME/RES VISIT EST PATIENT HIGH MDM 60 MINUTES,cumulus__none,cumulus__none
-417,Discharge,Observation,Med-Surg Intensive Care,
-417,Discharge,Inpatient,Gastroenterology,Urgent
-415,Appointment,PR HOME/RES VISIT EST PATIENT HIGH MDM 60 MINUTES,,
-415,Appointment,PR HOME/RES VISIT EST PATIENT HIGH MDM 60 MINUTES,,cumulus__none
-415,Appointment,PR HOME/RES VISIT EST PATIENT HIGH MDM 60 MINUTES,cumulus__none,
-415,Appointment,PR HOME/RES VISIT EST PATIENT HIGH MDM 60 MINUTES,cumulus__none,cumulus__none
-413,Discharge,Inpatient,Medical Critical Care,Emergent
-410,Discharge,Inpatient,Neonatal Intensive Care,cumulus__none
-408,,Pediatric Pain Rehabilitation Center,,
-408,,Pediatric Pain Rehabilitation Center,,cumulus__none
-406,Discharge,Observation,Gastroenterology,cumulus__none
-402,,Inpatient,Complex Care Service,Emergent
-399,,Inpatient,Medical Critical Care,cumulus__none
-398,,Inpatient,Otolaryngology,
-398,Discharge,Outpatient Surgery,Pediatric Hosp Medicine,
-398,Discharge,Outpatient Surgery,Pediatric Hosp Medicine,cumulus__none
-398,Discharge,Inpatient,Complex Care Service,Emergent
-395,Discharge,,Complex Care Service,cumulus__none
-395,Discharge,Inpatient,Otolaryngology,
-393,Discharge,,Stem Cell Transplant,
-393,Discharge,,End Stage Renal,
-392,Support OP Encounter,Telemedicine,,
-392,Support OP Encounter,Telemedicine,,cumulus__none
-392,Support OP Encounter,Telemedicine,cumulus__none,
-392,Support OP Encounter,Telemedicine,cumulus__none,cumulus__none
-378,,,,Immediate
-377,,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 45 MIN,,
-377,,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 45 MIN,,cumulus__none
-377,,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 45 MIN,cumulus__none,
-377,,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 45 MIN,cumulus__none,cumulus__none
-377,Preadmission,,Epilepsy,
-377,Preadmission,,Epilepsy,cumulus__none
-377,Appointment,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 45 MIN,,
-377,Appointment,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 45 MIN,,cumulus__none
-377,Appointment,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 45 MIN,cumulus__none,
-377,Appointment,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 45 MIN,cumulus__none,cumulus__none
-375,,,Gastroenterology,Emergent
-373,Discharge,,Gastroenterology,Emergent
-369,,,Dana Farber Pediatric,
-369,,PR MLT FAM GROUP BHV MGMT/MODIFICAJ TRAING 1ST 60,,
-369,,PR MLT FAM GROUP BHV MGMT/MODIFICAJ TRAING 1ST 60,,cumulus__none
-369,,PR MLT FAM GROUP BHV MGMT/MODIFICAJ TRAING 1ST 60,cumulus__none,
-369,,PR MLT FAM GROUP BHV MGMT/MODIFICAJ TRAING 1ST 60,cumulus__none,cumulus__none
-369,Appointment,PR MLT FAM GROUP BHV MGMT/MODIFICAJ TRAING 1ST 60,,
-369,Appointment,PR MLT FAM GROUP BHV MGMT/MODIFICAJ TRAING 1ST 60,,cumulus__none
-369,Appointment,PR MLT FAM GROUP BHV MGMT/MODIFICAJ TRAING 1ST 60,cumulus__none,
-369,Appointment,PR MLT FAM GROUP BHV MGMT/MODIFICAJ TRAING 1ST 60,cumulus__none,cumulus__none
-368,Preadmission,Outpatient Surgery,Gynecology,
-368,Preadmission,Outpatient Surgery,Gynecology,cumulus__none
-367,,,Dana Farber Pediatric,cumulus__none
-367,Discharge,Inpatient,Epilepsy,cumulus__none
-366,,Observation,Med-Surg Intensive Care,cumulus__none
-363,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,
-363,Discharge,Observation,Med-Surg Intensive Care,cumulus__none
-362,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,
-362,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,
-361,,Extended Recovery,,
-361,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,
-357,Discharge,Outpatient Surgery,Pulmonary,
-356,Discharge,Outpatient Surgery,Pulmonary,cumulus__none
-349,,Inpatient,Gastroenterology,cumulus__none
-349,Discharge,Observation,Pulmonary,
-348,,Inpatient,Stem Cell Transplant,cumulus__none
-347,Discharge,Inpatient,Medical Critical Care,cumulus__none
-345,,Inpatient,Pulmonary,Emergent
-343,,Emergency,,Emergent
-343,Preadmission,Observation,Plastic/Oral Surgery,
-343,Preadmission,Observation,Plastic/Oral Surgery,cumulus__none
-343,Discharge,Inpatient,Pulmonary,Emergent
-342,,,Endocrine,Emergent
-342,Discharge,,Endocrine,Emergent
-340,,Emergency,Emergency,Emergent
-339,Discharge,Outpatient Surgery,Cardiology,
-339,Discharge,Outpatient Surgery,Cardiology,cumulus__none
-336,,,Adolescent Medicine,
-332,,Inpatient,Otolaryngology,cumulus__none
-332,Preadmission,Surgery Admit to IP,Gastroenterology,
-332,Preadmission,Surgery Admit to IP,Gastroenterology,cumulus__none
-331,Discharge,Emergency,,Emergent
-330,Discharge,Inpatient,Otolaryngology,cumulus__none
-329,,Extended Recovery,,cumulus__none
-328,Discharge,Emergency,Emergency,Emergent
-325,Discharge,,,Immediate
-325,Discharge,,Adolescent Medicine,
-323,,Pediatric Pain Rehabilitation Center,Pain Treatment Service,
-323,,Pediatric Pain Rehabilitation Center,Pain Treatment Service,cumulus__none
-322,,,Neuro Oncology,
-322,,Outpatient Surgery,Dana Farber Pediatric,
-322,,Outpatient Surgery,Dana Farber Pediatric,cumulus__none
-318,Discharge,Inpatient,Stem Cell Transplant,
-317,,Inpatient,Complex Care Service,cumulus__none
-314,,,Cardiac Cath Lab,
-314,,,Cardiac Cath Lab,cumulus__none
-314,,Inpatient,Urology,
-314,Discharge,,Cardiac Cath Lab,
-314,Discharge,,Cardiac Cath Lab,cumulus__none
-313,,Observation,Pulmonary,cumulus__none
-312,,Observation,Neurosurgery,
-308,,Observation,Cardiac Cath Lab,
-308,,Observation,Cardiac Cath Lab,cumulus__none
-308,Discharge,Observation,Cardiac Cath Lab,
-308,Discharge,Observation,Cardiac Cath Lab,cumulus__none
-306,,Inpatient,Pulmonary,cumulus__none
-306,Discharge,Inpatient,Urology,
-305,Preadmission,Surgery Admit to IP,Urology,
-305,Preadmission,Surgery Admit to IP,Urology,cumulus__none
-304,,Anticoagulation (Hematology) Other Monitoring,,
-304,,Anticoagulation (Hematology) Other Monitoring,,cumulus__none
-304,,Anticoagulation (Hematology) Other Monitoring,cumulus__none,
-304,,Anticoagulation (Hematology) Other Monitoring,cumulus__none,cumulus__none
-304,Support OP Encounter,Anticoagulation (Hematology) Other Monitoring,,
-304,Support OP Encounter,Anticoagulation (Hematology) Other Monitoring,,cumulus__none
-304,Support OP Encounter,Anticoagulation (Hematology) Other Monitoring,cumulus__none,
-304,Support OP Encounter,Anticoagulation (Hematology) Other Monitoring,cumulus__none,cumulus__none
-304,Discharge,Inpatient,Complex Care Service,cumulus__none
-302,,,Hematology,cumulus__none
-301,HOV,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,,
-301,HOV,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,,cumulus__none
-301,HOV,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,cumulus__none,
-301,HOV,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,cumulus__none,cumulus__none
-299,Discharge,Inpatient,Gastroenterology,cumulus__none
-297,,Emergency,,Less Urgent
-297,,Emergency,Emergency,Less Urgent
-296,,Inpatient Psych,cumulus__none,
-296,,Inpatient Psych,cumulus__none,cumulus__none
-295,,Inpatient,Gastroenterology,Emergent
-293,Discharge,Inpatient,Gastroenterology,Emergent
-293,Discharge,Extended Recovery,,
-292,,Anticoagulation (Hematology) Warfarin Monitoring,,
-292,,Anticoagulation (Hematology) Warfarin Monitoring,,cumulus__none
-292,,Anticoagulation (Hematology) Warfarin Monitoring,cumulus__none,
-292,,Anticoagulation (Hematology) Warfarin Monitoring,cumulus__none,cumulus__none
-292,Support OP Encounter,Anticoagulation (Hematology) Warfarin Monitoring,,
-292,Support OP Encounter,Anticoagulation (Hematology) Warfarin Monitoring,,cumulus__none
-292,Support OP Encounter,Anticoagulation (Hematology) Warfarin Monitoring,cumulus__none,
-292,Support OP Encounter,Anticoagulation (Hematology) Warfarin Monitoring,cumulus__none,cumulus__none
-292,Discharge,,Neuro Oncology,
-291,Discharge,,Medical,
-291,Discharge,Observation,Neurosurgery,
-290,,,Hematology Malignancy,Emergent
-290,Discharge,,Medical,cumulus__none
-286,Discharge,Surgery Admit to IP,Otolaryngology,
-286,Discharge,Surgery Admit to IP,Otolaryngology,cumulus__none
-285,,,Med-Surg Intensive Care,Emergent
-284,Preadmission,Observation,Epilepsy,
-284,Preadmission,Observation,Epilepsy,cumulus__none
-283,Discharge,,Stem Cell Transplant,cumulus__none
-283,Discharge,,Hematology Malignancy,Emergent
-280,,Observation,General Surgery,Emergent
-280,,Inpatient,Adolescent Medicine,
-280,Preadmission,,Pediatric Hosp Medicine,
-280,Preadmission,,Pediatric Hosp Medicine,cumulus__none
-280,Discharge,Observation,General Surgery,Emergent
-280,Discharge,Inpatient,Medical,
-280,Discharge,Inpatient,Medical,cumulus__none
-277,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,
-277,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,
-277,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,
-277,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,
-276,,Observation,Hematology,
-275,Discharge,,Med-Surg Intensive Care,Emergent
-274,,Inpatient,Neurology,Emergent
-273,,Inpatient,End Stage Renal,
-273,Discharge,Inpatient,Neurology,Emergent
-271,,Inpatient,Urology,cumulus__none
-271,Discharge,Emergency,,Less Urgent
-271,Discharge,Emergency,Emergency,Less Urgent
-269,Discharge,Inpatient,Adolescent Medicine,
-268,,Inpatient,Neuro Oncology,
-268,Discharge,Observation,Hematology,
-267,,Inpatient,Neurosurgery,Emergent
-267,Discharge,Inpatient,Neurosurgery,Emergent
-264,,,Otolaryngology,Emergent
-264,Discharge,,Otolaryngology,Emergent
-263,Discharge,Inpatient,Urology,cumulus__none
-262,Discharge,Inpatient,Pulmonary,cumulus__none
-261,,,Pediatric Intermediate Care,Urgent
-261,Discharge,Pediatric Pain Rehabilitation Center,,
-261,Discharge,Pediatric Pain Rehabilitation Center,,cumulus__none
-261,Discharge,Pediatric Pain Rehabilitation Center,Pain Treatment Service,
-261,Discharge,Pediatric Pain Rehabilitation Center,Pain Treatment Service,cumulus__none
-261,Discharge,Inpatient,End Stage Renal,
-261,Discharge,Extended Recovery,,cumulus__none
-260,Discharge,,Hematology,cumulus__none
-258,Discharge,,Pediatric Intermediate Care,Urgent
-255,,Observation,Neurology,Emergent
-255,Discharge,Observation,Neurology,Emergent
-253,,Outpatient Surgery,Neurology,
-253,,Outpatient Surgery,Neurology,cumulus__none
-252,,Treatment,,
-252,,Treatment,,cumulus__none
-252,,Treatment,cumulus__none,
-252,,Treatment,cumulus__none,cumulus__none
-250,,Observation,Neurology,Urgent
-250,Discharge,Observation,Neurology,Urgent
-249,,Inpatient,Hematology Malignancy,Emergent
-249,Support OP Encounter,Treatment,,
-249,Support OP Encounter,Treatment,,cumulus__none
-249,Support OP Encounter,Treatment,cumulus__none,
-249,Support OP Encounter,Treatment,cumulus__none,cumulus__none
-248,,Inpatient,Endocrine,
-247,Appointment,Inpatient Psych,,
-247,Appointment,Inpatient Psych,,cumulus__none
-247,Appointment,Inpatient Psych,cumulus__none,
-247,Appointment,Inpatient Psych,cumulus__none,cumulus__none
-246,Discharge,Inpatient,Endocrine,
-243,Discharge,Inpatient,Neuro Oncology,
-242,,Observation,Otolaryngology,Emergent
-242,Discharge,Observation,Otolaryngology,Emergent
-242,Discharge,Inpatient,Hematology Malignancy,Emergent
-240,,,Solid Tumor,Emergent
-240,,Inpatient,Med-Surg Intensive Care,Emergent
-239,,PR MED GENETICS&GENETIC COUNSELING SVCS EACH 30 MIN,,
-239,,PR MED GENETICS&GENETIC COUNSELING SVCS EACH 30 MIN,,cumulus__none
-239,,PR MED GENETICS&GENETIC COUNSELING SVCS EACH 30 MIN,cumulus__none,
-239,,PR MED GENETICS&GENETIC COUNSELING SVCS EACH 30 MIN,cumulus__none,cumulus__none
-239,Discharge,Inpatient,Stem Cell Transplant,cumulus__none
-238,HOV,PR MED GENETICS&GENETIC COUNSELING SVCS EACH 30 MIN,,
-238,HOV,PR MED GENETICS&GENETIC COUNSELING SVCS EACH 30 MIN,,cumulus__none
-238,HOV,PR MED GENETICS&GENETIC COUNSELING SVCS EACH 30 MIN,cumulus__none,
-238,HOV,PR MED GENETICS&GENETIC COUNSELING SVCS EACH 30 MIN,cumulus__none,cumulus__none
-237,Discharge,,Solid Tumor,Emergent
-233,,Observation,Cardiology,Emergent
-233,Discharge,Observation,Cardiology,Emergent
-230,Discharge,Inpatient,Med-Surg Intensive Care,Emergent
-226,,,General Renal,
-224,,Inpatient,Plastic/Oral Surgery,
-222,Discharge,Surgery Admit to IP,Plastic/Oral Surgery,
-222,Discharge,Surgery Admit to IP,Plastic/Oral Surgery,cumulus__none
-221,Preadmission,Outpatient Surgery,Pediatric Hosp Medicine,
-221,Preadmission,Outpatient Surgery,Pediatric Hosp Medicine,cumulus__none
-220,Discharge,Inpatient,Plastic/Oral Surgery,
-218,,Committee Review,,
-218,,Committee Review,,cumulus__none
-218,,Committee Review,cumulus__none,
-218,,Committee Review,cumulus__none,cumulus__none
-218,Support OP Encounter,Committee Review,,
-218,Support OP Encounter,Committee Review,,cumulus__none
-218,Support OP Encounter,Committee Review,cumulus__none,
-218,Support OP Encounter,Committee Review,cumulus__none,cumulus__none
-217,,Observation,,Less Urgent
-217,Discharge,Observation,,Less Urgent
-216,,Observation,Endocrine,
-214,,,Orthopaedics,Emergent
-213,Discharge,,Orthopaedics,Emergent
-212,,Observation,Pediatric Intermediate Care,Emergent
-212,,Inpatient,Neurology,cumulus__none
-212,Discharge,Observation,Pediatric Intermediate Care,Emergent
-212,Discharge,Observation,Endocrine,
-210,Discharge,,Dana Farber Pediatric,
-208,,,Epilepsy,Emergent
-208,Discharge,,Dana Farber Pediatric,cumulus__none
-207,Discharge,,Epilepsy,Emergent
-206,,,Neuro Oncology,cumulus__none
-205,,Inpatient,Pediatric Intermediate Care,Urgent
-205,Discharge,,General Renal,
-204,,Inpatient,Solid Tumor,Emergent
-203,,Observation,Complex Care Service,
-202,,,End Stage Renal,cumulus__none
-202,Discharge,Outpatient Surgery,Dana Farber Pediatric,
-202,Discharge,Outpatient Surgery,Dana Farber Pediatric,cumulus__none
-202,Discharge,Inpatient,Pediatric Intermediate Care,Urgent
-201,Discharge,Observation,Pulmonary,cumulus__none
-201,Discharge,Inpatient,Solid Tumor,Emergent
-200,,Observation,Pediatric Hosp Medicine,cumulus__none
-200,Discharge,Surgery Admit to IP,Gastroenterology,
-200,Discharge,Surgery Admit to IP,Gastroenterology,cumulus__none
-199,Discharge,Observation,Complex Care Service,
-198,Discharge,Observation,Pediatric Hosp Medicine,cumulus__none
-197,Discharge,Inpatient,Neurology,cumulus__none
-195,,,Pediatric Hosp Medicine,Less Urgent
-192,Preadmission,Observation,Orthopaedics,
-192,Preadmission,Observation,Orthopaedics,cumulus__none
-192,Discharge,,Pediatric Hosp Medicine,Less Urgent
-191,,,End Stage Renal,Emergent
-191,,Inpatient,Plastic/Oral Surgery,cumulus__none
-189,Admission,Outpatient Surgery,,
-189,Admission,Outpatient Surgery,,cumulus__none
-188,,Inpatient,Neurology,Urgent
-188,Discharge,Inpatient,Plastic/Oral Surgery,cumulus__none
-188,Discharge,Inpatient,Neurology,Urgent
-187,,Inpatient,,Immediate
-187,Preadmission,,cumulus__none,
-187,Preadmission,,cumulus__none,cumulus__none
-186,Discharge,,End Stage Renal,Emergent
-182,Discharge,,End Stage Renal,cumulus__none
-182,Discharge,Inpatient,,Immediate
-179,,,Complex Care Service,Urgent
-179,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 18-39YRS,,
-179,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 18-39YRS,,cumulus__none
-179,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 18-39YRS,cumulus__none,
-179,,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 18-39YRS,cumulus__none,cumulus__none
-179,Preadmission,,Neurology,
-179,Preadmission,,Neurology,cumulus__none
-179,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 18-39YRS,,
-179,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 18-39YRS,,cumulus__none
-179,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 18-39YRS,cumulus__none,
-179,Appointment,PR INITIAL PREVENTIVE MEDICINE NEW PT AGE 18-39YRS,cumulus__none,cumulus__none
-178,Discharge,,Neuro Oncology,cumulus__none
-177,,PR HEALTH BEHAVIOR ASSESSMENT/RE-ASSESSMENT,,
-177,,PR HEALTH BEHAVIOR ASSESSMENT/RE-ASSESSMENT,,cumulus__none
-177,,PR HEALTH BEHAVIOR ASSESSMENT/RE-ASSESSMENT,cumulus__none,
-177,,PR HEALTH BEHAVIOR ASSESSMENT/RE-ASSESSMENT,cumulus__none,cumulus__none
-177,,Observation,Pediatric Intermediate Care,cumulus__none
-177,,Observation,Endocrine,Emergent
-177,Discharge,Observation,Endocrine,Emergent
-177,Appointment,PR HEALTH BEHAVIOR ASSESSMENT/RE-ASSESSMENT,,
-177,Appointment,PR HEALTH BEHAVIOR ASSESSMENT/RE-ASSESSMENT,,cumulus__none
-177,Appointment,PR HEALTH BEHAVIOR ASSESSMENT/RE-ASSESSMENT,cumulus__none,
-177,Appointment,PR HEALTH BEHAVIOR ASSESSMENT/RE-ASSESSMENT,cumulus__none,cumulus__none
-176,,,Hepatology,
-176,Admission,,cumulus__none,
-176,Admission,,cumulus__none,cumulus__none
-175,,Inpatient,Orthopaedics,Urgent
-175,Discharge,Observation,Pediatric Intermediate Care,cumulus__none
-175,Discharge,Inpatient,Orthopaedics,Urgent
-173,Admission,Emergency,cumulus__none,
-173,Admission,Emergency,cumulus__none,cumulus__none
-172,Discharge,,Complex Care Service,Urgent
-171,Discharge,Outpatient Surgery,Neurology,
-171,Discharge,Outpatient Surgery,Neurology,cumulus__none
-169,,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,,
-168,,,Rheumatology,
-168,,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,Emergency,
-168,,Inpatient,Neuro Oncology,cumulus__none
-168,Discharge,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,,
-168,Discharge,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,Emergency,
-167,,Observation,Medical Critical Care,
-167,Preadmission,Observation,Urology,
-167,Preadmission,Observation,Urology,cumulus__none
-165,,Inpatient,Endocrine,Emergent
-165,Discharge,Inpatient,Endocrine,Emergent
-164,Discharge,,Hepatology,
-161,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,Less Urgent
-161,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,Less Urgent
-161,,Observation,Hematology,Emergent
-161,Discharge,,Rheumatology,
-161,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,Less Urgent
-161,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,Less Urgent
-161,Discharge,Observation,Hematology,Emergent
-158,,,Adolescent Medicine,Urgent
-156,,Extended Recovery,Otolaryngology,
-156,,Extended Recovery,Otolaryngology,cumulus__none
-156,Discharge,,Adolescent Medicine,Urgent
-156,Discharge,Extended Recovery,Otolaryngology,
-156,Discharge,Extended Recovery,Otolaryngology,cumulus__none
-155,Preadmission,,Dana Farber Pediatric,
-155,Preadmission,,Dana Farber Pediatric,cumulus__none
-154,Discharge,Observation,Medical Critical Care,
-153,,,Pulmonary,Urgent
-152,,Observation,Neurosurgery,Emergent
-152,,Inpatient,General Renal,
-152,Discharge,Observation,Neurosurgery,Emergent
-151,,Observation,Gastroenterology,Urgent
-151,Discharge,,Pulmonary,Urgent
-151,Discharge,Observation,Gastroenterology,Urgent
-150,,,General Medical - Private,
-150,Preadmission,Outpatient Surgery,Cardiology,
-150,Preadmission,Outpatient Surgery,Cardiology,cumulus__none
-147,,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,,
-145,,Observation,End Stage Renal,
-145,Discharge,Surgery Admit to IP,Orthopaedics,
-145,Discharge,Surgery Admit to IP,Orthopaedics,cumulus__none
-145,Discharge,Inpatient,Neuro Oncology,cumulus__none
-144,,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,Emergency,
-144,,Inpatient,End Stage Renal,Emergent
-144,Discharge,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,,
-144,Discharge,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,Emergency,
-143,,,General Medical - Private,cumulus__none
-143,,Inpatient,Complex Care Service,Urgent
-142,,Outpatient Surgery,Emergency,
-142,Support OP Encounter,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,,
-142,Support OP Encounter,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,,cumulus__none
-142,Support OP Encounter,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,cumulus__none,
-142,Support OP Encounter,PR MEDICATION THERAPY INITIAL 15 MIN NEW PATIENT,cumulus__none,cumulus__none
-142,Discharge,Outpatient Surgery,Emergency,
-141,Discharge,Inpatient,General Renal,
-139,,Surgery Admit to IP,Dental,
-139,,Surgery Admit to IP,Dental,cumulus__none
-139,,Inpatient,,Less Urgent
-139,Discharge,Inpatient,End Stage Renal,Emergent
-138,Preadmission,Observation,Gastroenterology,
-138,Preadmission,Observation,Gastroenterology,cumulus__none
-137,Discharge,Inpatient,Complex Care Service,Urgent
-136,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,Urgent
-136,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,Urgent
-136,Admission,Surgery Admit to IP,,
-136,Admission,Surgery Admit to IP,,cumulus__none
-135,,PR INDIV PSYCHOPHYS BIOFEED TRAIN W/PSYTX 45 MIN,,
-135,,PR INDIV PSYCHOPHYS BIOFEED TRAIN W/PSYTX 45 MIN,,cumulus__none
-135,,PR INDIV PSYCHOPHYS BIOFEED TRAIN W/PSYTX 45 MIN,cumulus__none,
-135,,PR INDIV PSYCHOPHYS BIOFEED TRAIN W/PSYTX 45 MIN,cumulus__none,cumulus__none
-135,Preadmission,,Medical,
-135,Preadmission,,Medical,cumulus__none
-135,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,Urgent
-135,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,Urgent
-135,Appointment,PR INDIV PSYCHOPHYS BIOFEED TRAIN W/PSYTX 45 MIN,,
-135,Appointment,PR INDIV PSYCHOPHYS BIOFEED TRAIN W/PSYTX 45 MIN,,cumulus__none
-135,Appointment,PR INDIV PSYCHOPHYS BIOFEED TRAIN W/PSYTX 45 MIN,cumulus__none,
-135,Appointment,PR INDIV PSYCHOPHYS BIOFEED TRAIN W/PSYTX 45 MIN,cumulus__none,cumulus__none
-134,Discharge,Inpatient,,Less Urgent
-133,,Inpatient,Rheumatology,
-133,,Inpatient,Hepatology,
-132,,,Otolaryngology,Urgent
-132,Discharge,Observation,End Stage Renal,
-131,,Outpatient Surgery,General Medical - Private,
-131,,Outpatient Surgery,General Medical - Private,cumulus__none
-131,Admission,,,Emergent
-130,Discharge,,Otolaryngology,Urgent
-129,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,,
-129,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,,cumulus__none
-129,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,cumulus__none,
-129,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED LOW MDM 20 MIN,cumulus__none,cumulus__none
-128,,Observation,Neurosurgery,cumulus__none
-127,,,Adolescent Medicine,Emergent
-127,Discharge,,Adolescent Medicine,Emergent
-127,Discharge,Inpatient,Rheumatology,
-126,,Inpatient,Adolescent Medicine,Urgent
-126,Support OP Encounter,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,,
-126,Support OP Encounter,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,,cumulus__none
-126,Support OP Encounter,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,cumulus__none,
-126,Support OP Encounter,PR MEDICATION THERAPY INITIAL 15 MIN ESTABLISHED PT,cumulus__none,cumulus__none
-125,,,Emergency,Immediate
-125,Preadmission,,Stem Cell Transplant,
-125,Preadmission,,Stem Cell Transplant,cumulus__none
-124,Discharge,Inpatient,Hepatology,
-124,Discharge,Inpatient,Adolescent Medicine,Urgent
-122,Admission,,Med-Surg Intensive Care,
-121,Preadmission,Outpatient Surgery,cumulus__none,
-121,Preadmission,Outpatient Surgery,cumulus__none,cumulus__none
-121,Discharge,,General Medical - Private,
-118,Support OP Encounter,Clinical Support,,
-118,Support OP Encounter,Clinical Support,,cumulus__none
-118,Support OP Encounter,Clinical Support,cumulus__none,
-118,Support OP Encounter,Clinical Support,cumulus__none,cumulus__none
-118,Preadmission,Outpatient Surgery,Dana Farber Pediatric,
-118,Preadmission,Outpatient Surgery,Dana Farber Pediatric,cumulus__none
-117,Appointment,Research Encounter,,
-117,Appointment,Research Encounter,,cumulus__none
-117,Appointment,Research Encounter,cumulus__none,
-117,Appointment,Research Encounter,cumulus__none,cumulus__none
-116,,Inpatient,Epilepsy,Emergent
-115,,Observation,Pediatric Hosp Medicine,Less Urgent
-115,,Lactation Encounter,,
-115,,Lactation Encounter,,cumulus__none
-115,,Lactation Encounter,cumulus__none,
-115,,Lactation Encounter,cumulus__none,cumulus__none
-115,Support OP Encounter,Lactation Encounter,,
-115,Support OP Encounter,Lactation Encounter,,cumulus__none
-115,Support OP Encounter,Lactation Encounter,cumulus__none,
-115,Support OP Encounter,Lactation Encounter,cumulus__none,cumulus__none
-115,Discharge,Observation,Pediatric Hosp Medicine,Less Urgent
-115,Discharge,Inpatient,Epilepsy,Emergent
-115,Admission,Inpatient,Med-Surg Intensive Care,
-114,,"PR PSYCHOTHERPY, OFFICE (45-50)",,
-114,,"PR PSYCHOTHERPY, OFFICE (45-50)",,cumulus__none
-114,,"PR PSYCHOTHERPY, OFFICE (45-50)",cumulus__none,
-114,,"PR PSYCHOTHERPY, OFFICE (45-50)",cumulus__none,cumulus__none
-114,Discharge,,General Medical - Private,cumulus__none
-114,Discharge,Surgery Admit to IP,Urology,
-114,Discharge,Surgery Admit to IP,Urology,cumulus__none
-114,Appointment,"PR PSYCHOTHERPY, OFFICE (45-50)",,
-114,Appointment,"PR PSYCHOTHERPY, OFFICE (45-50)",,cumulus__none
-114,Appointment,"PR PSYCHOTHERPY, OFFICE (45-50)",cumulus__none,
-114,Appointment,"PR PSYCHOTHERPY, OFFICE (45-50)",cumulus__none,cumulus__none
-113,,Inpatient,Pulmonary,Urgent
-113,Preadmission,Inpatient,Medical,
-113,Preadmission,Inpatient,Medical,cumulus__none
-111,,Outpatient Surgery,Neurosurgery,
-111,,Outpatient Surgery,Neurosurgery,cumulus__none
-111,Discharge,Inpatient,Pulmonary,Urgent
-110,,Inpatient,Orthopaedics,Emergent
-110,Preadmission,Observation,Pulmonary,
-110,Preadmission,Observation,Pulmonary,cumulus__none
-110,Admission,,Med-Surg Intensive Care,cumulus__none
-109,,Inpatient,End Stage Renal,cumulus__none
-109,Discharge,Inpatient,Orthopaedics,Emergent
-108,,,Cardiology,Urgent
-108,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,Less Urgent
-108,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,Less Urgent
-108,,Observation,Dental,
-108,,Observation,Dental,cumulus__none
-108,,Inpatient,Hematology,cumulus__none
-108,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,Less Urgent
-108,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,Less Urgent
-107,,Observation,Pulmonary,Emergent
-107,,Inpatient,Adolescent Medicine,Emergent
-107,Discharge,Observation,Pulmonary,Emergent
-107,Discharge,Observation,Neurosurgery,cumulus__none
-107,Discharge,Inpatient,Adolescent Medicine,Emergent
-106,,,Stem Cell Transplant,Emergent
-106,Discharge,,Cardiology,Urgent
-104,,Surgery Admit to IP,Pulmonary,
-104,,Surgery Admit to IP,Pulmonary,cumulus__none
-104,,Outpatient Surgery,,Urgent
-104,Preadmission,,Neonatal Intensive Care,
-104,Preadmission,,Neonatal Intensive Care,cumulus__none
-104,Discharge,Outpatient Surgery,,Urgent
-104,Discharge,Outpatient Surgery,General Medical - Private,
-104,Discharge,Outpatient Surgery,General Medical - Private,cumulus__none
-104,Admission,,Neonatal Intensive Care,
-104,Admission,,Neonatal Intensive Care,cumulus__none
-103,Admission,Inpatient,Neonatal Intensive Care,
-103,Admission,Inpatient,Neonatal Intensive Care,cumulus__none
-103,Admission,Inpatient,Med-Surg Intensive Care,cumulus__none
-102,,,Neuro Oncology,Emergent
-102,,Observation,Medical Critical Care,cumulus__none
-102,Preadmission,,Solid Tumor,
-102,Preadmission,,Solid Tumor,cumulus__none
-102,Discharge,,Emergency,Immediate
-102,Discharge,Inpatient,End Stage Renal,cumulus__none
-101,,Observation,Orthopaedics,Emergent
-101,Discharge,,Stem Cell Transplant,Emergent
-101,Discharge,,Neuro Oncology,Emergent
-101,Discharge,Observation,Orthopaedics,Emergent
-100,Preadmission,,Hematology Malignancy,
-100,Preadmission,,Hematology Malignancy,cumulus__none
-100,Preadmission,Inpatient,Neonatal Intensive Care,
-100,Preadmission,Inpatient,Neonatal Intensive Care,cumulus__none
-100,HOV,Treatment Series,,
-100,HOV,Treatment Series,,cumulus__none
-100,HOV,Treatment Series,cumulus__none,
-100,HOV,Treatment Series,cumulus__none,cumulus__none
-99,,,General Renal,cumulus__none
-99,Admission,,Cardiology,
-98,Preadmission,Inpatient,Stem Cell Transplant,
-98,Preadmission,Inpatient,Stem Cell Transplant,cumulus__none
-97,Admission,Inpatient,,Emergent
-95,Preadmission,Inpatient,Solid Tumor,
-95,Preadmission,Inpatient,Solid Tumor,cumulus__none
-94,,,Toxicology,
-94,Preadmission,Inpatient,Hematology Malignancy,
-94,Preadmission,Inpatient,Hematology Malignancy,cumulus__none
-94,Discharge,,Toxicology,
-93,,Observation,End Stage Renal,cumulus__none
-92,,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,,Emergent
-92,,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,Emergency,Emergent
-92,,Observation,Epilepsy,Emergent
-92,Discharge,Surgery Admit to IP,Dental,
-92,Discharge,Surgery Admit to IP,Dental,cumulus__none
-92,Discharge,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,,Emergent
-92,Discharge,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,Emergency,Emergent
-92,Discharge,Observation,Epilepsy,Emergent
-91,,Outpatient Surgery,Emergency,Urgent
-91,Discharge,Outpatient Surgery,Emergency,Urgent
-90,,Observation,Complex Care Service,cumulus__none
-89,Discharge,Observation,Medical Critical Care,cumulus__none
-89,Discharge,Inpatient,Hematology,cumulus__none
-88,,,Endocrine,cumulus__none
-88,,Outpatient,Hematology,
-88,,Outpatient,Hematology,cumulus__none
-88,Discharge,Observation,Complex Care Service,cumulus__none
-88,Admission,,Cardiology,cumulus__none
-88,Admission,Inpatient,Cardiology,
-87,,Observation,Hematology,cumulus__none
-87,Admission,,,Urgent
-86,,Inpatient,Neuro Oncology,Emergent
-85,,Telephone Visit,,
-85,,Telephone Visit,,cumulus__none
-85,,Telephone Visit,cumulus__none,
-85,,Telephone Visit,cumulus__none,cumulus__none
-85,,Pediatric Pain Rehabilitation Center,cumulus__none,
-85,,Pediatric Pain Rehabilitation Center,cumulus__none,cumulus__none
-85,,Observation,Solid Tumor,
-85,Support OP Encounter,Telephone Visit,,
-85,Support OP Encounter,Telephone Visit,,cumulus__none
-85,Support OP Encounter,Telephone Visit,cumulus__none,
-85,Support OP Encounter,Telephone Visit,cumulus__none,cumulus__none
-85,Preadmission,Inpatient,Epilepsy,
-85,Preadmission,Inpatient,Epilepsy,cumulus__none
-85,Discharge,Inpatient,Neuro Oncology,Emergent
-84,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,Urgent
-84,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,Urgent
-84,,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,,Emergent
-84,,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,Emergency,Emergent
-84,Preadmission,Observation,Neurology,
-84,Preadmission,Observation,Neurology,cumulus__none
-84,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,Urgent
-84,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,Urgent
-84,Discharge,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,,Emergent
-84,Discharge,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,Emergency,Emergent
-83,,Inpatient,Toxicology,
-83,Discharge,,Endocrine,cumulus__none
-83,Discharge,Observation,Solid Tumor,
-83,Discharge,Inpatient,Toxicology,
-82,,Observation,Otolaryngology,Urgent
-81,Preadmission,Outpatient Surgery,Neurology,
-81,Preadmission,Outpatient Surgery,Neurology,cumulus__none
-81,Discharge,Observation,Otolaryngology,Urgent
-80,,Observation,Gastroenterology,Emergent
-80,,Inpatient,Pediatric Hosp Medicine,Less Urgent
-80,Discharge,Observation,Gastroenterology,Emergent
-80,Discharge,Observation,End Stage Renal,cumulus__none
-79,,,Rehabilitation,
-79,,,Rehabilitation,cumulus__none
-79,,,Hepatology,Emergent
-79,,Inpatient,Stem Cell Transplant,Emergent
-79,Preadmission,Surgery Admit to IP,Pulmonary,
-79,Preadmission,Surgery Admit to IP,Pulmonary,cumulus__none
-79,Discharge,,General Renal,cumulus__none
-79,Discharge,Observation,Hematology,cumulus__none
-79,Admission,,Gastroenterology,
-78,Discharge,,Hepatology,Emergent
-78,Discharge,Outpatient,Hematology,
-78,Discharge,Outpatient,Hematology,cumulus__none
-77,,Observation,Complex Care Service,Emergent
-77,Discharge,Outpatient Surgery,Neurosurgery,
-77,Discharge,Outpatient Surgery,Neurosurgery,cumulus__none
-77,Discharge,Inpatient,Pediatric Hosp Medicine,Less Urgent
-77,Admission,Inpatient,Cardiology,cumulus__none
-76,,Observation,Stem Cell Transplant,
-76,Discharge,Observation,Complex Care Service,Emergent
-75,,Observation,Gynecology,
-75,Discharge,Observation,Stem Cell Transplant,
-75,Appointment,Telephone,,
-75,Appointment,Telephone,,cumulus__none
-75,Appointment,Telephone,cumulus__none,
-75,Appointment,Telephone,cumulus__none,cumulus__none
-75,Admission,,Gastroenterology,cumulus__none
-74,Discharge,Inpatient,Stem Cell Transplant,Emergent
-73,,Observation,General Renal,
-73,Admission,,General Surgery,
-72,,,General Renal,Emergent
-72,Discharge,,General Renal,Emergent
-72,Discharge,Observation,Gynecology,
-71,,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,,Urgent
-71,,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,Emergency,Urgent
-71,Discharge,Surgery Admit to IP,General Surgery,
-71,Discharge,Surgery Admit to IP,General Surgery,cumulus__none
-71,Discharge,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,,Urgent
-71,Discharge,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,Emergency,Urgent
-70,Preadmission,Inpatient,Cardiology,
-70,Preadmission,Inpatient,Cardiology,cumulus__none
-70,Appointment,Pediatric Pain Rehabilitation Center,,
-70,Appointment,Pediatric Pain Rehabilitation Center,,cumulus__none
-70,Appointment,Pediatric Pain Rehabilitation Center,cumulus__none,
-70,Appointment,Pediatric Pain Rehabilitation Center,cumulus__none,cumulus__none
-69,,,Rheumatology,Urgent
-69,,,Hematology,Urgent
-69,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,,
-69,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,,cumulus__none
-69,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,cumulus__none,
-69,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,cumulus__none,cumulus__none
-69,Preadmission,Inpatient Rehab,,
-69,Preadmission,Inpatient Rehab,,cumulus__none
-69,Discharge,,Rheumatology,Urgent
-68,,,Neurosurgery,Urgent
-68,,Inpatient,Endocrine,cumulus__none
-68,Preadmission,Observation,Dental,
-68,Preadmission,Observation,Dental,cumulus__none
-68,Discharge,,Neurosurgery,Urgent
-68,Discharge,,Hematology,Urgent
-68,Admission,Observation,,
-67,,Observation,Emergency,Less Urgent
-67,Discharge,Observation,Emergency,Less Urgent
-67,Discharge,Inpatient,Endocrine,cumulus__none
-66,,,Trauma,
-66,Discharge,,Trauma,
-66,Admission,,General Surgery,cumulus__none
-65,,,Epilepsy,Urgent
-65,,Observation,Neonatal Intensive Care,
-65,Preadmission,Observation,General Surgery,
-65,Preadmission,Observation,General Surgery,cumulus__none
-64,,Inpatient,General Renal,Emergent
-64,Discharge,,Epilepsy,Urgent
-64,Discharge,Observation,General Renal,
-64,Discharge,Inpatient,General Renal,Emergent
-63,,Surgery Admit to IP,Ophthalmology,
-63,,Surgery Admit to IP,Ophthalmology,cumulus__none
-63,,Surgery Admit to IP,Gynecology,
-63,,Surgery Admit to IP,Gynecology,cumulus__none
-63,,Observation,Gynecology,cumulus__none
-63,,Observation,Emergency,cumulus__none
-63,Admission,,Orthopaedics,
-62,,Inpatient,Cardiology,Urgent
-62,Admission,,Orthopaedics,cumulus__none
-61,,Observation,Hematology Malignancy,
-61,,Inpatient,Hepatology,Emergent
-61,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,,
-61,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,,cumulus__none
-61,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,cumulus__none,
-61,Support OP Encounter,PR OFFICE/OUTPATIENT ESTABLISHED SF MDM 10 MIN,cumulus__none,cumulus__none
-61,Discharge,Observation,Neonatal Intensive Care,
-61,Discharge,Observation,Hematology Malignancy,
-61,Admission,Observation,,cumulus__none
-60,,,Urology,Emergent
-60,,Observation,Neonatal Intensive Care,cumulus__none
-60,Discharge,,Urology,Emergent
-60,Discharge,Observation,Gynecology,cumulus__none
-60,Discharge,Inpatient,Hepatology,Emergent
-60,Discharge,Inpatient,Cardiology,Urgent
-59,,,Diabetes,
-59,,Inpatient Rehab,Rehabilitation,
-59,,Inpatient Rehab,Rehabilitation,cumulus__none
-59,,Extended Recovery,Plastic/Oral Surgery,
-59,Preadmission,,Emergency,
-59,Discharge,,Diabetes,
-59,Discharge,Extended Recovery,Plastic/Oral Surgery,
-59,Admission,Community Based Acute Treatment,,
-59,Admission,Community Based Acute Treatment,,cumulus__none
-58,,PR GROUP PSYCHOTHERAPY,,
-58,,PR GROUP PSYCHOTHERAPY,,cumulus__none
-58,,PR GROUP PSYCHOTHERAPY,cumulus__none,
-58,,PR GROUP PSYCHOTHERAPY,cumulus__none,cumulus__none
-58,,Extended Recovery,Plastic/Oral Surgery,cumulus__none
-58,Discharge,Extended Recovery,Plastic/Oral Surgery,cumulus__none
-58,Appointment,PR GROUP PSYCHOTHERAPY,,
-58,Appointment,PR GROUP PSYCHOTHERAPY,,cumulus__none
-58,Appointment,PR GROUP PSYCHOTHERAPY,cumulus__none,
-58,Appointment,PR GROUP PSYCHOTHERAPY,cumulus__none,cumulus__none
-58,Admission,,Pediatric Hosp Medicine,
-58,Admission,,Comm Based Acute Treatment,
-58,Admission,,Comm Based Acute Treatment,cumulus__none
-57,,,Toxicology,Emergent
-57,Discharge,,Toxicology,Emergent
-57,Admission,Community Based Acute Treatment,Comm Based Acute Treatment,
-57,Admission,Community Based Acute Treatment,Comm Based Acute Treatment,cumulus__none
-56,,,Hepatology,cumulus__none
-56,,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,,
-56,,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,Emergency,
-56,,Observation,Pediatric Intermediate Care,Urgent
-56,Discharge,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,,
-56,Discharge,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,Emergency,
-56,Discharge,Observation,Pediatric Intermediate Care,Urgent
-56,Discharge,Observation,Neonatal Intensive Care,cumulus__none
-55,Preadmission,Emergency,,
-54,,,Urology,Urgent
-54,,,Cardiovascular Surgery,Emergent
-54,,Observation,General Renal,cumulus__none
-54,,Observation,Adolescent Medicine,
-54,,Inpatient,Cardiovascular Surgery,Emergent
-54,Discharge,,Urology,Urgent
-54,Discharge,Observation,Adolescent Medicine,
-54,Admission,,Psychiatry,
-53,,,Rheumatology,cumulus__none
-53,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Immediate
-53,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Immediate
-53,,Observation,Medical Critical Care,Emergent
-53,,Inpatient,Rheumatology,Urgent
-53,Preadmission,Surgery Admit to IP,Gynecology,
-53,Preadmission,Surgery Admit to IP,Gynecology,cumulus__none
-53,Discharge,,Cardiovascular Surgery,Emergent
-53,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,Immediate
-53,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,Immediate
-53,Discharge,Observation,Medical Critical Care,Emergent
-53,Discharge,Inpatient,Rheumatology,Urgent
-53,Discharge,Inpatient,Cardiovascular Surgery,Emergent
-53,Admission,Inpatient Psych,,
-52,,,General Renal,Urgent
-52,,Outpatient Surgery,,Emergent
-52,Discharge,Outpatient Surgery,,Emergent
-52,Admission,Inpatient Psych,Psychiatry,
-52,Admission,Inpatient,General Surgery,
-51,,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,,
-51,Preadmission,Emergency,Emergency,
-51,Discharge,,General Renal,Urgent
-50,,,Neonatal Intensive Care,Emergent
-50,,,Adolescent Medicine,cumulus__none
-50,,Outpatient Surgery,Emergency,Emergent
-50,Discharge,,Neonatal Intensive Care,Emergent
-50,Discharge,Outpatient Surgery,Emergency,Emergent
-50,Appointment,Erroneous Encounter,,
-50,Appointment,Erroneous Encounter,,cumulus__none
-50,Appointment,Erroneous Encounter,cumulus__none,
-50,Appointment,Erroneous Encounter,cumulus__none,cumulus__none
-49,,,Medical Critical Care,Urgent
-49,,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,Emergency,
-49,Preadmission,,Rehabilitation,
-49,Preadmission,,Rehabilitation,cumulus__none
-49,Discharge,,Medical Critical Care,Urgent
-49,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,,
-49,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,Emergency,
-49,Appointment,Observation,Emergency,
-49,Appointment,Observation,Emergency,cumulus__none
-49,Admission,Inpatient,Pediatric Hosp Medicine,
-48,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,Less Urgent
-48,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,Less Urgent
-48,,Observation,Solid Tumor,cumulus__none
-48,,Inpatient,Trauma,
-48,,Inpatient,Toxicology,Emergent
-48,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,Less Urgent
-48,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,Less Urgent
-48,Discharge,Inpatient,Trauma,
-48,Discharge,Inpatient,Toxicology,Emergent
-47,,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,,Urgent
-47,,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,Emergency,Urgent
-47,,Observation,End Stage Renal,Emergent
-47,,External Hospital Admission,,
-47,,External Hospital Admission,,cumulus__none
-47,,External Hospital Admission,cumulus__none,
-47,,External Hospital Admission,cumulus__none,cumulus__none
-47,Support OP Encounter,External Hospital Admission,,
-47,Support OP Encounter,External Hospital Admission,,cumulus__none
-47,Support OP Encounter,External Hospital Admission,cumulus__none,
-47,Support OP Encounter,External Hospital Admission,cumulus__none,cumulus__none
-47,Preadmission,Surgery Admit to IP,Dental,
-47,Preadmission,Surgery Admit to IP,Dental,cumulus__none
-47,Preadmission,Inpatient Rehab,Rehabilitation,
-47,Preadmission,Inpatient Rehab,Rehabilitation,cumulus__none
-47,HOV,Inpatient Psych,,
-47,HOV,Inpatient Psych,,cumulus__none
-47,HOV,Inpatient Psych,cumulus__none,
-47,HOV,Inpatient Psych,cumulus__none,cumulus__none
-47,Discharge,,Rheumatology,cumulus__none
-47,Discharge,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,,Urgent
-47,Discharge,PR 1ST HOSPITAL IP/OBS CARE HIGH MDM 75 MINUTES,Emergency,Urgent
-47,Discharge,Observation,End Stage Renal,Emergent
-46,,Observation,,Immediate
-46,,Observation,Ophthalmology,
-46,,Observation,Ophthalmology,cumulus__none
-46,,Observation,Cardiology,Urgent
-46,,Inpatient,Neonatal Intensive Care,Emergent
-46,,Inpatient,Adolescent Medicine,cumulus__none
-46,Discharge,Observation,Solid Tumor,cumulus__none
-46,Discharge,Observation,Cardiology,Urgent
-46,Discharge,Inpatient,Neonatal Intensive Care,Emergent
-46,Admission,,Otolaryngology,
-45,,Observation,Stem Cell Transplant,cumulus__none
-45,Preadmission,Surgery Admit to IP,cumulus__none,
-45,Preadmission,Surgery Admit to IP,cumulus__none,cumulus__none
-45,Discharge,,Hepatology,cumulus__none
-45,Discharge,Observation,,Immediate
-45,Discharge,Observation,General Renal,cumulus__none
-45,Admission,Inpatient,General Surgery,cumulus__none
-44,,,Rheumatology,Emergent
-44,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,Non-Urgent
-44,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,Non-Urgent
-44,,Inpatient,Otolaryngology,Urgent
-44,,Inpatient,General Renal,cumulus__none
-44,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,Non-Urgent
-44,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,Non-Urgent
-44,Discharge,Observation,Stem Cell Transplant,cumulus__none
-44,Admission,,Plastic/Oral Surgery,
-44,Admission,,Otolaryngology,cumulus__none
-43,,,Trauma,Emergent
-43,,PR INSERTION INTRAUTERINE DEVICE IUD,,
-43,,PR INSERTION INTRAUTERINE DEVICE IUD,,cumulus__none
-43,,PR INSERTION INTRAUTERINE DEVICE IUD,cumulus__none,
-43,,PR INSERTION INTRAUTERINE DEVICE IUD,cumulus__none,cumulus__none
-43,,Inpatient,Rheumatology,cumulus__none
-43,Preadmission,Pediatric Pain Rehabilitation Center,,
-43,Preadmission,Pediatric Pain Rehabilitation Center,,cumulus__none
-43,Preadmission,Pediatric Pain Rehabilitation Center,Pain Treatment Service,
-43,Preadmission,Pediatric Pain Rehabilitation Center,Pain Treatment Service,cumulus__none
-43,Discharge,,Trauma,Emergent
-43,Discharge,,Rheumatology,Emergent
-43,Discharge,Inpatient,Otolaryngology,Urgent
-43,Admission,,Plastic/Oral Surgery,cumulus__none
-42,,Observation,Med-Surg Intensive Care,Emergent
-42,,Inpatient,Gynecology,
-42,,Inpatient,General Renal,Urgent
-42,Discharge,Observation,Med-Surg Intensive Care,Emergent
-42,Discharge,Inpatient,Gynecology,
-42,Admission,,Emergency,Urgent
-42,Admission,,Cardiovascular Surgery,
-42,Admission,Inpatient,,Urgent
-41,,Surgery Admit to IP,Dana Farber Pediatric,
-41,,Surgery Admit to IP,Dana Farber Pediatric,cumulus__none
-41,,PR INSERTION DRUG DELIVERY IMPLANT,,
-41,,PR INSERTION DRUG DELIVERY IMPLANT,,cumulus__none
-41,,PR INSERTION DRUG DELIVERY IMPLANT,cumulus__none,
-41,,PR INSERTION DRUG DELIVERY IMPLANT,cumulus__none,cumulus__none
-41,,Observation,Hematology Malignancy,Emergent
-41,,Inpatient,Hepatology,cumulus__none
-41,,Inpatient,Hematology,Urgent
-41,,Inpatient,Diabetes,
-41,Discharge,,Adolescent Medicine,cumulus__none
-41,Discharge,Surgery Admit to IP,Ophthalmology,
-41,Discharge,Surgery Admit to IP,Ophthalmology,cumulus__none
-41,Discharge,Observation,Hematology Malignancy,Emergent
-41,Discharge,Inpatient,General Renal,Urgent
-41,Discharge,Inpatient,Diabetes,
-41,Appointment,PR INSERTION INTRAUTERINE DEVICE IUD,,
-41,Appointment,PR INSERTION INTRAUTERINE DEVICE IUD,,cumulus__none
-41,Appointment,PR INSERTION INTRAUTERINE DEVICE IUD,cumulus__none,
-41,Appointment,PR INSERTION INTRAUTERINE DEVICE IUD,cumulus__none,cumulus__none
-41,Appointment,PR INSERTION DRUG DELIVERY IMPLANT,,
-41,Appointment,PR INSERTION DRUG DELIVERY IMPLANT,,cumulus__none
-41,Appointment,PR INSERTION DRUG DELIVERY IMPLANT,cumulus__none,
-41,Appointment,PR INSERTION DRUG DELIVERY IMPLANT,cumulus__none,cumulus__none
-41,Admission,,Cardiovascular Surgery,cumulus__none
-40,,,Plastic/Oral Surgery,Emergent
-40,,,Hepatology,Urgent
-40,,,Hematology Malignancy,Urgent
-40,,Observation,Urology,Emergent
-40,,Observation,Hepatology,
-40,Discharge,,Hepatology,Urgent
-40,Discharge,Observation,Urology,Emergent
-40,Discharge,Observation,Dental,
-40,Discharge,Observation,Dental,cumulus__none
-40,Discharge,Inpatient,Hematology,Urgent
-40,Admission,,Medical Critical Care,
-39,,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 30 MIN,,
-39,,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 30 MIN,,cumulus__none
-39,,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 30 MIN,cumulus__none,
-39,,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 30 MIN,cumulus__none,cumulus__none
-39,,Observation,Pulmonary,Urgent
-39,,Inpatient,Gynecology,cumulus__none
-39,Preadmission,Inpatient,Pediatric Hosp Medicine,
-39,Preadmission,Inpatient,Pediatric Hosp Medicine,cumulus__none
-39,Discharge,,Plastic/Oral Surgery,Emergent
-39,Discharge,,Hematology Malignancy,Urgent
-39,Discharge,Observation,Pulmonary,Urgent
-39,Discharge,Observation,Hepatology,
-39,Discharge,Inpatient,Gynecology,cumulus__none
-39,Appointment,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 30 MIN,,
-39,Appointment,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 30 MIN,,cumulus__none
-39,Appointment,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 30 MIN,cumulus__none,
-39,Appointment,PR PSYCHOTHERAPY W/PATIENT W/E&M SRVCS 30 MIN,cumulus__none,cumulus__none
-38,,Medication Management,,
-38,,Medication Management,,cumulus__none
-38,,Medication Management,cumulus__none,
-38,,Medication Management,cumulus__none,cumulus__none
-38,,Inpatient,Neurosurgery,Urgent
-38,,Inpatient,Medical Critical Care,Urgent
-38,,Inpatient,Epilepsy,Urgent
-38,,Extended Recovery,cumulus__none,
-38,,Extended Recovery,cumulus__none,cumulus__none
-38,,Extended Recovery,Orthopaedics,
-38,Support OP Encounter,Medication Management,,
-38,Support OP Encounter,Medication Management,,cumulus__none
-38,Support OP Encounter,Medication Management,cumulus__none,
-38,Support OP Encounter,Medication Management,cumulus__none,cumulus__none
-38,Discharge,Inpatient,Rheumatology,cumulus__none
-38,Discharge,Inpatient,Neurosurgery,Urgent
-38,Discharge,Inpatient,Medical Critical Care,Urgent
-38,Discharge,Extended Recovery,Orthopaedics,
-38,Admission,,Pediatric Intermediate Care,
-38,Admission,,Medical,
-38,Admission,,Medical,cumulus__none
-37,,,Med-Surg Intensive Care,Immediate
-37,,,Diabetes,Emergent
-37,Preadmission,,Medical Critical Care,
-37,Preadmission,,Medical Critical Care,cumulus__none
-37,Discharge,,Diabetes,Emergent
-37,Discharge,Inpatient,Epilepsy,Urgent
-37,Discharge,Inpatient,Adolescent Medicine,cumulus__none
-37,Admission,,Psychiatry,cumulus__none
-37,Admission,Inpatient,Medical,
-37,Admission,Inpatient,Medical,cumulus__none
-37,Admission,Emergency,,Urgent
-37,Admission,Emergency,Emergency,Urgent
-36,,,Plastic/Oral Surgery,Urgent
-36,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,Emergent
-36,,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,Emergent
-36,,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,,Emergent
-36,,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,Emergency,Emergent
-36,,Observation,Solid Tumor,Emergent
-36,,Observation,Complex Care Service,Urgent
-36,,Inpatient,Hematology Malignancy,Urgent
-36,Discharge,,Plastic/Oral Surgery,Urgent
-36,Discharge,,Med-Surg Intensive Care,Immediate
-36,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,,Emergent
-36,Discharge,PR EMERGENCY DEPARTMENT VISIT STRAIGHTFORWARD MDM,Emergency,Emergent
-36,Discharge,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,,Emergent
-36,Discharge,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,Emergency,Emergent
-36,Discharge,Observation,Solid Tumor,Emergent
-36,Admission,Inpatient Psych,,cumulus__none
-35,,,Med-Surg Intensive Care,Urgent
-35,,Inpatient,Rheumatology,Emergent
-35,Preadmission,Surgery Admit to IP,Dana Farber Pediatric,
-35,Preadmission,Surgery Admit to IP,Dana Farber Pediatric,cumulus__none
-35,Discharge,Observation,Complex Care Service,Urgent
-35,Discharge,Inpatient,Hematology Malignancy,Urgent
-35,Admission,Inpatient Psych,Psychiatry,cumulus__none
-35,Admission,Inpatient,Medical Critical Care,
-34,,,Immunology,
-34,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,Non-Urgent
-34,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,Non-Urgent
-34,,Observation,Rheumatology,
-34,,Emergency,,Immediate
-34,Preadmission,Outpatient Surgery,Neurosurgery,
-34,Preadmission,Outpatient Surgery,Neurosurgery,cumulus__none
-34,Discharge,,Med-Surg Intensive Care,Urgent
-34,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,Non-Urgent
-34,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,Non-Urgent
-34,Discharge,Observation,Rheumatology,
-34,Discharge,Inpatient,Rheumatology,Emergent
-34,Discharge,Inpatient,General Renal,cumulus__none
-34,Admission,,Neurosurgery,
-34,Admission,,Neurosurgery,cumulus__none
-33,,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP EA ADDL HR,,
-33,,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP EA ADDL HR,,cumulus__none
-33,,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP EA ADDL HR,cumulus__none,
-33,,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP EA ADDL HR,cumulus__none,cumulus__none
-33,,Emergency,Emergency,Immediate
-33,Preadmission,Inpatient,Pulmonary,
-33,Preadmission,Inpatient,Pulmonary,cumulus__none
-33,Preadmission,Inpatient,Gastroenterology,
-33,HOV,,Cardiology,
-33,HOV,,Cardiology,cumulus__none
-33,Discharge,Inpatient,Hepatology,cumulus__none
-33,Appointment,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP EA ADDL HR,,
-33,Appointment,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP EA ADDL HR,,cumulus__none
-33,Appointment,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP EA ADDL HR,cumulus__none,
-33,Appointment,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP EA ADDL HR,cumulus__none,cumulus__none
-33,Admission,,Medical Critical Care,cumulus__none
-33,Admission,,Epilepsy,
-33,Admission,Inpatient,Pediatric Intermediate Care,
-32,,,Toxicology,cumulus__none
-32,,,Endocrine,Urgent
-32,,Observation,Urology,Urgent
-32,,Observation,Adolescent Medicine,Urgent
-32,,Inpatient,Toxicology,cumulus__none
-32,,Inpatient,Med-Surg Intensive Care,Immediate
-32,Preadmission,,Med-Surg Intensive Care,
-32,Preadmission,,Med-Surg Intensive Care,cumulus__none
-32,Preadmission,Inpatient,Gastroenterology,cumulus__none
-32,Discharge,,Toxicology,cumulus__none
-32,Discharge,,Endocrine,Urgent
-32,Discharge,Observation,Urology,Urgent
-32,Discharge,Observation,Adolescent Medicine,Urgent
-32,Discharge,Inpatient,Toxicology,cumulus__none
-32,Appointment,Extended Recovery,,
-32,Appointment,Extended Recovery,,cumulus__none
-32,Appointment,Extended Recovery,cumulus__none,
-32,Appointment,Extended Recovery,cumulus__none,cumulus__none
-31,,PR REMOVAL NON-BIODEGRADABLE DRUG DELIVERY IMPLANT,,
-31,,PR REMOVAL NON-BIODEGRADABLE DRUG DELIVERY IMPLANT,,cumulus__none
-31,,PR REMOVAL NON-BIODEGRADABLE DRUG DELIVERY IMPLANT,cumulus__none,
-31,,PR REMOVAL NON-BIODEGRADABLE DRUG DELIVERY IMPLANT,cumulus__none,cumulus__none
-31,,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,,Emergent
-31,,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,Emergency,Emergent
-31,,Emergency,,Non-Urgent
-31,,Emergency,Emergency,Non-Urgent
-31,Preadmission,Inpatient,Med-Surg Intensive Care,
-31,Preadmission,Inpatient,Med-Surg Intensive Care,cumulus__none
-31,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,,Emergent
-31,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,Emergency,Emergent
-31,Discharge,Inpatient,Med-Surg Intensive Care,Immediate
-31,Appointment,PR REMOVAL NON-BIODEGRADABLE DRUG DELIVERY IMPLANT,,
-31,Appointment,PR REMOVAL NON-BIODEGRADABLE DRUG DELIVERY IMPLANT,,cumulus__none
-31,Appointment,PR REMOVAL NON-BIODEGRADABLE DRUG DELIVERY IMPLANT,cumulus__none,
-31,Appointment,PR REMOVAL NON-BIODEGRADABLE DRUG DELIVERY IMPLANT,cumulus__none,cumulus__none
-31,Admission,,Epilepsy,cumulus__none
-31,Admission,Outpatient Surgery,Gastroenterology,
-31,Admission,Outpatient Surgery,Gastroenterology,cumulus__none
-30,,PR PROLONGED SVC OUTPATIENT SETTING 1ST HOUR,,
-30,,PR PROLONGED SVC OUTPATIENT SETTING 1ST HOUR,,cumulus__none
-30,,PR PROLONGED SVC OUTPATIENT SETTING 1ST HOUR,cumulus__none,
-30,,PR PROLONGED SVC OUTPATIENT SETTING 1ST HOUR,cumulus__none,cumulus__none
-30,,Observation,Neurosurgery,Urgent
-30,,International Care Coordination,,
-30,,International Care Coordination,,cumulus__none
-30,,International Care Coordination,cumulus__none,
-30,,International Care Coordination,cumulus__none,cumulus__none
-30,,Inpatient Rehab,Medical,
-30,,Inpatient Rehab,Medical,cumulus__none
-30,,Inpatient,Hepatology,Urgent
-30,Support OP Encounter,International Care Coordination,,
-30,Support OP Encounter,International Care Coordination,,cumulus__none
-30,Support OP Encounter,International Care Coordination,cumulus__none,
-30,Support OP Encounter,International Care Coordination,cumulus__none,cumulus__none
-30,Discharge,Observation,Neurosurgery,Urgent
-30,Discharge,Inpatient,Hepatology,Urgent
-30,Appointment,PR PROLONGED SVC OUTPATIENT SETTING 1ST HOUR,,
-30,Appointment,PR PROLONGED SVC OUTPATIENT SETTING 1ST HOUR,,cumulus__none
-30,Appointment,PR PROLONGED SVC OUTPATIENT SETTING 1ST HOUR,cumulus__none,
-30,Appointment,PR PROLONGED SVC OUTPATIENT SETTING 1ST HOUR,cumulus__none,cumulus__none
-29,,PR PHYS/QHP TELEPHONE EVALUATION 11-20 MIN,,
-29,,PR PHYS/QHP TELEPHONE EVALUATION 11-20 MIN,,cumulus__none
-29,,PR PHYS/QHP TELEPHONE EVALUATION 11-20 MIN,cumulus__none,
-29,,PR PHYS/QHP TELEPHONE EVALUATION 11-20 MIN,cumulus__none,cumulus__none
-29,,PR MEDICAL GENETICS COUNSELING EACH 30 MINUTES,,
-29,,PR MEDICAL GENETICS COUNSELING EACH 30 MINUTES,,cumulus__none
-29,,PR MEDICAL GENETICS COUNSELING EACH 30 MINUTES,cumulus__none,
-29,,PR MEDICAL GENETICS COUNSELING EACH 30 MINUTES,cumulus__none,cumulus__none
-29,,Inpatient,Trauma,Emergent
-29,HOV,PR MEDICAL GENETICS COUNSELING EACH 30 MINUTES,,
-29,HOV,PR MEDICAL GENETICS COUNSELING EACH 30 MINUTES,,cumulus__none
-29,HOV,PR MEDICAL GENETICS COUNSELING EACH 30 MINUTES,cumulus__none,
-29,HOV,PR MEDICAL GENETICS COUNSELING EACH 30 MINUTES,cumulus__none,cumulus__none
-29,Discharge,Inpatient,Trauma,Emergent
-28,,PR HOSPITAL IP/OBS CARE SAME DATE MOD MDM 70 MIN,,
-28,,PR HOSPITAL IP/OBS CARE SAME DATE MOD MDM 70 MIN,Emergency,
-28,,Outpatient Surgery,Neuro Oncology,
-28,,Outpatient Surgery,Neuro Oncology,cumulus__none
-28,,Observation,Hematology,Urgent
-28,Preadmission,,General Medical - Private,
-28,Preadmission,,General Medical - Private,cumulus__none
-28,Discharge,,Rehabilitation,
-28,Discharge,,Rehabilitation,cumulus__none
-28,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE MOD MDM 70 MIN,,
-28,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE MOD MDM 70 MIN,Emergency,
-28,Discharge,Outpatient Surgery,Neuro Oncology,
-28,Discharge,Outpatient Surgery,Neuro Oncology,cumulus__none
-28,Discharge,Observation,Hematology,Urgent
-28,Admission,Outpatient Surgery,Orthopaedics,
-28,Admission,Outpatient Surgery,Orthopaedics,cumulus__none
-28,Admission,Inpatient,Medical Critical Care,cumulus__none
-27,,Observation,Stem Cell Transplant,Emergent
-27,,Inpatient,Immunology,
-27,Support OP Encounter,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,,
-27,Support OP Encounter,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,,cumulus__none
-27,Support OP Encounter,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,cumulus__none,
-27,Support OP Encounter,PR POSTOP FOLLOW UP VISIT RELATED TO ORIGINAL PX,cumulus__none,cumulus__none
-27,Preadmission,Observation,Ophthalmology,
-27,Preadmission,Observation,Ophthalmology,cumulus__none
-27,Preadmission,Inpatient,General Surgery,
-27,Preadmission,Inpatient,General Surgery,cumulus__none
-27,Discharge,Observation,Stem Cell Transplant,Emergent
-27,Discharge,Emergency,,Non-Urgent
-27,Discharge,Emergency,Emergency,Non-Urgent
-26,,Outpatient Surgery,Cardiovascular Surgery,
-26,,Outpatient Surgery,Cardiovascular Surgery,cumulus__none
-26,,Observation,Epilepsy,Urgent
-26,,Inpatient,Med-Surg Intensive Care,Urgent
-26,Preadmission,,Neuro Oncology,
-26,Preadmission,Outpatient Surgery,General Medical - Private,
-26,Preadmission,Outpatient Surgery,General Medical - Private,cumulus__none
-26,Discharge,,Immunology,
-26,Discharge,Observation,Epilepsy,Urgent
-26,Admission,,Urology,
-26,Admission,,Urology,cumulus__none
-25,,,Pediatric Hosp Medicine,Immediate
-25,,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 15 MIN,,
-25,,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 15 MIN,,cumulus__none
-25,,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 15 MIN,cumulus__none,
-25,,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 15 MIN,cumulus__none,cumulus__none
-25,,Extended Recovery,,Urgent
-25,,Community Based Acute Treatment,cumulus__none,
-25,,Community Based Acute Treatment,cumulus__none,cumulus__none
-25,Preadmission,,Neuro Oncology,cumulus__none
-25,Preadmission,Outpatient,,
-25,Preadmission,Outpatient,,cumulus__none
-25,Preadmission,Extended Recovery,,
-25,Preadmission,Extended Recovery,,cumulus__none
-25,Discharge,Surgery Admit to IP,Pulmonary,
-25,Discharge,Surgery Admit to IP,Pulmonary,cumulus__none
-25,Discharge,Inpatient,Med-Surg Intensive Care,Urgent
-25,Discharge,Extended Recovery,,Urgent
-25,Appointment,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 15 MIN,,
-25,Appointment,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 15 MIN,,cumulus__none
-25,Appointment,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 15 MIN,cumulus__none,
-25,Appointment,PR PREV MED CNSL&/RSK FCTR RDCTJ INDV APPROX 15 MIN,cumulus__none,cumulus__none
-25,Admission,,Ophthalmology,
-25,Admission,,Ophthalmology,cumulus__none
-25,Admission,Surgery Admit to IP,Orthopaedics,
-25,Admission,Surgery Admit to IP,Orthopaedics,cumulus__none
-24,,,cumulus__none,Immediate
-24,,,General Surgery,Less Urgent
-24,,,End Stage Renal,Urgent
-24,,Observation,Neuro Oncology,
-24,Support OP Encounter,,,Immediate
-24,Support OP Encounter,,cumulus__none,Immediate
-24,Preadmission,,,Immediate
-24,Preadmission,Inpatient,Medical Critical Care,
-24,Preadmission,Inpatient,Medical Critical Care,cumulus__none
-24,Discharge,,Pediatric Hosp Medicine,Immediate
-24,Discharge,,General Surgery,Less Urgent
-24,Discharge,,End Stage Renal,Urgent
-24,Appointment,Community Based Acute Treatment,,
-24,Appointment,Community Based Acute Treatment,,cumulus__none
-24,Appointment,Community Based Acute Treatment,cumulus__none,
-24,Appointment,Community Based Acute Treatment,cumulus__none,cumulus__none
-24,Admission,,Hematology Malignancy,
-23,,,Solid Tumor,Urgent
-23,,,Pediatric Intermediate Care,Immediate
-23,,,Neurology,Immediate
-23,,PR PSYCHIATRIC DIAGNOSTIC INTERVIEW,,
-23,,PR PSYCHIATRIC DIAGNOSTIC INTERVIEW,,cumulus__none
-23,,PR PSYCHIATRIC DIAGNOSTIC INTERVIEW,cumulus__none,
-23,,PR PSYCHIATRIC DIAGNOSTIC INTERVIEW,cumulus__none,cumulus__none
-23,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,cumulus__none
-23,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,Immediate
-23,,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,Immediate
-23,,Observation,Plastic/Oral Surgery,Urgent
-23,,Extended Recovery,Orthopaedics,cumulus__none
-23,Preadmission,,Emergency,Immediate
-23,Preadmission,Emergency,,Immediate
-23,Preadmission,Emergency,Emergency,Immediate
-23,Discharge,,Neurology,Immediate
-23,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,,Immediate
-23,Discharge,PR EMERGENCY DEPARTMENT VISIT HIGH MDM,Emergency,Immediate
-23,Discharge,Observation,Plastic/Oral Surgery,Urgent
-23,Discharge,Extended Recovery,Orthopaedics,cumulus__none
-23,Appointment,PR PSYCHIATRIC DIAGNOSTIC INTERVIEW,,
-23,Appointment,PR PSYCHIATRIC DIAGNOSTIC INTERVIEW,,cumulus__none
-23,Appointment,PR PSYCHIATRIC DIAGNOSTIC INTERVIEW,cumulus__none,
-23,Appointment,PR PSYCHIATRIC DIAGNOSTIC INTERVIEW,cumulus__none,cumulus__none
-23,Admission,,Pain Treatment Service,
-23,Admission,,Pain Treatment Service,cumulus__none
-23,Admission,Surgery Admit to IP,Neurosurgery,
-23,Admission,Surgery Admit to IP,Neurosurgery,cumulus__none
-23,Admission,Outpatient Surgery,Ophthalmology,
-23,Admission,Outpatient Surgery,Ophthalmology,cumulus__none
-23,Admission,Inpatient,Epilepsy,
-23,Admission,Inpatient,Cardiovascular Surgery,
-22,,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,cumulus__none
-22,,Inpatient,Urology,Urgent
-22,,Inpatient,Solid Tumor,Urgent
-22,Support OP Encounter,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,,
-22,Support OP Encounter,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,,cumulus__none
-22,Support OP Encounter,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,cumulus__none,
-22,Support OP Encounter,PR PSYCHOTHERAPY W/PATIENT 45 MINUTES,cumulus__none,cumulus__none
-22,Preadmission,Inpatient Rehab,Medical,
-22,Preadmission,Inpatient Rehab,Medical,cumulus__none
-22,Preadmission,Inpatient,Neuro Oncology,
-22,Discharge,,Pediatric Intermediate Care,Immediate
-22,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,,cumulus__none
-22,Discharge,PR EMERGENCY DEPARTMENT VISIT LOW MDM,Emergency,cumulus__none
-22,Discharge,Inpatient,Urology,Urgent
-22,Admission,,Pediatric Intermediate Care,cumulus__none
-22,Admission,,Pediatric Hosp Medicine,cumulus__none
-22,Admission,Outpatient Surgery,Otolaryngology,
-22,Admission,Outpatient Surgery,Otolaryngology,cumulus__none
-22,Admission,Inpatient,Hematology Malignancy,
-22,Admission,Inpatient,Gastroenterology,
-22,Admission,Inpatient,Cardiovascular Surgery,cumulus__none
-21,,Telephone,,Immediate
-21,,Telephone,cumulus__none,Immediate
-21,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,cumulus__none
-21,,Observation,Plastic/Oral Surgery,Emergent
-21,,Inpatient,Pediatric Hosp Medicine,Immediate
-21,,Inpatient,Otolaryngology,Emergent
-21,Support OP Encounter,Telephone,,Immediate
-21,Support OP Encounter,Telephone,cumulus__none,Immediate
-21,Support OP Encounter,PR PHYS/QHP TELEPHONE EVALUATION 11-20 MIN,,
-21,Support OP Encounter,PR PHYS/QHP TELEPHONE EVALUATION 11-20 MIN,,cumulus__none
-21,Support OP Encounter,PR PHYS/QHP TELEPHONE EVALUATION 11-20 MIN,cumulus__none,
-21,Support OP Encounter,PR PHYS/QHP TELEPHONE EVALUATION 11-20 MIN,cumulus__none,cumulus__none
-21,Preadmission,Inpatient,Neuro Oncology,cumulus__none
-21,HOV,,Neurosurgery,
-21,HOV,,Neurosurgery,cumulus__none
-21,Discharge,,Solid Tumor,Urgent
-21,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,cumulus__none
-21,Discharge,Observation,Plastic/Oral Surgery,Emergent
-21,Discharge,Observation,Neuro Oncology,
-21,Discharge,Inpatient,Pediatric Hosp Medicine,Immediate
-21,Discharge,Inpatient,Otolaryngology,Emergent
-21,Admission,,Pulmonary,
-21,Admission,Outpatient Surgery,Plastic/Oral Surgery,
-21,Admission,Outpatient Surgery,Plastic/Oral Surgery,cumulus__none
-21,Admission,Inpatient,Epilepsy,cumulus__none
-20,,,Psychiatry,Urgent
-20,,PR RMVL W/RINSJ NON-BIODEGRADABLE DRUG DLVR IMPLT,,
-20,,PR RMVL W/RINSJ NON-BIODEGRADABLE DRUG DLVR IMPLT,,cumulus__none
-20,,PR RMVL W/RINSJ NON-BIODEGRADABLE DRUG DLVR IMPLT,cumulus__none,
-20,,PR RMVL W/RINSJ NON-BIODEGRADABLE DRUG DLVR IMPLT,cumulus__none,cumulus__none
-20,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,cumulus__none
-20,,Observation,Endocrine,cumulus__none
-20,,Observation,Adolescent Medicine,Emergent
-20,,Inpatient Psych,,Urgent
-20,,Inpatient Psych,Psychiatry,Urgent
-20,,Inpatient,Rehabilitation,
-20,,Inpatient,Rehabilitation,cumulus__none
-20,,Inpatient,Diabetes,Emergent
-20,Preadmission,Surgery Admit to IP,Ophthalmology,
-20,Preadmission,Surgery Admit to IP,Ophthalmology,cumulus__none
-20,Discharge,,Psychiatry,Urgent
-20,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,cumulus__none
-20,Discharge,Observation,Adolescent Medicine,Emergent
-20,Discharge,Inpatient Psych,,Urgent
-20,Discharge,Inpatient Psych,Psychiatry,Urgent
-20,Discharge,Inpatient,Solid Tumor,Urgent
-20,Discharge,Inpatient,Diabetes,Emergent
-20,Appointment,PR RMVL W/RINSJ NON-BIODEGRADABLE DRUG DLVR IMPLT,,
-20,Appointment,PR RMVL W/RINSJ NON-BIODEGRADABLE DRUG DLVR IMPLT,,cumulus__none
-20,Appointment,PR RMVL W/RINSJ NON-BIODEGRADABLE DRUG DLVR IMPLT,cumulus__none,
-20,Appointment,PR RMVL W/RINSJ NON-BIODEGRADABLE DRUG DLVR IMPLT,cumulus__none,cumulus__none
-19,,,cumulus__none,Less Urgent
-19,,Telephone,,Less Urgent
-19,,Telephone,cumulus__none,Less Urgent
-19,,Surgery Admit to IP,Pediatric Hosp Medicine,
-19,,Surgery Admit to IP,Pediatric Hosp Medicine,cumulus__none
-19,,PR HOSPITAL IP/OBS CARE SAME DATE MOD MDM 70 MIN,,Emergent
-19,,PR HOSPITAL IP/OBS CARE SAME DATE MOD MDM 70 MIN,Emergency,Emergent
-19,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,cumulus__none
-19,,Inpatient,Urology,Emergent
-19,,Inpatient,Plastic/Oral Surgery,Emergent
-19,,Inpatient,Neurology,Immediate
-19,,Inpatient,End Stage Renal,Urgent
-19,,Extended Recovery,Stem Cell Transplant,
-19,,Extended Recovery,Stem Cell Transplant,cumulus__none
-19,,Extended Recovery,General Surgery,
-19,Support OP Encounter,,,Less Urgent
-19,Support OP Encounter,,cumulus__none,Less Urgent
-19,Support OP Encounter,Telephone,,Less Urgent
-19,Support OP Encounter,Telephone,cumulus__none,Less Urgent
-19,Preadmission,,Hematology,
-19,Preadmission,,Hematology,cumulus__none
-19,Preadmission,Observation,Neurosurgery,
-19,Preadmission,Observation,Neurosurgery,cumulus__none
-19,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE MOD MDM 70 MIN,,Emergent
-19,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE MOD MDM 70 MIN,Emergency,Emergent
-19,Discharge,Observation,Ophthalmology,
-19,Discharge,Observation,Ophthalmology,cumulus__none
-19,Discharge,Inpatient,Urology,Emergent
-19,Discharge,Inpatient,Neurology,Immediate
-19,Discharge,Inpatient,Immunology,
-19,Discharge,Inpatient,End Stage Renal,Urgent
-19,Admission,Pediatric Pain Rehabilitation Center,,
-19,Admission,Pediatric Pain Rehabilitation Center,,cumulus__none
-19,Admission,Pediatric Pain Rehabilitation Center,Pain Treatment Service,
-19,Admission,Pediatric Pain Rehabilitation Center,Pain Treatment Service,cumulus__none
-18,,Radiation/Oncology Series,,
-18,,Radiation/Oncology Series,,cumulus__none
-18,,Radiation/Oncology Series,cumulus__none,
-18,,Radiation/Oncology Series,cumulus__none,cumulus__none
-18,,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,,Urgent
-18,,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,Emergency,Urgent
-18,,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,cumulus__none
-18,,Observation,Trauma,
-18,,Observation,Hepatology,Emergent
-18,,Observation,Endocrine,Urgent
-18,,Observation,Diabetes,
-18,,Inpatient,Pediatric Intermediate Care,Immediate
-18,,Emergency,Med-Surg Intensive Care,
-18,Preadmission,,,Less Urgent
-18,Preadmission,Surgery Admit to IP,Pediatric Hosp Medicine,
-18,Preadmission,Surgery Admit to IP,Pediatric Hosp Medicine,cumulus__none
-18,Preadmission,Outpatient Surgery,Cardiovascular Surgery,
-18,Preadmission,Outpatient Surgery,Cardiovascular Surgery,cumulus__none
-18,Preadmission,Inpatient,Neurosurgery,
-18,Preadmission,Inpatient,Neurosurgery,cumulus__none
-18,Preadmission,Extended Recovery,Stem Cell Transplant,
-18,Preadmission,Extended Recovery,Stem Cell Transplant,cumulus__none
-18,HOV,Radiation/Oncology Series,,
-18,HOV,Radiation/Oncology Series,,cumulus__none
-18,HOV,Radiation/Oncology Series,cumulus__none,
-18,HOV,Radiation/Oncology Series,cumulus__none,cumulus__none
-18,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,,Urgent
-18,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE HIGH MDM 85 MIN,Emergency,Urgent
-18,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,,cumulus__none
-18,Discharge,PR EMERGENCY DEPARTMENT VISIT MODERATE MDM,Emergency,cumulus__none
-18,Discharge,Observation,Trauma,
-18,Discharge,Observation,Hepatology,Emergent
-18,Discharge,Observation,Endocrine,Urgent
-18,Discharge,Observation,Diabetes,
-18,Discharge,Inpatient Rehab,,
-18,Discharge,Inpatient Rehab,,cumulus__none
-18,Discharge,Inpatient,Rehabilitation,
-18,Discharge,Inpatient,Rehabilitation,cumulus__none
-18,Discharge,Inpatient,Plastic/Oral Surgery,Emergent
-18,Discharge,Extended Recovery,General Surgery,
-18,Admission,,Stem Cell Transplant,
-18,Admission,,Solid Tumor,
-18,Admission,Surgery Admit to IP,Plastic/Oral Surgery,
-18,Admission,Surgery Admit to IP,Plastic/Oral Surgery,cumulus__none
-18,Admission,Surgery Admit to IP,Cardiovascular Surgery,
-18,Admission,Surgery Admit to IP,Cardiovascular Surgery,cumulus__none
-18,Admission,Inpatient,Gastroenterology,cumulus__none
-17,,,Gastroenterology,Less Urgent
-17,,PR IP/OBS CONSLTJ NEW/EST PT HIGH MDM 80 MINUTES,,
-17,,PR IP/OBS CONSLTJ NEW/EST PT HIGH MDM 80 MINUTES,,cumulus__none
-17,,PR IP/OBS CONSLTJ NEW/EST PT HIGH MDM 80 MINUTES,cumulus__none,
-17,,PR IP/OBS CONSLTJ NEW/EST PT HIGH MDM 80 MINUTES,cumulus__none,cumulus__none
-17,,Observation,Diabetes,Emergent
-17,,Emergency,Med-Surg Intensive Care,cumulus__none
-17,Preadmission,,Emergency,Less Urgent
-17,Preadmission,Inpatient,Cardiovascular Surgery,
-17,Preadmission,Inpatient,Cardiovascular Surgery,cumulus__none
-17,Preadmission,Emergency,,Less Urgent
-17,Preadmission,Emergency,Emergency,Less Urgent
-17,HOV,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,,
-17,HOV,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,,cumulus__none
-17,HOV,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,cumulus__none,
-17,HOV,PR PSYCHIATRIC DIAGNOSTIC EVALUATION,cumulus__none,cumulus__none
-17,Discharge,,Gastroenterology,Less Urgent
-17,Discharge,Surgery Admit to IP,Cardiovascular Surgery,
-17,Discharge,Surgery Admit to IP,Cardiovascular Surgery,cumulus__none
-17,Discharge,Observation,Diabetes,Emergent
-17,Discharge,Inpatient,Pediatric Intermediate Care,Immediate
-17,Appointment,PR IP/OBS CONSLTJ NEW/EST PT HIGH MDM 80 MINUTES,,
-17,Appointment,PR IP/OBS CONSLTJ NEW/EST PT HIGH MDM 80 MINUTES,,cumulus__none
-17,Appointment,PR IP/OBS CONSLTJ NEW/EST PT HIGH MDM 80 MINUTES,cumulus__none,
-17,Appointment,PR IP/OBS CONSLTJ NEW/EST PT HIGH MDM 80 MINUTES,cumulus__none,cumulus__none
-17,Admission,,Pulmonary,cumulus__none
-17,Admission,,Psychiatry,Emergent
-17,Admission,,Pediatric Hosp Medicine,Urgent
-17,Admission,,Complex Care Service,
-17,Admission,Surgery Admit to IP,Otolaryngology,
-17,Admission,Surgery Admit to IP,Otolaryngology,cumulus__none
-17,Admission,Outpatient Surgery,Urology,
-17,Admission,Outpatient Surgery,Urology,cumulus__none
-17,Admission,Inpatient Psych,,Emergent
-17,Admission,Inpatient Psych,Psychiatry,Emergent
-17,Admission,Inpatient,Solid Tumor,
-17,Admission,Inpatient,Pediatric Intermediate Care,cumulus__none
-16,,,Neurosurgery,Immediate
-16,,PR HOSPITAL IP/OBS CARE SAME DATE SF/LOW MDM 45 MIN,,
-16,,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,,Urgent
-16,,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,Emergency,Urgent
-16,,Outpatient,Pulmonary,
-16,,Outpatient,Pulmonary,cumulus__none
-16,,Observation,Rheumatology,Urgent
-16,,Observation,Neuro Oncology,Emergent
-16,,Observation,Hematology Malignancy,cumulus__none
-16,,Inpatient,Neurosurgery,Immediate
-16,,Evaluation,,
-16,,Evaluation,,cumulus__none
-16,,Evaluation,cumulus__none,
-16,,Evaluation,cumulus__none,cumulus__none
-16,Preadmission,,Emergency,cumulus__none
-16,HOV,,Hematology,
-16,HOV,,Hematology,cumulus__none
-16,Discharge,,Neurosurgery,Immediate
-16,Discharge,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,,Urgent
-16,Discharge,PR 1ST HOSPITAL IP/OBS CARE SF/LOW MDM 40 MINUTES,Emergency,Urgent
-16,Discharge,Observation,Rheumatology,Urgent
-16,Discharge,Observation,Neuro Oncology,Emergent
-16,Discharge,Observation,Hematology Malignancy,cumulus__none
-16,Discharge,Observation,Endocrine,cumulus__none
-16,Discharge,Inpatient,Neurosurgery,Immediate
-16,Admission,,Hematology Malignancy,cumulus__none
-16,Admission,Inpatient,Stem Cell Transplant,
-16,Admission,Inpatient,Pediatric Hosp Medicine,cumulus__none
-16,Admission,Inpatient,Pediatric Hosp Medicine,Urgent
-15,,,Diabetes,cumulus__none
-15,,PR EMERGENCY DEPARTMENT VISIT MAY NOT REQ PHYS/QHP,,
-15,,PR EMERGENCY DEPARTMENT VISIT MAY NOT REQ PHYS/QHP,Emergency,
-15,,Inpatient,Diabetes,cumulus__none
-15,HOV,Pediatric Pain Rehabilitation Center,,
-15,HOV,Pediatric Pain Rehabilitation Center,,cumulus__none
-15,HOV,Pediatric Pain Rehabilitation Center,cumulus__none,
-15,HOV,Pediatric Pain Rehabilitation Center,cumulus__none,cumulus__none
-15,Discharge,,Diabetes,cumulus__none
-15,Discharge,PR EMERGENCY DEPARTMENT VISIT MAY NOT REQ PHYS/QHP,,
-15,Discharge,PR EMERGENCY DEPARTMENT VISIT MAY NOT REQ PHYS/QHP,Emergency,
-15,Discharge,Inpatient,Diabetes,cumulus__none
-15,Admission,,Pediatric Hosp Medicine,Emergent
-15,Admission,,Emergency,Emergent
-15,Admission,Inpatient,Pulmonary,
-14,,,Transfusion Medicine,
-14,,,Transfusion Medicine,cumulus__none
-14,,,Neonatology,
-14,,,Medical Critical Care,Immediate
-14,,,Environmental Health,
-14,,PR PHYS/QHP TELEPHONE EVALUATION 5-10 MIN,,
-14,,PR PHYS/QHP TELEPHONE EVALUATION 5-10 MIN,,cumulus__none
-14,,PR PHYS/QHP TELEPHONE EVALUATION 5-10 MIN,cumulus__none,
-14,,PR PHYS/QHP TELEPHONE EVALUATION 5-10 MIN,cumulus__none,cumulus__none
-14,,PR HOSPITAL IP/OBS CARE SAME DATE SF/LOW MDM 45 MIN,Emergency,
-14,,Outpatient,Transfusion Medicine,
-14,,Outpatient,Transfusion Medicine,cumulus__none
-14,,Observation,Trauma,Emergent
-14,,Inpatient,Neonatology,
-14,,Inpatient,General Surgery,Less Urgent
-14,Preadmission,,Pediatric Intermediate Care,
-14,Preadmission,,Pediatric Intermediate Care,cumulus__none
-14,Preadmission,,End Stage Renal,
-14,Preadmission,,End Stage Renal,cumulus__none
-14,HOV,,Pulmonary,
-14,HOV,,Pulmonary,cumulus__none
-14,Discharge,,Transfusion Medicine,
-14,Discharge,,Transfusion Medicine,cumulus__none
-14,Discharge,,Environmental Health,
-14,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE SF/LOW MDM 45 MIN,,
-14,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE SF/LOW MDM 45 MIN,Emergency,
-14,Discharge,Outpatient,Transfusion Medicine,
-14,Discharge,Outpatient,Transfusion Medicine,cumulus__none
-14,Discharge,Observation,Trauma,Emergent
-14,Discharge,Inpatient,General Surgery,Less Urgent
-14,Admission,,,Less Urgent
-14,Admission,Observation,Gastroenterology,
-14,Admission,Observation,Gastroenterology,cumulus__none
-14,Admission,Inpatient,Pediatric Hosp Medicine,Emergent
-14,Admission,Inpatient,Hematology Malignancy,cumulus__none
-14,Admission,Inpatient,Complex Care Service,
-13,,,Neonatology,cumulus__none
-13,,PR PHYS/QHP TELEPHONE EVALUATION 21-30 MIN,,
-13,,PR PHYS/QHP TELEPHONE EVALUATION 21-30 MIN,,cumulus__none
-13,,PR PHYS/QHP TELEPHONE EVALUATION 21-30 MIN,cumulus__none,
-13,,PR PHYS/QHP TELEPHONE EVALUATION 21-30 MIN,cumulus__none,cumulus__none
-13,,PR HOSPITAL IP/OBS CARE SAME DATE SF/LOW MDM 45 MIN,,Emergent
-13,,PR HOSPITAL IP/OBS CARE SAME DATE SF/LOW MDM 45 MIN,Emergency,Emergent
-13,,Outpatient Surgery,Hematology,
-13,,Outpatient Surgery,Hematology,cumulus__none
-13,,Inpatient,Neonatology,cumulus__none
-13,,Inpatient,Medical Critical Care,Immediate
-13,,Inpatient,Endocrine,Urgent
-13,Support OP Encounter,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,,
-13,Support OP Encounter,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,,cumulus__none
-13,Support OP Encounter,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,cumulus__none,
-13,Support OP Encounter,PR OFFICE/OUTPATIENT NEW MODERATE MDM 45 MINUTES,cumulus__none,cumulus__none
-13,Preadmission,Observation,End Stage Renal,
-13,Preadmission,Observation,End Stage Renal,cumulus__none
-13,Preadmission,Inpatient,Pediatric Intermediate Care,
-13,Preadmission,Inpatient,Pediatric Intermediate Care,cumulus__none
-13,HOV,Outpatient,Pulmonary,
-13,HOV,Outpatient,Pulmonary,cumulus__none
-13,Discharge,,Medical Critical Care,Immediate
-13,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE SF/LOW MDM 45 MIN,,Emergent
-13,Discharge,PR HOSPITAL IP/OBS CARE SAME DATE SF/LOW MDM 45 MIN,Emergency,Emergent
-13,Discharge,Outpatient Surgery,Hematology,
-13,Discharge,Outpatient Surgery,Hematology,cumulus__none
-13,Discharge,Observation,Emergency,cumulus__none
-13,Discharge,Inpatient,Endocrine,Urgent
-13,Discharge,Emergency,Med-Surg Intensive Care,
-13,Admission,,Stem Cell Transplant,cumulus__none
-13,Admission,,Solid Tumor,cumulus__none
-13,Admission,,Dental,
-13,Admission,,Dental,cumulus__none
-13,Admission,Outpatient Surgery,Dental,
-13,Admission,Outpatient Surgery,Dental,cumulus__none
-12,,,Pediatric Intermediate Care,Less Urgent
-12,,,General Surgery,Immediate
-12,,Outpatient Surgery,General Surgery,Urgent
-12,,Observation,Hepatology,cumulus__none
-12,,Inpatient,Plastic/Oral Surgery,Urgent
-12,,Inpatient,Environmental Health,
-12,,Inpatient,Emergency,
-12,,HC ESTAB PAT OFFICE/OP VISIT HIGH MDM 40-54 MIN,,
-12,,HC ESTAB PAT OFFICE/OP VISIT HIGH MDM 40-54 MIN,,cumulus__none
-12,,HC ESTAB PAT OFFICE/OP VISIT HIGH MDM 40-54 MIN,cumulus__none,
-12,,HC ESTAB PAT OFFICE/OP VISIT HIGH MDM 40-54 MIN,cumulus__none,cumulus__none
-12,,Extended Recovery,Orthopaedics,Urgent
-12,Preadmission,Inpatient,Hematology,
-12,Preadmission,Inpatient,Hematology,cumulus__none
-12,Preadmission,Emergency,,cumulus__none
-12,Discharge,,General Surgery,Immediate
-12,Discharge,Surgery Admit to IP,Neurosurgery,
-12,Discharge,Surgery Admit to IP,Neurosurgery,cumulus__none
-12,Discharge,Outpatient Surgery,General Surgery,Urgent
-12,Discharge,Inpatient,Plastic/Oral Surgery,Urgent
-12,Discharge,Inpatient,Medical Critical Care,Immediate
-12,Discharge,Inpatient,Environmental Health,
-12,Discharge,Extended Recovery,Orthopaedics,Urgent
-12,Discharge,Emergency,Med-Surg Intensive Care,cumulus__none
-12,Appointment,HC ESTAB PAT OFFICE/OP VISIT HIGH MDM 40-54 MIN,,
-12,Appointment,HC ESTAB PAT OFFICE/OP VISIT HIGH MDM 40-54 MIN,,cumulus__none
-12,Appointment,HC ESTAB PAT OFFICE/OP VISIT HIGH MDM 40-54 MIN,cumulus__none,
-12,Appointment,HC ESTAB PAT OFFICE/OP VISIT HIGH MDM 40-54 MIN,cumulus__none,cumulus__none
-12,Admission,,Hematology,
-12,Admission,Surgery Admit to IP,Gastroenterology,
-12,Admission,Surgery Admit to IP,Gastroenterology,cumulus__none
-12,Admission,Inpatient,Solid Tumor,cumulus__none
-12,Admission,Emergency,,Emergent
-12,Admission,Emergency,Emergency,Emergent
-11,,,Neuro Oncology,Urgent
-11,,,Esophageal Atresia,
-11,,,Cardiovascular Surgery,Urgent
-11,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,Emergent
-11,,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,Emergent
-11,,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,,Less Urgent
-11,,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,Emergency,Less Urgent
-11,,Observation,Toxicology,
-11,,Observation,Medical Critical Care,Urgent
-11,,Inpatient,Neuro Oncology,Urgent
-11,,Inpatient,Emergency,cumulus__none
-11,,Inpatient,Cardiovascular Surgery,Urgent
-11,Preadmission,,Complex Care Service,
-11,Preadmission,,Complex Care Service,cumulus__none
-11,Preadmission,Observation,Medical Critical Care,
-11,Preadmission,Observation,Medical Critical Care,cumulus__none
-11,Discharge,,Pediatric Intermediate Care,Less Urgent
-11,Discharge,,Neuro Oncology,Urgent
-11,Discharge,,Esophageal Atresia,
-11,Discharge,,Cardiovascular Surgery,Urgent
-11,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,,Emergent
-11,Discharge,PR EMERGENCY DEPARTMENT VISIT NO CHARGE,Emergency,Emergent
-11,Discharge,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,,Less Urgent
-11,Discharge,PR 1ST HOSPITAL IP/OBS CARE MODERATE MDM 55 MINUTES,Emergency,Less Urgent
-11,Discharge,Observation,Toxicology,
-11,Discharge,Observation,Medical Critical Care,Urgent
-11,Discharge,Observation,Hepatology,cumulus__none
-11,Discharge,Inpatient,Neuro Oncology,Urgent
-11,Discharge,Inpatient,Cardiovascular Surgery,Urgent
-11,Discharge,Emergency,,Immediate
-11,Appointment,PR PHYS/QHP TELEPHONE EVALUATION 21-30 MIN,,
-11,Appointment,PR PHYS/QHP TELEPHONE EVALUATION 21-30 MIN,,cumulus__none
-11,Appointment,PR PHYS/QHP TELEPHONE EVALUATION 21-30 MIN,cumulus__none,
-11,Appointment,PR PHYS/QHP TELEPHONE EVALUATION 21-30 MIN,cumulus__none,cumulus__none
-11,Admission,,Pediatric Intermediate Care,Emergent
-11,Admission,,General Renal,
-11,Admission,,Adolescent Medicine,
-11,Admission,Inpatient,Stem Cell Transplant,cumulus__none
-11,Admission,Inpatient,Pulmonary,cumulus__none
-11,Admission,Inpatient,Pediatric Intermediate Care,Emergent
-11,Admission,Inpatient,Hematology,
-11,Admission,Inpatient,Adolescent Medicine,
-10,,,Trauma,Immediate
-10,,,Gynecology,Emergent
-10,,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,Cardiology,
-10,,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,Cardiology,cumulus__none
-10,,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP 1ST HOUR,,
-10,,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP 1ST HOUR,,cumulus__none
-10,,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP 1ST HOUR,cumulus__none,
-10,,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP 1ST HOUR,cumulus__none,cumulus__none
-10,,PR HOME/RES VISIT NEW PATIENT HIGH MDM 75 MINUTES,,
-10,,PR HOME/RES VISIT NEW PATIENT HIGH MDM 75 MINUTES,,cumulus__none
-10,,PR HOME/RES VISIT NEW PATIENT HIGH MDM 75 MINUTES,cumulus__none,
-10,,PR HOME/RES VISIT NEW PATIENT HIGH MDM 75 MINUTES,cumulus__none,cumulus__none
-10,,Outpatient,Neurosurgery,
-10,,Outpatient,Neurosurgery,cumulus__none
-10,,Outpatient,Epilepsy,
-10,,Outpatient,Epilepsy,cumulus__none
-10,,Observation,General Surgery,Less Urgent
-10,,Observation,General Renal,Urgent
-10,,Inpatient,Trauma,Immediate
-10,,Inpatient,Gastroenterology,Less Urgent
-10,HOV,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,Cardiology,
-10,HOV,PR OFFICE/OUTPATIENT ESTABLISHED HIGH MDM 40 MIN,Cardiology,cumulus__none
-10,HOV,Outpatient,Neurosurgery,
-10,HOV,Outpatient,Neurosurgery,cumulus__none
-10,HOV,Outpatient,Hematology,
-10,HOV,Outpatient,Hematology,cumulus__none
-10,HOV,Inpatient,Cardiology,
-10,HOV,Inpatient,Cardiology,cumulus__none
-10,Discharge,,Trauma,Immediate
-10,Discharge,,Gynecology,Emergent
-10,Discharge,Observation,General Surgery,Less Urgent
-10,Discharge,Observation,General Renal,Urgent
-10,Discharge,Inpatient Rehab,Rehabilitation,
-10,Discharge,Inpatient Rehab,Rehabilitation,cumulus__none
-10,Discharge,Inpatient,Trauma,Immediate
-10,Discharge,Inpatient,Gastroenterology,Less Urgent
-10,Appointment,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP 1ST HOUR,,
-10,Appointment,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP 1ST HOUR,,cumulus__none
-10,Appointment,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP 1ST HOUR,cumulus__none,
-10,Appointment,PR NEUROPSYCHOLOGICAL TST EVAL PHYS/QHP 1ST HOUR,cumulus__none,cumulus__none
-10,Admission,,Neurology,
-10,Admission,,Med-Surg Intensive Care,Emergent
-10,Admission,,End Stage Renal,
-10,Admission,,Emergency,Less Urgent
-10,Admission,Observation,Epilepsy,
-10,Admission,Observation,Epilepsy,cumulus__none
-10,Admission,Inpatient,Med-Surg Intensive Care,Emergent
-10,Admission,Inpatient,End Stage Renal,
+64173,,,,
+64173,,,,cumulus__none
+64173,,,cumulus__none,
+64173,,,cumulus__none,cumulus__none
+59979,ambulatory,,,
+59979,ambulatory,,,cumulus__none
+59979,ambulatory,,cumulus__none,
+59979,ambulatory,,cumulus__none,cumulus__none
+16395,,Encounter for problem (procedure),,
+16395,,Encounter for problem (procedure),,cumulus__none
+16395,,Encounter for problem (procedure),cumulus__none,
+16395,,Encounter for problem (procedure),cumulus__none,cumulus__none
+15891,ambulatory,Encounter for problem (procedure),,
+15891,ambulatory,Encounter for problem (procedure),,cumulus__none
+15891,ambulatory,Encounter for problem (procedure),cumulus__none,
+15891,ambulatory,Encounter for problem (procedure),cumulus__none,cumulus__none
+10598,,Encounter for check up (procedure),,
+10598,,Encounter for check up (procedure),,cumulus__none
+10598,,Encounter for check up (procedure),cumulus__none,
+10598,,Encounter for check up (procedure),cumulus__none,cumulus__none
+10591,ambulatory,Encounter for check up (procedure),,
+10591,ambulatory,Encounter for check up (procedure),,cumulus__none
+10591,ambulatory,Encounter for check up (procedure),cumulus__none,
+10591,ambulatory,Encounter for check up (procedure),cumulus__none,cumulus__none
+8958,,General examination of patient (procedure),,
+8958,,General examination of patient (procedure),,cumulus__none
+8958,,General examination of patient (procedure),cumulus__none,
+8958,,General examination of patient (procedure),cumulus__none,cumulus__none
+8958,ambulatory,General examination of patient (procedure),,
+8958,ambulatory,General examination of patient (procedure),,cumulus__none
+8958,ambulatory,General examination of patient (procedure),cumulus__none,
+8958,ambulatory,General examination of patient (procedure),cumulus__none,cumulus__none
+4406,,Well child visit (procedure),,
+4406,,Well child visit (procedure),,cumulus__none
+4406,,Well child visit (procedure),cumulus__none,
+4406,,Well child visit (procedure),cumulus__none,cumulus__none
+4406,ambulatory,Well child visit (procedure),,
+4406,ambulatory,Well child visit (procedure),,cumulus__none
+4406,ambulatory,Well child visit (procedure),cumulus__none,
+4406,ambulatory,Well child visit (procedure),cumulus__none,cumulus__none
+3764,,Encounter for symptom (procedure),,
+3764,,Encounter for symptom (procedure),,cumulus__none
+3764,,Encounter for symptom (procedure),cumulus__none,
+3764,,Encounter for symptom (procedure),cumulus__none,cumulus__none
+3712,ambulatory,Encounter for symptom (procedure),,
+3712,ambulatory,Encounter for symptom (procedure),,cumulus__none
+3712,ambulatory,Encounter for symptom (procedure),cumulus__none,
+3712,ambulatory,Encounter for symptom (procedure),cumulus__none,cumulus__none
+2576,,Prenatal visit (regime/therapy),,
+2576,,Prenatal visit (regime/therapy),,cumulus__none
+2576,,Prenatal visit (regime/therapy),cumulus__none,
+2576,,Prenatal visit (regime/therapy),cumulus__none,cumulus__none
+2576,ambulatory,Prenatal visit (regime/therapy),,
+2576,ambulatory,Prenatal visit (regime/therapy),,cumulus__none
+2576,ambulatory,Prenatal visit (regime/therapy),cumulus__none,
+2576,ambulatory,Prenatal visit (regime/therapy),cumulus__none,cumulus__none
+2555,,Urgent care clinic (environment),,
+2555,,Urgent care clinic (environment),,cumulus__none
+2555,,Urgent care clinic (environment),cumulus__none,
+2555,,Urgent care clinic (environment),cumulus__none,cumulus__none
+2555,ambulatory,Urgent care clinic (environment),,
+2555,ambulatory,Urgent care clinic (environment),,cumulus__none
+2555,ambulatory,Urgent care clinic (environment),cumulus__none,
+2555,ambulatory,Urgent care clinic (environment),cumulus__none,cumulus__none
+2464,emergency,,,
+2464,emergency,,,cumulus__none
+2464,emergency,,cumulus__none,
+2464,emergency,,cumulus__none,cumulus__none
+2436,,Patient encounter procedure (procedure),,
+2436,,Patient encounter procedure (procedure),,cumulus__none
+2436,,Patient encounter procedure (procedure),cumulus__none,
+2436,,Patient encounter procedure (procedure),cumulus__none,cumulus__none
+2436,ambulatory,Patient encounter procedure (procedure),,
+2436,ambulatory,Patient encounter procedure (procedure),,cumulus__none
+2436,ambulatory,Patient encounter procedure (procedure),cumulus__none,
+2436,ambulatory,Patient encounter procedure (procedure),cumulus__none,cumulus__none
+1869,,Outpatient procedure (procedure),,
+1869,,Outpatient procedure (procedure),,cumulus__none
+1869,,Outpatient procedure (procedure),cumulus__none,
+1869,,Outpatient procedure (procedure),cumulus__none,cumulus__none
+1869,ambulatory,Outpatient procedure (procedure),,
+1869,ambulatory,Outpatient procedure (procedure),,cumulus__none
+1869,ambulatory,Outpatient procedure (procedure),cumulus__none,
+1869,ambulatory,Outpatient procedure (procedure),cumulus__none,cumulus__none
+1836,,Emergency room admission (procedure),,
+1836,,Emergency room admission (procedure),,cumulus__none
+1836,,Emergency room admission (procedure),cumulus__none,
+1836,,Emergency room admission (procedure),cumulus__none,cumulus__none
+1836,emergency,Emergency room admission (procedure),,
+1836,emergency,Emergency room admission (procedure),,cumulus__none
+1836,emergency,Emergency room admission (procedure),cumulus__none,
+1836,emergency,Emergency room admission (procedure),cumulus__none,cumulus__none
+1647,,Follow-up encounter (procedure),,
+1647,,Follow-up encounter (procedure),,cumulus__none
+1647,,Follow-up encounter (procedure),cumulus__none,
+1647,,Follow-up encounter (procedure),cumulus__none,cumulus__none
+1639,ambulatory,Follow-up encounter (procedure),,
+1639,ambulatory,Follow-up encounter (procedure),,cumulus__none
+1639,ambulatory,Follow-up encounter (procedure),cumulus__none,
+1639,ambulatory,Follow-up encounter (procedure),cumulus__none,cumulus__none
+1261,,Administration of vaccine to produce active immunity (procedure),,
+1261,,Administration of vaccine to produce active immunity (procedure),,cumulus__none
+1261,,Administration of vaccine to produce active immunity (procedure),cumulus__none,
+1261,,Administration of vaccine to produce active immunity (procedure),cumulus__none,cumulus__none
+1261,ambulatory,Administration of vaccine to produce active immunity (procedure),,
+1261,ambulatory,Administration of vaccine to produce active immunity (procedure),,cumulus__none
+1261,ambulatory,Administration of vaccine to produce active immunity (procedure),cumulus__none,
+1261,ambulatory,Administration of vaccine to produce active immunity (procedure),cumulus__none,cumulus__none
+1161,,Consultation for treatment (procedure),,
+1161,,Consultation for treatment (procedure),,cumulus__none
+1161,,Consultation for treatment (procedure),cumulus__none,
+1161,,Consultation for treatment (procedure),cumulus__none,cumulus__none
+1161,ambulatory,Consultation for treatment (procedure),,
+1161,ambulatory,Consultation for treatment (procedure),,cumulus__none
+1161,ambulatory,Consultation for treatment (procedure),cumulus__none,
+1161,ambulatory,Consultation for treatment (procedure),cumulus__none,cumulus__none
+1118,inpatient encounter,,,
+1118,inpatient encounter,,,cumulus__none
+1118,inpatient encounter,,cumulus__none,
+1118,inpatient encounter,,cumulus__none,cumulus__none
+598,,Ophthalmic examination and evaluation (procedure),,
+598,,Ophthalmic examination and evaluation (procedure),,cumulus__none
+598,,Ophthalmic examination and evaluation (procedure),cumulus__none,
+598,,Ophthalmic examination and evaluation (procedure),cumulus__none,cumulus__none
+598,ambulatory,Ophthalmic examination and evaluation (procedure),,
+598,ambulatory,Ophthalmic examination and evaluation (procedure),,cumulus__none
+598,ambulatory,Ophthalmic examination and evaluation (procedure),cumulus__none,
+598,ambulatory,Ophthalmic examination and evaluation (procedure),cumulus__none,cumulus__none
+522,home health,,,
+522,home health,,,cumulus__none
+522,home health,,cumulus__none,
+522,home health,,cumulus__none,cumulus__none
+515,,Telemedicine consultation with patient (procedure),,
+515,,Telemedicine consultation with patient (procedure),,cumulus__none
+515,,Telemedicine consultation with patient (procedure),cumulus__none,
+515,,Telemedicine consultation with patient (procedure),cumulus__none,cumulus__none
+506,ambulatory,Telemedicine consultation with patient (procedure),,
+506,ambulatory,Telemedicine consultation with patient (procedure),,cumulus__none
+506,ambulatory,Telemedicine consultation with patient (procedure),cumulus__none,
+506,ambulatory,Telemedicine consultation with patient (procedure),cumulus__none,cumulus__none
+453,,Prenatal initial visit (regime/therapy),,
+453,,Prenatal initial visit (regime/therapy),,cumulus__none
+453,,Prenatal initial visit (regime/therapy),cumulus__none,
+453,,Prenatal initial visit (regime/therapy),cumulus__none,cumulus__none
+453,ambulatory,Prenatal initial visit (regime/therapy),,
+453,ambulatory,Prenatal initial visit (regime/therapy),,cumulus__none
+453,ambulatory,Prenatal initial visit (regime/therapy),cumulus__none,
+453,ambulatory,Prenatal initial visit (regime/therapy),cumulus__none,cumulus__none
+413,inpatient encounter,Encounter for problem (procedure),,
+413,inpatient encounter,Encounter for problem (procedure),,cumulus__none
+413,inpatient encounter,Encounter for problem (procedure),cumulus__none,
+413,inpatient encounter,Encounter for problem (procedure),cumulus__none,cumulus__none
+396,,Home visit (procedure),,
+396,,Home visit (procedure),,cumulus__none
+396,,Home visit (procedure),cumulus__none,
+396,,Home visit (procedure),cumulus__none,cumulus__none
+396,home health,Home visit (procedure),,
+396,home health,Home visit (procedure),,cumulus__none
+396,home health,Home visit (procedure),cumulus__none,
+396,home health,Home visit (procedure),cumulus__none,cumulus__none
+282,,Hospital admission (procedure),,
+282,,Hospital admission (procedure),,cumulus__none
+282,,Hospital admission (procedure),cumulus__none,
+282,,Hospital admission (procedure),cumulus__none,cumulus__none
+278,,Postnatal visit (regime/therapy),,
+278,,Postnatal visit (regime/therapy),,cumulus__none
+278,,Postnatal visit (regime/therapy),cumulus__none,
+278,,Postnatal visit (regime/therapy),cumulus__none,cumulus__none
+278,ambulatory,Postnatal visit (regime/therapy),,
+278,ambulatory,Postnatal visit (regime/therapy),,cumulus__none
+278,ambulatory,Postnatal visit (regime/therapy),cumulus__none,
+278,ambulatory,Postnatal visit (regime/therapy),cumulus__none,cumulus__none
+277,,Obstetric emergency hospital admission (procedure),,
+277,,Obstetric emergency hospital admission (procedure),,cumulus__none
+277,,Obstetric emergency hospital admission (procedure),cumulus__none,
+277,,Obstetric emergency hospital admission (procedure),cumulus__none,cumulus__none
+277,emergency,Obstetric emergency hospital admission (procedure),,
+277,emergency,Obstetric emergency hospital admission (procedure),,cumulus__none
+277,emergency,Obstetric emergency hospital admission (procedure),cumulus__none,
+277,emergency,Obstetric emergency hospital admission (procedure),cumulus__none,cumulus__none
+274,,Postoperative follow-up visit (procedure),,
+274,,Postoperative follow-up visit (procedure),,cumulus__none
+274,,Postoperative follow-up visit (procedure),cumulus__none,
+274,,Postoperative follow-up visit (procedure),cumulus__none,cumulus__none
+271,ambulatory,Postoperative follow-up visit (procedure),,
+271,ambulatory,Postoperative follow-up visit (procedure),,cumulus__none
+271,ambulatory,Postoperative follow-up visit (procedure),cumulus__none,
+271,ambulatory,Postoperative follow-up visit (procedure),cumulus__none,cumulus__none
+216,inpatient encounter,Hospital admission (procedure),,
+216,inpatient encounter,Hospital admission (procedure),,cumulus__none
+216,inpatient encounter,Hospital admission (procedure),cumulus__none,
+216,inpatient encounter,Hospital admission (procedure),cumulus__none,cumulus__none
+194,,Asthma follow-up (regime/therapy),,
+194,,Asthma follow-up (regime/therapy),,cumulus__none
+194,,Asthma follow-up (regime/therapy),cumulus__none,
+194,,Asthma follow-up (regime/therapy),cumulus__none,cumulus__none
+194,ambulatory,Asthma follow-up (regime/therapy),,
+194,ambulatory,Asthma follow-up (regime/therapy),,cumulus__none
+194,ambulatory,Asthma follow-up (regime/therapy),cumulus__none,
+194,ambulatory,Asthma follow-up (regime/therapy),cumulus__none,cumulus__none
+162,,Drug rehabilitation and detoxification (regime/therapy),,
+162,,Drug rehabilitation and detoxification (regime/therapy),,cumulus__none
+162,,Drug rehabilitation and detoxification (regime/therapy),cumulus__none,
+162,,Drug rehabilitation and detoxification (regime/therapy),cumulus__none,cumulus__none
+162,inpatient encounter,Drug rehabilitation and detoxification (regime/therapy),,
+162,inpatient encounter,Drug rehabilitation and detoxification (regime/therapy),,cumulus__none
+162,inpatient encounter,Drug rehabilitation and detoxification (regime/therapy),cumulus__none,
+162,inpatient encounter,Drug rehabilitation and detoxification (regime/therapy),cumulus__none,cumulus__none
+150,,Emergency hospital admission (procedure),,
+150,,Emergency hospital admission (procedure),,cumulus__none
+150,,Emergency hospital admission (procedure),cumulus__none,
+150,,Emergency hospital admission (procedure),cumulus__none,cumulus__none
+150,emergency,Emergency hospital admission (procedure),,
+150,emergency,Emergency hospital admission (procedure),,cumulus__none
+150,emergency,Emergency hospital admission (procedure),cumulus__none,
+150,emergency,Emergency hospital admission (procedure),cumulus__none,cumulus__none
+126,,Admission to hospice (procedure),,
+126,,Admission to hospice (procedure),,cumulus__none
+126,,Admission to hospice (procedure),cumulus__none,
+126,,Admission to hospice (procedure),cumulus__none,cumulus__none
+126,home health,Admission to hospice (procedure),,
+126,home health,Admission to hospice (procedure),,cumulus__none
+126,home health,Admission to hospice (procedure),cumulus__none,
+126,home health,Admission to hospice (procedure),cumulus__none,cumulus__none
+125,,Admission to surgical department (procedure),,
+125,,Admission to surgical department (procedure),,cumulus__none
+125,,Admission to surgical department (procedure),cumulus__none,
+125,,Admission to surgical department (procedure),cumulus__none,cumulus__none
+125,inpatient encounter,Admission to surgical department (procedure),,
+125,inpatient encounter,Admission to surgical department (procedure),,cumulus__none
+125,inpatient encounter,Admission to surgical department (procedure),cumulus__none,
+125,inpatient encounter,Admission to surgical department (procedure),cumulus__none,cumulus__none
+119,,Death Certification,,
+119,,Death Certification,,cumulus__none
+119,,Death Certification,cumulus__none,
+119,,Death Certification,cumulus__none,cumulus__none
+119,ambulatory,Death Certification,,
+119,ambulatory,Death Certification,,cumulus__none
+119,ambulatory,Death Certification,cumulus__none,
+119,ambulatory,Death Certification,cumulus__none,cumulus__none
+98,,Screening surveillance (regime/therapy),,
+98,,Screening surveillance (regime/therapy),,cumulus__none
+98,,Screening surveillance (regime/therapy),cumulus__none,
+98,,Screening surveillance (regime/therapy),cumulus__none,cumulus__none
+98,ambulatory,Screening surveillance (regime/therapy),,
+98,ambulatory,Screening surveillance (regime/therapy),,cumulus__none
+98,ambulatory,Screening surveillance (regime/therapy),cumulus__none,
+98,ambulatory,Screening surveillance (regime/therapy),cumulus__none,cumulus__none
+90,virtual,,,
+90,virtual,,,cumulus__none
+90,virtual,,cumulus__none,
+90,virtual,,cumulus__none,cumulus__none
+82,emergency,Encounter for problem (procedure),,
+82,emergency,Encounter for problem (procedure),,cumulus__none
+82,emergency,Encounter for problem (procedure),cumulus__none,
+82,emergency,Encounter for problem (procedure),cumulus__none,cumulus__none
+79,,Patient-initiated encounter (procedure),,
+79,,Patient-initiated encounter (procedure),,cumulus__none
+79,,Patient-initiated encounter (procedure),cumulus__none,
+79,,Patient-initiated encounter (procedure),cumulus__none,cumulus__none
+79,ambulatory,Patient-initiated encounter (procedure),,
+79,ambulatory,Patient-initiated encounter (procedure),,cumulus__none
+79,ambulatory,Patient-initiated encounter (procedure),cumulus__none,
+79,ambulatory,Patient-initiated encounter (procedure),cumulus__none,cumulus__none
+59,,Emergency hospital admission for asthma (procedure),,
+59,,Emergency hospital admission for asthma (procedure),,cumulus__none
+59,,Emergency hospital admission for asthma (procedure),cumulus__none,
+59,,Emergency hospital admission for asthma (procedure),cumulus__none,cumulus__none
+59,emergency,Emergency hospital admission for asthma (procedure),,
+59,emergency,Emergency hospital admission for asthma (procedure),,cumulus__none
+59,emergency,Emergency hospital admission for asthma (procedure),cumulus__none,
+59,emergency,Emergency hospital admission for asthma (procedure),cumulus__none,cumulus__none
+59,ambulatory,Hospital admission (procedure),,
+59,ambulatory,Hospital admission (procedure),,cumulus__none
+59,ambulatory,Hospital admission (procedure),cumulus__none,
+59,ambulatory,Hospital admission (procedure),cumulus__none,cumulus__none
+53,,Allergic disorder initial assessment (regime/therapy),,
+53,,Allergic disorder initial assessment (regime/therapy),,cumulus__none
+53,,Allergic disorder initial assessment (regime/therapy),cumulus__none,
+53,,Allergic disorder initial assessment (regime/therapy),cumulus__none,cumulus__none
+53,ambulatory,Allergic disorder initial assessment (regime/therapy),,
+53,ambulatory,Allergic disorder initial assessment (regime/therapy),,cumulus__none
+53,ambulatory,Allergic disorder initial assessment (regime/therapy),cumulus__none,
+53,ambulatory,Allergic disorder initial assessment (regime/therapy),cumulus__none,cumulus__none
+50,emergency,Encounter for symptom (procedure),,
+50,emergency,Encounter for symptom (procedure),,cumulus__none
+50,emergency,Encounter for symptom (procedure),cumulus__none,
+50,emergency,Encounter for symptom (procedure),cumulus__none,cumulus__none
+44,,Admission to intensive care unit (procedure),,
+44,,Admission to intensive care unit (procedure),,cumulus__none
+44,,Admission to intensive care unit (procedure),cumulus__none,
+44,,Admission to intensive care unit (procedure),cumulus__none,cumulus__none
+44,inpatient encounter,Admission to intensive care unit (procedure),,
+44,inpatient encounter,Admission to intensive care unit (procedure),,cumulus__none
+44,inpatient encounter,Admission to intensive care unit (procedure),cumulus__none,
+44,inpatient encounter,Admission to intensive care unit (procedure),cumulus__none,cumulus__none
+43,,Domiciliary or rest home patient evaluation and management (procedure),,
+43,,Domiciliary or rest home patient evaluation and management (procedure),,cumulus__none
+43,,Domiciliary or rest home patient evaluation and management (procedure),cumulus__none,
+43,,Domiciliary or rest home patient evaluation and management (procedure),cumulus__none,cumulus__none
+43,ambulatory,Domiciliary or rest home patient evaluation and management (procedure),,
+43,ambulatory,Domiciliary or rest home patient evaluation and management (procedure),,cumulus__none
+43,ambulatory,Domiciliary or rest home patient evaluation and management (procedure),cumulus__none,
+43,ambulatory,Domiciliary or rest home patient evaluation and management (procedure),cumulus__none,cumulus__none
+42,,Follow-up visit (procedure),,
+42,,Follow-up visit (procedure),,cumulus__none
+42,,Follow-up visit (procedure),cumulus__none,
+42,,Follow-up visit (procedure),cumulus__none,cumulus__none
+40,,Admission to surgical transplant department (procedure),,
+40,,Admission to surgical transplant department (procedure),,cumulus__none
+40,,Admission to surgical transplant department (procedure),cumulus__none,
+40,,Admission to surgical transplant department (procedure),cumulus__none,cumulus__none
+40,inpatient encounter,Admission to surgical transplant department (procedure),,
+40,inpatient encounter,Admission to surgical transplant department (procedure),,cumulus__none
+40,inpatient encounter,Admission to surgical transplant department (procedure),cumulus__none,
+40,inpatient encounter,Admission to surgical transplant department (procedure),cumulus__none,cumulus__none
+37,,Follow-up consultation (procedure),,
+37,,Follow-up consultation (procedure),,cumulus__none
+37,,Follow-up consultation (procedure),cumulus__none,
+37,,Follow-up consultation (procedure),cumulus__none,cumulus__none
+37,ambulatory,Follow-up consultation (procedure),,
+37,ambulatory,Follow-up consultation (procedure),,cumulus__none
+37,ambulatory,Follow-up consultation (procedure),cumulus__none,
+37,ambulatory,Follow-up consultation (procedure),cumulus__none,cumulus__none
+33,,Admission to ward (procedure),,
+33,,Admission to ward (procedure),,cumulus__none
+33,,Admission to ward (procedure),cumulus__none,
+33,,Admission to ward (procedure),cumulus__none,cumulus__none
+33,inpatient encounter,Admission to ward (procedure),,
+33,inpatient encounter,Admission to ward (procedure),,cumulus__none
+33,inpatient encounter,Admission to ward (procedure),cumulus__none,
+33,inpatient encounter,Admission to ward (procedure),cumulus__none,cumulus__none
+32,,Allergic disorder follow-up assessment (regime/therapy),,
+32,,Allergic disorder follow-up assessment (regime/therapy),,cumulus__none
+32,,Allergic disorder follow-up assessment (regime/therapy),cumulus__none,
+32,,Allergic disorder follow-up assessment (regime/therapy),cumulus__none,cumulus__none
+32,ambulatory,Allergic disorder follow-up assessment (regime/therapy),,
+32,ambulatory,Allergic disorder follow-up assessment (regime/therapy),,cumulus__none
+32,ambulatory,Allergic disorder follow-up assessment (regime/therapy),cumulus__none,
+32,ambulatory,Allergic disorder follow-up assessment (regime/therapy),cumulus__none,cumulus__none
+27,,Patient transfer to intensive care unit (procedure),,
+27,,Patient transfer to intensive care unit (procedure),,cumulus__none
+27,,Patient transfer to intensive care unit (procedure),cumulus__none,
+27,,Patient transfer to intensive care unit (procedure),cumulus__none,cumulus__none
+27,inpatient encounter,Patient transfer to intensive care unit (procedure),,
+27,inpatient encounter,Patient transfer to intensive care unit (procedure),,cumulus__none
+27,inpatient encounter,Patient transfer to intensive care unit (procedure),cumulus__none,
+27,inpatient encounter,Patient transfer to intensive care unit (procedure),cumulus__none,cumulus__none
+21,,Non-urgent orthopedic admission (procedure),,
+21,,Non-urgent orthopedic admission (procedure),,cumulus__none
+21,,Non-urgent orthopedic admission (procedure),cumulus__none,
+21,,Non-urgent orthopedic admission (procedure),cumulus__none,cumulus__none
+21,inpatient encounter,Non-urgent orthopedic admission (procedure),,
+21,inpatient encounter,Non-urgent orthopedic admission (procedure),,cumulus__none
+21,inpatient encounter,Non-urgent orthopedic admission (procedure),cumulus__none,
+21,inpatient encounter,Non-urgent orthopedic admission (procedure),cumulus__none,cumulus__none
+16,,Hospital admission for isolation (procedure),,
+16,,Hospital admission for isolation (procedure),,cumulus__none
+16,,Hospital admission for isolation (procedure),cumulus__none,
+16,,Hospital admission for isolation (procedure),cumulus__none,cumulus__none
+16,inpatient encounter,Hospital admission for isolation (procedure),,
+16,inpatient encounter,Hospital admission for isolation (procedure),,cumulus__none
+16,inpatient encounter,Hospital admission for isolation (procedure),cumulus__none,
+16,inpatient encounter,Hospital admission for isolation (procedure),cumulus__none,cumulus__none
+11,inpatient encounter,Follow-up visit (procedure),,
+11,inpatient encounter,Follow-up visit (procedure),,cumulus__none
+11,inpatient encounter,Follow-up visit (procedure),cumulus__none,
+11,inpatient encounter,Follow-up visit (procedure),cumulus__none,cumulus__none

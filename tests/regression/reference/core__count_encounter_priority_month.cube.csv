@@ -1,2605 +1,2119 @@
 cnt,class_display,priority_display,period_start_month
-21567103,,,
-21452280,,cumulus__none,
-17299392,Support OP Encounter,,
-17299346,Support OP Encounter,cumulus__none,
-2215506,Appointment,,
-2215501,Appointment,cumulus__none,
-1337161,Discharge,,
-1222674,Discharge,cumulus__none,
-610007,HOV,,
-610007,HOV,cumulus__none,
-579572,,,2025-10-01
-574128,,cumulus__none,2025-10-01
-552302,,,2024-10-01
-546488,,cumulus__none,2024-10-01
-539542,,,2025-09-01
-537551,,,2026-01-01
-534203,,cumulus__none,2025-09-01
-532079,,,2025-01-01
-531910,,cumulus__none,2026-01-01
-526944,,,2025-07-01
-526898,,,2024-06-01
-526577,,,2025-12-01
-525380,,cumulus__none,2025-01-01
-523383,,,2025-03-01
-522058,,cumulus__none,2025-07-01
-521947,,cumulus__none,2024-06-01
-520441,,cumulus__none,2025-12-01
-520044,,,2025-05-01
-517495,,cumulus__none,2025-03-01
-514295,,cumulus__none,2025-05-01
-514267,,,2025-08-01
-513727,,,2025-04-01
-509575,,cumulus__none,2025-08-01
-508263,,cumulus__none,2025-04-01
-506519,,,2024-07-01
-505242,,,2024-08-01
-501649,,cumulus__none,2024-07-01
-500468,,cumulus__none,2024-08-01
-497068,,,2025-11-01
-491892,,cumulus__none,2025-11-01
-490553,,,2026-02-01
-487920,,,2025-06-01
-487126,,,2024-09-01
-485685,,cumulus__none,2026-02-01
-485141,,,2024-11-01
-483030,,cumulus__none,2025-06-01
-481583,,cumulus__none,2024-09-01
-479470,,cumulus__none,2024-11-01
-467479,,,2024-12-01
-462622,,,2025-02-01
-461169,,cumulus__none,2024-12-01
-456963,,cumulus__none,2025-02-01
-450033,,,2024-05-01
-450027,,cumulus__none,2024-05-01
-432606,Support OP Encounter,,2024-05-01
-432606,Support OP Encounter,cumulus__none,2024-05-01
-412420,Support OP Encounter,,2024-06-01
-412414,Support OP Encounter,cumulus__none,2024-06-01
-408996,Support OP Encounter,,2025-10-01
-408996,Support OP Encounter,cumulus__none,2025-10-01
-393400,Support OP Encounter,,2024-10-01
-393395,Support OP Encounter,cumulus__none,2024-10-01
-384933,Support OP Encounter,,2025-09-01
-384933,Support OP Encounter,cumulus__none,2025-09-01
-384521,Support OP Encounter,,2026-01-01
-384520,Support OP Encounter,cumulus__none,2026-01-01
-377568,Support OP Encounter,,2025-01-01
-377564,Support OP Encounter,cumulus__none,2025-01-01
-373870,Support OP Encounter,,2025-12-01
-373870,Support OP Encounter,cumulus__none,2025-12-01
-373819,Support OP Encounter,,2024-07-01
-373818,Support OP Encounter,cumulus__none,2024-07-01
-370593,Support OP Encounter,,2024-08-01
-370589,Support OP Encounter,cumulus__none,2024-08-01
-370580,Support OP Encounter,,2025-07-01
-370580,Support OP Encounter,cumulus__none,2025-07-01
-368746,Support OP Encounter,,2025-03-01
-368744,Support OP Encounter,cumulus__none,2025-03-01
-365057,Support OP Encounter,,2025-08-01
-365056,Support OP Encounter,cumulus__none,2025-08-01
-363099,Support OP Encounter,,2025-05-01
-363099,Support OP Encounter,cumulus__none,2025-05-01
-361461,Support OP Encounter,,2025-04-01
-361460,Support OP Encounter,cumulus__none,2025-04-01
-354994,Support OP Encounter,,2024-09-01
-354990,Support OP Encounter,cumulus__none,2024-09-01
-352288,Support OP Encounter,,2026-02-01
-352288,Support OP Encounter,cumulus__none,2026-02-01
-350563,Support OP Encounter,,2025-11-01
-350563,Support OP Encounter,cumulus__none,2025-11-01
-343154,Support OP Encounter,,2024-11-01
-343148,Support OP Encounter,cumulus__none,2024-11-01
-341365,Support OP Encounter,,2025-06-01
-341365,Support OP Encounter,cumulus__none,2025-06-01
-328945,Support OP Encounter,,2024-12-01
-328940,Support OP Encounter,cumulus__none,2024-12-01
-326730,Support OP Encounter,,2025-02-01
-326724,Support OP Encounter,cumulus__none,2025-02-01
-173609,,,1900-01-01
-173609,,cumulus__none,1900-01-01
-173572,Support OP Encounter,,1900-01-01
-173572,Support OP Encounter,cumulus__none,1900-01-01
-170165,,,2023-10-01
-170165,,cumulus__none,2023-10-01
-168139,,,2024-04-01
-168139,,cumulus__none,2024-04-01
-167073,,,2023-03-01
-167073,,cumulus__none,2023-03-01
-166452,,,2022-10-01
-166452,,cumulus__none,2022-10-01
-164384,,,2023-11-01
-164384,,cumulus__none,2023-11-01
-163428,,,2024-01-01
-163428,,cumulus__none,2024-01-01
-162243,,,2023-05-01
-162243,,cumulus__none,2023-05-01
-160990,,,2021-12-01
-160990,,cumulus__none,2021-12-01
-160383,,,2024-03-01
-160383,,cumulus__none,2024-03-01
-159720,Support OP Encounter,,2023-10-01
-159720,Support OP Encounter,cumulus__none,2023-10-01
-159710,,,2021-11-01
-159710,,cumulus__none,2021-11-01
-158848,,,2022-03-01
-158848,,cumulus__none,2022-03-01
-158203,,,2022-08-01
-158203,,cumulus__none,2022-08-01
-157838,,,2022-11-01
-157838,,cumulus__none,2022-11-01
-157070,,,2023-08-01
-157070,,cumulus__none,2023-08-01
-156759,Support OP Encounter,,2024-04-01
-156759,Support OP Encounter,cumulus__none,2024-04-01
-156501,Support OP Encounter,,2023-03-01
-156501,Support OP Encounter,cumulus__none,2023-03-01
-156081,Support OP Encounter,,2022-10-01
-156081,Support OP Encounter,cumulus__none,2022-10-01
-154076,Support OP Encounter,,2023-11-01
-154076,Support OP Encounter,cumulus__none,2023-11-01
-153582,,,2021-06-01
-153582,,cumulus__none,2021-06-01
-153548,,,2022-06-01
-153548,,cumulus__none,2022-06-01
-153476,,,2023-06-01
-153476,,cumulus__none,2023-06-01
-153153,,,2021-10-01
-153153,,cumulus__none,2021-10-01
-152596,Support OP Encounter,,2024-01-01
-152596,Support OP Encounter,cumulus__none,2024-01-01
-152414,Support OP Encounter,,2021-12-01
-152414,Support OP Encounter,cumulus__none,2021-12-01
-151844,,,2024-02-01
-151844,,cumulus__none,2024-02-01
-151831,,,2023-01-01
-151831,,cumulus__none,2023-01-01
-151615,Support OP Encounter,,2021-11-01
-151615,Support OP Encounter,cumulus__none,2021-11-01
-151428,,,2022-05-01
-151428,,cumulus__none,2022-05-01
-151391,Support OP Encounter,,2023-05-01
-151391,Support OP Encounter,cumulus__none,2023-05-01
-150658,,,2022-09-01
-150658,,cumulus__none,2022-09-01
-150268,,,2021-03-01
-150268,,cumulus__none,2021-03-01
-150114,Support OP Encounter,,2022-03-01
-150114,Support OP Encounter,cumulus__none,2022-03-01
-150081,,,2022-01-01
-150081,,cumulus__none,2022-01-01
-149070,,,2022-12-01
-149070,,cumulus__none,2022-12-01
-148991,Support OP Encounter,,2022-08-01
-148991,Support OP Encounter,cumulus__none,2022-08-01
-148913,Support OP Encounter,,2024-03-01
-148913,Support OP Encounter,cumulus__none,2024-03-01
-147664,Support OP Encounter,,2022-11-01
-147664,Support OP Encounter,cumulus__none,2022-11-01
-147445,Support OP Encounter,,2023-08-01
-147445,Support OP Encounter,cumulus__none,2023-08-01
-145563,,,2021-08-01
-145563,,cumulus__none,2021-08-01
-145541,,,2023-09-01
-145541,,cumulus__none,2023-09-01
-145508,Support OP Encounter,,2021-06-01
-145508,Support OP Encounter,cumulus__none,2021-06-01
-145253,,,2021-09-01
-145253,,cumulus__none,2021-09-01
-144589,Support OP Encounter,,2021-10-01
-144589,Support OP Encounter,cumulus__none,2021-10-01
-144577,Support OP Encounter,,2022-06-01
-144577,Support OP Encounter,cumulus__none,2022-06-01
-143792,,,2023-12-01
-143792,,cumulus__none,2023-12-01
-143742,Support OP Encounter,,2023-06-01
-143742,Support OP Encounter,cumulus__none,2023-06-01
-143376,Support OP Encounter,,2021-03-01
-143376,Support OP Encounter,cumulus__none,2021-03-01
-143252,,,2021-04-01
-143252,,cumulus__none,2021-04-01
-143011,Support OP Encounter,,2022-01-01
-143011,Support OP Encounter,cumulus__none,2022-01-01
-142721,Support OP Encounter,,2023-01-01
-142721,Support OP Encounter,cumulus__none,2023-01-01
-142114,Support OP Encounter,,2022-05-01
-142114,Support OP Encounter,cumulus__none,2022-05-01
-141982,,,2021-05-01
-141982,,cumulus__none,2021-05-01
-141767,,,2023-04-01
-141767,,cumulus__none,2023-04-01
-141199,Support OP Encounter,,2022-09-01
-141199,Support OP Encounter,cumulus__none,2022-09-01
-141128,Support OP Encounter,,2024-02-01
-141128,Support OP Encounter,cumulus__none,2024-02-01
-140034,,,2023-02-01
-140034,,cumulus__none,2023-02-01
-140002,,,2023-07-01
-140002,,cumulus__none,2023-07-01
-139312,,,2022-04-01
-139312,,cumulus__none,2022-04-01
-139118,Support OP Encounter,,2022-12-01
-139118,Support OP Encounter,cumulus__none,2022-12-01
-138892,,,2022-07-01
-138892,,cumulus__none,2022-07-01
-137309,Support OP Encounter,,2021-08-01
-137309,Support OP Encounter,cumulus__none,2021-08-01
-137293,,,2021-01-01
-137293,,cumulus__none,2021-01-01
-137292,,,2021-07-01
-137292,,cumulus__none,2021-07-01
-136850,Support OP Encounter,,2021-09-01
-136850,Support OP Encounter,cumulus__none,2021-09-01
-136310,Support OP Encounter,,2021-04-01
-136310,Support OP Encounter,cumulus__none,2021-04-01
-136302,Support OP Encounter,,2023-09-01
-136302,Support OP Encounter,cumulus__none,2023-09-01
-134474,,,2022-02-01
-134474,,cumulus__none,2022-02-01
-134307,Support OP Encounter,,2021-05-01
-134307,Support OP Encounter,cumulus__none,2021-05-01
-133027,Support OP Encounter,,2023-12-01
-133027,Support OP Encounter,cumulus__none,2023-12-01
-132261,Support OP Encounter,,2023-04-01
-132261,Support OP Encounter,cumulus__none,2023-04-01
-131264,Support OP Encounter,,2021-01-01
-131264,Support OP Encounter,cumulus__none,2021-01-01
-131042,Support OP Encounter,,2023-02-01
-131042,Support OP Encounter,cumulus__none,2023-02-01
-130957,Support OP Encounter,,2023-07-01
-130957,Support OP Encounter,cumulus__none,2023-07-01
-130891,Support OP Encounter,,2022-04-01
-130891,Support OP Encounter,cumulus__none,2022-04-01
-130325,Support OP Encounter,,2022-07-01
-130325,Support OP Encounter,cumulus__none,2022-07-01
-130235,,,2021-02-01
-130235,,cumulus__none,2021-02-01
-129479,Support OP Encounter,,2021-07-01
-129479,Support OP Encounter,cumulus__none,2021-07-01
-127639,Support OP Encounter,,2022-02-01
-127639,Support OP Encounter,cumulus__none,2022-02-01
-124590,Support OP Encounter,,2021-02-01
-124590,Support OP Encounter,cumulus__none,2021-02-01
-124130,Appointment,,2025-10-01
-124130,Appointment,cumulus__none,2025-10-01
-114912,Appointment,,2024-10-01
-114912,Appointment,cumulus__none,2024-10-01
-113375,Appointment,,2025-07-01
-113375,Appointment,cumulus__none,2025-07-01
-113323,Appointment,,2025-05-01
-113323,Appointment,cumulus__none,2025-05-01
-112049,Appointment,,2025-03-01
-112049,Appointment,cumulus__none,2025-03-01
-111507,Appointment,,2025-09-01
-111507,Appointment,cumulus__none,2025-09-01
-111495,Appointment,,2025-01-01
-111495,Appointment,cumulus__none,2025-01-01
-111427,Appointment,,2026-01-01
-111427,Appointment,cumulus__none,2026-01-01
-110709,Appointment,,2025-04-01
-110709,Appointment,cumulus__none,2025-04-01
-110300,Appointment,,2025-12-01
-110300,Appointment,cumulus__none,2025-12-01
-106842,Appointment,,2025-08-01
-106842,Appointment,cumulus__none,2025-08-01
-106361,Appointment,,2025-11-01
-106361,Appointment,cumulus__none,2025-11-01
-105956,Appointment,,2025-06-01
-105956,Appointment,cumulus__none,2025-06-01
-102063,Appointment,,2024-11-01
-102063,Appointment,cumulus__none,2024-11-01
-101494,Appointment,,2026-02-01
-101494,Appointment,cumulus__none,2026-02-01
-98644,Appointment,,2024-12-01
-98644,Appointment,cumulus__none,2024-12-01
-98548,Appointment,,2025-02-01
-98548,Appointment,cumulus__none,2025-02-01
-94652,Appointment,,2024-08-01
-94651,Appointment,cumulus__none,2024-08-01
-93650,Appointment,,2024-07-01
-93649,Appointment,cumulus__none,2024-07-01
-93336,Appointment,,2024-09-01
-93335,Appointment,cumulus__none,2024-09-01
-79902,Appointment,,2024-06-01
-79900,Appointment,cumulus__none,2024-06-01
-68528,Requisition Encounter,,
-68528,Requisition Encounter,cumulus__none,
-64562,,,2026-03-01
-64373,,cumulus__none,2026-03-01
-58537,Support OP Encounter,,2026-03-01
-58537,Support OP Encounter,cumulus__none,2026-03-01
-55625,,Urgent,
-55531,Discharge,Urgent,
-47034,,,2020-01-01
-47034,,cumulus__none,2020-01-01
-45327,,,2019-10-01
-45327,,cumulus__none,2019-10-01
-42889,,,2019-05-01
-42889,,cumulus__none,2019-05-01
-41894,,,2019-08-01
-41894,,cumulus__none,2019-08-01
-41377,,,2019-01-01
-41377,,cumulus__none,2019-01-01
-41182,,,2020-02-01
-41182,,cumulus__none,2020-02-01
-41165,,,2019-04-01
-41165,,cumulus__none,2019-04-01
-40626,,,2019-11-01
-40626,,cumulus__none,2019-11-01
-40534,,,2018-10-01
-40534,,cumulus__none,2018-10-01
-40495,,,2019-03-01
-40495,,cumulus__none,2019-03-01
-40406,,,2019-07-01
-40406,,cumulus__none,2019-07-01
-39697,,,2018-05-01
-39697,,cumulus__none,2018-05-01
-39650,,,2019-09-01
-39650,,cumulus__none,2019-09-01
-39432,Support OP Encounter,,2020-01-01
-39432,Support OP Encounter,cumulus__none,2020-01-01
-39306,,,2019-06-01
-39306,,cumulus__none,2019-06-01
-38801,,,2019-12-01
-38801,,cumulus__none,2019-12-01
-38617,Support OP Encounter,,2019-10-01
-38617,Support OP Encounter,cumulus__none,2019-10-01
-38425,,,2018-08-01
-38425,,cumulus__none,2018-08-01
-38148,,,2018-11-01
-38148,,cumulus__none,2018-11-01
-36688,,,2018-06-01
-36688,,cumulus__none,2018-06-01
-36433,,,2026-04-01
-36433,,cumulus__none,2026-04-01
-36120,,,2019-02-01
-36120,,cumulus__none,2019-02-01
-35998,,,2017-10-01
-35998,,cumulus__none,2017-10-01
-35850,Support OP Encounter,,2019-05-01
-35850,Support OP Encounter,cumulus__none,2019-05-01
-35667,,,2018-07-01
-35667,,cumulus__none,2018-07-01
-35657,,,2017-05-01
-35657,,cumulus__none,2017-05-01
-35493,Support OP Encounter,,2019-08-01
-35493,Support OP Encounter,cumulus__none,2019-08-01
-35407,,,2018-12-01
-35407,,cumulus__none,2018-12-01
-35302,,,2017-11-01
-35302,,cumulus__none,2017-11-01
-35291,,,2018-03-01
-35291,,cumulus__none,2018-03-01
-35248,,,2018-01-01
-35248,,cumulus__none,2018-01-01
-35055,,,2017-08-01
-35055,,cumulus__none,2017-08-01
-34980,,,2018-04-01
-34980,,cumulus__none,2018-04-01
-34836,,,2017-03-01
-34836,,cumulus__none,2017-03-01
-34413,Support OP Encounter,,2019-01-01
-34413,Support OP Encounter,cumulus__none,2019-01-01
-34298,,,2017-06-01
-34298,,cumulus__none,2017-06-01
-34268,Support OP Encounter,,2020-02-01
-34268,Support OP Encounter,cumulus__none,2020-02-01
-34192,Support OP Encounter,,2019-07-01
-34192,Support OP Encounter,cumulus__none,2019-07-01
-34154,Support OP Encounter,,2019-11-01
-34154,Support OP Encounter,cumulus__none,2019-11-01
-34117,,,2018-02-01
-34117,,cumulus__none,2018-02-01
-34067,Support OP Encounter,,2019-04-01
-34067,Support OP Encounter,cumulus__none,2019-04-01
-34034,Support OP Encounter,,2018-10-01
-34034,Support OP Encounter,cumulus__none,2018-10-01
-33998,,,2020-12-01
-33998,,cumulus__none,2020-12-01
-33909,Preadmission,,
-33864,Preadmission,cumulus__none,
-33808,Support OP Encounter,,2026-04-01
-33808,Support OP Encounter,cumulus__none,2026-04-01
-33729,,,2018-09-01
-33729,,cumulus__none,2018-09-01
-33350,Support OP Encounter,,2019-03-01
-33350,Support OP Encounter,cumulus__none,2019-03-01
-33335,,,2016-03-01
-33335,,cumulus__none,2016-03-01
-33327,Support OP Encounter,,2019-09-01
-33327,Support OP Encounter,cumulus__none,2019-09-01
-33254,,,2017-01-01
-33254,,cumulus__none,2017-01-01
-33044,Support OP Encounter,,2019-06-01
-33044,Support OP Encounter,cumulus__none,2019-06-01
-32954,Support OP Encounter,,2018-05-01
-32954,Support OP Encounter,cumulus__none,2018-05-01
-32937,,,2016-08-01
-32937,,cumulus__none,2016-08-01
-32581,,,2020-10-01
-32581,,cumulus__none,2020-10-01
-32565,,,2017-12-01
-32565,,cumulus__none,2017-12-01
-32301,HOV,,2025-10-01
-32301,HOV,cumulus__none,2025-10-01
-32250,,,2016-11-01
-32250,,cumulus__none,2016-11-01
-32000,Support OP Encounter,,2019-12-01
-32000,Support OP Encounter,cumulus__none,2019-12-01
-31989,Support OP Encounter,,2018-08-01
-31989,Support OP Encounter,cumulus__none,2018-08-01
-31851,,,2016-06-01
-31851,,cumulus__none,2016-06-01
-31834,,,2017-09-01
-31834,,cumulus__none,2017-09-01
-31800,,,2020-11-01
-31800,,cumulus__none,2020-11-01
-31746,Support OP Encounter,,2018-11-01
-31746,Support OP Encounter,cumulus__none,2018-11-01
-31706,,,2016-05-01
-31706,,cumulus__none,2016-05-01
-31690,,,2016-10-01
-31690,,cumulus__none,2016-10-01
-31394,,Emergent,
-31263,Discharge,Emergent,
-31179,,,2016-12-01
-31179,,cumulus__none,2016-12-01
-31001,,,2017-04-01
-31001,,cumulus__none,2017-04-01
-30866,,,2017-07-01
-30866,,cumulus__none,2017-07-01
-30660,,,2016-09-01
-30660,,cumulus__none,2016-09-01
-30609,HOV,,2024-10-01
-30609,HOV,cumulus__none,2024-10-01
-30469,Support OP Encounter,,2018-06-01
-30469,Support OP Encounter,cumulus__none,2018-06-01
-29912,Support OP Encounter,,2019-02-01
-29912,Support OP Encounter,cumulus__none,2019-02-01
-29833,Support OP Encounter,,2017-10-01
-29833,Support OP Encounter,cumulus__none,2017-10-01
-29666,HOV,,2025-07-01
-29666,HOV,cumulus__none,2025-07-01
-29555,HOV,,2025-09-01
-29555,HOV,cumulus__none,2025-09-01
-29480,HOV,,2025-05-01
-29480,HOV,cumulus__none,2025-05-01
-29447,Support OP Encounter,,2018-07-01
-29447,Support OP Encounter,cumulus__none,2018-07-01
-29442,,,2020-09-01
-29442,,cumulus__none,2020-09-01
-29080,,,2016-04-01
-29080,,cumulus__none,2016-04-01
-29016,Support OP Encounter,,2017-05-01
-29016,Support OP Encounter,cumulus__none,2017-05-01
-29005,HOV,,2025-08-01
-29005,HOV,cumulus__none,2025-08-01
-28922,Support OP Encounter,,2017-11-01
-28922,Support OP Encounter,cumulus__none,2017-11-01
-28904,Support OP Encounter,,2017-08-01
-28904,Support OP Encounter,cumulus__none,2017-08-01
-28899,HOV,,2025-03-01
-28899,HOV,cumulus__none,2025-03-01
-28841,Support OP Encounter,,2018-03-01
-28841,Support OP Encounter,cumulus__none,2018-03-01
-28783,Support OP Encounter,,2020-12-01
-28783,Support OP Encounter,cumulus__none,2020-12-01
-28741,Support OP Encounter,,2018-04-01
-28741,Support OP Encounter,cumulus__none,2018-04-01
-28735,Support OP Encounter,,2018-01-01
-28735,Support OP Encounter,cumulus__none,2018-01-01
-28661,Support OP Encounter,,2018-12-01
-28661,Support OP Encounter,cumulus__none,2018-12-01
-28631,,,2015-10-01
-28631,,cumulus__none,2015-10-01
-28630,,,2015-12-01
-28630,,cumulus__none,2015-12-01
-28622,,,2016-01-01
-28622,,cumulus__none,2016-01-01
-28594,,,2016-07-01
-28594,,cumulus__none,2016-07-01
-28574,,,2016-02-01
-28574,,cumulus__none,2016-02-01
-28546,,,2017-02-01
-28546,,cumulus__none,2017-02-01
-28539,HOV,,2025-04-01
-28539,HOV,cumulus__none,2025-04-01
-28433,HOV,,2025-01-01
-28433,HOV,cumulus__none,2025-01-01
-28410,,,2015-06-01
-28410,,cumulus__none,2015-06-01
-28376,Support OP Encounter,,2017-03-01
-28376,Support OP Encounter,cumulus__none,2017-03-01
-28143,Support OP Encounter,,2017-06-01
-28143,Support OP Encounter,cumulus__none,2017-06-01
-27889,Support OP Encounter,,2018-09-01
-27889,Support OP Encounter,cumulus__none,2018-09-01
-27869,,,2020-08-01
-27869,,cumulus__none,2020-08-01
-27823,HOV,,2024-08-01
-27823,HOV,cumulus__none,2024-08-01
-27810,HOV,,2025-06-01
-27810,HOV,cumulus__none,2025-06-01
-27477,HOV,,2024-11-01
-27477,HOV,cumulus__none,2024-11-01
-27446,,,2015-11-01
-27446,,cumulus__none,2015-11-01
-27410,Support OP Encounter,,2018-02-01
-27410,Support OP Encounter,cumulus__none,2018-02-01
-27245,HOV,,2025-12-01
-27245,HOV,cumulus__none,2025-12-01
-27203,Support OP Encounter,,2020-10-01
-27203,Support OP Encounter,cumulus__none,2020-10-01
-27073,,,2015-05-01
-27073,,cumulus__none,2015-05-01
-27017,HOV,,2024-07-01
-27017,HOV,cumulus__none,2024-07-01
-27016,,,2020-03-01
-27016,,cumulus__none,2020-03-01
-27014,,,2015-09-01
-27014,,cumulus__none,2015-09-01
-26911,Support OP Encounter,,2016-08-01
-26911,Support OP Encounter,cumulus__none,2016-08-01
-26906,HOV,,2026-01-01
-26906,HOV,cumulus__none,2026-01-01
-26870,Support OP Encounter,,2017-01-01
-26870,Support OP Encounter,cumulus__none,2017-01-01
-26857,,,2015-07-01
-26857,,cumulus__none,2015-07-01
-26772,HOV,,2025-11-01
-26772,HOV,cumulus__none,2025-11-01
-26745,,,2015-03-01
-26745,,cumulus__none,2015-03-01
-26733,,,2015-04-01
-26733,,cumulus__none,2015-04-01
-26704,Support OP Encounter,,2016-03-01
-26704,Support OP Encounter,cumulus__none,2016-03-01
-26558,Support OP Encounter,,2020-11-01
-26558,Support OP Encounter,cumulus__none,2020-11-01
-26457,,,2015-08-01
-26457,,cumulus__none,2015-08-01
-26455,HOV,,2024-09-01
-26455,HOV,cumulus__none,2024-09-01
-26375,,,2014-10-01
-26375,,cumulus__none,2014-10-01
-26348,HOV,,2024-12-01
-26348,HOV,cumulus__none,2024-12-01
-26307,Support OP Encounter,,2016-11-01
-26307,Support OP Encounter,cumulus__none,2016-11-01
-26230,Support OP Encounter,,2017-12-01
-26230,Support OP Encounter,cumulus__none,2017-12-01
-26202,Support OP Encounter,,2017-09-01
-26202,Support OP Encounter,cumulus__none,2017-09-01
-26185,,,2020-07-01
-26185,,cumulus__none,2020-07-01
-25828,Support OP Encounter,,2016-06-01
-25828,Support OP Encounter,cumulus__none,2016-06-01
-25827,Support OP Encounter,,2016-10-01
-25827,Support OP Encounter,cumulus__none,2016-10-01
-25407,Support OP Encounter,,2016-05-01
-25407,Support OP Encounter,cumulus__none,2016-05-01
-25164,Support OP Encounter,,2017-07-01
-25164,Support OP Encounter,cumulus__none,2017-07-01
-25113,,,2014-12-01
-25113,,cumulus__none,2014-12-01
-24921,HOV,,2025-02-01
-24921,HOV,cumulus__none,2025-02-01
-24898,Support OP Encounter,,2016-12-01
-24898,Support OP Encounter,cumulus__none,2016-12-01
-24866,Support OP Encounter,,2016-09-01
-24866,Support OP Encounter,cumulus__none,2016-09-01
-24851,Support OP Encounter,,2017-04-01
-24851,Support OP Encounter,cumulus__none,2017-04-01
-24779,,Less Urgent,
-24728,Discharge,Less Urgent,
-24661,,,2026-05-01
-24661,,cumulus__none,2026-05-01
-24609,,,2014-07-01
-24609,,cumulus__none,2014-07-01
-24516,,,2014-09-01
-24516,,cumulus__none,2014-09-01
-24371,,,2014-04-01
-24371,,cumulus__none,2014-04-01
-24216,,,2014-05-01
-24216,,cumulus__none,2014-05-01
-24097,Support OP Encounter,,2020-09-01
-24097,Support OP Encounter,cumulus__none,2020-09-01
-23830,,,2014-03-01
-23830,,cumulus__none,2014-03-01
-23716,Support OP Encounter,,2026-05-01
-23716,Support OP Encounter,cumulus__none,2026-05-01
-23657,,,2014-06-01
-23657,,cumulus__none,2014-06-01
-23460,Support OP Encounter,,2015-10-01
-23460,Support OP Encounter,cumulus__none,2015-10-01
-23293,HOV,,2026-02-01
-23293,HOV,cumulus__none,2026-02-01
-23283,,,2015-01-01
-23283,,cumulus__none,2015-01-01
-23280,,,2013-10-01
-23280,,cumulus__none,2013-10-01
-23243,,,2014-11-01
-23243,,cumulus__none,2014-11-01
-23173,Support OP Encounter,,2015-06-01
-23173,Support OP Encounter,cumulus__none,2015-06-01
-23131,Support OP Encounter,,2016-04-01
-23131,Support OP Encounter,cumulus__none,2016-04-01
-22971,Support OP Encounter,,2016-07-01
-22971,Support OP Encounter,cumulus__none,2016-07-01
-22963,,,2014-08-01
-22963,,cumulus__none,2014-08-01
-22824,HOV,,2024-06-01
-22824,HOV,cumulus__none,2024-06-01
-22804,Support OP Encounter,,2015-12-01
-22804,Support OP Encounter,cumulus__none,2015-12-01
-22756,Support OP Encounter,,2017-02-01
-22756,Support OP Encounter,cumulus__none,2017-02-01
-22727,Support OP Encounter,,2016-02-01
-22727,Support OP Encounter,cumulus__none,2016-02-01
-22680,Support OP Encounter,,2016-01-01
-22680,Support OP Encounter,cumulus__none,2016-01-01
-22581,,,2014-01-01
-22581,,cumulus__none,2014-01-01
-22551,Support OP Encounter,,2020-08-01
-22551,Support OP Encounter,cumulus__none,2020-08-01
-22141,,,2013-05-01
-22141,,cumulus__none,2013-05-01
-22078,Support OP Encounter,,2015-11-01
-22078,Support OP Encounter,cumulus__none,2015-11-01
-22059,Support OP Encounter,,2020-03-01
-22059,Support OP Encounter,cumulus__none,2020-03-01
-22056,Support OP Encounter,,2015-09-01
-22056,Support OP Encounter,cumulus__none,2015-09-01
-21725,Support OP Encounter,,2015-07-01
-21725,Support OP Encounter,cumulus__none,2015-07-01
-21703,Support OP Encounter,,2015-03-01
-21703,Support OP Encounter,cumulus__none,2015-03-01
-21632,Support OP Encounter,,2015-05-01
-21632,Support OP Encounter,cumulus__none,2015-05-01
-21579,Support OP Encounter,,2014-10-01
-21579,Support OP Encounter,cumulus__none,2014-10-01
-21479,Support OP Encounter,,2015-08-01
-21479,Support OP Encounter,cumulus__none,2015-08-01
-21271,Support OP Encounter,,2015-04-01
-21271,Support OP Encounter,cumulus__none,2015-04-01
-21191,,,2013-08-01
-21191,,cumulus__none,2013-08-01
-21065,,,2013-11-01
-21065,,cumulus__none,2013-11-01
-20906,,,2013-01-01
-20906,,cumulus__none,2013-01-01
-20883,Support OP Encounter,,2020-07-01
-20883,Support OP Encounter,cumulus__none,2020-07-01
-20818,,,2013-07-01
-20818,,cumulus__none,2013-07-01
-20719,,,2014-02-01
-20719,,cumulus__none,2014-02-01
-20673,,,2015-02-01
-20673,,cumulus__none,2015-02-01
-20522,,,2013-04-01
-20522,,cumulus__none,2013-04-01
-20437,,,2013-12-01
-20437,,cumulus__none,2013-12-01
-20260,,,2013-03-01
-20260,,cumulus__none,2013-03-01
-20234,,,2020-06-01
-20234,,cumulus__none,2020-06-01
-20205,,,2013-09-01
-20205,,cumulus__none,2013-09-01
-20146,,,2012-10-01
-20146,,cumulus__none,2012-10-01
-20077,Support OP Encounter,,2014-07-01
-20077,Support OP Encounter,cumulus__none,2014-07-01
-19961,Support OP Encounter,,2014-12-01
-19961,Support OP Encounter,cumulus__none,2014-12-01
-19929,,,2013-06-01
-19929,,cumulus__none,2013-06-01
-19817,,,2012-05-01
-19817,,cumulus__none,2012-05-01
-19791,Support OP Encounter,,2014-09-01
-19791,Support OP Encounter,cumulus__none,2014-09-01
-19613,Support OP Encounter,,2014-04-01
-19613,Support OP Encounter,cumulus__none,2014-04-01
-19456,,,2012-03-01
-19456,,cumulus__none,2012-03-01
-19330,,,2012-11-01
-19330,,cumulus__none,2012-11-01
-19300,,,2012-08-01
-19300,,cumulus__none,2012-08-01
-19292,Support OP Encounter,,2014-05-01
-19292,Support OP Encounter,cumulus__none,2014-05-01
-19063,Support OP Encounter,,2014-03-01
-19063,Support OP Encounter,cumulus__none,2014-03-01
-19035,Support OP Encounter,,2014-06-01
-19035,Support OP Encounter,cumulus__none,2014-06-01
-18892,Support OP Encounter,,2013-10-01
-18892,Support OP Encounter,cumulus__none,2013-10-01
-18609,Support OP Encounter,,2014-11-01
-18609,Support OP Encounter,cumulus__none,2014-11-01
-18546,,,2012-12-01
-18546,,cumulus__none,2012-12-01
-18491,Support OP Encounter,,2014-08-01
-18491,Support OP Encounter,cumulus__none,2014-08-01
-18483,,,2012-01-01
-18483,,cumulus__none,2012-01-01
-18473,,,2012-06-01
-18473,,cumulus__none,2012-06-01
-18441,,,2011-03-01
-18441,,cumulus__none,2011-03-01
-18245,Support OP Encounter,,2015-01-01
-18245,Support OP Encounter,cumulus__none,2015-01-01
-18150,,,2012-04-01
-18150,,cumulus__none,2012-04-01
-18079,,,2012-07-01
-18079,,cumulus__none,2012-07-01
-18073,Support OP Encounter,,2014-01-01
-18073,Support OP Encounter,cumulus__none,2014-01-01
-17962,,,2026-06-01
-17962,,cumulus__none,2026-06-01
-17782,,,2013-02-01
-17782,,cumulus__none,2013-02-01
-17749,,,2012-02-01
-17749,,cumulus__none,2012-02-01
-17587,,,2011-11-01
-17587,,cumulus__none,2011-11-01
-17395,Support OP Encounter,,2013-05-01
-17395,Support OP Encounter,cumulus__none,2013-05-01
-17355,,,2011-12-01
-17355,,cumulus__none,2011-12-01
-17330,Support OP Encounter,,2026-06-01
-17330,Support OP Encounter,cumulus__none,2026-06-01
-17289,,,2011-10-01
-17289,,cumulus__none,2011-10-01
-17218,,,2012-09-01
-17218,,cumulus__none,2012-09-01
-17171,,,2011-08-01
-17171,,cumulus__none,2011-08-01
-17148,,,2011-09-01
-17148,,cumulus__none,2011-09-01
-17005,,,2011-05-01
-17005,,cumulus__none,2011-05-01
-16865,Support OP Encounter,,2013-08-01
-16865,Support OP Encounter,cumulus__none,2013-08-01
-16780,Support OP Encounter,,2013-11-01
-16780,Support OP Encounter,cumulus__none,2013-11-01
-16695,,,2011-06-01
-16695,,cumulus__none,2011-06-01
-16630,Support OP Encounter,,2014-02-01
-16630,Support OP Encounter,cumulus__none,2014-02-01
-16549,Support OP Encounter,,2015-02-01
-16549,Support OP Encounter,cumulus__none,2015-02-01
-16427,Support OP Encounter,,2013-07-01
-16427,Support OP Encounter,cumulus__none,2013-07-01
-16228,,,2011-04-01
-16228,,cumulus__none,2011-04-01
-16207,Support OP Encounter,,2013-01-01
-16207,Support OP Encounter,cumulus__none,2013-01-01
-16182,Support OP Encounter,,2013-04-01
-16182,Support OP Encounter,cumulus__none,2013-04-01
-16146,Support OP Encounter,,2013-09-01
-16146,Support OP Encounter,cumulus__none,2013-09-01
-16084,Support OP Encounter,,2012-10-01
-16084,Support OP Encounter,cumulus__none,2012-10-01
-16081,Support OP Encounter,,2013-12-01
-16081,Support OP Encounter,cumulus__none,2013-12-01
-16004,,,2010-03-01
-16004,,cumulus__none,2010-03-01
-15822,Support OP Encounter,,2013-06-01
-15822,Support OP Encounter,cumulus__none,2013-06-01
-15654,Support OP Encounter,,2013-03-01
-15654,Support OP Encounter,cumulus__none,2013-03-01
-15617,Support OP Encounter,,2012-05-01
-15617,Support OP Encounter,cumulus__none,2012-05-01
-15560,Support OP Encounter,,2020-06-01
-15560,Support OP Encounter,cumulus__none,2020-06-01
-15271,,,2010-06-01
-15271,,cumulus__none,2010-06-01
-15224,Support OP Encounter,,2012-11-01
-15224,Support OP Encounter,cumulus__none,2012-11-01
-15207,Support OP Encounter,,2012-03-01
-15207,Support OP Encounter,cumulus__none,2012-03-01
-15195,Support OP Encounter,,2012-08-01
-15195,Support OP Encounter,cumulus__none,2012-08-01
-15063,,,2010-11-01
-15063,,cumulus__none,2010-11-01
-15017,,,2011-07-01
-15017,,cumulus__none,2011-07-01
-15007,,,2010-04-01
-15007,,cumulus__none,2010-04-01
-14984,,,2010-10-01
-14984,,cumulus__none,2010-10-01
-14844,,,2010-05-01
-14844,,cumulus__none,2010-05-01
-14839,,,2011-01-01
-14839,,cumulus__none,2011-01-01
-14784,,,2010-12-01
-14784,,cumulus__none,2010-12-01
-14703,,,2011-02-01
-14703,,cumulus__none,2011-02-01
-14668,,,2010-09-01
-14668,,cumulus__none,2010-09-01
-14534,Support OP Encounter,,2012-06-01
-14534,Support OP Encounter,cumulus__none,2012-06-01
-14532,,,2010-08-01
-14532,,cumulus__none,2010-08-01
-14347,,,2009-10-01
-14347,,cumulus__none,2009-10-01
-14272,Support OP Encounter,,2011-03-01
-14272,Support OP Encounter,cumulus__none,2011-03-01
-14258,Support OP Encounter,,2012-01-01
-14258,Support OP Encounter,cumulus__none,2012-01-01
-14220,Support OP Encounter,,2012-07-01
-14220,Support OP Encounter,cumulus__none,2012-07-01
-14159,,,2009-06-01
-14159,,cumulus__none,2009-06-01
-14154,,,2010-07-01
-14154,,cumulus__none,2010-07-01
-14112,Support OP Encounter,,2012-04-01
-14112,Support OP Encounter,cumulus__none,2012-04-01
-13960,Support OP Encounter,,2012-12-01
-13960,Support OP Encounter,cumulus__none,2012-12-01
-13838,Support OP Encounter,,2013-02-01
-13838,Support OP Encounter,cumulus__none,2013-02-01
-13810,Support OP Encounter,,2011-11-01
-13810,Support OP Encounter,cumulus__none,2011-11-01
-13748,,,2009-09-01
-13748,,cumulus__none,2009-09-01
-13701,Support OP Encounter,,2011-10-01
-13701,Support OP Encounter,cumulus__none,2011-10-01
-13624,,,2009-03-01
-13624,,cumulus__none,2009-03-01
-13610,Support OP Encounter,,2011-08-01
-13610,Support OP Encounter,cumulus__none,2011-08-01
-13589,Support OP Encounter,,2012-02-01
-13589,Support OP Encounter,cumulus__none,2012-02-01
-13540,Support OP Encounter,,2011-09-01
-13540,Support OP Encounter,cumulus__none,2011-09-01
-13495,Support OP Encounter,,2012-09-01
-13495,Support OP Encounter,cumulus__none,2012-09-01
-13494,,,2010-02-01
-13494,,cumulus__none,2010-02-01
-13492,,,2009-05-01
-13492,,cumulus__none,2009-05-01
-13381,Support OP Encounter,,2011-12-01
-13381,Support OP Encounter,cumulus__none,2011-12-01
-13368,,,2009-04-01
-13368,,cumulus__none,2009-04-01
-13367,,,2010-01-01
-13367,,cumulus__none,2010-01-01
-13348,,,2009-12-01
-13348,,cumulus__none,2009-12-01
-13165,,,2009-07-01
-13165,,cumulus__none,2009-07-01
-13129,Support OP Encounter,,2011-05-01
-13129,Support OP Encounter,cumulus__none,2011-05-01
-13093,Support OP Encounter,,2011-06-01
-13093,Support OP Encounter,cumulus__none,2011-06-01
-13042,,,2009-11-01
-13042,,cumulus__none,2009-11-01
-13019,,,2020-05-01
-13019,,cumulus__none,2020-05-01
-12804,,,2026-07-01
-12804,,cumulus__none,2026-07-01
-12779,,,2009-08-01
-12779,,cumulus__none,2009-08-01
-12604,,,2008-10-01
-12604,,cumulus__none,2008-10-01
-12500,Support OP Encounter,,2026-07-01
-12500,Support OP Encounter,cumulus__none,2026-07-01
-12210,,,2009-02-01
-12210,,cumulus__none,2009-02-01
-12206,Support OP Encounter,,2011-04-01
-12206,Support OP Encounter,cumulus__none,2011-04-01
-12153,Support OP Encounter,,2010-03-01
-12153,Support OP Encounter,cumulus__none,2010-03-01
-12028,,,2009-01-01
-12028,,cumulus__none,2009-01-01
-11834,Support OP Encounter,,2010-06-01
-11834,Support OP Encounter,cumulus__none,2010-06-01
-11687,,,2008-12-01
-11687,,cumulus__none,2008-12-01
-11663,Support OP Encounter,,2010-10-01
-11663,Support OP Encounter,cumulus__none,2010-10-01
-11619,,,2008-05-01
-11619,,cumulus__none,2008-05-01
-11589,Support OP Encounter,,2011-07-01
-11589,Support OP Encounter,cumulus__none,2011-07-01
-11540,Support OP Encounter,,2010-11-01
-11540,Support OP Encounter,cumulus__none,2010-11-01
-11435,Support OP Encounter,,2010-09-01
-11435,Support OP Encounter,cumulus__none,2010-09-01
-11386,,,2008-09-01
-11386,,cumulus__none,2008-09-01
-11385,Support OP Encounter,,2010-04-01
-11385,Support OP Encounter,cumulus__none,2010-04-01
-11296,Support OP Encounter,,2010-08-01
-11296,Support OP Encounter,cumulus__none,2010-08-01
-11236,,,2008-04-01
-11236,,cumulus__none,2008-04-01
-11176,,,2008-07-01
-11176,,cumulus__none,2008-07-01
-11144,Support OP Encounter,,2010-05-01
-11144,Support OP Encounter,cumulus__none,2010-05-01
-11106,,,2008-01-01
-11106,,cumulus__none,2008-01-01
-11098,Support OP Encounter,,2011-01-01
-11098,Support OP Encounter,cumulus__none,2011-01-01
-11047,,,2008-06-01
-11047,,cumulus__none,2008-06-01
-11018,Support OP Encounter,,2010-12-01
-11018,Support OP Encounter,cumulus__none,2010-12-01
-10960,Support OP Encounter,,2009-10-01
-10960,Support OP Encounter,cumulus__none,2009-10-01
-10950,Support OP Encounter,,2010-07-01
-10950,Support OP Encounter,cumulus__none,2010-07-01
-10922,,,2008-03-01
-10922,,cumulus__none,2008-03-01
-10915,Support OP Encounter,,2011-02-01
-10915,Support OP Encounter,cumulus__none,2011-02-01
-10635,,,2008-11-01
-10635,,cumulus__none,2008-11-01
-10558,,,2008-08-01
-10558,,cumulus__none,2008-08-01
-10535,Support OP Encounter,,2009-06-01
-10535,Support OP Encounter,cumulus__none,2009-06-01
-10486,,,2008-02-01
-10486,,cumulus__none,2008-02-01
-10469,Support OP Encounter,,2009-09-01
-10469,Support OP Encounter,cumulus__none,2009-09-01
-10466,Discharge,,2024-05-01
-10461,Discharge,cumulus__none,2024-05-01
-10261,Discharge,,2025-01-01
-10260,Discharge,,2023-05-01
-10260,Discharge,cumulus__none,2023-05-01
-10151,Support OP Encounter,,2009-03-01
-10151,Support OP Encounter,cumulus__none,2009-03-01
-10117,,,2007-10-01
-10117,,cumulus__none,2007-10-01
-10100,Support OP Encounter,,2009-07-01
-10100,Support OP Encounter,cumulus__none,2009-07-01
-10046,Discharge,,2023-03-01
-10046,Discharge,cumulus__none,2023-03-01
-10014,Support OP Encounter,,2009-12-01
-10014,Support OP Encounter,cumulus__none,2009-12-01
-10008,Discharge,,2022-10-01
-10008,Discharge,cumulus__none,2022-10-01
-9932,Discharge,,2024-03-01
-9932,Discharge,cumulus__none,2024-03-01
-9929,Discharge,,2023-12-01
-9929,Discharge,cumulus__none,2023-12-01
-9903,Support OP Encounter,,2009-04-01
-9903,Support OP Encounter,cumulus__none,2009-04-01
-9900,Support OP Encounter,,2010-02-01
-9900,Support OP Encounter,cumulus__none,2010-02-01
-9840,Support OP Encounter,,2009-05-01
-9840,Support OP Encounter,cumulus__none,2009-05-01
-9827,Support OP Encounter,,2010-01-01
-9827,Support OP Encounter,cumulus__none,2010-01-01
-9822,Discharge,,2022-11-01
-9822,Discharge,cumulus__none,2022-11-01
-9725,Discharge,,2025-12-01
-9688,Discharge,,2024-01-01
-9688,Discharge,cumulus__none,2024-01-01
-9654,Discharge,,2024-12-01
-9645,Discharge,,2023-10-01
-9645,Discharge,cumulus__none,2023-10-01
-9606,Support OP Encounter,,2020-05-01
-9606,Support OP Encounter,cumulus__none,2020-05-01
-9597,Discharge,,2022-12-01
-9597,Discharge,cumulus__none,2022-12-01
-9594,Support OP Encounter,,2009-08-01
-9594,Support OP Encounter,cumulus__none,2009-08-01
-9558,,,2007-11-01
-9558,,cumulus__none,2007-11-01
-9551,Discharge,,2024-04-01
-9551,Discharge,cumulus__none,2024-04-01
-9538,Support OP Encounter,,2008-10-01
-9538,Support OP Encounter,cumulus__none,2008-10-01
-9521,Discharge,,2023-11-01
-9521,Discharge,cumulus__none,2023-11-01
-9512,Discharge,,2025-03-01
-9481,Discharge,,2025-05-01
-9460,Support OP Encounter,,2009-11-01
-9460,Support OP Encounter,cumulus__none,2009-11-01
-9432,Discharge,,2024-02-01
-9432,Discharge,cumulus__none,2024-02-01
-9424,Discharge,,2024-10-01
-9357,Discharge,,2025-10-01
-9253,Discharge,,2023-06-01
-9253,Discharge,cumulus__none,2023-06-01
-9223,,,2007-08-01
-9223,,cumulus__none,2007-08-01
-9153,Discharge,,2025-04-01
-9113,Discharge,,2022-09-01
-9113,Discharge,cumulus__none,2022-09-01
-9076,Discharge,,2026-01-01
-9048,Discharge,,2023-04-01
-9048,Discharge,cumulus__none,2023-04-01
-9035,Discharge,,2022-05-01
-9035,Discharge,cumulus__none,2022-05-01
-8997,Discharge,,2025-09-01
-8966,Discharge,,2023-08-01
-8966,Discharge,cumulus__none,2023-08-01
-8944,Support OP Encounter,,2009-01-01
-8944,Support OP Encounter,cumulus__none,2009-01-01
-8944,Discharge,,2024-11-01
-8929,,,2007-12-01
-8929,,cumulus__none,2007-12-01
-8928,Discharge,,2022-08-01
-8928,Discharge,cumulus__none,2022-08-01
-8927,,,2020-04-01
-8927,,cumulus__none,2020-04-01
-8915,Support OP Encounter,,2009-02-01
-8915,Support OP Encounter,cumulus__none,2009-02-01
-8908,Discharge,,2025-07-01
-8812,Discharge,,2025-02-01
-8779,,,2007-06-01
-8779,,cumulus__none,2007-06-01
-8748,Discharge,,2023-01-01
-8748,Discharge,cumulus__none,2023-01-01
-8721,,,2007-09-01
-8721,,cumulus__none,2007-09-01
-8699,,,2007-07-01
-8699,,cumulus__none,2007-07-01
-8673,Discharge,,2022-06-01
-8673,Discharge,cumulus__none,2022-06-01
-8666,Support OP Encounter,,2008-09-01
-8666,Support OP Encounter,cumulus__none,2008-09-01
-8633,Discharge,,2024-09-01
-8603,Support OP Encounter,,2008-12-01
-8603,Support OP Encounter,cumulus__none,2008-12-01
-8584,Discharge,,2023-09-01
-8584,Discharge,cumulus__none,2023-09-01
-8571,,,2026-08-01
-8571,,cumulus__none,2026-08-01
-8571,Discharge,,2023-07-01
-8571,Discharge,cumulus__none,2023-07-01
-8566,Discharge,,2025-11-01
-8558,Discharge,,2025-08-01
-8547,Discharge,,2023-02-01
-8547,Discharge,cumulus__none,2023-02-01
-8510,Discharge,,2025-06-01
-8466,Discharge,,2022-03-01
-8466,Discharge,cumulus__none,2022-03-01
-8454,Support OP Encounter,,2008-05-01
-8454,Support OP Encounter,cumulus__none,2008-05-01
-8416,Support OP Encounter,,2026-08-01
-8416,Support OP Encounter,cumulus__none,2026-08-01
-8413,,,2007-05-01
-8413,,cumulus__none,2007-05-01
-8390,Support OP Encounter,,2008-07-01
-8390,Support OP Encounter,cumulus__none,2008-07-01
-8358,Discharge,,2021-10-01
-8358,Discharge,cumulus__none,2021-10-01
-8357,Discharge,,2021-12-01
-8357,Discharge,cumulus__none,2021-12-01
-8300,Support OP Encounter,,2008-04-01
-8300,Support OP Encounter,cumulus__none,2008-04-01
-8270,Discharge,,2022-07-01
-8270,Discharge,cumulus__none,2022-07-01
-8243,Discharge,,2024-08-01
-8232,Discharge,,2021-09-01
-8232,Discharge,cumulus__none,2021-09-01
-8227,Discharge,,2024-07-01
-8180,Support OP Encounter,,2008-06-01
-8180,Support OP Encounter,cumulus__none,2008-06-01
-8159,Discharge,,2022-04-01
-8159,Discharge,cumulus__none,2022-04-01
-8030,Discharge,,2021-08-01
-8030,Discharge,cumulus__none,2021-08-01
-8027,Discharge,,2024-06-01
-7991,Support OP Encounter,,2008-01-01
-7991,Support OP Encounter,cumulus__none,2008-01-01
-7902,Discharge,,2026-02-01
-7893,Support OP Encounter,,2008-11-01
-7893,Support OP Encounter,cumulus__none,2008-11-01
-7890,Discharge,,2021-06-01
-7890,Discharge,cumulus__none,2021-06-01
-7874,Discharge,,2021-11-01
-7874,Discharge,cumulus__none,2021-11-01
-7859,Support OP Encounter,,2008-03-01
-7859,Support OP Encounter,cumulus__none,2008-03-01
-7846,Support OP Encounter,,2008-08-01
-7846,Support OP Encounter,cumulus__none,2008-08-01
-7643,Discharge,,2021-07-01
-7643,Discharge,cumulus__none,2021-07-01
-7602,,,2007-03-01
-7602,,cumulus__none,2007-03-01
-7550,,,cumulus__none
-7535,Discharge,,cumulus__none
-7535,Discharge,,2021-05-01
-7535,Discharge,cumulus__none,2021-05-01
-7470,Discharge,,2020-01-01
-7470,Discharge,cumulus__none,2020-01-01
-7436,Support OP Encounter,,2008-02-01
-7436,Support OP Encounter,,2007-10-01
-7436,Support OP Encounter,cumulus__none,2008-02-01
-7436,Support OP Encounter,cumulus__none,2007-10-01
-7434,,,2007-01-01
-7434,,cumulus__none,2007-01-01
-7386,,cumulus__none,cumulus__none
-7371,Discharge,cumulus__none,cumulus__none
-7191,,,2006-11-01
-7191,,cumulus__none,2006-11-01
-7045,,,2007-04-01
-7045,,cumulus__none,2007-04-01
-7035,Discharge,,2019-03-01
-7035,Discharge,cumulus__none,2019-03-01
-7015,Discharge,,2019-04-01
-7015,Discharge,cumulus__none,2019-04-01
-6940,Discharge,,2019-05-01
-6940,Discharge,cumulus__none,2019-05-01
-6927,Support OP Encounter,,2007-11-01
-6927,Support OP Encounter,cumulus__none,2007-11-01
-6890,Discharge,,2019-01-01
-6890,Discharge,cumulus__none,2019-01-01
-6879,Discharge,,2022-01-01
-6879,Discharge,cumulus__none,2022-01-01
-6807,Support OP Encounter,,2020-04-01
-6807,Support OP Encounter,cumulus__none,2020-04-01
-6790,Discharge,,2021-04-01
-6790,Discharge,cumulus__none,2021-04-01
-6783,Discharge,,2020-02-01
-6783,Discharge,cumulus__none,2020-02-01
-6770,Support OP Encounter,,2007-08-01
-6770,Support OP Encounter,cumulus__none,2007-08-01
-6730,Discharge,,2021-03-01
-6730,Discharge,cumulus__none,2021-03-01
-6704,Discharge,,2019-12-01
-6704,Discharge,cumulus__none,2019-12-01
-6684,Discharge,,2018-05-01
-6684,Discharge,cumulus__none,2018-05-01
-6668,Discharge,,2018-12-01
-6668,Discharge,cumulus__none,2018-12-01
-6630,Discharge,,2018-02-01
-6630,Discharge,cumulus__none,2018-02-01
-6625,Discharge,,2022-02-01
-6625,Discharge,cumulus__none,2022-02-01
-6591,Discharge,,2017-05-01
-6591,Discharge,cumulus__none,2017-05-01
-6590,Discharge,,2019-10-01
-6590,Discharge,cumulus__none,2019-10-01
-6588,Discharge,,2016-03-01
-6588,Discharge,cumulus__none,2016-03-01
-6562,,,2006-12-01
-6562,,cumulus__none,2006-12-01
-6467,,,2007-02-01
-6467,,,2006-10-01
-6467,,cumulus__none,2007-02-01
-6467,,cumulus__none,2006-10-01
-6459,Support OP Encounter,,2007-07-01
-6459,Support OP Encounter,cumulus__none,2007-07-01
-6451,Discharge,,2018-01-01
-6451,Discharge,cumulus__none,2018-01-01
-6423,Discharge,,2018-10-01
-6423,Discharge,cumulus__none,2018-10-01
-6409,Discharge,,2017-03-01
-6409,Discharge,cumulus__none,2017-03-01
-6383,Discharge,,2018-03-01
-6383,Discharge,cumulus__none,2018-03-01
-6366,Support OP Encounter,,2007-09-01
-6366,Support OP Encounter,cumulus__none,2007-09-01
-6362,Discharge,,2019-11-01
-6362,Discharge,,2018-08-01
-6362,Discharge,cumulus__none,2019-11-01
-6362,Discharge,cumulus__none,2018-08-01
-6335,Discharge,,2017-01-01
-6335,Discharge,cumulus__none,2017-01-01
-6320,Discharge,,2018-11-01
-6320,Discharge,cumulus__none,2018-11-01
-6319,Discharge,,2017-11-01
-6319,Discharge,cumulus__none,2017-11-01
-6299,Discharge,,2019-08-01
-6299,Discharge,cumulus__none,2019-08-01
-6291,Support OP Encounter,,2007-06-01
-6291,Support OP Encounter,cumulus__none,2007-06-01
-6279,Discharge,,2017-12-01
-6279,Discharge,cumulus__none,2017-12-01
-6259,Discharge,,2016-05-01
-6259,Discharge,cumulus__none,2016-05-01
-6239,Discharge,,2016-12-01
-6239,Discharge,cumulus__none,2016-12-01
-6219,Discharge,,2019-09-01
-6219,Discharge,cumulus__none,2019-09-01
-6187,Discharge,,2019-06-01
-6187,Discharge,cumulus__none,2019-06-01
-6145,Discharge,,2018-06-01
-6145,Discharge,cumulus__none,2018-06-01
-6142,Discharge,,2018-04-01
-6142,Discharge,cumulus__none,2018-04-01
-6141,Discharge,,2018-07-01
-6141,Discharge,cumulus__none,2018-07-01
-6139,Support OP Encounter,,2007-12-01
-6139,Support OP Encounter,cumulus__none,2007-12-01
-6126,Discharge,,2019-02-01
-6126,Discharge,cumulus__none,2019-02-01
-6119,Discharge,,2019-07-01
-6119,Discharge,cumulus__none,2019-07-01
-6114,Discharge,,2017-06-01
-6114,Discharge,cumulus__none,2017-06-01
-6094,Discharge,,2017-04-01
-6094,Discharge,cumulus__none,2017-04-01
-6092,Discharge,,2017-08-01
-6092,Discharge,cumulus__none,2017-08-01
-6077,Discharge,,2017-10-01
-6077,Discharge,cumulus__none,2017-10-01
-5980,Discharge,,2016-06-01
-5980,Discharge,cumulus__none,2016-06-01
-5972,Discharge,,2016-08-01
-5972,Discharge,cumulus__none,2016-08-01
-5914,Discharge,,2016-11-01
-5914,Discharge,,2016-04-01
-5914,Discharge,cumulus__none,2016-11-01
-5914,Discharge,cumulus__none,2016-04-01
-5897,Discharge,,2016-01-01
-5897,Discharge,cumulus__none,2016-01-01
-5895,Discharge,,2021-01-01
-5895,Discharge,cumulus__none,2021-01-01
-5840,,,2026-09-01
-5840,,cumulus__none,2026-09-01
-5819,Discharge,,2016-02-01
-5819,Discharge,cumulus__none,2016-02-01
-5813,Discharge,,2016-10-01
-5813,Discharge,cumulus__none,2016-10-01
-5788,Discharge,,2015-12-01
-5788,Discharge,cumulus__none,2015-12-01
-5778,Discharge,,2018-09-01
-5778,Discharge,cumulus__none,2018-09-01
-5762,Discharge,,2016-09-01
-5762,Discharge,cumulus__none,2016-09-01
-5754,Support OP Encounter,,2026-09-01
-5754,Support OP Encounter,cumulus__none,2026-09-01
-5744,Discharge,,2017-02-01
-5744,Discharge,cumulus__none,2017-02-01
-5736,Support OP Encounter,,2007-05-01
-5736,Support OP Encounter,cumulus__none,2007-05-01
-5660,Discharge,,2017-07-01
-5660,Discharge,cumulus__none,2017-07-01
-5589,Discharge,,2016-07-01
-5589,Discharge,cumulus__none,2016-07-01
-5588,Discharge,,2017-09-01
-5588,Discharge,cumulus__none,2017-09-01
-5496,Discharge,,2021-02-01
-5496,Discharge,cumulus__none,2021-02-01
-5432,Discharge,,2015-04-01
-5432,Discharge,cumulus__none,2015-04-01
-5420,Discharge,,2015-05-01
-5420,Discharge,cumulus__none,2015-05-01
-5325,Discharge,,2015-11-01
-5325,Discharge,cumulus__none,2015-11-01
-5221,Discharge,,2020-08-01
-5221,Discharge,cumulus__none,2020-08-01
-5218,Discharge,,2020-09-01
-5218,Discharge,cumulus__none,2020-09-01
-5207,Discharge,,2015-06-01
-5207,Discharge,cumulus__none,2015-06-01
-5200,Discharge,,2020-10-01
-5200,Discharge,cumulus__none,2020-10-01
-5183,Discharge,,2020-07-01
-5183,Discharge,cumulus__none,2020-07-01
-5139,Discharge,,2015-10-01
-5139,Discharge,cumulus__none,2015-10-01
-5138,Discharge,,2014-12-01
-5138,Discharge,cumulus__none,2014-12-01
-5101,Discharge,,2015-07-01
-5101,Discharge,cumulus__none,2015-07-01
-5098,Discharge,,2020-11-01
-5098,Discharge,cumulus__none,2020-11-01
-5065,Discharge,,2020-12-01
-5065,Discharge,cumulus__none,2020-12-01
-5019,Discharge,,2015-01-01
-5019,Discharge,cumulus__none,2015-01-01
-5015,Discharge,,2015-03-01
-5015,Discharge,cumulus__none,2015-03-01
-4952,Discharge,,2015-08-01
-4952,Discharge,cumulus__none,2015-08-01
-4937,Discharge,,2015-09-01
-4937,Discharge,cumulus__none,2015-09-01
-4913,Discharge,,2014-05-01
-4913,Discharge,cumulus__none,2014-05-01
-4862,Support OP Encounter,,2006-11-01
-4862,Support OP Encounter,cumulus__none,2006-11-01
-4857,Discharge,,2020-03-01
-4857,Discharge,cumulus__none,2020-03-01
-4779,Discharge,,2014-10-01
-4779,Discharge,cumulus__none,2014-10-01
-4777,Support OP Encounter,,2007-03-01
-4777,Support OP Encounter,cumulus__none,2007-03-01
-4764,Support OP Encounter,,2007-01-01
-4764,Support OP Encounter,cumulus__none,2007-01-01
-4747,Discharge,,2014-03-01
-4747,Discharge,cumulus__none,2014-03-01
-4734,Discharge,,2014-04-01
-4734,Discharge,cumulus__none,2014-04-01
-4732,Discharge,,2013-05-01
-4732,Discharge,cumulus__none,2013-05-01
-4691,Discharge,,2014-09-01
-4691,Discharge,cumulus__none,2014-09-01
-4678,Discharge,,2013-01-01
-4678,Discharge,cumulus__none,2013-01-01
-4605,Discharge,,2014-11-01
-4605,Discharge,cumulus__none,2014-11-01
-4593,Discharge,,2014-06-01
-4593,Discharge,cumulus__none,2014-06-01
-4579,Discharge,,2013-03-01
-4579,Discharge,cumulus__none,2013-03-01
-4575,Discharge,,2012-12-01
-4575,Discharge,cumulus__none,2012-12-01
-4573,Discharge,,2020-06-01
-4573,Discharge,cumulus__none,2020-06-01
-4505,Discharge,,2014-07-01
-4505,Discharge,cumulus__none,2014-07-01
-4496,Support OP Encounter,,2007-04-01
-4496,Support OP Encounter,cumulus__none,2007-04-01
-4488,Discharge,,2014-01-01
-4488,Discharge,cumulus__none,2014-01-01
-4452,Discharge,,2014-08-01
-4452,Discharge,cumulus__none,2014-08-01
-4378,Discharge,,2013-07-01
-4378,Discharge,cumulus__none,2013-07-01
-4364,Discharge,,2013-10-01
-4364,Discharge,cumulus__none,2013-10-01
-4338,Discharge,,2013-12-01
-4338,Discharge,cumulus__none,2013-12-01
-4327,Discharge,,2013-04-01
-4327,Discharge,cumulus__none,2013-04-01
-4321,Support OP Encounter,,2006-10-01
-4321,Support OP Encounter,cumulus__none,2006-10-01
-4309,Discharge,,2013-08-01
-4309,Discharge,cumulus__none,2013-08-01
-4273,Discharge,,2013-11-01
-4273,Discharge,cumulus__none,2013-11-01
-4242,Discharge,,2012-03-01
-4242,Discharge,cumulus__none,2012-03-01
-4207,Discharge,,2012-01-01
-4207,Discharge,cumulus__none,2012-01-01
-4186,Discharge,,2012-05-01
-4186,Discharge,cumulus__none,2012-05-01
-4155,Discharge,,2011-03-01
-4155,Discharge,cumulus__none,2011-03-01
-4146,Discharge,,2012-02-01
-4146,Discharge,cumulus__none,2012-02-01
-4098,Discharge,,2015-02-01
-4098,Discharge,cumulus__none,2015-02-01
-4094,Discharge,,2013-06-01
-4094,Discharge,cumulus__none,2013-06-01
-4093,Discharge,,2012-11-01
-4093,Discharge,cumulus__none,2012-11-01
-4087,Discharge,,2012-08-01
-4087,Discharge,cumulus__none,2012-08-01
-4073,Discharge,,2014-02-01
-4073,Discharge,cumulus__none,2014-02-01
-4043,Support OP Encounter,,2006-12-01
-4043,Support OP Encounter,cumulus__none,2006-12-01
-4037,Discharge,,2013-09-01
-4037,Discharge,cumulus__none,2013-09-01
-4035,Discharge,,2012-10-01
-4035,Discharge,cumulus__none,2012-10-01
-4032,Support OP Encounter,,2007-02-01
-4032,Support OP Encounter,cumulus__none,2007-02-01
-4030,Discharge,,2012-04-01
-4030,Discharge,cumulus__none,2012-04-01
-4023,Discharge,cumulus__none,2025-07-01
-4012,Discharge,,2011-04-01
-4012,Discharge,cumulus__none,2011-04-01
-4002,,,2026-10-01
-4002,,cumulus__none,2026-10-01
-3986,Requisition Encounter,,2025-12-01
-3986,Requisition Encounter,cumulus__none,2025-12-01
-3964,Discharge,,2011-12-01
-3964,Discharge,cumulus__none,2011-12-01
-3953,Support OP Encounter,,2026-10-01
-3953,Support OP Encounter,cumulus__none,2026-10-01
-3928,Discharge,,2013-02-01
-3928,Discharge,cumulus__none,2013-02-01
-3917,Discharge,cumulus__none,2025-10-01
-3902,,,2006-09-01
-3902,,cumulus__none,2006-09-01
-3902,Discharge,,2012-06-01
-3902,Discharge,cumulus__none,2012-06-01
-3899,Requisition Encounter,,2026-01-01
-3899,Requisition Encounter,cumulus__none,2026-01-01
-3870,Discharge,cumulus__none,2025-08-01
-3855,Discharge,,2011-05-01
-3855,Discharge,cumulus__none,2011-05-01
-3849,Discharge,,2012-07-01
-3849,Discharge,cumulus__none,2012-07-01
-3833,Discharge,,2010-03-01
-3833,Discharge,cumulus__none,2010-03-01
-3781,Discharge,,2011-02-01
-3781,Discharge,cumulus__none,2011-02-01
-3763,Discharge,,2011-11-01
-3763,Discharge,cumulus__none,2011-11-01
-3755,Discharge,,2010-12-01
-3755,Discharge,cumulus__none,2010-12-01
-3735,Discharge,cumulus__none,2025-05-01
-3727,Discharge,,2011-01-01
-3727,Discharge,cumulus__none,2011-01-01
-3714,Discharge,,2012-09-01
-3714,Discharge,cumulus__none,2012-09-01
-3691,Discharge,cumulus__none,2025-04-01
-3687,Discharge,,2010-05-01
-3687,Discharge,cumulus__none,2010-05-01
-3669,Preadmission,,2024-05-01
-3669,Preadmission,cumulus__none,2024-05-01
-3658,Discharge,cumulus__none,2025-09-01
-3649,Discharge,,2009-05-01
-3649,Discharge,cumulus__none,2009-05-01
-3632,Requisition Encounter,,2025-08-01
-3632,Requisition Encounter,cumulus__none,2025-08-01
-3630,Discharge,cumulus__none,2025-03-01
-3623,Discharge,cumulus__none,2024-10-01
-3620,Discharge,cumulus__none,2025-06-01
-3615,Discharge,,2009-06-01
-3615,Discharge,cumulus__none,2009-06-01
-3604,Discharge,,2010-04-01
-3604,Discharge,cumulus__none,2010-04-01
-3603,Discharge,,2011-09-01
-3603,Discharge,cumulus__none,2011-09-01
-3599,Preadmission,,2026-03-01
-3599,Preadmission,cumulus__none,2026-03-01
-3597,Discharge,cumulus__none,2025-12-01
-3579,Discharge,,2009-11-01
-3579,Discharge,cumulus__none,2009-11-01
-3578,Discharge,,2011-10-01
-3578,Discharge,cumulus__none,2011-10-01
-3573,Discharge,,2011-06-01
-3573,Discharge,cumulus__none,2011-06-01
-3572,Discharge,cumulus__none,2025-01-01
-3564,Discharge,,2010-02-01
-3564,Discharge,cumulus__none,2010-02-01
-3547,Discharge,,2011-08-01
-3547,Discharge,cumulus__none,2011-08-01
-3536,Requisition Encounter,,2025-05-01
-3536,Requisition Encounter,cumulus__none,2025-05-01
-3536,Discharge,,2010-01-01
-3536,Discharge,cumulus__none,2010-01-01
-3519,Requisition Encounter,,2025-11-01
-3519,Requisition Encounter,cumulus__none,2025-11-01
-3514,Discharge,,2010-11-01
-3514,Discharge,cumulus__none,2010-11-01
-3482,Discharge,cumulus__none,2024-08-01
-3462,Discharge,,2009-04-01
-3462,Discharge,cumulus__none,2009-04-01
-3459,Discharge,,2009-03-01
-3459,Discharge,cumulus__none,2009-03-01
-3448,Discharge,cumulus__none,2026-01-01
-3426,Discharge,,2010-06-01
-3426,Discharge,cumulus__none,2010-06-01
-3418,Discharge,,2011-07-01
-3418,Discharge,cumulus__none,2011-07-01
-3395,Requisition Encounter,,2025-10-01
-3395,Requisition Encounter,cumulus__none,2025-10-01
-3392,Discharge,cumulus__none,2025-11-01
-3381,Discharge,,2009-10-01
-3381,Discharge,cumulus__none,2009-10-01
-3365,Discharge,cumulus__none,2024-07-01
-3354,Discharge,cumulus__none,2024-12-01
-3352,Requisition Encounter,,2025-09-01
-3352,Requisition Encounter,cumulus__none,2025-09-01
-3331,Discharge,,2009-12-01
-3331,Discharge,cumulus__none,2009-12-01
-3318,Discharge,,2020-05-01
-3318,Discharge,cumulus__none,2020-05-01
-3311,Discharge,,2010-10-01
-3311,Discharge,cumulus__none,2010-10-01
-3286,Discharge,cumulus__none,2024-11-01
-3276,Discharge,,2009-09-01
-3276,Discharge,cumulus__none,2009-09-01
-3274,Requisition Encounter,,2025-01-01
-3274,Requisition Encounter,cumulus__none,2025-01-01
-3264,Discharge,,2009-02-01
-3264,Discharge,cumulus__none,2009-02-01
-3250,Requisition Encounter,,2026-02-01
-3250,Requisition Encounter,cumulus__none,2026-02-01
-3239,Requisition Encounter,,2025-07-01
-3239,Requisition Encounter,cumulus__none,2025-07-01
-3228,Discharge,,2010-09-01
-3228,Discharge,cumulus__none,2010-09-01
-3224,Discharge,,2010-08-01
-3224,Discharge,cumulus__none,2010-08-01
-3209,Requisition Encounter,,2025-06-01
-3209,Requisition Encounter,cumulus__none,2025-06-01
-3201,Discharge,,2010-07-01
-3201,Discharge,cumulus__none,2010-07-01
-3181,Discharge,,2009-08-01
-3181,Discharge,cumulus__none,2009-08-01
-3166,Discharge,cumulus__none,2025-02-01
-3157,Discharge,cumulus__none,2026-02-01
-3154,Discharge,,2008-05-01
-3154,Discharge,cumulus__none,2008-05-01
-3123,Requisition Encounter,,2024-08-01
-3123,Requisition Encounter,cumulus__none,2024-08-01
-3106,Discharge,,2008-01-01
-3106,Discharge,cumulus__none,2008-01-01
-3099,Discharge,cumulus__none,2024-09-01
-3090,Discharge,cumulus__none,2024-06-01
-3077,Discharge,,2008-12-01
-3077,Discharge,cumulus__none,2008-12-01
-3070,Discharge,,2009-01-01
-3070,Discharge,cumulus__none,2009-01-01
-3061,Discharge,,2008-03-01
-3061,Discharge,cumulus__none,2008-03-01
-3060,Discharge,,2008-10-01
-3060,Discharge,cumulus__none,2008-10-01
-3054,Discharge,,2009-07-01
-3054,Discharge,cumulus__none,2009-07-01
-3046,Requisition Encounter,,2025-03-01
-3046,Requisition Encounter,cumulus__none,2025-03-01
-3042,Discharge,,2008-02-01
-3042,Discharge,cumulus__none,2008-02-01
-2958,,Urgent,2024-12-01
-2958,Discharge,Urgent,2024-12-01
-2927,Discharge,,2008-04-01
-2927,Discharge,cumulus__none,2008-04-01
-2925,,Urgent,2025-01-01
-2924,Requisition Encounter,,2024-07-01
-2924,Requisition Encounter,cumulus__none,2024-07-01
-2924,Discharge,Urgent,2025-01-01
-2875,Requisition Encounter,,2024-06-01
-2875,Requisition Encounter,cumulus__none,2024-06-01
-2868,,Urgent,2025-05-01
-2867,Requisition Encounter,,2024-10-01
-2867,Requisition Encounter,cumulus__none,2024-10-01
-2867,Discharge,Urgent,2025-05-01
-2862,Discharge,,2008-06-01
-2862,Discharge,cumulus__none,2008-06-01
-2847,,Urgent,2024-09-01
-2846,Discharge,Urgent,2024-09-01
-2835,HOV,,2024-05-01
-2835,HOV,cumulus__none,2024-05-01
-2823,Discharge,,2007-03-01
-2823,Discharge,cumulus__none,2007-03-01
-2822,,Urgent,2024-10-01
-2820,Discharge,Urgent,2024-10-01
-2807,Requisition Encounter,,2024-12-01
-2807,Requisition Encounter,cumulus__none,2024-12-01
-2800,,Urgent,2025-03-01
-2798,Discharge,Urgent,2025-03-01
-2786,,Urgent,2025-12-01
-2784,Discharge,Urgent,2025-12-01
-2782,Requisition Encounter,,2024-09-01
-2782,Requisition Encounter,cumulus__none,2024-09-01
-2782,Discharge,,2008-07-01
-2782,Discharge,cumulus__none,2008-07-01
-2773,Discharge,,2007-12-01
-2773,Discharge,cumulus__none,2007-12-01
-2759,,Urgent,2025-10-01
-2759,Discharge,Urgent,2025-10-01
-2737,Discharge,,2008-11-01
-2737,Discharge,cumulus__none,2008-11-01
-2736,,Urgent,2025-09-01
-2736,Discharge,Urgent,2025-09-01
-2721,,Urgent,2025-04-01
-2721,Discharge,Urgent,2025-04-01
-2717,Requisition Encounter,,2025-04-01
-2717,Requisition Encounter,cumulus__none,2025-04-01
-2715,Discharge,,2008-09-01
-2715,Discharge,cumulus__none,2008-09-01
-2708,Discharge,,2008-08-01
-2708,Discharge,cumulus__none,2008-08-01
-2686,,Urgent,2024-11-01
-2683,Discharge,Urgent,2024-11-01
-2676,Discharge,,2007-10-01
-2676,Discharge,cumulus__none,2007-10-01
-2675,Discharge,,2007-05-01
-2675,Discharge,cumulus__none,2007-05-01
-2667,Discharge,,2007-01-01
-2667,Discharge,cumulus__none,2007-01-01
-2647,,Non-Urgent,
-2640,Discharge,Non-Urgent,
-2623,Discharge,,2007-11-01
-2623,Discharge,cumulus__none,2007-11-01
-2610,Requisition Encounter,,2025-02-01
-2610,Requisition Encounter,cumulus__none,2025-02-01
-2601,,Urgent,2025-11-01
-2600,Discharge,Urgent,2025-11-01
-2600,Admission,,
-2591,Requisition Encounter,,2024-11-01
-2591,Requisition Encounter,cumulus__none,2024-11-01
-2585,,Urgent,2026-01-01
-2582,Discharge,Urgent,2026-01-01
-2543,Discharge,,2007-04-01
-2543,Discharge,cumulus__none,2007-04-01
-2536,,Urgent,2025-06-01
-2536,Discharge,Urgent,2025-06-01
-2517,Discharge,,2006-12-01
-2517,Discharge,cumulus__none,2006-12-01
-2512,,,2026-11-01
-2512,,cumulus__none,2026-11-01
-2500,,Urgent,2025-07-01
-2499,Discharge,Urgent,2025-07-01
-2498,,Urgent,2025-02-01
-2497,Discharge,Urgent,2025-02-01
-2488,Discharge,,2007-06-01
-2488,Discharge,cumulus__none,2007-06-01
-2484,,Urgent,2024-07-01
-2482,Support OP Encounter,,2026-11-01
-2482,Support OP Encounter,cumulus__none,2026-11-01
-2481,Discharge,Urgent,2024-07-01
-2451,Discharge,,2007-08-01
-2451,Discharge,cumulus__none,2007-08-01
-2433,Discharge,,2007-02-01
-2433,Discharge,cumulus__none,2007-02-01
-2406,,Urgent,2025-08-01
-2405,Discharge,Urgent,2025-08-01
-2397,,Urgent,2024-06-01
-2393,Discharge,Urgent,2024-06-01
-2360,Admission,cumulus__none,
-2352,Discharge,,2007-09-01
-2352,Discharge,cumulus__none,2007-09-01
-2338,,Urgent,2024-08-01
-2337,Discharge,Urgent,2024-08-01
-2328,Discharge,,2006-11-01
-2328,Discharge,cumulus__none,2006-11-01
-2240,Discharge,,2007-07-01
-2240,Discharge,cumulus__none,2007-07-01
-2214,,Urgent,2026-02-01
-2179,Discharge,Urgent,2026-02-01
-2145,Discharge,,2006-10-01
-2145,Discharge,cumulus__none,2006-10-01
-2099,,,2026-12-01
-2099,,cumulus__none,2026-12-01
-2076,Discharge,,2020-04-01
-2076,Discharge,cumulus__none,2020-04-01
-2058,Support OP Encounter,,2026-12-01
-2058,Support OP Encounter,cumulus__none,2026-12-01
-2049,Support OP Encounter,,2006-09-01
-2049,Support OP Encounter,cumulus__none,2006-09-01
-1930,Preadmission,,2026-02-01
-1930,Preadmission,cumulus__none,2026-02-01
-1889,Preadmission,,2026-04-01
-1889,Preadmission,cumulus__none,2026-04-01
-1851,Discharge,,2006-09-01
-1851,Discharge,cumulus__none,2006-09-01
-1821,,Emergent,2025-01-01
-1820,Discharge,Emergent,2025-01-01
-1811,HOV,,2024-04-01
-1811,HOV,cumulus__none,2024-04-01
-1773,,Less Urgent,2025-01-01
-1769,Discharge,Less Urgent,2025-01-01
-1748,,,2027-01-01
-1748,,cumulus__none,2027-01-01
-1718,Support OP Encounter,,2027-01-01
-1718,Support OP Encounter,cumulus__none,2027-01-01
-1711,,Emergent,2025-12-01
-1705,Discharge,Emergent,2025-12-01
-1649,,Emergent,2025-03-01
-1649,Discharge,Emergent,2025-03-01
-1640,,Emergent,2024-12-01
-1640,Discharge,Emergent,2024-12-01
-1629,,Emergent,2024-10-01
-1628,Discharge,Emergent,2024-10-01
-1591,,Emergent,2025-05-01
-1589,Discharge,Emergent,2025-05-01
-1578,,Emergent,2026-01-01
-1573,,,2006-08-01
-1573,,cumulus__none,2006-08-01
-1573,Preadmission,,2026-01-01
-1572,Preadmission,cumulus__none,2026-01-01
-1570,Discharge,Emergent,2026-01-01
-1548,,,2006-03-01
-1548,,cumulus__none,2006-03-01
-1546,,Emergent,2025-09-01
-1546,Discharge,Emergent,2025-09-01
-1545,,Emergent,2024-11-01
-1545,Discharge,Emergent,2024-11-01
-1539,,Emergent,2025-10-01
-1535,Discharge,Emergent,2025-10-01
-1527,,Less Urgent,2024-12-01
-1525,HOV,,2024-03-01
-1525,HOV,cumulus__none,2024-03-01
-1523,Discharge,Less Urgent,2024-12-01
-1522,,Less Urgent,2025-02-01
-1514,Discharge,Less Urgent,2025-02-01
-1495,,Emergent,2024-09-01
-1495,Discharge,Emergent,2024-09-01
-1484,,Emergent,2025-11-01
-1483,Discharge,Emergent,2025-11-01
-1477,,Less Urgent,2025-12-01
-1477,Discharge,Less Urgent,2025-12-01
-1467,,Emergent,2025-02-01
-1467,Discharge,Emergent,2025-02-01
-1449,,,2006-06-01
-1449,,cumulus__none,2006-06-01
-1449,,Emergent,2025-04-01
-1449,Discharge,Emergent,2025-04-01
-1413,,,2006-05-01
-1413,,cumulus__none,2006-05-01
-1402,,,2006-07-01
-1402,,cumulus__none,2006-07-01
-1381,,,2027-02-01
-1381,,cumulus__none,2027-02-01
-1374,Support OP Encounter,,2027-02-01
-1374,Support OP Encounter,cumulus__none,2027-02-01
-1368,,,2006-04-01
-1368,,cumulus__none,2006-04-01
-1360,,Emergent,2026-02-01
-1359,,,2006-02-01
-1359,,cumulus__none,2006-02-01
-1331,,Emergent,2025-06-01
-1331,Discharge,Emergent,2025-06-01
-1326,Preadmission,,2025-12-01
-1326,Preadmission,cumulus__none,2025-12-01
-1315,,Emergent,2024-06-01
-1315,Discharge,Emergent,2024-06-01
-1314,,Emergent,2024-08-01
-1313,Discharge,Emergent,2024-08-01
-1304,,Less Urgent,2024-11-01
-1300,,Less Urgent,2025-03-01
-1300,,Emergent,2025-07-01
-1300,Discharge,Less Urgent,2025-03-01
-1300,Discharge,Emergent,2025-07-01
-1294,Discharge,Less Urgent,2024-11-01
-1285,,Emergent,2025-08-01
-1284,Discharge,Emergent,2025-08-01
-1281,,Emergent,2024-07-01
-1281,Preadmission,,2025-10-01
-1281,Preadmission,cumulus__none,2025-10-01
-1281,Discharge,Emergent,2026-02-01
-1280,Discharge,Emergent,2024-07-01
-1275,HOV,,2024-02-01
-1275,HOV,cumulus__none,2024-02-01
-1267,,Less Urgent,2026-01-01
-1267,Discharge,Less Urgent,2026-01-01
-1225,,Less Urgent,2024-10-01
-1219,Discharge,Less Urgent,2024-10-01
-1194,Preadmission,,2025-11-01
-1194,Preadmission,cumulus__none,2025-11-01
-1165,Discharge,,2006-03-01
-1165,Discharge,cumulus__none,2006-03-01
-1159,Discharge,,2006-08-01
-1159,Discharge,cumulus__none,2006-08-01
-1138,,Less Urgent,2025-04-01
-1138,Discharge,Less Urgent,2025-04-01
-1136,HOV,,2024-01-01
-1136,HOV,cumulus__none,2024-01-01
-1117,,Less Urgent,2025-05-01
-1117,Discharge,Less Urgent,2025-05-01
-1116,,Less Urgent,2026-02-01
-1112,Discharge,Less Urgent,2026-02-01
-1109,Preadmission,,2025-09-01
-1109,Preadmission,cumulus__none,2025-09-01
-1094,,Less Urgent,2024-09-01
-1094,,Less Urgent,2024-06-01
-1094,Discharge,Less Urgent,2024-06-01
-1090,Preadmission,,2025-07-01
-1090,Preadmission,cumulus__none,2025-07-01
-1088,Discharge,Less Urgent,2024-09-01
-1069,Discharge,,2006-05-01
-1069,Discharge,cumulus__none,2006-05-01
-1066,Preadmission,,2025-08-01
-1065,Preadmission,cumulus__none,2025-08-01
-1064,,,2006-01-01
-1064,,cumulus__none,2006-01-01
-1061,Discharge,,2006-04-01
-1061,Discharge,cumulus__none,2006-04-01
-1059,Discharge,,2006-06-01
-1059,Discharge,cumulus__none,2006-06-01
-1053,,Less Urgent,2025-10-01
-1053,Discharge,Less Urgent,2025-10-01
-1048,Discharge,,2006-07-01
-1048,Discharge,cumulus__none,2006-07-01
-1044,Preadmission,,2025-04-01
-1043,Preadmission,cumulus__none,2025-04-01
-1040,Requisition Encounter,,2026-03-01
-1040,Requisition Encounter,cumulus__none,2026-03-01
-1025,Preadmission,,2025-03-01
-1024,Preadmission,,2025-05-01
-1024,Preadmission,cumulus__none,2025-05-01
-1023,Preadmission,cumulus__none,2025-03-01
-1018,Discharge,,2006-02-01
-1018,Discharge,cumulus__none,2006-02-01
-996,,Less Urgent,2024-08-01
-995,,Less Urgent,2025-11-01
-995,Discharge,Less Urgent,2025-11-01
-995,Discharge,Less Urgent,2024-08-01
-990,Preadmission,,2025-06-01
-990,Preadmission,cumulus__none,2025-06-01
-974,,Less Urgent,2024-07-01
-973,Discharge,Less Urgent,2024-07-01
-970,Preadmission,,2024-10-01
-965,Preadmission,cumulus__none,2024-10-01
-959,Preadmission,,2024-12-01
-954,Preadmission,cumulus__none,2024-12-01
-947,,Less Urgent,2025-07-01
-947,Preadmission,,2025-01-01
-947,Discharge,Less Urgent,2025-07-01
-943,Preadmission,cumulus__none,2025-01-01
-940,,Less Urgent,2025-09-01
-940,Discharge,Less Urgent,2025-09-01
-924,,Less Urgent,2025-06-01
-924,Discharge,Less Urgent,2025-06-01
-911,Preadmission,,2025-02-01
-905,Preadmission,cumulus__none,2025-02-01
-889,Preadmission,,2026-05-01
-889,Preadmission,cumulus__none,2026-05-01
-874,,Less Urgent,2025-08-01
-874,Discharge,Less Urgent,2025-08-01
-842,Preadmission,,2024-09-01
-838,Preadmission,cumulus__none,2024-09-01
-834,HOV,,2023-12-01
-834,HOV,cumulus__none,2023-12-01
-825,Preadmission,,2024-11-01
-820,Preadmission,cumulus__none,2024-11-01
-807,Discharge,,2006-01-01
-807,Discharge,cumulus__none,2006-01-01
-800,HOV,,2023-10-01
-800,HOV,cumulus__none,2023-10-01
-799,Preadmission,,2024-07-01
-798,Preadmission,cumulus__none,2024-07-01
-786,HOV,,2023-11-01
-786,HOV,cumulus__none,2023-11-01
-762,Preadmission,,2024-06-01
-756,Preadmission,cumulus__none,2024-06-01
-711,Preadmission,,2024-08-01
-707,Preadmission,cumulus__none,2024-08-01
-674,Requisition Encounter,,2026-04-01
-674,Requisition Encounter,cumulus__none,2026-04-01
-653,HOV,,2023-09-01
-653,HOV,cumulus__none,2023-09-01
-651,HOV,,2023-08-01
-651,HOV,cumulus__none,2023-08-01
-639,HOV,,2026-03-01
-639,HOV,cumulus__none,2026-03-01
-591,HOV,,2023-05-01
-591,HOV,cumulus__none,2023-05-01
-572,Preadmission,,2026-06-01
-572,Preadmission,cumulus__none,2026-06-01
-526,HOV,,2023-03-01
-526,HOV,cumulus__none,2023-03-01
-515,Appointment,,2026-03-01
-515,Appointment,cumulus__none,2026-03-01
-481,HOV,,2023-06-01
-481,HOV,cumulus__none,2023-06-01
-474,HOV,,2023-07-01
-474,HOV,cumulus__none,2023-07-01
-456,HOV,,2023-04-01
-456,HOV,cumulus__none,2023-04-01
-450,,,2027-03-01
-450,,cumulus__none,2027-03-01
-445,HOV,,2023-02-01
-445,HOV,cumulus__none,2023-02-01
-444,Support OP Encounter,,2027-03-01
-444,Support OP Encounter,cumulus__none,2027-03-01
-414,Support OP Encounter,,2006-08-01
-414,Support OP Encounter,cumulus__none,2006-08-01
-413,,,2005-12-01
-413,,cumulus__none,2005-12-01
-396,,,2112-12-01
-396,,cumulus__none,2112-12-01
-396,Admission,,2026-02-01
-388,Preadmission,,2112-12-01
-388,Preadmission,cumulus__none,2112-12-01
-385,Support OP Encounter,,2006-06-01
-385,Support OP Encounter,cumulus__none,2006-06-01
-383,Support OP Encounter,,2006-03-01
-383,Support OP Encounter,cumulus__none,2006-03-01
-378,,Immediate,
-361,HOV,,2022-10-01
-361,HOV,cumulus__none,2022-10-01
-360,HOV,,2023-01-01
-360,HOV,cumulus__none,2023-01-01
-352,Support OP Encounter,,2006-07-01
-352,Support OP Encounter,cumulus__none,2006-07-01
-352,HOV,,2022-11-01
-352,HOV,cumulus__none,2022-11-01
-351,HOV,,2022-12-01
-351,HOV,cumulus__none,2022-12-01
-346,HOV,,2022-09-01
-346,HOV,cumulus__none,2022-09-01
-343,Support OP Encounter,,2006-05-01
-343,Support OP Encounter,cumulus__none,2006-05-01
-340,Support OP Encounter,,2006-02-01
-340,Support OP Encounter,cumulus__none,2006-02-01
-325,Discharge,Immediate,
-310,Appointment,,2024-05-01
-310,Appointment,cumulus__none,2024-05-01
-303,Support OP Encounter,,2006-04-01
-303,Support OP Encounter,cumulus__none,2006-04-01
-297,HOV,,2022-07-01
-297,HOV,cumulus__none,2022-07-01
-296,HOV,,2022-06-01
-296,HOV,cumulus__none,2022-06-01
-282,HOV,,2022-08-01
-282,HOV,cumulus__none,2022-08-01
-278,HOV,,2022-05-01
-278,HOV,cumulus__none,2022-05-01
-273,Admission,cumulus__none,2026-02-01
-271,Preadmission,,2026-07-01
-271,Preadmission,cumulus__none,2026-07-01
-268,HOV,,2022-03-01
-268,HOV,cumulus__none,2022-03-01
-261,HOV,,2022-04-01
-261,HOV,cumulus__none,2022-04-01
-254,Support OP Encounter,,2006-01-01
-254,Support OP Encounter,cumulus__none,2006-01-01
-237,Discharge,,2005-12-01
-237,Discharge,cumulus__none,2005-12-01
-222,HOV,,2021-08-01
-222,HOV,cumulus__none,2021-08-01
-221,HOV,,2021-11-01
-221,HOV,cumulus__none,2021-11-01
-218,HOV,,2021-12-01
-218,HOV,cumulus__none,2021-12-01
-217,,,2005-11-01
-217,,cumulus__none,2005-11-01
-210,HOV,,2022-02-01
-210,HOV,cumulus__none,2022-02-01
-205,HOV,,2021-10-01
-205,HOV,cumulus__none,2021-10-01
-192,,Non-Urgent,2026-01-01
-192,Discharge,Non-Urgent,2026-01-01
-191,HOV,,2022-01-01
-191,HOV,cumulus__none,2022-01-01
-184,HOV,,2021-06-01
-184,HOV,cumulus__none,2021-06-01
-177,HOV,,2020-10-01
-177,HOV,cumulus__none,2020-10-01
-171,Support OP Encounter,,2005-12-01
-171,Support OP Encounter,cumulus__none,2005-12-01
-171,HOV,,2021-09-01
-171,HOV,cumulus__none,2021-09-01
-169,HOV,,2021-07-01
-169,HOV,cumulus__none,2021-07-01
-162,,Non-Urgent,2026-02-01
-162,,Non-Urgent,2024-12-01
-162,HOV,,2021-03-01
-162,HOV,cumulus__none,2021-03-01
-162,Discharge,Non-Urgent,2026-02-01
-161,,Non-Urgent,2025-01-01
-161,Discharge,Non-Urgent,2025-01-01
-160,Discharge,Non-Urgent,2024-12-01
-157,,Non-Urgent,2025-02-01
-157,Discharge,Non-Urgent,2025-02-01
-152,HOV,,2021-04-01
-152,HOV,cumulus__none,2021-04-01
-151,,Non-Urgent,2025-12-01
-151,Discharge,Non-Urgent,2025-12-01
-149,Admission,,2026-01-01
-148,HOV,,2021-02-01
-148,HOV,,2020-12-01
-148,HOV,cumulus__none,2021-02-01
-148,HOV,cumulus__none,2020-12-01
-147,,Non-Urgent,2025-05-01
-147,Discharge,Non-Urgent,2025-05-01
-144,HOV,,2020-11-01
-144,HOV,cumulus__none,2020-11-01
-140,HOV,,2021-05-01
-140,HOV,cumulus__none,2021-05-01
-138,Admission,cumulus__none,2026-01-01
-135,,Non-Urgent,2025-04-01
-135,Discharge,Non-Urgent,2025-04-01
-134,HOV,,2021-01-01
-134,HOV,cumulus__none,2021-01-01
-132,HOV,,2020-01-01
-132,HOV,cumulus__none,2020-01-01
-131,HOV,,2020-02-01
-131,HOV,cumulus__none,2020-02-01
-131,Admission,Emergent,
-127,Preadmission,,2026-08-01
-127,Preadmission,cumulus__none,2026-08-01
-127,HOV,,2020-09-01
-127,HOV,cumulus__none,2020-09-01
-125,Admission,,2025-12-01
-124,,Non-Urgent,2025-07-01
-124,Discharge,Non-Urgent,2025-07-01
-123,Discharge,,2026-03-01
-122,Admission,,2024-12-01
-122,Admission,cumulus__none,2024-12-01
-121,,Non-Urgent,2025-03-01
-121,Discharge,Non-Urgent,2025-03-01
-120,,Non-Urgent,2024-06-01
-120,HOV,,2019-10-01
-120,HOV,cumulus__none,2019-10-01
-120,Discharge,Non-Urgent,2024-06-01
-120,Admission,,2024-10-01
-118,HOV,,2020-07-01
-118,HOV,cumulus__none,2020-07-01
-117,,Non-Urgent,2024-11-01
-117,Discharge,Non-Urgent,2024-11-01
-117,Admission,cumulus__none,2025-12-01
-117,Admission,cumulus__none,2024-10-01
-116,,Non-Urgent,2024-10-01
-116,Discharge,Non-Urgent,2024-10-01
-112,Admission,,2025-10-01
-111,,Non-Urgent,2024-07-01
-111,Discharge,,2005-11-01
-111,Discharge,cumulus__none,2005-11-01
-110,HOV,,2019-11-01
-110,HOV,,2019-03-01
-110,HOV,cumulus__none,2019-11-01
-110,HOV,cumulus__none,2019-03-01
-110,Discharge,Non-Urgent,2024-07-01
-109,Admission,,2026-03-01
-108,,Non-Urgent,2025-08-01
-108,Requisition Encounter,,2024-05-01
-108,Requisition Encounter,cumulus__none,2024-05-01
-108,Discharge,Non-Urgent,2025-08-01
-108,Admission,cumulus__none,2025-10-01
-107,Admission,,2025-08-01
-106,Admission,,2025-03-01
-105,Admission,cumulus__none,2025-08-01
-104,,Non-Urgent,2025-09-01
-104,Support OP Encounter,,2005-11-01
-104,Support OP Encounter,cumulus__none,2005-11-01
-104,HOV,,2019-09-01
-104,HOV,cumulus__none,2019-09-01
-104,Discharge,Non-Urgent,2025-09-01
-104,Admission,,2025-04-01
-104,Admission,cumulus__none,2025-04-01
-104,Admission,cumulus__none,2025-03-01
-102,HOV,,2019-08-01
-102,HOV,cumulus__none,2019-08-01
-101,HOV,,2020-06-01
-101,HOV,cumulus__none,2020-06-01
-101,Admission,,2025-05-01
-101,Admission,,2025-01-01
-100,HOV,,2020-03-01
-100,HOV,cumulus__none,2020-03-01
-99,,Non-Urgent,2024-08-01
-99,Admission,cumulus__none,2025-01-01
-98,,,2005-10-01
-98,,cumulus__none,2005-10-01
-98,HOV,,2019-05-01
-98,HOV,cumulus__none,2019-05-01
-98,Admission,cumulus__none,2025-05-01
-97,HOV,,2020-08-01
-97,HOV,,2019-12-01
-97,HOV,,2018-04-01
-97,HOV,cumulus__none,2020-08-01
-97,HOV,cumulus__none,2019-12-01
-97,HOV,cumulus__none,2018-04-01
-97,Discharge,Non-Urgent,2024-08-01
-97,Admission,,2024-08-01
-95,,,2027-06-01
-95,,cumulus__none,2027-06-01
-95,,Urgent,2026-03-01
-95,HOV,,2020-05-01
-95,HOV,,2019-07-01
-95,HOV,cumulus__none,2020-05-01
-95,HOV,cumulus__none,2019-07-01
-93,Admission,,2025-11-01
-93,Admission,cumulus__none,2024-08-01
-91,Admission,cumulus__none,2025-11-01
-90,,Non-Urgent,2024-09-01
-90,Discharge,Non-Urgent,2024-09-01
-90,Admission,,2025-02-01
-89,Admission,,2025-09-01
-89,Admission,cumulus__none,2025-09-01
-89,Admission,cumulus__none,2025-02-01
-88,,Non-Urgent,2025-11-01
-88,HOV,,2017-10-01
-88,HOV,cumulus__none,2017-10-01
-88,Discharge,Non-Urgent,2025-11-01
-88,Admission,,2024-06-01
-88,Admission,cumulus__none,2024-06-01
-87,,Non-Urgent,2025-06-01
-87,Support OP Encounter,,2027-06-01
-87,Support OP Encounter,cumulus__none,2027-06-01
-87,Discharge,Non-Urgent,2025-06-01
-87,Admission,,2024-11-01
-87,Admission,Urgent,
-86,,,2027-04-01
-86,,cumulus__none,2027-04-01
-86,Admission,,2025-07-01
-85,Admission,cumulus__none,2025-07-01
-85,Admission,cumulus__none,2024-11-01
-84,Admission,,2024-09-01
-84,Admission,cumulus__none,2024-09-01
-83,Support OP Encounter,,2027-04-01
-83,Support OP Encounter,cumulus__none,2027-04-01
-83,HOV,,2019-04-01
-83,HOV,cumulus__none,2019-04-01
-83,Admission,,2024-07-01
-82,HOV,,2019-02-01
-82,HOV,,2018-11-01
-82,HOV,cumulus__none,2019-02-01
-82,HOV,cumulus__none,2018-11-01
-81,,Non-Urgent,2025-10-01
-81,Discharge,Non-Urgent,2025-10-01
-80,,,2027-08-01
-80,,cumulus__none,2027-08-01
-80,Admission,,2025-06-01
-80,Admission,cumulus__none,2025-06-01
-79,HOV,,2018-07-01
-79,HOV,cumulus__none,2018-07-01
-79,Admission,Emergent,2026-02-01
-78,,,2027-05-01
-78,,cumulus__none,2027-05-01
-78,HOV,,2018-12-01
-78,HOV,cumulus__none,2018-12-01
-78,Admission,cumulus__none,2024-07-01
-77,HOV,,2018-10-01
-77,HOV,,2018-02-01
-77,HOV,cumulus__none,2018-10-01
-77,HOV,cumulus__none,2018-02-01
-75,,Less Urgent,cumulus__none
-75,Support OP Encounter,,2027-08-01
-75,Support OP Encounter,cumulus__none,2027-08-01
-75,HOV,,2019-06-01
-75,HOV,cumulus__none,2019-06-01
-75,Discharge,Less Urgent,cumulus__none
-74,Support OP Encounter,,2027-05-01
-74,Support OP Encounter,cumulus__none,2027-05-01
-74,HOV,,2018-08-01
-74,HOV,,2018-06-01
-74,HOV,cumulus__none,2018-08-01
-74,HOV,cumulus__none,2018-06-01
-73,HOV,,2019-01-01
-73,HOV,cumulus__none,2019-01-01
-67,HOV,,2018-03-01
-67,HOV,cumulus__none,2018-03-01
-65,,,2005-08-01
-65,,cumulus__none,2005-08-01
-64,Discharge,Urgent,2026-03-01
-63,,,2027-12-01
-63,,cumulus__none,2027-12-01
-62,HOV,,2018-09-01
-62,HOV,,2018-01-01
-62,HOV,cumulus__none,2018-09-01
-62,HOV,cumulus__none,2018-01-01
-61,,Urgent,cumulus__none
-61,HOV,,2017-11-01
-61,HOV,cumulus__none,2017-11-01
-61,Discharge,Urgent,cumulus__none
-60,,,2005-09-01
-60,,cumulus__none,2005-09-01
-60,HOV,,2026-06-01
-60,HOV,cumulus__none,2026-06-01
-60,Discharge,,2005-10-01
-60,Discharge,cumulus__none,2005-10-01
-59,HOV,,2018-05-01
-59,HOV,,2017-08-01
-59,HOV,cumulus__none,2018-05-01
-59,HOV,cumulus__none,2017-08-01
-57,Support OP Encounter,,2027-12-01
-57,Support OP Encounter,cumulus__none,2027-12-01
-56,HOV,,2017-12-01
-56,HOV,,2017-04-01
-56,HOV,cumulus__none,2017-12-01
-56,HOV,cumulus__none,2017-04-01
-55,,,2027-07-01
-55,,cumulus__none,2027-07-01
-55,HOV,,2026-04-01
-55,HOV,cumulus__none,2026-04-01
-54,HOV,,2016-08-01
-54,HOV,cumulus__none,2016-08-01
-53,Preadmission,,2026-09-01
-53,Preadmission,cumulus__none,2026-09-01
-53,HOV,,2026-05-01
-53,HOV,cumulus__none,2026-05-01
-52,Support OP Encounter,,2027-07-01
-52,Support OP Encounter,cumulus__none,2027-07-01
-51,,,2027-10-01
-51,,cumulus__none,2027-10-01
-51,HOV,,2017-03-01
-51,HOV,cumulus__none,2017-03-01
-50,,,2027-09-01
-50,,,2005-07-01
-50,,cumulus__none,2027-09-01
-50,,cumulus__none,2005-07-01
-50,HOV,,2017-05-01
-50,HOV,,2016-10-01
-50,HOV,cumulus__none,2017-05-01
-50,HOV,cumulus__none,2016-10-01
-49,HOV,,2017-01-01
-49,HOV,cumulus__none,2017-01-01
-48,Support OP Encounter,,2027-10-01
-48,Support OP Encounter,cumulus__none,2027-10-01
-47,,Less Urgent,2026-03-01
-46,Support OP Encounter,,2027-09-01
-46,Support OP Encounter,cumulus__none,2027-09-01
-46,HOV,,2017-02-01
-46,HOV,cumulus__none,2017-02-01
-45,,,2005-06-01
-45,,cumulus__none,2005-06-01
-45,Support OP Encounter,,2005-08-01
-45,Support OP Encounter,cumulus__none,2005-08-01
-45,HOV,,2016-01-01
-45,HOV,cumulus__none,2016-01-01
-44,,Emergent,2026-03-01
-44,HOV,,2020-04-01
-44,HOV,,2017-09-01
-44,HOV,cumulus__none,2020-04-01
-44,HOV,cumulus__none,2017-09-01
-43,HOV,,2016-06-01
-43,HOV,,2016-03-01
-43,HOV,,2015-11-01
-43,HOV,cumulus__none,2016-06-01
-43,HOV,cumulus__none,2016-03-01
-43,HOV,cumulus__none,2015-11-01
-43,Admission,cumulus__none,2026-03-01
-42,HOV,,2017-07-01
-42,HOV,cumulus__none,2017-07-01
-41,,,2028-01-01
-41,,cumulus__none,2028-01-01
-41,HOV,,2017-06-01
-41,HOV,,2016-12-01
-41,HOV,cumulus__none,2017-06-01
-41,HOV,cumulus__none,2016-12-01
-40,Discharge,Less Urgent,2026-03-01
-39,,,2027-11-01
-39,,,2005-05-01
-39,,,2005-04-01
-39,,,2004-08-01
-39,,cumulus__none,2027-11-01
-39,,cumulus__none,2005-05-01
-39,,cumulus__none,2005-04-01
-39,,cumulus__none,2004-08-01
-39,HOV,,2016-05-01
-39,HOV,cumulus__none,2016-05-01
-39,Admission,,2024-05-01
-38,,,2005-02-01
-38,,cumulus__none,2005-02-01
-38,HOV,,2015-12-01
-38,HOV,cumulus__none,2015-12-01
-38,Admission,cumulus__none,2024-05-01
-37,Support OP Encounter,,2028-01-01
-37,Support OP Encounter,,2005-10-01
-37,Support OP Encounter,cumulus__none,2028-01-01
-37,Support OP Encounter,cumulus__none,2005-10-01
-37,HOV,,2012-06-01
-37,HOV,cumulus__none,2012-06-01
-36,,,2005-03-01
-36,,,2004-11-01
-36,,cumulus__none,2005-03-01
-36,,cumulus__none,2004-11-01
-36,Support OP Encounter,,2027-11-01
-36,Support OP Encounter,,2004-08-01
-36,Support OP Encounter,cumulus__none,2027-11-01
-36,Support OP Encounter,cumulus__none,2004-08-01
-35,HOV,,2016-04-01
-35,HOV,cumulus__none,2016-04-01
-35,Admission,Urgent,2026-02-01
-34,,,2028-02-01
-34,,,2004-12-01
-34,,cumulus__none,2028-02-01
-34,,cumulus__none,2004-12-01
-34,Support OP Encounter,,2005-06-01
-34,Support OP Encounter,cumulus__none,2005-06-01
-34,HOV,,2016-07-01
-34,HOV,,2014-09-01
-34,HOV,cumulus__none,2016-07-01
-34,HOV,cumulus__none,2014-09-01
-33,Support OP Encounter,,2028-02-01
-33,Support OP Encounter,cumulus__none,2028-02-01
-33,HOV,,2026-09-01
-33,HOV,cumulus__none,2026-09-01
-32,HOV,,2026-07-01
-32,HOV,,2016-09-01
-32,HOV,,2015-10-01
-32,HOV,cumulus__none,2026-07-01
-32,HOV,cumulus__none,2016-09-01
-32,HOV,cumulus__none,2015-10-01
-32,Discharge,,1900-01-01
-32,Discharge,cumulus__none,1900-01-01
-31,Support OP Encounter,,2005-07-01
-31,Support OP Encounter,,2005-05-01
-31,Support OP Encounter,cumulus__none,2005-07-01
-31,Support OP Encounter,cumulus__none,2005-05-01
-31,HOV,,2015-07-01
-31,HOV,cumulus__none,2015-07-01
-31,Admission,Urgent,2026-03-01
-30,,,2004-10-01
-30,,,2004-09-01
-30,,cumulus__none,2004-10-01
-30,,cumulus__none,2004-09-01
-30,Support OP Encounter,,2005-04-01
-30,Support OP Encounter,cumulus__none,2005-04-01
-30,HOV,,2015-06-01
-30,HOV,,2015-04-01
-30,HOV,,2010-02-01
-30,HOV,cumulus__none,2015-06-01
-30,HOV,cumulus__none,2015-04-01
-30,HOV,cumulus__none,2010-02-01
-29,,,2005-01-01
-29,,cumulus__none,2005-01-01
-29,Support OP Encounter,,2005-09-01
-29,Support OP Encounter,,2004-12-01
-29,Support OP Encounter,,2004-11-01
-29,Support OP Encounter,cumulus__none,2005-09-01
-29,Support OP Encounter,cumulus__none,2004-12-01
-29,Support OP Encounter,cumulus__none,2004-11-01
-29,HOV,,2016-11-01
-29,HOV,,2014-11-01
-29,HOV,,2014-06-01
-29,HOV,,2011-06-01
-29,HOV,cumulus__none,2016-11-01
-29,HOV,cumulus__none,2014-11-01
-29,HOV,cumulus__none,2014-06-01
-29,HOV,cumulus__none,2011-06-01
-29,Discharge,,2005-09-01
-29,Discharge,cumulus__none,2005-09-01
-28,,,2004-07-01
-28,,cumulus__none,2004-07-01
-28,Support OP Encounter,,2004-10-01
-28,Support OP Encounter,cumulus__none,2004-10-01
-28,HOV,,2026-12-01
-28,HOV,,2026-08-01
-28,HOV,,2016-02-01
-28,HOV,cumulus__none,2026-12-01
-28,HOV,cumulus__none,2026-08-01
-28,HOV,cumulus__none,2016-02-01
-27,,,2004-03-01
-27,,,2002-10-01
-27,,cumulus__none,2004-03-01
-27,,cumulus__none,2002-10-01
-27,,Immediate,2024-08-01
-27,HOV,,2015-03-01
-27,HOV,,2014-07-01
-27,HOV,,2013-03-01
-27,HOV,,2012-10-01
-27,HOV,cumulus__none,2015-03-01
-27,HOV,cumulus__none,2014-07-01
-27,HOV,cumulus__none,2013-03-01
-27,HOV,cumulus__none,2012-10-01
-26,,,2004-06-01
-26,,cumulus__none,2004-06-01
-26,,Immediate,2025-05-01
-26,Support OP Encounter,,2005-03-01
-26,Support OP Encounter,,2005-02-01
-26,Support OP Encounter,,2004-07-01
-26,Support OP Encounter,cumulus__none,2005-03-01
-26,Support OP Encounter,cumulus__none,2005-02-01
-26,Support OP Encounter,cumulus__none,2004-07-01
-26,HOV,,2015-08-01
-26,HOV,,2015-02-01
-26,HOV,cumulus__none,2015-08-01
-26,HOV,cumulus__none,2015-02-01
-26,Discharge,Immediate,2025-05-01
-26,Admission,Emergent,2026-03-01
-25,,Immediate,2024-06-01
-25,Support OP Encounter,,2004-03-01
-25,Support OP Encounter,,2002-10-01
-25,Support OP Encounter,cumulus__none,2004-03-01
-25,Support OP Encounter,cumulus__none,2002-10-01
-25,HOV,,2026-10-01
-25,HOV,cumulus__none,2026-10-01
-24,,,2003-08-01
-24,,,2002-08-01
-24,,cumulus__none,2003-08-01
-24,,cumulus__none,2002-08-01
-24,Support OP Encounter,,2004-09-01
-24,Support OP Encounter,cumulus__none,2004-09-01
-24,Support OP Encounter,Immediate,
-24,Preadmission,,2026-10-01
-24,Preadmission,cumulus__none,2026-10-01
-24,Preadmission,Immediate,
-24,HOV,,2014-04-01
-24,HOV,,2013-10-01
-24,HOV,cumulus__none,2014-04-01
-24,HOV,cumulus__none,2013-10-01
-23,,Immediate,2024-12-01
-23,Support OP Encounter,,2005-01-01
-23,Support OP Encounter,,2003-08-01
-23,Support OP Encounter,cumulus__none,2005-01-01
-23,Support OP Encounter,cumulus__none,2003-08-01
-23,HOV,,2027-01-01
-23,HOV,cumulus__none,2027-01-01
-22,,,2003-07-01
-22,,,2000-08-01
-22,,cumulus__none,2003-07-01
-22,,cumulus__none,2000-08-01
-22,,Immediate,2024-10-01
-22,Support OP Encounter,,2004-06-01
-22,Support OP Encounter,cumulus__none,2004-06-01
-22,HOV,,2013-09-01
-22,HOV,cumulus__none,2013-09-01
-21,,,2003-03-01
-21,,cumulus__none,2003-03-01
-21,,Immediate,2025-04-01
-21,Support OP Encounter,,2003-07-01
-21,Support OP Encounter,cumulus__none,2003-07-01
-21,HOV,,2015-09-01
-21,HOV,,2015-05-01
-21,HOV,,2013-01-01
-21,HOV,cumulus__none,2015-09-01
-21,HOV,cumulus__none,2015-05-01
-21,HOV,cumulus__none,2013-01-01
-20,,,2002-12-01
-20,,cumulus__none,2002-12-01
-20,,Immediate,2024-07-01
-20,Support OP Encounter,,2003-03-01
-20,Support OP Encounter,,2002-08-01
-20,Support OP Encounter,cumulus__none,2003-03-01
-20,Support OP Encounter,cumulus__none,2002-08-01
-20,HOV,,2014-08-01
-20,HOV,,2014-03-01
-20,HOV,,2014-01-01
-20,HOV,,2011-05-01
-20,HOV,cumulus__none,2014-08-01
-20,HOV,cumulus__none,2014-03-01
-20,HOV,cumulus__none,2014-01-01
-20,HOV,cumulus__none,2011-05-01
-20,Discharge,,2005-08-01
-20,Discharge,cumulus__none,2005-08-01
-19,,,2001-12-01
-19,,cumulus__none,2001-12-01
-19,,Immediate,2026-01-01
-19,,Immediate,2025-08-01
-19,,Immediate,2025-01-01
-19,,Immediate,2024-11-01
-19,Support OP Encounter,Less Urgent,
-19,HOV,,2015-01-01
-19,HOV,cumulus__none,2015-01-01
-19,Discharge,Immediate,2025-04-01
-19,Discharge,Immediate,2024-12-01
-19,Discharge,Immediate,2024-11-01
-19,Discharge,Immediate,2024-08-01
-18,,Immediate,2025-03-01
-18,Support OP Encounter,,2000-08-01
-18,Support OP Encounter,cumulus__none,2000-08-01
-18,Preadmission,Less Urgent,
-18,HOV,,2013-12-01
-18,HOV,,2012-08-01
-18,HOV,,2012-01-01
-18,HOV,,2010-04-01
-18,HOV,,2010-03-01
-18,HOV,cumulus__none,2013-12-01
-18,HOV,cumulus__none,2012-08-01
-18,HOV,cumulus__none,2012-01-01
-18,HOV,cumulus__none,2010-04-01
-18,HOV,cumulus__none,2010-03-01
-18,Discharge,Immediate,2024-10-01
-18,Discharge,Immediate,2024-07-01
-18,Discharge,Emergent,2026-03-01
-17,,,2002-05-01
-17,,cumulus__none,2002-05-01
-17,,Immediate,2024-09-01
-17,,Emergent,cumulus__none
-17,Support OP Encounter,,2002-12-01
-17,Support OP Encounter,,2001-12-01
-17,Support OP Encounter,cumulus__none,2002-12-01
-17,Support OP Encounter,cumulus__none,2001-12-01
-17,HOV,,2026-11-01
-17,HOV,,2014-10-01
-17,HOV,,2013-08-01
-17,HOV,cumulus__none,2026-11-01
-17,HOV,cumulus__none,2014-10-01
-17,HOV,cumulus__none,2013-08-01
-17,Discharge,Immediate,2026-01-01
-17,Discharge,Immediate,2025-08-01
-17,Discharge,Emergent,cumulus__none
-16,,,2003-06-01
-16,,,2001-08-01
-16,,cumulus__none,2003-06-01
-16,,cumulus__none,2001-08-01
-16,,Immediate,2026-02-01
-16,HOV,,2014-02-01
-16,HOV,,2013-02-01
-16,HOV,cumulus__none,2014-02-01
-16,HOV,cumulus__none,2013-02-01
-16,Discharge,,2005-07-01
-16,Discharge,cumulus__none,2005-07-01
-15,,,2004-02-01
-15,,,2003-09-01
-15,,,1998-08-01
-15,,cumulus__none,2004-02-01
-15,,cumulus__none,2003-09-01
-15,,cumulus__none,1998-08-01
-15,,Immediate,2025-07-01
-15,,Immediate,2025-02-01
-15,Support OP Encounter,,2004-02-01
-15,Support OP Encounter,,2003-06-01
-15,Support OP Encounter,,2001-08-01
-15,Support OP Encounter,,1998-08-01
-15,Support OP Encounter,cumulus__none,2004-02-01
-15,Support OP Encounter,cumulus__none,2003-06-01
-15,Support OP Encounter,cumulus__none,2001-08-01
-15,Support OP Encounter,cumulus__none,1998-08-01
-15,Discharge,Immediate,2025-07-01
-15,Discharge,Immediate,2025-01-01
-15,Discharge,Immediate,2024-09-01
-15,Discharge,Immediate,2024-06-01
-14,,,2003-10-01
-14,,,2002-11-01
-14,,,2000-10-01
-14,,cumulus__none,2003-10-01
-14,,cumulus__none,2002-11-01
-14,,cumulus__none,2000-10-01
-14,Support OP Encounter,,2003-10-01
-14,Support OP Encounter,,2002-05-01
-14,Support OP Encounter,cumulus__none,2003-10-01
-14,Support OP Encounter,cumulus__none,2002-05-01
-14,Requisition Encounter,,2024-04-01
-14,Requisition Encounter,cumulus__none,2024-04-01
-14,HOV,,2014-12-01
-14,HOV,,2013-05-01
-14,HOV,,2012-05-01
-14,HOV,,2012-02-01
-14,HOV,,2011-08-01
-14,HOV,,2011-03-01
-14,HOV,,2011-01-01
-14,HOV,cumulus__none,2014-12-01
-14,HOV,cumulus__none,2013-05-01
-14,HOV,cumulus__none,2012-05-01
-14,HOV,cumulus__none,2012-02-01
-14,HOV,cumulus__none,2011-08-01
-14,HOV,cumulus__none,2011-03-01
-14,HOV,cumulus__none,2011-01-01
-14,Discharge,Immediate,2025-03-01
-14,Admission,Less Urgent,
-13,,,2004-04-01
-13,,,2001-09-01
-13,,,2001-06-01
-13,,,1996-08-01
-13,,cumulus__none,2004-04-01
-13,,cumulus__none,2001-09-01
-13,,cumulus__none,2001-06-01
-13,,cumulus__none,1996-08-01
-13,,Immediate,2025-09-01
-13,Support OP Encounter,,2003-09-01
-13,Support OP Encounter,cumulus__none,2003-09-01
-13,Preadmission,,2026-12-01
-13,Preadmission,,2026-11-01
-13,Preadmission,cumulus__none,2026-12-01
-13,Preadmission,cumulus__none,2026-11-01
-13,HOV,,2013-07-01
-13,HOV,,2013-06-01
-13,HOV,,2013-04-01
-13,HOV,,2012-11-01
-13,HOV,cumulus__none,2013-07-01
-13,HOV,cumulus__none,2013-06-01
-13,HOV,cumulus__none,2013-04-01
-13,HOV,cumulus__none,2012-11-01
-13,Discharge,Immediate,2025-09-01
-12,,,2004-01-01
-12,,,2003-05-01
-12,,,2003-01-01
-12,,,2002-06-01
-12,,cumulus__none,2004-01-01
-12,,cumulus__none,2003-05-01
-12,,cumulus__none,2003-01-01
-12,,cumulus__none,2002-06-01
-12,,Immediate,2025-10-01
-12,,Immediate,2025-06-01
-12,Support OP Encounter,,2004-04-01
-12,Support OP Encounter,cumulus__none,2004-04-01
-12,Requisition Encounter,,2024-03-01
-12,Requisition Encounter,cumulus__none,2024-03-01
-12,HOV,,2013-11-01
-12,HOV,cumulus__none,2013-11-01
-12,Discharge,Immediate,2025-10-01
-12,Discharge,Immediate,2025-06-01
-11,,,2002-01-01
-11,,,1999-09-01
-11,,cumulus__none,2002-01-01
-11,,cumulus__none,1999-09-01
-11,,Non-Urgent,cumulus__none
-11,,Immediate,2025-12-01
-11,Support OP Encounter,,2004-01-01
-11,Support OP Encounter,,2003-05-01
-11,Support OP Encounter,,2002-06-01
-11,Support OP Encounter,cumulus__none,2004-01-01
-11,Support OP Encounter,cumulus__none,2003-05-01
-11,Support OP Encounter,cumulus__none,2002-06-01
-11,HOV,,2014-05-01
-11,HOV,,2012-12-01
-11,HOV,cumulus__none,2014-05-01
-11,HOV,cumulus__none,2012-12-01
-11,Discharge,,2005-02-01
-11,Discharge,cumulus__none,2005-02-01
-11,Discharge,Non-Urgent,cumulus__none
-11,Discharge,Immediate,2026-02-01
-11,Discharge,Immediate,2025-12-01
-11,Discharge,Immediate,2025-02-01
-10,,,2004-05-01
-10,,,2003-11-01
-10,,,1999-07-01
-10,,,1999-06-01
-10,,,1997-08-01
-10,,cumulus__none,2004-05-01
-10,,cumulus__none,2003-11-01
-10,,cumulus__none,1999-07-01
-10,,cumulus__none,1999-06-01
-10,,cumulus__none,1997-08-01
-10,Support OP Encounter,,2003-11-01
-10,Support OP Encounter,,1999-07-01
-10,Support OP Encounter,cumulus__none,2003-11-01
-10,Support OP Encounter,cumulus__none,1999-07-01
-10,HOV,,2012-07-01
-10,HOV,cumulus__none,2012-07-01
-10,Discharge,,2005-06-01
-10,Discharge,cumulus__none,2005-06-01
+64173,,,
+64173,,cumulus__none,
+59979,ambulatory,,
+59979,ambulatory,cumulus__none,
+2464,emergency,,
+2464,emergency,cumulus__none,
+1118,inpatient encounter,,
+1118,inpatient encounter,cumulus__none,
+1051,,,2014-02-01
+1051,,cumulus__none,2014-02-01
+1040,ambulatory,,2014-02-01
+1040,ambulatory,cumulus__none,2014-02-01
+642,,,2014-03-01
+642,,cumulus__none,2014-03-01
+625,,,2021-04-01
+625,,cumulus__none,2021-04-01
+617,ambulatory,,2014-03-01
+617,ambulatory,cumulus__none,2014-03-01
+600,ambulatory,,2021-04-01
+600,ambulatory,cumulus__none,2021-04-01
+572,,,2021-03-01
+572,,cumulus__none,2021-03-01
+552,ambulatory,,2021-03-01
+552,ambulatory,cumulus__none,2021-03-01
+528,,,2021-05-01
+528,,cumulus__none,2021-05-01
+522,home health,,
+522,home health,cumulus__none,
+494,ambulatory,,2021-05-01
+494,ambulatory,cumulus__none,2021-05-01
+475,,,2021-01-01
+475,,cumulus__none,2021-01-01
+462,,,2021-02-01
+462,,cumulus__none,2021-02-01
+459,,,2021-08-01
+459,,cumulus__none,2021-08-01
+456,,,2021-06-01
+456,,cumulus__none,2021-06-01
+444,,,2021-07-01
+444,,cumulus__none,2021-07-01
+443,ambulatory,,2021-08-01
+443,ambulatory,cumulus__none,2021-08-01
+436,ambulatory,,2021-06-01
+436,ambulatory,cumulus__none,2021-06-01
+430,ambulatory,,2021-02-01
+430,ambulatory,cumulus__none,2021-02-01
+423,ambulatory,,2021-07-01
+423,ambulatory,cumulus__none,2021-07-01
+420,,,2019-12-01
+420,,cumulus__none,2019-12-01
+419,ambulatory,,2021-01-01
+419,ambulatory,cumulus__none,2021-01-01
+418,,,2013-05-01
+418,,cumulus__none,2013-05-01
+412,,,2018-08-01
+412,,cumulus__none,2018-08-01
+410,,,2020-04-01
+410,,,2019-03-01
+410,,cumulus__none,2020-04-01
+410,,cumulus__none,2019-03-01
+409,,,2021-11-01
+409,,,2021-09-01
+409,,,2020-03-01
+409,,cumulus__none,2021-11-01
+409,,cumulus__none,2021-09-01
+409,,cumulus__none,2020-03-01
+407,,,2020-01-01
+407,,cumulus__none,2020-01-01
+404,,,2019-06-01
+404,,cumulus__none,2019-06-01
+401,,,2018-03-01
+401,,cumulus__none,2018-03-01
+400,,,2022-04-01
+400,,,2020-12-01
+400,,cumulus__none,2022-04-01
+400,,cumulus__none,2020-12-01
+399,,,2020-05-01
+399,,cumulus__none,2020-05-01
+397,,,2017-03-01
+397,,cumulus__none,2017-03-01
+396,,,2020-07-01
+396,,,2018-01-01
+396,,cumulus__none,2020-07-01
+396,,cumulus__none,2018-01-01
+394,,,2016-03-01
+394,,cumulus__none,2016-03-01
+394,ambulatory,,2019-12-01
+394,ambulatory,cumulus__none,2019-12-01
+391,,,2019-05-01
+391,,,2018-06-01
+391,,cumulus__none,2019-05-01
+391,,cumulus__none,2018-06-01
+390,ambulatory,,2019-03-01
+390,ambulatory,cumulus__none,2019-03-01
+386,,,2020-06-01
+386,,cumulus__none,2020-06-01
+386,ambulatory,,2021-09-01
+386,ambulatory,,2020-04-01
+386,ambulatory,cumulus__none,2021-09-01
+386,ambulatory,cumulus__none,2020-04-01
+385,ambulatory,,2021-11-01
+385,ambulatory,cumulus__none,2021-11-01
+384,,,2020-09-01
+384,,cumulus__none,2020-09-01
+383,,,2019-04-01
+383,,,2013-07-01
+383,,cumulus__none,2019-04-01
+383,,cumulus__none,2013-07-01
+382,,,2020-08-01
+382,,,2014-07-01
+382,,cumulus__none,2020-08-01
+382,,cumulus__none,2014-07-01
+382,ambulatory,,2020-03-01
+382,ambulatory,cumulus__none,2020-03-01
+381,,,2022-07-01
+381,,cumulus__none,2022-07-01
+379,ambulatory,,2016-03-01
+379,ambulatory,cumulus__none,2016-03-01
+378,ambulatory,,2018-06-01
+378,ambulatory,cumulus__none,2018-06-01
+377,,,2022-01-01
+377,,cumulus__none,2022-01-01
+376,,,2019-01-01
+376,,cumulus__none,2019-01-01
+376,ambulatory,,2018-03-01
+376,ambulatory,cumulus__none,2018-03-01
+374,,,2016-07-01
+374,,cumulus__none,2016-07-01
+373,,,2020-11-01
+373,,cumulus__none,2020-11-01
+372,,,2019-07-01
+372,,,2017-01-01
+372,,,2016-01-01
+372,,cumulus__none,2019-07-01
+372,,cumulus__none,2017-01-01
+372,,cumulus__none,2016-01-01
+372,ambulatory,,2020-05-01
+372,ambulatory,,2018-01-01
+372,ambulatory,,2013-05-01
+372,ambulatory,cumulus__none,2020-05-01
+372,ambulatory,cumulus__none,2018-01-01
+372,ambulatory,cumulus__none,2013-05-01
+371,ambulatory,,2020-01-01
+371,ambulatory,cumulus__none,2020-01-01
+369,,,2021-10-01
+369,,,2014-12-01
+369,,cumulus__none,2021-10-01
+369,,cumulus__none,2014-12-01
+369,ambulatory,,2020-12-01
+369,ambulatory,cumulus__none,2020-12-01
+368,,,2020-02-01
+368,,,2018-12-01
+368,,cumulus__none,2020-02-01
+368,,cumulus__none,2018-12-01
+368,ambulatory,,2020-07-01
+368,ambulatory,,2019-06-01
+368,ambulatory,,2018-08-01
+368,ambulatory,cumulus__none,2020-07-01
+368,ambulatory,cumulus__none,2019-06-01
+368,ambulatory,cumulus__none,2018-08-01
+367,ambulatory,,2017-03-01
+367,ambulatory,cumulus__none,2017-03-01
+366,,,2022-08-01
+366,,,2022-06-01
+366,,,2022-05-01
+366,,,2021-12-01
+366,,,2019-10-01
+366,,,2019-08-01
+366,,,2017-04-01
+366,,,2016-06-01
+366,,cumulus__none,2022-08-01
+366,,cumulus__none,2022-06-01
+366,,cumulus__none,2022-05-01
+366,,cumulus__none,2021-12-01
+366,,cumulus__none,2019-10-01
+366,,cumulus__none,2019-08-01
+366,,cumulus__none,2017-04-01
+366,,cumulus__none,2016-06-01
+364,,,2015-03-01
+364,,cumulus__none,2015-03-01
+364,ambulatory,,2019-05-01
+364,ambulatory,cumulus__none,2019-05-01
+363,,,2018-05-01
+363,,cumulus__none,2018-05-01
+361,,,2018-07-01
+361,,,2014-01-01
+361,,cumulus__none,2018-07-01
+361,,cumulus__none,2014-01-01
+361,ambulatory,,2014-07-01
+361,ambulatory,cumulus__none,2014-07-01
+360,,,2023-01-01
+360,,cumulus__none,2023-01-01
+360,ambulatory,,2020-09-01
+360,ambulatory,,2013-07-01
+360,ambulatory,cumulus__none,2020-09-01
+360,ambulatory,cumulus__none,2013-07-01
+359,,,2018-09-01
+359,,,2016-08-01
+359,,cumulus__none,2018-09-01
+359,,cumulus__none,2016-08-01
+359,ambulatory,,2020-08-01
+359,ambulatory,cumulus__none,2020-08-01
+358,,,2022-03-01
+358,,cumulus__none,2022-03-01
+357,,,2020-10-01
+357,,cumulus__none,2020-10-01
+356,,,2017-12-01
+356,,cumulus__none,2017-12-01
+356,ambulatory,,2019-04-01
+356,ambulatory,cumulus__none,2019-04-01
+355,,,2022-09-01
+355,,cumulus__none,2022-09-01
+354,,,2016-05-01
+354,,cumulus__none,2016-05-01
+354,ambulatory,,2020-06-01
+354,ambulatory,,2019-07-01
+354,ambulatory,,2016-01-01
+354,ambulatory,cumulus__none,2020-06-01
+354,ambulatory,cumulus__none,2019-07-01
+354,ambulatory,cumulus__none,2016-01-01
+353,,,2018-04-01
+353,,cumulus__none,2018-04-01
+353,ambulatory,,2022-04-01
+353,ambulatory,,2019-01-01
+353,ambulatory,cumulus__none,2022-04-01
+353,ambulatory,cumulus__none,2019-01-01
+352,,,2016-02-01
+352,,,2015-12-01
+352,,,2014-05-01
+352,,cumulus__none,2016-02-01
+352,,cumulus__none,2015-12-01
+352,,cumulus__none,2014-05-01
+351,,,2013-06-01
+351,,cumulus__none,2013-06-01
+351,ambulatory,,2020-11-01
+351,ambulatory,,2017-01-01
+351,ambulatory,cumulus__none,2020-11-01
+351,ambulatory,cumulus__none,2017-01-01
+348,,,2018-10-01
+348,,,2015-06-01
+348,,,2015-01-01
+348,,,2014-08-01
+348,,cumulus__none,2018-10-01
+348,,cumulus__none,2015-06-01
+348,,cumulus__none,2015-01-01
+348,,cumulus__none,2014-08-01
+348,ambulatory,,2021-12-01
+348,ambulatory,,2021-10-01
+348,ambulatory,cumulus__none,2021-12-01
+348,ambulatory,cumulus__none,2021-10-01
+347,,,2023-03-01
+347,,,2022-10-01
+347,,,2017-07-01
+347,,cumulus__none,2023-03-01
+347,,cumulus__none,2022-10-01
+347,,cumulus__none,2017-07-01
+347,ambulatory,,2022-06-01
+347,ambulatory,,2015-03-01
+347,ambulatory,cumulus__none,2022-06-01
+347,ambulatory,cumulus__none,2015-03-01
+346,,,2019-09-01
+346,,,2015-07-01
+346,,,2013-10-01
+346,,cumulus__none,2019-09-01
+346,,cumulus__none,2015-07-01
+346,,cumulus__none,2013-10-01
+345,,,2018-11-01
+345,,cumulus__none,2018-11-01
+345,ambulatory,,2019-08-01
+345,ambulatory,,2014-12-01
+345,ambulatory,cumulus__none,2019-08-01
+345,ambulatory,cumulus__none,2014-12-01
+344,,,2017-08-01
+344,,,2017-06-01
+344,,,2015-05-01
+344,,,2015-02-01
+344,,cumulus__none,2017-08-01
+344,,cumulus__none,2017-06-01
+344,,cumulus__none,2015-05-01
+344,,cumulus__none,2015-02-01
+344,ambulatory,,2016-06-01
+344,ambulatory,cumulus__none,2016-06-01
+343,ambulatory,,2022-01-01
+343,ambulatory,cumulus__none,2022-01-01
+342,,,2022-12-01
+342,,cumulus__none,2022-12-01
+342,ambulatory,,2023-01-01
+342,ambulatory,,2022-08-01
+342,ambulatory,,2017-04-01
+342,ambulatory,cumulus__none,2023-01-01
+342,ambulatory,cumulus__none,2022-08-01
+342,ambulatory,cumulus__none,2017-04-01
+341,,,2017-05-01
+341,,,2015-04-01
+341,,,2014-06-01
+341,,cumulus__none,2017-05-01
+341,,cumulus__none,2015-04-01
+341,,cumulus__none,2014-06-01
+341,ambulatory,,2020-02-01
+341,ambulatory,,2016-07-01
+341,ambulatory,cumulus__none,2020-02-01
+341,ambulatory,cumulus__none,2016-07-01
+340,,,2018-02-01
+340,,cumulus__none,2018-02-01
+340,ambulatory,,2018-04-01
+340,ambulatory,cumulus__none,2018-04-01
+339,,,2016-12-01
+339,,,2015-11-01
+339,,cumulus__none,2016-12-01
+339,,cumulus__none,2015-11-01
+339,ambulatory,,2018-05-01
+339,ambulatory,,2016-08-01
+339,ambulatory,cumulus__none,2018-05-01
+339,ambulatory,cumulus__none,2016-08-01
+337,,,2017-10-01
+337,,cumulus__none,2017-10-01
+336,,,2014-10-01
+336,,cumulus__none,2014-10-01
+336,ambulatory,,2019-10-01
+336,ambulatory,cumulus__none,2019-10-01
+335,ambulatory,,2022-03-01
+335,ambulatory,,2018-07-01
+335,ambulatory,,2016-05-01
+335,ambulatory,,2015-12-01
+335,ambulatory,cumulus__none,2022-03-01
+335,ambulatory,cumulus__none,2018-07-01
+335,ambulatory,cumulus__none,2016-05-01
+335,ambulatory,cumulus__none,2015-12-01
+334,,,2015-08-01
+334,,cumulus__none,2015-08-01
+334,ambulatory,,2022-05-01
+334,ambulatory,cumulus__none,2022-05-01
+333,ambulatory,,2017-12-01
+333,ambulatory,,2017-07-01
+333,ambulatory,,2016-02-01
+333,ambulatory,,2014-08-01
+333,ambulatory,cumulus__none,2017-12-01
+333,ambulatory,cumulus__none,2017-07-01
+333,ambulatory,cumulus__none,2016-02-01
+333,ambulatory,cumulus__none,2014-08-01
+332,,,2016-04-01
+332,,cumulus__none,2016-04-01
+332,ambulatory,,2015-07-01
+332,ambulatory,cumulus__none,2015-07-01
+331,,,2022-11-01
+331,,cumulus__none,2022-11-01
+331,ambulatory,,2022-07-01
+331,ambulatory,,2015-06-01
+331,ambulatory,,2014-05-01
+331,ambulatory,,2013-06-01
+331,ambulatory,cumulus__none,2022-07-01
+331,ambulatory,cumulus__none,2015-06-01
+331,ambulatory,cumulus__none,2014-05-01
+331,ambulatory,cumulus__none,2013-06-01
+330,,,2023-02-01
+330,,cumulus__none,2023-02-01
+330,ambulatory,,2023-03-01
+330,ambulatory,,2017-06-01
+330,ambulatory,cumulus__none,2023-03-01
+330,ambulatory,cumulus__none,2017-06-01
+329,,,2022-02-01
+329,,,2019-11-01
+329,,cumulus__none,2022-02-01
+329,,cumulus__none,2019-11-01
+329,ambulatory,,2018-12-01
+329,ambulatory,,2018-10-01
+329,ambulatory,,2017-08-01
+329,ambulatory,cumulus__none,2018-12-01
+329,ambulatory,cumulus__none,2018-10-01
+329,ambulatory,cumulus__none,2017-08-01
+327,,,2016-09-01
+327,,cumulus__none,2016-09-01
+327,ambulatory,,2018-09-01
+327,ambulatory,,2015-05-01
+327,ambulatory,,2014-01-01
+327,ambulatory,cumulus__none,2018-09-01
+327,ambulatory,cumulus__none,2015-05-01
+327,ambulatory,cumulus__none,2014-01-01
+326,,,2014-11-01
+326,,,2013-08-01
+326,,cumulus__none,2014-11-01
+326,,cumulus__none,2013-08-01
+326,ambulatory,,2020-10-01
+326,ambulatory,cumulus__none,2020-10-01
+325,,,2017-02-01
+325,,,2016-10-01
+325,,cumulus__none,2017-02-01
+325,,cumulus__none,2016-10-01
+325,ambulatory,,2022-10-01
+325,ambulatory,cumulus__none,2022-10-01
+324,,,2014-09-01
+324,,cumulus__none,2014-09-01
+324,ambulatory,,2015-01-01
+324,ambulatory,,2014-06-01
+324,ambulatory,cumulus__none,2015-01-01
+324,ambulatory,cumulus__none,2014-06-01
+323,ambulatory,,2019-09-01
+323,ambulatory,cumulus__none,2019-09-01
+322,ambulatory,,2018-02-01
+322,ambulatory,,2014-10-01
+322,ambulatory,cumulus__none,2018-02-01
+322,ambulatory,cumulus__none,2014-10-01
+321,ambulatory,,2017-05-01
+321,ambulatory,cumulus__none,2017-05-01
+320,,,2017-09-01
+320,,cumulus__none,2017-09-01
+319,ambulatory,,2017-10-01
+319,ambulatory,,2015-04-01
+319,ambulatory,,2015-02-01
+319,ambulatory,,2013-10-01
+319,ambulatory,cumulus__none,2017-10-01
+319,ambulatory,cumulus__none,2015-04-01
+319,ambulatory,cumulus__none,2015-02-01
+319,ambulatory,cumulus__none,2013-10-01
+318,,,2013-12-01
+318,,cumulus__none,2013-12-01
+317,,,2013-11-01
+317,,cumulus__none,2013-11-01
+317,ambulatory,,2016-12-01
+317,ambulatory,,2015-11-01
+317,ambulatory,cumulus__none,2016-12-01
+317,ambulatory,cumulus__none,2015-11-01
+316,,,2017-11-01
+316,,cumulus__none,2017-11-01
+316,ambulatory,,2022-09-01
+316,ambulatory,cumulus__none,2022-09-01
+315,ambulatory,,2022-11-01
+315,ambulatory,cumulus__none,2022-11-01
+314,ambulatory,,2015-08-01
+314,ambulatory,cumulus__none,2015-08-01
+312,,,2014-04-01
+312,,,2013-04-01
+312,,cumulus__none,2014-04-01
+312,,cumulus__none,2013-04-01
+311,ambulatory,,2023-02-01
+311,ambulatory,,2016-04-01
+311,ambulatory,cumulus__none,2023-02-01
+311,ambulatory,cumulus__none,2016-04-01
+310,,,2019-02-01
+310,,cumulus__none,2019-02-01
+309,,,2015-10-01
+309,,cumulus__none,2015-10-01
+309,ambulatory,,2019-11-01
+309,ambulatory,cumulus__none,2019-11-01
+308,ambulatory,,2016-10-01
+308,ambulatory,cumulus__none,2016-10-01
+307,ambulatory,,2022-12-01
+307,ambulatory,,2017-09-01
+307,ambulatory,,2014-09-01
+307,ambulatory,cumulus__none,2022-12-01
+307,ambulatory,cumulus__none,2017-09-01
+307,ambulatory,cumulus__none,2014-09-01
+305,ambulatory,,2014-11-01
+305,ambulatory,cumulus__none,2014-11-01
+303,ambulatory,,2022-02-01
+303,ambulatory,,2016-09-01
+303,ambulatory,cumulus__none,2022-02-01
+303,ambulatory,cumulus__none,2016-09-01
+302,,,2013-09-01
+302,,cumulus__none,2013-09-01
+302,ambulatory,,2018-11-01
+302,ambulatory,,2013-08-01
+302,ambulatory,cumulus__none,2018-11-01
+302,ambulatory,cumulus__none,2013-08-01
+300,ambulatory,,2013-12-01
+300,ambulatory,cumulus__none,2013-12-01
+298,ambulatory,,2014-04-01
+298,ambulatory,cumulus__none,2014-04-01
+297,,,2015-09-01
+297,,cumulus__none,2015-09-01
+297,ambulatory,,2019-02-01
+297,ambulatory,cumulus__none,2019-02-01
+295,,,2016-11-01
+295,,cumulus__none,2016-11-01
+295,ambulatory,,2015-10-01
+295,ambulatory,cumulus__none,2015-10-01
+294,ambulatory,,2017-11-01
+294,ambulatory,cumulus__none,2017-11-01
+292,ambulatory,,2017-02-01
+292,ambulatory,cumulus__none,2017-02-01
+289,ambulatory,,2013-11-01
+289,ambulatory,cumulus__none,2013-11-01
+285,ambulatory,,2013-04-01
+285,ambulatory,cumulus__none,2013-04-01
+284,ambulatory,,2015-09-01
+284,ambulatory,cumulus__none,2015-09-01
+281,ambulatory,,2013-09-01
+281,ambulatory,cumulus__none,2013-09-01
+277,ambulatory,,2016-11-01
+277,ambulatory,cumulus__none,2016-11-01
+149,,,2013-03-01
+149,,cumulus__none,2013-03-01
+142,ambulatory,,2013-03-01
+142,ambulatory,cumulus__none,2013-03-01
+117,,,2013-02-01
+117,,cumulus__none,2013-02-01
+116,,,2012-12-01
+116,,cumulus__none,2012-12-01
+113,,,2013-01-01
+113,,,2012-06-01
+113,,cumulus__none,2013-01-01
+113,,cumulus__none,2012-06-01
+113,ambulatory,,2013-02-01
+113,ambulatory,cumulus__none,2013-02-01
+112,,,2012-07-01
+112,,cumulus__none,2012-07-01
+110,ambulatory,,2013-01-01
+110,ambulatory,,2012-12-01
+110,ambulatory,,2012-06-01
+110,ambulatory,cumulus__none,2013-01-01
+110,ambulatory,cumulus__none,2012-12-01
+110,ambulatory,cumulus__none,2012-06-01
+108,ambulatory,,2012-07-01
+108,ambulatory,cumulus__none,2012-07-01
+106,,,2007-11-01
+106,,cumulus__none,2007-11-01
+105,,,2012-05-01
+105,,cumulus__none,2012-05-01
+103,ambulatory,,2012-05-01
+103,ambulatory,cumulus__none,2012-05-01
+101,,,2012-10-01
+101,,cumulus__none,2012-10-01
+101,ambulatory,,2007-11-01
+101,ambulatory,cumulus__none,2007-11-01
+99,,,2012-11-01
+99,,,2012-09-01
+99,,cumulus__none,2012-11-01
+99,,cumulus__none,2012-09-01
+98,ambulatory,,2012-10-01
+98,ambulatory,cumulus__none,2012-10-01
+97,ambulatory,,2012-11-01
+97,ambulatory,cumulus__none,2012-11-01
+96,ambulatory,,2012-09-01
+96,ambulatory,cumulus__none,2012-09-01
+90,virtual,,
+90,virtual,cumulus__none,
+88,,,2011-10-01
+88,,cumulus__none,2011-10-01
+87,,,2007-12-01
+87,,cumulus__none,2007-12-01
+86,,,2012-08-01
+86,,cumulus__none,2012-08-01
+84,ambulatory,,2012-08-01
+84,ambulatory,,2011-10-01
+84,ambulatory,cumulus__none,2012-08-01
+84,ambulatory,cumulus__none,2011-10-01
+82,,,2012-03-01
+82,,cumulus__none,2012-03-01
+82,ambulatory,,2007-12-01
+82,ambulatory,cumulus__none,2007-12-01
+81,,,2008-01-01
+81,,,2007-10-01
+81,,cumulus__none,2008-01-01
+81,,cumulus__none,2007-10-01
+80,,,1999-08-01
+80,,cumulus__none,1999-08-01
+78,,,2011-08-01
+78,,,2004-03-01
+78,,cumulus__none,2011-08-01
+78,,cumulus__none,2004-03-01
+78,ambulatory,,2007-10-01
+78,ambulatory,cumulus__none,2007-10-01
+77,,,2007-08-01
+77,,,2003-11-01
+77,,cumulus__none,2007-08-01
+77,,cumulus__none,2003-11-01
+76,,,2005-05-01
+76,,,2002-11-01
+76,,cumulus__none,2005-05-01
+76,,cumulus__none,2002-11-01
+75,,,2011-12-01
+75,,,2007-09-01
+75,,,2007-04-01
+75,,,2003-10-01
+75,,cumulus__none,2011-12-01
+75,,cumulus__none,2007-09-01
+75,,cumulus__none,2007-04-01
+75,,cumulus__none,2003-10-01
+75,ambulatory,,2007-08-01
+75,ambulatory,cumulus__none,2007-08-01
+74,ambulatory,,2012-03-01
+74,ambulatory,cumulus__none,2012-03-01
+73,,,2012-01-01
+73,,,2011-07-01
+73,,,2007-07-01
+73,,,2004-04-01
+73,,cumulus__none,2012-01-01
+73,,cumulus__none,2011-07-01
+73,,cumulus__none,2007-07-01
+73,,cumulus__none,2004-04-01
+73,ambulatory,,2011-12-01
+73,ambulatory,cumulus__none,2011-12-01
+72,,,2012-04-01
+72,,,2011-11-01
+72,,,2011-05-01
+72,,,2007-06-01
+72,,cumulus__none,2012-04-01
+72,,cumulus__none,2011-11-01
+72,,cumulus__none,2011-05-01
+72,,cumulus__none,2007-06-01
+71,,,2012-02-01
+71,,,2011-04-01
+71,,,2011-03-01
+71,,,2004-05-01
+71,,,2001-11-01
+71,,cumulus__none,2012-02-01
+71,,cumulus__none,2011-04-01
+71,,cumulus__none,2011-03-01
+71,,cumulus__none,2004-05-01
+71,,cumulus__none,2001-11-01
+71,ambulatory,,2012-04-01
+71,ambulatory,,2011-08-01
+71,ambulatory,,2005-05-01
+71,ambulatory,,2004-03-01
+71,ambulatory,,2003-10-01
+71,ambulatory,cumulus__none,2012-04-01
+71,ambulatory,cumulus__none,2011-08-01
+71,ambulatory,cumulus__none,2005-05-01
+71,ambulatory,cumulus__none,2004-03-01
+71,ambulatory,cumulus__none,2003-10-01
+70,,,2004-10-01
+70,,,2003-12-01
+70,,cumulus__none,2004-10-01
+70,,cumulus__none,2003-12-01
+70,ambulatory,,2011-07-01
+70,ambulatory,cumulus__none,2011-07-01
+69,,,2011-06-01
+69,,cumulus__none,2011-06-01
+69,ambulatory,,2011-05-01
+69,ambulatory,,2011-04-01
+69,ambulatory,,2008-01-01
+69,ambulatory,,2007-09-01
+69,ambulatory,,2004-04-01
+69,ambulatory,cumulus__none,2011-05-01
+69,ambulatory,cumulus__none,2011-04-01
+69,ambulatory,cumulus__none,2008-01-01
+69,ambulatory,cumulus__none,2007-09-01
+69,ambulatory,cumulus__none,2004-04-01
+68,,,2011-09-01
+68,,,2006-10-01
+68,,,2004-01-01
+68,,,2003-09-01
+68,,cumulus__none,2011-09-01
+68,,cumulus__none,2006-10-01
+68,,cumulus__none,2004-01-01
+68,,cumulus__none,2003-09-01
+68,ambulatory,,2012-02-01
+68,ambulatory,,2011-11-01
+68,ambulatory,,2003-12-01
+68,ambulatory,,2003-11-01
+68,ambulatory,cumulus__none,2012-02-01
+68,ambulatory,cumulus__none,2011-11-01
+68,ambulatory,cumulus__none,2003-12-01
+68,ambulatory,cumulus__none,2003-11-01
+67,,,2005-12-01
+67,,,2002-07-01
+67,,,2001-10-01
+67,,cumulus__none,2005-12-01
+67,,cumulus__none,2002-07-01
+67,,cumulus__none,2001-10-01
+67,ambulatory,,2012-01-01
+67,ambulatory,,2011-03-01
+67,ambulatory,,2007-06-01
+67,ambulatory,,2004-10-01
+67,ambulatory,,2001-10-01
+67,ambulatory,cumulus__none,2012-01-01
+67,ambulatory,cumulus__none,2011-03-01
+67,ambulatory,cumulus__none,2007-06-01
+67,ambulatory,cumulus__none,2004-10-01
+67,ambulatory,cumulus__none,2001-10-01
+66,,,2011-01-01
+66,,,2008-02-01
+66,,,2005-10-01
+66,,,2004-06-01
+66,,,2002-12-01
+66,,,1996-04-01
+66,,cumulus__none,2011-01-01
+66,,cumulus__none,2008-02-01
+66,,cumulus__none,2005-10-01
+66,,cumulus__none,2004-06-01
+66,,cumulus__none,2002-12-01
+66,,cumulus__none,1996-04-01
+66,ambulatory,,2007-07-01
+66,ambulatory,,2007-04-01
+66,ambulatory,,2004-05-01
+66,ambulatory,,2002-11-01
+66,ambulatory,cumulus__none,2007-07-01
+66,ambulatory,cumulus__none,2007-04-01
+66,ambulatory,cumulus__none,2004-05-01
+66,ambulatory,cumulus__none,2002-11-01
+65,,,2006-12-01
+65,,,2006-01-01
+65,,,2002-06-01
+65,,,1997-10-01
+65,,,1997-09-01
+65,,cumulus__none,2006-12-01
+65,,cumulus__none,2006-01-01
+65,,cumulus__none,2002-06-01
+65,,cumulus__none,1997-10-01
+65,,cumulus__none,1997-09-01
+65,ambulatory,,2003-09-01
+65,ambulatory,cumulus__none,2003-09-01
+64,,,2005-06-01
+64,,,2002-08-01
+64,,,1998-07-01
+64,,cumulus__none,2005-06-01
+64,,cumulus__none,2002-08-01
+64,,cumulus__none,1998-07-01
+64,ambulatory,,2001-11-01
+64,ambulatory,cumulus__none,2001-11-01
+63,,,1997-03-01
+63,,cumulus__none,1997-03-01
+63,ambulatory,,2011-09-01
+63,ambulatory,,2011-06-01
+63,ambulatory,,2006-10-01
+63,ambulatory,,2005-12-01
+63,ambulatory,cumulus__none,2011-09-01
+63,ambulatory,cumulus__none,2011-06-01
+63,ambulatory,cumulus__none,2006-10-01
+63,ambulatory,cumulus__none,2005-12-01
+62,,,2003-03-01
+62,,,2002-10-01
+62,,,2002-09-01
+62,,,2002-04-01
+62,,,2000-02-01
+62,,,1998-03-01
+62,,,1996-03-01
+62,,cumulus__none,2003-03-01
+62,,cumulus__none,2002-10-01
+62,,cumulus__none,2002-09-01
+62,,cumulus__none,2002-04-01
+62,,cumulus__none,2000-02-01
+62,,cumulus__none,1998-03-01
+62,,cumulus__none,1996-03-01
+62,ambulatory,,2008-02-01
+62,ambulatory,,2005-10-01
+62,ambulatory,,2004-01-01
+62,ambulatory,,2002-08-01
+62,ambulatory,,1997-09-01
+62,ambulatory,cumulus__none,2008-02-01
+62,ambulatory,cumulus__none,2005-10-01
+62,ambulatory,cumulus__none,2004-01-01
+62,ambulatory,cumulus__none,2002-08-01
+62,ambulatory,cumulus__none,1997-09-01
+61,,,2010-06-01
+61,,,2005-09-01
+61,,,2005-07-01
+61,,,1997-07-01
+61,,,1996-07-01
+61,,cumulus__none,2010-06-01
+61,,cumulus__none,2005-09-01
+61,,cumulus__none,2005-07-01
+61,,cumulus__none,1997-07-01
+61,,cumulus__none,1996-07-01
+61,ambulatory,,2006-01-01
+61,ambulatory,,2004-06-01
+61,ambulatory,,2002-07-01
+61,ambulatory,,2000-02-01
+61,ambulatory,,1998-03-01
+61,ambulatory,,1997-03-01
+61,ambulatory,cumulus__none,2006-01-01
+61,ambulatory,cumulus__none,2004-06-01
+61,ambulatory,cumulus__none,2002-07-01
+61,ambulatory,cumulus__none,2000-02-01
+61,ambulatory,cumulus__none,1998-03-01
+61,ambulatory,cumulus__none,1997-03-01
+60,,,2010-08-01
+60,,,2004-12-01
+60,,,2004-02-01
+60,,,2003-08-01
+60,,,2003-02-01
+60,,,2002-03-01
+60,,,2000-10-01
+60,,cumulus__none,2010-08-01
+60,,cumulus__none,2004-12-01
+60,,cumulus__none,2004-02-01
+60,,cumulus__none,2003-08-01
+60,,cumulus__none,2003-02-01
+60,,cumulus__none,2002-03-01
+60,,cumulus__none,2000-10-01
+60,ambulatory,,2002-12-01
+60,ambulatory,,2002-06-01
+60,ambulatory,,1997-10-01
+60,ambulatory,cumulus__none,2002-12-01
+60,ambulatory,cumulus__none,2002-06-01
+60,ambulatory,cumulus__none,1997-10-01
+59,,,2006-06-01
+59,,cumulus__none,2006-06-01
+59,ambulatory,,2011-01-01
+59,ambulatory,,2006-12-01
+59,ambulatory,,2005-07-01
+59,ambulatory,,2002-10-01
+59,ambulatory,,1998-07-01
+59,ambulatory,cumulus__none,2011-01-01
+59,ambulatory,cumulus__none,2006-12-01
+59,ambulatory,cumulus__none,2005-07-01
+59,ambulatory,cumulus__none,2002-10-01
+59,ambulatory,cumulus__none,1998-07-01
+58,,,2006-09-01
+58,,,2005-01-01
+58,,,2003-05-01
+58,,,2002-05-01
+58,,,1998-11-01
+58,,,1998-10-01
+58,,,1997-12-01
+58,,cumulus__none,2006-09-01
+58,,cumulus__none,2005-01-01
+58,,cumulus__none,2003-05-01
+58,,cumulus__none,2002-05-01
+58,,cumulus__none,1998-11-01
+58,,cumulus__none,1998-10-01
+58,,cumulus__none,1997-12-01
+58,ambulatory,,2010-06-01
+58,ambulatory,,2005-09-01
+58,ambulatory,,2004-12-01
+58,ambulatory,,2003-03-01
+58,ambulatory,,2002-04-01
+58,ambulatory,,2002-03-01
+58,ambulatory,cumulus__none,2010-06-01
+58,ambulatory,cumulus__none,2005-09-01
+58,ambulatory,cumulus__none,2004-12-01
+58,ambulatory,cumulus__none,2003-03-01
+58,ambulatory,cumulus__none,2002-04-01
+58,ambulatory,cumulus__none,2002-03-01
+57,,,2010-10-01
+57,,,2004-07-01
+57,,,1996-08-01
+57,,cumulus__none,2010-10-01
+57,,cumulus__none,2004-07-01
+57,,cumulus__none,1996-08-01
+57,ambulatory,,2003-08-01
+57,ambulatory,,2003-02-01
+57,ambulatory,,1998-10-01
+57,ambulatory,cumulus__none,2003-08-01
+57,ambulatory,cumulus__none,2003-02-01
+57,ambulatory,cumulus__none,1998-10-01
+56,,,2005-04-01
+56,,,2004-09-01
+56,,,2004-08-01
+56,,,2003-07-01
+56,,,2001-07-01
+56,,,2000-12-01
+56,,,1999-10-01
+56,,,1999-09-01
+56,,,1997-08-01
+56,,,1997-06-01
+56,,,1996-09-01
+56,,cumulus__none,2005-04-01
+56,,cumulus__none,2004-09-01
+56,,cumulus__none,2004-08-01
+56,,cumulus__none,2003-07-01
+56,,cumulus__none,2001-07-01
+56,,cumulus__none,2000-12-01
+56,,cumulus__none,1999-10-01
+56,,cumulus__none,1999-09-01
+56,,cumulus__none,1997-08-01
+56,,cumulus__none,1997-06-01
+56,,cumulus__none,1996-09-01
+56,ambulatory,,2005-06-01
+56,ambulatory,,2000-12-01
+56,ambulatory,,1999-08-01
+56,ambulatory,,1998-11-01
+56,ambulatory,,1997-07-01
+56,ambulatory,cumulus__none,2005-06-01
+56,ambulatory,cumulus__none,2000-12-01
+56,ambulatory,cumulus__none,1999-08-01
+56,ambulatory,cumulus__none,1998-11-01
+56,ambulatory,cumulus__none,1997-07-01
+55,,,2011-02-01
+55,,,2009-06-01
+55,,,2007-01-01
+55,,,2006-07-01
+55,,,2003-01-01
+55,,,2000-03-01
+55,,,1998-04-01
+55,,,1998-01-01
+55,,cumulus__none,2011-02-01
+55,,cumulus__none,2009-06-01
+55,,cumulus__none,2007-01-01
+55,,cumulus__none,2006-07-01
+55,,cumulus__none,2003-01-01
+55,,cumulus__none,2000-03-01
+55,,cumulus__none,1998-04-01
+55,,cumulus__none,1998-01-01
+55,ambulatory,,2011-02-01
+55,ambulatory,,2006-09-01
+55,ambulatory,,2004-02-01
+55,ambulatory,,2000-10-01
+55,ambulatory,,1997-12-01
+55,ambulatory,cumulus__none,2011-02-01
+55,ambulatory,cumulus__none,2006-09-01
+55,ambulatory,cumulus__none,2004-02-01
+55,ambulatory,cumulus__none,2000-10-01
+55,ambulatory,cumulus__none,1997-12-01
+54,,,2009-05-01
+54,,,2006-08-01
+54,,,2002-01-01
+54,,,2000-11-01
+54,,,1998-08-01
+54,,,1997-05-01
+54,,,1996-12-01
+54,,cumulus__none,2009-05-01
+54,,cumulus__none,2006-08-01
+54,,cumulus__none,2002-01-01
+54,,cumulus__none,2000-11-01
+54,,cumulus__none,1998-08-01
+54,,cumulus__none,1997-05-01
+54,,cumulus__none,1996-12-01
+54,ambulatory,,2003-01-01
+54,ambulatory,,2000-11-01
+54,ambulatory,,1999-10-01
+54,ambulatory,,1996-08-01
+54,ambulatory,cumulus__none,2003-01-01
+54,ambulatory,cumulus__none,2000-11-01
+54,ambulatory,cumulus__none,1999-10-01
+54,ambulatory,cumulus__none,1996-08-01
+53,,,2007-05-01
+53,,,2006-05-01
+53,,,2005-11-01
+53,,,1998-09-01
+53,,,1998-05-01
+53,,cumulus__none,2007-05-01
+53,,cumulus__none,2006-05-01
+53,,cumulus__none,2005-11-01
+53,,cumulus__none,1998-09-01
+53,,cumulus__none,1998-05-01
+53,ambulatory,,2010-10-01
+53,ambulatory,,2006-06-01
+53,ambulatory,,2005-01-01
+53,ambulatory,,2004-08-01
+53,ambulatory,,2003-05-01
+53,ambulatory,,2002-09-01
+53,ambulatory,,1998-04-01
+53,ambulatory,,1997-06-01
+53,ambulatory,,1996-07-01
+53,ambulatory,cumulus__none,2010-10-01
+53,ambulatory,cumulus__none,2006-06-01
+53,ambulatory,cumulus__none,2005-01-01
+53,ambulatory,cumulus__none,2004-08-01
+53,ambulatory,cumulus__none,2003-05-01
+53,ambulatory,cumulus__none,2002-09-01
+53,ambulatory,cumulus__none,1998-04-01
+53,ambulatory,cumulus__none,1997-06-01
+53,ambulatory,cumulus__none,1996-07-01
+52,,,2010-12-01
+52,,,2005-08-01
+52,,,2003-04-01
+52,,,2001-08-01
+52,,,2000-01-01
+52,,,1999-11-01
+52,,,1998-12-01
+52,,,1996-11-01
+52,,,1996-05-01
+52,,cumulus__none,2010-12-01
+52,,cumulus__none,2005-08-01
+52,,cumulus__none,2003-04-01
+52,,cumulus__none,2001-08-01
+52,,cumulus__none,2000-01-01
+52,,cumulus__none,1999-11-01
+52,,cumulus__none,1998-12-01
+52,,cumulus__none,1996-11-01
+52,,cumulus__none,1996-05-01
+52,ambulatory,,2010-08-01
+52,ambulatory,,2001-08-01
+52,ambulatory,,2001-07-01
+52,ambulatory,,1999-11-01
+52,ambulatory,cumulus__none,2010-08-01
+52,ambulatory,cumulus__none,2001-08-01
+52,ambulatory,cumulus__none,2001-07-01
+52,ambulatory,cumulus__none,1999-11-01
+51,,,2010-03-01
+51,,,2008-11-01
+51,,,1999-06-01
+51,,,1996-10-01
+51,,,1996-06-01
+51,,cumulus__none,2010-03-01
+51,,cumulus__none,2008-11-01
+51,,cumulus__none,1999-06-01
+51,,cumulus__none,1996-10-01
+51,,cumulus__none,1996-06-01
+51,ambulatory,,2009-06-01
+51,ambulatory,,2005-04-01
+51,ambulatory,,2004-09-01
+51,ambulatory,,2004-07-01
+51,ambulatory,,2002-05-01
+51,ambulatory,,1998-05-01
+51,ambulatory,,1997-08-01
+51,ambulatory,,1996-12-01
+51,ambulatory,,1996-10-01
+51,ambulatory,cumulus__none,2009-06-01
+51,ambulatory,cumulus__none,2005-04-01
+51,ambulatory,cumulus__none,2004-09-01
+51,ambulatory,cumulus__none,2004-07-01
+51,ambulatory,cumulus__none,2002-05-01
+51,ambulatory,cumulus__none,1998-05-01
+51,ambulatory,cumulus__none,1997-08-01
+51,ambulatory,cumulus__none,1996-12-01
+51,ambulatory,cumulus__none,1996-10-01
+50,,,2010-11-01
+50,,,2009-01-01
+50,,,2008-05-01
+50,,,2006-11-01
+50,,,2002-02-01
+50,,cumulus__none,2010-11-01
+50,,cumulus__none,2009-01-01
+50,,cumulus__none,2008-05-01
+50,,cumulus__none,2006-11-01
+50,,cumulus__none,2002-02-01
+50,ambulatory,,2010-12-01
+50,ambulatory,,2007-05-01
+50,ambulatory,,2006-08-01
+50,ambulatory,,2000-03-01
+50,ambulatory,,2000-01-01
+50,ambulatory,,1999-06-01
+50,ambulatory,,1996-09-01
+50,ambulatory,cumulus__none,2010-12-01
+50,ambulatory,cumulus__none,2007-05-01
+50,ambulatory,cumulus__none,2006-08-01
+50,ambulatory,cumulus__none,2000-03-01
+50,ambulatory,cumulus__none,2000-01-01
+50,ambulatory,cumulus__none,1999-06-01
+50,ambulatory,cumulus__none,1996-09-01
+49,,,2008-07-01
+49,,,2006-04-01
+49,,,2005-02-01
+49,,,2004-11-01
+49,,,1999-01-01
+49,,,1998-02-01
+49,,,1997-02-01
+49,,,1996-02-01
+49,,cumulus__none,2008-07-01
+49,,cumulus__none,2006-04-01
+49,,cumulus__none,2005-02-01
+49,,cumulus__none,2004-11-01
+49,,cumulus__none,1999-01-01
+49,,cumulus__none,1998-02-01
+49,,cumulus__none,1997-02-01
+49,,cumulus__none,1996-02-01
+49,ambulatory,,2007-01-01
+49,ambulatory,,2006-05-01
+49,ambulatory,,2005-11-01
+49,ambulatory,,2005-08-01
+49,ambulatory,,2003-07-01
+49,ambulatory,,2002-01-01
+49,ambulatory,,1998-08-01
+49,ambulatory,,1998-01-01
+49,ambulatory,,1997-05-01
+49,ambulatory,cumulus__none,2007-01-01
+49,ambulatory,cumulus__none,2006-05-01
+49,ambulatory,cumulus__none,2005-11-01
+49,ambulatory,cumulus__none,2005-08-01
+49,ambulatory,cumulus__none,2003-07-01
+49,ambulatory,cumulus__none,2002-01-01
+49,ambulatory,cumulus__none,1998-08-01
+49,ambulatory,cumulus__none,1998-01-01
+49,ambulatory,cumulus__none,1997-05-01
+48,,,2010-07-01
+48,,,2010-05-01
+48,,,2008-08-01
+48,,,2007-03-01
+48,,,2007-02-01
+48,,,1999-03-01
+48,,,1998-06-01
+48,,,1990-03-01
+48,,,1988-08-01
+48,,cumulus__none,2010-07-01
+48,,cumulus__none,2010-05-01
+48,,cumulus__none,2008-08-01
+48,,cumulus__none,2007-03-01
+48,,cumulus__none,2007-02-01
+48,,cumulus__none,1999-03-01
+48,,cumulus__none,1998-06-01
+48,,cumulus__none,1990-03-01
+48,,cumulus__none,1988-08-01
+48,ambulatory,,2010-11-01
+48,ambulatory,,2009-05-01
+48,ambulatory,,2006-07-01
+48,ambulatory,,2006-04-01
+48,ambulatory,,2002-02-01
+48,ambulatory,,1999-01-01
+48,ambulatory,,1998-06-01
+48,ambulatory,,1998-02-01
+48,ambulatory,,1996-06-01
+48,ambulatory,cumulus__none,2010-11-01
+48,ambulatory,cumulus__none,2009-05-01
+48,ambulatory,cumulus__none,2006-07-01
+48,ambulatory,cumulus__none,2006-04-01
+48,ambulatory,cumulus__none,2002-02-01
+48,ambulatory,cumulus__none,1999-01-01
+48,ambulatory,cumulus__none,1998-06-01
+48,ambulatory,cumulus__none,1998-02-01
+48,ambulatory,cumulus__none,1996-06-01
+47,,,2009-07-01
+47,,,2006-02-01
+47,,,2000-06-01
+47,,,2000-04-01
+47,,cumulus__none,2009-07-01
+47,,cumulus__none,2006-02-01
+47,,cumulus__none,2000-06-01
+47,,cumulus__none,2000-04-01
+47,ambulatory,,2008-05-01
+47,ambulatory,,2006-11-01
+47,ambulatory,,1999-09-01
+47,ambulatory,,1998-12-01
+47,ambulatory,,1996-11-01
+47,ambulatory,cumulus__none,2008-05-01
+47,ambulatory,cumulus__none,2006-11-01
+47,ambulatory,cumulus__none,1999-09-01
+47,ambulatory,cumulus__none,1998-12-01
+47,ambulatory,cumulus__none,1996-11-01
+46,,,2008-10-01
+46,,,2008-04-01
+46,,,2008-03-01
+46,,,2005-03-01
+46,,,2001-12-01
+46,,,2001-09-01
+46,,,1999-07-01
+46,,,1997-11-01
+46,,,1997-01-01
+46,,cumulus__none,2008-10-01
+46,,cumulus__none,2008-04-01
+46,,cumulus__none,2008-03-01
+46,,cumulus__none,2005-03-01
+46,,cumulus__none,2001-12-01
+46,,cumulus__none,2001-09-01
+46,,cumulus__none,1999-07-01
+46,,cumulus__none,1997-11-01
+46,,cumulus__none,1997-01-01
+46,ambulatory,,2010-07-01
+46,ambulatory,,2010-03-01
+46,ambulatory,,2005-02-01
+46,ambulatory,,2004-11-01
+46,ambulatory,,2003-04-01
+46,ambulatory,,2001-09-01
+46,ambulatory,,2000-04-01
+46,ambulatory,,1997-02-01
+46,ambulatory,,1996-05-01
+46,ambulatory,,1988-08-01
+46,ambulatory,cumulus__none,2010-07-01
+46,ambulatory,cumulus__none,2010-03-01
+46,ambulatory,cumulus__none,2005-02-01
+46,ambulatory,cumulus__none,2004-11-01
+46,ambulatory,cumulus__none,2003-04-01
+46,ambulatory,cumulus__none,2001-09-01
+46,ambulatory,cumulus__none,2000-04-01
+46,ambulatory,cumulus__none,1997-02-01
+46,ambulatory,cumulus__none,1996-05-01
+46,ambulatory,cumulus__none,1988-08-01
+45,,,2009-03-01
+45,,,2006-03-01
+45,,,1999-05-01
+45,,,1999-02-01
+45,,cumulus__none,2009-03-01
+45,,cumulus__none,2006-03-01
+45,,cumulus__none,1999-05-01
+45,,cumulus__none,1999-02-01
+45,ambulatory,,2010-05-01
+45,ambulatory,,2009-07-01
+45,ambulatory,,2009-01-01
+45,ambulatory,,2008-11-01
+45,ambulatory,,2008-07-01
+45,ambulatory,,2000-06-01
+45,ambulatory,,1999-07-01
+45,ambulatory,,1997-11-01
+45,ambulatory,,1996-04-01
+45,ambulatory,,1996-02-01
+45,ambulatory,cumulus__none,2010-05-01
+45,ambulatory,cumulus__none,2009-07-01
+45,ambulatory,cumulus__none,2009-01-01
+45,ambulatory,cumulus__none,2008-11-01
+45,ambulatory,cumulus__none,2008-07-01
+45,ambulatory,cumulus__none,2000-06-01
+45,ambulatory,cumulus__none,1999-07-01
+45,ambulatory,cumulus__none,1997-11-01
+45,ambulatory,cumulus__none,1996-04-01
+45,ambulatory,cumulus__none,1996-02-01
+44,,,2010-01-01
+44,,,2000-09-01
+44,,,2000-08-01
+44,,,2000-05-01
+44,,,1995-10-01
+44,,,1995-08-01
+44,,,1990-04-01
+44,,,1988-01-01
+44,,cumulus__none,2010-01-01
+44,,cumulus__none,2000-09-01
+44,,cumulus__none,2000-08-01
+44,,cumulus__none,2000-05-01
+44,,cumulus__none,1995-10-01
+44,,cumulus__none,1995-08-01
+44,,cumulus__none,1990-04-01
+44,,cumulus__none,1988-01-01
+44,ambulatory,,2009-03-01
+44,ambulatory,,2008-10-01
+44,ambulatory,,2008-08-01
+44,ambulatory,,2007-03-01
+44,ambulatory,,2006-02-01
+44,ambulatory,,2005-03-01
+44,ambulatory,,2001-12-01
+44,ambulatory,,1999-03-01
+44,ambulatory,,1996-03-01
+44,ambulatory,cumulus__none,2009-03-01
+44,ambulatory,cumulus__none,2008-10-01
+44,ambulatory,cumulus__none,2008-08-01
+44,ambulatory,cumulus__none,2007-03-01
+44,ambulatory,cumulus__none,2006-02-01
+44,ambulatory,cumulus__none,2005-03-01
+44,ambulatory,cumulus__none,2001-12-01
+44,ambulatory,cumulus__none,1999-03-01
+44,ambulatory,cumulus__none,1996-03-01
+43,,,2008-12-01
+43,,,2001-03-01
+43,,,2001-01-01
+43,,,1997-04-01
+43,,cumulus__none,2008-12-01
+43,,cumulus__none,2001-03-01
+43,,cumulus__none,2001-01-01
+43,,cumulus__none,1997-04-01
+43,ambulatory,,2010-01-01
+43,ambulatory,,2008-04-01
+43,ambulatory,,2008-03-01
+43,ambulatory,,2000-08-01
+43,ambulatory,,2000-05-01
+43,ambulatory,,1998-09-01
+43,ambulatory,,1988-01-01
+43,ambulatory,cumulus__none,2010-01-01
+43,ambulatory,cumulus__none,2008-04-01
+43,ambulatory,cumulus__none,2008-03-01
+43,ambulatory,cumulus__none,2000-08-01
+43,ambulatory,cumulus__none,2000-05-01
+43,ambulatory,cumulus__none,1998-09-01
+43,ambulatory,cumulus__none,1988-01-01
+42,,,2010-09-01
+42,,,2009-04-01
+42,,,2008-06-01
+42,,,2003-06-01
+42,,,1989-09-01
+42,,,1988-04-01
+42,,cumulus__none,2010-09-01
+42,,cumulus__none,2009-04-01
+42,,cumulus__none,2008-06-01
+42,,cumulus__none,2003-06-01
+42,,cumulus__none,1989-09-01
+42,,cumulus__none,1988-04-01
+42,ambulatory,,2007-02-01
+42,ambulatory,,2000-09-01
+42,ambulatory,,1999-05-01
+42,ambulatory,,1999-02-01
+42,ambulatory,,1997-01-01
+42,ambulatory,,1988-04-01
+42,ambulatory,cumulus__none,2007-02-01
+42,ambulatory,cumulus__none,2000-09-01
+42,ambulatory,cumulus__none,1999-05-01
+42,ambulatory,cumulus__none,1999-02-01
+42,ambulatory,cumulus__none,1997-01-01
+42,ambulatory,cumulus__none,1988-04-01
+41,,,2009-11-01
+41,,,2009-02-01
+41,,,1987-08-01
+41,,cumulus__none,2009-11-01
+41,,cumulus__none,2009-02-01
+41,,cumulus__none,1987-08-01
+41,ambulatory,,2006-03-01
+41,ambulatory,,1995-08-01
+41,ambulatory,,1989-09-01
+41,ambulatory,,1987-08-01
+41,ambulatory,cumulus__none,2006-03-01
+41,ambulatory,cumulus__none,1995-08-01
+41,ambulatory,cumulus__none,1989-09-01
+41,ambulatory,cumulus__none,1987-08-01
+40,,,2009-12-01
+40,,,2001-05-01
+40,,,2000-07-01
+40,,,1999-12-01
+40,,,1995-07-01
+40,,,1989-01-01
+40,,,1988-03-01
+40,,cumulus__none,2009-12-01
+40,,cumulus__none,2001-05-01
+40,,cumulus__none,2000-07-01
+40,,cumulus__none,1999-12-01
+40,,cumulus__none,1995-07-01
+40,,cumulus__none,1989-01-01
+40,,cumulus__none,1988-03-01
+40,ambulatory,,2008-06-01
+40,ambulatory,,2001-03-01
+40,ambulatory,,2001-01-01
+40,ambulatory,,1989-01-01
+40,ambulatory,cumulus__none,2008-06-01
+40,ambulatory,cumulus__none,2001-03-01
+40,ambulatory,cumulus__none,2001-01-01
+40,ambulatory,cumulus__none,1989-01-01
+39,,,2001-06-01
+39,,,2001-04-01
+39,,,1996-01-01
+39,,,1995-12-01
+39,,,1988-02-01
+39,,cumulus__none,2001-06-01
+39,,cumulus__none,2001-04-01
+39,,cumulus__none,1996-01-01
+39,,cumulus__none,1995-12-01
+39,,cumulus__none,1988-02-01
+39,ambulatory,,2009-12-01
+39,ambulatory,,2009-04-01
+39,ambulatory,,2009-02-01
+39,ambulatory,,2008-12-01
+39,ambulatory,,2003-06-01
+39,ambulatory,,1999-12-01
+39,ambulatory,,1995-10-01
+39,ambulatory,,1988-03-01
+39,ambulatory,cumulus__none,2009-12-01
+39,ambulatory,cumulus__none,2009-04-01
+39,ambulatory,cumulus__none,2009-02-01
+39,ambulatory,cumulus__none,2008-12-01
+39,ambulatory,cumulus__none,2003-06-01
+39,ambulatory,cumulus__none,1999-12-01
+39,ambulatory,cumulus__none,1995-10-01
+39,ambulatory,cumulus__none,1988-03-01
+38,,,2010-02-01
+38,,,2008-09-01
+38,,,1999-04-01
+38,,,1988-09-01
+38,,cumulus__none,2010-02-01
+38,,cumulus__none,2008-09-01
+38,,cumulus__none,1999-04-01
+38,,cumulus__none,1988-09-01
+38,ambulatory,,2010-09-01
+38,ambulatory,,2009-11-01
+38,ambulatory,,2001-06-01
+38,ambulatory,,1997-04-01
+38,ambulatory,,1988-02-01
+38,ambulatory,cumulus__none,2010-09-01
+38,ambulatory,cumulus__none,2009-11-01
+38,ambulatory,cumulus__none,2001-06-01
+38,ambulatory,cumulus__none,1997-04-01
+38,ambulatory,cumulus__none,1988-02-01
+37,,,2010-04-01
+37,,,1990-09-01
+37,,,1989-10-01
+37,,,1989-03-01
+37,,cumulus__none,2010-04-01
+37,,cumulus__none,1990-09-01
+37,,cumulus__none,1989-10-01
+37,,cumulus__none,1989-03-01
+37,ambulatory,,2010-02-01
+37,ambulatory,,2001-05-01
+37,ambulatory,,2000-07-01
+37,ambulatory,,1989-10-01
+37,ambulatory,,1989-03-01
+37,ambulatory,,1988-09-01
+37,ambulatory,cumulus__none,2010-02-01
+37,ambulatory,cumulus__none,2001-05-01
+37,ambulatory,cumulus__none,2000-07-01
+37,ambulatory,cumulus__none,1989-10-01
+37,ambulatory,cumulus__none,1989-03-01
+37,ambulatory,cumulus__none,1988-09-01
+36,,,2009-08-01
+36,,,2001-02-01
+36,,,1994-07-01
+36,,,1990-07-01
+36,,,1990-05-01
+36,,,1990-01-01
+36,,cumulus__none,2009-08-01
+36,,cumulus__none,2001-02-01
+36,,cumulus__none,1994-07-01
+36,,cumulus__none,1990-07-01
+36,,cumulus__none,1990-05-01
+36,,cumulus__none,1990-01-01
+36,ambulatory,,2008-09-01
+36,ambulatory,,1995-07-01
+36,ambulatory,cumulus__none,2008-09-01
+36,ambulatory,cumulus__none,1995-07-01
+35,,,2009-10-01
+35,,,1990-08-01
+35,,,1989-07-01
+35,,,1988-12-01
+35,,,1987-11-01
+35,,cumulus__none,2009-10-01
+35,,cumulus__none,1990-08-01
+35,,cumulus__none,1989-07-01
+35,,cumulus__none,1988-12-01
+35,,cumulus__none,1987-11-01
+35,ambulatory,,2010-04-01
+35,ambulatory,,2009-08-01
+35,ambulatory,cumulus__none,2010-04-01
+35,ambulatory,cumulus__none,2009-08-01
+34,,,1995-09-01
+34,,,1994-03-01
+34,,,1990-10-01
+34,,,1990-02-01
+34,,,1989-06-01
+34,,,1989-05-01
+34,,,1988-06-01
+34,,,1988-05-01
+34,,cumulus__none,1995-09-01
+34,,cumulus__none,1994-03-01
+34,,cumulus__none,1990-10-01
+34,,cumulus__none,1990-02-01
+34,,cumulus__none,1989-06-01
+34,,cumulus__none,1989-05-01
+34,,cumulus__none,1988-06-01
+34,,cumulus__none,1988-05-01
+34,ambulatory,,1999-04-01
+34,ambulatory,,1996-01-01
+34,ambulatory,,1990-04-01
+34,ambulatory,,1989-05-01
+34,ambulatory,,1988-05-01
+34,ambulatory,cumulus__none,1999-04-01
+34,ambulatory,cumulus__none,1996-01-01
+34,ambulatory,cumulus__none,1990-04-01
+34,ambulatory,cumulus__none,1989-05-01
+34,ambulatory,cumulus__none,1988-05-01
+33,,,2009-09-01
+33,,,1995-11-01
+33,,,1988-07-01
+33,,cumulus__none,2009-09-01
+33,,cumulus__none,1995-11-01
+33,,cumulus__none,1988-07-01
+33,ambulatory,,2001-04-01
+33,ambulatory,,1990-01-01
+33,ambulatory,,1989-07-01
+33,ambulatory,,1988-12-01
+33,ambulatory,,1988-07-01
+33,ambulatory,,1988-06-01
+33,ambulatory,cumulus__none,2001-04-01
+33,ambulatory,cumulus__none,1990-01-01
+33,ambulatory,cumulus__none,1989-07-01
+33,ambulatory,cumulus__none,1988-12-01
+33,ambulatory,cumulus__none,1988-07-01
+33,ambulatory,cumulus__none,1988-06-01
+32,,,1995-02-01
+32,,,1994-05-01
+32,,,1990-06-01
+32,,,1988-10-01
+32,,,1987-01-01
+32,,,1985-06-01
+32,,cumulus__none,1995-02-01
+32,,cumulus__none,1994-05-01
+32,,cumulus__none,1990-06-01
+32,,cumulus__none,1988-10-01
+32,,cumulus__none,1987-01-01
+32,,cumulus__none,1985-06-01
+32,ambulatory,,2001-02-01
+32,ambulatory,,1995-12-01
+32,ambulatory,,1994-07-01
+32,ambulatory,,1989-06-01
+32,ambulatory,cumulus__none,2001-02-01
+32,ambulatory,cumulus__none,1995-12-01
+32,ambulatory,cumulus__none,1994-07-01
+32,ambulatory,cumulus__none,1989-06-01
+31,,,1995-06-01
+31,,,1995-05-01
+31,,,1995-03-01
+31,,,1994-08-01
+31,,,1994-01-01
+31,,,1989-12-01
+31,,,1989-04-01
+31,,cumulus__none,1995-06-01
+31,,cumulus__none,1995-05-01
+31,,cumulus__none,1995-03-01
+31,,cumulus__none,1994-08-01
+31,,cumulus__none,1994-01-01
+31,,cumulus__none,1989-12-01
+31,,cumulus__none,1989-04-01
+31,ambulatory,,2009-10-01
+31,ambulatory,,2009-09-01
+31,ambulatory,,1995-09-01
+31,ambulatory,,1995-02-01
+31,ambulatory,,1989-04-01
+31,ambulatory,,1987-01-01
+31,ambulatory,cumulus__none,2009-10-01
+31,ambulatory,cumulus__none,2009-09-01
+31,ambulatory,cumulus__none,1995-09-01
+31,ambulatory,cumulus__none,1995-02-01
+31,ambulatory,cumulus__none,1989-04-01
+31,ambulatory,cumulus__none,1987-01-01
+30,,,1995-04-01
+30,,,1989-11-01
+30,,cumulus__none,1995-04-01
+30,,cumulus__none,1989-11-01
+30,ambulatory,,1990-03-01
+30,ambulatory,,1989-12-01
+30,ambulatory,,1989-11-01
+30,ambulatory,,1985-06-01
+30,ambulatory,cumulus__none,1990-03-01
+30,ambulatory,cumulus__none,1989-12-01
+30,ambulatory,cumulus__none,1989-11-01
+30,ambulatory,cumulus__none,1985-06-01
+29,,,1985-01-01
+29,,cumulus__none,1985-01-01
+29,ambulatory,,1994-01-01
+29,ambulatory,cumulus__none,1994-01-01
+28,,,1994-12-01
+28,,,1994-06-01
+28,,,1993-08-01
+28,,,1987-02-01
+28,,,1986-09-01
+28,,,1986-07-01
+28,,cumulus__none,1994-12-01
+28,,cumulus__none,1994-06-01
+28,,cumulus__none,1993-08-01
+28,,cumulus__none,1987-02-01
+28,,cumulus__none,1986-09-01
+28,,cumulus__none,1986-07-01
+28,ambulatory,,1995-05-01
+28,ambulatory,,1995-03-01
+28,ambulatory,,1990-09-01
+28,ambulatory,,1990-08-01
+28,ambulatory,,1990-07-01
+28,ambulatory,cumulus__none,1995-05-01
+28,ambulatory,cumulus__none,1995-03-01
+28,ambulatory,cumulus__none,1990-09-01
+28,ambulatory,cumulus__none,1990-08-01
+28,ambulatory,cumulus__none,1990-07-01
+27,,,1994-02-01
+27,,,1993-12-01
+27,,,1993-03-01
+27,,,1991-03-01
+27,,,1979-11-01
+27,,cumulus__none,1994-02-01
+27,,cumulus__none,1993-12-01
+27,,cumulus__none,1993-03-01
+27,,cumulus__none,1991-03-01
+27,,cumulus__none,1979-11-01
+27,ambulatory,,1995-11-01
+27,ambulatory,,1995-06-01
+27,ambulatory,,1994-03-01
+27,ambulatory,,1987-02-01
+27,ambulatory,,1986-09-01
+27,ambulatory,,1986-07-01
+27,ambulatory,,1985-01-01
+27,ambulatory,,1979-11-01
+27,ambulatory,cumulus__none,1995-11-01
+27,ambulatory,cumulus__none,1995-06-01
+27,ambulatory,cumulus__none,1994-03-01
+27,ambulatory,cumulus__none,1987-02-01
+27,ambulatory,cumulus__none,1986-09-01
+27,ambulatory,cumulus__none,1986-07-01
+27,ambulatory,cumulus__none,1985-01-01
+27,ambulatory,cumulus__none,1979-11-01
+26,,,1987-06-01
+26,,,1986-08-01
+26,,,1981-01-01
+26,,,1980-11-01
+26,,,1980-09-01
+26,,cumulus__none,1987-06-01
+26,,cumulus__none,1986-08-01
+26,,cumulus__none,1981-01-01
+26,,cumulus__none,1980-11-01
+26,,cumulus__none,1980-09-01
+26,ambulatory,,1995-04-01
+26,ambulatory,,1990-10-01
+26,ambulatory,,1987-06-01
+26,ambulatory,cumulus__none,1995-04-01
+26,ambulatory,cumulus__none,1990-10-01
+26,ambulatory,cumulus__none,1987-06-01
+25,,,1993-11-01
+25,,,1993-10-01
+25,,,1990-11-01
+25,,,1985-11-01
+25,,,1985-05-01
+25,,,1983-06-01
+25,,,1982-06-01
+25,,,1981-07-01
+25,,cumulus__none,1993-11-01
+25,,cumulus__none,1993-10-01
+25,,cumulus__none,1990-11-01
+25,,cumulus__none,1985-11-01
+25,,cumulus__none,1985-05-01
+25,,cumulus__none,1983-06-01
+25,,cumulus__none,1982-06-01
+25,,cumulus__none,1981-07-01
+25,emergency,,2022-12-01
+25,emergency,cumulus__none,2022-12-01
+25,ambulatory,,1994-12-01
+25,ambulatory,,1994-08-01
+25,ambulatory,,1993-12-01
+25,ambulatory,,1993-08-01
+25,ambulatory,,1993-03-01
+25,ambulatory,,1990-05-01
+25,ambulatory,,1986-08-01
+25,ambulatory,,1983-06-01
+25,ambulatory,,1981-01-01
+25,ambulatory,,1980-11-01
+25,ambulatory,,1980-09-01
+25,ambulatory,cumulus__none,1994-12-01
+25,ambulatory,cumulus__none,1994-08-01
+25,ambulatory,cumulus__none,1993-12-01
+25,ambulatory,cumulus__none,1993-08-01
+25,ambulatory,cumulus__none,1993-03-01
+25,ambulatory,cumulus__none,1990-05-01
+25,ambulatory,cumulus__none,1986-08-01
+25,ambulatory,cumulus__none,1983-06-01
+25,ambulatory,cumulus__none,1981-01-01
+25,ambulatory,cumulus__none,1980-11-01
+25,ambulatory,cumulus__none,1980-09-01
+24,,,1987-04-01
+24,,,1986-06-01
+24,,,1986-01-01
+24,,,1984-10-01
+24,,,1984-07-01
+24,,,1984-05-01
+24,,,1984-03-01
+24,,,1981-04-01
+24,,,1980-03-01
+24,,cumulus__none,1987-04-01
+24,,cumulus__none,1986-06-01
+24,,cumulus__none,1986-01-01
+24,,cumulus__none,1984-10-01
+24,,cumulus__none,1984-07-01
+24,,cumulus__none,1984-05-01
+24,,cumulus__none,1984-03-01
+24,,cumulus__none,1981-04-01
+24,,cumulus__none,1980-03-01
+24,emergency,,2022-01-01
+24,emergency,cumulus__none,2022-01-01
+24,ambulatory,,1994-06-01
+24,ambulatory,,1990-06-01
+24,ambulatory,,1986-01-01
+24,ambulatory,,1985-05-01
+24,ambulatory,,1984-05-01
+24,ambulatory,,1981-07-01
+24,ambulatory,,1980-03-01
+24,ambulatory,cumulus__none,1994-06-01
+24,ambulatory,cumulus__none,1990-06-01
+24,ambulatory,cumulus__none,1986-01-01
+24,ambulatory,cumulus__none,1985-05-01
+24,ambulatory,cumulus__none,1984-05-01
+24,ambulatory,cumulus__none,1981-07-01
+24,ambulatory,cumulus__none,1980-03-01
+23,,,1993-07-01
+23,,,1991-07-01
+23,,,1986-10-01
+23,,,1985-12-01
+23,,,1983-08-01
+23,,,1980-08-01
+23,,cumulus__none,1993-07-01
+23,,cumulus__none,1991-07-01
+23,,cumulus__none,1986-10-01
+23,,cumulus__none,1985-12-01
+23,,cumulus__none,1983-08-01
+23,,cumulus__none,1980-08-01
+23,emergency,,2019-10-01
+23,emergency,,2013-04-01
+23,emergency,cumulus__none,2019-10-01
+23,emergency,cumulus__none,2013-04-01
+23,ambulatory,,1991-07-01
+23,ambulatory,,1991-03-01
+23,ambulatory,,1987-04-01
+23,ambulatory,,1986-06-01
+23,ambulatory,,1984-07-01
+23,ambulatory,,1984-03-01
+23,ambulatory,,1982-06-01
+23,ambulatory,,1981-04-01
+23,ambulatory,cumulus__none,1991-07-01
+23,ambulatory,cumulus__none,1991-03-01
+23,ambulatory,cumulus__none,1987-04-01
+23,ambulatory,cumulus__none,1986-06-01
+23,ambulatory,cumulus__none,1984-07-01
+23,ambulatory,cumulus__none,1984-03-01
+23,ambulatory,cumulus__none,1982-06-01
+23,ambulatory,cumulus__none,1981-04-01
+22,,,1995-01-01
+22,,,1993-09-01
+22,,,1992-10-01
+22,,,1985-04-01
+22,,,1984-08-01
+22,,,1984-02-01
+22,,,1983-05-01
+22,,,1982-05-01
+22,,cumulus__none,1995-01-01
+22,,cumulus__none,1993-09-01
+22,,cumulus__none,1992-10-01
+22,,cumulus__none,1985-04-01
+22,,cumulus__none,1984-08-01
+22,,cumulus__none,1984-02-01
+22,,cumulus__none,1983-05-01
+22,,cumulus__none,1982-05-01
+22,emergency,,2022-09-01
+22,emergency,,2022-04-01
+22,emergency,,2021-05-01
+22,emergency,,2021-01-01
+22,emergency,,2020-06-01
+22,emergency,,2020-02-01
+22,emergency,,2019-12-01
+22,emergency,cumulus__none,2022-09-01
+22,emergency,cumulus__none,2022-04-01
+22,emergency,cumulus__none,2021-05-01
+22,emergency,cumulus__none,2021-01-01
+22,emergency,cumulus__none,2020-06-01
+22,emergency,cumulus__none,2020-02-01
+22,emergency,cumulus__none,2019-12-01
+22,ambulatory,,1994-02-01
+22,ambulatory,,1993-07-01
+22,ambulatory,,1986-10-01
+22,ambulatory,,1985-12-01
+22,ambulatory,,1985-11-01
+22,ambulatory,,1984-10-01
+22,ambulatory,,1984-08-01
+22,ambulatory,,1984-02-01
+22,ambulatory,cumulus__none,1994-02-01
+22,ambulatory,cumulus__none,1993-07-01
+22,ambulatory,cumulus__none,1986-10-01
+22,ambulatory,cumulus__none,1985-12-01
+22,ambulatory,cumulus__none,1985-11-01
+22,ambulatory,cumulus__none,1984-10-01
+22,ambulatory,cumulus__none,1984-08-01
+22,ambulatory,cumulus__none,1984-02-01
+21,,,1994-04-01
+21,,,1993-05-01
+21,,,1993-01-01
+21,,,1986-04-01
+21,,,1984-04-01
+21,,,1982-09-01
+21,,,1981-09-01
+21,,,1980-05-01
+21,,,1980-01-01
+21,,cumulus__none,1994-04-01
+21,,cumulus__none,1993-05-01
+21,,cumulus__none,1993-01-01
+21,,cumulus__none,1986-04-01
+21,,cumulus__none,1984-04-01
+21,,cumulus__none,1982-09-01
+21,,cumulus__none,1981-09-01
+21,,cumulus__none,1980-05-01
+21,,cumulus__none,1980-01-01
+21,emergency,,2022-02-01
+21,emergency,,2019-04-01
+21,emergency,,2017-04-01
+21,emergency,,2013-05-01
+21,emergency,cumulus__none,2022-02-01
+21,emergency,cumulus__none,2019-04-01
+21,emergency,cumulus__none,2017-04-01
+21,emergency,cumulus__none,2013-05-01
+21,ambulatory,,1993-10-01
+21,ambulatory,,1983-05-01
+21,ambulatory,,1982-05-01
+21,ambulatory,,1981-09-01
+21,ambulatory,,1980-08-01
+21,ambulatory,,1980-05-01
+21,ambulatory,,1980-01-01
+21,ambulatory,cumulus__none,1993-10-01
+21,ambulatory,cumulus__none,1983-05-01
+21,ambulatory,cumulus__none,1982-05-01
+21,ambulatory,cumulus__none,1981-09-01
+21,ambulatory,cumulus__none,1980-08-01
+21,ambulatory,cumulus__none,1980-05-01
+21,ambulatory,cumulus__none,1980-01-01
+20,,,1994-11-01
+20,,,1994-10-01
+20,,,1994-09-01
+20,,,1992-07-01
+20,,,1992-03-01
+20,,,1992-01-01
+20,,,1991-01-01
+20,,,1985-02-01
+20,,,1984-12-01
+20,,,1981-10-01
+20,,,1981-02-01
+20,,cumulus__none,1994-11-01
+20,,cumulus__none,1994-10-01
+20,,cumulus__none,1994-09-01
+20,,cumulus__none,1992-07-01
+20,,cumulus__none,1992-03-01
+20,,cumulus__none,1992-01-01
+20,,cumulus__none,1991-01-01
+20,,cumulus__none,1985-02-01
+20,,cumulus__none,1984-12-01
+20,,cumulus__none,1981-10-01
+20,,cumulus__none,1981-02-01
+20,emergency,,2019-06-01
+20,emergency,,2017-12-01
+20,emergency,cumulus__none,2019-06-01
+20,emergency,cumulus__none,2017-12-01
+20,ambulatory,,1994-05-01
+20,ambulatory,,1994-04-01
+20,ambulatory,,1992-10-01
+20,ambulatory,,1984-04-01
+20,ambulatory,,1981-02-01
+20,ambulatory,cumulus__none,1994-05-01
+20,ambulatory,cumulus__none,1994-04-01
+20,ambulatory,cumulus__none,1992-10-01
+20,ambulatory,cumulus__none,1984-04-01
+20,ambulatory,cumulus__none,1981-02-01
+19,,,1993-06-01
+19,,,1993-02-01
+19,,,1992-09-01
+19,,,1992-04-01
+19,,,1991-09-01
+19,,,1983-02-01
+19,,,1982-10-01
+19,,,1978-07-01
+19,,cumulus__none,1993-06-01
+19,,cumulus__none,1993-02-01
+19,,cumulus__none,1992-09-01
+19,,cumulus__none,1992-04-01
+19,,cumulus__none,1991-09-01
+19,,cumulus__none,1983-02-01
+19,,cumulus__none,1982-10-01
+19,,cumulus__none,1978-07-01
+19,emergency,,2022-08-01
+19,emergency,,2021-10-01
+19,emergency,,2020-12-01
+19,emergency,,2020-10-01
+19,emergency,,2020-03-01
+19,emergency,,2018-01-01
+19,emergency,,2014-03-01
+19,emergency,cumulus__none,2022-08-01
+19,emergency,cumulus__none,2021-10-01
+19,emergency,cumulus__none,2020-12-01
+19,emergency,cumulus__none,2020-10-01
+19,emergency,cumulus__none,2020-03-01
+19,emergency,cumulus__none,2018-01-01
+19,emergency,cumulus__none,2014-03-01
+19,ambulatory,,1993-11-01
+19,ambulatory,,1993-09-01
+19,ambulatory,,1984-12-01
+19,ambulatory,,1983-02-01
+19,ambulatory,,1982-09-01
+19,ambulatory,cumulus__none,1993-11-01
+19,ambulatory,cumulus__none,1993-09-01
+19,ambulatory,cumulus__none,1984-12-01
+19,ambulatory,cumulus__none,1983-02-01
+19,ambulatory,cumulus__none,1982-09-01
+18,,,1992-08-01
+18,,,1982-07-01
+18,,,1982-02-01
+18,,cumulus__none,1992-08-01
+18,,cumulus__none,1982-07-01
+18,,cumulus__none,1982-02-01
+18,emergency,,2022-07-01
+18,emergency,,2022-05-01
+18,emergency,,2021-09-01
+18,emergency,,2020-05-01
+18,emergency,,2019-05-01
+18,emergency,,2019-01-01
+18,emergency,,2018-03-01
+18,emergency,,2016-04-01
+18,emergency,,2014-07-01
+18,emergency,,2014-05-01
+18,emergency,,2014-01-01
+18,emergency,cumulus__none,2022-07-01
+18,emergency,cumulus__none,2022-05-01
+18,emergency,cumulus__none,2021-09-01
+18,emergency,cumulus__none,2020-05-01
+18,emergency,cumulus__none,2019-05-01
+18,emergency,cumulus__none,2019-01-01
+18,emergency,cumulus__none,2018-03-01
+18,emergency,cumulus__none,2016-04-01
+18,emergency,cumulus__none,2014-07-01
+18,emergency,cumulus__none,2014-05-01
+18,emergency,cumulus__none,2014-01-01
+18,ambulatory,,1994-09-01
+18,ambulatory,,1993-01-01
+18,ambulatory,,1992-07-01
+18,ambulatory,,1982-10-01
+18,ambulatory,,1982-07-01
+18,ambulatory,,1978-07-01
+18,ambulatory,cumulus__none,1994-09-01
+18,ambulatory,cumulus__none,1993-01-01
+18,ambulatory,cumulus__none,1992-07-01
+18,ambulatory,cumulus__none,1982-10-01
+18,ambulatory,cumulus__none,1982-07-01
+18,ambulatory,cumulus__none,1978-07-01
+17,,,1991-08-01
+17,,,1978-06-01
+17,,cumulus__none,1991-08-01
+17,,cumulus__none,1978-06-01
+17,emergency,,2021-07-01
+17,emergency,,2021-04-01
+17,emergency,,2020-07-01
+17,emergency,,2017-05-01
+17,emergency,,2015-08-01
+17,emergency,,2014-06-01
+17,emergency,,2013-08-01
+17,emergency,cumulus__none,2021-07-01
+17,emergency,cumulus__none,2021-04-01
+17,emergency,cumulus__none,2020-07-01
+17,emergency,cumulus__none,2017-05-01
+17,emergency,cumulus__none,2015-08-01
+17,emergency,cumulus__none,2014-06-01
+17,emergency,cumulus__none,2013-08-01
+17,ambulatory,,1995-01-01
+17,ambulatory,,1993-05-01
+17,ambulatory,,1992-08-01
+17,ambulatory,,1992-01-01
+17,ambulatory,cumulus__none,1995-01-01
+17,ambulatory,cumulus__none,1993-05-01
+17,ambulatory,cumulus__none,1992-08-01
+17,ambulatory,cumulus__none,1992-01-01
+16,,,1993-04-01
+16,,,1992-06-01
+16,,,1991-12-01
+16,,,1983-11-01
+16,,cumulus__none,1993-04-01
+16,,cumulus__none,1992-06-01
+16,,cumulus__none,1991-12-01
+16,,cumulus__none,1983-11-01
+16,emergency,,2021-11-01
+16,emergency,,2020-08-01
+16,emergency,,2018-07-01
+16,emergency,,2017-11-01
+16,emergency,,2015-04-01
+16,emergency,,2014-12-01
+16,emergency,,2013-10-01
+16,emergency,,1990-03-01
+16,emergency,cumulus__none,2021-11-01
+16,emergency,cumulus__none,2020-08-01
+16,emergency,cumulus__none,2018-07-01
+16,emergency,cumulus__none,2017-11-01
+16,emergency,cumulus__none,2015-04-01
+16,emergency,cumulus__none,2014-12-01
+16,emergency,cumulus__none,2013-10-01
+16,emergency,cumulus__none,1990-03-01
+16,ambulatory,,1994-10-01
+16,ambulatory,,1993-02-01
+16,ambulatory,,1992-09-01
+16,ambulatory,,1992-04-01
+16,ambulatory,,1992-03-01
+16,ambulatory,,1991-09-01
+16,ambulatory,cumulus__none,1994-10-01
+16,ambulatory,cumulus__none,1993-02-01
+16,ambulatory,cumulus__none,1992-09-01
+16,ambulatory,cumulus__none,1992-04-01
+16,ambulatory,cumulus__none,1992-03-01
+16,ambulatory,cumulus__none,1991-09-01
+15,,,1992-05-01
+15,,,1992-02-01
+15,,,1991-11-01
+15,,,1991-10-01
+15,,,1991-06-01
+15,,,1990-12-01
+15,,cumulus__none,1992-05-01
+15,,cumulus__none,1992-02-01
+15,,cumulus__none,1991-11-01
+15,,cumulus__none,1991-10-01
+15,,cumulus__none,1991-06-01
+15,,cumulus__none,1990-12-01
+15,emergency,,2023-03-01
+15,emergency,,2022-10-01
+15,emergency,,2022-03-01
+15,emergency,,2021-03-01
+15,emergency,,2021-02-01
+15,emergency,,2020-01-01
+15,emergency,,2019-03-01
+15,emergency,,2018-12-01
+15,emergency,,2013-09-01
+15,emergency,cumulus__none,2023-03-01
+15,emergency,cumulus__none,2022-10-01
+15,emergency,cumulus__none,2022-03-01
+15,emergency,cumulus__none,2021-03-01
+15,emergency,cumulus__none,2021-02-01
+15,emergency,cumulus__none,2020-01-01
+15,emergency,cumulus__none,2019-03-01
+15,emergency,cumulus__none,2018-12-01
+15,emergency,cumulus__none,2013-09-01
+15,ambulatory,,1994-11-01
+15,ambulatory,,1993-04-01
+15,ambulatory,,1991-12-01
+15,ambulatory,,1978-06-01
+15,ambulatory,cumulus__none,1994-11-01
+15,ambulatory,cumulus__none,1993-04-01
+15,ambulatory,cumulus__none,1991-12-01
+15,ambulatory,cumulus__none,1978-06-01
+14,,,1976-12-01
+14,,cumulus__none,1976-12-01
+14,emergency,,2023-01-01
+14,emergency,,2022-11-01
+14,emergency,,2020-09-01
+14,emergency,,2019-09-01
+14,emergency,,2018-11-01
+14,emergency,,2018-09-01
+14,emergency,,2017-03-01
+14,emergency,,2016-12-01
+14,emergency,,2016-11-01
+14,emergency,,2016-05-01
+14,emergency,,2015-11-01
+14,emergency,,2015-06-01
+14,emergency,,2015-03-01
+14,emergency,,2015-01-01
+14,emergency,,2013-12-01
+14,emergency,,2013-07-01
+14,emergency,cumulus__none,2023-01-01
+14,emergency,cumulus__none,2022-11-01
+14,emergency,cumulus__none,2020-09-01
+14,emergency,cumulus__none,2019-09-01
+14,emergency,cumulus__none,2018-11-01
+14,emergency,cumulus__none,2018-09-01
+14,emergency,cumulus__none,2017-03-01
+14,emergency,cumulus__none,2016-12-01
+14,emergency,cumulus__none,2016-11-01
+14,emergency,cumulus__none,2016-05-01
+14,emergency,cumulus__none,2015-11-01
+14,emergency,cumulus__none,2015-06-01
+14,emergency,cumulus__none,2015-03-01
+14,emergency,cumulus__none,2015-01-01
+14,emergency,cumulus__none,2013-12-01
+14,emergency,cumulus__none,2013-07-01
+14,ambulatory,,1991-10-01
+14,ambulatory,,1976-12-01
+14,ambulatory,cumulus__none,1991-10-01
+14,ambulatory,cumulus__none,1976-12-01
+13,,,1979-02-01
+13,,,1977-05-01
+13,,,1976-04-01
+13,,,1974-03-01
+13,,cumulus__none,1979-02-01
+13,,cumulus__none,1977-05-01
+13,,cumulus__none,1976-04-01
+13,,cumulus__none,1974-03-01
+13,emergency,,2021-06-01
+13,emergency,,2019-11-01
+13,emergency,,2019-08-01
+13,emergency,,2014-11-01
+13,emergency,cumulus__none,2021-06-01
+13,emergency,cumulus__none,2019-11-01
+13,emergency,cumulus__none,2019-08-01
+13,emergency,cumulus__none,2014-11-01
+13,ambulatory,,1993-06-01
+13,ambulatory,cumulus__none,1993-06-01
+12,,,1991-05-01
+12,,,1991-04-01
+12,,,1991-02-01
+12,,,1977-03-01
+12,,cumulus__none,1991-05-01
+12,,cumulus__none,1991-04-01
+12,,cumulus__none,1991-02-01
+12,,cumulus__none,1977-03-01
+12,inpatient encounter,,2018-05-01
+12,inpatient encounter,cumulus__none,2018-05-01
+12,emergency,,2021-08-01
+12,emergency,,2017-01-01
+12,emergency,,2016-10-01
+12,emergency,,2016-02-01
+12,emergency,,2015-12-01
+12,emergency,,2014-09-01
+12,emergency,cumulus__none,2021-08-01
+12,emergency,cumulus__none,2017-01-01
+12,emergency,cumulus__none,2016-10-01
+12,emergency,cumulus__none,2016-02-01
+12,emergency,cumulus__none,2015-12-01
+12,emergency,cumulus__none,2014-09-01
+12,ambulatory,,1991-11-01
+12,ambulatory,,1991-06-01
+12,ambulatory,,1977-05-01
+12,ambulatory,,1977-03-01
+12,ambulatory,,1976-04-01
+12,ambulatory,,1974-03-01
+12,ambulatory,cumulus__none,1991-11-01
+12,ambulatory,cumulus__none,1991-06-01
+12,ambulatory,cumulus__none,1977-05-01
+12,ambulatory,cumulus__none,1977-03-01
+12,ambulatory,cumulus__none,1976-04-01
+12,ambulatory,cumulus__none,1974-03-01
+11,,,1979-06-01
+11,,,1978-11-01
+11,,,1968-05-01
+11,,cumulus__none,1979-06-01
+11,,cumulus__none,1978-11-01
+11,,cumulus__none,1968-05-01
+11,emergency,,2018-10-01
+11,emergency,,2018-08-01
+11,emergency,,2018-05-01
+11,emergency,,2017-10-01
+11,emergency,,2017-08-01
+11,emergency,,2017-02-01
+11,emergency,,2016-09-01
+11,emergency,,2016-08-01
+11,emergency,,2014-08-01
+11,emergency,,2013-06-01
+11,emergency,cumulus__none,2018-10-01
+11,emergency,cumulus__none,2018-08-01
+11,emergency,cumulus__none,2018-05-01
+11,emergency,cumulus__none,2017-10-01
+11,emergency,cumulus__none,2017-08-01
+11,emergency,cumulus__none,2017-02-01
+11,emergency,cumulus__none,2016-09-01
+11,emergency,cumulus__none,2016-08-01
+11,emergency,cumulus__none,2014-08-01
+11,emergency,cumulus__none,2013-06-01
+11,ambulatory,,1979-06-01
+11,ambulatory,cumulus__none,1979-06-01
+10,,,1977-10-01
+10,,cumulus__none,1977-10-01
+10,emergency,,2019-07-01
+10,emergency,,2018-06-01
+10,emergency,,2018-02-01
+10,emergency,,2017-09-01
+10,emergency,,2017-07-01
+10,emergency,,2016-07-01
+10,emergency,,2016-06-01
+10,emergency,,2016-03-01
+10,emergency,,2015-07-01
+10,emergency,,2014-10-01
+10,emergency,,2014-04-01
+10,emergency,,2013-11-01
+10,emergency,,1990-05-01
+10,emergency,,1990-02-01
+10,emergency,cumulus__none,2019-07-01
+10,emergency,cumulus__none,2018-06-01
+10,emergency,cumulus__none,2018-02-01
+10,emergency,cumulus__none,2017-09-01
+10,emergency,cumulus__none,2017-07-01
+10,emergency,cumulus__none,2016-07-01
+10,emergency,cumulus__none,2016-06-01
+10,emergency,cumulus__none,2016-03-01
+10,emergency,cumulus__none,2015-07-01
+10,emergency,cumulus__none,2014-10-01
+10,emergency,cumulus__none,2014-04-01
+10,emergency,cumulus__none,2013-11-01
+10,emergency,cumulus__none,1990-05-01
+10,emergency,cumulus__none,1990-02-01
+10,ambulatory,,1991-05-01
+10,ambulatory,,1977-10-01
+10,ambulatory,,1968-05-01
+10,ambulatory,cumulus__none,1991-05-01
+10,ambulatory,cumulus__none,1977-10-01
+10,ambulatory,cumulus__none,1968-05-01
