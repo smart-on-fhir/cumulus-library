@@ -1,110 +1,155 @@
 cnt,type_display,author_month,class_display
-1125,,,
-1125,Evaluation + Plan note,,
-1074,,,ambulatory
-1074,Evaluation + Plan note,,ambulatory
-807,History and physical note,,
-767,History and physical note,,ambulatory
-318,Emergency department note,,
-307,Emergency department note,,ambulatory
-213,,2023-03-01,
-213,Evaluation + Plan note,2023-03-01,
-202,,2023-03-01,ambulatory
-202,Evaluation + Plan note,2023-03-01,ambulatory
-148,History and physical note,2023-03-01,
-139,History and physical note,2023-03-01,ambulatory
-121,,2023-02-01,
-121,Evaluation + Plan note,2023-02-01,
-112,,2023-02-01,ambulatory
-112,Evaluation + Plan note,2023-02-01,ambulatory
-94,,2023-01-01,
-94,Evaluation + Plan note,2023-01-01,
-93,,2023-01-01,ambulatory
-93,Evaluation + Plan note,2023-01-01,ambulatory
-84,History and physical note,2023-02-01,
-80,,2022-11-01,
-80,Evaluation + Plan note,2022-11-01,
-78,,2022-11-01,ambulatory
-78,Evaluation + Plan note,2022-11-01,ambulatory
-77,History and physical note,2023-02-01,ambulatory
-76,History and physical note,2023-01-01,
-75,History and physical note,2023-01-01,ambulatory
-71,,2022-12-01,
-71,Evaluation + Plan note,2022-12-01,
-66,,2022-12-01,ambulatory
-66,Evaluation + Plan note,2022-12-01,ambulatory
-65,Emergency department note,2023-03-01,
-64,History and physical note,2022-11-01,
-63,Emergency department note,2023-03-01,ambulatory
-62,History and physical note,2022-11-01,ambulatory
-58,,2022-08-01,
-58,Evaluation + Plan note,2022-08-01,
-54,,2022-08-01,ambulatory
-54,Evaluation + Plan note,2022-08-01,ambulatory
-53,,2022-10-01,
-53,Evaluation + Plan note,2022-10-01,
-51,,2022-10-01,ambulatory
-51,,2022-09-01,
-51,,2022-04-01,
-51,History and physical note,2022-12-01,
-51,Evaluation + Plan note,2022-10-01,ambulatory
-51,Evaluation + Plan note,2022-09-01,
-51,Evaluation + Plan note,2022-04-01,
-50,,2022-04-01,ambulatory
-50,Evaluation + Plan note,2022-04-01,ambulatory
-49,,2022-07-01,
-49,,2022-07-01,ambulatory
-49,Evaluation + Plan note,2022-07-01,
-49,Evaluation + Plan note,2022-07-01,ambulatory
-48,,2022-09-01,ambulatory
-48,Evaluation + Plan note,2022-09-01,ambulatory
-47,,2022-06-01,
-47,History and physical note,2022-12-01,ambulatory
-47,Evaluation + Plan note,2022-06-01,
-46,,2022-06-01,ambulatory
-46,Evaluation + Plan note,2022-06-01,ambulatory
-43,History and physical note,2022-09-01,
-41,History and physical note,2022-10-01,
-41,History and physical note,2022-09-01,ambulatory
-39,History and physical note,2022-10-01,ambulatory
-39,History and physical note,2022-08-01,
-38,,,emergency
-38,Evaluation + Plan note,,emergency
-37,Emergency department note,2023-02-01,
-36,,2022-05-01,
-36,,2022-05-01,ambulatory
-36,History and physical note,2022-08-01,ambulatory
-36,History and physical note,2022-07-01,
-36,History and physical note,2022-07-01,ambulatory
-36,Evaluation + Plan note,2022-05-01,
-36,Evaluation + Plan note,2022-05-01,ambulatory
-35,History and physical note,2022-06-01,
-35,Emergency department note,2023-02-01,ambulatory
-34,History and physical note,2022-06-01,ambulatory
-32,History and physical note,2022-04-01,
-31,History and physical note,2022-04-01,ambulatory
-29,History and physical note,,emergency
-27,History and physical note,2022-05-01,
-27,History and physical note,2022-05-01,ambulatory
-20,Emergency department note,2022-12-01,
-19,Emergency department note,2022-12-01,ambulatory
-19,Emergency department note,2022-08-01,
-19,Emergency department note,2022-04-01,
-19,Emergency department note,2022-04-01,ambulatory
-18,Emergency department note,2023-01-01,
-18,Emergency department note,2023-01-01,ambulatory
-18,Emergency department note,2022-08-01,ambulatory
-16,Emergency department note,2022-11-01,
-16,Emergency department note,2022-11-01,ambulatory
-13,Emergency department note,2022-07-01,
-13,Emergency department note,2022-07-01,ambulatory
-12,Emergency department note,2022-10-01,
-12,Emergency department note,2022-10-01,ambulatory
-12,Emergency department note,2022-06-01,
-12,Emergency department note,2022-06-01,ambulatory
-11,,2022-03-01,
-11,,2022-01-01,
-11,Evaluation + Plan note,2022-03-01,
-11,Evaluation + Plan note,2022-01-01,
-10,,2022-01-01,ambulatory
-10,Evaluation + Plan note,2022-01-01,ambulatory
+2164,,,
+2164,Evaluation + Plan note,,
+2057,,,ambulatory
+2057,Evaluation + Plan note,,ambulatory
+1596,History and physical note,,
+1514,History and physical note,,ambulatory
+568,Emergency department note,,
+543,Emergency department note,,ambulatory
+389,,2023-03-01,
+389,Evaluation + Plan note,2023-03-01,
+360,,2023-03-01,ambulatory
+360,Evaluation + Plan note,2023-03-01,ambulatory
+281,History and physical note,2023-03-01,
+257,History and physical note,2023-03-01,ambulatory
+227,,2023-02-01,
+227,Evaluation + Plan note,2023-02-01,
+208,,2023-02-01,ambulatory
+208,Evaluation + Plan note,2023-02-01,ambulatory
+194,,2023-01-01,
+194,Evaluation + Plan note,2023-01-01,
+184,,2023-01-01,ambulatory
+184,Evaluation + Plan note,2023-01-01,ambulatory
+168,History and physical note,2023-02-01,
+153,History and physical note,2023-02-01,ambulatory
+153,History and physical note,2023-01-01,
+145,History and physical note,2023-01-01,ambulatory
+144,,2022-11-01,
+144,Evaluation + Plan note,2022-11-01,
+141,,2022-11-01,ambulatory
+141,Evaluation + Plan note,2022-11-01,ambulatory
+135,,2022-12-01,
+135,Evaluation + Plan note,2022-12-01,
+127,,2022-12-01,ambulatory
+127,Evaluation + Plan note,2022-12-01,ambulatory
+115,History and physical note,2022-11-01,
+114,,2022-08-01,
+114,Evaluation + Plan note,2022-08-01,
+112,,2022-07-01,
+112,,2022-07-01,ambulatory
+112,History and physical note,2022-11-01,ambulatory
+112,Evaluation + Plan note,2022-07-01,
+112,Evaluation + Plan note,2022-07-01,ambulatory
+108,Emergency department note,2023-03-01,
+107,,2022-08-01,ambulatory
+107,Evaluation + Plan note,2022-08-01,ambulatory
+103,Emergency department note,2023-03-01,ambulatory
+102,,2022-10-01,
+102,,2022-04-01,
+102,Evaluation + Plan note,2022-10-01,
+102,Evaluation + Plan note,2022-04-01,
+101,,2022-09-01,
+101,Evaluation + Plan note,2022-09-01,
+100,,2022-04-01,ambulatory
+100,Evaluation + Plan note,2022-04-01,ambulatory
+98,History and physical note,2022-12-01,
+97,,2022-09-01,ambulatory
+97,Evaluation + Plan note,2022-09-01,ambulatory
+95,,2022-10-01,ambulatory
+95,Evaluation + Plan note,2022-10-01,ambulatory
+91,History and physical note,2022-12-01,ambulatory
+83,,2022-06-01,
+83,History and physical note,2022-08-01,
+83,Evaluation + Plan note,2022-06-01,
+81,,2022-06-01,ambulatory
+81,History and physical note,2022-09-01,
+81,History and physical note,2022-07-01,
+81,History and physical note,2022-07-01,ambulatory
+81,Evaluation + Plan note,2022-06-01,ambulatory
+80,History and physical note,2022-08-01,ambulatory
+79,History and physical note,2022-09-01,ambulatory
+74,History and physical note,2022-10-01,
+72,,,emergency
+72,,2022-05-01,
+72,,2022-05-01,ambulatory
+72,Evaluation + Plan note,,emergency
+72,Evaluation + Plan note,2022-05-01,
+72,Evaluation + Plan note,2022-05-01,ambulatory
+69,History and physical note,2022-10-01,ambulatory
+68,History and physical note,2022-04-01,
+66,History and physical note,2022-04-01,ambulatory
+64,History and physical note,2022-06-01,
+62,History and physical note,2022-06-01,ambulatory
+59,Emergency department note,2023-02-01,
+55,Emergency department note,2023-02-01,ambulatory
+53,History and physical note,,emergency
+52,History and physical note,2022-05-01,
+52,History and physical note,2022-05-01,ambulatory
+41,Emergency department note,2023-01-01,
+39,Emergency department note,2023-01-01,ambulatory
+37,Emergency department note,2022-12-01,
+36,Emergency department note,2022-12-01,ambulatory
+34,Emergency department note,2022-04-01,
+34,Emergency department note,2022-04-01,ambulatory
+31,Emergency department note,2022-08-01,
+31,Emergency department note,2022-07-01,
+31,Emergency department note,2022-07-01,ambulatory
+29,Emergency department note,2022-11-01,
+29,Emergency department note,2022-11-01,ambulatory
+28,Emergency department note,2022-10-01,
+27,Emergency department note,2022-08-01,ambulatory
+26,Emergency department note,2022-10-01,ambulatory
+25,,,inpatient encounter
+25,Evaluation + Plan note,,inpatient encounter
+21,,2023-03-01,emergency
+21,History and physical note,,inpatient encounter
+21,Evaluation + Plan note,2023-03-01,emergency
+20,Emergency department note,2022-09-01,
+20,Emergency department note,2022-05-01,
+20,Emergency department note,2022-05-01,ambulatory
+19,,2023-04-01,
+19,Evaluation + Plan note,2023-04-01,
+19,Emergency department note,,emergency
+19,Emergency department note,2022-06-01,
+19,Emergency department note,2022-06-01,ambulatory
+18,,2023-04-01,ambulatory
+18,,2022-01-01,
+18,Evaluation + Plan note,2023-04-01,ambulatory
+18,Evaluation + Plan note,2022-01-01,
+18,Emergency department note,2022-09-01,ambulatory
+17,,2022-01-01,ambulatory
+17,Evaluation + Plan note,2022-01-01,ambulatory
+16,,2022-03-01,
+16,,2021-11-01,
+16,,2021-11-01,ambulatory
+16,History and physical note,2023-03-01,emergency
+16,Evaluation + Plan note,2022-03-01,
+16,Evaluation + Plan note,2021-11-01,
+16,Evaluation + Plan note,2021-11-01,ambulatory
+13,,2022-03-01,ambulatory
+13,History and physical note,2023-04-01,
+13,History and physical note,2023-04-01,ambulatory
+13,Evaluation + Plan note,2022-03-01,ambulatory
+12,,2021-09-01,
+12,,2021-09-01,ambulatory
+12,,2021-05-01,
+12,History and physical note,2022-01-01,
+12,History and physical note,2021-11-01,
+12,History and physical note,2021-11-01,ambulatory
+12,Evaluation + Plan note,2021-09-01,
+12,Evaluation + Plan note,2021-09-01,ambulatory
+12,Evaluation + Plan note,2021-05-01,
+11,,2023-02-01,emergency
+11,,2021-06-01,
+11,,2021-06-01,ambulatory
+11,,2021-05-01,ambulatory
+11,History and physical note,2022-01-01,ambulatory
+11,Evaluation + Plan note,2023-02-01,emergency
+11,Evaluation + Plan note,2021-06-01,
+11,Evaluation + Plan note,2021-06-01,ambulatory
+11,Evaluation + Plan note,2021-05-01,ambulatory
+10,,2021-08-01,
+10,History and physical note,2021-06-01,
+10,History and physical note,2021-06-01,ambulatory
+10,Evaluation + Plan note,2021-08-01,
