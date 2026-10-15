@@ -88,6 +88,23 @@ def _get_unprotected_stats_view_table(
     return unprotected_list
 
 
+def _format_dedicated_table_name(schema_name, config, view_table_list):
+    formatted = []
+    for statement in view_table_list:
+        if config.db.db_type == "athena":
+            if statement[1] == "TABLE":
+                formatted.append([f"`{schema_name}`.`{statement[0].split('.')[1]}`", "TABLE"])
+            else:
+                formatted.append([f'"{schema_name}"."{statement[0].split(".")[1]}"', "VIEW"])
+        elif config.db.db_type == "duckdb":
+            formatted.append([f'"{schema_name}"."{statement[0]}"', statement[1]])
+        else:
+            raise errors.CumulusLibraryError(
+                f"Unexpected database type for cleaning: {config.db.db_type}"
+            )
+    return formatted
+
+
 def clean_study(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest | None,
@@ -202,18 +219,8 @@ def clean_study(
         if confirm is None or confirm.lower() not in ("y", "yes"):
             sys.exit("Table cleaning aborted")
     if dedicated := manifest.get_dedicated_schema():
-        view_table_list = [
-            (
-                # Athena uses different quoting strategies for drop view statements
-                # versus drop table statements. -_-
-                # TODO: Consider moving this logic to a database object?
-                f"`{dedicated}`.`{x[0]}`"
-                if (x[1] == "TABLE" and config.db.db_type == "athena")
-                else f'"{dedicated}"."{x[0]}"',
-                x[1],
-            )
-            for x in view_table_list
-        ]
+        view_table_list = _format_dedicated_table_name(dedicated, config, view_table_list)
+
     # We want to only show a progress bar if we are :not: printing SQL lines
     with base_utils.get_progress_bar(disable=config.verbose) as progress:
         task = progress.add_task(
