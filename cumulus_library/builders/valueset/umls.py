@@ -122,10 +122,11 @@ def generate_umls_tables(
         )
         cursor.execute(query)
     # Or, just create an empty table if no UMLS stewards were defined
-    else:
-        query = base_templates.get_ctas_empty_query(
-            schema_name=config.schema,
-            table_name=f"{study_prefix}{table_prefix}umls_valuesets",
-            table_cols=["rxcui", *rels_cols],
-        )
-        cursor.execute(query)
+    # issue #312: skip table creation if the UMLS data source isn't defined
+    # else:
+    #     query = base_templates.get_ctas_empty_query(
+    #         schema_name=config.schema,
+    #         table_name=f"{study_prefix}{table_prefix}umls_valuesets",
+    #         table_cols=["rxcui", *rels_cols],
+    #     )
+    #     cursor.execute(query)
