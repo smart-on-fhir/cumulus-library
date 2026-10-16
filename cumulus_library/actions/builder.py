@@ -203,7 +203,8 @@ def build_matching_files(
                 matches.append(file)
     if len(matches) == 0:
         rich.print(f"No builders matching {builder} found - is it in your study manifest?")
-        sys.exit()
+        # exit nonzero: no matching builders is a build failure, not a success
+        sys.exit(1)
     build_study(
         config,
         manifest,
@@ -828,7 +829,8 @@ def _query_error(
             "Have you initialized your database?\n"
             "https://docs.smarthealthit.org/cumulus/etl/setup/initialization.html"
         )
-    sys.exit()
+    # exit nonzero: a query error is a failed build, and callers/CI must see it as such
+    sys.exit(1)
 
 
 def _check_query_for_errors(
