@@ -22,6 +22,7 @@ files = [
     "builder_episodeofcare_prereq.py",
     "builder_location_prereq.py",
     "builder_medicationrequest_prereq.py",
+    "builder_medicationdispense_prereq.py",
     "builder_observation_prereq.py",
     "builder_organization_prereq.py",
     "builder_patient_prereq.py",
@@ -51,6 +52,7 @@ files = [
     "builder_episodeofcare.py",
     "builder_location.py",
     "builder_medicationrequest.py",
+    "builder_medicationdispense.py",
     "builder_observation.py",
     "builder_organization.py",
     "builder_practitioner.py",
@@ -64,6 +66,8 @@ files = [
 type = "build:parallel"
 label = "Tables derived from FHIR resource tables"
 files = [
+    "builder_medicationdispense_dosageinstruction.py",
+    "builder_medicationrequest_dosageinstruction.py",
     "observation_type.sql",
     "meta_date.sql",
 ]
@@ -77,24 +81,94 @@ files = [
 
 [[stages.build_core]]
 type = "export:counts"
-tables = [
-    "core__count_allergyintolerance_month",
-    "core__count_condition_month",
-    "core__count_diagnosticreport_month",
-    "core__count_documentreference_month",
-    "core__count_encounter_month",
-    "core__count_encounter_all_types",
-    "core__count_encounter_all_types_month",
-    "core__count_encounter_service_month",
-    "core__count_encounter_priority_month",
-    "core__count_encounter_type_month",
-    "core__count_medicationrequest_month",
-    "core__count_observation_lab_month",
-    "core__count_patient",
-    "core__count_procedure_month",
-    "core__count_servicerequest_month",
-    "core__count_specimen_month",
-]
+
+[[stages.build_core.tables]]
+name = "core__count_allergyintolerance_month"
+description = "A general count of patient allergic reactions by month.\n\nThis table provides a summary snapshot of all allergic reactions for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by intolerance category,\nintolerance code, the reaction manifestation, and the month the reaction was observed in. \nIt is primarily intended as a validation tool to ensure that data has been successfully extracted \nfrom a source system via the FHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_condition_month"
+description = "A general count of observed conditions by month.\n\nThis table provides a summary snapshot of all conditions observed in the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by condition category,\ncondition code, and the month the condition was observed in. It is primarily intended as a\nvalidation tool to ensure that data has been successfully extracted from a source system via \nthe FHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_diagnosticreport_month"
+description = "A general count of patient's diagnostic reports by month.\n\nThis table provides a summary snapshot of all diagnostic reports for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by diagnostic category,\ndiagnostic code, and the month the diagnostic was performed in. It is primarily intended as a\nvalidation tool to ensure that data has been successfully extracted from a source system via \nthe FHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_documentreference_month"
+description = "A general count of documents related to a patient by month.\n\nThis table provides a summary snapshot of all documents for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by document type\nand the month the document was written in. It includes the related encounter class by joining\nwith the associated enounter resource, and filters all documents that are not in a current state,\nor in a final or amended document state. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_encounter_month"
+description = "A general count of encounters by month.\n\nThis table provides a summary snapshot of all encounters for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by encounter class,\nage at visit, gender, the CDC's Race & Ethnicity valueset, and the month of the encounter. \nIt filters out all encounters that are not in a finished state. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_encounter_all_types"
+description = "A general count of encounter states.\n\nThis table provides a summary snapshot of all encounters for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by encounter class,\nencounter type, service type, and encounter priority. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_encounter_all_types_month"
+description = "A general count of encounter states by month.\n\nThis table provides a summary snapshot of all encounter states for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by encounter class,\nencounter type, service type, encounter priority, and the month of the encounter. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_encounter_type_month"
+description = "A general count of encounter types by month.\n\nThis table provides a summary snapshot of all encounter types for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by encounter class,\nencounter type, and the month of the encounter. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_encounter_priority_month"
+description = "A general count of encounter priorities by month.\n\nThis table provides a summary snapshot of all encounter priorities for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by encounter class,\nencounter priority, and the month of the encounter. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_encounter_service_month"
+description = "A general count of encounter service types by month.\n\nThis table provides a summary snapshot of all the enounters for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by value,\nobservation code, and the date of the lab. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_medicationrequest_month"
+description = "A general count of patients with medication requests by month.\n\nThis table provides a summary snapshot of all the medication requests for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by medication name,\nrequest status, intent of medication, and the date of the request authoring. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_medicationrequest_dispense_month"
+description = "A general count of medication request dispense parameters by month.\n\nThis table provides a summary snapshot of the dispense request on every medication request for\nthe entire patient population that have been loaded into a database for use by the Cumulus\necosystem. It bins by intent of medication, the number of refills allowed, the unit the\nexpected supply duration was recorded in, and the month the request was authored. It is\nprimarily intended as a validation tool to ensure that data has been successfully extracted\nfrom a source system via the FHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_medicationrequest_dosage_month"
+description = "A general count of medication request dosage instructions by month.\n\nThis table provides a summary snapshot of all the dosage instruction steps for the entire\npatient population that have been loaded into a database for use by the Cumulus ecosystem.\nA single request may contribute several steps, since a taper is recorded as one step per\ndose level. It bins by route of administration, the timing the dose was ordered on, whether\nthe dose is as-needed, and the month the request was authored. It is primarily intended as a\nvalidation tool to ensure that data has been successfully extracted from a source system via\nthe FHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_medicationdispense_month"
+description = "A general count of patients with medication dispenses by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by medication name,\ndispense status, and the month the medication was handed over. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_medicationdispense_category_month"
+description = "A general count of medication dispense categories by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by dispense status,\ndispense category, and the month the medication was handed over. It is primarily intended as a\nvalidation tool to ensure that data has been successfully extracted from a source system via the\nFHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_medicationdispense_type_month"
+description = "A general count of medication dispense types by month.\n\nThis table provides a summary snapshot of all the medication dispenses for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by dispense status,\ndispense type, and the month the medication was handed over. It is primarily intended as a\nvalidation tool to ensure that data has been successfully extracted from a source system via the\nFHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_medicationdispense_dosage_month"
+description = "A general count of medication dispense dosage instructions by month.\n\nThis table provides a summary snapshot of all the dosage instruction steps attached to\nmedication dispenses for the entire patient population that have been loaded into a database\nfor use by the Cumulus ecosystem. A single dispense may contribute several steps, since a\ntaper is recorded as one step per dose level. It bins by route of administration, the timing\nthe dose was dispensed on, the unit the dose was recorded in, and the month the medication was\nhanded over. It is primarily intended as a validation tool to ensure that data has been\nsuccessfully extracted from a source system via the FHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_observation_lab_month"
+description = "A general count of patient's lab observations by month.\n\nThis table provides a summary snapshot of all the labs for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by value,\nobservation code, and the date of the lab. It also joins the encounter class from the associated\necnounter. It is primarily intended as a validation tool to ensure that data has been \nsuccessfully extracted from a source system via the FHIR data format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_patient"
+description = "A general patient population count.\n\nThis table provides a summary snapshot of the entire patient population that has been\nloaded into a database for use by the Cumulus ecosystem. It provides binning based on\ngender and the CDC's Race & Ethnicity valueset. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_procedure_month"
+description = "A count of patient's general procedures by month.\n\nThis table provides a summary snapshot of all the procedures for the entire patient population\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by category,\nprocedure code, and the date of procedure. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_servicerequest_month"
+description = "A count of patients with service requests by month.\n\nThis table provides a summary snapshot of the entire patient population with service requests\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by category,\nservice request code, and the author date. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
+
+[[stages.build_core.tables]]
+name = "core__count_specimen_month"
+description = "A count of patients with specimens by month.\n\nThis table provides a summary snapshot of the entire patient population with specimens\nthat have been loaded into a database for use by the Cumulus ecosystem. It bins by category,\nservice request code, and the author date. It is primarily intended as a validation\ntool to ensure that data has been successfully extracted from a source system via the FHIR\ndata format.\n"
 
 [[stages.build_core]]
 type = "export:meta"
