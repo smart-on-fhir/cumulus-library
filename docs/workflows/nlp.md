@@ -96,22 +96,22 @@ select_by_word = ["fever", "severe cold"]
 # `select_by_regex` allows you to define regular expressions that will cause notes to be included
 # for NLP processing, just like `select_by_word`. Again, regexes will match at word boundaries.
 # The regex rules are standard Python rules: https://docs.python.org/3/library/re.html
-select_by_regex: ["fevers?"]
+select_by_regex = ["fevers?"]
 
 # `select_by_table` allows you to define a table name that will be searched for note identifiers,
 # to choose which notes are selected for NLP processing. Column names that will be found include
 # `note_ref`, `documentreference_id`, `documentreference_ref`, `diagnosticreport_id`, and
 # `diagnosticreport_ref`. This is useful if your study wants to calculate which notes are most
 # interesting to examine for NLP, then creates a table that holds such references.
-select_by_table: "my_study__interesting_notes"
+select_by_table = "my_study__interesting_notes"
 
 # `reject_by_word` allows you to define words that cause notes to **not** be included for NLP
 # processing, even if selected by one of the above selection options.
-reject_by_word: ["kidney", "fake"]
+reject_by_word = ["kidney", "fake"]
 
 # `reject_by_regex` allows you to define regular expressions that will cause notes to **not** be
 # included for NLP processing, even if selected by one of the above selection options.
-reject_by_regex: ["kidneys?"]
+reject_by_regex = ["kidneys?"]
 
 # The `shared` dictionary allows you to share configuration between multiple tables.
 # For example, you may use the same selection/rejection criteria for multiple related NLP tables.
@@ -121,13 +121,13 @@ reject_by_regex: ["kidneys?"]
 
 # The following fields can be defined here, and will be used if a table does not define its own
 # value for it. (i.e. these are fallback/default values)
-system_prompt: "Default system prompt"
-user_prompt: "Default user prompt"
-select_by_word: ["default", "words"]
-select_by_regex: ["default", "regex"]
-select_by_table: "default_table"
-reject_by_word: ["default", "words"]
-reject_by_regex: ["default", regex"]
+system_prompt = "Default system prompt"
+user_prompt = "Default user prompt"
+select_by_word = ["default", "words"]
+select_by_regex = ["default", "regex"]
+select_by_table = "default_table"
+reject_by_word = ["default", "words"]
+reject_by_regex = ["default", "regex"]
 ```
 
 ### Result Table Names
