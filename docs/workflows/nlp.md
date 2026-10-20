@@ -490,7 +490,7 @@ You'll find the `docs/compose-nlp.yaml` file (referenced in the below commands) 
 [cumulus-library](https://github.com/smart-on-fhir/cumulus-library)'s git files,
 so make sure you have a local checkout of that.
 
-Cumulus Library expects to find each local model at `http://localhost:{port}/v1`, using the port
+By default, Cumulus Library expects to find each local model at `http://localhost:{port}/v1`, using the port
 the compose file publishes (8086 for `gpt-oss-120b`, 8087 for `llama4-scout`).
 If you serve the model somewhere else (another machine, or your own vLLM setup), point Cumulus
 Library at it with `CUMULUS_GPT_OSS_120B_URL` or `CUMULUS_LLAMA4_SCOUT_URL`, for example
