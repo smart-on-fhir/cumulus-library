@@ -96,22 +96,22 @@ select_by_word = ["fever", "severe cold"]
 # `select_by_regex` allows you to define regular expressions that will cause notes to be included
 # for NLP processing, just like `select_by_word`. Again, regexes will match at word boundaries.
 # The regex rules are standard Python rules: https://docs.python.org/3/library/re.html
-select_by_regex: ["fevers?"]
+select_by_regex = ["fevers?"]
 
 # `select_by_table` allows you to define a table name that will be searched for note identifiers,
 # to choose which notes are selected for NLP processing. Column names that will be found include
 # `note_ref`, `documentreference_id`, `documentreference_ref`, `diagnosticreport_id`, and
 # `diagnosticreport_ref`. This is useful if your study wants to calculate which notes are most
 # interesting to examine for NLP, then creates a table that holds such references.
-select_by_table: "my_study__interesting_notes"
+select_by_table = "my_study__interesting_notes"
 
 # `reject_by_word` allows you to define words that cause notes to **not** be included for NLP
 # processing, even if selected by one of the above selection options.
-reject_by_word: ["kidney", "fake"]
+reject_by_word = ["kidney", "fake"]
 
 # `reject_by_regex` allows you to define regular expressions that will cause notes to **not** be
 # included for NLP processing, even if selected by one of the above selection options.
-reject_by_regex: ["kidneys?"]
+reject_by_regex = ["kidneys?"]
 
 # The `shared` dictionary allows you to share configuration between multiple tables.
 # For example, you may use the same selection/rejection criteria for multiple related NLP tables.
@@ -121,13 +121,13 @@ reject_by_regex: ["kidneys?"]
 
 # The following fields can be defined here, and will be used if a table does not define its own
 # value for it. (i.e. these are fallback/default values)
-system_prompt: "Default system prompt"
-user_prompt: "Default user prompt"
-select_by_word: ["default", "words"]
-select_by_regex: ["default", "regex"]
-select_by_table: "default_table"
-reject_by_word: ["default", "words"]
-reject_by_regex: ["default", regex"]
+system_prompt = "Default system prompt"
+user_prompt = "Default user prompt"
+select_by_word = ["default", "words"]
+select_by_regex = ["default", "regex"]
+select_by_table = "default_table"
+reject_by_word = ["default", "words"]
+reject_by_regex = ["default", "regex"]
 ```
 
 ### Result Table Names
@@ -173,18 +173,25 @@ NLP workflows require extra configuration that normal study workflows do not.
 Namely, how to connect to the LLM of choice.
 You can pass these to Cumulus Library when building a study and any NLP workflows will use them.
 
-- `--note-dir=PATH`: point this at the root folder of your FHIR NDJSON note documents
-- `--etl-phi-dir=PATH`: point this at the PHI folder that you use for Cumulus ETL (the third
-  argument when running the ETL process) - NLP caches are kept here as well as the information
-  needed to compare anonymized IDs with the original note IDs
-- `--nlp-model=MODEL`: choose a model to use for this run; pass `help` to get a list of options
-- `--nlp-provider=PROVIDER`: choose a provider to use for this run; can be `azure` or `bedrock` but
-  defaults to `local` (a locally run NLP)
+- `--note-dir=DIR`: point this at a folder of FHIR NDJSON files holding your clinical notes
+  (DocumentReference and DiagnosticReport resources). The folder is searched recursively, and can
+  be a local path or an `s3://` URL. Pass it more than once to search several folders.
+  Can also be set with the `CUMULUS_LIBRARY_NOTE_DIR` environment variable (one folder only).
+- `--etl-phi-dir=DIR`: point this at the PHI folder that you use for Cumulus ETL (the third
+  argument when running the ETL process). It can be a local path or an `s3://` URL.
+  NLP caches are kept here, as well as the information needed to compare anonymized IDs with the
+  original note IDs.
+- `--nlp-model=MODEL`: choose a model to use for this run (required when running NLP).
+  See [Supported Models](#supported-models) below for the options and which providers each
+  supports.
+- `--nlp-provider=PROVIDER`: choose a provider to use for this run; can be `azure` or `bedrock`,
+  but defaults to `local` (a locally run LLM)
   - If using `azure`, you also need to set the `AZURE_OPENAI_API_KEY` and `AZURE_OPENAI_ENDPOINT`
     environment variables.
   - If using `bedrock`, you need to make sure that your AWS configuration can be found (probably
-    by setting the `AWS_PROFILE` environment variable).
-  - If using `local`, see below for instructions on using Docker to run local LLMs
+    by setting the `AWS_PROFILE` environment variable, or passing `--profile`).
+  - If using `local`, see [Using a Local LLM](#using-a-local-llm) below for instructions on using
+    Docker to run local LLMs
 - `--azure-deployment=NAME`: when using the Azure provider, you may need to provide a deployment
   name (defaults to model name). Pass it more than once to spread requests across several
   deployments, which multiplies the quota available to a run (see below)
@@ -192,9 +199,43 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
   deployment, so a single endpoint runs serially unless you ask for more). Workers are spread
   across your deployments as evenly as possible.
 - `--batch-nlp`: if set, NLP will be done in batch mode, which can take up to a day to finish, but
-  will be much cheaper
+  will be much cheaper. Not all models support it (see [Batching](#batching)).
+- `--nlp-chunksize=N`: how many notes to process before writing results out to storage
+  (defaults to 100,000). In batch mode, this is also the most requests sent in a single batch.
 - `--clean-nlp`: if set, previous NLP results for the workflow will be deleted first
 - `--no-nlp-stats`: if set, note and token stats will not be printed to the console
+
+#### Environment Variables
+
+| Variable | Used for |
+|---|---|
+| `CUMULUS_LIBRARY_NOTE_DIR` | Fallback for `--note-dir` |
+| `AZURE_OPENAI_API_KEY` | Required with `--nlp-provider=azure` |
+| `AZURE_OPENAI_ENDPOINT` | Required with `--nlp-provider=azure` |
+| `AWS_PROFILE` (and other standard AWS variables, like `AWS_REGION`) | Credentials and region for `--nlp-provider=bedrock` |
+| `CUMULUS_GPT_OSS_120B_URL` | Override the local server URL for `gpt-oss-120b` (default `http://localhost:8086/v1`) |
+| `CUMULUS_LLAMA4_SCOUT_URL` | Override the local server URL for `llama4-scout` (default `http://localhost:8087/v1`) |
+| `HUGGING_FACE_HUB_TOKEN` | Lets Docker download the gated `llama4-scout` model |
+| `MLFLOW_TRACKING_URI` | Fallback for `--mlflow-uri` (dev mode only) |
+
+#### Supported Models
+
+| `--nlp-model` | `azure` | `bedrock` | `local` |
+|---|---|---|---|
+| `claude-opus48` | | ✓ | |
+| `claude-sonnet45` | | ✓ | |
+| `claude-sonnet46` | | ✓ | |
+| `gpt-oss-120b` | ✓ | ✓ | ✓ |
+| `gpt35` | ✓ | | |
+| `gpt4` | ✓ | | |
+| `gpt4o` | ✓ (supports batching) | | |
+| `gpt5` | ✓ | | |
+| `gpt54` | ✓ | | |
+| `gpt54-mini` | ✓ | | |
+| `gpt54-nano` | ✓ | | |
+| `llama4-scout` | ✓ | ✓ | ✓ (experimental) |
+
+Choosing a provider that a model doesn't support stops the build with an error.
 
 Some further arguments are only useful while you are *writing* a study, and are hidden behind
 dev mode. See [Study Development Mode](#study-development-mode) below.
@@ -278,8 +319,9 @@ The arguments dev mode unlocks:
   more than once to build a subset of tables (e.g. `--nlp-subtask=age --nlp-subtask=race`). This lets
   you build individual NLP tables in isolation without editing the workflow file. If a name isn't
   found in the workflow, the build stops and lists the available tables.
-- `--select-by-table=TABLE`: override the workflow's `select_by_table` value, for testing. 
-  Can only be used together with `--nlp-subtask`.
+- `--select-by-table=TABLE`: override the `select_by_table` value of every table in the
+  workflow, for testing (e.g. against a small table of hand-picked notes). Can only be used in
+  combination with `--nlp-subtask` to override only the tables you're building.
 - The MLflow arguments described below.
 
 #### Tracking Experiments With MLflow
@@ -431,7 +473,7 @@ So you trade predictable timing for 50% cheaper tokens.
 
 As of this writing, Cumulus Library only supports batching with the Azure provider.
 Make sure you've set up a deployment that uses batching, and then pass in the following arguments:
-`--azure-deployment=xxx --batch-nlp`.
+`--nlp-provider=azure --azure-deployment=xxx --batch-nlp`.
 
 Then be prepared to wait a little bit.
 Note that the 50% discount is mitigated somewhat by the fact that batching does not use token
@@ -447,6 +489,12 @@ We ship a convenient Docker compose file that makes it easy to launch a local LL
 You'll find the `docs/compose-nlp.yaml` file (referenced in the below commands) in
 [cumulus-library](https://github.com/smart-on-fhir/cumulus-library)'s git files,
 so make sure you have a local checkout of that.
+
+By default, Cumulus Library expects to find each local model at `http://localhost:{port}/v1`, using the port
+the compose file publishes (8086 for `gpt-oss-120b`, 8087 for `llama4-scout`).
+If you serve the model somewhere else (another machine, or your own vLLM setup), point Cumulus
+Library at it with `CUMULUS_GPT_OSS_120B_URL` or `CUMULUS_LLAMA4_SCOUT_URL`, for example
+`export CUMULUS_GPT_OSS_120B_URL=http://gpu-box:8086/v1`.
 
 #### gpt-oss-120b
 
