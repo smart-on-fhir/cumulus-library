@@ -1,6 +1,7 @@
 import contextlib
 import pathlib
 import tempfile
+from concurrent import futures
 
 import cumulus_fhir_support as cfs
 import pandas
@@ -26,6 +27,25 @@ def reset_counts_exports(
         # subdirectories are left alone by this call
         for file in path.ls(include_dirs=False):
             file.rm()
+
+
+def _export_table(table, config, manifest, skipped_tables, path):
+    table.name = base_utils.update_query_if_schema_specified(table.name, manifest)
+    file_name = f"{table.name}.{table.export_type}.parquet"
+    if config.db.export_table_as_parquet(table.name, file_name, path):
+        parquet_path = path / file_name
+
+        df = pandas.read_parquet(parquet_path)
+        df = df.sort_values(
+            by=list(df.columns), ascending=False, ignore_index=True, na_position="first"
+        )
+        df.to_parquet(parquet_path)
+        df.to_csv(
+            (parquet_path).with_suffix(".csv"),
+            index=False,
+        )
+    else:
+        skipped_tables.append(table.name)
 
 
 def export_study(
@@ -74,26 +94,18 @@ def export_study(
         working_path = pathlib.Path(work_directory)
         path = working_path / manifest.get_study_prefix()
         path.mkdir(parents=True, exist_ok=True)
-        for table in track(
-            table_list,
-            description=f"Exporting {manifest.get_study_prefix()} data...",
-        ):
-            table.name = base_utils.update_query_if_schema_specified(table.name, manifest)
-            file_name = f"{table.name}.{table.export_type}.parquet"
-            if config.db.export_table_as_parquet(table.name, file_name, path):
-                parquet_path = path / file_name
 
-                df = pandas.read_parquet(parquet_path)
-                df = df.sort_values(
-                    by=list(df.columns), ascending=False, ignore_index=True, na_position="first"
+        with futures.ThreadPoolExecutor(max_workers=config.db.max_concurrent) as executor:
+            futures = [
+                executor.submit(_export_table, table, config, manifest, skipped_tables, path)
+                for table in track(
+                    table_list,
+                    description=f"Exporting {manifest.get_study_prefix()} data...",
                 )
-                df.to_parquet(parquet_path)
-                df.to_csv(
-                    (parquet_path).with_suffix(".csv"),
-                    index=False,
-                )
-            else:
-                skipped_tables.append(table.name)
+            ]
+
+        for future in futures:
+            future.result()
 
         if len(skipped_tables) > 0:
             rich.print("The following tables were empty and were not exported:")
