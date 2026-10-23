@@ -12,8 +12,8 @@ from cumulus_library.template_sql import base_templates
 def _create_table_from_parquet(
     archive: zipfile.ZipFile, file: str, study_name: str, config: base_utils.StudyConfig
 ):
-    try:
-        parquet_path = pathlib.Path(archive.extract(file), path=tempfile.TemporaryFile())
+    with tempfile.TemporaryDirectory() as temp_dir:
+        parquet_path = pathlib.Path(archive.extract(file, path=temp_dir))
         table_types = pyarrow.parquet.read_schema(parquet_path)
         remote_types = config.db.col_parquet_types_from_pyarrow(table_types)
         s3_path = config.db.upload_file(
@@ -32,8 +32,6 @@ def _create_table_from_parquet(
             remote_table_cols_types=remote_types,
         )
         config.db.cursor().execute(query)
-    finally:
-        parquet_path.unlink()
 
 
 def import_archive(config: base_utils.StudyConfig, *, archive_path: pathlib.Path):
