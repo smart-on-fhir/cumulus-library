@@ -269,9 +269,8 @@ class DuckDatabaseBackend(base.DatabaseBackend):
     def export_table_as_parquet(
         self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
     ) -> bool:
-        cursor = self.connection.cursor()
         parquet_path = location / f"{file_name}"
-        table_size = cursor.execute(f"SELECT count(*) FROM {table_name}").fetchone()  # noqa: S608
+        table_size = self.connection.execute(f"SELECT count(*) FROM {table_name}").fetchone()  # noqa: S608
         if table_size[0] == 0:
             return False
         query = f"""COPY
@@ -279,7 +278,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
             TO '{parquet_path}'
             (FORMAT parquet)
             """  # noqa: S608
-        cursor.execute(query)
+        self.connection.execute(query)
         return True
 
     def _write_thread(self, query, verbose, progress_bar, task, query_console_output, datasets):
