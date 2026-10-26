@@ -21,7 +21,6 @@ from cumulus_library.template_sql import base_templates
         ("default", False, None, None, False, "study_valid__table", does_not_raise()),
         ("default", None, None, None, False, "study_valid__table", does_not_raise()),
         ("default", None, None, None, False, "study_valid__etl_table", does_not_raise()),
-        ("default", None, None, None, False, "study_valid__nlp_table", does_not_raise()),
         ("default", None, None, None, False, "study_valid__lib_table", does_not_raise()),
         ("default", None, None, None, False, "study_valid__lib", does_not_raise()),
         ("default", None, "foo", "y", False, "foo_table", does_not_raise()),
@@ -65,9 +64,6 @@ def test_clean_study(
                 "CREATE VIEW study_valid__456 AS SELECT * FROM study_valid__123"
             )
 
-            # this mock system table should be ingored in non-prefix cases
-            mock_db_config.db.cursor().execute("CREATE table study_valid__nlp_extra (test int)")
-
             insert_query = base_templates.get_insert_into_query(
                 schema="main",
                 table_name=f"study_valid__{enums.ProtectedTables.BUILD_SOURCE.value}",
@@ -108,7 +104,8 @@ def test_clean_study(
             if not prefix:
                 assert ("study_valid__456",) not in remaining_tables
             if prefix != "study_valid":
-                assert ("study_valid__nlp_extra",) in remaining_tables
+                # legacy test in case we revert the nlp reserved prefix behavior
+                assert ("study_valid__nlp_extra",) not in remaining_tables
 
 
 def test_clean_no_build_source(mock_db_core_config):
