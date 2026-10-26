@@ -9,6 +9,7 @@ import collections
 import hashlib
 import os
 import pathlib
+from collections.abc import Callable
 from concurrent import futures
 
 import awswrangler
@@ -43,17 +44,22 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         bound to something like an IAM role.
         """
 
-        def __init__(self, cursor: AthenaCursor, outer: base.DatabaseBackend):
+        def __init__(self, create_cursor: Callable[[], AthenaCursor], outer: base.DatabaseBackend):
             self.outer = outer
-            self.cursor = cursor
+            self.create_cursor = create_cursor
+            self.cursor = self.create_cursor()
 
         def execute(self, *args, **kwargs):
             try:
-                res = self.cursor.execute(*args, *kwargs)
-            except pyathena.error.DatabaseError:
-                rich.print("SQL error, checking if refreshing credentials helps...")
-                self.outer._refresh_credentials()
-                res = self.cursor.execute(*args, *kwargs)
+                res = self.cursor.execute(*args, **kwargs)
+            except pyathena.error.DatabaseError as exc:
+                if not self.outer.is_expired_token_error(exc):
+                    rich.print("SQL error, unrelated to credential expiration...")
+                else:
+                    rich.print("Expired credentials error, attempting refresh...")
+                    self.outer._refresh_credentials()
+                    self.cursor = self.create_cursor()
+                    res = self.cursor.execute(*args, **kwargs)
             return res
 
         # If the requested function is not overridden, we'll pass directly to the wrapped cursor
@@ -83,6 +89,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.connect_kwargs = {}
         self.max_concurrent = max_concurrent or 20
         self.s3_staging_dir = self._get_s3_staging_dir(s3_staging_dir)
+        self.wg_conf = None
 
     def _get_s3_staging_dir(self, s3_staging_dir: str | None) -> str:
         """Resolves the S3 staging directory for Athena query results.
@@ -104,38 +111,34 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         return s3_staging_dir_env_val or ""
 
     def _refresh_credentials(self):
-        # if we don't have connection info, we'll try to get it from boto defaults
-        if self.connect_kwargs == {} or not any(
-            [self.connect_kwargs.get(x.lower()) is not None for x in AWS_ENV_VARS]
-        ):
-            session = boto3.Session()
-            creds = session.get_credentials()
-            if creds is not None:
-                self.connect_kwargs["aws_access_key_id"] = creds.access_key
-                self.connect_kwargs["aws_secret_access_key"] = creds.secret_key
-                self.connect_kwargs["aws_session_token"] = creds.token
-                # We'll remove the default profile arg, since it can interfere with
-                # boto lookups
-                self.connect_kwargs.pop("profile_name", None)
+        session = boto3.Session()
+        creds = session.get_credentials()
+        if creds is not None:
+            self.connect_kwargs["aws_access_key_id"] = creds.access_key
+            self.connect_kwargs["aws_secret_access_key"] = creds.secret_key
+            self.connect_kwargs["aws_session_token"] = creds.token
+            # We'll remove the default profile arg, since it can interfere with
+            # boto lookups
+            self.connect_kwargs.pop("profile_name", None)
 
-                # Are we in a EC2? if so, we'll get the region from the instance id document,
-                # intentionally overriding any args passed/default behaviors
-                # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/retrieve-iid.html
-                try:
-                    token_res = requests.put(
-                        f"{IID_BASE_URL}/api/token",
-                        headers={"X-aws-ec2-metadata-token-ttl-seconds": "60"},
+            # Are we in a EC2? if so, we'll get the region from the instance id document,
+            # intentionally overriding any args passed/default behaviors
+            # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/retrieve-iid.html
+            try:
+                token_res = requests.put(
+                    f"{IID_BASE_URL}/api/token",
+                    headers={"X-aws-ec2-metadata-token-ttl-seconds": "60"},
+                    timeout=10,
+                )
+                if token_res.status_code == 200:
+                    doc_res = requests.get(
+                        f"{IID_BASE_URL}/dynamic/instance-identity/document",
+                        headers={"X-aws-ec2-metadata-token": token_res.text},
                         timeout=10,
                     )
-                    if token_res.status_code == 200:
-                        doc_res = requests.get(
-                            f"{IID_BASE_URL}/dynamic/instance-identity/document",
-                            headers={"X-aws-ec2-metadata-token": token_res.text},
-                            timeout=10,
-                        )
-                        self.region = doc_res.json()["region"]
-                except requests.exceptions.ConnectionError:  # pragma: no cover
-                    pass
+                    self.region = doc_res.json()["region"]
+            except requests.exceptions.ConnectionError:  # pragma: no cover
+                pass
 
         self.connection = pyathena.connect(
             region_name=self.region,
@@ -159,15 +162,20 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self._refresh_credentials()
 
     def cursor(self) -> AthenaCursorWrapper:
-        return self.AthenaCursorWrapper(self.connection.cursor(), self)
+        return self.AthenaCursorWrapper(lambda: self.connection.cursor(), self)
 
     def async_cursor(self) -> AthenaCursorWrapper:
         return self.AthenaCursorWrapper(
-            self.connection.cursor(cursor=AthenaAsyncCursor, max_workers=self.max_concurrent), self
+            lambda: self.connection.cursor(
+                cursor=AthenaAsyncCursor, max_workers=self.max_concurrent
+            ),
+            self,
         )
 
     def pandas_cursor(self) -> AthenaCursorWrapper:
-        return self.AthenaCursorWrapper(self.connection.cursor(cursor=AthenaPandasCursor), self)
+        return self.AthenaCursorWrapper(
+            lambda: self.connection.cursor(cursor=AthenaPandasCursor), self
+        )
 
     def execute_as_pandas(
         self, sql: str, chunksize: int | None = None
@@ -223,14 +231,16 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         return cols
 
     def _get_result_config(self) -> dict:
-        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
-        return workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
+        if self.wg_conf is None:
+            workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
+            self.wg_conf = workgroup
+        return self.wg_conf["WorkGroup"]["Configuration"]["ResultConfiguration"]
 
     def _get_upload_subdir(self, study: str, topic: str) -> str:
         return f"cumulus_user_uploads/{self.schema_name}/{study}/{topic}"
 
     def get_remote_path(self) -> str | None:
-        """Retreives the base S3 path we use for file uploads from the S3 client"""
+        """Retrieves the base S3 path we use for file uploads from the S3 client"""
         if self.s3_staging_dir:
             return self.s3_staging_dir
         return self._get_result_config()["OutputLocation"]
@@ -320,9 +330,10 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             **self.connect_kwargs,
         )
         s3_client = session.client("s3", region_name=self.region)
-        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
-        wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
-        s3_path = self.s3_staging_dir or wg_conf["OutputLocation"]
+        s3_path = self.s3_staging_dir
+        if not self.s3_staging_dir:
+            wg_conf = self._get_result_config()
+            s3_path = wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
         output_path = location / f"{file_name}"
         s3_path = f"s3://{bucket}/export/{file_name}"
@@ -331,7 +342,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         if "Contents" in res:
             self._clean_bucket_path(s3_client, bucket, res)
 
-        self.connection.cursor().execute(f"""UNLOAD
+        self.cursor().execute(f"""UNLOAD
             (SELECT * FROM {table_name})
             TO '{s3_path}'
             WITH (format='PARQUET', compression='SNAPPY')
@@ -389,6 +400,30 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def close(self) -> None:
         if self.connection is not None:  # pragma: no cover
             self.connection.close()
+
+    def is_expired_token_error(self, exc: BaseException) -> bool:
+        """Helper function to verify if the passed-in exception is a
+        token expiry issue.
+
+        Args:
+            exc: The exception to validate
+
+        Returns:
+            bool: True if the exception code includes expiry strings.
+        """
+        match exc:
+            case botocore.exceptions.ClientError():
+                return exc.__cause__.response.get("Error", {}).get("Code") in {
+                    "ExpiredToken",
+                    "ExpiredTokenException",
+                    "RequestExpired",
+                }
+            case pyathena.error.DatabaseError():
+                if exc.__cause__:
+                    return self.outer.is_expired_token_error(exc.__cause__)
+                return False
+            case _:
+                return False
 
 
 class AthenaParser(base.DatabaseParser):
