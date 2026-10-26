@@ -96,16 +96,17 @@ def export_study(
         path.mkdir(parents=True, exist_ok=True)
 
         with futures.ThreadPoolExecutor(max_workers=config.db.max_concurrent) as executor:
-            futures = [
+            pending_table_exports = [
                 executor.submit(_export_table, table, config, manifest, skipped_tables, path)
-                for table in track(
-                    table_list,
-                    description=f"Exporting {manifest.get_study_prefix()} data...",
-                )
+                for table in table_list
             ]
 
-        for future in futures:
-            future.result()
+            for table_future in track(
+                futures.as_completed(pending_table_exports),
+                total=len(pending_table_exports),
+                description=f"Exporting {manifest.get_study_prefix()} data...",
+            ):
+                table_future.result()
 
         if len(skipped_tables) > 0:
             rich.print("The following tables were empty and were not exported:")
