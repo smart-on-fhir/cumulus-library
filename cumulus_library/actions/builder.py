@@ -859,8 +859,6 @@ def _check_query_for_errors(
             f"start with a string like `{manifest.get_schema_aware_prefix_with_seperator()}`.",
         )
     protected_keywords = [x for x in enums.ProtectedTableKeywords]
-    if nlp_prefix_allowed:
-        protected_keywords.remove(enums.ProtectedTableKeywords.NLP)
     if any(
         f"{manifest.get_study_prefix()}__{word.value}_" in table for word in protected_keywords
     ) and isinstance(
