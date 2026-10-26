@@ -9,7 +9,6 @@ import collections
 import hashlib
 import os
 import pathlib
-from collections.abc import Callable
 from concurrent import futures
 
 import awswrangler
@@ -44,7 +43,9 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         bound to something like an IAM role.
         """
 
-        def __init__(self, create_cursor: Callable[[], AthenaCursor], outer: base.DatabaseBackend):
+        def __init__(
+            self, create_cursor: collections.Callable[[], AthenaCursor], outer: base.DatabaseBackend
+        ):
             self.outer = outer
             self.create_cursor = create_cursor
             self.cursor = self.create_cursor()
