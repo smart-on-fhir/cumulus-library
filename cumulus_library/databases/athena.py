@@ -118,10 +118,12 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         session = boto3.Session()
 
         creds = session.get_credentials()
-        if creds is not None:
-            # We'll remove the default profile arg, since it can interfere with
-            # boto lookups
-            self.connect_kwargs.pop("profile_name", None)
+        if creds is None:
+            raise errors.AWSError("No AWS credentials retrieved.")
+
+        # We'll remove the default profile arg, since it can interfere with
+        # boto lookups
+        self.connect_kwargs.pop("profile_name", None)
 
         # Are we in a EC2? if so, we'll get the region from the instance id document,
         # intentionally overriding any args passed/default behaviors
