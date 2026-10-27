@@ -558,8 +558,28 @@ def test_refetch_creds_with_unrelated_exception(mock_cursor):
         mock_cause_error = botocore.exceptions.NoRegionError()
         database_error = pyathena.error.DatabaseError(str(mock_cause_error))
         database_error.__cause__ = mock_cause_error
-        mock_cursor.execute.side_effect = [mock_cause_error, "foo"]
-        with pytest.raises(botocore.exceptions.NoRegionError):
+        mock_cursor.execute.side_effect = [database_error, "foo"]
+        with pytest.raises(pyathena.error.DatabaseError):
+            db.cursor().execute("SELECT 1")
+
+    mock_refresh.assert_not_called()
+
+
+@mock.patch("pyathena.cursor.Cursor")
+def test_refetch_creds_with_bare_database_error(mock_cursor):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+
+    db.connection = mock.MagicMock()
+    mock_cursor = db.connection.cursor.return_value
+
+    with mock.patch.object(db, "_refresh_credentials") as mock_refresh:
+        mock_cursor.execute.side_effect = [pyathena.error.DatabaseError("Table Not Found"), "foo"]
+        with pytest.raises(pyathena.error.DatabaseError):
             db.cursor().execute("SELECT 1")
 
     mock_refresh.assert_not_called()

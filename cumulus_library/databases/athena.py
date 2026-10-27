@@ -55,7 +55,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             try:
                 res = self.cursor.execute(*args, **kwargs)
             except pyathena.error.DatabaseError as exc:
-                if not self.outer.is_expired_token_error(exc):
+                if not self.outer._is_expired_token_error(exc):
                     raise
 
                 rich.print("Expired credentials error, attempting refresh...")
@@ -393,7 +393,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         if self.connection is not None:  # pragma: no cover
             self.connection.close()
 
-    def is_expired_token_error(self, exc: BaseException | None) -> bool:
+    def _is_expired_token_error(self, exc: BaseException | None) -> bool:
         """Verify if the passed-in exception is a token expiry issue.
 
         Args:
@@ -402,9 +402,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         Returns:
             bool: True if the exception code matches expiry codes.
         """
-        if not exc:
-            return False
-
         match exc:
             case botocore.exceptions.ClientError():
                 return exc.response.get("Error", {}).get("Code") in {
@@ -414,7 +411,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 }
             case pyathena.error.DatabaseError():
                 if exc.__cause__:
-                    return self.is_expired_token_error(exc.__cause__)
+                    return self._is_expired_token_error(exc.__cause__)
                 return False
             case _:
                 return False
