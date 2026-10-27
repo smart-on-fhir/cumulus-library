@@ -543,7 +543,7 @@ def test_refetch_creds_without_exception(mock_cursor):
 
     with mock.patch.object(db, "_refresh_credentials"):
         mock_cursor.execute.side_effect = [None]
-        assert db.cursor().execute("SELECT 1") == None
+        assert db.cursor().execute("SELECT 1") is None
 
 
 @mock.patch("pyathena.cursor.Cursor")
