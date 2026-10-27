@@ -111,9 +111,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         return s3_staging_dir_env_val or ""
 
     def _refresh_credentials(self):
-        # if we don't have connection info, we'll try to get it from boto defaults
-        # if we are in an EC2, we want to ignore the stored creds and refresh.
-
         session = self._get_session()
 
         creds = session.get_credentials()
@@ -152,10 +149,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
     def _get_session(self):
         if self.profile and self.profile != "default" and not os.environ.get("AWS_ACCESS_KEY_ID"):
-            session = boto3.Session(profile_name=self.profile)
-        else:
-            session = boto3.Session()
-        return session
+            return boto3.Session(profile_name=self.profile)
+        return boto3.Session()
 
     def init_errors(self):  # pragma: no cover
         return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
