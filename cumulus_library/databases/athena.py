@@ -122,9 +122,9 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             creds = session.get_credentials()
             if creds is not None:
                 frozen_creds = creds.get_frozen_credentials()
-                self.connect_kwargs["aws_access_key_id"] = creds.access_key
-                self.connect_kwargs["aws_secret_access_key"] = creds.secret_key
-                self.connect_kwargs["aws_session_token"] = creds.token
+                self.connect_kwargs["aws_access_key_id"] = frozen_creds.access_key
+                self.connect_kwargs["aws_secret_access_key"] = frozen_creds.secret_key
+                self.connect_kwargs["aws_session_token"] = frozen_creds.token
                 # We'll remove the default profile arg, since it can interfere with
                 # boto lookups
                 self.connect_kwargs.pop("profile_name", None)
