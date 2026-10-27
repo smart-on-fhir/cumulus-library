@@ -985,6 +985,7 @@ class ClaudeHaiku55Model(Model):
 
 
 # This list is used exclusively for simplifying testing parameters
+# and creating models based on cli-params
 _MODELS = [
     ClaudeHaiku55Model,
     ClaudeSonnet45Model,
