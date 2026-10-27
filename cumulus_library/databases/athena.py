@@ -45,12 +45,11 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
         def __init__(
             self,
-            create_cursor: collections.abc.Callable[[], AthenaCursor],
+            cursor: AthenaCursor,
             outer: base.DatabaseBackend,
         ):
             self.outer = outer
-            self.create_cursor = create_cursor
-            self.cursor = self.create_cursor()
+            self.cursor = cursor
 
         def execute(self, *args, **kwargs):
             try:
@@ -61,7 +60,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
                 rich.print("Expired credentials error, attempting refresh...")
                 self.outer._refresh_credentials()
-                self.cursor = self.create_cursor()
                 res = self.cursor.execute(*args, **kwargs)
             return res
 
@@ -138,37 +136,21 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     )
                     self.region = doc_res.json()["region"]
                 self.is_ec2_instance = token_res.status_code == 200
-                self.connection = pyathena.connect(
-                    region_name=self.region,
-                    work_group=self.work_group,
-                    schema_name=self.schema_name,
-                    s3_staging_dir=self.s3_staging_dir,
-                    session=session,
-                )
-                return
             except requests.exceptions.ConnectionError:  # pragma: no cover
                 self.is_ec2_instance = False
                 pass
 
-        if not self.is_ec2_instance and not any(
-            [self.connect_kwargs.get(x.lower()) is not None for x in AWS_ENV_VARS]
-        ):
-            creds = session.get_credentials()
-            if creds is not None:
-                frozen_creds = creds.get_frozen_credentials()
-                self.connect_kwargs["aws_access_key_id"] = frozen_creds.access_key
-                self.connect_kwargs["aws_secret_access_key"] = frozen_creds.secret_key
-                self.connect_kwargs["aws_session_token"] = frozen_creds.token
-                # We'll remove the default profile arg, since it can interfere with
-                # boto lookups
-                self.connect_kwargs.pop("profile_name", None)
+        if not self.is_ec2_instance:
+            profile_name = self.connect_kwargs.get("profile_name", None)
+            if profile_name:
+                session = boto3.Session(profile_name=profile_name)
 
         self.connection = pyathena.connect(
             region_name=self.region,
             work_group=self.work_group,
             schema_name=self.schema_name,
             s3_staging_dir=self.s3_staging_dir,
-            **self.connect_kwargs,
+            session=session,
         )
 
     def init_errors(self):  # pragma: no cover
@@ -182,20 +164,16 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self._refresh_credentials()
 
     def cursor(self) -> AthenaCursorWrapper:
-        return self.AthenaCursorWrapper(lambda: self.connection.cursor(), self)
+        return self.AthenaCursorWrapper(self.connection.cursor(), self)
 
     def async_cursor(self) -> AthenaCursorWrapper:
         return self.AthenaCursorWrapper(
-            lambda: self.connection.cursor(
-                cursor=AthenaAsyncCursor, max_workers=self.max_concurrent
-            ),
+            self.connection.cursor(cursor=AthenaAsyncCursor, max_workers=self.max_concurrent),
             self,
         )
 
     def pandas_cursor(self) -> AthenaCursorWrapper:
-        return self.AthenaCursorWrapper(
-            lambda: self.connection.cursor(cursor=AthenaPandasCursor), self
-        )
+        return self.AthenaCursorWrapper(self.connection.cursor(cursor=AthenaPandasCursor), self)
 
     def execute_as_pandas(
         self, sql: str, chunksize: int | None = None
