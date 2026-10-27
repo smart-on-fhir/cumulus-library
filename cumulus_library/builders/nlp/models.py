@@ -930,6 +930,7 @@ class ClaudeSonnet46Model(Model):
         output_tokens=0.0165,
     )
 
+
 class ClaudeSonnet55Model(Model):
     MODEL_ID = "claude-sonnet55"
     BEDROCK_ID = "us.anthropic.claude-sonnet-5-5"
@@ -956,6 +957,7 @@ class ClaudeOpus48Model(Model):
         output_tokens=0.025,
     )
 
+
 class ClaudeOpus55Model(Model):
     MODEL_ID = "claude-opus55"
     BEDROCK_ID = "us.anthropic.claude-opus-5-5"
@@ -967,6 +969,7 @@ class ClaudeOpus55Model(Model):
         cache_written_input_tokens=0.0088,
         output_tokens=0.022,
     )
+
 
 class ClaudeHaiku55Model(Model):
     MODEL_ID = "claude-haiku55"
