@@ -90,7 +90,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.connect_kwargs = {}
         self.max_concurrent = max_concurrent or 20
         self.s3_staging_dir = self._get_s3_staging_dir(s3_staging_dir)
-        self.wg_conf = None
         self.is_ec2_instance = None
 
     def _get_s3_staging_dir(self, s3_staging_dir: str | None) -> str:
@@ -141,9 +140,9 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 pass
 
         if not self.is_ec2_instance:
-            profile_name = self.connect_kwargs.get("profile_name", None)
+            profile_name = self.connect_kwargs.pop("profile_name", None)
             if profile_name:
-                session = boto3.Session(profile_name=profile_name)
+                session = boto3.Session()
 
         self.connection = pyathena.connect(
             region_name=self.region,
@@ -229,10 +228,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         return cols
 
     def _get_result_config(self) -> dict:
-        if self.wg_conf is None:
-            workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
-            self.wg_conf = workgroup
-        return self.wg_conf["WorkGroup"]["Configuration"]["ResultConfiguration"]
+        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
+        return workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
 
     def _get_upload_subdir(self, study: str, topic: str) -> str:
         return f"cumulus_user_uploads/{self.schema_name}/{study}/{topic}"
@@ -280,7 +277,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         if not remote_filename:
             remote_filename = file.name
 
-        session = boto3.Session(**self.connect_kwargs)
+        session = boto3.Session()
         s3_client = session.client("s3", region_name=self.region)
 
         local_file_hash = hashlib.sha256(file.read_bytes(), usedforsecurity=False).digest()
@@ -324,7 +321,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def export_table_as_parquet(
         self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
     ) -> bool:
-        session = boto3.Session(**self.connect_kwargs)
+        session = boto3.Session()
         s3_client = session.client("s3", region_name=self.region)
         s3_path = self.s3_staging_dir
         if not self.s3_staging_dir:

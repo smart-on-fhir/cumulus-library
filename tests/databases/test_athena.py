@@ -458,11 +458,7 @@ def test_boto_fallback(mock_session):
         schema_name="test",
     )
     db.connect()
-    assert db.connect_kwargs == {
-        "aws_access_key_id": "access",
-        "aws_secret_access_key": "secret",
-        "aws_session_token": "token",
-    }
+    assert db.connect_kwargs == {}
 
 
 @mock.patch.dict(
