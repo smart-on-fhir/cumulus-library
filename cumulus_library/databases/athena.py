@@ -114,7 +114,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         # if we don't have connection info, we'll try to get it from boto defaults
         # if we are in an EC2, we want to ignore the stored creds and refresh.
 
-        session = boto3.Session()
+        session = self._get_session()
 
         creds = session.get_credentials()
         if creds is None:
@@ -149,6 +149,13 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             s3_staging_dir=self.s3_staging_dir,
             session=session,
         )
+
+    def _get_session(self):
+        if self.profile and self.profile != "default" and not os.environ.get("AWS_ACCESS_KEY_ID"):
+            session = boto3.Session(profile_name=self.profile)
+        else:
+            session = boto3.Session()
+        return session
 
     def init_errors(self):  # pragma: no cover
         return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
@@ -271,7 +278,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         if not remote_filename:
             remote_filename = file.name
 
-        session = boto3.Session()
+        session = self._get_session()
         s3_client = session.client("s3", region_name=self.region)
 
         local_file_hash = hashlib.sha256(file.read_bytes(), usedforsecurity=False).digest()
@@ -315,7 +322,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def export_table_as_parquet(
         self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
     ) -> bool:
-        session = boto3.Session()
+        session = self._get_session()
         s3_client = session.client("s3", region_name=self.region)
         wg_conf = self._get_result_config()
         s3_path = self.s3_staging_dir or wg_conf["OutputLocation"]
