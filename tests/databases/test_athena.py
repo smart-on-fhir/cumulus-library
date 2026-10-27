@@ -471,8 +471,7 @@ def test_boto_fallback(mock_session):
 )
 @mock.patch("botocore.session")
 @mock.patch("pyathena.cursor.Cursor")
-def test_refetch_creds(mock_cursor, mock_session):
-    mock_cursor.execute.side_effect = [pyathena.error.DatabaseError, "foo"]
+def test_refetch_creds_with_expired_token(mock_cursor, mock_session):
     db = databases.AthenaDatabaseBackend(
         region="test",
         work_group="test",
@@ -480,19 +479,58 @@ def test_refetch_creds(mock_cursor, mock_session):
         schema_name="test",
     )
 
-    db.connect()
-    cursor = db.cursor()
-    cursor.cursor = mock_cursor
-    res = cursor.execute("SELECT * FROM information_schema.tables")
-    assert res == "foo"
-    with pytest.raises(pyathena.error.DatabaseError):
-        mock_cursor.execute.side_effect = [
-            pyathena.error.DatabaseError,
-            pyathena.error.DatabaseError,
-        ]
-        cursor = db.cursor()
-        cursor.cursor = mock_cursor
-        res = cursor.execute("SELECT * FROM information_schema.tables")
+    db.connection = mock.MagicMock()
+    mock_cursor = db.connection.cursor.return_value
+
+    with mock.patch.object(db, "_refresh_credentials") as mock_refresh:
+        mock_cause_error = botocore.exceptions.ClientError(
+            {
+                "Error": {
+                    "Code": "ExpiredTokenException",
+                    "Message": "The security token included in the request is expired",
+                }
+            },
+            "StartQueryExecution",
+        )
+        database_error = pyathena.error.DatabaseError(*mock_cause_error.args)
+        database_error.__cause__ = mock_cause_error
+        mock_cursor.execute.side_effect = [database_error, "foo"]
+        assert db.cursor().execute("SELECT 1") == "foo"
+        assert mock_refresh.call_count == 1
+
+
+@mock.patch.dict(
+    os.environ,
+    clear=True,
+)
+@mock.patch("botocore.session")
+@mock.patch("pyathena.cursor.Cursor")
+def test_refetch_creds_without_expired_token(mock_cursor, mock_session):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+
+    db.connection = mock.MagicMock()
+    mock_cursor = db.connection.cursor.return_value
+
+    with mock.patch.object(db, "_refresh_credentials"):
+        mock_cause_error = botocore.exceptions.ClientError(
+            {
+                "Error": {
+                    "Code": "TestException",
+                    "Message": "This is a test exception",
+                }
+            },
+            "StartQueryExecution",
+        )
+        database_error = pyathena.error.DatabaseError(*mock_cause_error.args)
+        database_error.__cause__ = mock_cause_error
+        mock_cursor.execute.side_effect = [database_error, "foo"]
+        with pytest.raises(pyathena.error.DatabaseError):
+            db.cursor().execute("SELECT 1")
 
 
 @mock.patch.dict(

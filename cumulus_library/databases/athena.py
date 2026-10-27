@@ -5,10 +5,10 @@ features, like pyathena's async cursors, to simplify cross-db behavior.
 """
 
 import base64
+import collections
 import hashlib
 import os
 import pathlib
-from collections import abc
 from concurrent import futures
 
 import awswrangler
@@ -44,7 +44,9 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         """
 
         def __init__(
-            self, create_cursor: abc.Callable[[], AthenaCursor], outer: base.DatabaseBackend
+            self,
+            create_cursor: collections.abc.Callable[[], AthenaCursor],
+            outer: base.DatabaseBackend,
         ):
             self.outer = outer
             self.create_cursor = create_cursor
@@ -197,7 +199,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
     def execute_as_pandas(
         self, sql: str, chunksize: int | None = None
-    ) -> (pandas.DataFrame | abc.Iterator[pandas.DataFrame], list[tuple]):
+    ) -> (pandas.DataFrame | collections.abc.Iterator[pandas.DataFrame], list[tuple]):
         query = self.pandas_cursor().execute(sql, chunksize=chunksize)
         return query.as_pandas(), query.description
 
