@@ -447,25 +447,6 @@ def test_get_s3_staging_dir(s3_staging_dir, env_val, expected):
     clear=True,
 )
 @mock.patch("botocore.session")
-def test_boto_fallback(mock_session):
-    mock_session.get_session.return_value.get_credentials.return_value = (
-        botocore.credentials.Credentials(access_key="access", secret_key="secret", token="token")
-    )
-    db = databases.AthenaDatabaseBackend(
-        region="test",
-        work_group="test",
-        profile="test",
-        schema_name="test",
-    )
-    db.connect()
-    assert db.connect_kwargs == {}
-
-
-@mock.patch.dict(
-    os.environ,
-    clear=True,
-)
-@mock.patch("botocore.session")
 @mock.patch("pyathena.cursor.Cursor")
 def test_refetch_creds_with_expired_token(mock_cursor, mock_session):
     db = databases.AthenaDatabaseBackend(
@@ -527,6 +508,21 @@ def test_refetch_creds_without_expired_token(mock_cursor, mock_session):
         mock_cursor.execute.side_effect = [database_error, "foo"]
         with pytest.raises(pyathena.error.DatabaseError):
             db.cursor().execute("SELECT 1")
+
+
+@mock.patch("boto3.Session.get_credentials", return_value=None)
+def test_connect_without_credentials(mock_get_creds):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+
+    db.connection = mock.MagicMock()
+
+    with pytest.raises(errors.AWSError):
+        db.connect()
 
 
 @mock.patch("pyathena.cursor.Cursor")

@@ -87,7 +87,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.profile = profile
         self.schema_name = schema_name
         self.connection = None
-        self.connect_kwargs = {}
         self.max_concurrent = max_concurrent or 20
         self.s3_staging_dir = self._get_s3_staging_dir(s3_staging_dir)
         self.is_ec2_instance = None
@@ -120,10 +119,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         creds = session.get_credentials()
         if creds is None:
             raise errors.AWSError("No AWS credentials retrieved.")
-
-        # We'll remove the default profile arg, since it can interfere with
-        # boto lookups
-        self.connect_kwargs.pop("profile_name", None)
 
         # Are we in a EC2? if so, we'll get the region from the instance id document,
         # intentionally overriding any args passed/default behaviors
@@ -159,10 +154,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
 
     def connect(self):
-        # the profile may not be required, provided the three AWS env vars
-        # are set. If both are present, the env vars take precedence
-        if self.profile is not None:
-            self.connect_kwargs["profile_name"] = self.profile
         self._refresh_credentials()
 
     def cursor(self) -> AthenaCursorWrapper:
