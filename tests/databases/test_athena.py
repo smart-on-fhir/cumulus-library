@@ -529,6 +529,46 @@ def test_refetch_creds_without_expired_token(mock_cursor, mock_session):
             db.cursor().execute("SELECT 1")
 
 
+@mock.patch("pyathena.cursor.Cursor")
+def test_refetch_creds_without_exception(mock_cursor):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+
+    db.connection = mock.MagicMock()
+    mock_cursor = db.connection.cursor.return_value
+
+    with mock.patch.object(db, "_refresh_credentials"):
+        mock_cursor.execute.side_effect = [None]
+        assert db.cursor().execute("SELECT 1") == None
+
+
+@mock.patch("pyathena.cursor.Cursor")
+def test_refetch_creds_with_unrelated_exception(mock_cursor):
+    db = databases.AthenaDatabaseBackend(
+        region="test",
+        work_group="test",
+        profile="test",
+        schema_name="test",
+    )
+
+    db.connection = mock.MagicMock()
+    mock_cursor = db.connection.cursor.return_value
+
+    with mock.patch.object(db, "_refresh_credentials") as mock_refresh:
+        mock_cause_error = botocore.exceptions.NoRegionError()
+        database_error = pyathena.error.DatabaseError(str(mock_cause_error))
+        database_error.__cause__ = mock_cause_error
+        mock_cursor.execute.side_effect = [mock_cause_error, "foo"]
+        with pytest.raises(botocore.exceptions.NoRegionError):
+            db.cursor().execute("SELECT 1")
+
+    mock_refresh.assert_not_called()
+
+
 @mock.patch.dict(
     os.environ,
     clear=True,
