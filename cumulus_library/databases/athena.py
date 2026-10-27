@@ -5,10 +5,10 @@ features, like pyathena's async cursors, to simplify cross-db behavior.
 """
 
 import base64
-import collections
 import hashlib
 import os
 import pathlib
+from collections import abc
 from concurrent import futures
 
 import awswrangler
@@ -44,7 +44,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         """
 
         def __init__(
-            self, create_cursor: collections.Callable[[], AthenaCursor], outer: base.DatabaseBackend
+            self, create_cursor: abc.Callable[[], AthenaCursor], outer: base.DatabaseBackend
         ):
             self.outer = outer
             self.create_cursor = create_cursor
@@ -115,10 +115,42 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def _refresh_credentials(self):
         # if we don't have connection info, we'll try to get it from boto defaults
         # if we are in an EC2, we want to ignore the stored creds and refresh.
-        if self.is_ec2_instance or not any(
+
+        session = boto3.Session()
+
+        # Are we in a EC2? if so, we'll get the region from the instance id document,
+        # intentionally overriding any args passed/default behaviors
+        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/retrieve-iid.html
+        if self.is_ec2_instance is None:
+            try:
+                token_res = requests.put(
+                    f"{IID_BASE_URL}/api/token",
+                    headers={"X-aws-ec2-metadata-token-ttl-seconds": "60"},
+                    timeout=10,
+                )
+                if token_res.status_code == 200:
+                    doc_res = requests.get(
+                        f"{IID_BASE_URL}/dynamic/instance-identity/document",
+                        headers={"X-aws-ec2-metadata-token": token_res.text},
+                        timeout=10,
+                    )
+                    self.region = doc_res.json()["region"]
+                self.is_ec2_instance = token_res.status_code == 200
+                self.connection = pyathena.connect(
+                    region_name=self.region,
+                    work_group=self.work_group,
+                    schema_name=self.schema_name,
+                    s3_staging_dir=self.s3_staging_dir,
+                    session=session,
+                )
+                return
+            except requests.exceptions.ConnectionError:  # pragma: no cover
+                self.is_ec2_instance = False
+                pass
+
+        if not self.is_ec2_instance and not any(
             [self.connect_kwargs.get(x.lower()) is not None for x in AWS_ENV_VARS]
         ):
-            session = boto3.Session()
             creds = session.get_credentials()
             if creds is not None:
                 frozen_creds = creds.get_frozen_credentials()
@@ -128,28 +160,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 # We'll remove the default profile arg, since it can interfere with
                 # boto lookups
                 self.connect_kwargs.pop("profile_name", None)
-
-                if self.is_ec2_instance is None:
-                    # Are we in a EC2? if so, we'll get the region from the instance id document,
-                    # intentionally overriding any args passed/default behaviors
-                    # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/retrieve-iid.html
-                    try:
-                        token_res = requests.put(
-                            f"{IID_BASE_URL}/api/token",
-                            headers={"X-aws-ec2-metadata-token-ttl-seconds": "60"},
-                            timeout=10,
-                        )
-                        if token_res.status_code == 200:
-                            doc_res = requests.get(
-                                f"{IID_BASE_URL}/dynamic/instance-identity/document",
-                                headers={"X-aws-ec2-metadata-token": token_res.text},
-                                timeout=10,
-                            )
-                            self.region = doc_res.json()["region"]
-                        self.is_ec2_instance = token_res.status_code == 200
-                    except requests.exceptions.ConnectionError:  # pragma: no cover
-                        self.is_ec2_instance = False
-                        pass
 
         self.connection = pyathena.connect(
             region_name=self.region,
@@ -187,7 +197,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
     def execute_as_pandas(
         self, sql: str, chunksize: int | None = None
-    ) -> (pandas.DataFrame | collections.abc.Iterator[pandas.DataFrame], list[tuple]):
+    ) -> (pandas.DataFrame | abc.Iterator[pandas.DataFrame], list[tuple]):
         query = self.pandas_cursor().execute(sql, chunksize=chunksize)
         return query.as_pandas(), query.description
 
@@ -290,7 +300,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         if not remote_filename:
             remote_filename = file.name
 
-        session = boto3.Session(profile_name=self.connection.profile_name)
+        session = boto3.Session(**self.connect_kwargs)
         s3_client = session.client("s3", region_name=self.region)
 
         local_file_hash = hashlib.sha256(file.read_bytes(), usedforsecurity=False).digest()
@@ -334,7 +344,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def export_table_as_parquet(
         self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
     ) -> bool:
-        session = boto3.Session(profile_name=self.connection.profile_name)
+        session = boto3.Session(**self.connect_kwargs)
         s3_client = session.client("s3", region_name=self.region)
         s3_path = self.s3_staging_dir
         if not self.s3_staging_dir:
@@ -407,7 +417,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         if self.connection is not None:  # pragma: no cover
             self.connection.close()
 
-    def is_expired_token_error(self, exc: BaseException) -> bool:
+    def is_expired_token_error(self, exc: BaseException | None) -> bool:
         """Helper function to verify if the passed-in exception is a
         token expiry issue.
 
@@ -415,8 +425,11 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             exc: The exception to validate
 
         Returns:
-            bool: True if the exception code includes expiry strings.
+            bool: True if the exception code matches expiry codes.
         """
+        if not exc:
+            return False
+
         match exc:
             case botocore.exceptions.ClientError():
                 return exc.response.get("Error", {}).get("Code") in {
