@@ -27,7 +27,6 @@ class ProtectedTableKeywords(enum.Enum):
 
     ETL = "etl"
     LIB = "lib"
-    NLP = "nlp"
 
 
 class ResourceTypes(enum.StrEnum):

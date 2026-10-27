@@ -931,6 +931,18 @@ class ClaudeSonnet46Model(Model):
     )
 
 
+class ClaudeSonnet55Model(Model):
+    MODEL_ID = "claude-sonnet55"
+    BEDROCK_ID = "us.anthropic.claude-sonnet-5-5"
+    BEDROCK_PRICES = TokenPrices(
+        date=datetime.date(2026, 10, 27),
+        new_input_tokens=0.0022,
+        cache_read_input_tokens=0.00011,
+        cache_written_input_tokens=0.0044,
+        output_tokens=0.011,
+    )
+
+
 class ClaudeOpus48Model(Model):
     MODEL_ID = "claude-opus48"
     BEDROCK_ID = "us.anthropic.claude-opus-4-8"
@@ -946,10 +958,39 @@ class ClaudeOpus48Model(Model):
     )
 
 
+class ClaudeOpus55Model(Model):
+    MODEL_ID = "claude-opus55"
+    BEDROCK_ID = "us.anthropic.claude-opus-5-5"
+    BEDROCK_TEMPERATURE = False
+    BEDROCK_PRICES = TokenPrices(
+        date=datetime.date(2026, 9, 2),
+        new_input_tokens=0.0044,
+        cache_read_input_tokens=0.00022,
+        cache_written_input_tokens=0.0088,
+        output_tokens=0.022,
+    )
+
+
+class ClaudeHaiku55Model(Model):
+    MODEL_ID = "claude-haiku55"
+    BEDROCK_ID = "us.anthropic.claude-haiku-5-5"
+    BEDROCK_TEMPERATURE = False
+    BEDROCK_PRICES = TokenPrices(
+        date=datetime.date(2026, 9, 2),
+        new_input_tokens=0.00011,
+        cache_read_input_tokens=0.0000011,
+        cache_written_input_tokens=0.00022,
+        output_tokens=0.00055,
+    )
+
+
 _MODELS = [
+    ClaudeHaiku55Model,
     ClaudeSonnet45Model,
     ClaudeSonnet46Model,
+    ClaudeSonnet55Model,
     ClaudeOpus48Model,
+    ClaudeOpus55Model,
     Gpt35Model,
     Gpt4Model,
     Gpt4oModel,
