@@ -335,7 +335,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         if "Contents" in res:
             self._clean_bucket_path(s3_client, bucket, res)
 
-        self.cursor().execute(f"""UNLOAD
+        self.connection.cursor().execute(f"""UNLOAD
             (SELECT * FROM {table_name})
             TO '{s3_path}'
             WITH (format='PARQUET', compression='SNAPPY')
