@@ -117,6 +117,12 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
         session = boto3.Session()
 
+        creds = session.get_credentials()
+        if creds is not None:
+            # We'll remove the default profile arg, since it can interfere with
+            # boto lookups
+            self.connect_kwargs.pop("profile_name", None)
+
         # Are we in a EC2? if so, we'll get the region from the instance id document,
         # intentionally overriding any args passed/default behaviors
         # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/retrieve-iid.html
@@ -138,11 +144,6 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             except requests.exceptions.ConnectionError:  # pragma: no cover
                 self.is_ec2_instance = False
                 pass
-
-        if not self.is_ec2_instance:
-            profile_name = self.connect_kwargs.pop("profile_name", None)
-            if profile_name:
-                session = boto3.Session()
 
         self.connection = pyathena.connect(
             region_name=self.region,
@@ -323,10 +324,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     ) -> bool:
         session = boto3.Session()
         s3_client = session.client("s3", region_name=self.region)
-        s3_path = self.s3_staging_dir
-        if not self.s3_staging_dir:
-            wg_conf = self._get_result_config()
-            s3_path = wg_conf["OutputLocation"]
+        wg_conf = self._get_result_config()
+        s3_path = self.s3_staging_dir or wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
         output_path = location / f"{file_name}"
         s3_path = f"s3://{bucket}/export/{file_name}"
@@ -395,8 +394,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
             self.connection.close()
 
     def is_expired_token_error(self, exc: BaseException | None) -> bool:
-        """Helper function to verify if the passed-in exception is a
-        token expiry issue.
+        """Verify if the passed-in exception is a token expiry issue.
 
         Args:
             exc: The exception to validate
