@@ -462,7 +462,7 @@ def _table_names(mock_db_config) -> set[str]:
 @mock.patch("openai.OpenAI")
 def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     """--nlp-subtask restricts the build to the named tables, leaving the rest unbuilt."""
-    workflow_path = _multi_table_workflow(tmp_path, "kept_table", "dropped_table")
+    workflow_path = _multi_table_workflow(tmp_path, "first_table", "second_table")
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         add_dxr("1", "say hello to the world", f)
     source = note_utils.NoteSource([tmp_path])
@@ -470,7 +470,7 @@ def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     model = nlp_utils.MockModel(mock_client)
     model.mock_openai_response({"hello": 1})
     nlp_config = model.nlp_config()
-    nlp_config.subtasks = ["kept_table"]
+    nlp_config.subtasks = ["first_table"]
 
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=source, nlp_config=nlp_config
@@ -478,11 +478,22 @@ def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
 
     tables = _table_names(mock_db_config)
-    assert driver.table_name_for_task("kept_table", nlp_config) in tables
-    assert driver.table_name_for_task("dropped_table", nlp_config) not in tables
-    assert read_rows(mock_db_config, driver.table_name_for_task("kept_table", nlp_config))[0][
+    assert driver.table_name_for_task("first_table", nlp_config) in tables
+    assert driver.table_name_for_task("second_table", nlp_config) not in tables
+    assert read_rows(mock_db_config, driver.table_name_for_task("first_table", nlp_config))[0][
         "result"
     ] == {"hello": 1}
+
+    # Checking a second subtask does not remove an existing subtask
+    nlp_config.subtasks = ["second_table"]
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=source, nlp_config=nlp_config
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    tables = _table_names(mock_db_config)
+    assert driver.table_name_for_task("first_table", nlp_config) in tables
+    assert driver.table_name_for_task("second_table", nlp_config) in tables
 
 
 @mock.patch("openai.OpenAI")
