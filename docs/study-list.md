@@ -13,24 +13,32 @@ nav_order: 9
 The following studies are available to install via pip - check the repository
 for more details and any associated publications.
 
+### Actively maintained
+
+The following studies are actively maintained and updated by the team. 
+
+- [UMLS vocabulary](https://github.com/smart-on-fhir/cumulus-library-umls)
+- [RxNorm vocabulary](https://github.com/smart-on-fhir/cumulus-library-rxnorm)
+- [LOINC Database](https://github.com/smart-on-fhir/cumulus-library-loinc)
+- [Cumulus Library - Core](https://github.com/smart-on-fhir/cumulus-library)
+- [Cumulus Library - Discovery](https://github.com/smart-on-fhir/cumulus-library)
+
 ### 2023
 - [Covid symptoms](https://github.com/smart-on-fhir/cumulus-library-covid)
 - [Suicidality length of stay](https://github.com/smart-on-fhir/cumulus-library-suicidality-los)
 
 ### 2024
 - [Hypertension](https://github.com/smart-on-fhir/cumulus-library-hypertension)
-- [UMLS vocabulary](https://github.com/smart-on-fhir/cumulus-library-umls)
 - [Data Metrics](https://github.com/smart-on-fhir/cumulus-library-data-metrics)
-- [RxNorm vocabulary](https://github.com/smart-on-fhir/cumulus-library-rxnorm)
 - [ICD-10 accuracy for suicidal ideation](https://github.com/smart-on-fhir/cumulus-library-suicidality-icd10)
 
 ### 2025
 - [Opioid Valueset](https://github.com/smart-on-fhir/cumulus-library-opioid-valueset)
 - [Kidney Transplant](https://github.com/smart-on-fhir/cumulus-library-kidney-transplant)
-- [Loinc Database](https://github.com/smart-on-fhir/cumulus-library-loinc)
 
 ### 2026
 - [Pediatric low-grade glioma](https://github.com/smart-on-fhir/cumulus-library-glioma/)
+- [Pediatric brain cancer](https://github.com/smart-on-fhir/cumulus-library-pcx)
 
 ## Third party studies
 
