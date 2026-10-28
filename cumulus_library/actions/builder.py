@@ -239,11 +239,19 @@ def _update_build_source_table(
     config: base_utils.StudyConfig,
     manifest: study_manifest.StudyManifest,
     queries: list[str],
+    nlp_config: note_utils.NlpConfig | None = None,
 ) -> list[str]:
     table_names = base_utils.get_viewtable_names_from_create_queries(config, queries)
     # it's possible to get a list of queries that contains no CREATE statements
     if len(table_names) > 0:
         # Otherwise, let's add new tables to the study build source tables.
+        dataset = [[config.stage, t[0], t[1]] for t in table_names]
+        if nlp_config and nlp_config.subtask:
+            viewtables = base_utils.get_existing_viewtables_from_stage(
+                config, manifest, manifest.get_formatted_study_prefix()
+            )
+            for name, artifact_type in viewtables:
+                dataset = [x for x in dataset if (name != x[1] and artifact_type != x[2])]
         prefix = manifest.get_schema_aware_prefix_with_seperator()
         queries.insert(
             0,
@@ -251,7 +259,7 @@ def _update_build_source_table(
                 schema=config.schema,
                 table_name=(f"{prefix}{enums.ProtectedTables.BUILD_SOURCE.value}"),
                 table_cols=const.BUILD_SOURCE_COLS,
-                dataset=[[config.stage, t[0], t[1]] for t in table_names],
+                dataset=dataset,
             ),
         )
     return queries
