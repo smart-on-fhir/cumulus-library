@@ -59,7 +59,15 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     raise
 
                 rich.print("Expired credentials error, attempting refresh...")
+
                 self.outer._refresh_credentials()
+
+                # get the type of cursor and set max concurrent if necessary
+                cursor_kwargs = {"cursor": type(self.cursor)}
+                if isinstance(self.cursor, AthenaAsyncCursor):
+                    cursor_kwargs["max_workers"] = self.outer.max_concurrent
+
+                self.cursor = self.outer.connection.cursor(**cursor_kwargs)
                 res = self.cursor.execute(*args, **kwargs)
             return res
 

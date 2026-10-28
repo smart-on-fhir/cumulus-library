@@ -457,9 +457,14 @@ def test_refetch_creds_with_expired_token(mock_cursor, mock_session):
     )
 
     db.connection = mock.MagicMock()
-    mock_cursor = db.connection.cursor.return_value
+    initial_cursor = db.connection.cursor.return_value
+    refreshed_db_connection = mock.MagicMock()
+    refreshed_cursor = refreshed_db_connection.cursor.return_value
 
-    with mock.patch.object(db, "_refresh_credentials") as mock_refresh:
+    def db_refresh():
+        db.connection = refreshed_db_connection
+
+    with mock.patch.object(db, "_refresh_credentials", side_effect=db_refresh) as mock_refresh:
         mock_cause_error = botocore.exceptions.ClientError(
             {
                 "Error": {
@@ -471,8 +476,12 @@ def test_refetch_creds_with_expired_token(mock_cursor, mock_session):
         )
         database_error = pyathena.error.DatabaseError(*mock_cause_error.args)
         database_error.__cause__ = mock_cause_error
-        mock_cursor.execute.side_effect = [database_error, "foo"]
+        initial_cursor.execute.side_effect = [database_error]
+        refreshed_cursor.execute.return_value = "foo"
+
         assert db.cursor().execute("SELECT 1") == "foo"
+        initial_cursor.execute.assert_called_once()
+        refreshed_cursor.execute.assert_called_once()
         assert mock_refresh.call_count == 1
 
 
@@ -583,6 +592,17 @@ def test_refetch_creds_with_bare_database_error(mock_cursor):
             db.cursor().execute("SELECT 1")
 
     mock_refresh.assert_not_called()
+
+
+@mock.patch.dict(
+    os.environ,
+    {"AWS_CONFIG_FILE": "/no/creds", "AWS_SHARED_CREDENTIALS_FILE": "no/shared/creds"},
+    clear=True,
+)
+@mock.patch("botocore.credentials.InstanceMetadataFetcher.retrieve_iam_role_credentials")
+@responses.activate
+def test_ec2_refresh_creds_with_instance_role(mock_metadata_fetcher):
+    mock_metadata_fetcher.side_effect = []
 
 
 @mock.patch.dict(
