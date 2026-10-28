@@ -235,7 +235,7 @@ def get_existing_viewtables_from_stage(
         where_clauses=[[f"stage = '{config.stage}'"]],
         distinct=True,
     )
-    return config.db.connection.execute(query).fetchall()
+    return config.db.cursor().execute(query).fetchall()
 
 
 def pyarrow_types_from_hive_types(field_types: list[str]):

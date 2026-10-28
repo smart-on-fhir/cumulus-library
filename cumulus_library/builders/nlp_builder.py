@@ -291,7 +291,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             drop_query = base_templates.get_drop_view_table(
                 name=viewtable[0], view_or_table=viewtable[1]
             )
-            config.db.connection.execute(drop_query)
+            config.db.cursor().execute(drop_query)
 
     def _nlp_is_viewlike(self, study_config: cumulus_library.StudyConfig) -> bool:
         # When we create a table from parquet with duckdb, we are injecting the data and it
