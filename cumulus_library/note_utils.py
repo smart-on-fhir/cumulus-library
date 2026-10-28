@@ -171,7 +171,7 @@ class NlpConfig:
         # we keep the cli-passed concurrency value around, so that if it was not initialized and
         # a model provider (i.e. bedrock) has default behavior, we can respect it.
         self.cli_concurrency = args.get("nlp_concurrency")
-        self.concurrency = self.cli_concurrency or self.azure_deployments or 1
+        self.concurrency = self.cli_concurrency or len(self.azure_deployments) or 1
 
         self.salt = None
         if self.phi_dir:
