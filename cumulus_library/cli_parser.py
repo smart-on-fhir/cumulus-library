@@ -194,9 +194,12 @@ def add_nlp_config(parser: argparse.ArgumentParser, dev: bool = False) -> None:
     group.add_argument(
         "--nlp-model",
         choices=[
+            "claude-haiku55",
             "claude-sonnet45",
             "claude-sonnet46",
+            "claude-sonnet55",
             "claude-opus48",
+            "claude-opus55",
             "gpt-oss-120b",
             "gpt35",
             "gpt4",

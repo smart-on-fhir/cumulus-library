@@ -1,8 +1,5 @@
 """
 Tests for the NLP builder.
-
-These tests are all in the same xdist "group" because when run across xdist workers, we saw flaky
-test failures. We weren't able to debug why, so we grouped these tests up. TODO: investigate that
 """
 
 import binascii
@@ -1135,9 +1132,8 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     db.connection._client.get_work_group.return_value = bucket_info
 
     study_config = cumulus_library.StudyConfig(db=db, schema="main")
-    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    workflow_path = nlp_utils.basic_workflow(tmp_path, version=1)
     model = nlp_utils.MockModel(mock_openai_client)
-
     # Mock out FsPath's s3 filesystem (it should grow a fancier mock itself ideally)
     mem_fs = fsspec.implementations.memory.MemoryFileSystem()
     with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": mem_fs}):
@@ -1151,7 +1147,7 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     # Confirm we wrote the parquet file out correctly, into an ETL-style upload folder
     # (nlp prefix, task name, model, and task version)
     upload_dir = (
-        "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/nlp_task_gpt_oss_120b_v0"
+        "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/nlp_task_gpt_oss_120b_v1"
     )
     with mem_fs.open(f"{upload_dir}/nlp.0.parquet", "rb") as f:
         df = pandas.read_parquet(f)
@@ -1171,6 +1167,37 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
         )
 
     # And confirm the query looks right
+    assert builder.queries == [
+        "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__nlp_task_gpt_oss_120b` "
+        "( note_ref STRING, "
+        "encounter_ref STRING, subject_ref STRING, generated_on STRING, task_version INT, "
+        "model STRING, system_fingerprint STRING, result STRUCT<ignored: STRING>\n)\n"
+        "STORED AS PARQUET\n"
+        f"LOCATION 'memory://{upload_dir}'\n"
+        'tblproperties ("parquet.compression"="SNAPPY");',
+    ]
+
+    # Then check that a version update works successfully
+    workflow_path = nlp_utils.basic_workflow(tmp_path, version=2)
+    with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": mem_fs}):
+        builder = nlp_builder.NlpBuilder(
+            toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+        )
+        builder.execute_queries(study_config, None)
+
+    assert builder.stats.got_response[0] == 1
+    upload_dir = (
+        "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/nlp_task_gpt_oss_120b_v2"
+    )
+    with mem_fs.open(f"{upload_dir}/nlp.0.parquet", "rb") as f:
+        df = pandas.read_parquet(f)
+        rows = json.loads(df.to_json(orient="records"))
+
+    assert len(rows) == 1
+    assert (
+        rows[0]["note_ref"]
+        == "DiagnosticReport/eee10367d972edc0fbbdf0cc6664eb595e4768e193279cd657cfb9cd82b0329b"
+    )
     assert builder.queries == [
         "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__nlp_task_gpt_oss_120b` "
         "( note_ref STRING, "
@@ -2236,3 +2263,28 @@ def test_request_timeout_is_not_counted_as_stuck(monkeypatch):
     assert result.error is error
     assert result.response is None
     assert dispatcher.stuck_dropped == 0
+
+
+@mock.patch("boto3.client")
+def test_bedrock_concurrency(mock_client):
+    nlp_mocker = nlp_utils.MockModel(
+        mock_client,
+        model_id="claude-sonnet45",
+        provider="bedrock",
+    )
+
+    nlp_config = nlp_mocker.nlp_config()
+    # Calling the model generation will assign a boto client, but we don't care
+    # about using the model itself
+    models.ClaudeSonnet45Model(nlp_config)
+    assert nlp_config.cli_concurrency is None
+    assert nlp_config.concurrency == 1
+    passed_config = mock_client.call_args[1]["config"]._user_provided_options
+    assert "max_pool_connections" not in passed_config.keys()
+
+    nlp_config = nlp_mocker.nlp_config(concurrency=10)
+    models.ClaudeSonnet45Model(nlp_config)
+    assert nlp_config.cli_concurrency == 10
+    assert nlp_config.concurrency == 10
+    passed_config = mock_client.call_args[1]["config"]._user_provided_options
+    assert passed_config["max_pool_connections"] == 10

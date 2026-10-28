@@ -43,17 +43,32 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         bound to something like an IAM role.
         """
 
-        def __init__(self, cursor: AthenaCursor, outer: base.DatabaseBackend):
+        def __init__(
+            self,
+            cursor: AthenaCursor,
+            outer: base.DatabaseBackend,
+        ):
             self.outer = outer
             self.cursor = cursor
 
         def execute(self, *args, **kwargs):
             try:
-                res = self.cursor.execute(*args, *kwargs)
-            except pyathena.error.DatabaseError:
-                rich.print("SQL error, checking if refreshing credentials helps...")
+                res = self.cursor.execute(*args, **kwargs)
+            except pyathena.error.DatabaseError as exc:
+                if not self.outer._is_expired_token_error(exc):
+                    raise
+
+                rich.print("Expired credentials error, attempting refresh...")
+
                 self.outer._refresh_credentials()
-                res = self.cursor.execute(*args, *kwargs)
+
+                # get the type of cursor and set max concurrent if necessary
+                cursor_kwargs = {"cursor": type(self.cursor)}
+                if isinstance(self.cursor, AthenaAsyncCursor):
+                    cursor_kwargs["max_workers"] = self.outer.max_concurrent
+
+                self.cursor = self.outer.connection.cursor(**cursor_kwargs)
+                res = self.cursor.execute(*args, **kwargs)
             return res
 
         # If the requested function is not overridden, we'll pass directly to the wrapped cursor
@@ -80,9 +95,9 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         self.profile = profile
         self.schema_name = schema_name
         self.connection = None
-        self.connect_kwargs = {}
         self.max_concurrent = max_concurrent or 20
         self.s3_staging_dir = self._get_s3_staging_dir(s3_staging_dir)
+        self.is_ec2_instance = None
 
     def _get_s3_staging_dir(self, s3_staging_dir: str | None) -> str:
         """Resolves the S3 staging directory for Athena query results.
@@ -104,58 +119,51 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         return s3_staging_dir_env_val or ""
 
     def _refresh_credentials(self):
-        # if we don't have connection info, we'll try to get it from boto defaults
-        if self.connect_kwargs == {} or not any(
-            [self.connect_kwargs.get(x.lower()) is not None for x in AWS_ENV_VARS]
-        ):
-            session = boto3.Session()
-            creds = session.get_credentials()
-            if creds is not None:
-                self.connect_kwargs["aws_access_key_id"] = creds.access_key
-                self.connect_kwargs["aws_secret_access_key"] = creds.secret_key
-                self.connect_kwargs["aws_session_token"] = creds.token
-                # We'll remove the default profile arg, since it can interfere with
-                # boto lookups
-                self.connect_kwargs.pop("profile_name", None)
+        session = self._get_session()
 
-                # Are we in a EC2? if so, we'll get the region from the instance id document,
-                # intentionally overriding any args passed/default behaviors
-                # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/retrieve-iid.html
-                try:
-                    token_res = requests.put(
-                        f"{IID_BASE_URL}/api/token",
-                        headers={"X-aws-ec2-metadata-token-ttl-seconds": "60"},
+        creds = session.get_credentials()
+        if creds is None:
+            raise errors.AWSError("No AWS credentials retrieved.")
+
+        # Are we in a EC2? if so, we'll get the region from the instance id document,
+        # intentionally overriding any args passed/default behaviors
+        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/retrieve-iid.html
+        if self.is_ec2_instance is None:
+            try:
+                token_res = requests.put(
+                    f"{IID_BASE_URL}/api/token",
+                    headers={"X-aws-ec2-metadata-token-ttl-seconds": "60"},
+                    timeout=10,
+                )
+                if token_res.status_code == 200:
+                    doc_res = requests.get(
+                        f"{IID_BASE_URL}/dynamic/instance-identity/document",
+                        headers={"X-aws-ec2-metadata-token": token_res.text},
                         timeout=10,
                     )
-                    if token_res.status_code == 200:
-                        doc_res = requests.get(
-                            f"{IID_BASE_URL}/dynamic/instance-identity/document",
-                            headers={"X-aws-ec2-metadata-token": token_res.text},
-                            timeout=10,
-                        )
-                        self.region = doc_res.json()["region"]
-                except requests.exceptions.ConnectionError:  # pragma: no cover
-                    pass
+                    self.region = doc_res.json()["region"]
+                self.is_ec2_instance = token_res.status_code == 200
+            except requests.exceptions.ConnectionError:  # pragma: no cover
+                self.is_ec2_instance = False
+                pass
 
         self.connection = pyathena.connect(
             region_name=self.region,
             work_group=self.work_group,
             schema_name=self.schema_name,
             s3_staging_dir=self.s3_staging_dir,
-            **self.connect_kwargs,
+            session=session,
         )
+
+    def _get_session(self):
+        if self.profile and self.profile != "default" and not os.environ.get("AWS_ACCESS_KEY_ID"):
+            return boto3.Session(profile_name=self.profile)
+        return boto3.Session()
 
     def init_errors(self):  # pragma: no cover
         return ["COLUMN_NOT_FOUND", "TABLE_NOT_FOUND"]
 
     def connect(self):
-        # the profile may not be required, provided the three AWS env vars
-        # are set. If both are present, the env vars take precedence
-        if self.profile is not None:
-            self.connect_kwargs["profile_name"] = self.profile
-        for aws_env_name in AWS_ENV_VARS:
-            if aws_env_val := os.environ.get(aws_env_name):
-                self.connect_kwargs[aws_env_name.lower()] = aws_env_val
         self._refresh_credentials()
 
     def cursor(self) -> AthenaCursorWrapper:
@@ -163,7 +171,8 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
 
     def async_cursor(self) -> AthenaCursorWrapper:
         return self.AthenaCursorWrapper(
-            self.connection.cursor(cursor=AthenaAsyncCursor, max_workers=self.max_concurrent), self
+            self.connection.cursor(cursor=AthenaAsyncCursor, max_workers=self.max_concurrent),
+            self,
         )
 
     def pandas_cursor(self) -> AthenaCursorWrapper:
@@ -230,7 +239,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         return f"cumulus_user_uploads/{self.schema_name}/{study}/{topic}"
 
     def get_remote_path(self) -> str | None:
-        """Retreives the base S3 path we use for file uploads from the S3 client"""
+        """Retrieves the base S3 path we use for file uploads from the S3 client"""
         if self.s3_staging_dir:
             return self.s3_staging_dir
         return self._get_result_config()["OutputLocation"]
@@ -272,7 +281,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
         if not remote_filename:
             remote_filename = file.name
 
-        session = boto3.Session(profile_name=self.connection.profile_name)
+        session = self._get_session()
         s3_client = session.client("s3", region_name=self.region)
 
         local_file_hash = hashlib.sha256(file.read_bytes(), usedforsecurity=False).digest()
@@ -316,12 +325,9 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def export_table_as_parquet(
         self, table_name: str, file_name: str, location: pathlib.Path, *args, **kwargs
     ) -> bool:
-        session = boto3.session.Session(
-            **self.connect_kwargs,
-        )
+        session = self._get_session()
         s3_client = session.client("s3", region_name=self.region)
-        workgroup = self.connection._client.get_work_group(WorkGroup=self.work_group)
-        wg_conf = workgroup["WorkGroup"]["Configuration"]["ResultConfiguration"]
+        wg_conf = self._get_result_config()
         s3_path = self.s3_staging_dir or wg_conf["OutputLocation"]
         bucket = "/".join(s3_path.split("/")[2:3])
         output_path = location / f"{file_name}"
@@ -389,6 +395,29 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
     def close(self) -> None:
         if self.connection is not None:  # pragma: no cover
             self.connection.close()
+
+    def _is_expired_token_error(self, exc: BaseException | None) -> bool:
+        """Verify if the passed-in exception is a token expiry issue.
+
+        Args:
+            exc: The exception to validate
+
+        Returns:
+            bool: True if the exception code matches expiry codes.
+        """
+        match exc:
+            case botocore.exceptions.ClientError():
+                return exc.response.get("Error", {}).get("Code") in {
+                    "ExpiredToken",
+                    "ExpiredTokenException",
+                    "RequestExpired",
+                }
+            case pyathena.error.DatabaseError():
+                if exc.__cause__:
+                    return self._is_expired_token_error(exc.__cause__)
+                return False
+            case _:
+                return False
 
 
 class AthenaParser(base.DatabaseParser):

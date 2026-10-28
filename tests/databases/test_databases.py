@@ -9,11 +9,13 @@ import pathlib
 from contextlib import nullcontext as does_not_raise
 from unittest import mock
 
+import botocore
 import duckdb
 import pandas
 import pyarrow
 import pyathena
 import pytest
+import requests
 
 from cumulus_library import databases, errors
 from cumulus_library.template_sql import sql_utils
@@ -303,14 +305,20 @@ def test_athena_parser(mock_pyathena):
 # mock for it
 @mock.patch.dict(
     os.environ,
+    {"AWS_ACCESS_KEY_ID": "secret", "AWS_SECRET_ACCESS_KEY": "secret_value"},
     clear=True,
 )
+@mock.patch(
+    "botocore.credentials.SharedCredentialProvider.load",
+    return_value=botocore.credentials.Credentials("profile_key", "profile_secret"),
+)
 @mock.patch("pyathena.connect")
-def test_athena_env_var_priority(mock_pyathena):
-    os.environ["AWS_ACCESS_KEY_ID"] = "secret"
+@mock.patch("requests.put", side_effect=requests.exceptions.ConnectionError)
+def test_athena_env_var_priority(mock_put, mock_pyathena, mock_profile_load):
     db = databases.AthenaDatabaseBackend(**ATHENA_KWARGS)
     db.connect()
-    assert mock_pyathena.call_args[1]["aws_access_key_id"] == "secret"
+    session = mock_pyathena.call_args[1]["session"]
+    assert session.get_credentials().access_key == "secret"
 
 
 def test_upload_file_duckdb():

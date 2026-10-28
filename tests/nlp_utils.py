@@ -238,18 +238,22 @@ class MockModel:
             self.openai.chat.completions.parse.side_effect = completions
 
 
-def basic_workflow(tmp_path) -> pathlib.Path:
+def basic_workflow(tmp_path, version=None) -> pathlib.Path:
     """Returns a dead simple valid config, for when you don't super care what it looks like"""
-    return conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                "task": {
-                    "response_schema": EMPTY_SCHEMA,
-                },
+    workflow = {
+        "config_type": "nlp",
+        "tables": {
+            "task": {
+                "response_schema": EMPTY_SCHEMA,
             },
         },
+    }
+    if version:
+        workflow["tables"]["task"]["version"] = version
+
+    return conftest.write_toml(
+        tmp_path,
+        workflow,
         "nlp.workflow",
     )
 
