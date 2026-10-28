@@ -95,26 +95,59 @@ class RxNormValuesetBuilder(BaseTableBuilder):
         # We'll generate all the UMLS tables now
         # TODO: this should be decoupled from the RXNORM-centric process as a standalone builder
         umls.generate_umls_tables(config, manifest, valueset_config)
-        # For every VSAC steward, get the cui/code info from RXNCONso
-        self.queries.append(
-            get_create_view_filter_by(
-                "rxnconso",
-                b_table=f"{study_prefix}{table_prefix}vsac_valuesets",
-                columns=["a.rxcui", "a.str", "a.tty", "a.sab", "a.code", "b.steward"],
-                view_name=f"{study_prefix}{table_prefix}vsac_valuesets_hydrated",
+
+        #   The builder already knows which sources are configured, so it's the
+        # right place to decide which tables belong in the result
+        #   The template's job stays simple: render SQL for the tables it
+        # receives. Making it discover existing tables adds database awareness
+        # and could hide a bug where a configured source failed to create its
+        # table
+        tables_to_union = []
+
+        if valueset_config.vsac_stewards:
+            # For every VSAC steward, get the cui/code info from RXNCONso
+            self.queries.append(
+                get_create_view_filter_by(
+                    "rxnconso",
+                    b_table=f"{study_prefix}{table_prefix}vsac_valuesets",
+                    columns=["a.rxcui", "a.str", "a.tty", "a.sab", "a.code", "b.steward"],
+                    view_name=(f"{study_prefix}{table_prefix}vsac_valuesets_hydrated"),
+                )
             )
-        )
-        # Join together the UMLS and VSAC valuesets
-        self.queries.append(
-            base_templates.get_create_table_from_union(
-                table_name=f"{study_prefix}{table_prefix}valuesets",
-                tables=[
-                    f"{study_prefix}{table_prefix}umls_valuesets",
-                    f"{study_prefix}{table_prefix}vsac_valuesets_hydrated",
-                ],
-                columns=["rxcui", "str", "tty", "sab", "code", "steward"],
+
+            tables_to_union.append(f"{study_prefix}{table_prefix}vsac_valuesets_hydrated")
+
+        if valueset_config.umls_stewards:
+            tables_to_union.append(f"{study_prefix}{table_prefix}umls_valuesets")
+
+        # Skip this entirely when both UMLS and VSAC are not defined
+        if tables_to_union:
+            # Join together the UMLS and VSAC valuesets
+            self.queries.append(
+                base_templates.get_create_table_from_union(
+                    table_name=f"{study_prefix}{table_prefix}valuesets",
+                    tables=tables_to_union,
+                    columns=["rxcui", "str", "tty", "sab", "code", "steward"],
+                )
             )
-        )
+        else:
+            # We still need this table downstream
+            self.queries.append(
+                base_templates.get_ctas_empty_query(
+                    schema_name=config.schema,
+                    table_name=f"{study_prefix}{table_prefix}valuesets",
+                    table_cols=["rxcui", "str", "tty", "sab", "code", "steward"],
+                    table_cols_types=[
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                        "VARCHAR",
+                    ],
+                )
+            )
+
         # use the CUIs as a way to get information directly from RXNCONSO, so they are
         # all formatted the same
         self.queries.append(
