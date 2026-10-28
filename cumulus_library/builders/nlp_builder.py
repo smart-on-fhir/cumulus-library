@@ -293,7 +293,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             )
             config.db.cursor().execute(drop_query)
 
-    def _nlp_is_viewlike(self, study_config: cumulus_library.StudyConfig) -> bool:
+    def _is_nlp_viewlike(self, study_config: cumulus_library.StudyConfig) -> bool:
         # When we create a table from parquet with duckdb, we are injecting the data and it
         # needs to already exist on disk. So we must run the NLP beforehand.
         # But in Athena, the table is dynamic and we can create the table first, so that even if
@@ -303,7 +303,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         return study_config.db.db_type == "athena"
 
     def prepare_queries(self, *args, config: cumulus_library.StudyConfig, **kwargs):
-        if not self._nlp_is_viewlike(config):
+        if not self._is_nlp_viewlike(config):
             self._run_nlp(config)
 
         for table_slug, task in self._tables_to_build.items():
@@ -333,5 +333,5 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         *args,
         **kwargs,
     ):
-        if self._nlp_is_viewlike(config):
+        if self._is_nlp_viewlike(config):
             self._run_nlp(config)

@@ -245,12 +245,18 @@ def _update_build_source_table(
     # it's possible to get a list of queries that contains no CREATE statements
     if len(table_names) > 0:
         # Otherwise, let's add new tables to the study build source tables.
+
+        # We'll prep a dataset for a SQL insert statement
         dataset = [[config.stage, t[0], t[1]] for t in table_names]
-        if nlp_config and nlp_config.subtask:
+        # TODO: very elaborate mocking for this edge case when it's not gating
+        if nlp_config and nlp_config.subtask:  # pragma: no cover
             viewtables = base_utils.get_existing_viewtables_from_stage(
                 config, manifest, manifest.get_formatted_study_prefix()
             )
             for name, artifact_type in viewtables:
+                # In the case of a subtask, we want to strip out any references to tables
+                # that are not the tables touched by the subtask, so that we don't delete
+                # other work
                 dataset = [x for x in dataset if (name != x[1] and artifact_type != x[2])]
         prefix = manifest.get_schema_aware_prefix_with_seperator()
         queries.insert(
