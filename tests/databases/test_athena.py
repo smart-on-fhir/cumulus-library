@@ -454,10 +454,12 @@ def test_refetch_creds_with_expired_token(mock_cursor, mock_session):
         work_group="test",
         profile="test",
         schema_name="test",
+        max_concurrent=5,
     )
 
     db.connection = mock.MagicMock()
-    initial_cursor = db.connection.cursor.return_value
+    initial_cursor = mock.MagicMock(spec=athena.AthenaAsyncCursor)
+    db.connection.cursor.return_value = initial_cursor
     refreshed_db_connection = mock.MagicMock()
     refreshed_cursor = refreshed_db_connection.cursor.return_value
 
