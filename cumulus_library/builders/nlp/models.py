@@ -236,6 +236,7 @@ class BedrockProvider(Provider):
         self,
         model_name: str,
         *,
+        concurrency: int | None = None,
         supports_cache: bool = True,
         supports_schema: bool = True,
         supports_temperature: bool = True,
@@ -247,11 +248,12 @@ class BedrockProvider(Provider):
         self.supports_temperature = supports_temperature
         # Adaptive mode adds client-side rate limiting on top of retries, so a throttled
         # endpoint slows us down instead of us hammering it harder.
+        config = {"retries": {"max_attempts": MAX_RETRIES, "mode": "adaptive"}}
+        if concurrency:
+            config["max_pool_connections"] = concurrency
         self.client = boto3.client(
             "bedrock-runtime",
-            config=botocore.config.Config(
-                retries={"max_attempts": MAX_RETRIES, "mode": "adaptive"}
-            ),
+            config=botocore.config.Config(**config),
         )
 
     def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
@@ -719,6 +721,9 @@ class Model:
                 self.raise_unsupported_error(config.provider)
             self.provider = BedrockProvider(
                 self.BEDROCK_ID,
+                # Noting that we want to get the user provided value, rather than the
+                # coerced one, so we can allow default boto values if it was not provided.
+                concurrency=config.cli_concurrency,
                 supports_cache=self.BEDROCK_CACHE,
                 supports_schema=self.BEDROCK_SCHEMA,
                 supports_temperature=self.BEDROCK_TEMPERATURE,

@@ -2263,3 +2263,28 @@ def test_request_timeout_is_not_counted_as_stuck(monkeypatch):
     assert result.error is error
     assert result.response is None
     assert dispatcher.stuck_dropped == 0
+
+
+@mock.patch("boto3.client")
+def test_bedrock_concurrency(mock_client):
+    nlp_mocker = nlp_utils.MockModel(
+        mock_client,
+        model_id="claude-sonnet45",
+        provider="bedrock",
+    )
+
+    nlp_config = nlp_mocker.nlp_config()
+    # Calling the model generation will assign a boto client, but we don't care
+    # about using the model itself
+    models.ClaudeSonnet45Model(nlp_config)
+    assert nlp_config.cli_concurrency is None
+    assert nlp_config.concurrency == 1
+    passed_config = mock_client.call_args[1]["config"]._user_provided_options
+    assert "max_pool_connections" not in passed_config.keys()
+
+    nlp_config = nlp_mocker.nlp_config(concurrency=10)
+    models.ClaudeSonnet45Model(nlp_config)
+    assert nlp_config.cli_concurrency == 10
+    assert nlp_config.concurrency == 10
+    passed_config = mock_client.call_args[1]["config"]._user_provided_options
+    assert passed_config["max_pool_connections"] == 10
