@@ -112,7 +112,17 @@ class StudyRunner:
                 builder.run_protected_table_builder(
                     config=self.get_config(manifest), manifest=manifest
                 )
-                if not continue_from:
+                # If we are dealing with subtasks, we won't know what tables to clean
+                # until right before or after we run NLP, depending on the database type.
+                # This means that if subtasks fail, the extant tables may end up in a bad state.
+                if nlp_config and nlp_config.subtasks:
+                    log_utils.log_transaction(
+                        config=self.get_config(manifest),
+                        manifest=manifest,
+                        status=enums.LogStatuses.STARTED,
+                        message=",".join(nlp_config.subtasks),
+                    )
+                elif not continue_from:
                     log_utils.log_transaction(
                         config=self.get_config(manifest),
                         manifest=manifest,

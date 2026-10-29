@@ -167,14 +167,11 @@ def clean_study(
             study_prefix = prefix
 
         else:
-            query = base_templates.get_select_from_single_query(
-                schema=base_utils.get_schema(config=config, manifest=manifest),
-                table_name=f"{drop_prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
-                columns=["name", "type"],
-                where_clauses=[[f"stage = '{config.stage}'"]],
-                distinct=True,
+            names_and_types = base_utils.get_existing_viewtables_from_stage(
+                config=config,
+                manifest=manifest,
+                prefix=drop_prefix,
             )
-            names_and_types = cursor.execute(query).fetchall()
             if names_and_types != []:
                 view_table_list += _get_unprotected_stats_view_table(
                     config,
