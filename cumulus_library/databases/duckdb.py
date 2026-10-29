@@ -271,7 +271,7 @@ class DuckDatabaseBackend(base.DatabaseBackend):
     ) -> bool:
         parquet_path = location / f"{file_name}"
         table_size = (
-            self.connection.cursor().execute(f"SELECT count(*) FROM {table_name}").fetchone()
+            self.connection.cursor().execute(f"SELECT count(*) FROM {table_name}").fetchone()  # noqa: S608
         )
         if table_size[0] == 0:
             return False
