@@ -17,11 +17,17 @@ for more details and any associated publications.
 
 The following studies are actively maintained and updated by the team. 
 
-- [UMLS vocabulary](https://github.com/smart-on-fhir/cumulus-library-umls)
-- [RxNorm vocabulary](https://github.com/smart-on-fhir/cumulus-library-rxnorm)
-- [LOINC Database](https://github.com/smart-on-fhir/cumulus-library-loinc)
 - [Cumulus Library - Core](https://github.com/smart-on-fhir/cumulus-library)
+    - Prerequisite for all clinical studies. 
+
 - [Cumulus Library - Discovery](https://github.com/smart-on-fhir/cumulus-library)
+    - Used to identify how coding systems are used within clinical studies.
+
+- [RxNorm](https://github.com/smart-on-fhir/cumulus-library-rxnorm), [LOINC](https://github.com/smart-on-fhir/cumulus-library-loinc), and [UMLS](https://github.com/smart-on-fhir/cumulus-library-umls)
+    - Coding systems which are frequently required by clinical studies.
+
+- [Data Metrics](https://github.com/smart-on-fhir/cumulus-library-data-metrics)
+    - Detect data quality and/or governance issues in an EHR's dataset.
 
 ### 2023
 - [Covid symptoms](https://github.com/smart-on-fhir/cumulus-library-covid)
@@ -29,7 +35,6 @@ The following studies are actively maintained and updated by the team.
 
 ### 2024
 - [Hypertension](https://github.com/smart-on-fhir/cumulus-library-hypertension)
-- [Data Metrics](https://github.com/smart-on-fhir/cumulus-library-data-metrics)
 - [ICD-10 accuracy for suicidal ideation](https://github.com/smart-on-fhir/cumulus-library-suicidality-icd10)
 
 ### 2025
