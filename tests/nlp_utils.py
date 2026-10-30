@@ -26,6 +26,8 @@ def mock_env(provider: str = "local"):
     else:
         new = {}
 
+    new.update(dict(conftest.MOCKED_AWS_ENV))
+
     def outer(func):
         @functools.wraps(func)
         def inner(*args, **kwargs):
