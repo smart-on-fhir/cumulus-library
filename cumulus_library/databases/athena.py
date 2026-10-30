@@ -143,7 +143,7 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                     )
                     self.region = doc_res.json()["region"]
                 self.is_ec2_instance = token_res.status_code == 200
-            except requests.exceptions.ConnectionError:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 self.is_ec2_instance = False
                 pass
 
