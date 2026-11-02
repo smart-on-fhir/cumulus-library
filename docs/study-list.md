@@ -43,7 +43,7 @@ The following studies are actively maintained and updated by the team.
 
 ### 2026
 - [Pediatric low-grade glioma](https://github.com/smart-on-fhir/cumulus-library-glioma/)
-- [Pediatric brain cancer](https://github.com/smart-on-fhir/cumulus-library-pcx)
+- [PCX - embryonal tumors](https://github.com/smart-on-fhir/cumulus-library-pcx)
 
 ## Third party studies
 
