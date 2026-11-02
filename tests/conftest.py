@@ -46,6 +46,13 @@ ID_PATHS = {
     "observation": [["id"], ["encounter", "reference"]],
     "patient": [["id"]],
 }
+MOCKED_AWS_ENV = {
+    "AWS_ACCESS_KEY_ID": "test-key-id",
+    "AWS_SECRET_ACCESS_KEY": "test-access-key",
+    "AWS_SECURITY_TOKEN": "test-security-token",
+    "AWS_SESSION_TOKEN": "test-session-token",
+    "AWS_DEFAULT_REGION": "us-east-1",
+}
 
 
 # Pre-test actions
@@ -286,7 +293,7 @@ def debug_diff_tables(cols, found, ref, pos=0):
 
 @pytest.fixture(scope="session", autouse=True)
 def mock_env():
-    with mock.patch.dict(os.environ, clear=True):
+    with mock.patch.dict(os.environ, MOCKED_AWS_ENV, clear=True):
         yield
 
 
