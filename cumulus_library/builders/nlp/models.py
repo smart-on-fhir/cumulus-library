@@ -324,7 +324,7 @@ class BedrockProvider(Provider):
             raise ValueError(f"did not complete, with stop reason: {stop_reason}")
 
         # There could be multiple content blocks returned (e.g. gpt-oss gives a reasoning block)
-        for content in response["output"]["message"]["content"]:
+        for content in response["body"]["content"]:
             if "toolUse" in content:
                 raw_json = content["toolUse"]["input"]
                 # Sometimes (e.g. with claude sonnet 4.5) we get a wrapper field of "parameter"
