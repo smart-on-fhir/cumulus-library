@@ -1180,9 +1180,9 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     # And confirm the query looks right
     assert builder.queries == [
         "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__nlp_task_gpt_oss_120b` "
-        "( note_ref STRING, "
-        "encounter_ref STRING, subject_ref STRING, generated_on STRING, task_version INT, "
-        "model STRING, system_fingerprint STRING, result STRUCT<ignored: STRING>\n)\n"
+        "( `note_ref` STRING, `encounter_ref` STRING, `subject_ref` STRING, "
+        "`generated_on` STRING, `task_version` INT, `model` STRING, `system_fingerprint` STRING, "
+        "`result` STRUCT<ignored: STRING>\n)\n"
         "STORED AS PARQUET\n"
         f"LOCATION 'memory://{upload_dir}'\n"
         'tblproperties ("parquet.compression"="SNAPPY");',
@@ -1211,9 +1211,9 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     )
     assert builder.queries == [
         "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__nlp_task_gpt_oss_120b` "
-        "( note_ref STRING, "
-        "encounter_ref STRING, subject_ref STRING, generated_on STRING, task_version INT, "
-        "model STRING, system_fingerprint STRING, result STRUCT<ignored: STRING>\n)\n"
+        "( `note_ref` STRING, `encounter_ref` STRING, `subject_ref` STRING, "
+        "`generated_on` STRING, `task_version` INT, `model` STRING, `system_fingerprint` STRING, "
+        "`result` STRUCT<ignored: STRING>\n)\n"
         "STORED AS PARQUET\n"
         f"LOCATION 'memory://{upload_dir}'\n"
         'tblproperties ("parquet.compression"="SNAPPY");',

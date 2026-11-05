@@ -5,7 +5,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS `{{ schema_name }}`.`{{ table_name }}` (
 CREATE TABLE IF NOT EXISTS "{{schema_name}}"."{{ table_name }}" AS SELECT  
 {%- endif %}
 {%- for col in table_cols %}
-    {%- if db_type == 'athena' %} {{ col }} {{ remote_table_cols_types[loop.index0] }}
+    {%- if db_type == 'athena' %} `{{ col }}` {{ remote_table_cols_types[loop.index0] }}
     {%- elif db_type == 'duckdb' %} "{{ col }}"
     {%- endif -%}
     {{- syntax.comma_delineate(loop) }}
