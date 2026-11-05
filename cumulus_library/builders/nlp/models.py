@@ -167,6 +167,10 @@ class NlpStats:
         self.available = 0
         self.had_text = 0
         self.considered = [0] * size
+        # Notes with text that a task's select/reject filters turned away, per task.
+        self.filtered_out = [0] * size
+        # Notes with text that a task skipped because a previous run already uploaded them.
+        self.already_done = [0] * size
         self.got_response = [0] * size
         # Of those responses, how many cost a model call this run versus came back from the
         # on-disk cache for free. These always sum to got_response.

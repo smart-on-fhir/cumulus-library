@@ -213,6 +213,10 @@ class MlflowTracker:
         metrics = {
             "notes.seen": stats.available,
             "notes.with_text": stats.had_text,
+            # Splits with_text into where each note went for this table, so a low
+            # "considered" can be traced to filters versus an earlier run having done the work.
+            "notes.filtered_out": stats.filtered_out[index],
+            "notes.already_done": stats.already_done[index],
             "notes.considered": considered,
             "notes.with_results": with_results,
             # Splits with_results by what it cost, so a run's token count can be read against

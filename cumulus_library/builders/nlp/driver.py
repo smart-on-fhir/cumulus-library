@@ -65,8 +65,10 @@ def run_nlp(
 
         for idx, table_slug in enumerate(tables):
             if anon_note_ref in prev_upload_refs[idx]:
+                stats.already_done[idx] += 1
                 continue
             if not filters[idx](note_res, text=text):
+                stats.filtered_out[idx] += 1
                 continue
             stats.considered[idx] += 1
 
