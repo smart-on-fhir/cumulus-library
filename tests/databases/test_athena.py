@@ -685,9 +685,9 @@ def test_iceberg_location(mock_session, mock_execute, tmp_path):
     ptb.execute_queries(config, manifest)
     assert mock_execute.call_args_list[-1][0][0] == (
         """CREATE TABLE IF NOT EXISTS `schema`.`study__lib_build_source` (
-    stage string,
-    name string,
-    type string
+    `stage` string,
+    `name` string,
+    `type` string
 )
 LOCATION 's3://bucket/iceberg/schema/study/build_source'
 TBLPROPERTIES ('table_type' = 'ICEBERG');"""

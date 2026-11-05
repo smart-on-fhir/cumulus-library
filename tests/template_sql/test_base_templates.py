@@ -571,11 +571,11 @@ def test_ctas_empty_query_creation(expected, schema, table, cols, types):
     "expected,db_type,schema,table,cols,remote_types",
     [
         (
-            """CREATE EXTERNAL TABLE IF NOT EXISTS `test_athena`.`remote_table` ( a String, b Int
+            """CREATE EXTERNAL TABLE IF NOT EXISTS `test_athena`.`remote_table` ( `a` String, `b` Int
 )
 STORED AS PARQUET
 LOCATION 's3://bucket/data/'
-tblproperties ("parquet.compression"="SNAPPY");""",
+tblproperties ("parquet.compression"="SNAPPY");""",  # noqa: E501
             "athena",
             "test_athena",
             "remote_table",

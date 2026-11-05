@@ -3,7 +3,7 @@ actions. For other databases, the table-specific loader will just use ctas_empty
 {%- import 'syntax.sql.jinja' as syntax -%}
 CREATE TABLE IF NOT EXISTS `{{ schema_name }}`.`{{ table_name }}` (
     {%- for col in table_cols %}
-    {{ col }} {{ athena_col_types[loop.index0] }}
+    `{{ col }}` {{ athena_col_types[loop.index0] }}
     {{- syntax.comma_delineate(loop) }}
     {%- endfor %}
 )
