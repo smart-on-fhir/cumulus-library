@@ -302,6 +302,13 @@ class BedrockProvider(Provider):
             **extra_args,
         )
 
+        if response.error_code != 200:
+            raise Exception(
+                "Error dealing with note:\n{}\n\nResponse: {}".format(
+                    user, response["body"].read().decode("utf-8")
+                )
+            )
+
         usage = response.get("usage", {})
         call_usage = self.record_usage(
             cache_read_input_tokens=usage.get("cacheReadInputTokens", 0),
@@ -465,7 +472,13 @@ class OpenAIProvider(Provider):
 
     def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
         prompt_args = self._prompt_args(system, user, schema)
-        response = self.client.chat.completions.parse(**prompt_args)
+        try:
+            response = self.client.chat.completions.parse(**prompt_args)
+        except openai.APIError as exc:
+            raise Exception(
+                f"Exception raised calling note:\n{user}\n\nError code: {exc.code}\n{exc.message}"
+            )
+
         return self._process_completion_result(response, schema)
 
     def add_to_batch(self, prompt: Prompt, tmp_dir: str) -> str | None:
