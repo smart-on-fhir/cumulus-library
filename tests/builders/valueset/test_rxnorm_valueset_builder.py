@@ -84,6 +84,7 @@ def test_rxnorm_valueset_builder(mock_user_dir, mock_api, mock_db_config_rxnorm,
         )
     )
 
+
 @mock.patch("cumulus_library.base_utils.get_user_cache_dir")
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
 def test_no_umls_valuesets_table_when_empty_umls(
