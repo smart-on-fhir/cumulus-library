@@ -15,11 +15,11 @@ class ValuesetConfig:
     vsac_stewards: dict[str, str] = None
 
     def __post_init__(self):
-      if self.umls_stewards is None:
-        self.umls_stewards = {}
+        if self.umls_stewards is None:
+            self.umls_stewards = {}
 
-      if self.vsac_stewards is None:
-        self.vsac_stewards = {}
+        if self.vsac_stewards is None:
+            self.vsac_stewards = {}
 
     def get_table_prefix(self):
         if self.table_prefix is None or self.table_prefix == "":
