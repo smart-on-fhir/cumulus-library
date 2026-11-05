@@ -96,12 +96,6 @@ class RxNormValuesetBuilder(BaseTableBuilder):
         # TODO: this should be decoupled from the RXNORM-centric process as a standalone builder
         umls.generate_umls_tables(config, manifest, valueset_config)
 
-        #   The builder already knows which sources are configured, so it's the
-        # right place to decide which tables belong in the result
-        #   The template's job stays simple: render SQL for the tables it
-        # receives. Making it discover existing tables adds database awareness
-        # and could hide a bug where a configured source failed to create its
-        # table
         tables_to_union = []
 
         if valueset_config.vsac_stewards:
@@ -120,7 +114,6 @@ class RxNormValuesetBuilder(BaseTableBuilder):
         if valueset_config.umls_stewards:
             tables_to_union.append(f"{study_prefix}{table_prefix}umls_valuesets")
 
-        # Skip this entirely when both UMLS and VSAC are not defined
         if tables_to_union:
             # Join together the UMLS and VSAC valuesets
             self.queries.append(
@@ -131,7 +124,6 @@ class RxNormValuesetBuilder(BaseTableBuilder):
                 )
             )
         else:
-            # We still need this table downstream
             self.queries.append(
                 base_templates.get_ctas_empty_query(
                     schema_name=config.schema,

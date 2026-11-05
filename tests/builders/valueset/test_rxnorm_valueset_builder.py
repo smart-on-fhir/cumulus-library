@@ -84,13 +84,6 @@ def test_rxnorm_valueset_builder(mock_user_dir, mock_api, mock_db_config_rxnorm,
         )
     )
 
-
-# Q: Who passes mock_db_config to this function??
-# A: They are fixtures in tests/conftest.py
-
-
-#   We still configure VSAC, which uses the UMLS API; without mock, the test
-# depends on cached files or a real API call
 @mock.patch("cumulus_library.base_utils.get_user_cache_dir")
 @mock.patch("cumulus_library.apis.umls.UmlsApi")
 def test_no_umls_valuesets_table_when_empty_umls(
@@ -108,14 +101,10 @@ def test_no_umls_valuesets_table_when_empty_umls(
 
     mock_api.return_value.get_vsac_valuesets.return_value = resp
 
-    #   The production TOML loader (builders/valueset_builder) uses {} for a
-    # missing source. Not setting it explicitly can cause an iteration error
-    # before the final assertion
     valueset_config = valueset_utils.ValuesetConfig(
         rules_file=toml_config.get("rules_file"),
         keyword_file=toml_config.get("keyword_file"),
         table_prefix=toml_config.get("table_prefix"),
-        umls_stewards={},
         vsac_stewards=toml_config.get("vsac_stewards"),
     )
 
@@ -127,9 +116,6 @@ def test_no_umls_valuesets_table_when_empty_umls(
         manifest=manifest,
         valueset_config=valueset_config,
         toml_path=tmp_path,
-        #   Using toml_path=test_path writes generated files into your test
-        # data directory; the cache mock above doesn't override an explicit
-        # path
     )
 
     rxnorm_builder = rxnorm_valueset_builder.RxNormValuesetBuilder()

@@ -157,7 +157,6 @@ def test_no_vsac_valuesets_table_when_vsac_empty(
 
     valueset_config = valueset_utils.ValuesetConfig(
         umls_stewards={"medrt": {"sab": "MED-RT", "search_terms": ["Opioid"]}},
-        vsac_stewards={},
         rules_file="rules_file.tsv",
         table_prefix="prefix",
     )
