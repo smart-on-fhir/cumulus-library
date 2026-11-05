@@ -193,6 +193,66 @@ def test_cached_notes_report_no_spend(mock_client, tmp_path, mock_db_config, tra
 
 
 @mock.patch("openai.OpenAI")
+def test_filtered_notes_are_counted_per_table(mock_client, tmp_path, mock_db_config, tracking_uri):
+    """Notes a table's filters reject show up on that table's run only."""
+    model = nlp_utils.MockModel(mock_client)
+    model.mock_openai_response({"hello": 1})
+    config = tracked_config(model, tracking_uri)
+
+    # Three notes ("... world 0/1/2"); "picky" selects only one of them, "open" takes all.
+    workflow_path = conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "nlp",
+            "tables": {
+                "picky": {
+                    "response_schema": nlp_utils.EMPTY_SCHEMA,
+                    "select_by_word": ["world 1"],
+                },
+                "open": {"response_schema": nlp_utils.EMPTY_SCHEMA},
+            },
+        },
+        "nlp.workflow",
+    )
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=make_notes(tmp_path, count=3), nlp_config=config
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    runs = runs_by_table()
+    picky = runs["picky"].data.metrics
+    assert picky["notes.with_text"] == 3
+    assert picky["notes.filtered_out"] == 2
+    assert picky["notes.considered"] == 1
+    assert picky["notes.already_done"] == 0
+
+    # The same notes, but this table wanted all of them.
+    assert runs["open"].data.metrics["notes.filtered_out"] == 0
+    assert runs["open"].data.metrics["notes.considered"] == 3
+
+
+@mock.patch("openai.OpenAI")
+def test_already_done_notes_are_counted(mock_client, tmp_path, mock_db_config, tracking_uri):
+    """Notes uploaded by a previous run are reported as already done, not as filtered."""
+    model = nlp_utils.MockModel(mock_client)
+    model.mock_openai_response({"hello": 1})
+    config = tracked_config(model, tracking_uri)
+
+    notes = make_notes(tmp_path, count=2)
+    build(tmp_path, mock_db_config, config, notes, "age")
+    first = runs_by_table()["age"].data.metrics
+    assert first["notes.already_done"] == 0
+
+    # The test config cleans by default, which would wipe the record of the first run's uploads.
+    config2 = tracked_config(model, tracking_uri, mlflow_experiment="second-pass", clean=False)
+    build(tmp_path, mock_db_config, config2, make_notes(tmp_path, count=2), "age")
+    second = runs_by_table("second-pass")["age"].data.metrics
+    assert second["notes.already_done"] == 2
+    assert second["notes.filtered_out"] == 0
+    assert second["notes.considered"] == 0
+
+
+@mock.patch("openai.OpenAI")
 def test_no_tracking_without_the_flag(mock_client, tmp_path, mock_db_config, tracking_uri):
     """The normal build path creates no runs at all."""
     model = nlp_utils.MockModel(mock_client)
