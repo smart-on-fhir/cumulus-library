@@ -247,7 +247,8 @@ on the model to answer, things go slow. Here's how we can move a bit faster!
 
 `--nlp-concurrency` sets how many requests are in flight at once. It is a hard ceiling, not a
 target: the run never has more requests outstanding than you allow, so raising it cannot turn
-into a stampede against your server.
+into a stampede against your server. Values above 64 are not blocked, but print a warning, since
+each worker is a thread and very high counts can exhaust memory or trigger heavy rate limiting.
 
 Which number is safe depends on where you're sending the requests:
 

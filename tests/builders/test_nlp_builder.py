@@ -1754,6 +1754,27 @@ def test_never_exceeds_configured_concurrency(mock_client, tmp_path, mock_db_con
     assert max_inflight > 1
 
 
+@pytest.mark.parametrize(
+    "concurrency,warns",
+    [
+        (nlp_dispatch.WARN_CONCURRENCY, False),
+        (nlp_dispatch.WARN_CONCURRENCY + 1, True),
+    ],
+)
+@nlp_utils.mock_env("azure")
+@mock.patch("openai.AzureOpenAI")
+def test_warns_over_concurrency_threshold(mock_client, concurrency, warns, capsys):
+    """Going past the warning threshold should warn, but still honor the requested value."""
+    model = nlp_utils.MockModel(mock_client, provider="azure")
+    config = model.nlp_config(concurrency=concurrency)
+
+    dispatcher = nlp_dispatch.PromptDispatcher(config)
+    dispatcher.finish()
+
+    assert dispatcher.concurrency == concurrency  # not capped
+    assert ("--nlp-concurrency" in capsys.readouterr().out) == warns
+
+
 @nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_output_is_identical_regardless_of_concurrency(mock_client, tmp_path, mock_db_config):
