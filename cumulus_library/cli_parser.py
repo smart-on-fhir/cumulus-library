@@ -237,6 +237,7 @@ def add_nlp_config(parser: argparse.ArgumentParser, dev: bool = False) -> None:
             "How many NLP requests to keep in flight at once (default is one per deployment). "
             "Workers are spread across the deployments you provide. "
             "If the counts don't divide evenly, some deployments more workers than others. "
+            "Values over 64 are allowed but print a warning. "
         ),
     )
     group.add_argument(
