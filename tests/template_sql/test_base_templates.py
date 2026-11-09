@@ -591,6 +591,27 @@ FROM read_parquet('./tests/test_data/*.parquet')""",
             ["a", "b"],
             ["String", "Int"],
         ),
+        (
+            """CREATE EXTERNAL TABLE IF NOT EXISTS `test_athena`.`remote_table` ( `a``b` String
+)
+STORED AS PARQUET
+LOCATION 's3://bucket/data/'
+tblproperties ("parquet.compression"="SNAPPY");""",
+            "athena",
+            "test_athena",
+            "remote_table",
+            ["a`b"],
+            ["String"],
+        ),
+        (
+            """CREATE TABLE IF NOT EXISTS "test_duckdb"."local_table" AS SELECT "a""b"
+FROM read_parquet('./tests/test_data/*.parquet')""",
+            "duckdb",
+            "test_duckdb",
+            "local_table",
+            ['a"b'],
+            ["String"],
+        ),
     ],
 )
 def test_ctas_from_parquet(expected, db_type, schema, table, cols, remote_types):
