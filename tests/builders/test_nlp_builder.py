@@ -1,8 +1,5 @@
 """
 Tests for the NLP builder.
-
-These tests are all in the same xdist "group" because when run across xdist workers, we saw flaky
-test failures. We weren't able to debug why, so we grouped these tests up. TODO: investigate that
 """
 
 import binascii
@@ -465,7 +462,7 @@ def _table_names(mock_db_config) -> set[str]:
 @mock.patch("openai.OpenAI")
 def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     """--nlp-subtask restricts the build to the named tables, leaving the rest unbuilt."""
-    workflow_path = _multi_table_workflow(tmp_path, "kept_table", "dropped_table")
+    workflow_path = _multi_table_workflow(tmp_path, "first_table", "second_table")
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         add_dxr("1", "say hello to the world", f)
     source = note_utils.NoteSource([tmp_path])
@@ -473,7 +470,7 @@ def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     model = nlp_utils.MockModel(mock_client)
     model.mock_openai_response({"hello": 1})
     nlp_config = model.nlp_config()
-    nlp_config.subtasks = ["kept_table"]
+    nlp_config.subtasks = ["first_table"]
 
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=source, nlp_config=nlp_config
@@ -481,11 +478,22 @@ def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
 
     tables = _table_names(mock_db_config)
-    assert driver.table_name_for_task("kept_table", nlp_config) in tables
-    assert driver.table_name_for_task("dropped_table", nlp_config) not in tables
-    assert read_rows(mock_db_config, driver.table_name_for_task("kept_table", nlp_config))[0][
+    assert driver.table_name_for_task("first_table", nlp_config) in tables
+    assert driver.table_name_for_task("second_table", nlp_config) not in tables
+    assert read_rows(mock_db_config, driver.table_name_for_task("first_table", nlp_config))[0][
         "result"
     ] == {"hello": 1}
+
+    # Checking a second subtask does not remove an existing subtask
+    nlp_config.subtasks = ["second_table"]
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=source, nlp_config=nlp_config
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    tables = _table_names(mock_db_config)
+    assert driver.table_name_for_task("first_table", nlp_config) in tables
+    assert driver.table_name_for_task("second_table", nlp_config) in tables
 
 
 @mock.patch("openai.OpenAI")
@@ -1135,9 +1143,8 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     db.connection._client.get_work_group.return_value = bucket_info
 
     study_config = cumulus_library.StudyConfig(db=db, schema="main")
-    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    workflow_path = nlp_utils.basic_workflow(tmp_path, version=1)
     model = nlp_utils.MockModel(mock_openai_client)
-
     # Mock out FsPath's s3 filesystem (it should grow a fancier mock itself ideally)
     mem_fs = fsspec.implementations.memory.MemoryFileSystem()
     with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": mem_fs}):
@@ -1151,7 +1158,7 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     # Confirm we wrote the parquet file out correctly, into an ETL-style upload folder
     # (nlp prefix, task name, model, and task version)
     upload_dir = (
-        "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/nlp_task_gpt_oss_120b_v0"
+        "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/nlp_task_gpt_oss_120b_v1"
     )
     with mem_fs.open(f"{upload_dir}/nlp.0.parquet", "rb") as f:
         df = pandas.read_parquet(f)
@@ -1173,9 +1180,40 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     # And confirm the query looks right
     assert builder.queries == [
         "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__nlp_task_gpt_oss_120b` "
-        "( note_ref STRING, "
-        "encounter_ref STRING, subject_ref STRING, generated_on STRING, task_version INT, "
-        "model STRING, system_fingerprint STRING, result STRUCT<ignored: STRING>\n)\n"
+        "( `note_ref` STRING, `encounter_ref` STRING, `subject_ref` STRING, "
+        "`generated_on` STRING, `task_version` INT, `model` STRING, `system_fingerprint` STRING, "
+        "`result` STRUCT<ignored: STRING>\n)\n"
+        "STORED AS PARQUET\n"
+        f"LOCATION 'memory://{upload_dir}'\n"
+        'tblproperties ("parquet.compression"="SNAPPY");',
+    ]
+
+    # Then check that a version update works successfully
+    workflow_path = nlp_utils.basic_workflow(tmp_path, version=2)
+    with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": mem_fs}):
+        builder = nlp_builder.NlpBuilder(
+            toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+        )
+        builder.execute_queries(study_config, None)
+
+    assert builder.stats.got_response[0] == 1
+    upload_dir = (
+        "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/nlp_task_gpt_oss_120b_v2"
+    )
+    with mem_fs.open(f"{upload_dir}/nlp.0.parquet", "rb") as f:
+        df = pandas.read_parquet(f)
+        rows = json.loads(df.to_json(orient="records"))
+
+    assert len(rows) == 1
+    assert (
+        rows[0]["note_ref"]
+        == "DiagnosticReport/eee10367d972edc0fbbdf0cc6664eb595e4768e193279cd657cfb9cd82b0329b"
+    )
+    assert builder.queries == [
+        "CREATE EXTERNAL TABLE IF NOT EXISTS `main`.`example_nlp__nlp_task_gpt_oss_120b` "
+        "( `note_ref` STRING, `encounter_ref` STRING, `subject_ref` STRING, "
+        "`generated_on` STRING, `task_version` INT, `model` STRING, `system_fingerprint` STRING, "
+        "`result` STRUCT<ignored: STRING>\n)\n"
         "STORED AS PARQUET\n"
         f"LOCATION 'memory://{upload_dir}'\n"
         'tblproperties ("parquet.compression"="SNAPPY");',
@@ -1716,6 +1754,27 @@ def test_never_exceeds_configured_concurrency(mock_client, tmp_path, mock_db_con
     assert max_inflight > 1
 
 
+@pytest.mark.parametrize(
+    "concurrency,warns",
+    [
+        (nlp_dispatch.WARN_CONCURRENCY, False),
+        (nlp_dispatch.WARN_CONCURRENCY + 1, True),
+    ],
+)
+@nlp_utils.mock_env("azure")
+@mock.patch("openai.AzureOpenAI")
+def test_warns_over_concurrency_threshold(mock_client, concurrency, warns, capsys):
+    """Going past the warning threshold should warn, but still honor the requested value."""
+    model = nlp_utils.MockModel(mock_client, provider="azure")
+    config = model.nlp_config(concurrency=concurrency)
+
+    dispatcher = nlp_dispatch.PromptDispatcher(config)
+    dispatcher.finish()
+
+    assert dispatcher.concurrency == concurrency  # not capped
+    assert ("--nlp-concurrency" in capsys.readouterr().out) == warns
+
+
 @nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_output_is_identical_regardless_of_concurrency(mock_client, tmp_path, mock_db_config):
@@ -2236,3 +2295,109 @@ def test_request_timeout_is_not_counted_as_stuck(monkeypatch):
     assert result.error is error
     assert result.response is None
     assert dispatcher.stuck_dropped == 0
+
+
+@mock.patch("boto3.client")
+def test_bedrock_concurrency(mock_client):
+    nlp_mocker = nlp_utils.MockModel(
+        mock_client,
+        model_id="claude-sonnet45",
+        provider="bedrock",
+    )
+
+    nlp_config = nlp_mocker.nlp_config()
+    # Calling the model generation will assign a boto client, but we don't care
+    # about using the model itself
+    models.ClaudeSonnet45Model(nlp_config)
+    assert nlp_config.cli_concurrency is None
+    assert nlp_config.concurrency == 1
+    passed_config = mock_client.call_args[1]["config"]._user_provided_options
+    assert "max_pool_connections" not in passed_config.keys()
+
+    nlp_config = nlp_mocker.nlp_config(concurrency=10)
+    models.ClaudeSonnet45Model(nlp_config)
+    assert nlp_config.cli_concurrency == 10
+    assert nlp_config.concurrency == 10
+    passed_config = mock_client.call_args[1]["config"]._user_provided_options
+    assert passed_config["max_pool_connections"] == 10
+
+
+####################
+# No-match warning tests
+####################
+
+
+def _run_for_output(tmp_path, mock_client, mock_db_config, *, notes, tasks) -> str:
+    """Runs a workflow with the given notes (id, text) and task configs, returning stdout."""
+    workflow_path = conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "nlp",
+            "tables": {
+                name: {"response_schema": nlp_utils.EMPTY_SCHEMA, **task}
+                for name, task in tasks.items()
+            },
+        },
+        "nlp.workflow",
+    )
+    with open(f"{tmp_path}/doc.ndjson", "w", encoding="utf8") as f:
+        for note_id, text in notes:
+            add_doc(note_id, text, f)
+
+    model = nlp_utils.MockModel(mock_client)
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_utils.NoteSource([tmp_path]),
+        nlp_config=model.nlp_config(),
+    )
+    console_output = io.StringIO()
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+    return console_output.getvalue()
+
+
+@mock.patch("openai.OpenAI")
+def test_warns_when_no_notes_found(mock_client, tmp_path, mock_db_config):
+    output = _run_for_output(tmp_path, mock_client, mock_db_config, notes=[], tasks={"task": {}})
+    assert "No notes were found to process" in output
+
+
+@mock.patch("openai.OpenAI")
+def test_warns_when_no_notes_have_text(mock_client, tmp_path, mock_db_config):
+    output = _run_for_output(
+        tmp_path,
+        mock_client,
+        mock_db_config,
+        notes=[("1", None), ("2", None)],
+        tasks={"task": {}},
+    )
+    assert "2 notes found, but none had any text" in output
+    assert "matched the filters" not in output
+
+
+@mock.patch("openai.OpenAI")
+def test_warns_when_filters_match_nothing(mock_client, tmp_path, mock_db_config):
+    output = _run_for_output(
+        tmp_path,
+        mock_client,
+        mock_db_config,
+        notes=[("1", None), ("2", "has a cold"), ("3", "has a cough")],
+        tasks={"picky": {"select_by_word": ["fever"]}, "open": {}},
+    )
+    # Only the task that matched nothing warns
+    assert "No notes matched the filters for 'picky'" in output
+    assert "Of 3 notes, 1 had no text and 2 were rejected by the select/reject filters" in output
+    # and it separates no-text from filtered notes.
+    assert "for 'open'" not in output
+
+
+@mock.patch("openai.OpenAI")
+def test_no_warning_when_notes_match(mock_client, tmp_path, mock_db_config):
+    output = _run_for_output(
+        tmp_path,
+        mock_client,
+        mock_db_config,
+        notes=[("1", "has a fever")],
+        tasks={"task": {"select_by_word": ["fever"]}},
+    )
+    assert "WARNING" not in output

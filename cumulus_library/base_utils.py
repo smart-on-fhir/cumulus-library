@@ -16,7 +16,8 @@ import rich
 import sqlglot
 from rich import progress
 
-from cumulus_library import databases, errors, study_manifest
+from cumulus_library import databases, enums, errors, study_manifest
+from cumulus_library.template_sql import base_templates
 
 
 @dataclasses.dataclass
@@ -220,6 +221,21 @@ def get_viewtable_names_from_create_queries(
             table_name = table_name.split(".", 1)[1].replace('"', "").replace("`", "")
         artifacts.append((table_name, parser.kind))
     return artifacts
+
+
+def get_existing_viewtables_from_stage(
+    config: StudyConfig,
+    manifest: study_manifest.StudyManifest,
+    prefix: str,
+):
+    query = base_templates.get_select_from_single_query(
+        schema=get_schema(config=config, manifest=manifest),
+        table_name=f"{prefix}{enums.ProtectedTables.BUILD_SOURCE.value}",
+        columns=["name", "type"],
+        where_clauses=[[f"stage = '{config.stage}'"]],
+        distinct=True,
+    )
+    return config.db.cursor().execute(query).fetchall()
 
 
 def pyarrow_types_from_hive_types(field_types: list[str]):

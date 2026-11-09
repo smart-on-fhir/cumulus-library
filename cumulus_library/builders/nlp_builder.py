@@ -144,8 +144,51 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             table.add_row("   from cache:", f"{stats.from_cache[idx]:,}")
             table.add_row("   fresh LLM calls:", f"{stats.from_model[idx]:,}")
         rich.get_console().print(table)
+        if not self._print_no_notes_warning(stats):
+            self._print_filtered_out_warning(names=names, stats=stats)
         self._print_throttle_warning(stats)
         self._print_stuck_warning(stats)
+
+    def _print_no_notes_warning(self, stats: models.NlpStats) -> bool:
+        """
+        Calls out a run that never saw any usable notes, which otherwise looks like a fast run.
+
+        Returns whether it printed a warning, so the caller can skip printing the
+        filtered-out warning (which is redundant if there were no notes at all).
+        """
+        if not stats.available:
+            rich.get_console().print(
+                "\n 🚨[bold red] WARNING:[/] No notes were found to process.\n"
+                " Check the note folder and the resource types it contains.",
+                highlight=False,
+            )
+            return True
+        if not stats.had_text:
+            plural = "" if stats.available == 1 else "s"
+            rich.get_console().print(
+                f"\n 🚨[bold red] WARNING:[/] {stats.available:,} note{plural} found, "
+                "but none had any text.\n"
+                " Check that notes include attachments in a supported content type.",
+                highlight=False,
+            )
+            return True
+        return False
+
+    def _print_filtered_out_warning(self, *, names: list[str], stats: models.NlpStats) -> None:
+        """
+        Calls out tasks whose filters matched nothing, with where the other notes went.
+        """
+        no_text = stats.available - stats.had_text
+        for idx, name in enumerate(names):
+            if stats.considered[idx] or stats.already_done[idx]:
+                continue
+            label = f" for '{name}'" if name else ""
+            rich.get_console().print(
+                f"\n 🚨[bold red] WARNING:[/] No notes matched the filters{label}.\n"
+                f" Of {stats.available:,} notes, {no_text:,} had no text and "
+                f"{stats.filtered_out[idx]:,} were rejected by the select/reject filters.",
+                highlight=False,
+            )
 
     def _print_throttle_warning(self, stats: models.NlpStats) -> None:
         """Calls out notes we abandoned to rate limiting, which otherwise leave a silent gap.
@@ -280,7 +323,20 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             model_id=self._nlp_config.model,
         )
 
-    def _table_is_view(self, study_config: cumulus_library.StudyConfig) -> bool:
+    def _subtask_clean(self, config: cumulus_library.StudyConfig, viewtable: tuple[str, str]):
+        """Subtask cleaner
+
+        When we get a subtask, we skip the cleaning phase entirely. So out of due
+        diligence, for a table that is created during a subtask run, we'll drop
+        any extant tables/views just to prevent lingering artifacts.
+        """
+        if self._nlp_config.subtasks:
+            drop_query = base_templates.get_drop_view_table(
+                name=viewtable[0], view_or_table=viewtable[1]
+            )
+            config.db.cursor().execute(drop_query)
+
+    def _is_nlp_viewlike(self, study_config: cumulus_library.StudyConfig) -> bool:
         # When we create a table from parquet with duckdb, we are injecting the data and it
         # needs to already exist on disk. So we must run the NLP beforehand.
         # But in Athena, the table is dynamic and we can create the table first, so that even if
@@ -289,13 +345,8 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         # or a materialized table.
         return study_config.db.db_type == "athena"
 
-    def prepare_queries(
-        self,
-        *args,
-        config: cumulus_library.StudyConfig,
-        **kwargs,
-    ):
-        if not self._table_is_view(config):
+    def prepare_queries(self, *args, config: cumulus_library.StudyConfig, **kwargs):
+        if not self._is_nlp_viewlike(config):
             self._run_nlp(config)
 
         for table_slug, task in self._tables_to_build.items():
@@ -315,6 +366,9 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
                     remote_table_cols_types=remote_types,
                 )
             )
+        tables = base_utils.get_viewtable_names_from_create_queries(config, self.queries)
+        for table in tables:
+            self._subtask_clean(config, table)
 
     def post_execution(
         self,
@@ -322,5 +376,5 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         *args,
         **kwargs,
     ):
-        if self._table_is_view(config):
+        if self._is_nlp_viewlike(config):
             self._run_nlp(config)

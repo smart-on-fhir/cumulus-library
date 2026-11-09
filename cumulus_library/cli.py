@@ -112,7 +112,17 @@ class StudyRunner:
                 builder.run_protected_table_builder(
                     config=self.get_config(manifest), manifest=manifest
                 )
-                if not continue_from:
+                # If we are dealing with subtasks, we won't know what tables to clean
+                # until right before or after we run NLP, depending on the database type.
+                # This means that if subtasks fail, the extant tables may end up in a bad state.
+                if nlp_config and nlp_config.subtasks:
+                    log_utils.log_transaction(
+                        config=self.get_config(manifest),
+                        manifest=manifest,
+                        status=enums.LogStatuses.STARTED,
+                        message=",".join(nlp_config.subtasks),
+                    )
+                elif not continue_from:
                     log_utils.log_transaction(
                         config=self.get_config(manifest),
                         manifest=manifest,
@@ -526,7 +536,7 @@ def main(cli_args=None):
         table.add_column("Environment Variable", style="green")
         table.add_column("Value", style="cyan")
         for row in read_env_vars:
-            if row[0] in ["CUMULUS_AGGREGATOR_ID", "LOINC_PASSWORD"]:
+            if row[0] in ["CUMULUS_AGGREGATOR_ID", "LOINC_PASSWORD", "UMLS_API_KEY"]:
                 table.add_row(row[0], "#########")  # pragma: no cover
             else:
                 table.add_row(row[0], row[1])

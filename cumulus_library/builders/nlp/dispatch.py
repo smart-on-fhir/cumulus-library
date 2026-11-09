@@ -30,8 +30,10 @@ MAX_COOLDOWN_SECONDS = 60
 # How many times to re-issue a single note that keeps getting rate limited. This is on top of
 # the retries the client SDKs already do internally (see models.MAX_RETRIES).
 MAX_THROTTLE_RETRIES = 3
-# Sanity check on user input, to avoid OOMing the machine
-MAX_CONCURRENCY = 16
+# Past this many workers we warn the user, but we do not stop them: the right ceiling depends
+# on the endpoint, and each worker is a thread (plus a buffered note), so very high values
+# risk exhausting memory or hitting server-side limits.
+WARN_CONCURRENCY = 64
 
 # How long to wait on a single note's result before treating its worker as stuck.
 # Results are drained in submission order, so a worker that never returns takes down the whole run
@@ -147,7 +149,13 @@ class PromptDispatcher:
 
     def __init__(self, nlp_config: note_utils.NlpConfig):
         self.endpoints = self._create_endpoints(nlp_config)
-        self.concurrency = max(1, min(nlp_config.concurrency, MAX_CONCURRENCY))
+        self.concurrency = max(1, nlp_config.concurrency)
+        if self.concurrency > WARN_CONCURRENCY:
+            models.print_error(
+                f"Warning: --nlp-concurrency={self.concurrency} is over {WARN_CONCURRENCY}. "
+                f"Proceeding anyway, but this starts {self.concurrency} threads and may "
+                f"exhaust memory or trigger heavy rate limiting."
+            )
         # Notes rate limited to the point of giving up. Surfaced to the user at the end of a
         # run, because otherwise a throttled run quietly produces a partial table.
         self.throttle_dropped = 0

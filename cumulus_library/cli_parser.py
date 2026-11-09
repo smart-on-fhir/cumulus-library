@@ -194,9 +194,12 @@ def add_nlp_config(parser: argparse.ArgumentParser, dev: bool = False) -> None:
     group.add_argument(
         "--nlp-model",
         choices=[
+            "claude-haiku55",
             "claude-sonnet45",
             "claude-sonnet46",
+            "claude-sonnet55",
             "claude-opus48",
+            "claude-opus55",
             "gpt-oss-120b",
             "gpt35",
             "gpt4",
@@ -234,6 +237,7 @@ def add_nlp_config(parser: argparse.ArgumentParser, dev: bool = False) -> None:
             "How many NLP requests to keep in flight at once (default is one per deployment). "
             "Workers are spread across the deployments you provide. "
             "If the counts don't divide evenly, some deployments more workers than others. "
+            "Values over 64 are allowed but print a warning. "
         ),
     )
     group.add_argument(

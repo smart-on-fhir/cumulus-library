@@ -12,6 +12,11 @@ jobs:
     # until this is addressed (and, realistically, the speed advantage for a release is not
     # the most important anyway).
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write # this permission is required for PyPI "trusted publishing"
+    
     steps:
     - uses: actions/checkout@v6
 
@@ -37,6 +42,3 @@ jobs:
 
     - name: Publish
       uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
-        print_hash: true

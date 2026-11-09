@@ -167,6 +167,10 @@ class NlpStats:
         self.available = 0
         self.had_text = 0
         self.considered = [0] * size
+        # Notes with text that a task's select/reject filters turned away, per task.
+        self.filtered_out = [0] * size
+        # Notes with text that a task skipped because a previous run already uploaded them.
+        self.already_done = [0] * size
         self.got_response = [0] * size
         # Of those responses, how many cost a model call this run versus came back from the
         # on-disk cache for free. These always sum to got_response.
@@ -236,6 +240,7 @@ class BedrockProvider(Provider):
         self,
         model_name: str,
         *,
+        concurrency: int | None = None,
         supports_cache: bool = True,
         supports_schema: bool = True,
         supports_temperature: bool = True,
@@ -247,11 +252,12 @@ class BedrockProvider(Provider):
         self.supports_temperature = supports_temperature
         # Adaptive mode adds client-side rate limiting on top of retries, so a throttled
         # endpoint slows us down instead of us hammering it harder.
+        config = {"retries": {"max_attempts": MAX_RETRIES, "mode": "adaptive"}}
+        if concurrency:
+            config["max_pool_connections"] = concurrency
         self.client = boto3.client(
             "bedrock-runtime",
-            config=botocore.config.Config(
-                retries={"max_attempts": MAX_RETRIES, "mode": "adaptive"}
-            ),
+            config=botocore.config.Config(**config),
         )
 
     def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
@@ -719,6 +725,9 @@ class Model:
                 self.raise_unsupported_error(config.provider)
             self.provider = BedrockProvider(
                 self.BEDROCK_ID,
+                # Noting that we want to get the user provided value, rather than the
+                # coerced one, so we can allow default boto values if it was not provided.
+                concurrency=config.cli_concurrency,
                 supports_cache=self.BEDROCK_CACHE,
                 supports_schema=self.BEDROCK_SCHEMA,
                 supports_temperature=self.BEDROCK_TEMPERATURE,
@@ -931,6 +940,18 @@ class ClaudeSonnet46Model(Model):
     )
 
 
+class ClaudeSonnet55Model(Model):
+    MODEL_ID = "claude-sonnet55"
+    BEDROCK_ID = "us.anthropic.claude-sonnet-5-5"
+    BEDROCK_PRICES = TokenPrices(
+        date=datetime.date(2026, 10, 27),
+        new_input_tokens=0.0022,
+        cache_read_input_tokens=0.00011,
+        cache_written_input_tokens=0.0044,
+        output_tokens=0.011,
+    )
+
+
 class ClaudeOpus48Model(Model):
     MODEL_ID = "claude-opus48"
     BEDROCK_ID = "us.anthropic.claude-opus-4-8"
@@ -946,10 +967,41 @@ class ClaudeOpus48Model(Model):
     )
 
 
+class ClaudeOpus55Model(Model):
+    MODEL_ID = "claude-opus55"
+    BEDROCK_ID = "us.anthropic.claude-opus-5-5"
+    BEDROCK_TEMPERATURE = False
+    BEDROCK_PRICES = TokenPrices(
+        date=datetime.date(2026, 9, 2),
+        new_input_tokens=0.0044,
+        cache_read_input_tokens=0.00022,
+        cache_written_input_tokens=0.0088,
+        output_tokens=0.022,
+    )
+
+
+class ClaudeHaiku55Model(Model):
+    MODEL_ID = "claude-haiku55"
+    BEDROCK_ID = "us.anthropic.claude-haiku-5-5"
+    BEDROCK_TEMPERATURE = False
+    BEDROCK_PRICES = TokenPrices(
+        date=datetime.date(2026, 9, 2),
+        new_input_tokens=0.00011,
+        cache_read_input_tokens=0.0000011,
+        cache_written_input_tokens=0.00022,
+        output_tokens=0.00055,
+    )
+
+
+# This list is used for simplifying testing parameters
+# and creating models based on cli-params
 _MODELS = [
+    ClaudeHaiku55Model,
     ClaudeSonnet45Model,
     ClaudeSonnet46Model,
+    ClaudeSonnet55Model,
     ClaudeOpus48Model,
+    ClaudeOpus55Model,
     Gpt35Model,
     Gpt4Model,
     Gpt4oModel,

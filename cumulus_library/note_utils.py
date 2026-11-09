@@ -167,10 +167,11 @@ class NlpConfig:
         # How many requests to keep in flight at once. Defaults to one worker per deployment,
         # so passing several deployments parallelizes without any extra flags, while a single
         # endpoint (local vLLM, Bedrock) stays serial until you explicitly ask for more.
-        concurrency = args.get("nlp_concurrency")
-        if concurrency is None:
-            concurrency = len(self.azure_deployments) or 1
-        self.concurrency = max(1, concurrency)
+
+        # we keep the cli-passed concurrency value around, so that if it was not initialized and
+        # a model provider (i.e. bedrock) has default behavior, we can respect it.
+        self.cli_concurrency = args.get("nlp_concurrency")
+        self.concurrency = self.cli_concurrency or len(self.azure_deployments) or 1
 
         self.salt = None
         if self.phi_dir:
