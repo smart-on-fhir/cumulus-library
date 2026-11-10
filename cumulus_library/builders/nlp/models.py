@@ -477,9 +477,9 @@ class OpenAIProvider(Provider):
         prompt_args = self._prompt_args(system, user, schema)
         try:
             response = self.client.chat.completions.parse(**prompt_args)
-        except openai.APIError as exc:
-            raise errors.CumulusLibraryError(
-                f"Exception raised calling note:\n{user}\n\nError code: {exc.code}\n{exc.message}"
+        except openai.BadRequestError as exc:
+            raise Exception(
+                f"Exception raised calling note:\n{user}\n\nError code: {exc.code} - {exc.message}"
             )
 
         return self._process_completion_result(response, schema)
