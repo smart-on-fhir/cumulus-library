@@ -302,11 +302,11 @@ class BedrockProvider(Provider):
                 messages=[{"role": "user", "content": [{"text": user}]}],
                 **extra_args,
             )
-        except botocore.errorfactory.ValidationException as e:
+        except self.client.exceptions.ClientError as e:
             raise Exception(
-                "Validation Exception raised when handling {}:\n\n{}".format(
-                    user,
-                    e.response['Error']['Message']
+                "{} Exception raised when handling {}:\n\n{}".format(
+                    e.response["Error"]["Code"],
+                    user, e.response['Error']['Message']
                 )
             )
 
