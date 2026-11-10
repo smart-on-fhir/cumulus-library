@@ -303,12 +303,14 @@ class BedrockProvider(Provider):
                 **extra_args,
             )
         except self.client.exceptions.ClientError as e:
-            raise errors.CumulusLibraryError(
-                "{} Exception raised when handling {}:\n\n{}".format(
-                    e.response["Error"]["Code"],
-                    user, e.response['Error']['Message']
+            if e.response["Error"]["Code"] == "ThrottlingException":
+                raise e  # handle pytest throttling strategy
+            else:
+                raise errors.CumulusLibraryError(
+                    "{} Exception raised when handling {}:\n\n{}".format(
+                        e.response["Error"]["Code"], user, e.response['Error']['Message']
+                    )
                 )
-            )
 
         usage = response.get("usage", {})
         call_usage = self.record_usage(
