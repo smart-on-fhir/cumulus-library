@@ -303,17 +303,10 @@ class BedrockProvider(Provider):
                 **extra_args,
             )
         except self.client.exceptions.ClientError as e:
-            raise Exception(
+            raise errors.CumulusLibraryError(
                 "{} Exception raised when handling {}:\n\n{}".format(
                     e.response["Error"]["Code"],
                     user, e.response['Error']['Message']
-                )
-            )
-
-        if response.get("error_code", 200) != 200:
-            raise Exception(
-                "Error dealing with note:\n{}\n\nResponse: {}".format(
-                    user, response["body"].read().decode("utf-8")
                 )
             )
 
@@ -483,7 +476,7 @@ class OpenAIProvider(Provider):
         try:
             response = self.client.chat.completions.parse(**prompt_args)
         except openai.APIError as exc:
-            raise Exception(
+            raise errors.CumulusLibraryError(
                 f"Exception raised calling note:\n{user}\n\nError code: {exc.code}\n{exc.message}"
             )
 
