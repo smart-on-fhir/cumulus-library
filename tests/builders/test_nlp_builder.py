@@ -1980,6 +1980,7 @@ def test_bedrock_throttling_is_recognized_and_retried(mock_client, tmp_path, moc
     """
     source = _write_notes(tmp_path, 3)
     model = nlp_utils.MockModel(mock_client, provider="bedrock")
+    model._boto.exceptions.ClientError = botocore.exceptions.ClientError
 
     throttled = set()
     lock = threading.Lock()
