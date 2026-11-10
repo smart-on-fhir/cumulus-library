@@ -50,18 +50,20 @@ So, using `BaseTableBuilder` might look as simple as this:
 ```python
 from cumulus_library import BaseTableBuilder, StudyConfig, StudyManifest
 
+
 class MyBuilder(BaseTableBuilder):
-    def my_custom_function(table_name:str):
+    def my_custom_function(table_name: str):
         return f"CREATE TABLE study__table AS (SELECT * FROM core__{table_name})"
 
-    def prepare_queries(self,
+    def prepare_queries(
+        self,
         config: StudyConfig,
         manifest: StudyManifest,
         *args,
         **kwargs,
     ):
         self.queries.append("CREATE TABLE study__table AS (SELECT * FROM core__patient)")
-        for resource in ['encounter', 'condition']:
+        for resource in ["encounter", "condition"]:
             self.queries.append(self.my_custom_function(resource))
 ```
 
@@ -77,8 +79,10 @@ of the `cumulus-library` CLI):
 import pathlib
 from cumulus_library import BaseTableBuilder, StudyConfig, StudyManifest
 
-class MyBuilder(BaseTableBuilder):    
-    def prepare_queries(self,
+
+class MyBuilder(BaseTableBuilder):
+    def prepare_queries(
+        self,
         config: StudyConfig,
         manifest: StudyManifest,
         *args,
@@ -100,8 +104,10 @@ So, a usage like this:
 import pathlib
 from cumulus_library import BaseTableBuilder, StudyConfig, StudyManifest
 
-class MyBuilder(BaseTableBuilder):    
-    def prepare_queries(self,
+
+class MyBuilder(BaseTableBuilder):
+    def prepare_queries(
+        self,
         config: StudyConfig,
         manifest: StudyManifest,
         *args,
@@ -206,8 +212,10 @@ Here's an example of a `CountsBuilder` in use with a resource generator:
 ```python
 from cumulus_library import CountsBuilder, StudyConfig, StudyManifest
 
-class MyBuilder(CountsBuilder):    
-    def prepare_queries(self,
+
+class MyBuilder(CountsBuilder):
+    def prepare_queries(
+        self,
         config: StudyConfig,
         manifest: StudyManifest,
         *args,
@@ -215,9 +223,7 @@ class MyBuilder(CountsBuilder):
     ):
         self.queries.append(
             self.count_condition(
-                'my_study__condition_count',
-                'core__condition',
-                ['code','recorddate_year']
+                "my_study__condition_count", "core__condition", ["code", "recorddate_year"]
             )
         )
 ```
@@ -310,12 +316,14 @@ in in a builder in the same directory as follows:
 ```python
 from cumulus_library import BaseTableBuilder, get_templates, StudyConfig, StudyManifest
 
+
 class MyBuilder(BaseTableBuilder):
-     def prepare_queries(self,
+    def prepare_queries(
+        self,
         config: StudyConfig,
         manifest: StudyManifest,
         *args,
         **kwargs,
     ):
-        self.queries.append(get_templates('example_query', table_name='condition'))
+        self.queries.append(get_templates("example_query", table_name="condition"))
 ```

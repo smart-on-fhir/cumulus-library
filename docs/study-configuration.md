@@ -32,7 +32,7 @@ directory will be the name you use to run it using the `cumulus-library` cli com
 In this document, we're calling this directory `my_study` as an example.
 - Make a new file, `__init__.py`, which contains the following:
 ```python
-__version__='0.1.0'
+__version__ = "0.1.0"
 ```
 The CLI will use this to display the study's version on demand. Consider using
 [semantic versioning rules](https://semver.org/#semantic-versioning-specification-semver)
