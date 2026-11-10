@@ -17,6 +17,7 @@ from typing import NoReturn, Self
 
 import boto3
 import botocore.config
+import botocore.errorfactory
 import cumulus_fhir_support as cfs
 import openai
 import rich
@@ -294,15 +295,22 @@ class BedrockProvider(Provider):
         system_prompts = [{"text": system}]
         if self.supports_cache:
             system_prompts.append({"cachePoint": {"type": "default"}})
+        try:
+            response = self.client.converse(
+                modelId=self.model_name,
+                system=system_prompts,
+                messages=[{"role": "user", "content": [{"text": user}]}],
+                **extra_args,
+            )
+        except botocore.errorfactory.ValidationException as e:
+            raise Exception(
+                "Validation Exception raised when handling {}:\n\n{}".format(
+                    user,
+                    e.response['Error']['Message']
+                )
+            )
 
-        response = self.client.converse(
-            modelId=self.model_name,
-            system=system_prompts,
-            messages=[{"role": "user", "content": [{"text": user}]}],
-            **extra_args,
-        )
-
-        if response.error_code != 200:
+        if response.get("error_code", 200) != 200:
             raise Exception(
                 "Error dealing with note:\n{}\n\nResponse: {}".format(
                     user, response["body"].read().decode("utf-8")
