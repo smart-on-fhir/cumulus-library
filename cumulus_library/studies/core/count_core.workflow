@@ -347,7 +347,8 @@ source_table = "core__patient"
 table_cols = [
     "gender",
     "race_display",
-    "ethnicity_display"
+    "ethnicity_display",
+    "birth_year"
 ]
 
 [tables.count_procedure_month]
