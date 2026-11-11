@@ -58,6 +58,7 @@ the Condition resource.
 Common exceptions to this rule:
 
 - `cnt` is a Cumulus specific notation for a column that contains counts of resources.
+- `birth_year` is calculated from a Patient's birthDate
 - `age_at_visit` is calculated from a Patient's birthDate and the period.start.day of an Encounter
 - `postalcode_3` is calculated from a Patient's address.postalCode
 - The Encounter resource includes several elements from the referenced Patient (`gender`, `postalcode_3`,
@@ -367,6 +368,7 @@ vital signs) instead.
 |gender           |varchar|Biological sex at birth|
 |race_display     |varchar|Patient reported race|
 |ethnicity_display|varchar|Patient reported ethnicity|
+|birth_year       |varchar|Patient year of birth|
 
 
 ### core__count_procedure_month
@@ -1526,6 +1528,7 @@ vital signs) instead.
 |id               |varchar|           |
 |gender           |varchar|           |
 |birthdate        |date   |           |
+|birth_year       |bigint |           |
 |postalCode_3     |varchar|           |
 |subject_ref      |varchar|           |
 |race_display     |varchar|           |

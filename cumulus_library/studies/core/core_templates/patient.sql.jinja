@@ -54,6 +54,7 @@ SELECT DISTINCT
     tp.id,
     tp.gender,
     tp.birthDate,
+    year(tp.birthDate) AS birth_year,
     coalesce(ta.postalcode3, 'cumulus__none') AS postalCode_3,
     concat('Patient/', tp.id) AS subject_ref,
     coalesce(tp.race_display, 'unknown') AS race_display,
