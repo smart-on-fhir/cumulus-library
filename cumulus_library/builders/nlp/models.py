@@ -17,6 +17,7 @@ from typing import NoReturn, Self
 
 import boto3
 import botocore.config
+import botocore.errorfactory
 import cumulus_fhir_support as cfs
 import openai
 import rich
@@ -298,13 +299,22 @@ class BedrockProvider(Provider):
         system_prompts = [{"text": system}]
         if self.supports_cache:
             system_prompts.append({"cachePoint": {"type": "default"}})
-
-        response = self.client.converse(
-            modelId=self.model_name,
-            system=system_prompts,
-            messages=[{"role": "user", "content": [{"text": user}]}],
-            **extra_args,
-        )
+        try:
+            response = self.client.converse(
+                modelId=self.model_name,
+                system=system_prompts,
+                messages=[{"role": "user", "content": [{"text": user}]}],
+                **extra_args,
+            )
+        except self.client.exceptions.ClientError as e:
+            if e.response["Error"]["Code"] == "ThrottlingException":
+                raise e  # handle pytest throttling strategy
+            else:
+                raise errors.CumulusLibraryError(
+                    "{} Exception raised when handling {}:\n\n{}".format(
+                        e.response["Error"]["Code"], user, e.response["Error"]["Message"]
+                    )
+                )
 
         usage = response.get("usage", {})
         call_usage = self.record_usage(
@@ -469,7 +479,13 @@ class OpenAIProvider(Provider):
 
     def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
         prompt_args = self._prompt_args(system, user, schema)
-        response = self.client.chat.completions.parse(**prompt_args)
+        try:
+            response = self.client.chat.completions.parse(**prompt_args)
+        except openai.BadRequestError as exc:
+            raise Exception(
+                f"Exception raised calling note:\n{user}\n\nError code: {exc.code} - {exc.message}"
+            )
+
         return self._process_completion_result(response, schema)
 
     def add_to_batch(self, prompt: Prompt, tmp_dir: str) -> str | None:

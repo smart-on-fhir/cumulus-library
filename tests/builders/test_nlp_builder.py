@@ -1980,6 +1980,7 @@ def test_bedrock_throttling_is_recognized_and_retried(mock_client, tmp_path, moc
     """
     source = _write_notes(tmp_path, 3)
     model = nlp_utils.MockModel(mock_client, provider="bedrock")
+    model._boto.exceptions.ClientError = botocore.exceptions.ClientError
 
     throttled = set()
     lock = threading.Lock()
@@ -2320,6 +2321,73 @@ def test_bedrock_concurrency(mock_client):
     assert nlp_config.concurrency == 10
     passed_config = mock_client.call_args[1]["config"]._user_provided_options
     assert passed_config["max_pool_connections"] == 10
+
+
+@mock.patch("boto3.client")
+def test_bedrock_raises_exception_when_invalid_request(
+    mock_client, tmp_path, mock_db_config, note_source
+):
+    mock_client.exceptions.ClientError = botocore.exceptions.ClientError
+    mock_client.converse.side_effect = mock_client.exceptions.ClientError(
+        {"Error": {"Code": 0, "Message": ""}}, ""
+    )
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock")
+    model._boto.converse.side_effect = mock_client.exceptions.ClientError(
+        {"Error": {"Code": 0, "Message": ""}}, ""
+    )
+    model._boto.exceptions.ClientError = botocore.exceptions.ClientError
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+    console_output = io.StringIO()
+
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+    output = console_output.getvalue()
+
+    assert "Failed to process" in output
+
+
+@nlp_utils.mock_env("azure")
+@mock.patch("openai.AzureOpenAI")
+def test_openai_raises_exception_when_invalid_request(
+    mock_client, tmp_path, mock_db_config, note_source
+):
+    exception = openai.BadRequestError(
+        "",
+        response=httpx.Response(
+            status_code=400,
+            json={
+                "error": {
+                    "message": "Invalid model ID or parameter",
+                    "type": "invalid_request_error",
+                    "param": "model",
+                    "code": "invalid_model",
+                }
+            },
+            request=httpx.Request("POST", "https://openai.com"),
+        ),
+        body="",
+    )
+
+    mock_client.chat.completions.parse.side_effect = exception
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="azure")
+    model.openai.chat.completions.parse.side_effect = exception
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+
+    console_output = io.StringIO()
+
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+    output = console_output.getvalue()
+
+    assert "Failed to process" in output
 
 
 ####################
