@@ -89,9 +89,9 @@ parser.add_argument("--study")
 args, _rest = parser.parse_known_args()
 
 if args.study:
-  rich.print(f"data_metrics_{args.study}")
+    rich.print(f"data_metrics_{args.study}")
 else:
-  rich.print("data_metrics")
+    rich.print("data_metrics")
 ```
 
 #### Usage

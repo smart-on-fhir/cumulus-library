@@ -52,13 +52,21 @@ cnt,period_start_month,class_display,age_at_visit,gender,race_display,ethnicity_
 13,2018-07-01,ambulatory,,female,white,not hispanic or latino
 13,2018-06-01,,,female,,not hispanic or latino
 13,2018-06-01,ambulatory,,female,white,
+12,,,16,,,
+12,,,16,,white,
 12,2018-07-01,,,male,,
 12,2018-07-01,,,male,white,
 12,2018-06-01,,,female,white,not hispanic or latino
 12,2018-06-01,ambulatory,,female,,not hispanic or latino
+11,,,16,,,not hispanic or latino
+11,,,16,,white,not hispanic or latino
+11,,ambulatory,16,,,
+11,,ambulatory,16,,white,
 11,2018-07-01,ambulatory,,male,,
 11,2018-07-01,ambulatory,,male,white,
 11,2018-06-01,ambulatory,,female,white,not hispanic or latino
+10,,ambulatory,16,,,not hispanic or latino
+10,,ambulatory,16,,white,not hispanic or latino
 10,2018-07-01,,,male,,not hispanic or latino
 10,2018-07-01,,,male,white,not hispanic or latino
 10,2018-07-01,ambulatory,,male,,not hispanic or latino

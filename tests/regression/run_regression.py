@@ -22,8 +22,6 @@ import zipfile
 import rich
 from pandas import read_parquet
 
-VOCAB_ICD_ROW_COUNT = 403231
-
 
 def regress_core():
     ref_path = pathlib.Path(__file__).resolve().parent / "reference"

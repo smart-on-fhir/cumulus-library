@@ -2347,3 +2347,83 @@ def test_openai_raises_exception_when_invalid_request(mock_client, tmp_path, moc
 
     with pytest.raises(openai.BadRequestError):
         builder.execute_queries(mock_db_config, None)
+
+####################
+# No-match warning tests
+####################
+
+
+def _run_for_output(tmp_path, mock_client, mock_db_config, *, notes, tasks) -> str:
+    """Runs a workflow with the given notes (id, text) and task configs, returning stdout."""
+    workflow_path = conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "nlp",
+            "tables": {
+                name: {"response_schema": nlp_utils.EMPTY_SCHEMA, **task}
+                for name, task in tasks.items()
+            },
+        },
+        "nlp.workflow",
+    )
+    with open(f"{tmp_path}/doc.ndjson", "w", encoding="utf8") as f:
+        for note_id, text in notes:
+            add_doc(note_id, text, f)
+
+    model = nlp_utils.MockModel(mock_client)
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_utils.NoteSource([tmp_path]),
+        nlp_config=model.nlp_config(),
+    )
+    console_output = io.StringIO()
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+    return console_output.getvalue()
+
+
+@mock.patch("openai.OpenAI")
+def test_warns_when_no_notes_found(mock_client, tmp_path, mock_db_config):
+    output = _run_for_output(tmp_path, mock_client, mock_db_config, notes=[], tasks={"task": {}})
+    assert "No notes were found to process" in output
+
+
+@mock.patch("openai.OpenAI")
+def test_warns_when_no_notes_have_text(mock_client, tmp_path, mock_db_config):
+    output = _run_for_output(
+        tmp_path,
+        mock_client,
+        mock_db_config,
+        notes=[("1", None), ("2", None)],
+        tasks={"task": {}},
+    )
+    assert "2 notes found, but none had any text" in output
+    assert "matched the filters" not in output
+
+
+@mock.patch("openai.OpenAI")
+def test_warns_when_filters_match_nothing(mock_client, tmp_path, mock_db_config):
+    output = _run_for_output(
+        tmp_path,
+        mock_client,
+        mock_db_config,
+        notes=[("1", None), ("2", "has a cold"), ("3", "has a cough")],
+        tasks={"picky": {"select_by_word": ["fever"]}, "open": {}},
+    )
+    # Only the task that matched nothing warns
+    assert "No notes matched the filters for 'picky'" in output
+    assert "Of 3 notes, 1 had no text and 2 were rejected by the select/reject filters" in output
+    # and it separates no-text from filtered notes.
+    assert "for 'open'" not in output
+
+
+@mock.patch("openai.OpenAI")
+def test_no_warning_when_notes_match(mock_client, tmp_path, mock_db_config):
+    output = _run_for_output(
+        tmp_path,
+        mock_client,
+        mock_db_config,
+        notes=[("1", "has a fever")],
+        tasks={"task": {"select_by_word": ["fever"]}},
+    )
+    assert "WARNING" not in output

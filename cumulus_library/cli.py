@@ -536,7 +536,7 @@ def main(cli_args=None):
         table.add_column("Environment Variable", style="green")
         table.add_column("Value", style="cyan")
         for row in read_env_vars:
-            if row[0] in ["CUMULUS_AGGREGATOR_ID", "LOINC_PASSWORD"]:
+            if row[0] in ["CUMULUS_AGGREGATOR_ID", "LOINC_PASSWORD", "UMLS_API_KEY"]:
                 table.add_row(row[0], "#########")  # pragma: no cover
             else:
                 table.add_row(row[0], row[1])

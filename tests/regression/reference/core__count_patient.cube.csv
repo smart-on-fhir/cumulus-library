@@ -1,35 +1,321 @@
-cnt,gender,race_display,ethnicity_display
-1125,,,
-1021,,,not hispanic or latino
-1002,,white,
-909,,white,not hispanic or latino
-563,male,,
-562,female,,
-514,male,,not hispanic or latino
-510,female,white,
-507,female,,not hispanic or latino
-492,male,white,
-460,female,white,not hispanic or latino
-449,male,white,not hispanic or latino
-104,,,hispanic or latino
-93,,white,hispanic or latino
-68,,black or african american,
-59,,black or african american,not hispanic or latino
-55,female,,hispanic or latino
-50,female,white,hispanic or latino
-49,male,,hispanic or latino
-44,male,black or african american,
-43,male,white,hispanic or latino
-38,male,black or african american,not hispanic or latino
-24,female,black or african american,
-21,female,black or african american,not hispanic or latino
-20,,asian,
-19,,asian,not hispanic or latino
-13,,unknown,
-13,,unknown,not hispanic or latino
-12,,native hawaiian or other pacific islander,
-12,female,asian,
-11,,native hawaiian or other pacific islander,not hispanic or latino
-11,female,asian,not hispanic or latino
-10,,american indian or alaska native,
-10,,american indian or alaska native,not hispanic or latino
+cnt,gender,race_display,ethnicity_display,birth_year
+1125,,,,
+1021,,,not hispanic or latino,
+1002,,white,,
+909,,white,not hispanic or latino,
+563,male,,,
+562,female,,,
+514,male,,not hispanic or latino,
+510,female,white,,
+507,female,,not hispanic or latino,
+492,male,white,,
+460,female,white,not hispanic or latino,
+449,male,white,not hispanic or latino,
+104,,,hispanic or latino,
+93,,white,hispanic or latino,
+68,,black or african american,,
+59,,black or african american,not hispanic or latino,
+55,female,,hispanic or latino,
+50,female,white,hispanic or latino,
+49,male,,hispanic or latino,
+44,male,black or african american,,
+43,male,white,hispanic or latino,
+38,male,black or african american,not hispanic or latino,
+24,female,black or african american,,
+22,,,,2007
+22,,,,1961
+22,,,not hispanic or latino,1961
+21,,,,2012
+21,,white,,1961
+21,,white,not hispanic or latino,1961
+21,female,black or african american,not hispanic or latino,
+20,,,,2001
+20,,,,1977
+20,,,,1975
+20,,,,1960
+20,,,not hispanic or latino,2007
+20,,,not hispanic or latino,1977
+20,,asian,,
+19,,,,2021
+19,,,,2009
+19,,,not hispanic or latino,1975
+19,,asian,not hispanic or latino,
+18,,,,2013
+18,,,,2003
+18,,,,2002
+18,,,,1983
+18,,,,1970
+18,,,,1965
+18,,,not hispanic or latino,2021
+18,,,not hispanic or latino,2012
+18,,,not hispanic or latino,2003
+18,,,not hispanic or latino,2001
+18,,,not hispanic or latino,1983
+18,,white,,2013
+18,,white,,2012
+18,,white,,2007
+18,,white,,1970
+18,,white,,1960
+17,,,,1998
+17,,,,1991
+17,,,,1980
+17,,,,1962
+17,,,not hispanic or latino,2013
+17,,,not hispanic or latino,2009
+17,,,not hispanic or latino,1970
+17,,,not hispanic or latino,1965
+17,,,not hispanic or latino,1962
+17,,white,,2009
+17,,white,,1998
+17,,white,,1977
+17,,white,not hispanic or latino,2013
+17,,white,not hispanic or latino,1977
+17,,white,not hispanic or latino,1970
+16,,,,2019
+16,,,,1996
+16,,,,1990
+16,,,,1972
+16,,,,1964
+16,,,,1958
+16,,,not hispanic or latino,1998
+16,,,not hispanic or latino,1960
+16,,,not hispanic or latino,1958
+16,,white,,2003
+16,,white,,2001
+16,,white,,1996
+16,,white,,1991
+16,,white,,1975
+16,,white,not hispanic or latino,2012
+16,,white,not hispanic or latino,2007
+16,,white,not hispanic or latino,2003
+16,,white,not hispanic or latino,1998
+15,,,,2020
+15,,,,2018
+15,,,,1999
+15,,,,1949
+15,,,not hispanic or latino,2019
+15,,,not hispanic or latino,1999
+15,,,not hispanic or latino,1991
+15,,,not hispanic or latino,1964
+15,,,not hispanic or latino,1949
+15,,white,,2018
+15,,white,,2002
+15,,white,,1999
+15,,white,,1990
+15,,white,,1983
+15,,white,,1972
+15,,white,,1965
+15,,white,,1958
+15,,white,,1949
+15,,white,not hispanic or latino,2009
+15,,white,not hispanic or latino,2001
+15,,white,not hispanic or latino,1999
+15,,white,not hispanic or latino,1983
+15,,white,not hispanic or latino,1975
+15,,white,not hispanic or latino,1960
+15,,white,not hispanic or latino,1958
+15,,white,not hispanic or latino,1949
+15,male,,,1977
+15,male,,not hispanic or latino,1977
+15,female,,,1960
+14,,,,1982
+14,,,,1956
+14,,,not hispanic or latino,1996
+14,,,not hispanic or latino,1990
+14,,,not hispanic or latino,1980
+14,,white,,2021
+14,,white,,2020
+14,,white,,2019
+14,,white,,1980
+14,,white,not hispanic or latino,1996
+14,,white,not hispanic or latino,1991
+14,,white,not hispanic or latino,1965
+13,,,,2022
+13,,,,2017
+13,,,,2015
+13,,,,2011
+13,,,,2008
+13,,,,1981
+13,,,,1971
+13,,,,1959
+13,,,not hispanic or latino,2020
+13,,,not hispanic or latino,2018
+13,,,not hispanic or latino,2017
+13,,,not hispanic or latino,2002
+13,,,not hispanic or latino,1972
+13,,,not hispanic or latino,1971
+13,,,not hispanic or latino,1959
+13,,,not hispanic or latino,1956
+13,,white,,1982
+13,,white,,1981
+13,,white,,1971
+13,,white,,1959
+13,,white,,1956
+13,,white,not hispanic or latino,2021
+13,,white,not hispanic or latino,2019
+13,,white,not hispanic or latino,2018
+13,,white,not hispanic or latino,1990
+13,,white,not hispanic or latino,1971
+13,,white,not hispanic or latino,1959
+13,,unknown,,
+13,,unknown,not hispanic or latino,
+13,male,white,,1977
+13,male,white,not hispanic or latino,1977
+13,female,,,2007
+13,female,,not hispanic or latino,2007
+13,female,white,,1960
+12,,,,2016
+12,,,,2014
+12,,,,2005
+12,,,,1993
+12,,,,1992
+12,,,,1987
+12,,,,1986
+12,,,,1973
+12,,,,1968
+12,,,,1963
+12,,,,1953
+12,,,,1941
+12,,,not hispanic or latino,2016
+12,,,not hispanic or latino,2015
+12,,,not hispanic or latino,2014
+12,,,not hispanic or latino,2011
+12,,,not hispanic or latino,2005
+12,,,not hispanic or latino,1992
+12,,,not hispanic or latino,1982
+12,,,not hispanic or latino,1953
+12,,,not hispanic or latino,1941
+12,,white,,2022
+12,,white,,2017
+12,,white,,2015
+12,,white,,2011
+12,,white,,1963
+12,,white,,1962
+12,,white,,1953
+12,,white,,1941
+12,,white,not hispanic or latino,2020
+12,,white,not hispanic or latino,2017
+12,,white,not hispanic or latino,2011
+12,,white,not hispanic or latino,1980
+12,,white,not hispanic or latino,1972
+12,,white,not hispanic or latino,1962
+12,,white,not hispanic or latino,1956
+12,,white,not hispanic or latino,1953
+12,,white,not hispanic or latino,1941
+12,,native hawaiian or other pacific islander,,
+12,male,,,2012
+12,male,,,1975
+12,male,,,1964
+12,male,,,1961
+12,male,,not hispanic or latino,1975
+12,male,,not hispanic or latino,1961
+12,female,asian,,
+11,,,,2010
+11,,,,2004
+11,,,,1985
+11,,,,1979
+11,,,,1978
+11,,,,1967
+11,,,,1955
+11,,,not hispanic or latino,2008
+11,,,not hispanic or latino,2004
+11,,,not hispanic or latino,1981
+11,,,not hispanic or latino,1978
+11,,,not hispanic or latino,1973
+11,,,not hispanic or latino,1968
+11,,,not hispanic or latino,1963
+11,,white,,2016
+11,,white,,2008
+11,,white,,1993
+11,,white,,1987
+11,,white,,1986
+11,,white,,1978
+11,,white,,1973
+11,,white,,1964
+11,,white,not hispanic or latino,2016
+11,,white,not hispanic or latino,2015
+11,,white,not hispanic or latino,1982
+11,,white,not hispanic or latino,1981
+11,,white,not hispanic or latino,1978
+11,,white,not hispanic or latino,1964
+11,,white,not hispanic or latino,1963
+11,,native hawaiian or other pacific islander,not hispanic or latino,
+11,male,,,2021
+11,male,,,2001
+11,male,,,1970
+11,male,,not hispanic or latino,2021
+11,male,,not hispanic or latino,2012
+11,male,,not hispanic or latino,2001
+11,male,,not hispanic or latino,1970
+11,male,,not hispanic or latino,1964
+11,male,white,,1970
+11,male,white,,1961
+11,male,white,not hispanic or latino,1970
+11,male,white,not hispanic or latino,1961
+11,female,,,1983
+11,female,,,1972
+11,female,,not hispanic or latino,1983
+11,female,,not hispanic or latino,1960
+11,female,white,,2007
+11,female,white,not hispanic or latino,2007
+11,female,asian,not hispanic or latino,
+10,,,,2006
+10,,,,1997
+10,,,,1994
+10,,,,1988
+10,,,,1984
+10,,,,1976
+10,,,,1966
+10,,,,1957
+10,,,,1948
+10,,,,1946
+10,,,not hispanic or latino,2022
+10,,,not hispanic or latino,2006
+10,,,not hispanic or latino,1994
+10,,,not hispanic or latino,1993
+10,,,not hispanic or latino,1987
+10,,,not hispanic or latino,1986
+10,,,not hispanic or latino,1979
+10,,,not hispanic or latino,1955
+10,,white,,2005
+10,,white,,1997
+10,,white,,1985
+10,,white,,1976
+10,,white,,1966
+10,,white,not hispanic or latino,2008
+10,,white,not hispanic or latino,2005
+10,,white,not hispanic or latino,2002
+10,,white,not hispanic or latino,1973
+10,,american indian or alaska native,,
+10,,american indian or alaska native,not hispanic or latino,
+10,male,,,2018
+10,male,,,2016
+10,male,,,2013
+10,male,,,2009
+10,male,,,1982
+10,male,,,1965
+10,male,,not hispanic or latino,2016
+10,male,,not hispanic or latino,2013
+10,male,white,,2018
+10,male,white,,2013
+10,male,white,,2012
+10,male,white,not hispanic or latino,2013
+10,female,,,2003
+10,female,,,1998
+10,female,,,1990
+10,female,,,1961
+10,female,,,1958
+10,female,,not hispanic or latino,2003
+10,female,,not hispanic or latino,1998
+10,female,,not hispanic or latino,1961
+10,female,,not hispanic or latino,1958
+10,female,white,,1998
+10,female,white,,1983
+10,female,white,,1972
+10,female,white,,1961
+10,female,white,,1958
+10,female,white,not hispanic or latino,1998
+10,female,white,not hispanic or latino,1983
+10,female,white,not hispanic or latino,1961
+10,female,white,not hispanic or latino,1960
+10,female,white,not hispanic or latino,1958

@@ -405,7 +405,10 @@ Each run records:
   note selection rules. Prompts and the response schema are stored as SHA-256 digests, so you
   can group runs by "same prompt" without diffing the text.
 - **Metrics**: `notes.*` counts and yield rate, `tokens.*` usage and cache hit rate,
-  `cost.estimated_usd`, and `runtime.*`.
+  `cost.estimated_usd`, and `runtime.*`. Of the notes with text, `notes.filtered_out` counts
+  those rejected by the table's select/reject filters, `notes.already_done` counts those a
+  previous run already uploaded, and `notes.considered` counts the rest. A low `considered`
+  is usually explained by one of the first two.
 - **Artifacts**: the full system prompt, user prompt, and response schema.
 
 The metric names deliberately match the ones Cumulus ETL logs, so runs from both projects can
@@ -416,7 +419,8 @@ every run. Cumulus Library makes a single pass over your notes and serves every 
 so `notes.seen` and `notes.with_text` are the same for each table by construction, `runtime.*`
 covers the whole interleaved pass rather than one table's share of it, and
 `workflow.throttle_dropped` is counted before a note is attributed to a table. Token counts and
-cost *are* genuinely per-table.
+cost *are* genuinely per-table, as are `notes.filtered_out` and `notes.already_done`, since each
+table has its own filters and its own upload history.
 
 Because results are cached in your PHI dir, re-running a workflow you have already run will show
 a run with results but zero tokens and zero cost. That is accurate: cached notes are free.

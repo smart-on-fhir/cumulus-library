@@ -79,9 +79,9 @@ connection pool limit, if (and only if) the study manifest is also set up to run
 in parallel. If you want to ensure that dependent queries are always run in series,
 your builder should override `__init__` as follows:
 ```python
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.parallel_allowed=False
+def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.parallel_allowed = False
 ```
 
 You can either extend this class directly (like `builder_*.py` files in 
