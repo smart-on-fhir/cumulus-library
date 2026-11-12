@@ -308,7 +308,7 @@ class BedrockProvider(Provider):
             else:
                 raise errors.CumulusLibraryError(
                     "{} Exception raised when handling {}:\n\n{}".format(
-                        e.response["Error"]["Code"], user, e.response['Error']['Message']
+                        e.response["Error"]["Code"], user, e.response["Error"]["Message"]
                     )
                 )
 

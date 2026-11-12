@@ -2321,3 +2321,29 @@ def test_bedrock_concurrency(mock_client):
     assert nlp_config.concurrency == 10
     passed_config = mock_client.call_args[1]["config"]._user_provided_options
     assert passed_config["max_pool_connections"] == 10
+
+
+@mock.patch("boto3.client")
+def test_bedrock_raises_exception_when_invalid_request(mock_client, tmp_path, mock_db_config,
+                                                       note_source):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet55")
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+
+    with pytest.raises(errors.CumulusLibraryError, match="does not support the 'bedrock' provider"):
+        builder.execute_queries(mock_db_config, None)
+
+@mock.patch("boto3.client")
+def test_openai_raises_exception_when_invalid_request(mock_client, tmp_path, mock_db_config, note_source):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="openai", model_id="claude-sonnet55")
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+
+    with pytest.raises(openai.BadRequestError):
+        builder.execute_queries(mock_db_config, None)
