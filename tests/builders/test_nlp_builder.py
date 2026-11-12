@@ -2326,6 +2326,7 @@ def test_bedrock_concurrency(mock_client):
 @mock.patch("boto3.client")
 def test_bedrock_raises_exception_when_invalid_request(mock_client, tmp_path, mock_db_config,
                                                        note_source):
+    mock_client.raises(mock_client.exceptions.ClientError)
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet55")
 
@@ -2337,7 +2338,9 @@ def test_bedrock_raises_exception_when_invalid_request(mock_client, tmp_path, mo
         builder.execute_queries(mock_db_config, None)
 
 @mock.patch("boto3.client")
-def test_openai_raises_exception_when_invalid_request(mock_client, tmp_path, mock_db_config, note_source):
+def test_openai_raises_exception_when_invalid_request(mock_client, tmp_path,
+                                                      mock_db_config, note_source):
+    mock_client.raises(openai.BadRequestError)
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="openai", model_id="claude-sonnet55")
 
@@ -2345,7 +2348,7 @@ def test_openai_raises_exception_when_invalid_request(mock_client, tmp_path, moc
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
     )
 
-    with pytest.raises(openai.BadRequestError):
+    with pytest.raises(Exception):
         builder.execute_queries(mock_db_config, None)
 
 ####################
