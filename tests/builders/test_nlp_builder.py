@@ -25,7 +25,6 @@ import httpx
 import openai
 import pandas
 import pytest
-from openai.types.responses import Response
 
 import cumulus_library
 from cumulus_library import cli, databases, errors, note_utils
@@ -2326,18 +2325,16 @@ def test_bedrock_concurrency(mock_client):
 
 @mock.patch("boto3.client")
 def test_bedrock_raises_exception_when_invalid_request(
-    mock_client, tmp_path, mock_db_config,note_source
+    mock_client, tmp_path, mock_db_config, note_source
 ):
     mock_client.exceptions.ClientError = botocore.exceptions.ClientError
     mock_client.converse.side_effect = mock_client.exceptions.ClientError(
-        {"Error": {"Code": 0, "Message": ""}},
-        ""
+        {"Error": {"Code": 0, "Message": ""}}, ""
     )
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock")
     model._boto.converse.side_effect = mock_client.exceptions.ClientError(
-        {"Error": {"Code": 0, "Message": ""}},
-        ""
+        {"Error": {"Code": 0, "Message": ""}}, ""
     )
     model._boto.exceptions.ClientError = botocore.exceptions.ClientError
 
@@ -2356,7 +2353,7 @@ def test_bedrock_raises_exception_when_invalid_request(
 @nlp_utils.mock_env("azure")
 @mock.patch("openai.AzureOpenAI")
 def test_openai_raises_exception_when_invalid_request(
-    mock_client, tmp_path,mock_db_config, note_source
+    mock_client, tmp_path, mock_db_config, note_source
 ):
     exception = openai.BadRequestError(
         "",
@@ -2368,11 +2365,11 @@ def test_openai_raises_exception_when_invalid_request(
                     "type": "invalid_request_error",
                     "param": "model",
                     "code": "invalid_model",
-                    }
+                }
             },
             request=httpx.Request("POST", "https://openai.com"),
-            ),
-        body=""
+        ),
+        body="",
     )
 
     mock_client.chat.completions.parse.side_effect = exception
@@ -2391,6 +2388,7 @@ def test_openai_raises_exception_when_invalid_request(
     output = console_output.getvalue()
 
     assert "Failed to process" in output
+
 
 ####################
 # No-match warning tests
