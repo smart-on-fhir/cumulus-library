@@ -28,6 +28,7 @@ from cumulus_library import (
 from cumulus_library.builders import (
     counts_builder,
     file_upload_builder,
+    iqr_builder,
     nlp_builder,
     protected_table_builder,
     psm_builder,
@@ -621,6 +622,10 @@ def _run_workflow(
                 toml_config_path=toml_path,
                 notes=notes or note_utils.NoteSource(),
                 nlp_config=nlp_config or note_utils.NlpConfig(),
+            )
+        case "iqr":
+            builder = iqr_builder.IqrBuilder(
+                toml_config_path=toml_path,
             )
         case "psm":
             existing_stats = []

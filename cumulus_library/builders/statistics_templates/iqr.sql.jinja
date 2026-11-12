@@ -1,0 +1,82 @@
+CREATE TABLE "{{ schema_name }}"."{{ table_name }}" AS (
+
+    WITH distinct_event AS (
+        SELECT DISTINCT
+            id,
+            {{ column_name }}
+        FROM {{ source_table }}
+    ),
+
+    quartiles AS (
+        SELECT
+            d.{{ column_name }},
+            NTILE(4) OVER (
+                ORDER BY d.{{ column_name }}
+            ) AS quartile
+        FROM distinct_event AS d
+    ),
+
+    q1q3_rows AS (
+        SELECT
+            q.quartile,
+            MAX(q.{{ column_name }}) AS bound
+        FROM quartiles AS q
+        WHERE q.quartile IN (1, 2, 3)
+        GROUP BY q.quartile
+    ),
+
+    q1q3_cols AS (
+        SELECT
+            (
+                SELECT bound FROM q1q3_rows
+                WHERE quartile = 1
+            ) AS q1,
+            (
+                SELECT bound FROM q1q3_rows
+                WHERE quartile = 3
+            ) AS q3,
+            (
+                SELECT bound FROM q1q3_rows
+                WHERE quartile = 2
+            ) AS median
+    ),
+
+    minmax AS (
+        SELECT
+            MIN(d.{{ column_name }}) AS minimum,
+            MAX(d.{{ column_name }}) AS maximum
+        FROM distinct_event AS d
+    ),
+
+    bounds AS (
+        SELECT
+            m.minimum,
+            q.median,
+            m.maximum,
+            q.q1,
+            q.q3,
+            q.q3 - q.q1 AS iqr,
+            q.q1 - (q.q3 - q.q1) * 1.5 AS lower_whisker_min,
+            q.q3 + (q.q3 - q.q1) * 1.5 AS upper_whisker_max
+        FROM q1q3_cols AS q, minmax AS m
+    )
+
+    SELECT
+        b.minimum,
+        b.median,
+        b.maximum,
+        b.q1,
+        b.q3,
+        b.iqr,
+        (
+            SELECT MIN(d.{{ column_name }})
+            FROM distinct_event AS d, bounds AS bmin
+            WHERE bmin.lower_whisker_min < d.{{ column_name }}
+        ) AS lower_whisker,
+        (
+            SELECT MAX(d.{{ column_name }})
+            FROM distinct_event AS d, bounds AS bmax
+            WHERE bmax.upper_whisker_max > d.{{ column_name }}
+        ) AS upper_whisker
+    FROM bounds AS b
+)
