@@ -25,6 +25,7 @@ import httpx
 import openai
 import pandas
 import pytest
+from openai.types.responses import Response
 
 import cumulus_library
 from cumulus_library import cli, databases, errors, note_utils
@@ -2324,32 +2325,72 @@ def test_bedrock_concurrency(mock_client):
 
 
 @mock.patch("boto3.client")
-def test_bedrock_raises_exception_when_invalid_request(mock_client, tmp_path, mock_db_config,
-                                                       note_source):
-    mock_client.converse.raises(botocore.exceptions.ClientError)
+def test_bedrock_raises_exception_when_invalid_request(
+    mock_client, tmp_path, mock_db_config,note_source
+):
+    mock_client.exceptions.ClientError = botocore.exceptions.ClientError
+    mock_client.converse.side_effect = mock_client.exceptions.ClientError(
+        {"Error": {"Code": 0, "Message": ""}},
+        ""
+    )
     workflow_path = nlp_utils.basic_workflow(tmp_path)
-    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet55")
+    model = nlp_utils.MockModel(mock_client, provider="bedrock")
+    model._boto.converse.side_effect = mock_client.exceptions.ClientError(
+        {"Error": {"Code": 0, "Message": ""}},
+        ""
+    )
+    model._boto.exceptions.ClientError = botocore.exceptions.ClientError
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+    console_output = io.StringIO()
+
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+    output = console_output.getvalue()
+
+    assert "Failed to process" in output
+
+
+@nlp_utils.mock_env("azure")
+@mock.patch("openai.AzureOpenAI")
+def test_openai_raises_exception_when_invalid_request(
+    mock_client, tmp_path,mock_db_config, note_source
+):
+    exception = openai.BadRequestError(
+        "",
+        response=httpx.Response(
+            status_code=400,
+            json={
+                "error": {
+                    "message": "Invalid model ID or parameter",
+                    "type": "invalid_request_error",
+                    "param": "model",
+                    "code": "invalid_model",
+                    }
+            },
+            request=httpx.Request("POST", "https://openai.com"),
+            ),
+        body=""
+    )
+
+    mock_client.chat.completions.parse.side_effect = exception
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="azure")
+    model.openai.chat.completions.parse.side_effect = exception
 
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
     )
 
-    with pytest.raises(errors.CumulusLibraryError):
+    console_output = io.StringIO()
+
+    with contextlib.redirect_stdout(console_output):
         builder.execute_queries(mock_db_config, None)
+    output = console_output.getvalue()
 
-@mock.patch("boto3.client")
-def test_openai_raises_exception_when_invalid_request(mock_client, tmp_path,
-                                                      mock_db_config, note_source):
-    mock_client.raises(openai.BadRequestError)
-    workflow_path = nlp_utils.basic_workflow(tmp_path)
-    model = nlp_utils.MockModel(mock_client, provider="openai", model_id="claude-sonnet55")
-
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-    )
-
-    with pytest.raises(Exception):
-        builder.execute_queries(mock_db_config, None)
+    assert "Failed to process" in output
 
 ####################
 # No-match warning tests
