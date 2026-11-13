@@ -1,0 +1,19 @@
+# The IBD study's IbdNlpTreatmentFlattenedBuilder, declared as a nlp_wide config.
+# test_nlp_flatten_ibd_parity.py checks that this renders the same SQL as the study's own builder.
+config_type = "nlp_wide"
+
+[tables.treatment]
+task_versions = [7]
+unnest_paths = [
+    { path = "rx_annotations", alias = "med" },
+    { path = "rx_adverse_drug_events", alias = "ade", root = "med", join = "left" },
+]
+columns = [
+    { path = "rx_class.rx_class", root = "med" },
+    { path = "rx_status.rx_status", root = "med" },
+    { path = "rx_treatment_phase.rx_treatment_phase", root = "med" },
+    { path = "rx_start_date.rx_start_date", root = "med" },
+    { path = "rx_start_date.rx_start_date_precision", root = "med" },
+    { path = "rx_response.rx_response", root = "med" },
+    { path = "ade", root = "ade" },
+]
