@@ -2,7 +2,7 @@
 Abstraction layer for inference APIs and their common features
 (e.g. prompting, caching, usage tracking, etc).
 """
-
+import sys
 import abc
 import dataclasses
 import datetime
@@ -284,7 +284,7 @@ class BedrockProvider(Provider):
                             },
                         },
                     ],
-                    "toolChoice": {"tool": {"name": "to_json"}},
+                    "toolChoice": "auto",
                 },
             }
             if self.supports_cache:
@@ -298,14 +298,23 @@ class BedrockProvider(Provider):
         system_prompts = [{"text": system}]
         if self.supports_cache:
             system_prompts.append({"cachePoint": {"type": "default"}})
+        schema_edited = schema.model_json_schema()
+        for key in schema_edited['$defs'].keys():
+            schema_edited['$defs'][key]['additionalProperties'] = False
 
-        response = self.client.converse(
+        schema_edited['additionalProperties'] = False
+        extra_args['outputConfig'] = {'format':{'type':'json_schema','schema':schema_edited}}
+        extra_args['max_tokens'] = 10000 
+        
+        response = self.client.invoke_model(
             modelId=self.model_name,
-            system=system_prompts,
-            messages=[{"role": "user", "content": [{"text": user}]}],
-            **extra_args,
+            body=json.dumps({
+                "anthropic_version": "bedrock-2023-05-31",
+                'messages':[{'role':'user', 'content': user}],
+                    'output_config': extra_args['outputConfig'],
+                    'max_tokens': extra_args['max_tokens']
+                    }),
         )
-
         usage = response.get("usage", {})
         call_usage = self.record_usage(
             cache_read_input_tokens=usage.get("cacheReadInputTokens", 0),
@@ -315,11 +324,12 @@ class BedrockProvider(Provider):
         )
 
         stop_reason = response.get("stopReason")
-        if stop_reason not in {"end_turn", "tool_use"}:
+        if stop_reason not in {None, "end_turn", "tool_use"}:
             raise ValueError(f"did not complete, with stop reason: {stop_reason}")
 
         # There could be multiple content blocks returned (e.g. gpt-oss gives a reasoning block)
-        for content in response["output"]["message"]["content"]:
+        res = json.loads(response['body'].read().decode('utf-8'))
+        for content in res["content"]:
             if "toolUse" in content:
                 raw_json = content["toolUse"]["input"]
                 # Sometimes (e.g. with claude sonnet 4.5) we get a wrapper field of "parameter"
@@ -331,7 +341,7 @@ class BedrockProvider(Provider):
                     raw_json = raw_json.popitem()[1]
                 answer = schema.model_validate(raw_json)
                 break
-            if "text" in content:
+            if content['type'] == "text":
                 # Do a little work to find the JSON in the middle of a text response.
                 # Usually, it is formatted with some markdown (at least in llama4 and gpt-oss).
                 text = content["text"]
