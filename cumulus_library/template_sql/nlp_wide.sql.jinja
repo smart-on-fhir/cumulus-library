@@ -1,0 +1,71 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+{#-
+  Generic "wide" flattening of an NLP result table (<study>__nlp_<task>_<model>): one row per
+  note (or per UNNESTed mention), the standard NLP columns, then one column per
+  configured field. This is the wide-table counterpart of nlp_highlight.sql.jinja: the study's
+  config declares WHAT to pull out of nlp.result, and this template owns HOW.
+
+  Inputs (all normalized by NlpWideBuilder before rendering, see builders/nlp/base_flatten_utils.py):
+    dest_table     -> the table to create
+    table_names    -> the discovered NLP source tables; one SELECT per table, UNION ALLed
+    task_versions  -> list of task_version values to keep. Empty/None -> no WHERE clause.
+    unnest_paths   -> ordered list of collections to UNNEST before selecting. Each entry:
+                        root   -> the alias the collection hangs off ('nlp.result' or a prior
+                                  UNNEST alias)
+                        path   -> the collection under that root
+                        alias  -> the row alias exposed to later entries and to columns
+                        join   -> 'cross' (default; a mention with an empty list yields no
+                                  rows) or 'left' (an empty list still yields one row with
+                                  NULLs, as for a medication's adverse events)
+    output_columns -> ordered output columns after the standard  Each entry is one of:
+                        {root, path, alias, transform?}
+                            <transform>(<root>.<path>) AS <alias>, where root is
+                            'nlp.result' or an UNNEST alias and transform is an optional
+                            single-argument SQL function name (e.g. UPPER)
+                        {expr, alias}
+                            a raw SQL expression AS <alias>, for computed columns that cannot
+                            be expressed as a single path. The source table is always
+                            aliased `nlp`.
+
+  The standard columns are fixed here, not configurable, so every wide table shares the
+  same leading shape and downstream SQL can rely on it.
+-#}
+{#- LT02: sqlfluff can't map multi-line Jinja loops back to indentation (see the other templates).
+    AL09: the standard columns are named explicitly on purpose, so that their names are
+    visible here. -#}
+CREATE TABLE {{ dest_table }} AS -- noqa: disable=LT02,AL09
+{%- for table_name in table_names %}
+SELECT DISTINCT
+    nlp.note_ref,
+    nlp.encounter_ref,
+    nlp.subject_ref,
+    '{{ table_name }}' AS origin,
+    nlp.generated_on AS generated_on,
+    nlp.task_version AS task_version,
+    nlp.system_fingerprint AS system_fingerprint
+{%- for column in output_columns %},
+    {%- if column.expr is defined %}
+    {{ column.expr }} AS {{ column.alias }}
+    {%- elif column.transform is defined %}
+    {{ column.transform }}({{ column.root }}.{{ column.path }}) AS {{ column.alias }}
+    {%- else %}
+    {{ column.root }}.{{ column.path }} AS {{ column.alias }}
+    {%- endif %}
+{%- endfor %}
+FROM
+    {{ table_name }} AS nlp
+{%- for collection in unnest_paths %}
+    {%- if collection.join == 'left' %}
+    LEFT JOIN UNNEST({{ collection.root }}.{{ collection.path }})
+        AS t_{{ collection.alias }} ({{ collection.alias }}) ON TRUE
+    {%- else %}
+    CROSS JOIN UNNEST({{ collection.root }}.{{ collection.path }})
+        AS t_{{ collection.alias }} ({{ collection.alias }})
+    {%- endif %}
+{%- endfor %}
+{%- if task_versions %}
+WHERE
+    nlp.task_version IN ({{ task_versions | join(', ') }})
+{%- endif %}
+{{ syntax.union_all_delineate(loop) }}
+{%- endfor %}

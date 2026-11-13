@@ -33,6 +33,15 @@ or encounter refs), all you need is to specify the columns you want
 and optional join clauses, and it will handle constructing the 
 counts query for you
 
+### NLP tables (nlp_wide_builder.py, nlp_highlight_builder.py)
+
+These flatten the nested `result` column that an NLP workflow leaves behind. `nlp_wide` produces
+one row per note (or mention) with a column per field you pick, and `nlp_highlight` produces one
+row per supporting text span, for Label Studio. Both are configured entirely in TOML.
+See the [NLP tables documentation](../../docs/workflows/nlp-tables.md) for the config syntax,
+and `builders/nlp/pydantic_primitives.py` for the response-schema building blocks (like
+`SpanAugmentedMention`) that studies should subclass.
+
 ### Propensity score matching (psm.py)
 
 This handles generating a cohort around a specific variable of interest.

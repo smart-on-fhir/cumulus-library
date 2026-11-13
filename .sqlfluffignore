@@ -21,3 +21,7 @@ ctas_from_parquet.sql.jinja
 # We allow a wildcard in the example study because it's easier for less IT-centric
 # users to write queries this way.
 cumulus_library/studies/example/
+
+# These are verbatim copies of another study's generated SQL, kept as parity fixtures
+# (see the README in that folder). They are compared, not maintained, so don't lint them.
+tests/test_data/nlp_flatten_ibd/

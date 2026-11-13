@@ -1,0 +1,148 @@
+{%- import 'syntax.sql.jinja' as syntax -%}
+{#-
+  One SELECT per (source table x mention), all UNION ALLed: one row per highlight span.
+
+  Every mention arrives ALREADY NORMALIZED by base_flatten_utils.normalize_highlights, so this
+  template never derives anything from the config -- it renders what it is handed.
+  Normalization adds `root`, `mention_path`, `merge_spans`, `sentinel` and `unnests` to each
+  entry, and msgspec validates `require` as the config loads (this template matches it with
+  if/elif and no else, so an unchecked value would silently emit no filter at all).
+
+  Inputs:
+    dest_table    -> the table to create
+    table_names   -> the discovered NLP source tables
+    task_versions -> list of task_version values to keep. Empty/None -> no version filter.
+    mentions      -> normalized specs. The author-facing fields are:
+    ls_variable_name -> the Label Studio variable name for the sublabel
+    path             -> drill-down under the mention root to the value surfaced as sublabel_value
+    span_path        -> drill-down(s) under the mention root to the spans array(s). Accepts either:
+                        a string -> the single spans array to UNNEST. One highlight row is emitted
+                                    per span in that array.
+                        a list   -> k-many spans arrays that are merged into ONE unified span. One
+                                    highlight row is emitted per mention, covering
+                                    min(start) : max(end) across every span in every listed array.
+                                    Use this when a single Label Studio entity is described by
+                                    sibling concepts whose spans are scattered through the note
+                                    (e.g. a medication's class, status, phase, start date, and
+                                    response), because upload-notes highlights cannot express
+                                    relations between separate parallel mentions. Paths that are
+                                    NULL or empty simply contribute nothing to the merge; if every
+                                    listed path is empty the mention is dropped.
+    require          -> how that value is required to be present:
+                        not_null      -> value IS NOT NULL
+                        not_mentioned -> value != 'NOT_MENTIONED'
+                        nota          -> value != 'NONE_OF_THE_ABOVE'
+                        (the literal compared against arrives as `sentinel`)
+    within           -> OPTIONAL list of array-valued paths to UNNEST before reaching the
+                        mention root. Use this when the mention lives inside one (or more)
+                        list(s) under nlp.result rather than a singular struct. For example,
+                        surgery mentions live in nlp.result.surgery_mentions (one level), and
+                        treatment ADEs live in
+                        nlp.result.rx_annotations[*].rx_adverse_drug_events[*] (two levels).
+                        When omitted/empty, the mention root is nlp.result.
+  The mention root is nlp.result, or the last UNNESTed collection alias when `within`
+  is provided. The parent mention struct is derived from `path` (everything before the last
+  segment). Every path in a list-valued span_path must be reachable from that same mention root.
+-#}
+{#-
+  Lint suppressions, which must come before everything they cover (hence the top of the file,
+  and the explicit newline so the following output isn't glued onto the comment):
+    LT02: sqlfluff can't map multi-line Jinja loops back to indentation (see the other templates).
+    RF02: `span` is only ever the column of the `t_span` UNNEST alias, never of `nlp`.
+-#}
+-- noqa: disable=LT02,RF02{{ "\n" }}
+{#-
+  Athena/Trino and DuckDB spell the array aggregates differently (ARRAY_MIN/ARRAY_MAX vs
+  LIST_MIN/LIST_MAX). Define these helpers for use as getter_methods below
+-#}
+{%- if db_type == 'duckdb' %}
+    {%- set array_min = 'LIST_MIN' %}
+    {%- set array_max = 'LIST_MAX' %}
+{%- else %}
+    {%- set array_min = 'ARRAY_MIN' %}
+    {%- set array_max = 'ARRAY_MAX' %}
+{%- endif %}
+{#-
+  ARRAY[<spans paths>] is an array(array(array(bigint))); FLATTENing it twice collapses it to a
+  flat array(bigint) of every offset in every listed spans array.
+
+  FILTER drops NULL spans arrays before flattening; empty ones contribute nothing on their own.
+  When every listed path is NULL/empty the result is NULL, which the WHERE guard uses to drop the
+  mention entirely.
+-#}
+{%- macro span_bound(root, span_paths, getter_method) -%}
+{{ getter_method }}(FLATTEN(FLATTEN(FILTER(ARRAY[
+        {%- for span_path in span_paths %}
+            {{ root }}.{{ span_path }}{{ "," if not loop.last }}
+        {%- endfor %}
+        ], s -> s IS NOT NULL))))
+{%- endmacro -%}
+
+-- The actual table logic -
+CREATE TABLE {{ dest_table }} AS
+{%- for table_name in table_names %}
+    {%- for mention_config in mentions %}
+    {#- Everything below is decided in base_flatten_utils.normalize_highlights, not here:
+        `root`, `mention_path`, `merge_spans` and the resolved `unnests` chain all arrive
+        already worked out. This template renders; it does not derive. -#}
+    {%- set root = mention_config.root %}
+    {%- set merge_spans = mention_config.merge_spans %}
+    {%- set mention_path = mention_config.mention_path %}
+    {%- if merge_spans %}
+        {%- set span_start = span_bound(root, mention_config.span_path, array_min) %}
+        {%- set span_end = span_bound(root, mention_config.span_path, array_max) %}
+    {%- endif %}
+    SELECT
+        nlp.note_ref,
+        nlp.subject_ref,
+        nlp.generated_on,
+        nlp.task_version,
+        nlp.system_fingerprint,
+        '{{ table_name }}' AS origin,
+        '{{ mention_config.ls_variable_name }}' AS label,
+    {%- if merge_spans %}
+        -- Merge {{ mention_config.span_path | length }} parallel span arrays into one start:end span
+        CONCAT(CAST({{ span_start }} AS VARCHAR), ':', CAST({{ span_end }} AS VARCHAR))
+            AS span,
+    {%- else %}
+        -- Turn the span array into a string representation of the start and end indices
+        CONCAT(CAST(span[1] AS VARCHAR), ':', CAST(span[2] AS VARCHAR)) AS span,
+    {%- endif %}
+        -- Handle sublabel_name and sublabel_value per {{ mention_path }}
+        '{{ mention_config.ls_subvalue_name }}' AS sublabel_name,
+        CAST({{ root }}.{{ mention_config.path }} AS VARCHAR) AS sublabel_value
+    {# Each FROM item after the source table is comma-prefixed, because a merged span_path
+       contributes no trailing UNNEST to hang a comma on. -#}
+    FROM
+        {{ table_name }} AS nlp
+    {%- for collection in mention_config.unnests %},
+        UNNEST({{ collection.root }}.{{ collection.path }})
+            AS t_{{ collection.alias }} ({{ collection.alias }})
+    {%- endfor %}
+    {%- if not merge_spans %},
+        UNNEST({{ root }}.{{ mention_config.span_path }}) AS t_span (span)
+    {%- endif %}
+    -- Custom filtering per mention
+    WHERE
+    {%- if task_versions %}
+        nlp.task_version IN ({{ task_versions | join(', ') }})
+        AND {{ root }}.{{ mention_path }} IS NOT NULL
+    {%- else %}
+        {{ root }}.{{ mention_path }} IS NOT NULL
+    {%- endif %}
+    {%- if mention_config.require == 'not_null' %}
+        AND {{ root }}.{{ mention_config.path }} IS NOT NULL
+    {%- elif mention_config.sentinel %}
+        AND {{ root }}.{{ mention_config.path }} != '{{ mention_config.sentinel }}'
+    {%- endif %}
+    {%- if merge_spans %}
+        -- Drop mentions where every merged span array was NULL or empty. This guard is
+        -- load-bearing and must stay on the raw bound rather than the concatenated span:
+        -- CONCAT(NULL, ':', NULL) is NULL on Trino but ':' on DuckDB, so filtering on the
+        -- assembled span would let junk rows through on one backend and not the other.
+        AND {{ span_start }} IS NOT NULL
+    {%- endif %}
+    {{ syntax.union_all_delineate(loop) }}
+    {%- endfor %}
+{{ syntax.union_all_delineate(loop) }}
+{%- endfor %}
