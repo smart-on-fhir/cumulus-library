@@ -39,6 +39,10 @@ class StudyManifestQueryError(CumulusLibraryError):
     """Errors related to data queries from StudyManifestParser"""
 
 
+class NlpTableConfigError(CumulusLibraryError):
+    """Raised when a wide/highlight table config is invalid"""
+
+
 class NlpExecutionError(CumulusLibraryError):
     """Errors related to NLP runs"""
 

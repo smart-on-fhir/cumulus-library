@@ -73,6 +73,7 @@ dataset =
     ]
 db_type = duckdb
 dependent_variable = is_flu
+dest_table = test_dest_table
 ext_systems = ["omb", "text"]
 extra_alias_done = True
 extra_field = ("field", "alias")
@@ -98,7 +99,42 @@ join_tables = ['table_a','table_b']
 join_table_aliases = ['a','b']
 keywords = ['key','words']
 local_location = /var/study/data/
+mentions =
+    [
+        {
+            "ls_variable_name": "Thing",
+            "ls_subvalue_name": "Thing Kind",
+            "path": "thing.kind",
+            "span_path": "thing.spans",
+            "require": "nota",
+            "sentinel": "NONE_OF_THE_ABOVE",
+            "within": ["things"],
+            "unnests": [{"root": "nlp.result", "path": "things", "alias": "mention0"}],
+            "root": "mention0",
+            "mention_path": "thing",
+            "merge_spans": False
+        },
+        {
+            "ls_variable_name": "Merged Thing",
+            "ls_subvalue_name": "Merged Thing Kind",
+            "path": "other.kind",
+            "span_path": ["other.spans", "another.spans"],
+            "require": "not_null",
+            "sentinel": None,
+            "within": [],
+            "unnests": [],
+            "root": "nlp.result",
+            "mention_path": "other",
+            "merge_spans": True
+        }
+    ]
 neg_source_table = neg_source_table
+output_columns =
+    [
+        {"root": "nlp.result", "path": "a.b", "alias": "b"},
+        {"root": "med", "path": "kind.kind", "alias": "kind_upper", "transform": "UPPER"},
+        {"expr": "nlp.result.d.flag OR nlp.result.e.flag", "alias": "any_flag"}
+    ]
 output_table_name = 'created_table'
 parent_field = 'parent'
 period = {
@@ -484,8 +520,14 @@ tables = ["test_a", "test_b"]
 table_suffix = 2024_01_01_11_11_11
 target_col_prefix = prefix
 target_table = target_table
+task_versions = [1, 2]
 tier = 2
 type_casts={"b": "VARCHAR"}
+unnest_paths =
+    [
+        {"root": "nlp.result", "path": "meds", "alias": "med", "join": "cross"},
+        {"root": "med", "path": "events", "alias": "event", "join": "left"}
+    ]
 unnests = 
     [
         {
