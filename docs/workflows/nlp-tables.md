@@ -130,27 +130,26 @@ Each `[[mentions]]` entry becomes one `SELECT`:
 
 ## Writing response schemas that work with these builders
 
-The builders rely on a few conventions that `cumulus_library.builders.nlp.pydantic_primitives` provides.
+The builders rely on a few conventions that `cumulus_library.builders.nlp` provides.
 **Subclass these rather than copying them** so that studies stay compatible:
 
 ```python
 from pydantic import Field
 
-from cumulus_library.builders.nlp import pydantic_primitives
+from cumulus_library.builders.nlp import DatePrecision, SpanAugmentedMention
 
 
-class RxStartDateMention(pydantic_primitives.SpanAugmentedMention):
+class RxStartDateMention(SpanAugmentedMention):
     rx_start_date: str | None = Field(None, description="ISO YYYY-MM-DD date of the first dose")
-    rx_start_date_precision: pydantic_primitives.DatePrecision | None = Field(
-        None, description="..."
-    )
+    rx_start_date_precision: DatePrecision | None = Field(None, description="...")
 ```
 
 - `SpanAugmentedMention` adds `has_mention` and `spans`. The NLP driver converts any field named
   `spans` from the LLM's verbatim quotes into character offsets, and highlight tables read those
   offsets. Don't rename it.
 - End choice enums with `NONE_OF_THE_ABOVE` (and use `NOT_MENTIONED` where absence needs its own
-  value). The highlight `require` filters compare against those exact spellings.
+  value). The highlight `require` filters compare against those exact spellings, and both are
+  available as constants from the same package.
 - `DatePrecision` pairs with a full ISO date field, so consumers can tell `2021-01-01` from "2021".
 
 Your response schema is what gets sent to the model, so **changing the primitives changes the schema
