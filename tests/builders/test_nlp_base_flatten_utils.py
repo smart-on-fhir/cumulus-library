@@ -86,6 +86,15 @@ def test_columns_root_on_the_last_unnest_by_default():
     assert col["root"] == "mentions"
 
 
+def test_column_can_root_on_result_even_when_unnesting():
+    """
+    'result' is shorthand for nlp.result, so a column can reach back up to the result struct
+    instead of defaulting to the last unnest
+    """
+    _, [col] = columns({"path": "summary.text", "root": "result"}, unnests=["mentions"])
+    assert col["root"] == "nlp.result"
+
+
 def test_column_options():
     _, [col] = columns(
         {"path": "k.k", "transform": "UPPER", "sql_type": "integer", "alias": "kk"},
