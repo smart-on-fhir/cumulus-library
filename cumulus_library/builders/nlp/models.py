@@ -311,9 +311,8 @@ class BedrockProvider(Provider):
                 raise e  # handle pytest throttling strategy
             else:
                 raise errors.CumulusLibraryError(
-                    "{} Exception raised when handling {}:\n\n{}".format(
-                        e.response["Error"]["Code"], user, e.response["Error"]["Message"]
-                    )
+                    f"{e.response['Error']['Code']} Exception raised when handling {user}:\n\n"
+                    f"{e.response['Error']['Message']}"
                 )
 
         usage = response.get("usage", {})
@@ -482,7 +481,7 @@ class OpenAIProvider(Provider):
         try:
             response = self.client.chat.completions.parse(**prompt_args)
         except openai.BadRequestError as exc:
-            raise Exception(
+            raise errors.CumulusLibraryError(
                 f"Exception raised calling note:\n{user}\n\nError code: {exc.code} - {exc.message}"
             )
 
