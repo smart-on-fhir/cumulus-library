@@ -23,3 +23,20 @@ from cumulus_library.builders.nlp.pydantic_primitives import (
     DatePrecision,
     SpanAugmentedMention,
 )
+
+__all__ = [
+    "FILTER_KINDS",
+    "FILTER_SENTINELS",
+    "HAS_MENTION_FIELD",
+    "HIGHLIGHT_COLUMNS",
+    "METADATA_COLUMNS",
+    "NONE_OF_THE_ABOVE",
+    "NOT_MENTIONED",
+    "RESULT_ROOT",
+    "SOURCE_ALIAS",
+    "SPANS_FIELD",
+    "DatePrecision",
+    "FilterKind",
+    "JoinKind",
+    "SpanAugmentedMention",
+]
