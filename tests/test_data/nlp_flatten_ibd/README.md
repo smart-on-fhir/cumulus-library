@@ -16,3 +16,8 @@ filters.
 Don't reformat the `.sql` files: they are fixtures, not SQL we maintain (hence the
 `.sqlfluffignore` entry). If the IBD builders change, re-copy the new output and update the
 commit above.
+
+As the studies we're developing migrate to the library-offered builders instead of their 
+home-grown options, we can consider deprecating true-parity builds and test more complex
+aspects of the builders themselves. This is especially important as changes are made 
+to NLP builders' structure and capabilities.
