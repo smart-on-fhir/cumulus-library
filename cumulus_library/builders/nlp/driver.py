@@ -13,7 +13,7 @@ import pydantic
 import rich
 
 from cumulus_library import base_utils, databases, errors, note_utils
-from cumulus_library.builders.nlp import caching, dispatch, models, workflow
+from cumulus_library.builders.nlp import caching, dispatch, models, pydantic_primitives, workflow
 
 ESCAPED_WHITESPACE = re.compile(r"(\\\s)+")
 PARQUET_PATTERN = re.compile(r"nlp\.([0-9]+)\.parquet")
@@ -521,7 +521,7 @@ class NlpNotePool:
         all_found = True
 
         for key, value in parsed.items():
-            if key != "spans":
+            if key != pydantic_primitives.SPANS_FIELD:
                 # descend as needed
                 if isinstance(value, dict):
                     all_found &= self._fix_spans(note_ref, text, value)
