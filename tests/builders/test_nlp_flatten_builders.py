@@ -50,8 +50,8 @@ def make_nlp_table(db, task: str, model: str = "gpt_oss_120b", *, with_result: b
     """Creates a minimal NLP result table, shaped like the ones NlpBuilder writes"""
     result = (
         "{'mentions': ["
-        "{'thing': 'a', 'kind': 'x', 'spans': [[0, 3], [5, 9]]},"
-        "{'thing': 'b', 'kind': 'y', 'spans': [[10, 12]]}"
+        "{'thing': 'a', 'kind': 'x', 'spans': [[0, 3], [5, 9]], 'other_spans': [[20, 25]]},"
+        "{'thing': 'b', 'kind': 'y', 'spans': [[10, 12]], 'other_spans': [[20, 25]]}"
         "]}"
         if with_result
         else "'no result column here'"
@@ -177,6 +177,27 @@ def test_highlight_table_builds_one_row_per_span(tmp_path, mock_db_config):
         ("Thing", "10:12", "Thing", "b"),
         ("Thing", "5:9", "Thing", "a"),
     ]
+
+
+def test_highlight_merges_a_list_of_span_paths_into_one_span(tmp_path, mock_db_config):
+    """A list span_path gives one row per mention, from the earliest start to the latest end.
+
+    This branch of the template builds its SQL out of several Jinja pieces, so running it (not
+    just parsing it) is what catches whitespace trimming gluing two tokens together.
+    """
+    make_nlp_table(mock_db_config.db, "thing")
+    toml = HIGHLIGHT_TOML.replace(
+        'span_path = "spans"',
+        'span_path = ["spans", "other_spans"]\nrequire = "not_null"',
+    )
+    builder = nlp_highlight_builder.NlpHighlightBuilder(toml_config_path=write(tmp_path, toml))
+
+    run(builder, mock_db_config)
+
+    assert rows(
+        mock_db_config,
+        f"SELECT sublabel_value, span FROM {PREFIX}__llm_thing_highlights ORDER BY 1",
+    ) == [("a", "0:25"), ("b", "10:25")]
 
 
 def test_highlight_columns_match_the_declared_shape(tmp_path, mock_db_config):

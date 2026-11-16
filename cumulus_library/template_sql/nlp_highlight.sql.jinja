@@ -78,7 +78,7 @@
         ], s -> s IS NOT NULL))))
 {%- endmacro -%}
 
--- The actual table logic -
+{#- The actual table logic - -#}
 CREATE TABLE {{ dest_table }} AS
 {%- for table_name in table_names %}
     {%- for mention_config in mentions %}
@@ -101,14 +101,17 @@ CREATE TABLE {{ dest_table }} AS
         '{{ table_name }}' AS origin,
         '{{ mention_config.ls_variable_name }}' AS label,
     {%- if merge_spans %}
-        -- Merge {{ mention_config.span_path | length }} parallel span arrays into one start:end span
+        {#- 
+            Merging multiple spans means taking the first and last span indexes and selecting all 
+            text in between with a one start:end 
+        #}
         CONCAT(CAST({{ span_start }} AS VARCHAR), ':', CAST({{ span_end }} AS VARCHAR))
             AS span,
     {%- else %}
-        -- Turn the span array into a string representation of the start and end indices
+        {#- Turn our start/end indices into strings/VARCHARs #}
         CONCAT(CAST(span[1] AS VARCHAR), ':', CAST(span[2] AS VARCHAR)) AS span,
     {%- endif %}
-        -- Handle sublabel_name and sublabel_value per {{ mention_path }}
+        {#- Finally, extract the sublabel name and value #}
         '{{ mention_config.ls_subvalue_name }}' AS sublabel_name,
         CAST({{ root }}.{{ mention_config.path }} AS VARCHAR) AS sublabel_value
     {# Each FROM item after the source table is comma-prefixed, because a merged span_path
@@ -122,7 +125,7 @@ CREATE TABLE {{ dest_table }} AS
     {%- if not merge_spans %},
         UNNEST({{ root }}.{{ mention_config.span_path }}) AS t_span (span)
     {%- endif %}
-    -- Custom filtering per mention
+    {#- Custom filtering #}
     WHERE
     {%- if task_versions %}
         nlp.task_version IN ({{ task_versions | join(', ') }})
@@ -130,16 +133,14 @@ CREATE TABLE {{ dest_table }} AS
     {%- else %}
         {{ root }}.{{ mention_path }} IS NOT NULL
     {%- endif %}
+    {#- Handling the require and sentinel/filter options #}
     {%- if mention_config.require == 'not_null' %}
         AND {{ root }}.{{ mention_config.path }} IS NOT NULL
     {%- elif mention_config.sentinel %}
         AND {{ root }}.{{ mention_config.path }} != '{{ mention_config.sentinel }}'
     {%- endif %}
     {%- if merge_spans %}
-        -- Drop mentions where every merged span array was NULL or empty. This guard is
-        -- load-bearing and must stay on the raw bound rather than the concatenated span:
-        -- CONCAT(NULL, ':', NULL) is NULL on Trino but ':' on DuckDB, so filtering on the
-        -- assembled span would let junk rows through on one backend and not the other.
+        {#- Drop mentions where our merged span's start is NULL or empty - garbage data #}
         AND {{ span_start }} IS NOT NULL
     {%- endif %}
     {{ syntax.union_all_delineate(loop) }}
