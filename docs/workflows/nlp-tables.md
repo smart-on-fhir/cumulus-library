@@ -21,6 +21,104 @@ to work with, and you configure them with a TOML file rather than writing SQL:
 Both read the `<study>__nlp_<task>_<model>` tables that an NLP workflow wrote. Run the NLP stage
 first, then list these configs in a later stage of your manifest.
 
+## What the output looks like
+
+Say your study is `my_study`, and an NLP task named `meds` read this clinical note:
+
+> Continue infliximab every 8 weeks. Prednisone was noted in the history.
+
+The NLP workflow stores the model's answer in `my_study__nlp_meds_gpt_oss_120b`. Along with some
+metadata columns (`note_ref`, `subject_ref`, `task_version`, ...), the row's `result` column holds
+the structured answer. Each mention has `spans`, the character positions of the supporting text:
+
+```json
+{
+  "meds": [
+    {
+      "drug":   {"has_mention": true, "name": "infliximab", "spans": [[9, 19]]},
+      "status": {"has_mention": true, "status": "ACTIVE", "spans": [[0, 8]]}
+    },
+    {
+      "drug":   {"has_mention": true, "name": "Prednisone", "spans": [[35, 45]]},
+      "status": {"has_mention": false, "status": "NONE_OF_THE_ABOVE", "spans": []}
+    }
+  ]
+}
+```
+
+### As a wide table
+
+```toml
+config_type = "nlp_wide"
+
+[tables.meds]
+task_versions = [1]
+unnest_paths = ["meds"]
+columns = [
+    { path = "drug.name", alias = "drug" },
+    "status.status",
+]
+```
+
+This creates `my_study__llm_meds_wide`, with one row per medication, because `unnest_paths`
+unpacks the `meds` list. (Without `unnest_paths`, you'd get one row per note, with columns read
+straight from `result`.)
+
+| note_ref              | task_version | drug       | status            |
+|-----------------------|--------------|------------|-------------------|
+| DocumentReference/123 | 1            | infliximab | ACTIVE            |
+| DocumentReference/123 | 1            | Prednisone | NONE_OF_THE_ABOVE |
+
+The table also has the other standard columns, ahead of yours: `encounter_ref`, `subject_ref`,
+`origin` (the source table the row came from), `generated_on`, and `system_fingerprint`.
+Row order isn't guaranteed.
+
+### As a highlight table
+
+```toml
+config_type = "nlp_highlight"
+
+[tables.meds]
+task_versions = [1]
+
+[[tables.meds.mentions]]
+ls_variable_name = "Medication"
+ls_subvalue_name = "Name"
+path = "drug.name"
+span_path = ["drug.spans", "status.spans"]
+within = ["meds"]
+
+[[tables.meds.mentions]]
+ls_variable_name = "Medication"
+ls_subvalue_name = "Status"
+path = "status.status"
+span_path = ["drug.spans", "status.spans"]
+within = ["meds"]
+require = "nota"
+```
+
+This creates `my_study__llm_meds_highlights`, with one row per thing to highlight in Label Studio:
+
+| note_ref              | label      | span  | sublabel_name | sublabel_value |
+|-----------------------|------------|-------|---------------|----------------|
+| DocumentReference/123 | Medication | 0:19  | Name          | infliximab     |
+| DocumentReference/123 | Medication | 0:19  | Status        | ACTIVE         |
+| DocumentReference/123 | Medication | 35:45 | Name          | Prednisone     |
+
+A few things to notice:
+
+- `span` is `start:end` character positions in the note. `0:19` is "Continue infliximab".
+- Listing two paths in `span_path` merges them, so each medication is one highlighted region with
+  its name and status attached to it. For infliximab, that region stretches from the status
+  evidence ("Continue") to the drug name. For Prednisone, the status had no supporting text, so
+  the region is just the drug name.
+- `require = "nota"` dropped Prednisone's status row, since its value is `NONE_OF_THE_ABOVE`. That's
+  why there are three rows, not four.
+- The table also has `subject_ref`, `generated_on`, `task_version`, `system_fingerprint` and
+  `origin`.
+
+The sections below explain each setting.
+
 ## Where the source tables come from
 
 For a table named `thing`, the builder uses every table named `<study>__nlp_thing_*` that has a
