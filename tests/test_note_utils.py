@@ -86,6 +86,8 @@ def test_nlp_args_reach_the_config():
                 "--nlp-concurrency=7",
                 "--nlp-chunksize=13",
                 "--batch-nlp",
+                "--bedrock-batch-s3-uri=s3://bucket/batches",
+                "--bedrock-batch-role=arn:aws:iam::123456789012:role/batch",
                 "--clean-nlp",
                 "--no-nlp-stats",
                 "--dev",
@@ -107,6 +109,8 @@ def test_nlp_args_reach_the_config():
         "concurrency": 7,
         "chunksize": 13,
         "use_batching": True,
+        "bedrock_batch_s3_uri": "s3://bucket/batches",
+        "bedrock_batch_role": "arn:aws:iam::123456789012:role/batch",
         "clean": True,
         "show_stats": False,
         "subtasks": ["age", "race"],
@@ -148,6 +152,8 @@ def test_nlp_config_defaults():
     # Args that are allowed to be None (or empty list)
     nullable = [
         "azure_deployments",
+        "bedrock_batch_role",
+        "bedrock_batch_s3_uri",
         "chunksize",
         "etl_phi_dir",
         "nlp_concurrency",
@@ -166,6 +172,8 @@ def test_nlp_config_defaults():
     # Expected defaults based on note_utils (except for show_stats, which we check separately)
     expected = {
         "azure_deployments": [],
+        "bedrock_batch_role": None,
+        "bedrock_batch_s3_uri": None,
         "chunksize": 100000,
         "clean": False,
         "concurrency": 1,
@@ -260,7 +268,7 @@ def test_capability_flags_match_their_provider(model_class):
     """
     flags_by_provider = {
         "AZURE_ID": ["AZURE_BATCHES", "AZURE_SCHEMA", "AZURE_TEMPERATURE"],
-        "BEDROCK_ID": ["BEDROCK_CACHE", "BEDROCK_SCHEMA", "BEDROCK_TEMPERATURE"],
+        "BEDROCK_ID": ["BEDROCK_BATCHES", "BEDROCK_CACHE", "BEDROCK_SCHEMA", "BEDROCK_TEMPERATURE"],
     }
 
     for id_field, flags in flags_by_provider.items():

@@ -1604,6 +1604,435 @@ def test_azure_batches_with_bad_notes(mock_client, tmp_path, mock_db_config):
     assert builder.stats.got_response[0] == 1
 
 
+HELLO_WORLD_CHECKSUM = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+
+
+def bedrock_batch_output(answer: dict, stop_reason: str = "tool_use") -> dict:
+    """A Converse response body, as found in a batch output record's modelOutput field"""
+    return {
+        "stopReason": stop_reason,
+        "usage": {"inputTokens": 43, "outputTokens": 44},
+        "output": {"message": {"content": [{"toolUse": {"input": answer}}]}},
+    }
+
+
+class FakeBedrockBatches:
+    """Plays the part of Bedrock's batch inference API, on top of an in-memory S3.
+
+    Creating a job reads the uploaded input records and immediately writes the output files
+    where real Bedrock would put them ({output_uri}/{job_id}/{input_name}.out).
+    """
+
+    def __init__(
+        self,
+        model: nlp_utils.MockModel,
+        *,
+        respond=None,
+        statuses: list[str] | None = None,
+        final_status: str = "Completed",
+        message: str | None = None,
+    ):
+        self.jobs: dict[str, dict] = {}  # job ARN -> job description
+        self.inputs: list[list[dict]] = []  # input records, per created job
+        self.create_calls: list[dict] = []
+        # Maps one input record to its output record (default: a successful answer)
+        self.respond = respond or (
+            lambda record: {
+                "recordId": record["recordId"],
+                "modelInput": record["modelInput"],
+                "modelOutput": bedrock_batch_output({"ignored": "batched"}),
+            }
+        )
+        self.statuses = list(statuses or [])  # reported (in order) before the final status
+        self.final_status = final_status
+        self.message = message
+        model._boto.create_model_invocation_job.side_effect = self.create
+        model._boto.get_model_invocation_job.side_effect = self.get
+
+    @staticmethod
+    def job_description(arn: str, input_uri: str, output_uri: str) -> dict:
+        return {
+            "jobArn": arn,
+            "inputDataConfig": {"s3InputDataConfig": {"s3Uri": input_uri}},
+            "outputDataConfig": {"s3OutputDataConfig": {"s3Uri": output_uri}},
+        }
+
+    @staticmethod
+    def write_output(output_uri: str, job_id: str, records: list[dict | str]) -> None:
+        out_dir = cfs.FsPath(output_uri, job_id)
+        lines = [r if isinstance(r, str) else json.dumps(r) for r in records]
+        out_dir.joinpath("input.jsonl.out").write_text("\n".join(lines) + "\n")
+        out_dir.joinpath("manifest.json.out").write_text('{"totalRecordCount": 1}')
+
+    def create(self, **kwargs) -> dict:
+        self.create_calls.append(kwargs)
+        input_uri = kwargs["inputDataConfig"]["s3InputDataConfig"]["s3Uri"]
+        output_uri = kwargs["outputDataConfig"]["s3OutputDataConfig"]["s3Uri"]
+        records = [json.loads(line) for line in cfs.FsPath(input_uri).read_text().splitlines()]
+        self.inputs.append(records)
+
+        job_id = f"job{len(self.jobs)}"
+        arn = f"arn:aws:bedrock:us-east-1:123456789012:model-invocation-job/{job_id}"
+        self.write_output(output_uri, job_id, [self.respond(record) for record in records])
+        self.jobs[arn] = self.job_description(arn, input_uri, output_uri)
+        return {"jobArn": arn}
+
+    def get(self, *, jobIdentifier: str) -> dict:
+        status = self.statuses.pop(0) if self.statuses else self.final_status
+        job = {**self.jobs[jobIdentifier], "status": status}
+        if self.message:
+            job["message"] = self.message
+        return job
+
+
+@pytest.fixture
+def mem_s3() -> Iterator[fsspec.implementations.memory.MemoryFileSystem]:
+    """Swaps S3 for an in-memory filesystem, which is where our fake Bedrock batches live"""
+    mem_fs = fsspec.implementations.memory.MemoryFileSystem()
+    with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": mem_fs}):
+        yield mem_fs
+        batch_root = cfs.FsPath(nlp_utils.BEDROCK_BATCH_S3_URI)
+        if batch_root.exists():
+            batch_root.rm()
+
+
+def s3_batch_files() -> set[cfs.FsPath]:
+    return cfs.FsPath(nlp_utils.BEDROCK_BATCH_S3_URI).ls(include_dirs=False, recursive=True)
+
+
+@mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
+@mock.patch("boto3.client")
+def test_bedrock_batching_happy_path(mock_client, tmp_path, mock_db_config, note_source, mem_s3):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
+    batches = FakeBedrockBatches(model)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    # The job itself
+    assert len(batches.create_calls) == 1
+    create_args = batches.create_calls[0]
+    assert create_args["modelId"] == "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+    assert create_args["modelInvocationType"] == "Converse"
+    assert create_args["roleArn"] == nlp_utils.BEDROCK_BATCH_ROLE
+    input_uri = create_args["inputDataConfig"]["s3InputDataConfig"]["s3Uri"]
+    output_uri = create_args["outputDataConfig"]["s3OutputDataConfig"]["s3Uri"]
+    assert input_uri.startswith(f"{nlp_utils.BEDROCK_BATCH_S3_URI}/cumulus-nlp-")
+    assert input_uri.endswith("/input.jsonl")
+    assert output_uri == input_uri.removesuffix("input.jsonl") + "output/"
+    assert create_args["inputDataConfig"]["s3InputDataConfig"]["s3InputFormat"] == "JSONL"
+
+    # The records, which should be the same Converse body we'd send live, minus cache points
+    assert len(batches.inputs[0]) == 1
+    record = batches.inputs[0][0]
+    assert record["recordId"] == HELLO_WORLD_CHECKSUM
+    model_input = record["modelInput"]
+    assert "modelId" not in model_input  # that's set on the job instead
+    assert model_input["system"] == [{"text": ""}]
+    assert model_input["messages"] == [{"role": "user", "content": [{"text": "hello world"}]}]
+    assert model_input["toolConfig"]["toolChoice"] == {"tool": {"name": "to_json"}}
+    assert [
+        tool.get("toolSpec", {}).get("name") for tool in model_input["toolConfig"]["tools"]
+    ] == ["to_json"]
+    assert model_input["inferenceConfig"] == {"temperature": 0}
+
+    # Results came from the batch, not a live call
+    model._boto.converse.assert_not_called()
+    rows = read_rows(mock_db_config, "example_nlp__nlp_task_claude_sonnet45")
+    assert [row["result"] for row in rows] == [{"ignored": "batched"}]
+
+    stats = builder.stats
+    assert stats.got_response[0] == 1
+    assert stats.from_model[0] == 1
+    assert stats.from_cache[0] == 0
+    assert stats.token_stats.new_input_tokens == 43
+    assert stats.token_stats.output_tokens == 44
+    assert models.sum_token_stats(stats.token_stats_by_table.values()) == stats.token_stats
+    assert stats.token_prices.multiplier == 0.5
+    # And the discount didn't leak into the shared, class-level prices
+    assert models.ClaudeSonnet45Model.BEDROCK_PRICES.multiplier == 1
+
+    # S3 copies (which hold note text) are cleaned up, and nothing is left to resume
+    assert s3_batch_files() == set()
+    metadata_path = model.phi / "nlp-cache/example_nlp__task_v0_claude-sonnet45/metadata.json"
+    assert json.loads(metadata_path.read_text()) == {"batches-bedrock": []}
+
+
+@mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
+@mock.patch("boto3.client")
+def test_bedrock_batching_multiple_tables(
+    mock_client, tmp_path, mock_db_config, note_source, mem_s3
+):
+    """Each table gets its own batch, answered with (and cached under) its own schema"""
+    workflow_path = conftest.write_toml(
+        tmp_path,
+        {
+            "config_type": "nlp",
+            "tables": {
+                "alpha": {
+                    "response_schema": '{"title": "alpha", "type": "object", '
+                    '"properties": {"a": {"type": "string"}}}',
+                },
+                "beta": {
+                    "response_schema": '{"title": "beta", "type": "object", '
+                    '"properties": {"b": {"type": "string"}}}',
+                },
+            },
+        },
+        "nlp.workflow",
+    )
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
+
+    def respond(record: dict) -> dict:
+        tool = record["modelInput"]["toolConfig"]["tools"][0]["toolSpec"]
+        field = next(iter(tool["inputSchema"]["json"]["properties"]))
+        return {"recordId": record["recordId"], "modelOutput": bedrock_batch_output({field: "x"})}
+
+    batches = FakeBedrockBatches(model, respond=respond)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    assert len(batches.create_calls) == 2
+    model._boto.converse.assert_not_called()
+    assert read_rows(mock_db_config, "example_nlp__nlp_alpha_claude_sonnet45")[0]["result"] == {
+        "a": "x"
+    }
+    assert read_rows(mock_db_config, "example_nlp__nlp_beta_claude_sonnet45")[0]["result"] == {
+        "b": "x"
+    }
+    assert builder.stats.from_model == [1, 1]
+
+
+@mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
+@mock.patch.object(models.BedrockProvider, "BEDROCK_MAX_BATCH_COUNT", 2)
+@mock.patch("boto3.client")
+def test_bedrock_splitting_batch(mock_client, tmp_path, mock_db_config, mem_s3):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
+    batches = FakeBedrockBatches(model)
+
+    with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
+        add_dxr("hello1", "world1", f)
+        add_dxr("hello2", "world2", f)
+        add_dxr("hello3", "world1", f)  # same text as the first - should only be asked once
+        add_dxr("hello4", "world3", f)
+    note_source = note_utils.NoteSource([tmp_path])
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    # Three unique notes, two per batch
+    assert [len(records) for records in batches.inputs] == [2, 1]
+    model._boto.converse.assert_not_called()
+    assert builder.stats.got_response[0] == 4
+    assert s3_batch_files() == set()
+
+
+@mock.patch("boto3.client")
+def test_bedrock_batch_under_minimum_goes_live(
+    mock_client, tmp_path, mock_db_config, note_source, mem_s3
+):
+    """Too few notes for a Bedrock batch job, so they get sent one at a time instead"""
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
+    batches = FakeBedrockBatches(model)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    console_output = io.StringIO()
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+
+    output = " ".join(console_output.getvalue().split())  # undo any console line-wrapping
+    assert "under Bedrock's minimum of 100 per batch job" in output
+    assert batches.create_calls == []
+    assert s3_batch_files() == set()
+    assert model._boto.converse.call_count == 1
+    assert builder.stats.got_response[0] == 1
+
+
+@mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
+@mock.patch("time.sleep", new=lambda x: None)
+@mock.patch("boto3.client")
+def test_bedrock_batching_errors(mock_client, tmp_path, mock_db_config, note_source, mem_s3):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
+
+    def respond(record: dict) -> dict:
+        return {
+            "recordId": record["recordId"],
+            "modelInput": record["modelInput"],
+            "modelOutput": bedrock_batch_output({}, stop_reason="max_tokens"),
+        }
+
+    batches = FakeBedrockBatches(
+        model,
+        respond=respond,
+        statuses=["Submitted", "Validating", "Scheduled", "InProgress"],
+        final_status="PartiallyCompleted",
+        message="some records failed",
+    )
+
+    # Mix some broken records in with the real (but unusable) answer
+    real_create = batches.create
+
+    def create_with_junk(**kwargs):
+        result = real_create(**kwargs)
+        output_uri = kwargs["outputDataConfig"]["s3OutputDataConfig"]["s3Uri"]
+        records = [
+            {"recordId": "a", "error": {"errorCode": 400, "errorMessage": "bad request"}},
+            "{'blarg'",  # invalid json
+            {"recordId": "b"},  # no output
+            {"modelOutput": bedrock_batch_output({})},  # no record ID
+            respond(batches.inputs[-1][0]),
+        ]
+        FakeBedrockBatches.write_output(output_uri, "job0", records)
+        return result
+
+    model._boto.create_model_invocation_job.side_effect = create_with_junk
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    console_output = io.StringIO()
+    with contextlib.redirect_stdout(console_output):
+        builder.execute_queries(mock_db_config, None)
+    output = " ".join(console_output.getvalue().split())  # undo any console line-wrapping
+
+    assert model._boto.get_model_invocation_job.call_count == 5
+    assert (
+        "Batch did not complete, got status: 'PartiallyCompleted' (some records failed)" in output
+    )
+    assert "Error from NLP: bad request" in output
+    assert "Could not parse a batch output record from NLP" in output
+    assert output.count("Unexpected response from NLP: missing data") == 2
+    assert "Failed to process batch response from NLP: did not complete" in output
+
+    # The note the batch couldn't answer still gets answered, live
+    assert model._boto.converse.call_count == 1
+    assert builder.stats.got_response[0] == 1
+    assert s3_batch_files() == set()
+
+
+@mock.patch("boto3.client")
+def test_bedrock_resume_batching(mock_client, tmp_path, mock_db_config, note_source, mem_s3):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
+    batches = FakeBedrockBatches(model)
+
+    # A job from a previous, interrupted run
+    arn = "arn:aws:bedrock:us-east-1:123456789012:model-invocation-job/old"
+    folder = f"{nlp_utils.BEDROCK_BATCH_S3_URI}/cumulus-nlp-old"
+    input_uri = f"{folder}/input.jsonl"
+    output_uri = f"{folder}/output/"
+    cfs.FsPath(input_uri).write_text("{}\n")
+    batches.write_output(
+        output_uri,
+        "old",
+        [{"recordId": HELLO_WORLD_CHECKSUM, "modelOutput": bedrock_batch_output({"ignored": "a"})}],
+    )
+    batches.jobs[arn] = batches.job_description(arn, input_uri, output_uri)
+
+    path_dir = f"{model.phi}/nlp-cache/example_nlp__task_v0_claude-sonnet45"
+    os.makedirs(path_dir)
+    with open(f"{path_dir}/metadata.json", "w", encoding="utf8") as f:
+        json.dump({"batches-bedrock": [arn]}, f)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    builder.execute_queries(mock_db_config, None)
+
+    # Nothing new needed to be sent - the resumed job had the answer
+    assert batches.create_calls == []
+    model._boto.converse.assert_not_called()
+    rows = read_rows(mock_db_config, "example_nlp__nlp_task_claude_sonnet45")
+    assert rows[0]["result"] == {"ignored": "a"}
+    assert s3_batch_files() == set()
+
+
+@mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
+@mock.patch("boto3.client")
+def test_bedrock_batch_create_failure_cleans_up(
+    mock_client, tmp_path, mock_db_config, note_source, mem_s3
+):
+    """If the job can't be started, don't leave the notes sitting in S3"""
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
+    error = botocore.exceptions.ClientError(
+        {"Error": {"Code": "AccessDeniedException", "Message": "no"}}, "CreateModelInvocationJob"
+    )
+    model._boto.create_model_invocation_job.side_effect = error
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    with pytest.raises(botocore.exceptions.ClientError, match="AccessDeniedException"):
+        builder.execute_queries(mock_db_config, None)
+
+    assert s3_batch_files() == set()
+
+
+@pytest.mark.parametrize(
+    "s3_uri,role,error",
+    [
+        (None, nlp_utils.BEDROCK_BATCH_ROLE, "Pass both --bedrock-batch-s3-uri"),
+        (nlp_utils.BEDROCK_BATCH_S3_URI, None, "Pass both --bedrock-batch-s3-uri"),
+        ("/local/folder", nlp_utils.BEDROCK_BATCH_ROLE, "must be an s3:// URL"),
+    ],
+)
+@mock.patch("boto3.client")
+def test_bedrock_batching_needs_config(
+    mock_client, s3_uri, role, error, tmp_path, mock_db_config, note_source
+):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
+    config = model.nlp_config(batching=True, bedrock_batch_s3_uri=s3_uri, bedrock_batch_role=role)
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=config
+    )
+    with pytest.raises(errors.CumulusLibraryError, match=error):
+        builder.execute_queries(mock_db_config, None)
+
+
+@mock.patch("boto3.client")
+def test_bedrock_batching_unsupported_model(mock_client, tmp_path, mock_db_config, note_source):
+    workflow_path = nlp_utils.basic_workflow(tmp_path)
+    model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-opus55")
+
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path,
+        notes=note_source,
+        nlp_config=model.nlp_config(batching=True),
+    )
+    with pytest.raises(errors.CumulusLibraryError, match="does not support batching"):
+        builder.execute_queries(mock_db_config, None)
+
+
 @mock.patch.dict(os.environ, clear=True)
 @mock.patch("cumulus_fhir_support.FsPath.register_options", side_effect=RuntimeError("boom"))
 def test_aws_profile_env_is_set(mock_register, tmp_path):

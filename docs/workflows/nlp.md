@@ -200,6 +200,8 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
   across your deployments as evenly as possible.
 - `--batch-nlp`: if set, NLP will be done in batch mode, which can take up to a day to finish, but
   will be much cheaper. Not all models support it (see [Batching](#batching)).
+- `--bedrock-batch-s3-uri=S3_URI` and `--bedrock-batch-role=ARN`: required when using
+  `--batch-nlp` with the Bedrock provider (see [Batching](#batching)).
 - `--nlp-chunksize=N`: how many notes to process before writing results out to storage
   (defaults to 100,000). In batch mode, this is also the most requests sent in a single batch.
 - `--clean-nlp`: if set, previous NLP results for the workflow will be deleted first
@@ -223,9 +225,9 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
 | `--nlp-model` | `azure` | `bedrock` | `local` |
 |---|---|---|---|
 | `claude-opus48` | | ✓ | |
-| `claude-sonnet45` | | ✓ | |
-| `claude-sonnet46` | | ✓ | |
-| `gpt-oss-120b` | ✓ | ✓ | ✓ |
+| `claude-sonnet45` | | ✓ (supports batching) | |
+| `claude-sonnet46` | | ✓ (supports batching) | |
+| `gpt-oss-120b` | ✓ | ✓ (supports batching) | ✓ |
 | `gpt35` | ✓ | | |
 | `gpt4` | ✓ | | |
 | `gpt4o` | ✓ (supports batching) | | |
@@ -233,7 +235,7 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
 | `gpt54` | ✓ | | |
 | `gpt54-mini` | ✓ | | |
 | `gpt54-nano` | ✓ | | |
-| `llama4-scout` | ✓ | ✓ | ✓ (experimental) |
+| `llama4-scout` | ✓ | ✓ (supports batching) | ✓ (experimental) |
 
 Choosing a provider that a model doesn't support stops the build with an error.
 
@@ -476,13 +478,44 @@ them in one go to the LLM server at a discount.
 Then you wait up to day for the results.
 So you trade predictable timing for 50% cheaper tokens.
 
-As of this writing, Cumulus Library only supports batching with the Azure provider.
-Make sure you've set up a deployment that uses batching, and then pass in the following arguments:
-`--nlp-provider=azure --azure-deployment=xxx --batch-nlp`.
+Cumulus Library supports batching with the Azure and Bedrock providers, for the models marked
+"supports batching" in [Supported Models](#supported-models).
 
 Then be prepared to wait a little bit.
 Note that the 50% discount is mitigated somewhat by the fact that batching does not use token
 caching at all. So some of that discount is lost. But overall, you'll probably save money.
+
+#### Azure
+
+Make sure you've set up a deployment that uses batching, and then pass in the following arguments:
+`--nlp-provider=azure --azure-deployment=xxx --batch-nlp`.
+
+#### Bedrock
+
+Bedrock batch jobs read their requests from S3 and write their results back to S3, so you need:
+
+- An S3 folder for Cumulus Library to stage batches in, in the same region you run Bedrock in.
+  Pass it as `--bedrock-batch-s3-uri=s3://my-bucket/some/folder`.
+- An IAM service role that Bedrock can assume to read and write that folder.
+  Pass its ARN as `--bedrock-batch-role=arn:aws:iam::123456789012:role/my-batch-role`.
+  See AWS's [batch inference permissions](https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-permissions.html)
+  docs for how to set one up.
+- Your own AWS identity also needs permission to create and check on batch jobs
+  (`bedrock:CreateModelInvocationJob`, `bedrock:GetModelInvocationJob`, and `iam:PassRole` on
+  that role), plus permission to read, write, and delete objects in that S3 folder.
+
+For example:
+`--nlp-provider=bedrock --batch-nlp --bedrock-batch-s3-uri=s3://... --bedrock-batch-role=arn:...`
+
+Some details to be aware of:
+
+- The staged files contain your clinical note text. Cumulus Library deletes each batch's files
+  from S3 once its results are saved to your PHI dir's cache. If it can't, it will tell you.
+- Bedrock requires at least 100 notes per batch job (by default; your account quota may
+  differ). If there are fewer notes than that to send, they are sent one at a time instead,
+  at the normal price.
+- If a run gets interrupted, re-running with the same arguments picks the existing batch jobs
+  back up instead of starting new ones.
 
 ### Using a Local LLM
 

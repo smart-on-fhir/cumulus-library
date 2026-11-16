@@ -448,6 +448,7 @@ class NlpNotePool:
 
             for table_slug, task in self._tables.items():
                 cache_namespace = self._cache_namespace(table_slug, task)
+                batch_ids = table_batches.setdefault(table_slug, set())
                 batch_ids.add(self._provider.finish_batch(cache_dir, cache_namespace))
                 batch_ids.discard(None)  # drop any None's from calls that didn't create a batch
 
