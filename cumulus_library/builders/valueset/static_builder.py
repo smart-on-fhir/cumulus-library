@@ -145,46 +145,50 @@ class StaticBuilder(BaseTableBuilder):
 
         self.tables = self.get_keywords_table_configs(config, manifest, table_prefix)
 
-        # For each VSAC dataset, we'll get the topics defined by that dataset
-        vsac_df = pandas.DataFrame(columns=["sab", "rxcui", "display", "steward", "oid"])
-        for key in valueset_config.vsac_stewards:
-            vsac.download_oid_data(
-                steward=key,
-                oid=valueset_config.vsac_stewards[key],
-                config=config,
-                manifest=None,
-                path=toml_path,
-            )
-            steward_df = pandas.read_csv(
-                self.data_path / f"{key}.tsv",
-                delimiter="\t",
-                names=["sab", "rxcui", "display"],
-                header=0,
-            )
+        if valueset_config.vsac_stewards:
+            #   For each VSAC dataset, we'll get the topics defined by that
+            # dataset
+            vsac_df = pandas.DataFrame(columns=["sab", "rxcui", "display", "steward", "oid"])
 
-            steward_df["steward"] = key
-            steward_df["oid"] = valueset_config.vsac_stewards[key]
-            vsac_df = pandas.concat([vsac_df, steward_df])
-            vsac_df["rxcui"] = vsac_df["rxcui"].astype("str")
-        vsac_df.to_csv(self.data_path / "valueset_cache/all_vsac.tsv", sep="\t", index=False)
+            for key in valueset_config.vsac_stewards:
+                vsac.download_oid_data(
+                    steward=key,
+                    oid=valueset_config.vsac_stewards[key],
+                    config=config,
+                    manifest=None,
+                    path=toml_path,
+                )
+                steward_df = pandas.read_csv(
+                    self.data_path / f"{key}.tsv",
+                    delimiter="\t",
+                    names=["sab", "rxcui", "display"],
+                    header=0,
+                )
 
-        # And now we'll add the VSAC static table to the list of tables to upload
-        self.tables.append(
-            TableConfig(
-                file_path=self.data_path / "valueset_cache/all_vsac.tsv",
-                delimiter="\t",
-                table_name=f"{table_prefix}vsac_valuesets",
-                headers=["sab", "rxcui", "str", "steward", "oid"],
-                dtypes={
-                    "sab": "str",
-                    "rxcui": "str",
-                    "display": "str",
-                    "steward": "str",
-                    "oid": "str",
-                },
-                parquet_types=["STRING", "STRING", "STRING", "STRING", "STRING"],
+                steward_df["steward"] = key
+                steward_df["oid"] = valueset_config.vsac_stewards[key]
+                vsac_df = pandas.concat([vsac_df, steward_df])
+                vsac_df["rxcui"] = vsac_df["rxcui"].astype("str")
+
+            vsac_df.to_csv(self.data_path / "valueset_cache/all_vsac.tsv", sep="\t", index=False)
+
+            # And now we'll add the VSAC static table to the list of tables to upload
+            self.tables.append(
+                TableConfig(
+                    file_path=self.data_path / "valueset_cache/all_vsac.tsv",
+                    delimiter="\t",
+                    table_name=f"{table_prefix}vsac_valuesets",
+                    headers=["sab", "rxcui", "str", "steward", "oid"],
+                    dtypes={
+                        "sab": "str",
+                        "rxcui": "str",
+                        "display": "str",
+                        "steward": "str",
+                        "oid": "str",
+                    },
+                    parquet_types=["STRING", "STRING", "STRING", "STRING", "STRING"],
+                )
             )
-        )
 
         with base_utils.get_progress_bar() as progress:
             task = progress.add_task("Uploading static files...", total=len(self.tables))
