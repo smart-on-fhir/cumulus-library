@@ -56,7 +56,7 @@ dev = [
     "httpx",
     "time-machine",
     "responses",
-    "cumulus-library[mlflow]",
+    {include-group="mlflow"}
 ]
 
 [project.urls]
