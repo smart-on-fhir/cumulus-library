@@ -50,6 +50,9 @@ dev = [
     "pre-commit",
     # if you update the sqlfluff version, also update .pre-commit-config.yaml
     "sqlfluff >= 3.4.2, <4.2",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
 ]
 test = [
     "httpx",
