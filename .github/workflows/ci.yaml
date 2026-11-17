@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ".[dev]"
+          pip install "." --group dev
       - name: Test with pytest
         run: |
           python -m pytest -n auto --cov-report xml --cov=cumulus_library tests
@@ -66,7 +66,7 @@ jobs:
       - name: Install linters
         run: |
           python -m pip install --upgrade pip
-          pip install ".[dev]"
+          pip install "." --group dev
       - name: Run sqlfluff on jinja templates
         run: |
           sqlfluff lint
