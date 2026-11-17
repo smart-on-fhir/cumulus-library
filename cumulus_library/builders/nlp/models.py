@@ -247,18 +247,16 @@ class _PendingBedrockBatch:
 
 
 class BedrockProvider(Provider):
-    # Default account quotas for batch inference. These vary by model and can be raised on
-    # request, so they are only our best defaults. Search for "batch inference" at:
-    # https://docs.aws.amazon.com/general/latest/gr/bedrock.html#limits_bedrock
-    BEDROCK_MIN_BATCH_COUNT = 100  # "Minimum number of records per batch inference job"
-    BEDROCK_MAX_BATCH_COUNT = 50_000  # "Records per batch inference job"
-    BEDROCK_MAX_BATCH_BYTES = 1_000_000_000  # "Batch inference input file size" (1 GB)
+    # These defaults cover most models, but each model class has the real max records
+    BEDROCK_MIN_BATCH_COUNT = 100  # Minimum number of records per batch inference job
+    BEDROCK_MAX_BATCH_COUNT = 50_000  # Records per batch inference job, actual value depends on model
+    BEDROCK_MAX_BATCH_BYTES = 1_000_000_000  # 1 GB input file size
 
-    # GetModelInvocationJob statuses that mean "not done yet, keep waiting".
-    # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_GetModelInvocationJob.html
     BATCH_PENDING_STATUSES = frozenset(
         {"Submitted", "Validating", "Scheduled", "InProgress", "Stopping"}
     )
+
+    BATCH_POLL_TIME = 60 * 5 # 5 minutes
 
     def __init__(
         self,
@@ -279,37 +277,26 @@ class BedrockProvider(Provider):
         self.supports_temperature = supports_temperature
         # Adaptive mode adds client-side rate limiting on top of retries, so a throttled
         # endpoint slows us down instead of us hammering it harder.
-        config = {"retries": {"max_attempts": MAX_RETRIES, "mode": "adaptive"}}
+        base_config = {"retries": {"max_attempts": MAX_RETRIES, "mode": "adaptive"}}
         if concurrency:
-            config["max_pool_connections"] = concurrency
+            base_config["max_pool_connections"] = concurrency
+        config = botocore.config.Config(**base_config)
         self.client = boto3.client(
             "bedrock-runtime",
-            config=botocore.config.Config(**config),
+            config=config,
         )
+        # Uses a different API than non-batch calls
+        self.batch_client = boto3.client("bedrock", config=config)
 
-        # Batch inference (CreateModelInvocationJob) lives on the "bedrock" control-plane client
-        # and reads/writes its records via S3, using an IAM role that Bedrock assumes.
         self.supports_batches = max_batch_count is not None
         self.max_batch_count = self.BEDROCK_MAX_BATCH_COUNT
         if self.supports_batches:
             self.max_batch_count = min(self.max_batch_count, max_batch_count)
         self.batch_s3_uri = batch_s3_uri.rstrip("/") if batch_s3_uri else None
         self.batch_role_arn = batch_role_arn
-        self._batch_client = None
-        # Input files still being filled, one per cache namespace (i.e. per NLP table), since
-        # each table has its own schema and its own cache folder to write results into.
         self._pending_batches: dict[str, _PendingBedrockBatch] = {}
-        # Checksums already queued for batching this run, per namespace. Identical note text
-        # gives an identical checksum, and we only need (and only want to pay for) one answer.
         self._batched_checksums: dict[str, set[str]] = {}
 
-    @property
-    def batch_client(self):
-        """The control-plane client for batch jobs, made on first use (only batch runs need it)"""
-        if self._batch_client is None:
-            config = botocore.config.Config(retries={"max_attempts": MAX_RETRIES})
-            self._batch_client = boto3.client("bedrock", config=config)
-        return self._batch_client
 
     def _converse_args(
         self, system: str, user: str, schema: type[BaseModel], *, use_cache: bool
@@ -324,7 +311,7 @@ class BedrockProvider(Provider):
         #
         # But even then, it's only sometimes used, based on the model (e.g. gpt-oss-120b is like
         # a 50/50 shot).
-        # So we handle both response types during parsing, regardless of schema support.
+        # So we handle both response types below during parsing, regardless of schema support.
         #
         # Also, some models *don't* support this approach at all, and will error out if you provide
         # the toolChoice field. So let's skip those here.
@@ -405,10 +392,7 @@ class BedrockProvider(Provider):
 
         return PromptResponse(answer, usage=call_usage)
 
-    ##################
-    # Batch inference
-    ##################
-    #
+   
     # Flow: add_to_batch() appends Converse-format records to a local JSONL file per table.
     # Sending a batch uploads that file to S3 and starts a CreateModelInvocationJob, which writes
     # its results back to S3. wait_for_batch() polls the job, copies results into the NLP cache,
@@ -429,17 +413,13 @@ class BedrockProvider(Provider):
             return None
         queued.add(prompt.cache_checksum)
 
-        # The job's modelInvocationType is "Converse", so each record's modelInput is a Converse
-        # request body (the modelId is set once, on the job). Prompt cache points are left out:
-        # batch inference doesn't advertise prompt caching, and an unsupported field would fail
-        # the record rather than just go unused.
         model_input = self._converse_args(
             prompt.system, prompt.user, prompt.schema, use_cache=False
         )
         row = json.dumps({"recordId": prompt.cache_checksum, "modelInput": model_input}) + "\n"
         row_size = len(row.encode("utf8"))
 
-        # Send off the current batch first, if this row would push it past a limit
+        # Send off the current batch first if it's at size or record count limits
         batch_id = None
         pending = self._pending_batches.get(namespace)
         if pending and (
@@ -449,13 +429,15 @@ class BedrockProvider(Provider):
             batch_id = self._send_batch(namespace)
             pending = None
 
+        # Start a new batch
         if pending is None:
             with tempfile.NamedTemporaryFile(
                 "wt", dir=tmp_dir, delete=False, suffix=".jsonl", encoding="utf8"
             ) as tmp_file:
                 pending = _PendingBedrockBatch(filename=tmp_file.name, cache_dir=prompt.cache_dir)
             self._pending_batches[namespace] = pending
-
+        
+        # 
         with open(pending.filename, "a", encoding="utf8") as f:
             f.write(row)
         pending.rows += 1
@@ -472,8 +454,7 @@ class BedrockProvider(Provider):
         pending = self._pending_batches.pop(cache_namespace)
         try:
             if pending.rows < self.BEDROCK_MIN_BATCH_COUNT:
-                # Bedrock rejects jobs under its minimum size. Rather than fail the run, leave
-                # these notes uncached - the regular note pass will send them one at a time.
+                # Leave notes under the minimum batch size uncached so they get sent individually
                 print_error(
                     f"Only {pending.rows:,} note(s) left to batch, which is under Bedrock's "
                     f"minimum of {self.BEDROCK_MIN_BATCH_COUNT:,} per batch job. "
@@ -530,7 +511,7 @@ class BedrockProvider(Provider):
 
         job = self.batch_client.get_model_invocation_job(jobIdentifier=batch_id)
         while job["status"] in self.BATCH_PENDING_STATUSES:
-            time.sleep(60 * 5)  # check every five minutes
+            time.sleep(self.BATCH_POLL_TIME)
             job = self.batch_client.get_model_invocation_job(jobIdentifier=batch_id)
 
         if job["status"] != "Completed":
@@ -581,8 +562,7 @@ class BedrockProvider(Provider):
                         cache_dir, cache_namespace, checksum, json.dumps(response.to_dict())
                     )
 
-        # Everything useful is in the cache now, and the S3 copies hold note text (both the input
-        # and the output, which echoes each prompt) - so don't leave them lying around.
+        # S3 copies hold note text, so remove since they're in cache now
         self._remove_batch_files(input_uri, output_uri)
 
         # Drop this job from the resume list
