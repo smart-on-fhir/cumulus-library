@@ -400,6 +400,8 @@ class BedrockProvider(Provider):
     # served from that cache - and any note the batch didn't answer is just sent live, as usual.
     #
     # Docs: https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference.html
+    #
+    # Note: It MUST be JSONL format, not NDJSON: https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-data.html
 
     def add_to_batch(self, prompt: Prompt, tmp_dir: str) -> str | None:
         """Queues a prompt for batching. Returns a job ARN if a full batch had to be sent."""
