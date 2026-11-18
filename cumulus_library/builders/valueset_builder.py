@@ -32,8 +32,8 @@ class ValuesetBuilder(BaseTableBuilder):
             rules_file=toml_config.get("rules_file"),
             keyword_file=toml_config.get("keyword_file"),
             table_prefix=toml_config.get("table_prefix", ""),
-            umls_stewards=toml_config.get("umls_stewards", {}),
-            vsac_stewards=toml_config.get("vsac_stewards", {}),
+            umls_stewards=toml_config.get("umls_stewards"),
+            vsac_stewards=toml_config.get("vsac_stewards"),
         )
 
     def prepare_queries(

@@ -1,0 +1,67 @@
+# The IBD study's IbdNlpTreatmentHighlightsBuilder, declared as a nlp_highlight config.
+# test_nlp_flatten_ibd_parity.py checks that this renders the same SQL as the study's own builder.
+#
+# A medication is a cluster of sibling mentions (class, status, phase, start date, response) whose
+# spans are scattered through the note, so each medication-level mention merges all five span
+# arrays into one `Medication` highlight. Adverse drug events are their own entity one level
+# deeper, so they keep a plain span_path (one highlight per span).
+config_type = "nlp_highlight"
+
+[tables.treatment]
+task_versions = [7]
+
+[[tables.treatment.mentions]]
+ls_variable_name = "Medication"
+ls_subvalue_name = "Medication Class"
+path = "rx_class.rx_class"
+span_path = ["rx_class.spans", "rx_status.spans", "rx_treatment_phase.spans", "rx_start_date.spans", "rx_response.spans"]
+within = ["rx_annotations"]
+require = "nota"
+
+[[tables.treatment.mentions]]
+ls_variable_name = "Medication"
+ls_subvalue_name = "Medication Status"
+path = "rx_status.rx_status"
+span_path = ["rx_class.spans", "rx_status.spans", "rx_treatment_phase.spans", "rx_start_date.spans", "rx_response.spans"]
+within = ["rx_annotations"]
+require = "nota"
+
+[[tables.treatment.mentions]]
+ls_variable_name = "Medication"
+ls_subvalue_name = "Medication Treatment Phase"
+path = "rx_treatment_phase.rx_treatment_phase"
+span_path = ["rx_class.spans", "rx_status.spans", "rx_treatment_phase.spans", "rx_start_date.spans", "rx_response.spans"]
+within = ["rx_annotations"]
+require = "nota"
+
+[[tables.treatment.mentions]]
+ls_variable_name = "Medication"
+ls_subvalue_name = "Medication Start Date"
+path = "rx_start_date.rx_start_date"
+span_path = ["rx_class.spans", "rx_status.spans", "rx_treatment_phase.spans", "rx_start_date.spans", "rx_response.spans"]
+within = ["rx_annotations"]
+require = "not_null"
+
+[[tables.treatment.mentions]]
+ls_variable_name = "Medication"
+ls_subvalue_name = "Medication Start Date Precision"
+path = "rx_start_date.rx_start_date_precision"
+span_path = ["rx_class.spans", "rx_status.spans", "rx_treatment_phase.spans", "rx_start_date.spans", "rx_response.spans"]
+within = ["rx_annotations"]
+require = "not_null"
+
+[[tables.treatment.mentions]]
+ls_variable_name = "Medication"
+ls_subvalue_name = "Medication Response"
+path = "rx_response.rx_response"
+span_path = ["rx_class.spans", "rx_status.spans", "rx_treatment_phase.spans", "rx_start_date.spans", "rx_response.spans"]
+within = ["rx_annotations"]
+require = "nota"
+
+[[tables.treatment.mentions]]
+ls_variable_name = "Adverse Drug Event"
+ls_subvalue_name = "Adverse Drug Event"
+path = "ade"
+span_path = "spans"
+within = ["rx_annotations", "rx_adverse_drug_events"]
+require = "nota"

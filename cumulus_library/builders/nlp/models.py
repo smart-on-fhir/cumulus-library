@@ -18,6 +18,7 @@ from typing import NoReturn, Self
 
 import boto3
 import botocore.config
+import botocore.errorfactory
 import cumulus_fhir_support as cfs
 import openai
 import rich
@@ -713,7 +714,13 @@ class OpenAIProvider(Provider):
 
     def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
         prompt_args = self._prompt_args(system, user, schema)
-        response = self.client.chat.completions.parse(**prompt_args)
+        try:
+            response = self.client.chat.completions.parse(**prompt_args)
+        except openai.BadRequestError as exc:
+            raise errors.CumulusLibraryError(
+                f"Exception raised calling note:\n{user}\n\nError code: {exc.code} - {exc.message}"
+            )
+
         return self._process_completion_result(response, schema)
 
     def add_to_batch(self, prompt: Prompt, tmp_dir: str) -> str | None:
