@@ -16,8 +16,8 @@ from tests import conftest
 # Not fully empty, because parquet doesn't like that. But just throw an unused property in there.
 EMPTY_SCHEMA = '{"title":"test", "type": "object", "properties": {"ignored": {"type": "string"}}}'
 
-# Default Bedrock batch settings handed to MockModel configs
-BEDROCK_BATCH_S3_URI = "s3://test-bucket/nlp-batches"
+# Default Bedrock batch settings handed to MockModel configs (the bucket exists under mock_s3)
+BEDROCK_BATCH_S3_URI = f"s3://{conftest.MOCK_S3_BUCKET}/nlp-batches"
 BEDROCK_BATCH_ROLE = "arn:aws:iam::123456789012:role/test-bedrock-batch"
 
 

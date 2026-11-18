@@ -20,7 +20,6 @@ from unittest import mock
 
 import botocore.exceptions
 import cumulus_fhir_support as cfs
-import fsspec.implementations.memory
 import httpx
 import openai
 import pandas
@@ -1124,7 +1123,7 @@ def test_bedrock_no_response(mock_client, tmp_path, mock_db_config, note_source)
 @nlp_utils.mock_env()
 @mock.patch("botocore.client")
 @mock.patch("openai.OpenAI")
-def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_source):
+def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_source, mock_s3):
     db, _schema = databases.create_db_backend(
         {
             "db_type": "athena",
@@ -1137,7 +1136,9 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     db.connection = mock.MagicMock()
     bucket_info = {
         "WorkGroup": {
-            "Configuration": {"ResultConfiguration": {"OutputLocation": "s3://testbucket/athena/"}}
+            "Configuration": {
+                "ResultConfiguration": {"OutputLocation": f"s3://{conftest.MOCK_S3_BUCKET}/athena/"}
+            }
         }
     }
     db.connection._client.get_work_group.return_value = bucket_info
@@ -1145,22 +1146,20 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     study_config = cumulus_library.StudyConfig(db=db, schema="main")
     workflow_path = nlp_utils.basic_workflow(tmp_path, version=1)
     model = nlp_utils.MockModel(mock_openai_client)
-    # Mock out FsPath's s3 filesystem (it should grow a fancier mock itself ideally)
-    mem_fs = fsspec.implementations.memory.MemoryFileSystem()
-    with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": mem_fs}):
-        builder = nlp_builder.NlpBuilder(
-            toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-        )
-        builder.execute_queries(study_config, None)
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+    builder.execute_queries(study_config, None)
 
     assert builder.stats.got_response[0] == 1
 
     # Confirm we wrote the parquet file out correctly, into an ETL-style upload folder
     # (nlp prefix, task name, model, and task version)
     upload_dir = (
-        "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/nlp_task_gpt_oss_120b_v1"
+        f"s3://{conftest.MOCK_S3_BUCKET}/athena/cumulus_user_uploads/testdb/example_nlp/"
+        "nlp_task_gpt_oss_120b_v1"
     )
-    with mem_fs.open(f"{upload_dir}/nlp.0.parquet", "rb") as f:
+    with mock_s3.open(f"{upload_dir}/nlp.0.parquet", "rb") as f:
         df = pandas.read_parquet(f)
         rows = json.loads(df.to_json(orient="records"))
 
@@ -1171,7 +1170,7 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     )
 
     # And the id file
-    with mem_fs.open(f"{upload_dir}.ids", "r") as f:
+    with mock_s3.open(f"{upload_dir}.ids", "r") as f:
         assert (
             f.read()
             == "DiagnosticReport/eee10367d972edc0fbbdf0cc6664eb595e4768e193279cd657cfb9cd82b0329b\n"
@@ -1184,23 +1183,23 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
         "`generated_on` STRING, `task_version` INT, `model` STRING, `system_fingerprint` STRING, "
         "`result` STRUCT<ignored: STRING>\n)\n"
         "STORED AS PARQUET\n"
-        f"LOCATION 'memory://{upload_dir}'\n"
+        f"LOCATION '{upload_dir}'\n"
         'tblproperties ("parquet.compression"="SNAPPY");',
     ]
 
     # Then check that a version update works successfully
     workflow_path = nlp_utils.basic_workflow(tmp_path, version=2)
-    with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": mem_fs}):
-        builder = nlp_builder.NlpBuilder(
-            toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-        )
-        builder.execute_queries(study_config, None)
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    )
+    builder.execute_queries(study_config, None)
 
     assert builder.stats.got_response[0] == 1
     upload_dir = (
-        "s3://testbucket/athena/cumulus_user_uploads/testdb/example_nlp/nlp_task_gpt_oss_120b_v2"
+        f"s3://{conftest.MOCK_S3_BUCKET}/athena/cumulus_user_uploads/testdb/example_nlp/"
+        "nlp_task_gpt_oss_120b_v2"
     )
-    with mem_fs.open(f"{upload_dir}/nlp.0.parquet", "rb") as f:
+    with mock_s3.open(f"{upload_dir}/nlp.0.parquet", "rb") as f:
         df = pandas.read_parquet(f)
         rows = json.loads(df.to_json(orient="records"))
 
@@ -1215,7 +1214,7 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
         "`generated_on` STRING, `task_version` INT, `model` STRING, `system_fingerprint` STRING, "
         "`result` STRUCT<ignored: STRING>\n)\n"
         "STORED AS PARQUET\n"
-        f"LOCATION 'memory://{upload_dir}'\n"
+        f"LOCATION '{upload_dir}'\n"
         'tblproperties ("parquet.compression"="SNAPPY");',
     ]
 
@@ -1617,7 +1616,7 @@ def bedrock_batch_output(answer: dict, stop_reason: str = "tool_use") -> dict:
 
 
 class FakeBedrockBatches:
-    """Plays the part of Bedrock's batch inference API, on top of an in-memory S3.
+    """Plays the part of Bedrock's batch inference API, on top of a moto-mocked S3.
 
     Creating a job reads the uploaded input records and immediately writes the output files
     where real Bedrock would put them ({output_uri}/{job_id}/{input_name}.out).
@@ -1685,24 +1684,16 @@ class FakeBedrockBatches:
         return job
 
 
-@pytest.fixture
-def mem_s3() -> Iterator[fsspec.implementations.memory.MemoryFileSystem]:
-    """Swaps S3 for an in-memory filesystem, which is where our fake Bedrock batches live"""
-    mem_fs = fsspec.implementations.memory.MemoryFileSystem()
-    with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": mem_fs}):
-        yield mem_fs
-        batch_root = cfs.FsPath(nlp_utils.BEDROCK_BATCH_S3_URI)
-        if batch_root.exists():
-            batch_root.rm()
-
-
 def s3_batch_files() -> set[cfs.FsPath]:
-    return cfs.FsPath(nlp_utils.BEDROCK_BATCH_S3_URI).ls(include_dirs=False, recursive=True)
+    batch_root = cfs.FsPath(nlp_utils.BEDROCK_BATCH_S3_URI)
+    if not batch_root.exists():  # S3 has no real folders, so an emptied one is just gone
+        return set()
+    return batch_root.ls(include_dirs=False, recursive=True)
 
 
 @mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
 @mock.patch("boto3.client")
-def test_bedrock_batching_happy_path(mock_client, tmp_path, mock_db_config, note_source, mem_s3):
+def test_bedrock_batching_happy_path(mock_client, tmp_path, mock_db_config, note_source, mock_s3):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
     batches = FakeBedrockBatches(model)
@@ -1766,7 +1757,7 @@ def test_bedrock_batching_happy_path(mock_client, tmp_path, mock_db_config, note
 @mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
 @mock.patch("boto3.client")
 def test_bedrock_batching_multiple_tables(
-    mock_client, tmp_path, mock_db_config, note_source, mem_s3
+    mock_client, tmp_path, mock_db_config, note_source, mock_s3
 ):
     """Each table gets its own batch, answered with (and cached under) its own schema"""
     workflow_path = conftest.write_toml(
@@ -1816,7 +1807,7 @@ def test_bedrock_batching_multiple_tables(
 @mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
 @mock.patch.object(models.BedrockProvider, "BEDROCK_MAX_BATCH_COUNT", 2)
 @mock.patch("boto3.client")
-def test_bedrock_splitting_batch(mock_client, tmp_path, mock_db_config, mem_s3):
+def test_bedrock_splitting_batch(mock_client, tmp_path, mock_db_config, mock_s3):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
     batches = FakeBedrockBatches(model)
@@ -1844,7 +1835,7 @@ def test_bedrock_splitting_batch(mock_client, tmp_path, mock_db_config, mem_s3):
 
 @mock.patch("boto3.client")
 def test_bedrock_batch_under_minimum_goes_live(
-    mock_client, tmp_path, mock_db_config, note_source, mem_s3
+    mock_client, tmp_path, mock_db_config, note_source, mock_s3
 ):
     """Too few notes for a Bedrock batch job, so they get sent one at a time instead"""
     workflow_path = nlp_utils.basic_workflow(tmp_path)
@@ -1871,7 +1862,7 @@ def test_bedrock_batch_under_minimum_goes_live(
 @mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
 @mock.patch("time.sleep", new=lambda x: None)
 @mock.patch("boto3.client")
-def test_bedrock_batching_errors(mock_client, tmp_path, mock_db_config, note_source, mem_s3):
+def test_bedrock_batching_errors(mock_client, tmp_path, mock_db_config, note_source, mock_s3):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
 
@@ -1934,7 +1925,7 @@ def test_bedrock_batching_errors(mock_client, tmp_path, mock_db_config, note_sou
 
 
 @mock.patch("boto3.client")
-def test_bedrock_resume_batching(mock_client, tmp_path, mock_db_config, note_source, mem_s3):
+def test_bedrock_resume_batching(mock_client, tmp_path, mock_db_config, note_source, mock_s3):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
     batches = FakeBedrockBatches(model)
@@ -1975,7 +1966,7 @@ def test_bedrock_resume_batching(mock_client, tmp_path, mock_db_config, note_sou
 @mock.patch.object(models.BedrockProvider, "BEDROCK_MIN_BATCH_COUNT", 1)
 @mock.patch("boto3.client")
 def test_bedrock_batch_create_failure_cleans_up(
-    mock_client, tmp_path, mock_db_config, note_source, mem_s3
+    mock_client, tmp_path, mock_db_config, note_source, mock_s3
 ):
     """If the job can't be started, don't leave the notes sitting in S3"""
     workflow_path = nlp_utils.basic_workflow(tmp_path)
