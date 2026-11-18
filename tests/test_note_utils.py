@@ -10,6 +10,7 @@ from cumulus_library import (
     note_utils,
 )
 from cumulus_library.builders.nlp import models
+from tests.nlp_utils import BEDROCK_BATCH_ROLE, BEDROCK_BATCH_S3_URI
 
 # Some convenience salt values to use
 SALT_STR = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
@@ -86,8 +87,8 @@ def test_nlp_args_reach_the_config():
                 "--nlp-concurrency=7",
                 "--nlp-chunksize=13",
                 "--batch-nlp",
-                "--bedrock-batch-s3-uri=s3://bucket/batches",
-                "--bedrock-batch-role=arn:aws:iam::123456789012:role/batch",
+                f"--bedrock-batch-s3-uri={BEDROCK_BATCH_S3_URI}",
+                f"--bedrock-batch-role={BEDROCK_BATCH_ROLE}",
                 "--clean-nlp",
                 "--no-nlp-stats",
                 "--dev",
@@ -109,8 +110,8 @@ def test_nlp_args_reach_the_config():
         "concurrency": 7,
         "chunksize": 13,
         "use_batching": True,
-        "bedrock_batch_s3_uri": "s3://bucket/batches",
-        "bedrock_batch_role": "arn:aws:iam::123456789012:role/batch",
+        "bedrock_batch_s3_uri": BEDROCK_BATCH_S3_URI,
+        "bedrock_batch_role": BEDROCK_BATCH_ROLE,
         "clean": True,
         "show_stats": False,
         "subtasks": ["age", "race"],

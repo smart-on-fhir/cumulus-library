@@ -222,20 +222,20 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
 
 #### Supported Models
 
-| `--nlp-model` | `azure` | `bedrock` | `local` |
-|---|---|---|---|
-| `claude-opus48` | | ✓ | |
-| `claude-sonnet45` | | ✓ (supports batching) | |
-| `claude-sonnet46` | | ✓ (supports batching) | |
-| `gpt-oss-120b` | ✓ | ✓ (supports batching) | ✓ |
-| `gpt35` | ✓ | | |
-| `gpt4` | ✓ | | |
-| `gpt4o` | ✓ (supports batching) | | |
-| `gpt5` | ✓ | | |
-| `gpt54` | ✓ | | |
-| `gpt54-mini` | ✓ | | |
-| `gpt54-nano` | ✓ | | |
-| `llama4-scout` | ✓ | ✓ (supports batching) | ✓ (experimental) |
+| `--nlp-model` | `azure` | `bedrock` | `local` | Batching |
+|---|---|---|---|---|
+| `claude-opus48` | | ✓ | | |
+| `claude-sonnet45` | | ✓ | | `bedrock` |
+| `claude-sonnet46` | | ✓ | | `bedrock` |
+| `gpt-oss-120b` | ✓ | ✓ | ✓ | `bedrock` |
+| `gpt35` | ✓ | | | |
+| `gpt4` | ✓ | | | |
+| `gpt4o` | ✓ | | | `azure` |
+| `gpt5` | ✓ | | | |
+| `gpt54` | ✓ | | | |
+| `gpt54-mini` | ✓ | | | |
+| `gpt54-nano` | ✓ | | | |
+| `llama4-scout` | ✓ | ✓ | ✓ (experimental) | `bedrock` |
 
 Choosing a provider that a model doesn't support stops the build with an error.
 
