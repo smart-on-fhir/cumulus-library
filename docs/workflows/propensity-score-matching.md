@@ -2,7 +2,7 @@
 title: Propensity Score Matching
 parent: Workflows
 grand_parent: Library
-nav_order: 4
+nav_order: 5
 # audience: clinical researchers, IRB reviewers
 # type: reference
 ---
