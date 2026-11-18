@@ -88,7 +88,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
     def _flatten_config(self, config_dir: pathlib.Path) -> None:
         """Takes any non-specified task values from the [shared] table"""
         fields = [x.name for x in msgspec.inspect.type_info(workflow.NlpShared).fields]
-        for table_slug, task in self._tables_to_build.items():
+        for task_name, task in self._tables_to_build.items():
             # Grab values from [shared] if not specified
             for field in fields:
                 if getattr(task, field) is None:
@@ -97,7 +97,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
 
             # Validate task a little
             if not task.response_schema:
-                raise ValueError(f"A response schema must be provided for table '{table_slug}'")
+                raise ValueError(f"A response schema must be provided for table '{task_name}'")
 
             # Load and parse the response JSON schema into a pydantic model, but check first to
             # ensure we don't already have an inline JSON definition (useful in tests).
@@ -349,12 +349,12 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         if not self._is_nlp_viewlike(config):
             self._run_nlp(config)
 
-        for table_slug, task in self._tables_to_build.items():
+        for task_name, task in self._tables_to_build.items():
             table_schema = driver.get_schema_for_task(task)
             location = str(
-                driver.get_output_path_for_task(self._nlp_config, table_slug, task, config.db)
+                driver.get_output_path_for_task(self._nlp_config, task_name, task, config.db)
             )
-            table_name = driver.get_table_name_for_task(table_slug, self._nlp_config)
+            table_name = driver.get_table_name_for_task(task_name, self._nlp_config)
             remote_types = config.db.col_parquet_types_from_pyarrow(table_schema)
             self.queries.append(
                 base_templates.get_ctas_from_parquet_query(

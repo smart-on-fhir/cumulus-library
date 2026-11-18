@@ -442,14 +442,14 @@ def test_cached_response(mock_client, tmp_path, mock_db_config):
     assert builder.stats.got_response[0] == 1  # still got our cached result
 
 
-def _multi_table_workflow(tmp_path, *table_slugs: str) -> pathlib.Path:
+def _multi_table_workflow(tmp_path, *task_names: str) -> pathlib.Path:
     """Writes a workflow with several identical integer-valued tables, for --nlp-table tests"""
     schema = '{"title":"test", "type": "object", "properties": {"hello": {"type": "integer"}}}'
     return conftest.write_toml(
         tmp_path,
         {
             "config_type": "nlp",
-            "tables": {slug: {"response_schema": schema} for slug in table_slugs},
+            "tables": {slug: {"response_schema": schema} for slug in task_names},
         },
         "nlp.workflow",
     )
@@ -2063,11 +2063,11 @@ def test_note_that_cannot_be_prompted_is_skipped(mock_client, tmp_path, mock_db_
     real_make_prompt = driver.NlpNotePool._make_prompt
     seen = []
 
-    def flaky_make_prompt(self, table_slug, task, text):
+    def flaky_make_prompt(self, task_name, task, text):
         seen.append(text)
         if len(seen) == 2:  # blow up on the second note only
             raise RuntimeError("bad prompt")
-        return real_make_prompt(self, table_slug, task, text)
+        return real_make_prompt(self, task_name, task, text)
 
     # Capture the console output so we can confirm the error was logged, but not fatal.
     console_output = io.StringIO()

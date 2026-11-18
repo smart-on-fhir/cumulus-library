@@ -53,14 +53,14 @@ def tracking_uri(tmp_path) -> str:
     mlflow.set_tracking_uri(None)
 
 
-def make_workflow(tmp_path, *table_slugs: str) -> pathlib.Path:
+def make_workflow(tmp_path, *task_names: str) -> pathlib.Path:
     schema = '{"title":"test", "type": "object", "properties": {"hello": {"type": "integer"}}}'
     return conftest.write_toml(
         tmp_path,
         {
             "config_type": "nlp",
             "shared": {"system_prompt": "you are a helpful assistant"},
-            "tables": {slug: {"response_schema": schema, "version": 3} for slug in table_slugs},
+            "tables": {slug: {"response_schema": schema, "version": 3} for slug in task_names},
         },
         "nlp.workflow",
     )
@@ -83,8 +83,8 @@ def tracked_config(model, tracking_uri, **overrides) -> note_utils.NlpConfig:
     return config
 
 
-def build(tmp_path, mock_db_config, nlp_config, notes, *table_slugs):
-    workflow_path = make_workflow(tmp_path, *table_slugs)
+def build(tmp_path, mock_db_config, nlp_config, notes, *task_names):
+    workflow_path = make_workflow(tmp_path, *task_names)
     builder = nlp_builder.NlpBuilder(
         toml_config_path=workflow_path, notes=notes, nlp_config=nlp_config
     )
