@@ -48,3 +48,22 @@ source_table="core__patient" # The table to pull the data from
 target_col= "birth_year" # A column from the table to generate a distribution for.
                          # This should be either numeric or date type.
 ```
+
+## IQR outputs
+An IQR task will contain the following datapoints (with example data, which can be either
+numeric or date type:
+
+|minimum|median|maximum|q1|q3|iqr|lower_whisker|upper_whisker|
+|-------|------|-------|---|---|---|-----------|-------------|
+|1900-01-01|2024-06-01|2112-12-01|2021-10-01|2025-05-01|1308 00:00:00.000|2016-06-01|2030-08-01|
+
+
+The data in the columns is as follows:
+- *minimum*: the lowest value in the dataset
+- *median*: the middle value in the dataset
+- *maximum*: the largest value in the dataset
+- *q1*: the point in the dataset marking the transition between the first and second quartiles
+- *q3*: the point in the dataset marking the transition between the third and fourth quartiles
+- *iqr*: the interquartile range, equal to `q3 - q1`
+- *lower_whisker*: the smallest point that is greater than or equal to `q1 - (iqr * 1.5)`
+- *upper_whisker*: the largest point that is less than or equal to `q3 + (iqr * 1.5)`

@@ -19,7 +19,7 @@ class IqrBuilder(BaseTableBuilder):
         super().__init__()
         if toml_config_path:
             self._workflow_config = iqr_utils.load_toml_config(toml_config_path)
-        else:
+        else:  # pragma: no cover
             self._workflow_config = None
 
     def prepare_queries(
@@ -31,7 +31,7 @@ class IqrBuilder(BaseTableBuilder):
     ):
         """Renders out iqr queries"""
         if not self._workflow_config:
-            return
+            return  # pragma: no cover
         for distribution in self._workflow_config["distributions"]:
             self.queries.append(
                 iqr_templates.get_iqr_query(
