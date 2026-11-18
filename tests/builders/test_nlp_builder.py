@@ -23,6 +23,7 @@ import cumulus_fhir_support as cfs
 import httpx
 import openai
 import pandas
+import pydantic
 import pytest
 
 import cumulus_library
@@ -2768,6 +2769,38 @@ def test_bedrock_raises_exception_when_invalid_request(
     output = console_output.getvalue()
 
     assert "Failed to process" in output
+    # Our wrapped error, not the raw ClientError (so we know the request error handling ran)
+    assert "Exception raised when handling hello world" in output
+
+
+@pytest.mark.parametrize(
+    "code,wrapped",
+    [
+        ("ValidationException", True),
+        ("AccessDeniedException", True),
+        # Rate limits must stay raw ClientErrors, or the dispatcher won't cool down and retry
+        ("ThrottlingException", False),
+        ("TooManyRequestsException", False),
+    ],
+)
+@mock.patch("boto3.client")
+def test_bedrock_client_errors_are_wrapped_unless_throttled(mock_client, code, wrapped):
+    mock_client.return_value.exceptions.ClientError = botocore.exceptions.ClientError
+    mock_client.return_value.converse.side_effect = botocore.exceptions.ClientError(
+        {"Error": {"Code": code, "Message": "nope"}}, "Converse"
+    )
+    provider = models.BedrockProvider("test-model")
+
+    class Answer(pydantic.BaseModel):
+        ignored: str | None = None
+
+    expected = errors.CumulusLibraryError if wrapped else botocore.exceptions.ClientError
+    with pytest.raises(expected, match=code) as exc_info:
+        provider.prompt("system", "my note", Answer)
+
+    if wrapped:
+        assert str(exc_info.value) == f"{code} Exception raised when handling my note:\n\nnope"
+        assert isinstance(exc_info.value.__cause__, botocore.exceptions.ClientError)
 
 
 @nlp_utils.mock_env("azure")

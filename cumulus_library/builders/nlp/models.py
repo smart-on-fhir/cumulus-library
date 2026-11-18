@@ -250,7 +250,7 @@ class _PendingBedrockBatch:
 class BedrockProvider(Provider):
     # These defaults cover most models, but each model class has the real max records
     BEDROCK_MIN_BATCH_COUNT = 100  # Minimum number of records per batch inference job
-    BEDROCK_MAX_BATCH_COUNT = 50_000  # Records per batch inference job, actual value depends on model
+    BEDROCK_MAX_BATCH_COUNT = 50_000  # Records per batch inference job
     BEDROCK_MAX_BATCH_BYTES = 1_000_000_000  # 1 GB input file size
 
     BATCH_PENDING_STATUSES = frozenset(
@@ -348,7 +348,15 @@ class BedrockProvider(Provider):
 
     def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
         args = self._converse_args(system, user, schema, use_cache=self.supports_cache)
-        response = self.client.converse(modelId=self.model_name, **args)
+        try:
+            response = self.client.converse(modelId=self.model_name, **args)
+        except self.client.exceptions.ClientError as e:
+            if is_rate_limit_error(e):
+                raise  # leave throttling as-is, so the dispatcher can cool down and retry it
+            raise errors.CumulusLibraryError(
+                f"{e.response['Error']['Code']} Exception raised when handling {user}:\n\n"
+                f"{e.response['Error']['Message']}"
+            ) from e
         return self._process_converse_response(response, schema)
 
     def _process_converse_response(self, response: dict, schema: type[BaseModel]) -> PromptResponse:
@@ -440,7 +448,6 @@ class BedrockProvider(Provider):
                 pending = _PendingBedrockBatch(filename=tmp_file.name, cache_dir=prompt.cache_dir)
             self._pending_batches[namespace] = pending
         
-        # 
         with open(pending.filename, "a", encoding="utf8") as f:
             f.write(row)
         pending.rows += 1
