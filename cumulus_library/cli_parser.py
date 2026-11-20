@@ -246,6 +246,24 @@ def add_nlp_config(parser: argparse.ArgumentParser, dev: bool = False) -> None:
         help="Use NLP batching mode (saves money, might take longer, not all models support it)",
     )
     group.add_argument(
+        "--bedrock-batch-s3-uri",
+        dest="bedrock_batch_s3_uri",
+        metavar="S3_URI",
+        help=(
+            "S3 folder where Bedrock batch jobs stage their input and output "
+            "(required for --batch-nlp with Bedrock; must be in the same region as Bedrock)"
+        ),
+    )
+    group.add_argument(
+        "--bedrock-batch-role",
+        dest="bedrock_batch_role",
+        metavar="ARN",
+        help=(
+            "IAM service role that Bedrock batch jobs use to access the --bedrock-batch-s3-uri "
+            "folder (required for --batch-nlp with Bedrock)"
+        ),
+    )
+    group.add_argument(
         "--nlp-chunksize",
         type=int,
         dest="chunksize",

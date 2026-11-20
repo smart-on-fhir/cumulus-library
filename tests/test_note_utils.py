@@ -10,6 +10,7 @@ from cumulus_library import (
     note_utils,
 )
 from cumulus_library.builders.nlp import models
+from tests.nlp_utils import BEDROCK_BATCH_ROLE, BEDROCK_BATCH_S3_URI
 
 # Some convenience salt values to use
 SALT_STR = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
@@ -86,6 +87,8 @@ def test_nlp_args_reach_the_config():
                 "--nlp-concurrency=7",
                 "--nlp-chunksize=13",
                 "--batch-nlp",
+                f"--bedrock-batch-s3-uri={BEDROCK_BATCH_S3_URI}",
+                f"--bedrock-batch-role={BEDROCK_BATCH_ROLE}",
                 "--clean-nlp",
                 "--no-nlp-stats",
                 "--dev",
@@ -107,6 +110,8 @@ def test_nlp_args_reach_the_config():
         "concurrency": 7,
         "chunksize": 13,
         "use_batching": True,
+        "bedrock_batch_s3_uri": BEDROCK_BATCH_S3_URI,
+        "bedrock_batch_role": BEDROCK_BATCH_ROLE,
         "clean": True,
         "show_stats": False,
         "subtasks": ["age", "race"],
@@ -148,6 +153,8 @@ def test_nlp_config_defaults():
     # Args that are allowed to be None (or empty list)
     nullable = [
         "azure_deployments",
+        "bedrock_batch_role",
+        "bedrock_batch_s3_uri",
         "chunksize",
         "etl_phi_dir",
         "nlp_concurrency",
@@ -166,6 +173,8 @@ def test_nlp_config_defaults():
     # Expected defaults based on note_utils (except for show_stats, which we check separately)
     expected = {
         "azure_deployments": [],
+        "bedrock_batch_role": None,
+        "bedrock_batch_s3_uri": None,
         "chunksize": 100000,
         "clean": False,
         "concurrency": 1,
@@ -260,7 +269,7 @@ def test_capability_flags_match_their_provider(model_class):
     """
     flags_by_provider = {
         "AZURE_ID": ["AZURE_BATCHES", "AZURE_SCHEMA", "AZURE_TEMPERATURE"],
-        "BEDROCK_ID": ["BEDROCK_CACHE", "BEDROCK_SCHEMA", "BEDROCK_TEMPERATURE"],
+        "BEDROCK_ID": ["BEDROCK_BATCHES", "BEDROCK_CACHE", "BEDROCK_SCHEMA", "BEDROCK_TEMPERATURE"],
     }
 
     for id_field, flags in flags_by_provider.items():

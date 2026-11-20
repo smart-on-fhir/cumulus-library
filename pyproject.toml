@@ -54,6 +54,7 @@ dev = [
 test = [
     "httpx",
     "cumulus-library[mlflow]",
+    "moto[s3] >= 5",
     "time-machine",
     "pytest",
     "pytest-cov",
