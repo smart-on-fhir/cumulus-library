@@ -498,7 +498,8 @@ Bedrock batch jobs read their requests from S3 and write their results back to S
   Pass it as `--bedrock-batch-s3-uri=s3://my-bucket/some/folder`.
 - An IAM service role that Bedrock can assume to read and write that folder.
   Pass its ARN as `--bedrock-batch-role=arn:aws:iam::123456789012:role/my-batch-role`.
-  See AWS's [batch inference permissions](https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-permissions.html)
+  If you're using the Cumulus default AWS templates, we'll use the `cumulus-service-role-etl` role to connect to the bucket.
+  Otherwise, AWS's [batch inference permissions](https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-permissions.html)
   docs for how to set one up.
 - Your own AWS identity also needs permission to create and check on batch jobs
   (`bedrock:CreateModelInvocationJob`, `bedrock:GetModelInvocationJob`, and `iam:PassRole` on
