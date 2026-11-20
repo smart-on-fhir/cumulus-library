@@ -338,3 +338,46 @@ def test_ref_summary(tmp_path):
     )
     assert len(res) == 4
     assert res[0] == ("core__patient", "subject_ref", 7, 0.0, datetime.datetime(2024, 1, 4, 0, 0))
+
+
+def test_failed_query_exit_code_nonzero(mock_db_config):
+    """Regression for #658: a failed query must exit nonzero, not silently 0.
+
+    Uses the issue's exact repro (DuckDB cast failure) so shells/CI see failure.
+    """
+    manifest = study_manifest.StudyManifest(
+        pathlib.Path(__file__).parents[1] / "test_data/study_valid"
+    )
+    builder.run_protected_table_builder(config=mock_db_config, manifest=manifest)
+    bad_query = (
+        "CREATE TABLE study_valid__bad_cast AS SELECT CAST('not a number' AS BIGINT) AS cast_col;"
+    )
+    with pytest.raises(SystemExit) as excinfo:
+        builder._execute_build_queries(
+            mock_db_config,
+            manifest,
+            cursor=mock_db_config.db.cursor(),
+            queries=[bad_query],
+            filename="bad_cast.sql",
+            progress=mock.MagicMock(),
+            task=mock.MagicMock(),
+        )
+    assert excinfo.value.code == 1
+
+
+def test_no_matching_builders_exit_code_nonzero(mock_db_config):
+    """Regression for #658: 'No builders matching ...' must exit nonzero."""
+    manifest = study_manifest.StudyManifest(
+        pathlib.Path(__file__).parents[1] / "test_data/study_valid"
+    )
+    with pytest.raises(SystemExit) as excinfo:
+        builder.build_matching_files(
+            mock_db_config,
+            manifest,
+            builder="definitely_not_a_real_builder_name",
+            prepare=False,
+            data_path=pathlib.Path("/tmp"),
+            notes=None,
+            nlp_config=None,
+        )
+    assert excinfo.value.code == 1
