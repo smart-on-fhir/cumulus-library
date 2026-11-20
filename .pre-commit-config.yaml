@@ -1,4 +1,4 @@
-default_install_hook_types: [pre-commit, pre-push]
+default_install_hook_types: [pre-commit]
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.17.4  # if you update this, also update pyproject.toml
@@ -8,7 +8,6 @@ repos:
         entry: bash -c 'ruff format --force-exclude "$@"; git add -u' --
       - name: Ruff linting
         id: ruff
-        stages: [pre-push]
 
   - repo: https://github.com/sqlfluff/sqlfluff
     rev: 3.4.2

@@ -38,7 +38,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dynamic=["version"]
-[project.optional-dependencies]
+[dependency-groups]
 # Experiment tracking for NLP study development (see --mlflow). Optional because it is a
 # study-development tool, and a heavy dependency for anyone who just wants to build a study.
 mlflow = [
@@ -50,15 +50,13 @@ dev = [
     "pre-commit",
     # if you update the sqlfluff version, also update .pre-commit-config.yaml
     "sqlfluff >= 3.4.2, <4.2",
-]
-test = [
-    "httpx",
-    "cumulus-library[mlflow]",
-    "time-machine",
     "pytest",
     "pytest-cov",
     "pytest-xdist",
+    "httpx",
+    "time-machine",
     "responses",
+    {include-group="mlflow"}
 ]
 
 [project.urls]
