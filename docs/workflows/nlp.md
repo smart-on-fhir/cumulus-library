@@ -495,7 +495,9 @@ Make sure you've set up a deployment that uses batching, and then pass in the fo
 Bedrock batch jobs read their requests from S3 and write their results back to S3, so you need:
 
 - An S3 folder for Cumulus Library to stage batches in, in the same region you run Bedrock in.
-  Pass it as `--bedrock-batch-s3-uri=s3://my-bucket/some/folder`.
+  Pass it as `--bedrock-batch-s3-uri=s3://my-bucket/some/folder`. 
+  If you're using the Cumulus default templates, this should point to a subfolder inside your PHI bucket.
+  Otherwise, make sure that the bucket you are using is approved for temporary storage of PHI.
 - An IAM service role that Bedrock can assume to read and write that folder.
   Pass its ARN as `--bedrock-batch-role=arn:aws:iam::123456789012:role/my-batch-role`.
   If you're using the Cumulus default AWS templates, we'll use the `cumulus-service-role-etl` role to connect to the bucket.
