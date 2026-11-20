@@ -1,4 +1,6 @@
 import pathlib
+import re
+import shutil
 import tempfile
 import zipfile
 
@@ -13,7 +15,10 @@ def _create_table_from_parquet(
     archive: zipfile.ZipFile, file: str, study_name: str, config: base_utils.StudyConfig
 ):
     with tempfile.TemporaryDirectory() as temp_dir:
-        parquet_path = pathlib.Path(archive.extract(file, path=temp_dir))
+        # Only the file name is used, so that directories in the archive can't end up in queries
+        parquet_path = pathlib.Path(temp_dir) / pathlib.PurePosixPath(file).name
+        with archive.open(file) as source, open(parquet_path, "wb") as target:
+            shutil.copyfileobj(source, target)
         table_types = pyarrow.parquet.read_schema(parquet_path)
         remote_types = config.db.col_parquet_types_from_pyarrow(table_types)
         s3_path = config.db.upload_file(
@@ -53,12 +58,17 @@ def import_archive(config: base_utils.StudyConfig, *, archive_path: pathlib.Path
         raise errors.StudyImportError(f"File {archive_path} is not a valid archive.") from e
     if not any("__" in file for file in files):
         raise errors.StudyImportError(f"File {archive_path} contains non-study parquet files.")
-    study_name = files[0].split("__")[0]
-    for file in files[1:]:
-        if file.split("__")[0] != study_name:
+    study_name = pathlib.PurePosixPath(files[0]).name.split("__")[0]
+    if not re.fullmatch(study_manifest.StudyManifest.PREFIX_REGEX, study_name):
+        raise errors.StudyImportError(f"File {archive_path} has an invalid study name.")
+    for file in files:
+        name = pathlib.PurePosixPath(file).name
+        if name.split("__")[0] != study_name:
             raise errors.StudyImportError(
                 f"File {archive_path} contains data from more than one study."
             )
+        if not re.fullmatch(r"\w+", name.removesuffix(".parquet").replace(".", "_")):
+            raise errors.StudyImportError(f"File {archive_path} contains an invalid table name.")
 
     # Clean and rebuild from the provided archive
     manifest = study_manifest.StudyManifest()
