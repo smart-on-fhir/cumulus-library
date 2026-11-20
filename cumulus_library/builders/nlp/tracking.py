@@ -79,12 +79,12 @@ class MlflowTracker:
     def run_ids(self) -> dict[str, str]:
         return dict(self._run_ids)
 
-    def _run_name(self, table_slug: str, task: workflow.NlpTask) -> str:
+    def _run_name(self, task_name: str, task: workflow.NlpTask) -> str:
         if base := self._config.mlflow_run_name:
-            return f"{base}_{table_slug}"
-        return f"{table_slug}_v{task.version}_{self._model_id}"
+            return f"{base}_{task_name}"
+        return f"{task_name}_v{task.version}_{self._model_id}"
 
-    def _tags(self, table_slug: str) -> dict[str, str]:
+    def _tags(self, task_name: str) -> dict[str, str]:
         # User tags first, so they can add whatever they like - but the identity tags below win.
         # Runs are grouped and looked up by "table", so letting --mlflow-tag overwrite it would
         # quietly mislabel the run rather than doing anything useful.
@@ -92,7 +92,7 @@ class MlflowTracker:
         tags.update(
             {
                 "study": self._config.target or "",
-                "table": table_slug,
+                "table": task_name,
                 "model": self._model_id,
                 "provider": self._config.provider,
                 "source": "cumulus-library",
@@ -120,23 +120,23 @@ class MlflowTracker:
                 f"Could not reach the MLflow tracking server at '{self._config.mlflow_uri}':\n{exc}"
             ) from exc
 
-        for table_slug, task in self._tables.items():
+        for task_name, task in self._tables.items():
             run = self._mlflow.start_run(
-                run_name=self._run_name(table_slug, task),
-                tags=self._tags(table_slug),
+                run_name=self._run_name(task_name, task),
+                tags=self._tags(task_name),
             )
-            self._run_ids[table_slug] = run.info.run_id
+            self._run_ids[task_name] = run.info.run_id
             # End the fluent run right away: we log through the client from here on, so that
             # nothing depends on which thread happens to be active.
             self._mlflow.end_run()
-            self._log_setup(table_slug, task)
+            self._log_setup(task_name, task)
 
     def finish(self, stats: models.NlpStats) -> None:
         """Logs the numbers from a completed pass and closes every run."""
         self._end = base_utils.get_utc_datetime()
-        for table_slug in self._tables:
-            with self._soft_fail(f"metrics for '{table_slug}'"):
-                self._log_results(table_slug, stats)
+        for task_name in self._tables:
+            with self._soft_fail(f"metrics for '{task_name}'"):
+                self._log_results(task_name, stats)
         self._terminate("FINISHED")
 
     def fail(self) -> None:
@@ -165,16 +165,16 @@ class MlflowTracker:
     # Logging
     #########
 
-    def _log_setup(self, table_slug: str, task: workflow.NlpTask) -> None:
+    def _log_setup(self, task_name: str, task: workflow.NlpTask) -> None:
         """Logs everything knowable before the pass runs: config, prompts, schema."""
-        with self._soft_fail(f"params for '{table_slug}'"):
+        with self._soft_fail(f"params for '{task_name}'"):
             client = self._mlflow.MlflowClient()
-            run_id = self._run_ids[table_slug]
+            run_id = self._run_ids[task_name]
 
             schema = task.response_schema.model_json_schema()
             params = {
                 "study": self._config.target or "",
-                "table": table_slug,
+                "table": task_name,
                 "task_version": task.version,
                 "model_id": self._model_id,
                 "provider": self._config.provider,
@@ -201,10 +201,10 @@ class MlflowTracker:
             client.log_text(run_id, user_prompt, "prompts/user_prompt.txt")
             client.log_text(run_id, json.dumps(schema, indent=2), "prompts/response_schema.json")
 
-    def _log_results(self, table_slug: str, stats: models.NlpStats) -> None:
+    def _log_results(self, task_name: str, stats: models.NlpStats) -> None:
         client = self._mlflow.MlflowClient()
-        run_id = self._run_ids[table_slug]
-        index = list(self._tables).index(table_slug)
+        run_id = self._run_ids[task_name]
+        index = list(self._tables).index(task_name)
 
         considered = stats.considered[index]
         with_results = stats.got_response[index]
@@ -228,7 +228,7 @@ class MlflowTracker:
             "workflow.stuck_dropped": stats.stuck_dropped,
         }
 
-        tokens = stats.token_stats_by_table[table_slug]
+        tokens = stats.token_stats_by_table[task_name]
         total_input = tokens.new_input_tokens + tokens.cache_read_input_tokens
         total_tokens = total_input + tokens.output_tokens
         cache_hit_rate = tokens.cache_read_input_tokens / total_input if total_input else 0.0
