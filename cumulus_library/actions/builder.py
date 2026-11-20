@@ -28,6 +28,7 @@ from cumulus_library import (
 from cumulus_library.builders import (
     counts_builder,
     file_upload_builder,
+    iqr_builder,
     nlp_builder,
     nlp_highlight_builder,
     nlp_wide_builder,
@@ -628,6 +629,10 @@ def _run_workflow(
             builder = nlp_wide_builder.NlpWideBuilder(toml_config_path=toml_path)
         case "nlp_highlight":
             builder = nlp_highlight_builder.NlpHighlightBuilder(toml_config_path=toml_path)
+        case "iqr":
+            builder = iqr_builder.IqrBuilder(
+                toml_config_path=toml_path,
+            )
         case "psm":
             existing_stats = []
             if not config.stats_build:

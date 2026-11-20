@@ -1,0 +1,6 @@
+config_type="iqr"
+[[distributions]]
+name="test_distribution"
+display_name="Distribution test dataset"
+source_table="core__patient"
+target_col="birth_year"

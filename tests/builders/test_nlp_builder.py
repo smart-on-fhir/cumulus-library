@@ -269,10 +269,10 @@ def test_naming_conventions(
     nlp_config = model.nlp_config()
     task = workflow.NlpTask(version=2)
 
-    assert driver.table_name_for_task("task", nlp_config) == expected_table
-    assert driver.upload_slug_for_task("task", task, nlp_config) == expected_folder
+    assert driver.get_table_name_for_task("task", nlp_config) == expected_table
+    assert driver._get_upload_name_for_task("task", task, nlp_config) == expected_folder
     # duckdb has no remote upload location, so results land in the local cache dir
-    path = driver.output_path_for_task(nlp_config, "task", task, mock_db_config.db)
+    path = driver.get_output_path_for_task(nlp_config, "task", task, mock_db_config.db)
     assert str(path) == f"{tmp_path}/nlp/example_nlp/{expected_folder}"
 
 
@@ -284,7 +284,7 @@ def test_naming_requires_a_model(mock_client):
     nlp_config.model = None
 
     with pytest.raises(errors.CumulusLibraryError, match="An NLP model ID must be provided"):
-        driver.table_name_for_task("task", nlp_config)
+        driver.get_table_name_for_task("task", nlp_config)
 
     # The model factory guards against this too, with the same message
     with pytest.raises(errors.CumulusLibraryError, match="An NLP model ID must be provided"):
@@ -442,14 +442,14 @@ def test_cached_response(mock_client, tmp_path, mock_db_config):
     assert builder.stats.got_response[0] == 1  # still got our cached result
 
 
-def _multi_table_workflow(tmp_path, *table_slugs: str) -> pathlib.Path:
+def _multi_table_workflow(tmp_path, *task_names: str) -> pathlib.Path:
     """Writes a workflow with several identical integer-valued tables, for --nlp-table tests"""
     schema = '{"title":"test", "type": "object", "properties": {"hello": {"type": "integer"}}}'
     return conftest.write_toml(
         tmp_path,
         {
             "config_type": "nlp",
-            "tables": {slug: {"response_schema": schema} for slug in table_slugs},
+            "tables": {slug: {"response_schema": schema} for slug in task_names},
         },
         "nlp.workflow",
     )
@@ -478,9 +478,9 @@ def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
 
     tables = _table_names(mock_db_config)
-    assert driver.table_name_for_task("first_table", nlp_config) in tables
-    assert driver.table_name_for_task("second_table", nlp_config) not in tables
-    assert read_rows(mock_db_config, driver.table_name_for_task("first_table", nlp_config))[0][
+    assert driver.get_table_name_for_task("first_table", nlp_config) in tables
+    assert driver.get_table_name_for_task("second_table", nlp_config) not in tables
+    assert read_rows(mock_db_config, driver.get_table_name_for_task("first_table", nlp_config))[0][
         "result"
     ] == {"hello": 1}
 
@@ -492,8 +492,8 @@ def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
 
     tables = _table_names(mock_db_config)
-    assert driver.table_name_for_task("first_table", nlp_config) in tables
-    assert driver.table_name_for_task("second_table", nlp_config) in tables
+    assert driver.get_table_name_for_task("first_table", nlp_config) in tables
+    assert driver.get_table_name_for_task("second_table", nlp_config) in tables
 
 
 @mock.patch("openai.OpenAI")
@@ -540,9 +540,9 @@ def test_select_multiple_tables(mock_client, tmp_path, mock_db_config):
     builder.execute_queries(mock_db_config, None)
 
     tables = _table_names(mock_db_config)
-    assert driver.table_name_for_task("one", nlp_config) in tables
-    assert driver.table_name_for_task("three", nlp_config) in tables
-    assert driver.table_name_for_task("two", nlp_config) not in tables
+    assert driver.get_table_name_for_task("one", nlp_config) in tables
+    assert driver.get_table_name_for_task("three", nlp_config) in tables
+    assert driver.get_table_name_for_task("two", nlp_config) not in tables
 
 
 @mock.patch("openai.OpenAI")
@@ -692,7 +692,7 @@ def test_writes_out_at_chunksize(mock_client, tmp_path, mock_db_config):
         nlp_config=config,
     )
 
-    with mock.patch("cumulus_library.builders.nlp.driver.add_upload_refs_for_task") as mock_write:
+    with mock.patch("cumulus_library.builders.nlp.driver._add_upload_refs_for_task") as mock_write:
         # Fake an error too, to confirm we gracefully handle that and print message
         mock_write.side_effect = [RuntimeError("test1"), RuntimeError("test2")]
         console_output = io.StringIO()
@@ -2226,7 +2226,7 @@ def test_output_is_identical_regardless_of_concurrency(mock_client, tmp_path, mo
         config = model.nlp_config(deployments=["dep-a", "dep-b"], concurrency=concurrency)
         _run(sub_dir, config, source, mock_db_config)
 
-        folder = driver.output_path_for_task(
+        folder = driver.get_output_path_for_task(
             config, "task", SimpleNamespace(version=0), mock_db_config.db
         )
         rows = []
@@ -2484,11 +2484,11 @@ def test_note_that_cannot_be_prompted_is_skipped(mock_client, tmp_path, mock_db_
     real_make_prompt = driver.NlpNotePool._make_prompt
     seen = []
 
-    def flaky_make_prompt(self, table_slug, task, text):
+    def flaky_make_prompt(self, task_name, task, text):
         seen.append(text)
         if len(seen) == 2:  # blow up on the second note only
             raise RuntimeError("bad prompt")
-        return real_make_prompt(self, table_slug, task, text)
+        return real_make_prompt(self, task_name, task, text)
 
     # Capture the console output so we can confirm the error was logged, but not fatal.
     console_output = io.StringIO()

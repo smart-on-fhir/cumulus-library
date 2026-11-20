@@ -1,0 +1,5 @@
+study_prefix = "iqr_test"
+
+[[stages.stage_1]]
+type = "build:serial"
+files = ["workflow.toml"]

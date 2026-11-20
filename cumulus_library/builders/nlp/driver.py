@@ -27,26 +27,36 @@ def run_nlp(
     filters: list[cfs.NoteFilter],
     db: databases.DatabaseBackend,
 ) -> models.NlpStats:
-    """Iterates through the notes, filtering as it goes, and passes notes to NLP"""
+    """Iterates through the notes, filtering as it goes, and passes notes to NLP
+
+    :param notes: a NoteSource pointing to the location of notes on disk/in S3
+    :keyword nlp_config: An NlpConfig, populated from the CLI
+    :keyword tables: The contents of the tables key inside of an NLP workflow config
+    :keyword filters: A list of NoteFilters, derived from the CLI and/or the workflow config,
+        describing the inclusion/exclusion criteria for notes
+    :keyword db: A database backend to use for filtering notes
+
+    :returns: an NlpStats object for rendering the result of the run to the CLI
+    """
     stats = models.NlpStats(len(tables))
 
     # If asked to clean, do it
     if nlp_config.clean:
-        for table_slug, task in tables.items():
+        for task_name, task in tables.items():
             # We wanna clean out all previous uploads for this table.
             # Do this before making the pool because that looks at the files in the folder to
             # get the first batch number to use.
-            root = output_path_for_task(nlp_config, table_slug, task, db).parent
-            slug = table_slug_for_task(table_slug, nlp_config)
-            table_with_version = re.compile(rf"/{re.escape(slug)}_v[0-9]+(\.ids)?$")
+            root = get_output_path_for_task(nlp_config, task_name, task, db).parent
+            table_suffix = _get_task_table_suffix(task_name, nlp_config)
+            table_with_version = re.compile(rf"/{re.escape(table_suffix)}_v[0-9]+(\.ids)?$")
             for folder in root.ls():
                 if table_with_version.search(str(folder)):
                     folder.rm()
 
     # Read ID refs for any already-uploaded notes
     prev_upload_refs = [
-        read_upload_refs_for_task(nlp_config, table_slug, task, db)
-        for table_slug, task in tables.items()
+        _read_upload_refs_for_task(nlp_config, task_name, task, db)
+        for task_name, task in tables.items()
     ]
 
     # Loop through every note and add to the note pool for NLP processing
@@ -63,7 +73,7 @@ def run_nlp(
             continue
         stats.had_text += 1
 
-        for idx, table_slug in enumerate(tables):
+        for idx, task_name in enumerate(tables):
             if anon_note_ref in prev_upload_refs[idx]:
                 stats.already_done[idx] += 1
                 continue
@@ -73,7 +83,7 @@ def run_nlp(
             stats.considered[idx] += 1
 
             try:
-                pool.add_note(table_slug, note_res, text)
+                pool.add_note(task_name, note_res, text)
             except Exception as exc:
                 rich.print("Failed to process note:", exc)
 
@@ -85,11 +95,11 @@ def run_nlp(
 
     # Responses arrive on worker threads, so the per-task tallies live on the pool and get
     # copied over once everything has drained.
-    for idx, table_slug in enumerate(tables):
-        stats.got_response[idx] = pool.got_response.get(table_slug, 0)
+    for idx, task_name in enumerate(tables):
+        stats.got_response[idx] = pool.got_response.get(task_name, 0)
         # Cap at got_response: a batch can fetch a note that later fails to parse, and a run
         # that reports more fresh calls than responses would just be confusing.
-        fresh = min(pool.fresh_calls.get(table_slug, 0), stats.got_response[idx])
+        fresh = min(pool.fresh_calls.get(task_name, 0), stats.got_response[idx])
         stats.from_model[idx] = fresh
         stats.from_cache[idx] = stats.got_response[idx] - fresh
     stats.throttle_dropped = pool.throttle_dropped
@@ -98,16 +108,16 @@ def run_nlp(
     # Give every table an entry, zeroed if it never spent anything, so consumers don't each
     # have to invent a fallback for "this table was entirely served from cache".
     stats.token_stats_by_table = {
-        table_slug: pool.token_stats_by_table.get(table_slug, models.TokenStats())
-        for table_slug in tables
+        task_name: pool.token_stats_by_table.get(task_name, models.TokenStats())
+        for task_name in tables
     }
     stats.token_prices = pool.token_prices
 
     return stats
 
 
-def model_slug(nlp_config: note_utils.NlpConfig) -> str:
-    """Converts an NLP model ID into a slug that is safe for SQL names and file paths"""
+def _get_model_name_sql_safe(nlp_config: note_utils.NlpConfig) -> str:
+    """Converts an NLP model ID into a safe string for SQL names and file paths"""
     if not nlp_config.model:
         # Same message that models.create_model() gives, but we need a model name earlier than
         # that (when naming the tables we're going to create).
@@ -115,33 +125,29 @@ def model_slug(nlp_config: note_utils.NlpConfig) -> str:
     return nlp_config.model.replace("-", "_")
 
 
-def table_slug_for_task(table_slug: str, nlp_config: note_utils.NlpConfig) -> str:
-    """Returns the study-relative name for a task, like 'nlp_age_gpt_oss_120b'
-
-    This mirrors how Cumulus ETL names its own NLP tables and upload folders, so that
-    downstream consumers can treat library-generated and ETL-generated NLP results the same:
-    an 'nlp' prefix, the task name, and the model used.
-    """
-    return f"nlp_{table_slug}_{model_slug(nlp_config)}"
+def _get_task_table_suffix(task_name: str, nlp_config: note_utils.NlpConfig) -> str:
+    """Returns the study-relative name for a task, like 'nlp_age_gpt_oss_120b'"""
+    return f"nlp_{task_name}_{_get_model_name_sql_safe(nlp_config)}"
 
 
-def table_name_for_task(table_slug: str, nlp_config: note_utils.NlpConfig) -> str:
+def get_table_name_for_task(task_name: str, nlp_config: note_utils.NlpConfig) -> str:
     """Returns the full database table name for a task, like 'my_study__nlp_age_gpt_oss_120b'"""
-    return f"{nlp_config.target}__{table_slug_for_task(table_slug, nlp_config)}"
+    return f"{nlp_config.target}__{_get_task_table_suffix(task_name, nlp_config)}"
 
 
-def upload_slug_for_task(
-    table_slug: str, task: workflow.NlpTask, nlp_config: note_utils.NlpConfig
+def _get_upload_name_for_task(
+    task_name: str, task: workflow.NlpTask, nlp_config: note_utils.NlpConfig
 ) -> str:
     """Returns the upload folder name for a task, like 'nlp_age_gpt_oss_120b_v1'
 
     Unlike the table name, the upload folder is version-specific, so that results from
     different task versions don't get mixed together.
     """
-    return f"{table_slug_for_task(table_slug, nlp_config)}_v{task.version}"
+    return f"{_get_task_table_suffix(task_name, nlp_config)}_v{task.version}"
 
 
-def schema_for_task(task: workflow.NlpTask) -> pyarrow.Schema:
+def get_schema_for_task(task: workflow.NlpTask) -> pyarrow.Schema:
+    """Converts the schema from a pydantic model in an NLP task to a pyarrow schema"""
     result_schema = convert_pydantic_fields_to_pyarrow(task.response_schema.model_fields)
     return pyarrow.schema(
         [
@@ -157,21 +163,22 @@ def schema_for_task(task: workflow.NlpTask) -> pyarrow.Schema:
     )
 
 
-def output_path_for_task(
+def get_output_path_for_task(
     nlp_config: note_utils.NlpConfig,
-    table_slug: str,
+    task_name: str,
     task: workflow.NlpTask,
     db: databases.DatabaseBackend,
 ) -> cfs.FsPath:
+    """Returns the path to write outputs for a specific NLP task"""
     prefix = nlp_config.target
-    upload_slug = upload_slug_for_task(table_slug, task, nlp_config)
-    if base_path := db.get_remote_upload_path(prefix, upload_slug):
+    upload_name = _get_upload_name_for_task(task_name, task, nlp_config)
+    if base_path := db.get_remote_upload_path(prefix, upload_name):
         return cfs.FsPath(base_path)
 
     # OK, database backend doesn't support remote files, let's write it locally to our cache
     # Note: this is the same location for all duckdb files... file_upload has same issue.
     cache_root = base_utils.get_user_cache_dir()
-    return cfs.FsPath(cache_root, "nlp", prefix, upload_slug)
+    return cfs.FsPath(cache_root, "nlp", prefix, upload_name)
 
 
 ### Internal driver API to help manage the process
@@ -202,12 +209,12 @@ class NlpNotePool:
         self._db = db
         self._tables = tables
 
-        self._notes: dict[str, list[dict]] = {}  # table_slug -> list of output rows
-        self.got_response: dict[str, int] = {}  # table_slug -> count of successful responses
-        # table_slug -> tokens spent serving that table. Accumulated here on the main thread,
+        self._notes: dict[str, list[dict]] = {}  # task_name -> list of output rows
+        self.got_response: dict[str, int] = {}  # task_name -> count of successful responses
+        # task_name -> tokens spent serving that table. Accumulated here on the main thread,
         # from the per-call usage each response carries back.
         self.token_stats_by_table: dict[str, models.TokenStats] = {}
-        # table_slug -> notes that cost a model call during THIS run. Fed by the streaming path
+        # task_name -> notes that cost a model call during THIS run. Fed by the streaming path
         # (a cache miss) and by the batch path (responses the batch fetched), so it is accurate
         # either way. Cached notes are whatever is left over from got_response.
         self.fresh_calls: dict[str, int] = {}
@@ -282,16 +289,16 @@ class NlpNotePool:
             self._resume_existing_batches()
             self._create_new_batches(notes)
 
-    def add_note(self, table_slug: str, note_res: dict, text: str) -> None:
+    def add_note(self, task_name: str, note_res: dict, text: str) -> None:
         """Queues a note for NLP.
 
         The request happens on a worker thread, so results are handled later - whenever this
         note's turn comes up in the drain order. Blocks once enough work is outstanding.
         """
-        task = self._tables[table_slug]
+        task = self._tables[task_name]
 
-        prompt = self._make_prompt(table_slug, task, text)
-        self._handle_results(self._dispatcher.submit(prompt, (table_slug, note_res, text)))
+        prompt = self._make_prompt(task_name, task, text)
+        self._handle_results(self._dispatcher.submit(prompt, (task_name, note_res, text)))
 
     def _handle_results(self, results: list[dispatch.Result]) -> None:
         """Folds finished responses into our pending output, on the main thread.
@@ -301,25 +308,25 @@ class NlpNotePool:
         concurrency can't reorder or interleave any of it.
         """
         for result in results:
-            table_slug, note_res, text = result.context
+            task_name, note_res, text = result.context
             try:
                 if result.error is not None:
                     raise result.error
-                task = self._tables[table_slug]
-                self._add_response(table_slug, task, note_res, text, result.response)
+                task = self._tables[task_name]
+                self._add_response(task_name, task, note_res, text, result.response)
                 if not result.response.from_cache:
-                    self.fresh_calls[table_slug] = self.fresh_calls.get(table_slug, 0) + 1
+                    self.fresh_calls[task_name] = self.fresh_calls.get(task_name, 0) + 1
                 # Attribute this call's spend to the table that asked for it.
                 # Cache hits carry no usage, which is right - they cost nothing.
                 if usage := result.response.usage:
-                    previous = self.token_stats_by_table.get(table_slug, models.TokenStats())
-                    self.token_stats_by_table[table_slug] = previous + usage
+                    previous = self.token_stats_by_table.get(task_name, models.TokenStats())
+                    self.token_stats_by_table[task_name] = previous + usage
             except Exception as exc:
                 # Covers both a failed request and a failed write of the chunk this note
                 # happened to complete. One bad note never stops the rest of the run.
                 rich.print("Failed to process note:", exc)
                 continue
-            self.got_response[table_slug] = self.got_response.get(table_slug, 0) + 1
+            self.got_response[task_name] = self.got_response.get(task_name, 0) + 1
 
     def finalize(self) -> None:
         """Waits for every outstanding note, then writes out whatever we have."""
@@ -329,20 +336,20 @@ class NlpNotePool:
         finally:
             # If any of our tasks wrote no rows, let's write out a zero-row parquet so that we can
             # still create a table based off it for duckdb (which requires parquets).
-            for table_slug, task in self._tables.items():
-                if self._next_parquet_path(table_slug, task).name == "nlp.0.parquet":
-                    self._write_single_parquet(table_slug, task, [])
+            for task_name, task in self._tables.items():
+                if self._get_next_parquet_path(task_name, task).name == "nlp.0.parquet":
+                    self._write_single_parquet(task_name, task, [])
 
     def _cache_dir(self) -> cfs.FsPath:
         return cfs.FsPath(self._config.phi_dir)
 
-    def _cache_namespace(self, table_slug: str, task: workflow.NlpTask) -> str:
-        # Note that this intentionally does not use table_name_for_task(). This namespace names
+    def _cache_namespace(self, task_name: str, task: workflow.NlpTask) -> str:
+        # Note that this intentionally does not use get_table_name_for_task(). This namespace names
         # a folder of cached NLP responses in the user's PHI dir - if we renamed it, every
         # existing cached response would be orphaned (and re-running would cost real money).
-        return f"{self._config.target}__{table_slug}_v{task.version}_{self._model.MODEL_ID}"
+        return f"{self._config.target}__{task_name}_v{task.version}_{self._model.MODEL_ID}"
 
-    def _make_prompt(self, table_slug: str, task: workflow.NlpTask, text: str) -> models.Prompt:
+    def _make_prompt(self, task_name: str, task: workflow.NlpTask, text: str) -> models.Prompt:
         schema = task.response_schema.model_json_schema()
         system = task.system_prompt or ""
         system = system.replace("%JSON-SCHEMA%", json.dumps(schema))
@@ -355,13 +362,13 @@ class NlpNotePool:
             user=user,
             schema=task.response_schema,
             cache_dir=self._cache_dir(),
-            cache_namespace=self._cache_namespace(table_slug, task),
+            cache_namespace=self._cache_namespace(task_name, task),
             cache_checksum=caching.cache_checksum(text),
         )
 
     def _add_response(
         self,
-        table_slug: str,
+        task_name: str,
         task: workflow.NlpTask,
         note_res: dict,
         text: str,
@@ -389,7 +396,7 @@ class NlpNotePool:
             [note_ref, subject_ref, encounter_ref]
         )
 
-        # If you change these, change the schema definition in schema_for_task() as well as the
+        # If you change these, change the schema definition in get_schema_for_task() as well as the
         # nlp.md documentation.
         new_row = {
             "note_ref": note_ref,
@@ -404,7 +411,7 @@ class NlpNotePool:
         }
 
         # Add new row to pending notes
-        self._notes.setdefault(table_slug, []).append(new_row)
+        self._notes.setdefault(task_name, []).append(new_row)
 
         # Do we have enough to write out?
         pending_notes = sum(len(x) for x in self._notes.values())
@@ -414,14 +421,14 @@ class NlpNotePool:
     def _resume_existing_batches(self) -> None:
         # Maybe we got interrupted and need to resume.
         # Check all tables for any existing batch file.
-        for table_slug, task in self._tables.items():
-            cache_namespace = self._cache_namespace(table_slug, task)
+        for task_name, task in self._tables.items():
+            cache_namespace = self._cache_namespace(task_name, task)
             metadata = caching.cache_metadata_read(self._cache_dir(), cache_namespace)
             batch_ids = metadata.get(f"batches-{self._config.provider}")
             if batch_ids:
-                rich.print(f" Resuming previously created batches for '{table_slug}'.")
+                rich.print(f" Resuming previously created batches for '{task_name}'.")
                 self._record_batch_spend(
-                    table_slug,
+                    task_name,
                     *self._wait_for_batches(
                         batch_ids,
                         schema=task.response_schema,
@@ -430,7 +437,7 @@ class NlpNotePool:
                 )
 
     def _create_new_batches(self, notes: note_utils.NoteSource) -> None:
-        table_batches = {}  # table_slug -> set[batch_id]
+        table_batches = {}  # task_name -> set[batch_id]
         cache_dir = self._cache_dir()
 
         # Feed every note into the provider
@@ -441,9 +448,9 @@ class NlpNotePool:
                 except Exception:  # noqa: S112
                     continue
 
-                for table_slug, task in self._tables.items():
-                    prompt = self._make_prompt(table_slug, task, text)
-                    batch_ids = table_batches.setdefault(table_slug, set())
+                for task_name, task in self._tables.items():
+                    prompt = self._make_prompt(task_name, task, text)
+                    batch_ids = table_batches.setdefault(task_name, set())
                     batch_ids.add(self._provider.add_to_batch(prompt, tmp_dir))
 
             for table_slug, task in self._tables.items():
@@ -453,31 +460,31 @@ class NlpNotePool:
                 batch_ids.discard(None)  # drop any None's from calls that didn't create a batch
 
         # Now wait for all the results
-        for table_slug, task in self._tables.items():
-            if batch_ids := table_batches.get(table_slug):
+        for task_name, task in self._tables.items():
+            if batch_ids := table_batches.get(task_name):
                 rich.print(
-                    f" Waiting for batches for '{table_slug}' to finish "
+                    f" Waiting for batches for '{task_name}' to finish "
                     "(can be resumed if interrupted)."
                 )
                 self._record_batch_spend(
-                    table_slug,
+                    task_name,
                     *self._wait_for_batches(
                         batch_ids,
-                        cache_namespace=self._cache_namespace(table_slug, task),
+                        cache_namespace=self._cache_namespace(task_name, task),
                         schema=task.response_schema,
                     ),
                 )
 
-    def _record_batch_spend(self, table_slug: str, usage: models.TokenStats, written: int) -> None:
+    def _record_batch_spend(self, task_name: str, usage: models.TokenStats, written: int) -> None:
         """Books a batch's tokens against the table that ordered it.
 
         The batch phase writes its responses to the cache and the note pass then replays them,
         so by the time a note reaches _handle_results it looks like a cache hit. Without this,
         a batch run would report the right pooled total and zero for every individual table.
         """
-        previous = self.token_stats_by_table.get(table_slug, models.TokenStats())
-        self.token_stats_by_table[table_slug] = previous + usage
-        self.fresh_calls[table_slug] = self.fresh_calls.get(table_slug, 0) + written
+        previous = self.token_stats_by_table.get(task_name, models.TokenStats())
+        self.token_stats_by_table[task_name] = previous + usage
+        self.fresh_calls[task_name] = self.fresh_calls.get(task_name, 0) + written
 
     def _wait_for_batches(
         self,
@@ -571,17 +578,17 @@ class NlpNotePool:
         notes = self._notes
         self._notes = {}
 
-        for table_slug, task in self._tables.items():
-            if table_slug in notes:
-                rows = notes[table_slug]
-                self._write_single_parquet(table_slug, task, rows)
-                add_upload_refs_for_task(self._config, table_slug, task, self._db, rows)
+        for task_name, task in self._tables.items():
+            if task_name in notes:
+                rows = notes[task_name]
+                self._write_single_parquet(task_name, task, rows)
+                _add_upload_refs_for_task(self._config, task_name, task, self._db, rows)
                 rich.print(
-                    f"Wrote {len(rows)} to table {table_slug}: {base_utils.get_utc_datetime()}"
+                    f"Wrote {len(rows)} to table {task_name}: {base_utils.get_utc_datetime()}"
                 )
 
-    def _next_parquet_path(self, table_slug: str, task: workflow.NlpShared) -> cfs.FsPath:
-        folder = output_path_for_task(self._config, table_slug, task, self._db)
+    def _get_next_parquet_path(self, task_name: str, task: workflow.NlpShared) -> cfs.FsPath:
+        folder = get_output_path_for_task(self._config, task_name, task, self._db)
 
         # First, determine what the next upload number should be
         basenames = [path.name for path in folder.ls()]
@@ -592,49 +599,49 @@ class NlpNotePool:
         return folder.joinpath(f"nlp.{next_index}.parquet")
 
     def _write_single_parquet(
-        self, table_slug: str, task: workflow.NlpTask, rows: list[dict]
+        self, task_name: str, task: workflow.NlpTask, rows: list[dict]
     ) -> int:
-        # Same story as add_upload_refs_for_task: main thread, but concurrent with worker
+        # Same story as _add_upload_refs_for_task: main thread, but concurrent with worker
         # cache writes through the same shared fsspec filesystem.
         with caching.FS_WRITE_LOCK:
-            path = self._next_parquet_path(table_slug, task)
+            path = self._get_next_parquet_path(task_name, task)
             path.parent.makedirs()
 
             # Build the pyarrow table (with schema) and write it out
-            table = pyarrow.Table.from_pylist(rows, schema=schema_for_task(task))
+            table = pyarrow.Table.from_pylist(rows, schema=get_schema_for_task(task))
             pyarrow.parquet.write_table(table, str(path), compression="snappy", filesystem=path.fs)
 
 
-def upload_refs_path(
+def _upload_refs_path(
     nlp_config: note_utils.NlpConfig,
-    table_slug: str,
+    task_name: str,
     task: workflow.NlpTask,
     db: databases.DatabaseBackend,
 ) -> cfs.FsPath:
-    path = output_path_for_task(nlp_config, table_slug, task, db)
+    path = get_output_path_for_task(nlp_config, task_name, task, db)
     return cfs.FsPath(str(path) + ".ids")
 
 
-def read_upload_refs_for_task(
+def _read_upload_refs_for_task(
     nlp_config: note_utils.NlpConfig,
-    table_slug: str,
+    task_name: str,
     task: workflow.NlpTask,
     db: databases.DatabaseBackend,
 ) -> set[str]:
-    path = upload_refs_path(nlp_config, table_slug, task, db)
+    path = _upload_refs_path(nlp_config, task_name, task, db)
     refs = path.read_text(default="")
     return set(refs.splitlines())
 
 
-def add_upload_refs_for_task(
+def _add_upload_refs_for_task(
     nlp_config: note_utils.NlpConfig,
-    table_slug: str,
+    task_name: str,
     task: workflow.NlpTask,
     db: databases.DatabaseBackend,
     rows: list[dict],
 ) -> set[str]:
     refs = sorted(f"{row['note_ref']}" for row in rows)  # sort for tests
-    path = upload_refs_path(nlp_config, table_slug, task, db)
+    path = _upload_refs_path(nlp_config, task_name, task, db)
     # Runs on the main thread, but NLP workers may be writing cache entries at the same time,
     # and fsspec's write transactions are shared per-filesystem. See caching.FS_WRITE_LOCK.
     with caching.FS_WRITE_LOCK:
