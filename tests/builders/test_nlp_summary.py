@@ -11,9 +11,8 @@ from unittest import mock
 import pytest
 
 from cumulus_library import note_utils
-from cumulus_library.builders import nlp_builder
 from cumulus_library.builders.nlp import models, summary
-from tests import conftest, nlp_utils
+from tests import nlp_utils
 from tests.nlp_utils import add_doc
 
 
@@ -190,31 +189,19 @@ def test_print_summary_prints_both_blocks():
 
 def _run_for_output(tmp_path, mock_client, mock_db_config, *, notes, tasks) -> str:
     """Runs a workflow with the given notes (id, text) and task configs, returning stdout."""
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                name: {"response_schema": nlp_utils.EMPTY_SCHEMA, **task}
-                for name, task in tasks.items()
-            },
-        },
-        "nlp.workflow",
-    )
+    workflow_path = nlp_utils.make_workflow(tmp_path, tasks)
     with open(f"{tmp_path}/doc.ndjson", "w", encoding="utf8") as f:
         for note_id, text in notes:
             add_doc(note_id, text, f)
 
     model = nlp_utils.MockModel(mock_client)
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
+    _, output = nlp_utils.run_workflow(
+        workflow_path,
+        mock_db_config,
         notes=note_utils.NoteSource([tmp_path]),
         nlp_config=model.nlp_config(),
     )
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
-    return console_output.getvalue()
+    return output
 
 
 @mock.patch("openai.OpenAI")

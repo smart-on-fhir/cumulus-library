@@ -3,8 +3,6 @@ Tests for NLP models and providers (local, Azure, Bedrock): setup checks, reques
 how each provider's responses and errors are handled.
 """
 
-import contextlib
-import io
 from unittest import mock
 
 import botocore.exceptions
@@ -14,9 +12,8 @@ import pydantic
 import pytest
 
 from cumulus_library import errors
-from cumulus_library.builders import nlp_builder
 from cumulus_library.builders.nlp import models
-from tests import conftest, nlp_utils
+from tests import nlp_utils
 from tests.nlp_utils import read_rows
 
 
@@ -34,14 +31,13 @@ def test_no_batching_support(mock_client, tmp_path, mock_db_config, note_source)
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
-    )
-
     with pytest.raises(errors.CumulusLibraryError, match="does not support batching"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(
+            workflow_path,
+            mock_db_config,
+            notes=note_source,
+            nlp_config=model.nlp_config(batching=True),
+        )
 
 
 @mock.patch("openai.OpenAI")
@@ -51,12 +47,8 @@ def test_no_phi_dir(mock_client, tmp_path, mock_db_config, note_source):
     config = model.nlp_config()
     config.phi_dir = None
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=config
-    )
-
     with pytest.raises(errors.CumulusLibraryError, match="Please provide a PHI dir"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(workflow_path, mock_db_config, notes=note_source, nlp_config=config)
 
 
 @mock.patch("openai.OpenAI")
@@ -65,17 +57,13 @@ def test_bad_nlp_model(mock_client, tmp_path, mock_db_config, note_source):
     model = nlp_utils.MockModel(mock_client)
     config = model.nlp_config()
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=config
-    )
-
     config.model = "nope"
     with pytest.raises(errors.CumulusLibraryError, match="Unknown NLP model ID"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(workflow_path, mock_db_config, notes=note_source, nlp_config=config)
 
     config.model = None
     with pytest.raises(errors.CumulusLibraryError, match="An NLP model ID must be provided"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(workflow_path, mock_db_config, notes=note_source, nlp_config=config)
 
 
 @mock.patch("openai.OpenAI")
@@ -86,11 +74,9 @@ def test_missing_nlp_model_but_deployment_works(mock_client, tmp_path, mock_db_c
     model = nlp_utils.MockModel(mock_client)
     model.mock_openai_model_list(models=[])
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-
-    builder.execute_queries(mock_db_config, None)
 
 
 @mock.patch("openai.OpenAI")
@@ -102,12 +88,10 @@ def test_missing_nlp_model(mock_client, tmp_path, mock_db_config, note_source):
     model.mock_openai_model_list(models=[])
     model.mock_openai_deployment_check(fail=True)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-    )
-
     with pytest.raises(errors.CumulusLibraryError, match="NLP server does not have model ID"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(
+            workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
+        )
 
 
 @mock.patch("openai.OpenAI")
@@ -116,16 +100,12 @@ def test_bad_stop(mock_client, tmp_path, mock_db_config, note_source):
     model = nlp_utils.MockModel(mock_client)
     model.mock_openai_response({}, finish_reason="content_filter")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
 
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
-
     assert builder.stats.got_response[0] == 0
-    assert "did not complete, with finish reason: content_filter" in console_output.getvalue()
+    assert "did not complete, with finish reason: content_filter" in output
 
 
 @mock.patch("openai.OpenAI")
@@ -133,12 +113,10 @@ def test_cloud_model_but_local_provider(mock_client, tmp_path, mock_db_config, n
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, model_id="gpt5")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-    )
-
     with pytest.raises(errors.CumulusLibraryError, match="does not support the 'local' provider"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(
+            workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
+        )
 
 
 @nlp_utils.mock_env("azure")
@@ -147,11 +125,9 @@ def test_azure_happy_path(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="azure")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
 
@@ -160,12 +136,10 @@ def test_azure_bad_model(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, model_id="claude-sonnet45", provider="azure")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-    )
-
     with pytest.raises(errors.CumulusLibraryError, match="does not support the 'azure' provider"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(
+            workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
+        )
 
 
 @mock.patch("openai.AzureOpenAI")
@@ -173,12 +147,10 @@ def test_azure_no_env(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="azure")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-    )
-
     with pytest.raises(errors.CumulusLibraryError, match="Missing Azure environment variables"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(
+            workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
+        )
 
 
 @nlp_utils.mock_env("azure")
@@ -187,13 +159,9 @@ def test_azure_no_schema_support(mock_client, tmp_path, mock_db_config, note_sou
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="azure", model_id="gpt35")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(),
+    nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-
-    builder.execute_queries(mock_db_config, None)
 
     # Confirm that we requested just "give us json please" if model doesn't support schemas
     last_kwargs = model.openai.chat.completions.parse.call_args[1]
@@ -217,10 +185,9 @@ def test_azure_temperature_support(
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="azure", model_id=model_id)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
     last_kwargs = model.openai.chat.completions.parse.call_args[1]
@@ -247,10 +214,9 @@ def test_bedrock_temperature_support(
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id=model_id)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
     last_kwargs = model._boto.converse.call_args[1]
@@ -265,11 +231,9 @@ def test_bedrock_happy_path(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
 
@@ -279,16 +243,12 @@ def test_bedrock_bad_stop(mock_client, tmp_path, mock_db_config, note_source):
     model = nlp_utils.MockModel(mock_client, provider="bedrock")
     model.mock_bedrock_response({}, stop_reason="content_filter")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
 
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
-
     assert builder.stats.got_response[0] == 0
-    assert "did not complete, with stop reason: content_filter" in console_output.getvalue()
+    assert "did not complete, with stop reason: content_filter" in output
 
 
 @mock.patch("boto3.client")
@@ -296,38 +256,25 @@ def test_bedrock_bad_model(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="gpt5")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-    )
-
     with pytest.raises(errors.CumulusLibraryError, match="does not support the 'bedrock' provider"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(
+            workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
+        )
 
 
 @mock.patch("boto3.client")
 def test_bedrock_skips_wrapper_in_response(mock_client, tmp_path, mock_db_config, note_source):
     """Confirm we drop a "parameter" wrapper object in response"""
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                "hello_world": {
-                    "response_schema": '{"title":"test", "type": "object", '
-                    '"properties": {"hello": {"type": "string"}}}',
-                }
-            },
-        },
-        "nlp.workflow",
+    workflow_path = nlp_utils.make_workflow(
+        tmp_path, ["hello_world"], schema=nlp_utils.object_schema(hello="string")
     )
 
     model = nlp_utils.MockModel(mock_client, provider="bedrock")
     model.mock_bedrock_response({"parameter": {"hello": "world"}})
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-    builder.execute_queries(mock_db_config, None)
 
     rows = read_rows(mock_db_config, "example_nlp__nlp_hello_world_gpt_oss_120b")
     assert rows[0]["result"] == {"hello": "world"}
@@ -336,18 +283,8 @@ def test_bedrock_skips_wrapper_in_response(mock_client, tmp_path, mock_db_config
 @mock.patch("boto3.client")
 def test_bedrock_text_response(mock_client, tmp_path, mock_db_config, note_source):
     """Confirm we find json inside a text response"""
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                "hello_world": {
-                    "response_schema": '{"title":"test", "type": "object", '
-                    '"properties": {"hello": {"type": "number"}}}',
-                }
-            },
-        },
-        "nlp.workflow",
+    workflow_path = nlp_utils.make_workflow(
+        tmp_path, ["hello_world"], schema=nlp_utils.object_schema(hello="number")
     )
 
     model = nlp_utils.MockModel(mock_client, provider="bedrock")
@@ -364,11 +301,9 @@ Summary.
         mode="text",
     )
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-
-    builder.execute_queries(mock_db_config, None)
 
     rows = read_rows(mock_db_config, "example_nlp__nlp_hello_world_gpt_oss_120b")
     assert rows[0]["result"] == {"hello": 0.5}
@@ -380,17 +315,13 @@ def test_bedrock_no_response(mock_client, tmp_path, mock_db_config, note_source)
     model = nlp_utils.MockModel(mock_client, provider="bedrock")
     model.mock_bedrock_response("", mode="none")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
 
     assert builder.stats.got_response[0] == 0
     assert builder.stats.failed[0] == 1
-    assert "Failed to process note: no response content found" in console_output.getvalue()
+    assert "Failed to process note: no response content found" in output
 
 
 @mock.patch("boto3.client")
@@ -408,14 +339,9 @@ def test_bedrock_raises_exception_when_invalid_request(
     )
     model._boto.exceptions.ClientError = botocore.exceptions.ClientError
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    _, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-    console_output = io.StringIO()
-
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
-    output = console_output.getvalue()
 
     assert "Failed to process" in output
     # Our wrapped error, not the raw ClientError (so we know the request error handling ran)
@@ -479,14 +405,8 @@ def test_openai_raises_exception_when_invalid_request(
     model = nlp_utils.MockModel(mock_client, provider="azure")
     model.openai.chat.completions.parse.side_effect = exception
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    _, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-
-    console_output = io.StringIO()
-
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
-    output = console_output.getvalue()
 
     assert "Failed to process" in output

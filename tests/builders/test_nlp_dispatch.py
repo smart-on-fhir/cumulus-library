@@ -51,14 +51,11 @@ def _write_notes(tmp_path, count: int) -> note_utils.NoteSource:
     return note_utils.NoteSource([tmp_path])
 
 
-def _run(tmp_path, config, source, mock_db_config) -> nlp_builder.NlpBuilder:
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=nlp_utils.basic_workflow(tmp_path),
-        notes=source,
-        nlp_config=config,
+def _run(tmp_path, config, source, mock_db_config) -> tuple[nlp_builder.NlpBuilder, str]:
+    """Runs the basic one-table workflow, returning the builder and what it printed."""
+    return nlp_utils.run_workflow(
+        nlp_utils.basic_workflow(tmp_path), mock_db_config, notes=source, nlp_config=config
     )
-    builder.execute_queries(mock_db_config, None)
-    return builder
 
 
 def test_concurrency_defaults_to_one_worker_per_deployment():
@@ -91,7 +88,7 @@ def test_requests_spread_across_deployments(mock_client, tmp_path, mock_db_confi
     model.mock_openai_handler(handler)
 
     config = model.nlp_config(deployments=["dep-a", "dep-b", "dep-c"])
-    builder = _run(tmp_path, config, source, mock_db_config)
+    builder, _ = _run(tmp_path, config, source, mock_db_config)
 
     # We should have gotten a response for every note, and nothing should have been dropped.
     assert builder.stats.got_response[0] == 12
@@ -127,7 +124,7 @@ def test_never_exceeds_configured_concurrency(mock_client, tmp_path, mock_db_con
     model.mock_openai_handler(handler)
 
     config = model.nlp_config(deployments=["dep-a", "dep-b"], concurrency=4)
-    builder = _run(tmp_path, config, source, mock_db_config)
+    builder, _ = _run(tmp_path, config, source, mock_db_config)
 
     assert builder.stats.got_response[0] == 20
     # Confirm that we never exceeded the configured concurrency limit.
@@ -253,7 +250,7 @@ def test_rate_limit_retries_after_cooldown(mock_client, tmp_path, mock_db_config
     config = model.nlp_config(concurrency=2)
     # The default cooldown is 5 seconds; we patch it down to 0.01s so the test runs quickly.
     with mock.patch.object(nlp_dispatch, "DEFAULT_COOLDOWN_SECONDS", 0.01):
-        builder = _run(tmp_path, config, source, mock_db_config)
+        builder, _ = _run(tmp_path, config, source, mock_db_config)
 
     # Every note eventually succeeded, and nothing was reported as dropped.
     assert builder.stats.got_response[0] == 3
@@ -276,15 +273,12 @@ def test_persistent_rate_limiting_is_reported(mock_client, tmp_path, mock_db_con
     model.mock_openai_handler(handler)
 
     config = model.nlp_config(concurrency=2)
-    console_output = io.StringIO()
     # The default cooldown is 5 seconds; we patch it down to 0.01s so the test runs quickly.
     with mock.patch.object(nlp_dispatch, "DEFAULT_COOLDOWN_SECONDS", 0.01):
-        with contextlib.redirect_stdout(console_output):
-            builder = _run(tmp_path, config, source, mock_db_config)
+        builder, output = _run(tmp_path, config, source, mock_db_config)
 
     assert builder.stats.got_response[0] == 0
     assert builder.stats.throttle_dropped == 2
-    output = console_output.getvalue()
     assert "2 notes dropped after repeated rate limiting" in output
     assert "--nlp-concurrency" in output
 
@@ -308,14 +302,12 @@ def test_non_rate_limit_errors_are_not_retried(mock_client, tmp_path, mock_db_co
     model.mock_openai_handler(handler)
 
     config = model.nlp_config(concurrency=2)
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder = _run(tmp_path, config, source, mock_db_config)
+    builder, output = _run(tmp_path, config, source, mock_db_config)
 
     assert builder.stats.got_response[0] == 0
     assert builder.stats.throttle_dropped == 0  # these weren't throttles that dropped
     assert len(calls) == 2  # one attempt each, no retries
-    assert "Failed to process note:" in console_output.getvalue()
+    assert "Failed to process note:" in output
 
 
 @nlp_utils.mock_env("azure")
@@ -325,13 +317,8 @@ def test_batching_rejects_multiple_deployments(mock_client, tmp_path, mock_db_co
     model = nlp_utils.MockModel(mock_client, provider="azure", model_id="gpt4o")
     config = model.nlp_config(batching=True, deployments=["dep-a", "dep-b"])
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=nlp_utils.basic_workflow(tmp_path),
-        notes=note_source,
-        nlp_config=config,
-    )
     with pytest.raises(errors.CumulusLibraryError, match="does not support multiple"):
-        builder.execute_queries(mock_db_config, None)
+        _run(tmp_path, config, note_source, mock_db_config)
 
 
 @nlp_utils.mock_env("azure")
@@ -343,7 +330,7 @@ def test_token_stats_summed_across_deployments(mock_client, tmp_path, mock_db_co
     model.mock_openai_handler(lambda **kwargs: {})
 
     config = model.nlp_config(deployments=["dep-a", "dep-b", "dep-c"])
-    builder = _run(tmp_path, config, source, mock_db_config)
+    builder, _ = _run(tmp_path, config, source, mock_db_config)
 
     # The mock reports 19 prompt tokens (5 cached) and 10 completion tokens per request.
     assert builder.stats.got_response[0] == 6
@@ -384,7 +371,7 @@ def test_bedrock_throttling_is_recognized_and_retried(mock_client, tmp_path, moc
 
     config = model.nlp_config(concurrency=2)
     with mock.patch.object(nlp_dispatch, "DEFAULT_COOLDOWN_SECONDS", 0.01):
-        builder = _run(tmp_path, config, source, mock_db_config)
+        builder, _ = _run(tmp_path, config, source, mock_db_config)
 
     # Each note was throttled once, backed off, and then succeeded.
     assert builder.stats.got_response[0] == 3
@@ -451,15 +438,13 @@ def test_note_that_cannot_be_prompted_is_skipped(mock_client, tmp_path, mock_db_
             raise RuntimeError("bad prompt")
         return real_make_prompt(self, task_name, task, text)
 
-    # Capture the console output so we can confirm the error was logged, but not fatal.
-    console_output = io.StringIO()
+    # Check the console output too, to confirm the error was logged, but not fatal.
     with mock.patch.object(driver.NlpNotePool, "_make_prompt", flaky_make_prompt):
-        with contextlib.redirect_stdout(console_output):
-            builder = _run(tmp_path, model.nlp_config(), source, mock_db_config)
+        builder, output = _run(tmp_path, model.nlp_config(), source, mock_db_config)
 
     # The other two notes still made it through.
     assert builder.stats.got_response[0] == 2
-    assert "Failed to process note: bad prompt" in console_output.getvalue()
+    assert "Failed to process note: bad prompt" in output
 
 
 def test_default_cooldown_backs_off_exponentially():
@@ -614,15 +599,12 @@ def test_stuck_notes_are_reported(mock_client, tmp_path, mock_db_config):
     model.mock_openai_handler(handler)
 
     config = model.nlp_config(concurrency=1)
-    console_output = io.StringIO()
     with mock.patch.object(nlp_dispatch, "STUCK_NOTE_SECONDS", STUCK_NOTE_SECONDS):
         with mock.patch.object(nlp_dispatch, "MAX_STUCK_EXTENSIONS", MAX_STUCK_EXTENSIONS):
-            with contextlib.redirect_stdout(console_output):
-                builder = _run(tmp_path, config, source, mock_db_config)
+            builder, output = _run(tmp_path, config, source, mock_db_config)
 
     assert builder.stats.got_response[0] == 0
     assert builder.stats.stuck_dropped == 1
-    output = console_output.getvalue()
     assert "1 note abandoned after the request stopped responding" in output
     assert "dropped connection" in output
 

@@ -2,8 +2,6 @@
 Tests for the NLP builder: workflow config, table selection and naming, and the output it writes.
 """
 
-import contextlib
-import io
 import json
 import os
 import pathlib
@@ -78,47 +76,20 @@ def test_table_filter_but_no_salt(mock_client, tmp_path, note_source):
     )
     db.connection = mock.MagicMock()
     study_config = cumulus_library.StudyConfig(db=db, schema="main")
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                "test": {
-                    "select_by_table": "table",
-                    "response_schema": nlp_utils.EMPTY_SCHEMA,
-                }
-            },
-        },
-        "nlp.workflow",
-    )
+    workflow_path = nlp_utils.make_workflow(tmp_path, {"test": {"select_by_table": "table"}})
     model = nlp_utils.MockModel(mock_client, make_codebook=False)
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-    )
     err_msg = "Cannot calculate anonymized resource IDs without a PHI dir defined"
     with pytest.raises(RuntimeError, match=err_msg):
-        builder.execute_queries(study_config, None)
+        nlp_utils.run_workflow(
+            workflow_path, study_config, notes=note_source, nlp_config=model.nlp_config()
+        )
 
 
 def test_flattened_config(tmp_path, note_source):
-    workflow_path = conftest.write_toml(
+    workflow_path = nlp_utils.make_workflow(
         tmp_path,
-        {
-            "config_type": "nlp",
-            "shared": {
-                "system_prompt": "hello",
-            },
-            "tables": {
-                "override": {
-                    "system_prompt": "bye",
-                    "response_schema": nlp_utils.EMPTY_SCHEMA,
-                },
-                "fallthrough": {
-                    "response_schema": nlp_utils.EMPTY_SCHEMA,
-                },
-            },
-        },
-        "nlp.workflow",
+        {"override": {"system_prompt": "bye"}, "fallthrough": {}},
+        shared={"system_prompt": "hello"},
     )
     builder = nlp_builder.NlpBuilder(toml_config_path=workflow_path, notes=note_source)
     assert builder._workflow_config.tables["override"].system_prompt == "bye"
@@ -127,23 +98,16 @@ def test_flattened_config(tmp_path, note_source):
 
 @mock.patch("openai.OpenAI")
 def test_filter(mock_client, tmp_path, mock_db_config):
-    workflow_path = conftest.write_toml(
+    workflow_path = nlp_utils.make_workflow(
         tmp_path,
         {
-            "config_type": "nlp",
-            "tables": {
-                "filtered": {
-                    "select_by_word": ["fever"],
-                    "reject_by_word": ["cold"],
-                    "select_by_table": "prev_table",
-                    "response_schema": nlp_utils.EMPTY_SCHEMA,
-                },
-                "all": {
-                    "response_schema": nlp_utils.EMPTY_SCHEMA,
-                },
+            "filtered": {
+                "select_by_word": ["fever"],
+                "reject_by_word": ["cold"],
+                "select_by_table": "prev_table",
             },
+            "all": {},
         },
-        "nlp.workflow",
     )
 
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
@@ -181,14 +145,10 @@ def test_filter(mock_client, tmp_path, mock_db_config):
     source = note_utils.NoteSource([tmp_path])
     model = nlp_utils.MockModel(mock_client)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
+    _, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=source, nlp_config=model.nlp_config()
     )
-
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
-    assert expected_stats in nlp_utils.strip_trailing_whitespace(console_output.getvalue())
+    assert expected_stats in nlp_utils.strip_trailing_whitespace(output)
     table = (
         mock_db_config.db.cursor()
         .execute(
@@ -275,10 +235,9 @@ def test_clean_only_removes_this_task_and_model(mock_client, tmp_path, mock_db_c
     for folder in [old_version, other_model, other_task]:
         folder.makedirs()
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config(clean=True)
+    nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(clean=True)
     )
-    builder.execute_queries(mock_db_config, None)
 
     assert not old_version.exists()
     assert other_model.exists()
@@ -291,16 +250,14 @@ def test_already_uploaded(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config(clean=False)
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(clean=False)
     )
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.had_text == 1
     assert builder.stats.considered[0] == 0
 
@@ -360,27 +317,16 @@ def test_unreachable_vllm(mock_client, tmp_path, note_source, mock_db_config):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client)
     model.mock_openai_model_list(fail=True)
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
-    )
     with pytest.raises(errors.CumulusLibraryError, match="Try running 'docker compose up"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(
+            workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
+        )
 
 
 @mock.patch("openai.OpenAI")
 def test_cached_response(mock_client, tmp_path, mock_db_config):
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                "hello_world": {
-                    "response_schema": '{"title":"test", "type": "object", '
-                    '"properties": {"hello": {"type": "integer"}}}',
-                },
-            },
-        },
-        "nlp.workflow",
+    workflow_path = nlp_utils.make_workflow(
+        tmp_path, ["hello_world"], schema=nlp_utils.object_schema(hello="integer")
     )
 
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
@@ -391,10 +337,9 @@ def test_cached_response(mock_client, tmp_path, mock_db_config):
     model = nlp_utils.MockModel(mock_client)
     model.mock_openai_response({"hello": 3})
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=source, nlp_config=model.nlp_config()
     )
-    builder.execute_queries(mock_db_config, None)
 
     assert builder.stats.got_response[0] == 1
 
@@ -405,24 +350,17 @@ def test_cached_response(mock_client, tmp_path, mock_db_config):
     with open(f"{tmp_path}/dxr.ndjson", "a", encoding="utf8") as f:
         add_dxr("2", "goodbye", f)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=source, nlp_config=model.nlp_config()
     )
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.considered[0] == 2
     assert builder.stats.got_response[0] == 1  # still got our cached result
 
 
 def _multi_table_workflow(tmp_path, *task_names: str) -> pathlib.Path:
     """Writes a workflow with several identical integer-valued tables, for --nlp-table tests"""
-    schema = '{"title":"test", "type": "object", "properties": {"hello": {"type": "integer"}}}'
-    return conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {slug: {"response_schema": schema} for slug in task_names},
-        },
-        "nlp.workflow",
+    return nlp_utils.make_workflow(
+        tmp_path, task_names, schema=nlp_utils.object_schema(hello="integer")
     )
 
 
@@ -443,10 +381,7 @@ def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
     nlp_config = model.nlp_config()
     nlp_config.subtasks = ["first_table"]
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=source, nlp_config=nlp_config
-    )
-    builder.execute_queries(mock_db_config, None)
+    nlp_utils.run_workflow(workflow_path, mock_db_config, notes=source, nlp_config=nlp_config)
 
     tables = _table_names(mock_db_config)
     assert driver.get_table_name_for_task("first_table", nlp_config) in tables
@@ -457,10 +392,7 @@ def test_select_subtasks_builds_subset(mock_client, tmp_path, mock_db_config):
 
     # Checking a second subtask does not remove an existing subtask
     nlp_config.subtasks = ["second_table"]
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=source, nlp_config=nlp_config
-    )
-    builder.execute_queries(mock_db_config, None)
+    nlp_utils.run_workflow(workflow_path, mock_db_config, notes=source, nlp_config=nlp_config)
 
     tables = _table_names(mock_db_config)
     assert driver.get_table_name_for_task("first_table", nlp_config) in tables
@@ -505,10 +437,7 @@ def test_select_multiple_tables(mock_client, tmp_path, mock_db_config):
     nlp_config = model.nlp_config()
     nlp_config.subtasks = ["one", "three"]
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=source, nlp_config=nlp_config
-    )
-    builder.execute_queries(mock_db_config, None)
+    nlp_utils.run_workflow(workflow_path, mock_db_config, notes=source, nlp_config=nlp_config)
 
     tables = _table_names(mock_db_config)
     assert driver.get_table_name_for_task("one", nlp_config) in tables
@@ -532,39 +461,29 @@ def test_select_unknown_table_errors(mock_client, tmp_path, note_source):
 
 @mock.patch("openai.OpenAI")
 def test_span_correction(mock_client, tmp_path, mock_db_config):
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                "hello_world": {
-                    # Make spans array deeply nested, to prove we can find it anywhere
-                    "response_schema": """{
-                        "title":"test", "type": "object", "properties": {
-                            "parent_list": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "parent_dict": {
-                                            "type": "object",
-                                            "properties": {
-                                                "spans": {
-                                                    "type": "array",
-                                                    "items": {"type": "string"}
-                                                }
-                                            }
-                                        }
-                                    }
+    # Make spans array deeply nested, to prove we can find it anywhere
+    schema = """{
+        "title":"test", "type": "object", "properties": {
+            "parent_list": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "parent_dict": {
+                            "type": "object",
+                            "properties": {
+                                "spans": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
                                 }
                             }
                         }
-                    }""",
-                },
-            },
-        },
-        "nlp.workflow",
-    )
+                    }
+                }
+            }
+        }
+    }"""
+    workflow_path = nlp_utils.make_workflow(tmp_path, ["hello_world"], schema=schema)
 
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         add_dxr("dxr", "First, second \n\nthird  fourth.", f)
@@ -576,19 +495,15 @@ def test_span_correction(mock_client, tmp_path, mock_db_config):
         {"parent_list": [{"parent_dict": {"spans": [" first,   ", "second third", "forth"]}}]}
     )
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
+    _, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=source, nlp_config=model.nlp_config()
     )
-
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
 
     rows = read_rows(mock_db_config, "example_nlp__nlp_hello_world_gpt_oss_120b")
     assert rows[0]["result"] == {"parent_list": [{"parent_dict": {"spans": [[0, 5], [7, 21]]}}]}
 
     failure_msg = "Could not match span received from NLP server for DiagnosticReport/dxr: forth"
-    assert failure_msg in console_output.getvalue()
+    assert failure_msg in output
 
 
 @mock.patch("openai.OpenAI")
@@ -599,22 +514,12 @@ def test_degenerate_spans_do_not_match_everywhere(mock_client, tmp_path, mock_db
     guard in _fix_spans, a single one of these emitted len(text)+1 span pairs -- held in memory
     until the chunk flushed, then written to parquet -- and reported itself as found.
     """
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                "hello_world": {
-                    "response_schema": """{
-                        "title":"test", "type": "object", "properties": {
-                            "spans": {"type": "array", "items": {"type": "string"}}
-                        }
-                    }""",
-                },
-            },
-        },
-        "nlp.workflow",
-    )
+    schema = """{
+        "title":"test", "type": "object", "properties": {
+            "spans": {"type": "array", "items": {"type": "string"}}
+        }
+    }"""
+    workflow_path = nlp_utils.make_workflow(tmp_path, ["hello_world"], schema=schema)
 
     note_text = "First, second third fourth."
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
@@ -626,13 +531,9 @@ def test_degenerate_spans_do_not_match_everywhere(mock_client, tmp_path, mock_db
     # "second" is real and must still be found; the rest all strip to empty.
     model.mock_openai_response({"spans": ["second", "...", "   ", "", " -- "]})
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=source, nlp_config=model.nlp_config()
+    _, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=source, nlp_config=model.nlp_config()
     )
-
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
 
     rows = read_rows(mock_db_config, "example_nlp__nlp_hello_world_gpt_oss_120b")
     # Only the real span survives. Without the guard this would hold 4 * (len(note_text) + 1)
@@ -640,7 +541,6 @@ def test_degenerate_spans_do_not_match_everywhere(mock_client, tmp_path, mock_db
     assert rows[0]["result"] == {"spans": [[7, 13]]}
 
     # Each degenerate span is reported as unmatched rather than silently counted as found.
-    output = console_output.getvalue()
     assert output.count("Could not match span received from NLP server") == 4
 
 
@@ -657,55 +557,38 @@ def test_writes_out_at_chunksize(mock_client, tmp_path, mock_db_config):
     config = model.nlp_config()
     config.chunksize = 2
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=source,
-        nlp_config=config,
-    )
-
     with mock.patch("cumulus_library.builders.nlp.driver._add_upload_refs_for_task") as mock_write:
         # Fake an error too, to confirm we gracefully handle that and print message
         mock_write.side_effect = [RuntimeError("test1"), RuntimeError("test2")]
-        console_output = io.StringIO()
-        with contextlib.redirect_stdout(console_output):
-            builder.execute_queries(mock_db_config, None)
+        _, output = nlp_utils.run_workflow(
+            workflow_path, mock_db_config, notes=source, nlp_config=config
+        )
 
     assert mock_write.call_count == 2
-    assert "Failed to process note: test1" in console_output.getvalue()
-    assert "Failed to finalize notes: test2" in console_output.getvalue()
+    assert "Failed to process note: test1" in output
+    assert "Failed to finalize notes: test2" in output
 
 
 @mock.patch("openai.OpenAI")
 def test_various_value_types(mock_client, tmp_path, mock_db_config, note_source):
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                "task": {
-                    "response_schema": '{"title":"test", "type": "object", "properties": {'
-                    '"float": {"type": "number"},'
-                    '"int": {"type": "integer"},'
-                    '"str": {"type": "string"},'
-                    '"bool": {"type": "boolean"},'
-                    '"enum": {"enum": ["red", "amber", "green"]}'
-                    "}}",
-                },
-            },
-        },
-        "nlp.workflow",
+    schema = (
+        '{"title":"test", "type": "object", "properties": {'
+        '"float": {"type": "number"},'
+        '"int": {"type": "integer"},'
+        '"str": {"type": "string"},'
+        '"bool": {"type": "boolean"},'
+        '"enum": {"enum": ["red", "amber", "green"]}'
+        "}}"
     )
+    workflow_path = nlp_utils.make_workflow(tmp_path, ["task"], schema=schema)
 
     results = {"float": 1.5, "int": 3, "str": "a", "bool": True, "enum": "red"}
     model = nlp_utils.MockModel(mock_client)
     model.mock_openai_response(results)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(),
+    nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config()
     )
-    builder.execute_queries(mock_db_config, None)
 
     rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt_oss_120b")
     assert rows[0]["result"] == results
@@ -716,17 +599,13 @@ def test_disabling_stats(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config(stats=False)
+    builder, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(stats=False)
     )
 
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
-
     assert builder.stats.got_response[0] == 1
-    assert "Notes processed:" not in console_output.getvalue()
-    assert "Token usage:" not in console_output.getvalue()
+    assert "Notes processed:" not in output
+    assert "Token usage:" not in output
 
 
 @mock.patch("openai.OpenAI")
@@ -735,19 +614,12 @@ def test_failed_notes_are_counted_per_table(mock_client, tmp_path, mock_db_confi
 
     How the count is printed is covered in test_nlp_summary.py.
     """
-    workflow_path = conftest.write_toml(
+    workflow_path = nlp_utils.make_workflow(
         tmp_path,
         {
-            "config_type": "nlp",
-            "tables": {
-                "age": {"system_prompt": "age", "response_schema": nlp_utils.EMPTY_SCHEMA},
-                "favorite_sushi": {
-                    "system_prompt": "favorite_sushi",
-                    "response_schema": nlp_utils.EMPTY_SCHEMA,
-                },
-            },
+            "age": {"system_prompt": "age"},
+            "favorite_sushi": {"system_prompt": "favorite_sushi"},
         },
-        "nlp.workflow",
     )
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         add_dxr("1", "fine note", f)
@@ -765,12 +637,12 @@ def test_failed_notes_are_counted_per_table(mock_client, tmp_path, mock_db_confi
 
     model.mock_openai_handler(cond_fail_handler)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path,
+        mock_db_config,
         notes=note_utils.NoteSource([tmp_path]),
         nlp_config=model.nlp_config(),
     )
-    builder.execute_queries(mock_db_config, None)
 
     assert builder.stats.considered == [3, 3]
     assert builder.stats.failed == [0, 2]
@@ -803,10 +675,9 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
     study_config = cumulus_library.StudyConfig(db=db, schema="main")
     workflow_path = nlp_utils.basic_workflow(tmp_path, version=1)
     model = nlp_utils.MockModel(mock_openai_client)
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, study_config, notes=note_source, nlp_config=model.nlp_config()
     )
-    builder.execute_queries(study_config, None)
 
     assert builder.stats.got_response[0] == 1
 
@@ -846,10 +717,9 @@ def test_write_to_athena(mock_openai_client, mock_boto_client, tmp_path, note_so
 
     # Then check that a version update works successfully
     workflow_path = nlp_utils.basic_workflow(tmp_path, version=2)
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=model.nlp_config()
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, study_config, notes=note_source, nlp_config=model.nlp_config()
     )
-    builder.execute_queries(study_config, None)
 
     assert builder.stats.got_response[0] == 1
     upload_dir = (
@@ -918,10 +788,7 @@ def test_invalid_study_name(mock_client, tmp_path, note_source):
     model = nlp_utils.MockModel(mock_client)
     nlp_config = model.nlp_config()
     nlp_config.target = "blarg"
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=nlp_config,
-    )
     with pytest.raises(RuntimeError, match="The 'blarg' study is not authorized to run NLP"):
-        builder.execute_queries(study_config, None)
+        nlp_utils.run_workflow(
+            workflow_path, study_config, notes=note_source, nlp_config=nlp_config
+        )

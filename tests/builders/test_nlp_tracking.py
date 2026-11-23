@@ -11,7 +11,6 @@ version, so without redirecting it these tests would all read and clean the same
 """
 
 import datetime
-import pathlib
 from unittest import mock
 
 import jambo
@@ -19,9 +18,8 @@ import mlflow
 import pytest
 
 from cumulus_library import errors, note_utils
-from cumulus_library.builders import nlp_builder
 from cumulus_library.builders.nlp import driver, models, tracking, workflow
-from tests import conftest, nlp_utils
+from tests import nlp_utils
 from tests.nlp_utils import add_dxr
 
 # Every mocked OpenAI completion reports these, see nlp_utils._completion_for_value
@@ -53,19 +51,6 @@ def tracking_uri(tmp_path) -> str:
     mlflow.set_tracking_uri(None)
 
 
-def make_workflow(tmp_path, *task_names: str) -> pathlib.Path:
-    schema = '{"title":"test", "type": "object", "properties": {"hello": {"type": "integer"}}}'
-    return conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "shared": {"system_prompt": "you are a helpful assistant"},
-            "tables": {slug: {"response_schema": schema, "version": 3} for slug in task_names},
-        },
-        "nlp.workflow",
-    )
-
-
 def make_notes(tmp_path, count: int = 1) -> note_utils.NoteSource:
     with open(f"{tmp_path}/dxr.ndjson", "w", encoding="utf8") as f:
         for index in range(count):
@@ -84,11 +69,15 @@ def tracked_config(model, tracking_uri, **overrides) -> note_utils.NlpConfig:
 
 
 def build(tmp_path, mock_db_config, nlp_config, notes, *task_names):
-    workflow_path = make_workflow(tmp_path, *task_names)
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=notes, nlp_config=nlp_config
+    workflow_path = nlp_utils.make_workflow(
+        tmp_path,
+        {slug: {"version": 3} for slug in task_names},
+        schema=nlp_utils.object_schema(hello="integer"),
+        shared={"system_prompt": "you are a helpful assistant"},
     )
-    builder.execute_queries(mock_db_config, None)
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=notes, nlp_config=nlp_config
+    )
     return builder
 
 
@@ -200,24 +189,12 @@ def test_filtered_notes_are_counted_per_table(mock_client, tmp_path, mock_db_con
     config = tracked_config(model, tracking_uri)
 
     # Three notes ("... world 0/1/2"); "picky" selects only one of them, "open" takes all.
-    workflow_path = conftest.write_toml(
-        tmp_path,
-        {
-            "config_type": "nlp",
-            "tables": {
-                "picky": {
-                    "response_schema": nlp_utils.EMPTY_SCHEMA,
-                    "select_by_word": ["world 1"],
-                },
-                "open": {"response_schema": nlp_utils.EMPTY_SCHEMA},
-            },
-        },
-        "nlp.workflow",
+    workflow_path = nlp_utils.make_workflow(
+        tmp_path, {"picky": {"select_by_word": ["world 1"]}, "open": {}}
     )
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=make_notes(tmp_path, count=3), nlp_config=config
+    nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=make_notes(tmp_path, count=3), nlp_config=config
     )
-    builder.execute_queries(mock_db_config, None)
 
     runs = runs_by_table()
     picky = runs["picky"].data.metrics

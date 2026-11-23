@@ -3,9 +3,7 @@ Tests for NLP batch mode (--batch-nlp) on Azure and Bedrock: creating, resuming,
 reading back batches, and attributing their spend.
 """
 
-import contextlib
 import hashlib
-import io
 import json
 import os
 from types import SimpleNamespace
@@ -18,10 +16,9 @@ import openai
 import pytest
 
 from cumulus_library import errors, note_utils
-from cumulus_library.builders import nlp_builder
 from cumulus_library.builders.nlp import models
 from cumulus_library.builders.nlp.models import OpenAIProvider
-from tests import conftest, nlp_utils
+from tests import nlp_utils
 from tests.nlp_utils import add_dxr, read_rows
 
 
@@ -100,12 +97,9 @@ def test_batch_without_usage_still_counts_as_fresh(
     )
     mock_files_content(model, [batch_line("hello world", usage=False)])
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-    builder.execute_queries(mock_db_config, None)
 
     stats = builder.stats
     # We still know the note cost a call, even though we can't say what it cost.
@@ -134,12 +128,9 @@ def test_batch_tokens_are_attributed_to_their_table(
     )
     mock_files_content(model)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-    builder.execute_queries(mock_db_config, None)
 
     stats = builder.stats
     assert stats.got_response[0] == 1
@@ -185,13 +176,9 @@ def test_azure_batching_happy_path(mock_client, tmp_path, mock_db_config, note_s
     )
     mock_files_content(model)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
     rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt4o")
@@ -227,13 +214,9 @@ def test_azure_resume_batching(mock_client, tmp_path, mock_db_config, note_sourc
     )
     mock_files_content(model)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 1
 
     rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt4o")
@@ -290,22 +273,16 @@ def test_azure_batching_errors(mock_client, tmp_path, mock_db_config, note_sourc
         ),
     ]
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    _, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
 
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
-
-    assert "Batch did not complete, got status: 'failed'" in console_output.getvalue()
-    assert "Error from NLP: error1" in console_output.getvalue()
-    assert "Could not process error message: '{'blarg''" in console_output.getvalue()
-    assert "Error from NLP: error2" in console_output.getvalue()
-    assert "Unexpected status code from NLP: 400" in console_output.getvalue()
-    assert "Unexpected response from NLP: missing data" in console_output.getvalue()
+    assert "Batch did not complete, got status: 'failed'" in output
+    assert "Error from NLP: error1" in output
+    assert "Could not process error message: '{'blarg''" in output
+    assert "Error from NLP: error2" in output
+    assert "Unexpected status code from NLP: 400" in output
+    assert "Unexpected response from NLP: missing data" in output
 
 
 @mock.patch.object(OpenAIProvider, "AZURE_MAX_BATCH_COUNT", 2)
@@ -365,13 +342,9 @@ def test_azure_splitting_batch(mock_client, tmp_path, mock_db_config):
         ),
     ]
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.got_response[0] == 4
 
     rows = read_rows(mock_db_config, "example_nlp__nlp_task_gpt4o")
@@ -407,13 +380,9 @@ def test_azure_batches_with_bad_notes(mock_client, tmp_path, mock_db_config):
         httpx.Response(status_code=200, text=batch_line("world2", answer="w2")),
     )
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-
-    builder.execute_queries(mock_db_config, None)
     assert builder.stats.available == 2
     assert builder.stats.got_response[0] == 1
 
@@ -513,12 +482,9 @@ def test_bedrock_batching_happy_path(mock_client, tmp_path, mock_db_config, note
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
     batches = FakeBedrockBatches(model)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-    builder.execute_queries(mock_db_config, None)
 
     # The job itself
     assert len(batches.create_calls) == 1
@@ -575,22 +541,12 @@ def test_bedrock_batching_multiple_tables(
     mock_client, tmp_path, mock_db_config, note_source, mock_s3
 ):
     """Each table gets its own batch, answered with (and cached under) its own schema"""
-    workflow_path = conftest.write_toml(
+    workflow_path = nlp_utils.make_workflow(
         tmp_path,
         {
-            "config_type": "nlp",
-            "tables": {
-                "alpha": {
-                    "response_schema": '{"title": "alpha", "type": "object", '
-                    '"properties": {"a": {"type": "string"}}}',
-                },
-                "beta": {
-                    "response_schema": '{"title": "beta", "type": "object", '
-                    '"properties": {"b": {"type": "string"}}}',
-                },
-            },
+            "alpha": {"response_schema": nlp_utils.object_schema("alpha", a="string")},
+            "beta": {"response_schema": nlp_utils.object_schema("beta", b="string")},
         },
-        "nlp.workflow",
     )
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
 
@@ -601,12 +557,9 @@ def test_bedrock_batching_multiple_tables(
 
     batches = FakeBedrockBatches(model, respond=respond)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-    builder.execute_queries(mock_db_config, None)
 
     assert len(batches.create_calls) == 2
     model._boto.converse.assert_not_called()
@@ -634,12 +587,9 @@ def test_bedrock_splitting_batch(mock_client, tmp_path, mock_db_config, mock_s3)
         add_dxr("hello4", "world3", f)
     note_source = note_utils.NoteSource([tmp_path])
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, _ = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-    builder.execute_queries(mock_db_config, None)
 
     # Three unique notes, two per batch
     assert [len(records) for records in batches.inputs] == [2, 1]
@@ -657,16 +607,11 @@ def test_bedrock_batch_under_minimum_goes_live(
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
     batches = FakeBedrockBatches(model)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
 
-    output = " ".join(console_output.getvalue().split())  # undo any console line-wrapping
+    output = " ".join(output.split())  # undo any console line-wrapping
     assert "under Bedrock's minimum of 100 per batch job" in output
     assert batches.create_calls == []
     assert s3_batch_files() == set()
@@ -714,15 +659,10 @@ def test_bedrock_batching_errors(mock_client, tmp_path, mock_db_config, note_sou
 
     model._boto.create_model_invocation_job.side_effect = create_with_junk
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    builder, output = nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-    console_output = io.StringIO()
-    with contextlib.redirect_stdout(console_output):
-        builder.execute_queries(mock_db_config, None)
-    output = " ".join(console_output.getvalue().split())  # undo any console line-wrapping
+    output = " ".join(output.split())  # undo any console line-wrapping
 
     assert model._boto.get_model_invocation_job.call_count == 5
     assert (
@@ -763,12 +703,9 @@ def test_bedrock_resume_batching(mock_client, tmp_path, mock_db_config, note_sou
     with open(f"{path_dir}/metadata.json", "w", encoding="utf8") as f:
         json.dump({"batches-bedrock": [arn]}, f)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
+    nlp_utils.run_workflow(
+        workflow_path, mock_db_config, notes=note_source, nlp_config=model.nlp_config(batching=True)
     )
-    builder.execute_queries(mock_db_config, None)
 
     # Nothing new needed to be sent - the resumed job had the answer
     assert batches.create_calls == []
@@ -791,13 +728,13 @@ def test_bedrock_batch_create_failure_cleans_up(
     )
     model._boto.create_model_invocation_job.side_effect = error
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
-    )
     with pytest.raises(botocore.exceptions.ClientError, match="AccessDeniedException"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(
+            workflow_path,
+            mock_db_config,
+            notes=note_source,
+            nlp_config=model.nlp_config(batching=True),
+        )
 
     assert s3_batch_files() == set()
 
@@ -818,11 +755,8 @@ def test_bedrock_batching_needs_config(
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-sonnet45")
     config = model.nlp_config(batching=True, bedrock_batch_s3_uri=s3_uri, bedrock_batch_role=role)
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path, notes=note_source, nlp_config=config
-    )
     with pytest.raises(errors.CumulusLibraryError, match=error):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(workflow_path, mock_db_config, notes=note_source, nlp_config=config)
 
 
 @mock.patch("boto3.client")
@@ -830,10 +764,10 @@ def test_bedrock_batching_unsupported_model(mock_client, tmp_path, mock_db_confi
     workflow_path = nlp_utils.basic_workflow(tmp_path)
     model = nlp_utils.MockModel(mock_client, provider="bedrock", model_id="claude-opus55")
 
-    builder = nlp_builder.NlpBuilder(
-        toml_config_path=workflow_path,
-        notes=note_source,
-        nlp_config=model.nlp_config(batching=True),
-    )
     with pytest.raises(errors.CumulusLibraryError, match="does not support batching"):
-        builder.execute_queries(mock_db_config, None)
+        nlp_utils.run_workflow(
+            workflow_path,
+            mock_db_config,
+            notes=note_source,
+            nlp_config=model.nlp_config(batching=True),
+        )
