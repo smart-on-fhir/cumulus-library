@@ -2,18 +2,26 @@
 
 import copy
 import datetime
+import io
 import json
 import os
 import pathlib
 import time
+from collections.abc import Iterator
 from unittest import mock
 
+import aiobotocore.awsrequest
+import aiobotocore.endpoint
+import boto3
+import cumulus_fhir_support as cfs
 import duckdb
+import moto
 import msgspec
 import numpy
 import pandas
 import pytest
 import rich
+import s3fs
 
 from cumulus_library import base_utils, cli, databases, study_manifest
 from cumulus_library.actions import builder
@@ -53,6 +61,8 @@ MOCKED_AWS_ENV = {
     "AWS_SESSION_TOKEN": "test-session-token",
     "AWS_DEFAULT_REGION": "us-east-1",
 }
+# Created fresh for each test that uses the mock_s3 fixture
+MOCK_S3_BUCKET = "test-bucket"
 
 
 # Pre-test actions
@@ -398,3 +408,69 @@ def mock_db_config_rxnorm(mock_db):
             f"CREATE TABLE umls.{mock_table.stem} AS SELECT * FROM read_csv('{mock_table}')"
         )
     yield config
+
+
+# S3 fixtures
+
+
+class _MotoBody:
+    """Makes moto's in-memory response body look like the async aiohttp one aiobotocore reads"""
+
+    def __init__(self, raw: io.BytesIO):
+        self._raw = raw
+        self.content = self  # aiobotocore streams via raw.content.read()
+        self.url = None  # only used in aiobotocore's timeout error messages
+
+    async def read(self, amt: int | None = -1) -> bytes:
+        return self._raw.read(amt)
+
+    def at_eof(self) -> bool:
+        return self._raw.tell() >= len(self._raw.getbuffer())
+
+    def close(self) -> None:
+        self._raw.close()
+
+
+_convert_to_response_dict = aiobotocore.endpoint.convert_to_response_dict
+
+
+async def _convert_moto_response(http_response, operation_model):
+    # moto answers aiobotocore with a plain (sync) botocore response, which aiobotocore can't
+    # await. Wrap it in the async flavor first. Real responses are already async, so pass through.
+    if not isinstance(http_response, aiobotocore.awsrequest.AioAWSResponse):
+        http_response = aiobotocore.awsrequest.AioAWSResponse(
+            http_response.url,
+            http_response.status_code,
+            http_response.headers,
+            _MotoBody(http_response.raw),
+        )
+    return await _convert_to_response_dict(http_response, operation_model)
+
+
+@pytest.fixture
+def mock_s3() -> Iterator[s3fs.S3FileSystem]:
+    """Mocks out S3 with moto, with an empty MOCK_S3_BUCKET ready to use.
+
+    FsPath reaches S3 through s3fs, which uses aiobotocore, and moto only supports botocore.
+    So we shim aiobotocore to accept moto's responses, and turn off the optional checksums
+    (aiobotocore computes them with an async request body that moto can't read).
+
+    Everything is wiped when the test ends.
+    """
+    with (
+        moto.mock_aws(),
+        mock.patch("aiobotocore.endpoint.convert_to_response_dict", _convert_moto_response),
+    ):
+        boto3.client("s3", region_name=MOCKED_AWS_ENV["AWS_DEFAULT_REGION"]).create_bucket(
+            Bucket=MOCK_S3_BUCKET
+        )
+        fs = s3fs.S3FileSystem(
+            config_kwargs={
+                "request_checksum_calculation": "when_required",
+                "response_checksum_validation": "when_required",
+            },
+            skip_instance_cache=True,  # don't reuse a client made outside of moto
+            use_listings_cache=False,  # always see the current bucket contents
+        )
+        with mock.patch.dict(cfs.FsPath._fsspecs, {"s3": fs}):
+            yield fs

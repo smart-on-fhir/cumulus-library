@@ -16,6 +16,10 @@ from tests import conftest
 # Not fully empty, because parquet doesn't like that. But just throw an unused property in there.
 EMPTY_SCHEMA = '{"title":"test", "type": "object", "properties": {"ignored": {"type": "string"}}}'
 
+# Default Bedrock batch settings handed to MockModel configs (the bucket exists under mock_s3)
+BEDROCK_BATCH_S3_URI = f"s3://{conftest.MOCK_S3_BUCKET}/nlp-batches"
+BEDROCK_BATCH_ROLE = "arn:aws:iam::123456789012:role/test-bedrock-batch"
+
 
 def mock_env(provider: str = "local"):
     if provider == "azure":
@@ -98,6 +102,10 @@ class MockModel:
             args.append("--clean-nlp")
         if config.use_batching:
             args.append("--batch-nlp")
+        if config.bedrock_batch_s3_uri:
+            args.append(f"--bedrock-batch-s3-uri={config.bedrock_batch_s3_uri}")
+        if config.bedrock_batch_role:
+            args.append(f"--bedrock-batch-role={config.bedrock_batch_role}")
         if not config.show_stats:
             args.append("--no-nlp-stats")
         return args
@@ -109,6 +117,8 @@ class MockModel:
         stats: bool = True,
         deployments: list[str] | None = None,
         concurrency: int | None = None,
+        bedrock_batch_s3_uri: str | None = BEDROCK_BATCH_S3_URI,
+        bedrock_batch_role: str | None = BEDROCK_BATCH_ROLE,
     ) -> note_utils.NlpConfig:
         args = {
             "nlp_model": self.model_id,
@@ -121,6 +131,9 @@ class MockModel:
             "azure_deployments": deployments,
             "nlp_concurrency": concurrency,
         }
+        if self.provider == "bedrock":
+            args["bedrock_batch_s3_uri"] = bedrock_batch_s3_uri
+            args["bedrock_batch_role"] = bedrock_batch_role
         return note_utils.NlpConfig(args)
 
     def mock_bedrock_response(

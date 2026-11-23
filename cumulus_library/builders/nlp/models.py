@@ -12,6 +12,7 @@ import pathlib
 import tempfile
 import threading
 import time
+import uuid
 from collections.abc import Iterable
 from typing import NoReturn, Self
 
@@ -236,7 +237,28 @@ class Provider(abc.ABC):
         pass  # pragma: no cover
 
 
+@dataclasses.dataclass(kw_only=True)
+class _PendingBedrockBatch:
+    """A Bedrock batch input file that is still being filled, for a single cache namespace."""
+
+    filename: str
+    cache_dir: cfs.FsPath
+    rows: int = 0
+    size: int = 0
+
+
 class BedrockProvider(Provider):
+    # These defaults cover most models, but each model class has the real max records
+    BEDROCK_MIN_BATCH_COUNT = 100  # Minimum number of records per batch inference job
+    BEDROCK_MAX_BATCH_COUNT = 50_000  # Records per batch inference job
+    BEDROCK_MAX_BATCH_BYTES = 1_000_000_000  # 1 GB input file size
+
+    BATCH_PENDING_STATUSES = frozenset(
+        {"Submitted", "Validating", "Scheduled", "InProgress", "Stopping"}
+    )
+
+    BATCH_POLL_TIME = 60 * 5 # 5 minutes
+
     def __init__(
         self,
         model_name: str,
@@ -245,6 +267,9 @@ class BedrockProvider(Provider):
         supports_cache: bool = True,
         supports_schema: bool = True,
         supports_temperature: bool = True,
+        max_batch_count: int | None = None,
+        batch_s3_uri: str | None = None,
+        batch_role_arn: str | None = None,
     ):
         super().__init__()
         self.model_name = model_name
@@ -253,15 +278,34 @@ class BedrockProvider(Provider):
         self.supports_temperature = supports_temperature
         # Adaptive mode adds client-side rate limiting on top of retries, so a throttled
         # endpoint slows us down instead of us hammering it harder.
-        config = {"retries": {"max_attempts": MAX_RETRIES, "mode": "adaptive"}}
+        base_config = {"retries": {"max_attempts": MAX_RETRIES, "mode": "adaptive"}}
         if concurrency:
-            config["max_pool_connections"] = concurrency
+            base_config["max_pool_connections"] = concurrency
+        config = botocore.config.Config(**base_config)
         self.client = boto3.client(
             "bedrock-runtime",
-            config=botocore.config.Config(**config),
+            config=config,
         )
+        # Uses a different API than non-batch calls
+        self.batch_client = boto3.client("bedrock", config=config)
 
-    def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
+        self.supports_batches = max_batch_count is not None
+        self.max_batch_count = self.BEDROCK_MAX_BATCH_COUNT
+        if self.supports_batches:
+            self.max_batch_count = min(self.max_batch_count, max_batch_count)
+        self.batch_s3_uri = batch_s3_uri.rstrip("/") if batch_s3_uri else None
+        self.batch_role_arn = batch_role_arn
+        self._pending_batches: dict[str, _PendingBedrockBatch] = {}
+        self._batched_checksums: dict[str, set[str]] = {}
+
+
+    def _converse_args(
+        self, system: str, user: str, schema: type[BaseModel], *, use_cache: bool
+    ) -> dict:
+        """Builds a Converse request body (minus the modelId).
+
+        This is shared by live requests and batch records, which use the same Converse format.
+        """
         # Bedrock does not make it easy to define a JSON schema.
         # See https://builder.aws.com/content/2hWA16FSt2bIzKs0Z1fgJBwu589/ for how to do it.
         # Basically, you have to define a JSON-conversion tool and ask for it to be used.
@@ -272,49 +316,51 @@ class BedrockProvider(Provider):
         #
         # Also, some models *don't* support this approach at all, and will error out if you provide
         # the toolChoice field. So let's skip those here.
-        extra_args = {}
+        args = {
+            "system": [{"text": system}],
+            "messages": [{"role": "user", "content": [{"text": user}]}],
+        }
+        if use_cache:
+            args["system"].append({"cachePoint": {"type": "default"}})
+
         if self.supports_schema:
-            extra_args = {
-                "toolConfig": {
-                    "tools": [
-                        {
-                            "toolSpec": {
-                                "name": "to_json",
-                                "description": "convert to JSON",
-                                "inputSchema": {"json": schema.model_json_schema()},
-                            },
+            args["toolConfig"] = {
+                "tools": [
+                    {
+                        "toolSpec": {
+                            "name": "to_json",
+                            "description": "convert to JSON",
+                            "inputSchema": {"json": schema.model_json_schema()},
                         },
-                    ],
-                    "toolChoice": {"tool": {"name": "to_json"}},
-                },
+                    },
+                ],
+                "toolChoice": {"tool": {"name": "to_json"}},
             }
-            if self.supports_cache:
-                extra_args["toolConfig"]["tools"].append({"cachePoint": {"type": "default"}})
+            if use_cache:
+                args["toolConfig"]["tools"].append({"cachePoint": {"type": "default"}})
 
         # Newer reasoning models (e.g. Claude Opus 4.7 and up) have dropped the sampling knobs
         # entirely, and hard-error with "`temperature` is deprecated for this model"
         if self.supports_temperature:
-            extra_args["inferenceConfig"] = {"temperature": 0}
+            args["inferenceConfig"] = {"temperature": 0}
 
-        system_prompts = [{"text": system}]
-        if self.supports_cache:
-            system_prompts.append({"cachePoint": {"type": "default"}})
+        return args
+
+    def prompt(self, system: str, user: str, schema: type[BaseModel]) -> PromptResponse:
+        args = self._converse_args(system, user, schema, use_cache=self.supports_cache)
         try:
-            response = self.client.converse(
-                modelId=self.model_name,
-                system=system_prompts,
-                messages=[{"role": "user", "content": [{"text": user}]}],
-                **extra_args,
-            )
+            response = self.client.converse(modelId=self.model_name, **args)
         except self.client.exceptions.ClientError as e:
-            if e.response["Error"]["Code"] == "ThrottlingException":
-                raise e  # handle pytest throttling strategy
-            else:
-                raise errors.CumulusLibraryError(
-                    f"{e.response['Error']['Code']} Exception raised when handling {user}:\n\n"
-                    f"{e.response['Error']['Message']}"
-                )
+            if is_rate_limit_error(e):
+                raise  # leave throttling as-is, so the dispatcher can cool down and retry it
+            raise errors.CumulusLibraryError(
+                f"{e.response['Error']['Code']} Exception raised when handling {user}:\n\n"
+                f"{e.response['Error']['Message']}"
+            ) from e
+        return self._process_converse_response(response, schema)
 
+    def _process_converse_response(self, response: dict, schema: type[BaseModel]) -> PromptResponse:
+        """Parses a Converse response body - from a live call, or a batch output record."""
         usage = response.get("usage", {})
         call_usage = self.record_usage(
             cache_read_input_tokens=usage.get("cacheReadInputTokens", 0),
@@ -354,6 +400,203 @@ class BedrockProvider(Provider):
             raise ValueError("no response content found")
 
         return PromptResponse(answer, usage=call_usage)
+
+   
+    # Flow: add_to_batch() appends Converse-format records to a local JSONL file per table.
+    # Sending a batch uploads that file to S3 and starts a CreateModelInvocationJob, which writes
+    # its results back to S3. wait_for_batch() polls the job, copies results into the NLP cache,
+    # then deletes the S3 copies (they hold note text). The regular note pass afterward is then
+    # served from that cache - and any note the batch didn't answer is just sent live, as usual.
+    #
+    # Docs: https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference.html
+    #
+    # Note: It MUST be JSONL format, not NDJSON: https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-data.html
+
+    def add_to_batch(self, prompt: Prompt, tmp_dir: str) -> str | None:
+        """Queues a prompt for batching. Returns a job ARN if a full batch had to be sent."""
+        namespace = prompt.cache_namespace
+
+        # Skip notes we already have an answer for, or that are already queued
+        if caching.cache_read(prompt.cache_dir, namespace, prompt.cache_checksum) is not None:
+            return None
+        queued = self._batched_checksums.setdefault(namespace, set())
+        if prompt.cache_checksum in queued:
+            return None
+        queued.add(prompt.cache_checksum)
+
+        model_input = self._converse_args(
+            prompt.system, prompt.user, prompt.schema, use_cache=False
+        )
+        row = json.dumps({"recordId": prompt.cache_checksum, "modelInput": model_input}) + "\n"
+        row_size = len(row.encode("utf8"))
+
+        # Send off the current batch first if it's at size or record count limits
+        batch_id = None
+        pending = self._pending_batches.get(namespace)
+        if pending and (
+            pending.rows + 1 > self.max_batch_count
+            or pending.size + row_size > self.BEDROCK_MAX_BATCH_BYTES
+        ):
+            batch_id = self._send_batch(namespace)
+            pending = None
+
+        # Start a new batch
+        if pending is None:
+            with tempfile.NamedTemporaryFile(
+                "wt", dir=tmp_dir, delete=False, suffix=".jsonl", encoding="utf8"
+            ) as tmp_file:
+                pending = _PendingBedrockBatch(filename=tmp_file.name, cache_dir=prompt.cache_dir)
+            self._pending_batches[namespace] = pending
+        
+        with open(pending.filename, "a", encoding="utf8") as f:
+            f.write(row)
+        pending.rows += 1
+        pending.size += row_size
+
+        return batch_id
+
+    def finish_batch(self, cache_dir: cfs.FsPath, cache_namespace: str) -> str | None:
+        if cache_namespace in self._pending_batches:
+            return self._send_batch(cache_namespace)
+        return None
+
+    def _send_batch(self, cache_namespace: str) -> str | None:
+        pending = self._pending_batches.pop(cache_namespace)
+        try:
+            if pending.rows < self.BEDROCK_MIN_BATCH_COUNT:
+                # Leave notes under the minimum batch size uncached so they get sent individually
+                print_error(
+                    f"Only {pending.rows:,} note(s) left to batch, which is under Bedrock's "
+                    f"minimum of {self.BEDROCK_MIN_BATCH_COUNT:,} per batch job. "
+                    "They will be sent individually instead."
+                )
+                return None
+
+            stamp = datetime.datetime.now(datetime.UTC).strftime("%Y%m%d%H%M%S")
+            job_name = f"cumulus-nlp-{stamp}-{uuid.uuid4().hex[:8]}"
+            folder_uri = f"{self.batch_s3_uri}/{job_name}"
+            input_uri = f"{folder_uri}/input.jsonl"
+            output_uri = f"{folder_uri}/output/"
+
+            with caching.FS_WRITE_LOCK:
+                cfs.FsPath(pending.filename).copy(cfs.FsPath(input_uri))
+
+            try:
+                job = self.batch_client.create_model_invocation_job(
+                    jobName=job_name,
+                    roleArn=self.batch_role_arn,
+                    modelId=self.model_name,
+                    modelInvocationType="Converse",
+                    inputDataConfig={
+                        "s3InputDataConfig": {"s3Uri": input_uri, "s3InputFormat": "JSONL"},
+                    },
+                    outputDataConfig={"s3OutputDataConfig": {"s3Uri": output_uri}},
+                )
+            except Exception:
+                # Don't strand a copy of the notes in S3 for a job that never started
+                self._remove_batch_files(input_uri)
+                raise
+        finally:
+            os.unlink(pending.filename)
+
+        job_arn = job["jobArn"]
+
+        # Save this job ARN for resuming later
+        metadata = caching.cache_metadata_read(pending.cache_dir, cache_namespace)
+        metadata["batches-bedrock"] = [*metadata.get("batches-bedrock", []), job_arn]
+        caching.cache_metadata_write(pending.cache_dir, cache_namespace, metadata)
+
+        return job_arn
+
+    def wait_for_batch(
+        self, batch_id: str, *, schema: type[BaseModel], cache_dir: cfs.FsPath, cache_namespace: str
+    ) -> tuple[TokenStats, int]:
+        """Waits for a batch job, then copies its results into the cache.
+
+        Returns the tokens this batch spent and how many responses it wrote (see the matching
+        OpenAIProvider method for why both are returned).
+        """
+        batch_usage = TokenStats()
+        written = 0
+
+        job = self.batch_client.get_model_invocation_job(jobIdentifier=batch_id)
+        while job["status"] in self.BATCH_PENDING_STATUSES:
+            time.sleep(self.BATCH_POLL_TIME)
+            job = self.batch_client.get_model_invocation_job(jobIdentifier=batch_id)
+
+        if job["status"] != "Completed":
+            message = f" ({job['message']})" if job.get("message") else ""
+            print_error(f"Batch did not complete, got status: '{job['status']}'{message}")
+            # Keep going - a PartiallyCompleted (or even Failed) job can still have output for us
+
+        input_uri = job["inputDataConfig"]["s3InputDataConfig"]["s3Uri"]
+        output_uri = job["outputDataConfig"]["s3OutputDataConfig"]["s3Uri"]
+
+        # Bedrock writes one "{input-name}.out" file per input file (in a subfolder named after
+        # the job ID), plus a "manifest.json.out" summary that we don't need.
+        output_files = cfs.FsPath(output_uri).ls(include_dirs=False, recursive=True)
+        for output_file in sorted(output_files):
+            if not output_file.name.endswith(".jsonl.out"):
+                continue
+            with output_file.open() as f:
+                for line in f:
+                    if not line.strip():
+                        continue
+                    # Be careful what we print here - each record echoes back its full prompt.
+                    try:
+                        record = json.loads(line)
+                    except json.JSONDecodeError:
+                        print_error("Could not parse a batch output record from NLP")
+                        continue
+                    if error := record.get("error"):
+                        print_error(f"Error from NLP: {error.get('errorMessage', error)}")
+                        continue
+                    checksum = record.get("recordId")
+                    output = record.get("modelOutput")
+                    if not checksum or not output:
+                        print_error("Unexpected response from NLP: missing data")
+                        continue
+
+                    try:
+                        response = self._process_converse_response(output, schema)
+                    except Exception as exc:
+                        # One bad answer shouldn't sink the rest of the batch. The note just
+                        # stays uncached, so the regular note pass will retry it live.
+                        print_error(f"Failed to process batch response from NLP: {exc}")
+                        continue
+
+                    if response.usage:
+                        batch_usage = batch_usage + response.usage
+                    written += 1
+                    caching.cache_write(
+                        cache_dir, cache_namespace, checksum, json.dumps(response.to_dict())
+                    )
+
+        # S3 copies hold note text, so remove since they're in cache now
+        self._remove_batch_files(input_uri, output_uri)
+
+        # Drop this job from the resume list
+        metadata = caching.cache_metadata_read(cache_dir, cache_namespace)
+        batch_ids = metadata.get("batches-bedrock", [])
+        if batch_id in batch_ids:
+            batch_ids.remove(batch_id)
+        metadata["batches-bedrock"] = batch_ids
+        caching.cache_metadata_write(cache_dir, cache_namespace, metadata)
+
+        return batch_usage, written
+
+    @staticmethod
+    def _remove_batch_files(*uris: str) -> None:
+        for uri in uris:
+            path = cfs.FsPath(uri)
+            try:
+                if path.exists():
+                    path.rm()
+            except Exception as exc:
+                print_error(
+                    f"Could not delete batch files at '{uri}': {exc}\n"
+                    "They contain clinical note text, so please delete them yourself."
+                )
 
 
 class OpenAIProvider(Provider):
@@ -689,6 +932,7 @@ class Model:
 
     BEDROCK_ID = None  # model name in AWS Bedrock
     BEDROCK_PRICES: TokenPrices | None = None
+    BEDROCK_BATCHES = True  # turns on batch support (if Bedrock offers batch inference for it)
     BEDROCK_CACHE = True  # turns on caching
     BEDROCK_SCHEMA = True  # turns on JSON schema support
     BEDROCK_TEMPERATURE = True  # False for models that reject the temperature parameter
@@ -738,6 +982,8 @@ class Model:
         elif config.provider == "bedrock":
             if not self.BEDROCK_ID:
                 self.raise_unsupported_error(config.provider)
+            if config.use_batching and self.BEDROCK_BATCHES:
+                self._check_bedrock_batch_config(config)
             self.provider = BedrockProvider(
                 self.BEDROCK_ID,
                 # Noting that we want to get the user provided value, rather than the
@@ -746,6 +992,9 @@ class Model:
                 supports_cache=self.BEDROCK_CACHE,
                 supports_schema=self.BEDROCK_SCHEMA,
                 supports_temperature=self.BEDROCK_TEMPERATURE,
+                max_batch_count=self.max_batch_count if self.BEDROCK_BATCHES else None,
+                batch_s3_uri=config.bedrock_batch_s3_uri,
+                batch_role_arn=config.bedrock_batch_role,
             )
             self.prices = self.BEDROCK_PRICES
 
@@ -759,9 +1008,23 @@ class Model:
                 self.VLLM_INFO[2],
             )
 
-        if self.provider.supports_batches and config.use_batching:
+        if self.provider.supports_batches and config.use_batching and self.prices:
             # Currently, both Azure and Bedrock charge 50% for batch mode.
-            self.prices.multiplier = 0.5
+            # (Copy rather than edit in place - the prices object is shared at the class level.)
+            self.prices = dataclasses.replace(self.prices, multiplier=0.5)
+
+    @staticmethod
+    def _check_bedrock_batch_config(config: note_utils.NlpConfig) -> None:
+        if not config.bedrock_batch_s3_uri or not config.bedrock_batch_role:
+            raise errors.CumulusLibraryError(
+                "Bedrock batch mode needs an S3 folder to stage batches in and an IAM role for "
+                "Bedrock to access it with. "
+                "Pass both --bedrock-batch-s3-uri and --bedrock-batch-role."
+            )
+        if not config.bedrock_batch_s3_uri.startswith("s3://"):
+            raise errors.CumulusLibraryError(
+                f"--bedrock-batch-s3-uri must be an s3:// URL, got '{config.bedrock_batch_s3_uri}'."
+            )
 
     @property
     def stats(self) -> TokenStats:
@@ -958,6 +1221,9 @@ class ClaudeSonnet46Model(Model):
 class ClaudeSonnet55Model(Model):
     MODEL_ID = "claude-sonnet55"
     BEDROCK_ID = "us.anthropic.claude-sonnet-5-5"
+    # Batch inference isn't offered for this model. See the supported list at
+    # https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-supported.html
+    BEDROCK_BATCHES = False
     BEDROCK_PRICES = TokenPrices(
         date=datetime.date(2026, 10, 27),
         new_input_tokens=0.0022,
@@ -972,6 +1238,9 @@ class ClaudeOpus48Model(Model):
     BEDROCK_ID = "us.anthropic.claude-opus-4-8"
     # Opus 4.7 and later dropped temperature/top_p entirely - sending one is a hard error
     BEDROCK_TEMPERATURE = False
+    # Batch inference isn't offered for this model. See the supported list at
+    # https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-supported.html
+    BEDROCK_BATCHES = False
     BEDROCK_PRICES = TokenPrices(
         # https://aws.amazon.com/bedrock/pricing/ for us-east-1
         date=datetime.date(2026, 9, 2),
@@ -986,6 +1255,9 @@ class ClaudeOpus55Model(Model):
     MODEL_ID = "claude-opus55"
     BEDROCK_ID = "us.anthropic.claude-opus-5-5"
     BEDROCK_TEMPERATURE = False
+    # Batch inference isn't offered for this model. See the supported list at
+    # https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-supported.html
+    BEDROCK_BATCHES = False
     BEDROCK_PRICES = TokenPrices(
         date=datetime.date(2026, 9, 2),
         new_input_tokens=0.0044,
@@ -999,6 +1271,9 @@ class ClaudeHaiku55Model(Model):
     MODEL_ID = "claude-haiku55"
     BEDROCK_ID = "us.anthropic.claude-haiku-5-5"
     BEDROCK_TEMPERATURE = False
+    # Batch inference isn't offered for this model. See the supported list at
+    # https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-supported.html
+    BEDROCK_BATCHES = False
     BEDROCK_PRICES = TokenPrices(
         date=datetime.date(2026, 9, 2),
         new_input_tokens=0.00011,
