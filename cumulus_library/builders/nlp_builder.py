@@ -138,6 +138,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         for idx, name in enumerate(names):
             suffix = f" ({name})" if name else ""
             table.add_row(f" Considered{suffix}:", f"{stats.considered[idx]:,}")
+            table.add_row(f" Failed{suffix}:", f"{stats.failed[idx]:,}")
             table.add_row(f" Got response{suffix}:", f"{stats.got_response[idx]:,}")
             # Split the responses by what they cost, so a nearly-free re-run is obvious rather
             # than something you infer from the token block being small.
@@ -146,6 +147,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
         rich.get_console().print(table)
         if not self._print_no_notes_warning(stats):
             self._print_filtered_out_warning(names=names, stats=stats)
+        self._print_failed_warning(names=names, stats=stats)
         self._print_throttle_warning(stats)
         self._print_stuck_warning(stats)
 
@@ -187,6 +189,25 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
                 f"\n 🚨[bold red] WARNING:[/] No notes matched the filters{label}.\n"
                 f" Of {stats.available:,} notes, {no_text:,} had no text and "
                 f"{stats.filtered_out[idx]:,} were rejected by the select/reject filters.",
+                highlight=False,
+            )
+
+    def _print_failed_warning(self, *, names: list[str], stats: models.NlpStats) -> None:
+        """Calls out tasks with notes that failed, which otherwise only show up as log lines.
+
+        The count includes throttled and stuck notes, which get their own, more specific
+        warnings below.
+        """
+        for idx, name in enumerate(names):
+            if not (failed := stats.failed[idx]):
+                continue
+            label = f" for '{name}'" if name else ""
+            plural = "" if failed == 1 else "s"
+            rich.get_console().print(
+                f"\n 🚨[bold red] WARNING:[/] {failed:,} note{plural} failed{label}, "
+                "and are missing from the results.\n"
+                " See the 'Failed to process note' messages above for details. "
+                "Re-run to retry them (cached notes are free).",
                 highlight=False,
             )
 

@@ -253,6 +253,27 @@ def test_already_done_notes_are_counted(mock_client, tmp_path, mock_db_config, t
 
 
 @mock.patch("openai.OpenAI")
+def test_failed_notes_are_logged(mock_client, tmp_path, mock_db_config, tracking_uri):
+    """Notes whose call raised are logged, rather than just vanishing from with_results."""
+    model = nlp_utils.MockModel(mock_client)
+
+    def handler(**kwargs):
+        if model.note_text_of(kwargs).endswith(" 0"):
+            raise ValueError("server exploded whoops")
+        return {"hello": 1}
+
+    model.mock_openai_handler(handler)
+    config = tracked_config(model, tracking_uri)
+
+    build(tmp_path, mock_db_config, config, make_notes(tmp_path, count=3), "age")
+
+    metrics = runs_by_table()["age"].data.metrics
+    assert metrics["notes.considered"] == 3
+    assert metrics["notes.with_results"] == 2
+    assert metrics["notes.failed"] == 1
+
+
+@mock.patch("openai.OpenAI")
 def test_no_tracking_without_the_flag(mock_client, tmp_path, mock_db_config, tracking_uri):
     """The normal build path creates no runs at all."""
     model = nlp_utils.MockModel(mock_client)

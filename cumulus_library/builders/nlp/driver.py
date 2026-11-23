@@ -97,6 +97,7 @@ def run_nlp(
     # copied over once everything has drained.
     for idx, task_name in enumerate(tables):
         stats.got_response[idx] = pool.got_response.get(task_name, 0)
+        stats.failed[idx] = pool.failed.get(task_name, 0)
         # Cap at got_response: a batch can fetch a note that later fails to parse, and a run
         # that reports more fresh calls than responses would just be confusing.
         fresh = min(pool.fresh_calls.get(task_name, 0), stats.got_response[idx])
@@ -211,6 +212,7 @@ class NlpNotePool:
 
         self._notes: dict[str, list[dict]] = {}  # task_name -> list of output rows
         self.got_response: dict[str, int] = {}  # task_name -> count of successful responses
+        self.failed: dict[str, int] = {}  # task_name -> count of notes that failed
         # task_name -> tokens spent serving that table. Accumulated here on the main thread,
         # from the per-call usage each response carries back.
         self.token_stats_by_table: dict[str, models.TokenStats] = {}
@@ -325,6 +327,7 @@ class NlpNotePool:
                 # Covers both a failed request and a failed write of the chunk this note
                 # happened to complete. One bad note never stops the rest of the run.
                 rich.print("Failed to process note:", exc)
+                self.failed[task_name] = self.failed.get(task_name, 0) + 1
                 continue
             self.got_response[task_name] = self.got_response.get(task_name, 0) + 1
 

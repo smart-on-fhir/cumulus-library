@@ -224,6 +224,7 @@ class MlflowTracker:
             "notes.from_cache": stats.from_cache[index],
             "notes.from_model": stats.from_model[index],
             "notes.yield_rate": round(yield_rate, 4),
+            "notes.failed": stats.failed[index],
             "workflow.throttle_dropped": stats.throttle_dropped,
             "workflow.stuck_dropped": stats.stuck_dropped,
         }
