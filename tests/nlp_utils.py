@@ -1,4 +1,5 @@
 import base64
+import binascii
 import functools
 import json
 import os
@@ -19,6 +20,24 @@ EMPTY_SCHEMA = '{"title":"test", "type": "object", "properties": {"ignored": {"t
 # Default Bedrock batch settings handed to MockModel configs (the bucket exists under mock_s3)
 BEDROCK_BATCH_S3_URI = f"s3://{conftest.MOCK_S3_BUCKET}/nlp-batches"
 BEDROCK_BATCH_ROLE = "arn:aws:iam::123456789012:role/test-bedrock-batch"
+
+# The salt MockModel configs use to anonymize note refs
+SALT_STR = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
+SALT_BYTES = binascii.unhexlify(SALT_STR)
+
+
+def read_rows(db, table: str) -> list[dict]:
+    """Reads an NLP output table back from duckdb, ordered by note so tests can compare rows."""
+    df = db.db.connection.sql(f"SELECT * FROM {table} ORDER BY note_ref").df()
+    return json.loads(df.to_json(orient="records"))
+
+
+def strip_trailing_whitespace(text: str) -> str:
+    """
+    Rich pads every table cell with a trailing space, which editors like to strip from
+    expected strings. Comparing without it keeps the expected blocks readable and stable.
+    """
+    return "\n".join(line.rstrip() for line in text.splitlines())
 
 
 def mock_env(provider: str = "local"):
@@ -71,8 +90,7 @@ class MockModel:
         self.phi.mkdir()
         if make_codebook:
             with open(self.phi / "codebook.json", "w", encoding="utf8") as f:
-                salt = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
-                json.dump({"id_salt": salt}, f)
+                json.dump({"id_salt": SALT_STR}, f)
 
         # Determine the server to use for this model
         if provider == "bedrock":
