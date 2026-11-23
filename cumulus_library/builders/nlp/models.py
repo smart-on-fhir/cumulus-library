@@ -257,7 +257,7 @@ class BedrockProvider(Provider):
         {"Submitted", "Validating", "Scheduled", "InProgress", "Stopping"}
     )
 
-    BATCH_POLL_TIME = 60 * 5 # 5 minutes
+    BATCH_POLL_TIME = 60 * 5  # 5 minutes
 
     def __init__(
         self,
@@ -297,7 +297,6 @@ class BedrockProvider(Provider):
         self.batch_role_arn = batch_role_arn
         self._pending_batches: dict[str, _PendingBedrockBatch] = {}
         self._batched_checksums: dict[str, set[str]] = {}
-
 
     def _converse_args(
         self, system: str, user: str, schema: type[BaseModel], *, use_cache: bool
@@ -401,7 +400,6 @@ class BedrockProvider(Provider):
 
         return PromptResponse(answer, usage=call_usage)
 
-   
     # Flow: add_to_batch() appends Converse-format records to a local JSONL file per table.
     # Sending a batch uploads that file to S3 and starts a CreateModelInvocationJob, which writes
     # its results back to S3. wait_for_batch() polls the job, copies results into the NLP cache,
@@ -447,7 +445,7 @@ class BedrockProvider(Provider):
             ) as tmp_file:
                 pending = _PendingBedrockBatch(filename=tmp_file.name, cache_dir=prompt.cache_dir)
             self._pending_batches[namespace] = pending
-        
+
         with open(pending.filename, "a", encoding="utf8") as f:
             f.write(row)
         pending.rows += 1
@@ -541,7 +539,7 @@ class BedrockProvider(Provider):
             with output_file.open() as f:
                 for line in f:
                     if not line.strip():
-                        continue
+                        continue  # pragma: no cover
                     # Be careful what we print here - each record echoes back its full prompt.
                     try:
                         record = json.loads(line)
@@ -592,7 +590,7 @@ class BedrockProvider(Provider):
             try:
                 if path.exists():
                     path.rm()
-            except Exception as exc:
+            except Exception as exc:  # pragma: no cover
                 print_error(
                     f"Could not delete batch files at '{uri}': {exc}\n"
                     "They contain clinical note text, so please delete them yourself."
