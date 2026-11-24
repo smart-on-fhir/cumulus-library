@@ -255,10 +255,12 @@ Using our example from `CountsBuilder` above, here's an example of how we'd use 
 to annotate data:
 
 ```python
-from cumulus_library import CountAnnotation CountsBuilder, StudyConfig, StudyManifest
+from cumulus_library import CountAnnotation, CountsBuilder, StudyConfig, StudyManifest
 
-class MyBuilder(CountsBuilder):    
-    def prepare_queries(self,
+
+class MyBuilder(CountsBuilder):
+    def prepare_queries(
+        self,
         config: StudyConfig,
         manifest: StudyManifest,
         *args,
@@ -266,18 +268,15 @@ class MyBuilder(CountsBuilder):
     ):
         self.queries.append(
             self.count_condition(
-                'my_study__condition_count',
-                'core__condition',
-                ['code','recorddate_year']
+                "my_study__condition_count",
+                "core__condition",
+                ["code", "recorddate_year"],
                 annotation=CountAnnotation(
-                    field='code',
+                    field="code",
                     join_table='"umls"."icd10_tree"',
-                    join_field='code',
-                    columns=[
-                        ("'icd_10'","system"),
-                        ("str", None)
-                    ]
-                )
+                    join_field="code",
+                    columns=[("'icd_10'", "system"), ("str", None)],
+                ),
             )
         )
 ```
@@ -311,10 +310,10 @@ In detail, the expected arguments are as follows:
   keyword arguments will get passed into the template for usage.
 
 So, given the query above in a file named `example_select.sql.jinja`, you could use
-in in a builder in the same directory as follows:
+it in a builder in the same directory as follows:
 
 ```python
-from cumulus_library import BaseTableBuilder, get_templates, StudyConfig, StudyManifest
+from cumulus_library import BaseTableBuilder, get_template, StudyConfig, StudyManifest
 
 
 class MyBuilder(BaseTableBuilder):
@@ -325,5 +324,5 @@ class MyBuilder(BaseTableBuilder):
         *args,
         **kwargs,
     ):
-        self.queries.append(get_templates("example_query", table_name="condition"))
+        self.queries.append(get_template("example_select", table_name="condition"))
 ```
