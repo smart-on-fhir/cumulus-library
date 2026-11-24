@@ -8,8 +8,6 @@ import io
 import re
 from unittest import mock
 
-import pytest
-
 from cumulus_library import note_utils
 from cumulus_library.builders.nlp import models, summary
 from tests import nlp_utils

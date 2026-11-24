@@ -27,7 +27,6 @@ from cumulus_library.builders.nlp import driver, models
 from tests import nlp_utils
 from tests.nlp_utils import add_doc
 
-
 ####################
 # Concurrency tests
 ####################
