@@ -9,10 +9,10 @@ A study reaches a builder in one of two ways:
   subclasses it or calls it. These classes are exported from the top-level
   `cumulus_library` package (or from a documented subpackage), and their
   signatures are part of the library's public API.
-- **Workflows**: the study lists a TOML file in its manifest, and the
-  `config_type` in that file tells the library which builder to run. For these,
-  the TOML schema is the public interface. The builder classes are internal,
-  and studies shouldn't import them.
+- **Workflows**: the preferred interface for study authors. A study lists a TOML 
+  file in its manifest, and the `config_type` in that file tells the library which 
+  builder to run. For these, the TOML schema is the public interface. The builder 
+  classes are internal, and studies shouldn't import them.
 
 Some builders are used only by the library itself. Those are listed at the end for 
 maintainer convenience and documentation.
@@ -101,7 +101,7 @@ Flatten the nested `result` column that an `nlp` workflow leaves behind.
 pick, and `nlp_highlight` produces one row per supporting text span, for
 Label Studio. Both are configured entirely in TOML.
 
-### Propensity score matching (`psm`) workflow
+### Propensity score matching (`psm`) workflow, **deprecated**
 
 Builds a matched cohort around a variable of interest. The matching itself uses
 `psmpy_lite.py`, an adapted copy of [psmpy](https://github.com/adriennekline/psmpy)
