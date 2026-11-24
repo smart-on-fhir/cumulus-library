@@ -76,7 +76,7 @@ Configures `CountsBuilder` from TOML instead of Python.
 
 ### File upload (`file_upload`) workflow
 
-Loads local data files (Nov 26: `.csv`, `.bsv`, `.tsv`, `.xlsx` or `.parquet`) into
+Loads local data files (from Nov 26: `.csv`, `.bsv`, `.tsv`, `.xlsx` or `.parquet`) into
 database tables, converting them to parquet. Use it for code
 lists, code system definitions, or results from an external analysis such as a
 chart review. 
@@ -112,7 +112,7 @@ output is persisted in timestamped tables that survive `build` and `clean`.
 It is rerun only when you pass `--statistics`. See the
 [workflows overview](../../docs/workflows.md) for details.
 
-### Valueset (`valueset`)
+### Valueset (`valueset`) workflow
 
 Builds a compound clinical valueset (by default, drugs containing a given set of
 ingredients). It starts from VSAC valuesets, UMLS keyword searches, or
@@ -141,4 +141,4 @@ builders have in common.
 - `statistics_templates/`: Jinja templates and Python template helpers for the
   counts, IQR and PSM builders. `CountAnnotation` is defined here.
 - `reference_sql/`: an example of the SQL that PSM generates, for reference
-  only. Nothing runs it.t
+  only. Nothing runs it.
