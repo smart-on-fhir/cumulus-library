@@ -1,5 +1,4 @@
 # The IBD study's IbdNlpTreatmentHighlightsBuilder, declared as a nlp_highlight config.
-# test_nlp_flatten_ibd_parity.py checks that this renders the same SQL as the study's own builder.
 #
 # A medication is a cluster of sibling mentions (class, status, phase, start date, response) whose
 # spans are scattered through the note, so each medication-level mention merges all five span

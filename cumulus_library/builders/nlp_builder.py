@@ -7,11 +7,10 @@ import sys
 import cumulus_fhir_support as cfs
 import jambo
 import msgspec
-import rich
 
 import cumulus_library
 from cumulus_library import base_utils, errors, note_utils
-from cumulus_library.builders.nlp import driver, models, tracking, workflow
+from cumulus_library.builders.nlp import driver, summary, tracking, workflow
 from cumulus_library.template_sql import base_templates
 
 # NLP is driven by a workflow config. See docs/workflows/nlp.md for more details
@@ -130,123 +129,6 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
             **extra,
         )
 
-    def _print_note_stats(self, *, names: list[str], stats: models.NlpStats) -> None:
-        rich.print(" Notes processed:")
-        table = rich.table.Table("", "", box=None, show_header=False)
-        table.add_row(" Available:", f"{stats.available:,}")
-        table.add_row(" Had text:", f"{stats.had_text:,}")
-        for idx, name in enumerate(names):
-            suffix = f" ({name})" if name else ""
-            table.add_row(f" Considered{suffix}:", f"{stats.considered[idx]:,}")
-            table.add_row(f" Got response{suffix}:", f"{stats.got_response[idx]:,}")
-            # Split the responses by what they cost, so a nearly-free re-run is obvious rather
-            # than something you infer from the token block being small.
-            table.add_row("   from cache:", f"{stats.from_cache[idx]:,}")
-            table.add_row("   fresh LLM calls:", f"{stats.from_model[idx]:,}")
-        rich.get_console().print(table)
-        if not self._print_no_notes_warning(stats):
-            self._print_filtered_out_warning(names=names, stats=stats)
-        self._print_throttle_warning(stats)
-        self._print_stuck_warning(stats)
-
-    def _print_no_notes_warning(self, stats: models.NlpStats) -> bool:
-        """
-        Calls out a run that never saw any usable notes, which otherwise looks like a fast run.
-
-        Returns whether it printed a warning, so the caller can skip printing the
-        filtered-out warning (which is redundant if there were no notes at all).
-        """
-        if not stats.available:
-            rich.get_console().print(
-                "\n 🚨[bold red] WARNING:[/] No notes were found to process.\n"
-                " Check the note folder and the resource types it contains.",
-                highlight=False,
-            )
-            return True
-        if not stats.had_text:
-            plural = "" if stats.available == 1 else "s"
-            rich.get_console().print(
-                f"\n 🚨[bold red] WARNING:[/] {stats.available:,} note{plural} found, "
-                "but none had any text.\n"
-                " Check that notes include attachments in a supported content type.",
-                highlight=False,
-            )
-            return True
-        return False
-
-    def _print_filtered_out_warning(self, *, names: list[str], stats: models.NlpStats) -> None:
-        """
-        Calls out tasks whose filters matched nothing, with where the other notes went.
-        """
-        no_text = stats.available - stats.had_text
-        for idx, name in enumerate(names):
-            if stats.considered[idx] or stats.already_done[idx]:
-                continue
-            label = f" for '{name}'" if name else ""
-            rich.get_console().print(
-                f"\n 🚨[bold red] WARNING:[/] No notes matched the filters{label}.\n"
-                f" Of {stats.available:,} notes, {no_text:,} had no text and "
-                f"{stats.filtered_out[idx]:,} were rejected by the select/reject filters.",
-                highlight=False,
-            )
-
-    def _print_throttle_warning(self, stats: models.NlpStats) -> None:
-        """Calls out notes we abandoned to rate limiting, which otherwise leave a silent gap.
-
-        A throttled run still produces a table, just an incomplete one, so this needs to be
-        hard to miss. Re-running is cheap because every note that did succeed is cached.
-        """
-        if not stats.throttle_dropped:
-            return
-        plural = "" if stats.throttle_dropped == 1 else "s"
-        rich.get_console().print(
-            f"\n 🚨[bold red] WARNING:[/] {stats.throttle_dropped:,} note{plural} dropped after "
-            "repeated rate limiting, and are missing from the results.\n"
-            " Re-run to pick them up (cached notes are free), and consider lowering "
-            "--nlp-concurrency or adding another --azure-deployment.",
-            highlight=False,
-        )
-
-    def _print_stuck_warning(self, stats: models.NlpStats) -> None:
-        """Calls out notes abandoned because their worker stopped responding."""
-        if not stats.stuck_dropped:
-            return
-        plural = "" if stats.stuck_dropped == 1 else "s"
-        rich.get_console().print(
-            f"\n 🚨[bold red] WARNING:[/] {stats.stuck_dropped:,} note{plural} abandoned after "
-            "the request stopped responding, and are missing from the results.\n"
-            " This usually means a dropped connection rather than a busy endpoint.",
-            highlight=False,
-        )
-
-    def _print_token_stats(self, stats: models.NlpStats) -> None:
-        tokens = stats.token_stats
-        rich.print("\n Token usage:")
-        table = rich.table.Table("", "", box=None, show_header=False)
-        table.add_row(" New input tokens:", f"{tokens.new_input_tokens:,}")
-        table.add_row(" Input tokens read from cache:", f"{tokens.cache_read_input_tokens:,}")
-        if tokens.cache_written_input_tokens:
-            # This stat is only relevant for bedrock, so only show it if it's used
-            table.add_row(
-                " Input tokens written to cache:", f"{tokens.cache_written_input_tokens:,}"
-            )
-        table.add_row(" Output tokens:", f"{tokens.output_tokens:,}")
-
-        # Estimate cost, if provided
-        if prices := stats.token_prices:
-            cost = (
-                tokens.new_input_tokens * prices.new_input_tokens
-                + tokens.cache_read_input_tokens * prices.cache_read_input_tokens
-                + tokens.cache_written_input_tokens * prices.cache_written_input_tokens
-                + tokens.output_tokens * prices.output_tokens
-            )
-            cost /= 1_000  # all prices are "per 1,000 tokens"
-            cost *= prices.multiplier
-            when = prices.date.strftime("%b %Y")
-            table.add_row(f" Estimated cost (as of {when}):", f"${cost:.2f}")
-
-        rich.get_console().print(table)
-
     def _run_nlp(self, config: cumulus_library.StudyConfig) -> None:
         # Gather note filters together
         cursor = config.db.cursor()
@@ -304,9 +186,7 @@ class NlpBuilder(cumulus_library.BaseTableBuilder):
 
         # Print stat block, because that's interesting feedback
         if self._nlp_config.show_stats:
-            task_slugs = list(self._tables_to_build.keys())
-            self._print_note_stats(names=task_slugs, stats=self.stats)
-            self._print_token_stats(self.stats)
+            summary.print_summary(self.stats, names=list(self._tables_to_build))
 
     def _make_tracker(self) -> tracking.MlflowTracker | None:
         """Builds an MLflow tracker, if this run asked for one."""

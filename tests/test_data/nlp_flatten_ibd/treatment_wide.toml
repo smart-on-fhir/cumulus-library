@@ -1,5 +1,4 @@
 # The IBD study's IbdNlpTreatmentFlattenedBuilder, declared as a nlp_wide config.
-# test_nlp_flatten_ibd_parity.py checks that this renders the same SQL as the study's own builder.
 config_type = "nlp_wide"
 
 [tables.treatment]

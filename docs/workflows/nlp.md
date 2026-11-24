@@ -410,7 +410,10 @@ Each run records:
   `cost.estimated_usd`, and `runtime.*`. Of the notes with text, `notes.filtered_out` counts
   those rejected by the table's select/reject filters, `notes.already_done` counts those a
   previous run already uploaded, and `notes.considered` counts the rest. A low `considered`
-  is usually explained by one of the first two.
+  is usually explained by one of the first two. `notes.failed` counts considered notes
+  whose NLP call or result handling failed, so they are missing from the table. That includes
+  any notes dropped to rate limiting or a stalled request, which `workflow.throttle_dropped` and
+  `workflow.stuck_dropped` also count. Re-running retries them.
 - **Artifacts**: the full system prompt, user prompt, and response schema.
 
 The metric names deliberately match the ones Cumulus ETL logs, so runs from both projects can
@@ -421,8 +424,9 @@ every run. Cumulus Library makes a single pass over your notes and serves every 
 so `notes.seen` and `notes.with_text` are the same for each table by construction, `runtime.*`
 covers the whole interleaved pass rather than one table's share of it, and
 `workflow.throttle_dropped` is counted before a note is attributed to a table. Token counts and
-cost *are* genuinely per-table, as are `notes.filtered_out` and `notes.already_done`, since each
-table has its own filters and its own upload history.
+cost *are* genuinely per-table, as are `notes.filtered_out`, `notes.already_done`, and
+`notes.failed`, since each table has its own filters, its own upload history, and its own
+calls.
 
 Because results are cached in your PHI dir, re-running a workflow you have already run will show
 a run with results but zero tokens and zero cost. That is accurate: cached notes are free.

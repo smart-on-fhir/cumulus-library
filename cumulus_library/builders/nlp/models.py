@@ -178,6 +178,9 @@ class NlpStats:
         # on-disk cache for free. These always sum to got_response.
         self.from_model = [0] * size
         self.from_cache = [0] * size
+        # Notes whose NLP call or result handling raised, so they are missing from the results.
+        # Includes the throttled and stuck notes counted below, since those fail the same way.
+        self.failed = [0] * size
         # Notes we abandoned because we kept getting rate limited. Tracked separately from
         # other failures so a run that was merely going too fast says so out loud.
         self.throttle_dropped = 0

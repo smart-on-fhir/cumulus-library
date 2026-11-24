@@ -1,16 +1,22 @@
 import base64
+import binascii
+import contextlib
 import functools
+import io
 import json
 import os
 import pathlib
 import tempfile
+from collections.abc import Iterable
 from types import SimpleNamespace
 from unittest import mock
 
 import openai
 from openai.types import chat, completion_usage
 
+import cumulus_library
 from cumulus_library import note_utils
+from cumulus_library.builders import nlp_builder
 from tests import conftest
 
 # Not fully empty, because parquet doesn't like that. But just throw an unused property in there.
@@ -19,6 +25,24 @@ EMPTY_SCHEMA = '{"title":"test", "type": "object", "properties": {"ignored": {"t
 # Default Bedrock batch settings handed to MockModel configs (the bucket exists under mock_s3)
 BEDROCK_BATCH_S3_URI = f"s3://{conftest.MOCK_S3_BUCKET}/nlp-batches"
 BEDROCK_BATCH_ROLE = "arn:aws:iam::123456789012:role/test-bedrock-batch"
+
+# The salt MockModel configs use to anonymize note refs
+SALT_STR = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
+SALT_BYTES = binascii.unhexlify(SALT_STR)
+
+
+def read_rows(db, table: str) -> list[dict]:
+    """Reads an NLP output table back from duckdb, ordered by note so tests can compare rows."""
+    df = db.db.connection.sql(f"SELECT * FROM {table} ORDER BY note_ref").df()
+    return json.loads(df.to_json(orient="records"))
+
+
+def strip_trailing_whitespace(text: str) -> str:
+    """
+    Rich pads every table cell with a trailing space, which editors like to strip from
+    expected strings. Comparing without it keeps the expected blocks readable and stable.
+    """
+    return "\n".join(line.rstrip() for line in text.splitlines())
 
 
 def mock_env(provider: str = "local"):
@@ -71,8 +95,7 @@ class MockModel:
         self.phi.mkdir()
         if make_codebook:
             with open(self.phi / "codebook.json", "w", encoding="utf8") as f:
-                salt = "e359191164cd209708d93551f481edd048946a9d844c51dea1b64d3f83dfd1fa"
-                json.dump({"id_salt": salt}, f)
+                json.dump({"id_salt": SALT_STR}, f)
 
         # Determine the server to use for this model
         if provider == "bedrock":
@@ -253,24 +276,68 @@ class MockModel:
             self.openai.chat.completions.parse.side_effect = completions
 
 
-def basic_workflow(tmp_path, version=None) -> pathlib.Path:
-    """Returns a dead simple valid config, for when you don't super care what it looks like"""
+def object_schema(title: str = "test", **properties: str) -> str:
+    """Returns a JSON response schema for an object, given each property's JSON type.
+
+    e.g. object_schema(hello="integer") for {"hello": 5}
+    """
+    return json.dumps(
+        {
+            "title": title,
+            "type": "object",
+            "properties": {name: {"type": kind} for name, kind in properties.items()},
+        }
+    )
+
+
+def make_workflow(
+    tmp_path,
+    tables: Iterable[str] | dict[str, dict],
+    *,
+    schema: str = EMPTY_SCHEMA,
+    shared: dict | None = None,
+) -> pathlib.Path:
+    """Writes an NLP workflow config and returns its path.
+
+    :param tables: table names, or table names mapped to their config. Any table that doesn't
+        give a response_schema gets `schema`.
+    :param schema: the default response schema for each table
+    :param shared: the workflow's [shared] section, if any
+    """
+    if not isinstance(tables, dict):
+        tables = {name: {} for name in tables}
     workflow = {
         "config_type": "nlp",
-        "tables": {
-            "task": {
-                "response_schema": EMPTY_SCHEMA,
-            },
-        },
+        "tables": {name: {"response_schema": schema, **task} for name, task in tables.items()},
     }
-    if version:
-        workflow["tables"]["task"]["version"] = version
+    if shared:
+        workflow["shared"] = shared
+    return conftest.write_toml(tmp_path, workflow, "nlp.workflow")
 
-    return conftest.write_toml(
-        tmp_path,
-        workflow,
-        "nlp.workflow",
+
+def basic_workflow(tmp_path, version=None) -> pathlib.Path:
+    """Returns a dead simple valid config, for when you don't super care what it looks like"""
+    return make_workflow(tmp_path, {"task": {"version": version} if version else {}})
+
+
+def run_workflow(
+    workflow_path: pathlib.Path,
+    study_config: cumulus_library.StudyConfig,
+    *,
+    notes: note_utils.NoteSource,
+    nlp_config: note_utils.NlpConfig,
+) -> tuple[nlp_builder.NlpBuilder, str]:
+    """Builds and runs an NLP workflow, returning the builder and everything it printed.
+
+    Errors from the run propagate, so wrap this in pytest.raises to test one.
+    """
+    builder = nlp_builder.NlpBuilder(
+        toml_config_path=workflow_path, notes=notes, nlp_config=nlp_config
     )
+    output = io.StringIO()
+    with contextlib.redirect_stdout(output):
+        builder.execute_queries(study_config, None)
+    return builder, output.getvalue()
 
 
 def add_doc(id_val: str, text: str | None, file) -> None:

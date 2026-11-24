@@ -14,7 +14,7 @@ import sqlglot
 from cumulus_library import db_config
 from cumulus_library.builders import nlp_highlight_builder, nlp_wide_builder
 
-DATA = pathlib.Path(__file__).parent.parent / "test_data/nlp_flatten_ibd"
+DATA = pathlib.Path(__file__).parents[2] / "test_data/nlp_flatten_ibd"
 PREFIX = "ibd"
 SOURCE_TABLE = f"{PREFIX}__nlp_treatment_gpt_oss_120b"
 MANIFEST = SimpleNamespace(get_study_prefix=lambda: PREFIX)
