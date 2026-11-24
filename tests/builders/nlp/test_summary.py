@@ -16,15 +16,6 @@ from tests import nlp_utils
 from tests.nlp_utils import add_doc
 
 
-@pytest.fixture(autouse=True)
-def _autouse_cache_dir(mock_cache_dir):
-    """
-    Autouse this fixture to keep NLP's on-disk cache inside tmp_path.
-    Delegates to the shared ``mock_cache_dir`` fixture defined in (tests/conftest.py).
-    """
-    yield
-
-
 def make_stats(*, available: int = 3, had_text: int = 3, **per_table: list[int]):
     """Builds an NlpStats, sized by whichever per-table lists are given."""
     size = len(next(iter(per_table.values()), []))

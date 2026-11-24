@@ -17,15 +17,6 @@ from tests import nlp_utils
 from tests.nlp_utils import read_rows
 
 
-@pytest.fixture(autouse=True)
-def _autouse_cache_dir(mock_cache_dir):
-    """
-    Autouse this fixture to keep NLP's on-disk cache inside tmp_path.
-    Delegates to the shared ``mock_cache_dir`` fixture defined in (tests/conftest.py).
-    """
-    yield
-
-
 @mock.patch("openai.OpenAI")
 def test_no_batching_support(mock_client, tmp_path, mock_db_config, note_source):
     workflow_path = nlp_utils.basic_workflow(tmp_path)

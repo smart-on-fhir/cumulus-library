@@ -30,14 +30,6 @@ TOKENS_PER_CALL = models.TokenStats(
 )
 
 
-@pytest.fixture(autouse=True)
-def _autouse_cache_dir(mock_cache_dir):
-    """
-    Autouse this fixture to keep NLP's on-disk cache inside tmp_path.
-    Delegates to the shared ``mock_cache_dir`` fixture defined in (tests/conftest.py).
-    """
-
-
 @pytest.fixture
 def tracking_uri(tmp_path) -> str:
     """A throwaway MLflow backend.

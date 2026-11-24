@@ -22,15 +22,6 @@ from tests import nlp_utils
 from tests.nlp_utils import add_dxr, read_rows
 
 
-@pytest.fixture(autouse=True)
-def _autouse_cache_dir(mock_cache_dir):
-    """
-    Autouse this fixture to keep NLP's on-disk cache inside tmp_path.
-    Delegates to the shared ``mock_cache_dir`` fixture defined in (tests/conftest.py).
-    """
-    yield
-
-
 def batch_line(contents: str, answer: str = "answer", usage: bool = True) -> str:
     checksum = hashlib.sha256(contents.encode("utf8"), usedforsecurity=False).hexdigest()
     return json.dumps(

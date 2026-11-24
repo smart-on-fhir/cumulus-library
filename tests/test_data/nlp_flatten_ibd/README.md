@@ -1,6 +1,6 @@
 # IBD parity fixtures for the NLP wide/highlight builders
 
-`test_nlp_flatten_ibd_parity.py` checks that the `nlp_wide` and `nlp_highlight` builders, driven by
+`test_flatten_ibd_parity.py` checks that the `nlp_wide` and `nlp_highlight` builders, driven by
 TOML, render the same SQL that the IBD study's own Python builders used to generate.
 
 - `ibd__llm_treatment_wide.sql` and `ibd__llm_treatment_highlights.sql` are **verbatim copies** of

@@ -20,15 +20,6 @@ from tests.conftest import duckdb_args
 from tests.nlp_utils import SALT_BYTES, add_doc, add_dxr, read_rows
 
 
-@pytest.fixture(autouse=True)
-def _autouse_cache_dir(mock_cache_dir):
-    """
-    Autouse this fixture to keep NLP's on-disk cache inside tmp_path.
-    Delegates to the shared ``mock_cache_dir`` fixture defined in (tests/conftest.py).
-    """
-    yield
-
-
 def test_unexpected_config_field(tmp_path, note_source):
     workflow_path = conftest.write_toml(
         tmp_path,
@@ -612,7 +603,7 @@ def test_disabling_stats(mock_client, tmp_path, mock_db_config, note_source):
 def test_failed_notes_are_counted_per_table(mock_client, tmp_path, mock_db_config):
     """A note whose call raises is counted against its own table, and only that table.
 
-    How the count is printed is covered in test_nlp_summary.py.
+    How the count is printed is covered in test_summary.py.
     """
     workflow_path = nlp_utils.make_workflow(
         tmp_path,
