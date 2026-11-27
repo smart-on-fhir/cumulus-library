@@ -46,6 +46,7 @@ mlflow = [
 ]
 dev = [
     "httpx",
+    "moto[s3] >= 5",
     # if you update the ruff version, also update .pre-commit-config.yaml
     "ruff < 0.18",
     "pre-commit",
