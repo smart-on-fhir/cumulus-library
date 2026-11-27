@@ -139,6 +139,10 @@ class NlpConfig:
         # may be repeated). Empty means "use the model name", which is what Azure defaults to.
         self.azure_deployments = args.get("azure_deployments") or []
         self.use_batching = args.get("batch_nlp", False)
+        # Bedrock batch jobs read and write their records via S3, as an IAM role Bedrock assumes.
+        # Both are required for Bedrock batching (--bedrock-batch-s3-uri, --bedrock-batch-role).
+        self.bedrock_batch_s3_uri = args.get("bedrock_batch_s3_uri")
+        self.bedrock_batch_role = args.get("bedrock_batch_role")
         self.chunksize = args.get("chunksize") or 100000
         self.clean = args.get("clean_nlp", False)
         self.phi_dir = args.get("etl_phi_dir")

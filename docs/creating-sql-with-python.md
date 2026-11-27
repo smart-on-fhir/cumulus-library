@@ -56,7 +56,7 @@ hand. This output will be generated inside your study, in a file named
 ### Working with TableBuilders
 
 We have a base
-[TableBuilder class](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/base_table_builder.py)
+[TableBuilder class](https://github.com/smart-on-fhir/cumulus-library/blob/main/cumulus_library/builders/base_table_builder.py)
 that all the above use cases leverage. At a high level, here's what it provides:
 
 - A `prepare_queries` function, which is where you put your custom logic. It
@@ -86,7 +86,7 @@ def __init__(self, *args, **kwargs):
 
 You can either extend this class directly (like `builder_*.py` files in 
 `cumulus_library/studies/core`) or create a specific class to add reusable functions
-for a repeated use case (like in `cumulus_library/statistics/counts_builder.py`).
+for a repeated use case (like in `cumulus_library/builders/counts_builder.py`).
 
 TableBuilder SQL generally should go through a template SQL generator, so that
 your SQL has been validated. If you're just working on counts, you don't need

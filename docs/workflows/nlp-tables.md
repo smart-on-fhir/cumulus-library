@@ -2,7 +2,7 @@
 title: NLP Tables
 parent: Workflows
 grand_parent: Library
-nav_order: 6
+nav_order: 5
 # audience: study authors using NLP
 # type: reference
 ---

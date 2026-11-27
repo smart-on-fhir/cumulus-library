@@ -2,7 +2,7 @@
 title: NLP
 parent: Workflows
 grand_parent: Library
-nav_order: 3
+nav_order: 4
 # audience: clinical researchers, IRB reviewers
 # type: reference
 ---
@@ -200,6 +200,8 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
   across your deployments as evenly as possible.
 - `--batch-nlp`: if set, NLP will be done in batch mode, which can take up to a day to finish, but
   will be much cheaper. Not all models support it (see [Batching](#batching)).
+- `--bedrock-batch-s3-uri=S3_URI` and `--bedrock-batch-role=ARN`: required when using
+  `--batch-nlp` with the Bedrock provider (see [Batching](#batching)).
 - `--nlp-chunksize=N`: how many notes to process before writing results out to storage
   (defaults to 100,000). In batch mode, this is also the most requests sent in a single batch.
 - `--clean-nlp`: if set, previous NLP results for the workflow will be deleted first
@@ -220,20 +222,20 @@ You can pass these to Cumulus Library when building a study and any NLP workflow
 
 #### Supported Models
 
-| `--nlp-model` | `azure` | `bedrock` | `local` |
-|---|---|---|---|
-| `claude-opus48` | | ✓ | |
-| `claude-sonnet45` | | ✓ | |
-| `claude-sonnet46` | | ✓ | |
-| `gpt-oss-120b` | ✓ | ✓ | ✓ |
-| `gpt35` | ✓ | | |
-| `gpt4` | ✓ | | |
-| `gpt4o` | ✓ (supports batching) | | |
-| `gpt5` | ✓ | | |
-| `gpt54` | ✓ | | |
-| `gpt54-mini` | ✓ | | |
-| `gpt54-nano` | ✓ | | |
-| `llama4-scout` | ✓ | ✓ | ✓ (experimental) |
+| `--nlp-model` | `azure` | `bedrock` | `local` | Batching |
+|---|---|---|---|---|
+| `claude-opus48` | | ✓ | | |
+| `claude-sonnet45` | | ✓ | | `bedrock` |
+| `claude-sonnet46` | | ✓ | | `bedrock` |
+| `gpt-oss-120b` | ✓ | ✓ | ✓ | `bedrock` |
+| `gpt35` | ✓ | | | |
+| `gpt4` | ✓ | | | |
+| `gpt4o` | ✓ | | | `azure` |
+| `gpt5` | ✓ | | | |
+| `gpt54` | ✓ | | | |
+| `gpt54-mini` | ✓ | | | |
+| `gpt54-nano` | ✓ | | | |
+| `llama4-scout` | ✓ | ✓ | ✓ (experimental) | `bedrock` |
 
 Choosing a provider that a model doesn't support stops the build with an error.
 
@@ -408,7 +410,10 @@ Each run records:
   `cost.estimated_usd`, and `runtime.*`. Of the notes with text, `notes.filtered_out` counts
   those rejected by the table's select/reject filters, `notes.already_done` counts those a
   previous run already uploaded, and `notes.considered` counts the rest. A low `considered`
-  is usually explained by one of the first two.
+  is usually explained by one of the first two. `notes.failed` counts considered notes
+  whose NLP call or result handling failed, so they are missing from the table. That includes
+  any notes dropped to rate limiting or a stalled request, which `workflow.throttle_dropped` and
+  `workflow.stuck_dropped` also count. Re-running retries them.
 - **Artifacts**: the full system prompt, user prompt, and response schema.
 
 The metric names deliberately match the ones Cumulus ETL logs, so runs from both projects can
@@ -419,8 +424,9 @@ every run. Cumulus Library makes a single pass over your notes and serves every 
 so `notes.seen` and `notes.with_text` are the same for each table by construction, `runtime.*`
 covers the whole interleaved pass rather than one table's share of it, and
 `workflow.throttle_dropped` is counted before a note is attributed to a table. Token counts and
-cost *are* genuinely per-table, as are `notes.filtered_out` and `notes.already_done`, since each
-table has its own filters and its own upload history.
+cost *are* genuinely per-table, as are `notes.filtered_out`, `notes.already_done`, and
+`notes.failed`, since each table has its own filters, its own upload history, and its own
+calls.
 
 Because results are cached in your PHI dir, re-running a workflow you have already run will show
 a run with results but zero tokens and zero cost. That is accurate: cached notes are free.
@@ -476,13 +482,47 @@ them in one go to the LLM server at a discount.
 Then you wait up to day for the results.
 So you trade predictable timing for 50% cheaper tokens.
 
-As of this writing, Cumulus Library only supports batching with the Azure provider.
-Make sure you've set up a deployment that uses batching, and then pass in the following arguments:
-`--nlp-provider=azure --azure-deployment=xxx --batch-nlp`.
+Cumulus Library supports batching with the Azure and Bedrock providers, for the models marked
+"supports batching" in [Supported Models](#supported-models).
 
 Then be prepared to wait a little bit.
 Note that the 50% discount is mitigated somewhat by the fact that batching does not use token
 caching at all. So some of that discount is lost. But overall, you'll probably save money.
+
+#### Azure
+
+Make sure you've set up a deployment that uses batching, and then pass in the following arguments:
+`--nlp-provider=azure --azure-deployment=xxx --batch-nlp`.
+
+#### Bedrock
+
+Bedrock batch jobs read their requests from S3 and write their results back to S3, so you need:
+
+- An S3 folder for Cumulus Library to stage batches in, in the same region you run Bedrock in.
+  Pass it as `--bedrock-batch-s3-uri=s3://my-bucket/some/folder`. 
+  If you're using the Cumulus default templates, this should point to a subfolder inside your PHI bucket.
+  Otherwise, make sure that the bucket you are using is approved for temporary storage of PHI.
+- An IAM service role that Bedrock can assume to read and write that folder.
+  Pass its ARN as `--bedrock-batch-role=arn:aws:iam::123456789012:role/my-batch-role`.
+  If you're using the Cumulus default AWS templates, we'll use the `cumulus-service-role-etl` role to connect to the bucket.
+  Otherwise, AWS's [batch inference permissions](https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference-permissions.html)
+  docs for how to set one up.
+- Your own AWS identity also needs permission to create and check on batch jobs
+  (`bedrock:CreateModelInvocationJob`, `bedrock:GetModelInvocationJob`, and `iam:PassRole` on
+  that role), plus permission to read, write, and delete objects in that S3 folder.
+
+For example:
+`--nlp-provider=bedrock --batch-nlp --bedrock-batch-s3-uri=s3://... --bedrock-batch-role=arn:...`
+
+Some details to be aware of:
+
+- The staged files contain your clinical note text. Cumulus Library deletes each batch's files
+  from S3 once its results are saved to your PHI dir's cache. If it can't, it will tell you.
+- Bedrock requires at least 100 notes per batch job (by default; your account quota may
+  differ). If there are fewer notes than that to send, they are sent one at a time instead,
+  at the normal price.
+- If a run gets interrupted, re-running with the same arguments picks the existing batch jobs
+  back up instead of starting new ones.
 
 ### Using a Local LLM
 

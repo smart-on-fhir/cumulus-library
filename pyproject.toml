@@ -45,17 +45,17 @@ mlflow = [
     "mlflow >= 3",
 ]
 dev = [
+    "httpx",
     # if you update the ruff version, also update .pre-commit-config.yaml
     "ruff < 0.18",
     "pre-commit",
-    # if you update the sqlfluff version, also update .pre-commit-config.yaml
-    "sqlfluff >= 3.4.2, <4.2",
     "pytest",
     "pytest-cov",
     "pytest-xdist",
-    "httpx",
-    "time-machine",
     "responses",
+    # if you update the sqlfluff version, also update .pre-commit-config.yaml
+    "sqlfluff >= 3.4.2, <4.2",
+    "time-machine",
     {include-group="mlflow"}
 ]
 

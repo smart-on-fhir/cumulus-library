@@ -12,7 +12,7 @@ from cumulus_library.builders.valueset import (
 
 
 class ValuesetBuilder(BaseTableBuilder):
-    """TableBuilder for creating PSM tables"""
+    """TableBuilder for creating valueset tables"""
 
     display_text = "Building valueset tables..."
 
