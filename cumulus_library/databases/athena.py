@@ -9,6 +9,7 @@ import collections
 import hashlib
 import os
 import pathlib
+import re
 from concurrent import futures
 
 import awswrangler
@@ -225,6 +226,11 @@ class AthenaDatabaseBackend(base.DatabaseBackend):
                 )
 
             if is_dict:
+                # Athena only allows these characters in struct field names
+                if not re.fullmatch(r"[A-Za-z0-9_.]+", field.name):
+                    raise errors.CumulusLibraryError(
+                        f"Unsupported struct field name {field.name!r} found."
+                    )
                 cols.append(f"{field.name}: {athena_type}")
             else:
                 cols.append(athena_type)

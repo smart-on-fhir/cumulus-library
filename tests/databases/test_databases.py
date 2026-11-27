@@ -83,6 +83,14 @@ DUCKDB_KWARGS = {
             [],
             pytest.raises(errors.CumulusLibraryError),
         ),
+        (
+            databases.AthenaDatabaseBackend(**ATHENA_KWARGS),
+            pyarrow.schema(
+                [pyarrow.field("struct", pyarrow.struct([("a>, b", pyarrow.string())]))]
+            ),
+            [],
+            pytest.raises(errors.CumulusLibraryError),
+        ),
     ],
 )
 def test_col_types_from_pyarrow(db, schema, expected, raises):
