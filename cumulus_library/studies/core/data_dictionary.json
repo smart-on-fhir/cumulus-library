@@ -1,0 +1,31 @@
+{
+    "fields": [
+        {
+            "name": "cnt",
+            "display": "Patient count",
+            "description": "A count of patients matching the criteria",
+            "type": "integer",
+            "overrides": {
+                "count_condition_month": {
+                    "display": "Condition count",
+                    "description": "A count of conditions matching the criteria per encounter"
+                },
+                "count_documentreference_month": {
+                    "display": "Document count",
+                    "description": "A count of documents by their unique identifier",
+                    "details": "Cancelled/entered in error documents are excluded"
+                },
+                "count_encounter_month": {
+                    "display": "Encounter count",
+                    "description": "A count of encounters matching a criteria",
+                    "details": "Non-completed encounters are excluded"
+                },
+                "count_encounter_all_types": {
+                    "display": "Encounter count",
+                    "description": "A count of encounters matching a criteria",
+                    "details": "Non-completed encounters are excluded"
+                }
+            }
+        }
+    ]
+}
