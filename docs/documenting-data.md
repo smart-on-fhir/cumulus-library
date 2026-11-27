@@ -25,18 +25,26 @@ as part of your work - it's a common approach to describing what fields in a dat
 is useful on its own when describing fields found from a data set, but becomes crucial when looking
 at values you've derived, like a computable phenotype.
 
-Cumulus supports five kinds of fields for describing items in a data dictionary:
-    - `name` : The name of the column in your tables (required)
+Cumulus supports seven kinds of fields for describing items in a data dictionary:
+    - `name` : (explicit for csvs, implicit dictionary keys for json/toml) The name of the column
+      in your tables (required)
     - `display` : A user-friendly display name
     - `description` : A brief description of what the field is meant to represent
-    - `details` : A longer description of the field, appropriate for things like describing custom values
-    - `type`: The format of the data, for use in the dashboard. One of: string, integer, float, boolean, day, week, month, year
+    - `details` : A longer description of the field, appropriate for things like describing 
+      custom values
+    - `type`: The format of the data, for use in the dashboard. One of: string, integer, float,
+      boolean, day, week, month, year
+    - `table` : csv only. A specific table to override a default column value with. If not
+      provided, it will apply to all matching columns. Blank values inherit values from the
+      study-wide row defintiion
+    - `overrides`: json/toml only. A dictionary of tables (without the study prefix) to override
+      default column data with. Supports display, description, details, and type. Blank/undefined
+      values inherit from the parent definition
 
-Note that you can only have one entry per named column, so make sure that names are unique if they don't apply to the
-same concepts
+Order of the columns does not matter. All columns other than name are optional.
 
-To use a data dictionary, just add the following line to your study's manifest, in the top section before any
-of the nested elements:
+To use a data dictionary, just add the following line to your study's manifest, in the top section
+before any of the nested elements:
 
 ```toml
 data_dictionary = "path/from/manifest/to/dictionary.csv"
@@ -46,89 +54,86 @@ You can specify a data dictionary in csv, json, or toml formats. Here's examples
 
 CSV:
 ```csv
-name,display,description,details,type
-table_name,"Table name","FHIR resource",,"string"
-column_name,"Column name","FHIR CodeableConcept","This may be a deeply nested path, depending on the location of the element in the FHIR spec","string"
-code,"Code","Coding value",,"string"
-display,"Display","Display text","When possible, consider using a known good source for this data, since it is not always consistent, depending on the EHR implementation","string"
-system,"System","Coding system",,"string"
+name,display,description,details,type,table
+resource_name,"Table name","FHIR resource",,"string",
+column_name,"Column name","FHIR CodeableConcept","This may be a deeply nested path, depending on the location of the element in the FHIR spec","string",
+code,"Code","Coding value",,"string",
+display,"Display","Display text","When possible, consider using a known good source for this data, since it is not always consistent, depending on the EHR implementation","string",
+system,"System","Coding system",,"string",
+code,,"A Coding value with a table-specific description",,,"study__count_observation"
 ```
+
+Note that JSON/TOML definitions can just leave out entries on overrides.
 
 JSON:
 ```json
 {
-    "fields": [
-        {
-            "name": "table_name",
+    "fields": {
+        "resource_name": {
             "display": "Table Name",
             "description": "FHIR resource",
-            "details": "",
             "type": "string"
         },
-        {
-            "name": "column_name",
+        "column_name":{
             "display": "Column Name",
             "description": "FHIR CodeableConcept",
             "details": "This may be a deeply nested path, depending on the location of the element in the FHIR spec",
             "type": "string"
         },
-        {
-            "name": "code",
+        "code":{
             "display": "Code",
             "description": "Coding value",
-            "details": "",
-            "type": "string"
+            "type": "string",
+            "overrides": {
+                "count_observation": {
+                    "description": "A Coding value with a table-specific description",
+                }
+            }
         },
-        {
-            "name": "display",
+        "display":{
             "display": "Display",
             "description": "Display text",
             "details": "When possible, consider using a known good source for this data, since it is not always consistent, depending on the EHR implementation",
             "type": "string"
         },
-        {
-            "name": "system",
+        "system": {
             "display": "System",
             "description": "Coding system",
-            "details": "",
             "type": "string"
         }
-    ]
+    }
 }
 ```
 
 TOML:
 ```toml
-[[fields]]
-name = "table_name"
+[fields.resource_name]
 display = "Table Name"
 description = "FHIR resource"
 details = ""
 type = "string"
 
-[[fields]]
-name = "column_name"
+[fields.column_name]
 display = "Column Name"
 description = "FHIR CodeableConcept"
 details = "This may be a deeply nested path, depending on the location of the element in the FHIR spec"
 type = "string"
 
-[[fields]]
-name = "code"
+[fields.code]
 display = "Code"
 description = "Coding value"
 details = ""
 type = "string"
+[fields.code.override.count_observation]
+description = "A Coding value with a table-specific description"
 
-[[fields]]
-name = "display"
+[fields.display]
 display = "Display"
 description = "Display text"
 details = "When possible, consider using a known good source for this data, since it is not always consistent, depending on the EHR implementation"
 type = "string"
 
-[[fields]]
-name = "system"
+[fields.system]
 display = "System"
 description = "Coding system"
 details = ""

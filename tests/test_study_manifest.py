@@ -413,58 +413,136 @@ def test_export_list(stages, stage, expected, raises, tmp_path):
 @pytest.mark.parametrize(
     "data,file_type,expected,raises",
     [
-        ("name,display\na,b", "csv", [{"display": "b", "name": "a"}], does_not_raise()),
+        ("name,display\na,b", "csv", {"a": {"display": "b"}}, does_not_raise()),
         (
-            {"fields": [{"name": "a", "display": "b"}]},
+            {"fields": {"a": {"display": "b"}}},
             "json",
-            [{"display": "b", "name": "a"}],
+            {"a": {"display": "b"}},
             does_not_raise(),
         ),
         (
-            {"fields": [{"name": "a", "display": "b"}]},
+            {"fields": {"a": {"display": "b"}}},
             "toml",
-            [{"display": "b", "name": "a"}],
+            {"a": {"display": "b"}},
+            does_not_raise(),
+        ),
+        (
+            ("name,display,description,details,type,table\na,b,c,d,string,\na,B,,,,table_name"),
+            "csv",
+            {
+                "a": {
+                    "display": "b",
+                    "description": "c",
+                    "details": "d",
+                    "type": "string",
+                    "overrides": {"table_name": {"display": "B"}},
+                }
+            },
             does_not_raise(),
         ),
         (
             {
-                "fields": [
-                    {
-                        "name": "a",
+                "fields": {
+                    "a": {
                         "display": "b",
                         "description": "c",
                         "details": "d",
                         "type": "string",
+                        "overrides": {"table_name": {"display": "B"}},
                     }
-                ]
+                }
             },
             "json",
-            [{"name": "a", "display": "b", "description": "c", "details": "d", "type": "string"}],
+            {
+                "a": {
+                    "display": "b",
+                    "description": "c",
+                    "details": "d",
+                    "type": "string",
+                    "overrides": {"table_name": {"display": "B"}},
+                }
+            },
             does_not_raise(),
         ),
         (
-            {"fields": [{"name": "a", "foo": "bar"}]},
-            "json",
-            None,
-            pytest.raises(errors.StudyManifestParsingError),
+            {
+                "fields": {
+                    "a": {
+                        "display": "b",
+                        "description": "c",
+                        "details": "d",
+                        "type": "string",
+                        "overrides": {"table_name": {"display": "B"}},
+                    }
+                }
+            },
+            "toml",
+            {
+                "a": {
+                    "display": "b",
+                    "description": "c",
+                    "details": "d",
+                    "type": "string",
+                    "overrides": {"table_name": {"display": "B"}},
+                }
+            },
+            does_not_raise(),
         ),
         (
-            {"fields": [{"name": "a", "display": "b"}]},
+            {"fields": {"a": {"foo": "bar"}}},
+            "json",
+            None,
+            pytest.raises(
+                errors.StudyManifestParsingError,
+                match="Found unexpected field 'foo' in data\\.json",
+            ),
+        ),
+        (
+            {"fields": {"a": {"display": "b"}}},
             "docx",
             None,
-            pytest.raises(errors.StudyManifestParsingError),
+            pytest.raises(
+                errors.StudyManifestParsingError, match="data\\.docx is not a supported format"
+            ),
         ),
         (
-            {"fields": [{"description": "b"}]},
+            {"fields": {"description": "b"}},
             "json",
             None,
-            pytest.raises(errors.StudyManifestParsingError),
+            pytest.raises(
+                errors.StudyManifestParsingError,
+                match="Found unexpected field 'object' in data\\.json",
+            ),
         ),
         (
-            {"fields": [{"name": "a", "type": "EnterpriseBeanFactory"}]},
+            {"fields": {"a": {"type": "EnterpriseBeanFactory"}}},
             "json",
             None,
-            pytest.raises(errors.StudyManifestParsingError),
+            pytest.raises(
+                errors.StudyManifestParsingError, match="unexpected type 'EnterpriseBeanFactory'"
+            ),
+        ),
+        (
+            ("foo,name\na,b"),
+            "csv",
+            None,
+            pytest.raises(errors.StudyManifestParsingError, match="column foo is invalid"),
+        ),
+        (
+            ("name,display,description,details,type,table\na"),
+            "csv",
+            None,
+            pytest.raises(
+                errors.StudyManifestParsingError, match="row length does not match headers"
+            ),
+        ),
+        (
+            ("name,display\n,foo"),
+            "csv",
+            None,
+            pytest.raises(
+                errors.StudyManifestParsingError, match="does not have an entry for name"
+            ),
         ),
     ],
 )

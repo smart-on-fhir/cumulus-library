@@ -27,6 +27,8 @@ DASHBOARD_TYPES = [
     "year",
 ]
 
+DATA_DICT_CSV_COLS = ["name", "table", "display", "description", "details", "type"]
+
 
 @dataclasses.dataclass(kw_only=True)
 class ManifestExport:
@@ -38,16 +40,23 @@ class ManifestExport:
 # These msgspec Structs define the expected formats for manifests & submanifests
 
 
-class DataDictionaryRow(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
-    name: str
+class DataDictionaryItemOverride(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
     display: str | None = None
     description: str | None = None
     details: str | None = None
     type: str | None = None
 
 
+class DataDictionaryItem(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
+    display: str | None = None
+    description: str | None = None
+    details: str | None = None
+    type: str | None = None
+    overrides: dict[str, DataDictionaryItemOverride] | None = None
+
+
 class DataDictionary(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
-    fields: list[DataDictionaryRow] | None = None
+    fields: dict[str, DataDictionaryItem] | None = None
 
 
 class ManifestExportTable(msgspec.Struct, forbid_unknown_fields=True, omit_defaults=True):
@@ -188,6 +197,60 @@ class StudyManifest:
             action["label"] = action["description"]
         return action
 
+    def _parse_data_dictionary_csv(self, file_buf) -> dict:
+        reader = csv.reader(file_buf)
+        headers = next(reader)
+        for header in headers:
+            if header not in DATA_DICT_CSV_COLS:
+                raise errors.StudyManifestParsingError(
+                    f"Data dictionary column {header} is invalid:\n"
+                    f"Allowed headers {', '.join(c for c in DATA_DICT_CSV_COLS)}"
+                )
+
+        data_dict = {}
+        # We're going to construct a dictionary structure from each csv row.
+        # We can't assume anything about the ordering in the csv, so we're going
+        # to be a little bit careful about how we handle construction, making sure
+        # we get items and append overrides/base columns as we go rather than just
+        # overwriting things
+        for row in reader:
+            if len(headers) != len(row):
+                raise errors.StudyManifestParsingError(
+                    "Data dictionary row length does not match headers:\n"
+                    f"Headers{headers}\n"
+                    f"Row: {row}"
+                )
+            name = ""
+            override = ""
+            record = {}
+            for pos in range(0, len(headers)):
+                header = headers[pos]
+                if header == "table":
+                    override = row[pos]
+                elif header == "name":
+                    name = row[pos]
+                    if name == "":
+                        raise errors.StudyManifestParsingError(
+                            "Data dictionary row does not have an entry for name:\n"
+                            f"{headers}\n"
+                            f"{row}"
+                        )
+                else:
+                    if row[pos] != "":
+                        record[header] = row[pos]
+            # create the base definition, assuming that an override may already exit
+            if override == "":
+                column_desc = data_dict.get(name, {})
+                for k, v in record.items():
+                    column_desc[k] = v
+                data_dict[name] = column_desc
+            # otherwise, if we've got an override, create the base if it doesn't exist
+            # and just drop the override in
+            else:
+                overrides = data_dict.setdefault(name, {}).setdefault("overrides", {})
+                overrides[override] = record
+        return {"fields": data_dict}
+
     def _load_data_dictionary(self):
         if self._study_config.get("data_dictionary") is None:
             return
@@ -195,8 +258,7 @@ class StudyManifest:
         try:
             with open(self._study_path / dict_file) as file_buf:
                 if dict_file.endswith(".csv"):
-                    reader = csv.DictReader(file_buf)
-                    data_dict = {"fields": [row for row in reader]}
+                    data_dict = self._parse_data_dictionary_csv(file_buf)
                     # we'll round trip this through json to get it through msgspec validation
                     data_dict = msgspec.json.encode(data_dict)
                     data_dict = msgspec.json.decode(data_dict, type=DataDictionary)
@@ -219,11 +281,19 @@ class StudyManifest:
                 f"Found unexpected field '{str(e).split('`')[1]}' in {dict_file}."
             )
         self._study_config["data_dictionary"] = json.loads(msgspec.json.encode(data_dict.fields))
-        if "type" in self._study_config["data_dictionary"][0].keys():
-            for row in self._study_config["data_dictionary"]:
-                if row["type"] not in DASHBOARD_TYPES:
+        for column, config in self._study_config["data_dictionary"].items():
+            type_defs = []
+            if "type" in config.keys():
+                type_defs.append(config["type"])
+            if "overrides" in config.keys():
+                for sub_v in config["overrides"].values():
+                    if "type" in sub_v.keys():
+                        type_defs.append(sub_v["type"])
+
+            for type_def in type_defs:
+                if type_def not in DASHBOARD_TYPES:
                     raise errors.StudyManifestParsingError(
-                        f"Found unexpected type '{row['type']}'' for {row['name']} in {dict_file}"
+                        f"Found unexpected type '{type_def}' for column {column}"
                     )
 
     ### toml parsing helper functions
